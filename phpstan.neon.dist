@@ -1,0 +1,31 @@
+parameters:
+  level: 5
+  phpVersion: 80200
+
+  paths:
+    - ./includes
+    - ./src
+    - ./aiwa-oral-history-recording.php
+
+  autoload_files:
+    - ./vendor/autoload.php
+
+  # Treat PHPDoc types as hints, not hard truth (more forgiving)
+  treatPhpDocTypesAsCertain: false
+
+  # Exclude folders not relevant for analysis
+  excludePaths:
+    - tests/*
+    - vendor/*
+    - node_modules/*
+    - assets/*
+    - includes/lib/*
+
+  checkMissingIterableValueType: false
+  checkGenericClassInNonGenericObjectType: false
+
+  # You can relax rules here if needed
+  ignoreErrors:
+    - '#Call to an undefined method (WP_|apply_filters|do_action|get_option|update_option|get_post).*#'
+    - '#Access to an undefined property (WP_|$post|$wpdb).*#'
+    - '#Function get_(option|post|term).* not found.#'

@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="AiWA Oral History Plugin" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
+
+  <description>Coding standards for the AiWA Oral History Recorder WordPress plugin.</description>
+
+  <!-- Paths to check -->
+  <file>.</file>
+
+  <!-- Exclude WP Core and common ignored paths -->
+  <exclude-pattern>/docroot/wp-admin/*</exclude-pattern>
+  <exclude-pattern>/docroot/wp-includes/*</exclude-pattern>
+  <exclude-pattern>/docroot/wp-*.php</exclude-pattern>
+  <exclude-pattern>/docroot/index.php</exclude-pattern>
+  <exclude-pattern>/docroot/xmlrpc.php</exclude-pattern>
+  <exclude-pattern>/docroot/wp-content/plugins/*</exclude-pattern>
+  <exclude-pattern>/vendor/*</exclude-pattern>
+  <exclude-pattern>/node_modules/*</exclude-pattern>
+  <exclude-pattern>*.min.js</exclude-pattern>
+
+  <!-- Base path normalization -->
+  <arg name="basepath" value="."/>
+
+  <!-- Run in parallel -->
+  <arg name="parallel" value="8"/>
+
+  <!-- Coding standards to include -->
+  <rule ref="WordPress-Extra"/>
+  <rule ref="WordPress-Docs"/>
+  <rule ref="Generic.Commenting.Todo"/>
+
+  <!-- Optional: Enable if PHPCompatibilityWP is installed -->
+  <!--
+  <config name="testVersion" value="7.4-"/>
+  <rule ref="PHPCompatibilityWP">
+    <include-pattern>*\.php</include-pattern>
+  </rule>
+  -->
+
+  <!-- Set WordPress version -->
+  <config name="minimum_wp_version" value="6.0"/>
+
+  <!-- Configure I18n text domain -->
+  <rule ref="WordPress.WP.I18n">
+    <properties>
+      <property name="text_domain" type="array">
+        <element value="aiwa-oral-history"/>
+      </property>
+    </properties>
+  </rule>
+
+  <!-- Prefix all globals with "aiwa" -->
+  <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+    <properties>
+      <property name="prefixes" type="array">
+        <element value="aiwa"/>
+      </property>
+    </properties>
+  </rule>
+
+  <!-- Example of test-specific sniff exclusion -->
+  <rule ref="WordPress.WP.GlobalVariablesOverride">
+    <exclude-pattern>/tests/*Test\.php</exclude-pattern>
+  </rule>
+  <rule ref="WordPress.Files.FileName">
+    <exclude-pattern>/tests/*Test\.php</exclude-pattern>
+  </rule>
+
+</ruleset>

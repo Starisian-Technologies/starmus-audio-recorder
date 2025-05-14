@@ -1,0 +1,20 @@
+# Require AiWA Core approval for all changes by default
+* @AiWA-Ai-West-Africa/aiwa-core
+
+# Linguistics team reviews language data and oral history content
+/data/ @AiWA-Ai-West-Africa/linguistics
+
+# AI & Dev Team and SPARXSTAR both review core code, scripts, and GitHub Actions
+/src/ @AiWA-Ai-West-Africa/ai-dev-team @AiWA-Ai-West-Africa/sparxstar
+/scripts/ @AiWA-Ai-West-Africa/ai-dev-team @AiWA-Ai-West-Africa/sparxstar
+/.github/workflows/ @AiWA-Ai-West-Africa/ai-dev-team @AiWA-Ai-West-Africa/sparxstar
+
+# SPARXSTAR handles all WordPress plugins and PHP-based tools
+/wp-content/ @AiWA-Ai-West-Africa/sparxstar
+/plugins/ @AiWA-Ai-West-Africa/sparxstar
+/mu-plugins/ @AiWA-Ai-West-Africa/sparxstar
+
+# Advisors provide input on documentation and policy
+README.md @AiWA-Ai-West-Africa/advisors-reviewers
+/docs/ @AiWA-Ai-West-Africa/advisors-reviewers
+/policy/ @AiWA-Ai-West-Africa/advisors-reviewers
