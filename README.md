@@ -6,11 +6,12 @@ The **Starmus Audio Recorder** is a minimalist front-end WordPress plugin for ca
 
 ## 🔥 Features
 
-- 🎙️ Native, in-browser audio recording (no external libraries)
-- 🛡️ Consent-first UX — users must opt in before recording
-- 📤 Automatically attaches audio to a hidden file input for upload
-- 📱 Lightweight, mobile-friendly, offline-capable
+- 🎙️ Native, in-browser audio recording using the native MediaRecorder API (no external libraries)
+- 🛡️ Consent-first UX — users must opt in consent checkbox, timer, and playback UI before recording
+- 📤 MP4/AAC and WebM/Opus output automatically attaches audio to a hidden file input for form upload
+- 📱 Lightweight, mobile-friendly, offline-capable works without third-party JavaScript libraries
 - 🧠 Clean codebase ready for extension (e.g., transcription, waveform, MP3 export)
+
 
 ## 📂 File Structure
 
