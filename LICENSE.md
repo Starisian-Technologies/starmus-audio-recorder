@@ -1,18 +1,18 @@
-# AiWA CONFIDENTIAL LICENSE
+# STARISIAN TECHNOLOGIES CONFIDENTIAL LICENSE
 
-© 2023–2025 Ai West Africa (AiWA), a project of Cellular Vibrations and MaximillianGroup. All Rights Reserved.
+© 2023–2025 Starisian Technologies. All Rights Reserved.
 
 ---
 
-**Ai WEST AFRICA (AiWA) CONFIDENTIAL**
+**STARISIAN TECHNOLOGIES CONFIDENTIAL**
 
-NOTICE: All information contained herein is, and remains, the property of Ai West Africa (AiWA) and its suppliers, if any. The intellectual and technical concepts contained herein are proprietary to AiWA and its suppliers and may be protected by U.S. and international copyright, trade secret, and patent laws, including patents in process.
+NOTICE: All information contained herein is, and remains, the property of Starisian Technologies and its suppliers, if any. The intellectual and technical concepts contained herein are proprietary to Starisian Technologies and its suppliers and may be protected by U.S. and international copyright, trade secret, and patent laws, including patents in process.
 
 Unauthorized reproduction, redistribution, transmission, or disclosure of any part of this repository is strictly prohibited without prior written consent from AiWA.
 
 This repository includes confidential governance documents, internal policy frameworks, cultural consent standards, and compliance materials tied to AI model development and linguistic data protection. It is made available strictly for use by:
 
-- Authorized AiWA personnel
+- Authorized Starisian Technologies personnel, partners and vendors.
 - Approved collaborators operating under NDA, MOU, or license agreement
 - Institutional or academic partners under formal written contract
 
@@ -32,10 +32,8 @@ In the event of a breach, AiWA reserves the right to pursue:
 
 ---
 
-**Contact Information**  
-AiWA / MaximillianGroup  
+## 🌐 Contact
+**Starisian Technologies**  
 815 E Street, Suite 12083  
-San Diego, CA 92101 – USA  
-
-📧 legal@aiwestafrica.com  
-📧 support@aiwestafrica.com
+San Diego, CA 92101  
+Email: [legal@starisian.com](mailto:legal@starisian.com)
