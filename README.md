@@ -24,12 +24,35 @@ starmus-audio-recorder/
     └── css/ 
         └── starmus-audio-recorder-style.css # Optional styling
 
-## 🚀 Quick Start
+   ---
 
-1. Upload to `/wp-content/plugins/starmus-audio-recorder/`
-2. Activate the plugin in WordPress
-3. Use the shortcode `[aiwa_recorder]` on any post or page
-4. Customize the UI or extend the JavaScript as needed
+## 🛠️ Installation
+1. Download or clone this repository.
+2. Place it in your WordPress `/wp-content/plugins/` directory.
+3. Activate **Starmus Audio Recorder** via the WordPress admin dashboard.
+
+To embed the recorder UI, include this HTML on your page or form:
+
+```html
+<div id="audioRecorder">
+    <label for="field_consent">
+        <input type="checkbox" id="field_consent" name="item_meta[YOUR_CONSENT_FIELD_NUMBER]" value="1">
+        I consent to the recording of this oral history.
+    </label><br>
+
+    <div class="controls">
+        <button type="button" id="recordButton">Record</button>
+        <button type="button" id="pauseButton" disabled>Pause</button>
+        <button type="button" id="playButton" disabled>Play</button>
+    </div>
+
+    <div id="timer">00:00</div>
+
+    <audio id="audioPlayer" controls></audio>
+
+    <input type="file" id="field_audio_attachment" name="item_meta[YOUR_AUDIO_UPLOAD_FIELD_NUMBER]" style="display:none;" accept="audio/*">
+</div>
+---<!-- End of embed HTML snippet -->
 
 ---
 
@@ -56,7 +79,16 @@ If you represent a nonprofit, educational institution, or grassroots effort alig
 
 ---
 
-## License & Access
+## 🔮 Future Directions
+- Offline saving and local encryption (PWA support)
+- Metadata tagging and speaker consent logging
+- Optional MP3 conversion (via FFmpeg or web worker-based transcoding)
+
+---
+
+## 📄 License
+
+**LicenseRef-Starisian-Technologies-Proprietary**
 
 This repository is governed by the [STARISIAN TECHNOLOGIES CONFIDENTIAL LICENSE](./LICENSE.md) and contains proprietary materials related to the Starisian Technologies.
 
@@ -65,17 +97,33 @@ Access to this repository is restricted. Use, reproduction, or distribution of a
 By accessing or interacting with this repository, you acknowledge and agree to the terms outlined in:
 
 - [LICENSE.md](./LICENSE.md) – Legal terms of access and enforcement jurisdiction  
-- [TERMS.md](./TERMS.md) – Project-specific ethical and operational conditions  
-- [REPOSITORY_GOVERNANCE_POLICY.md](./REPOSITORY_GOVERNANCE_POLICY.md) – Internal governance and contributor rules
+- [TERMS.md](./TERMS.md) – Project-specific ethical and operational conditions
+- ❌ **No use in surveillance, coercion, military or exploitative contexts.**
+- ✅ **Legitimate governments and NGOs engaged in cultural preservation may contact us for licensing.**
+
+> This repository is public to support creative and cultural collaboration. **If you represent a nonprofit, indigenous initiative, or youth-focused project—please
+> [support@aiwestafrica.com](mailto:support@aiwestafrica.com). We’re here to help.**
+
+---
+
+## 🤝 Ethics Statement
+Use of this software implies agreement with our ethical standards:
+
+- **No use for surveillance, coercion, or exploitative tracking**
+- **No deployment in policing, military, or intelligence contexts**
+- **Governments or institutions working on preservation, education, and oral history may request exemptions with review**
+
+For full policy details, see [ETHICS.md](ETHICS.md) or reach out.
 
 ---
 ![Starisian Technologies Logo](https://github.com/user-attachments/assets/9b9fb3b8-bda2-44d3-8fc3-caac7079c8cb)
 
 
-For questions, formal access requests, or legal inquiries, contact:  
-📩 [support@starisian.com](mailto:support@starisian.com).
-📩 [legal@starisian.com](mailto:legal@starisian.com).
-
+## 🌐 Contact
+**Starisian Technologies**  
+815 E Street, Suite 12083  
+San Diego, CA 92101  
+📩 Email: [support@aiwestafrica.com](mailto:support@aiwestafrica.com).
 
 
 
