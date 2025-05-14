@@ -1,13 +1,13 @@
-# Security Policy – AiWA Governance Repository
+# Security Policy 
 
-This document defines the security reporting and disclosure policy for the AiWA Governance Repository, which may contain culturally sensitive, ethically governed, and AI-training related data and code.
+This document defines the security reporting and disclosure policy for the Starisian Technologies, which may contain culturally sensitive, ethically governed, and AI-training related data and code.
 
 ## Reporting a Vulnerability
 
 If you discover a security vulnerability, **do not file a public issue**. Instead, please report it confidentially to our security team:
 
-- 📧 Email: [security@aiwestafrica.com](mailto:security@aiwestafrica.com)
-- 📧 Legal escalation: [legal@aiwestafrica.com](mailto:legal@aiwestafrica.com)
+- 📧 Email: [security@starisian.com](mailto:security@starisian.com)
+- 📧 Legal escalation: [legal@astarisian.com](mailto:legal@sstarisian.com)
 
 Please include:
 
@@ -29,7 +29,7 @@ We follow **coordinated disclosure**. If you report a vulnerability in good fait
 
 The following are in scope:
 
-- All repositories under [AiWA-Ai-West-Africa](https://github.com/AiWA-Ai-West-Africa)
+- All repositories under [Starisian Technologies](https://github.com/starisian-technologies)
 - Scripts or workflows used in GitHub Actions
 - Sensitive AI training data pipelines or governance mechanisms
 
@@ -43,7 +43,7 @@ The following are out of scope:
 
 Many assets in this repository are bound by **dual-consent and community governance protocols**. Unauthorized access, exfiltration, or tampering may trigger legal action under:
 
-- **California and Gambian law**
+- **California law**
 - Customary rights frameworks recognized by indigenous and oral tradition authorities
 
 Any breach involving these materials may be deemed a **cultural and legal violation**.
