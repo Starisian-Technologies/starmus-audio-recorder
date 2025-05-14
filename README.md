@@ -1,4 +1,4 @@
-![Starisian Technologies Logo](https://github.com/user-attachments/assets/9b9fb3b8-bda2-44d3-8fc3-caac7079c8cb)
+![Starmus Audio Recorder](https://github.com/user-attachments/assets/c51b26bb-f95f-4d8c-9340-dacdacca5d4f)
 
 # 🌌 Starmus Audio Recorder (WordPress Plugin)
 
@@ -75,6 +75,7 @@ By accessing or interacting with this repository, you acknowledge and agree to t
 For questions, formal access requests, or legal inquiries, contact:  
 📩 [support@starisian.com](mailto:support@starisian.com).
 📩 [legal@starisian.com](mailto:legal@starisian.com).
+
 
 
 
