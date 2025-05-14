@@ -1,0 +1,61 @@
+/**
+ * starmus-audio-recorder-style.css
+ *
+ * This stylesheet provides basic styles for the starmus audio 
+ * recorder elements used in the plugin.
+ * It defines the appearance and layout of microphone controls,
+ * recording indicators, and audio playback components.
+ * 
+ * The styles use the spaxstar_ css prefix following SPARXSTAR
+ * css code standard.
+ */
+/* Basic CSS for the audio recorder elements */
+#sparxstar_audioRecorder {
+    margin-bottom: 20px; /* Add some space below the recorder */
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+/* Style for the button container */
+.sparxstar_controls button {
+    padding: 8px 15px;
+    margin-right: 10px;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    background-color: #eee;
+    cursor: pointer;
+}
+
+/* Style for disabled buttons */
+.sparxstar_controls button:disabled {
+    background-color: #ddd;
+    color: #888;
+    cursor: not-allowed;
+}
+
+/* Style for the timer display */
+#sparxstar_timer {
+    font-size: 1.2em;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Style for the timer when in the orange zone (last 7 minutes) */
+#sparxstar_timer.orange {
+    color: orange;
+}
+
+/* Style for the timer when in the red zone (last 2 minutes) */
+#sparxstar_timer.red {
+    color: red;
+}
+
+/* Style for the audio player */
+#sparxstar_audioPlayer {
+    width: 100%; /* Make the audio player take full width of its container */
+    margin-top: 10px;
+}
