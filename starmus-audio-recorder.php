@@ -181,6 +181,6 @@ register_activation_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_act
 register_deactivation_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_deactivate' ) );
 register_uninstall_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_uninstall' ) );
 // Initialize the plugin
-add_action( 'plugins_loaded', array( 'Starmus\AudioRecorder', 'get_instance' ) );
-add_action( 'init', array( 'Starmus\AudioRecorder', 'starmus_run' ) );
+add_action( 'plugins_loaded', array( 'Starmus\AudioRecorder', 'starmus_run' ) );
+
 
