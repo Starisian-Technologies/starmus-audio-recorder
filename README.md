@@ -34,7 +34,7 @@ starmus-audio-recorder/
 
 To embed the recorder UI, include this HTML on your page or form:
 
-```html
+```html 
 <div id="audioRecorder">
     <label for="field_consent">
         <input type="checkbox" id="field_consent" name="item_meta[YOUR_CONSENT_FIELD_NUMBER]" value="1">
@@ -53,7 +53,7 @@ To embed the recorder UI, include this HTML on your page or form:
 
     <input type="file" id="field_audio_attachment" name="item_meta[YOUR_AUDIO_UPLOAD_FIELD_NUMBER]" style="display:none;" accept="audio/*">
 </div>
----<!-- End of embed HTML snippet -->
+```
 
 ---
 
@@ -117,14 +117,14 @@ Use of this software implies agreement with our ethical standards:
 For full policy details, see [ETHICS.md](ETHICS.md) or reach out.
 
 ---
-![Starisian Technologies Logo](https://github.com/user-attachments/assets/9b9fb3b8-bda2-44d3-8fc3-caac7079c8cb)
 
 
 ## 🌐 Contact
 **Starisian Technologies**  
 815 E Street, Suite 12083  
 San Diego, CA 92101  
-📩 Email: [support@aiwestafrica.com](mailto:support@aiwestafrica.com).
+
+📩 Email: [support@starisian.com](mailto:support@starisian.com).
 
 
 
