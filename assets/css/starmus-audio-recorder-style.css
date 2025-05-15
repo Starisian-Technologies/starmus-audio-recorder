@@ -1,77 +1,101 @@
 /**
  * starmus-audio-recorder-style.css
- *
- * This stylesheet provides basic styles for the starmus audio 
- * recorder elements used in the plugin.
- * It defines the appearance and layout of microphone controls,
- * recording indicators, and audio playback components.
- * 
- * The styles use the spaxstar_ css prefix following SPARXSTAR
- * css code standard.
  */
-/* Basic CSS for the audio recorder elements */
-#sparxstar_audioRecorder {
-    margin-bottom: 20px; /* Add some space below the recorder */
+
+/* Main wrapper for the entire audio recorder component */
+.sparxstar-audioWrapper { /* Assuming outer wrapper has this class */
+    margin-bottom: 20px;
     padding: 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #f9f9f9;
 }
 
-/* Style for the button container */
-.sparxstar_controls button {
+/* Specific region containing the recorder UI elements */
+/* #sparxstar_audioRecorder { /* This ID is on the inner region div, can be used too */
+    /* Styles specific to the inner content area if needed */
+/* } */
+
+/* Controls container */
+.sparxstar_recorderControls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px; /* Space after the controls */
+}
+
+/* General style for all recorder buttons */
+.sparxstar_button {
     padding: 8px 15px;
-    margin-right: 10px;
     border: 1px solid #aaa;
     border-radius: 3px;
     background-color: #eee;
     cursor: pointer;
+    font-family: inherit; /* Inherit font from page */
+    font-size: inherit; /* Inherit font size */
 }
 
-/* Style for disabled buttons */
-.sparxstar_controls button:disabled {
+.sparxstar_button:disabled {
     background-color: #ddd;
     color: #888;
     cursor: not-allowed;
 }
 
+.sparxstar_button:focus-visible {
+    outline: 2px solid dodgerblue; /* Or your theme's focus color */
+    outline-offset: 2px;
+}
+
 /* Style for the timer display */
-#sparxstar_timer {
+.sparxstar_timer { /* Or #sparxstar_timer if using ID */
     font-size: 1.2em;
     margin-top: 10px;
     margin-bottom: 10px;
     font-weight: bold;
-    color: #333;
+    color: #333; /* This is your DEFAULT color */
 }
 
 /* Style for the timer when in the orange zone (last 7 minutes) */
-#sparxstar_timer.orange {
+.sparxstar_timer.orange { /* Or #sparxstar_timer.orange */
     color: orange;
 }
 
 /* Style for the timer when in the red zone (last 2 minutes) */
-#sparxstar_timer.red {
+.sparxstar_timer.red { /* Or #sparxstar_timer.red */
     color: red;
 }
-
-/* Style for the audio player */
-#sparxstar_audioPlayer {
-    width: 100%; /* Make the audio player take full width of its container */
+/* Audio Player */
+.sparxstar_audioPlayer { /* Assuming HTML uses class="sparxstar_audioPlayer" */
+    width: 100%;
     margin-top: 10px;
 }
 
-/* Style for the audio level indicator */
-#sparxstar_audioLevelWrap {
-  height: 8px;
-  background: #ddd;
+/* Audio Level Meter */
+.sparxstar_audioLevelWrap { /* Assuming HTML uses class="sparxstar_audioLevelWrap" */
+  height: 8px; /* Slimmer horizontal bar */
+  background: #e0e0e0; /* Slightly different background */
   border-radius: 4px;
-  overflow: hidden;
+  overflow: hidden; /* Important for the inner bar's rounded corners if any */
   margin-top: 10px;
+  margin-bottom: 15px; /* Consistent spacing */
 }
 
-#sparxstar_audioLevelBar {
+.sparxstar_audioLevelBar { /* Assuming HTML uses class="sparxstar_audioLevelBar" */
   height: 100%;
-  width: 0%;
-  background-color: #4caf50;
-  transition: width 0.1s linear;
+  width: 0%; /* Initial width */
+  background-color: #4caf50; /* Green for positive indication */
+  transition: width 0.05s linear; /* Slightly faster transition for responsiveness */
+}
+
+/* Visually hidden class (for status messages, etc.) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

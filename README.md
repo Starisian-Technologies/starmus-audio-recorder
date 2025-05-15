@@ -1,130 +1,141 @@
 ![Starmus Audio Recorder](https://github.com/user-attachments/assets/c51b26bb-f95f-4d8c-9340-dacdacca5d4f)
 
-# 🌌 Starmus Audio Recorder (WordPress Plugin)
+# **✨ Starmus Audio Recorder (WordPress Plugin)**
 
-The **Starmus Audio Recorder** is a minimalist front-end WordPress plugin for capturing **oral histories, vocals, or field recordings** using the browser’s built-in **MediaRecorder API**. Named after the iconic **Starmus Festival**, where rock legends and astrophysicists share the stage, this tool is built for creators and communities who believe voice has gravity.
+The **Starmus Audio Recorder** is a minimalist front-end WordPress plugin for capturing oral histories, vocals, or field recordings using the browser’s built-in MediaRecorder API.
 
-## 🔥 Features
+Named after the iconic **Starmus Festival**, where rock legends and astrophysicists share the stage, this tool is built for creators and communities who believe **voice has gravity**.
 
-- 🎙️ Native, in-browser audio recording using the native MediaRecorder API (no external libraries)
-- 🛡️ Consent-first UX — users must opt in consent checkbox, timer, and playback UI before recording
-- 📤 MP4/AAC and WebM/Opus output automatically attaches audio to a hidden file input for form upload
-- 📱 Lightweight, mobile-friendly, offline-capable works without third-party JavaScript libraries
-- 🧠 Clean codebase ready for extension (e.g., transcription, waveform, MP3 export)
+---
 
+## **🔥 Features**
 
-## 📂 File Structure
+* 🎤 **Native, in-browser recording** using the MediaRecorder API (no external libraries)
 
-starmus-audio-recorder/
-├── starmus-audio-recorder.php # Plugin loader, shortcode, asset enqueuing
-├── templates/
-|   └── starmus-audio-recorder-ui.html # Consent checkbox, recorder controls, audio preview, file input
-└── Assets/
-    └── js/
-    |   └── starmus-audio-recorder.js # JavaScript using MediaRecorder API
-    └── css/ 
-        └── starmus-audio-recorder-style.css # Optional styling
+* 🛡️ **Consent-first UX** — checkbox, timer, and playback before upload
 
-   ---
+* 📤 **MP4/AAC & WebM/Opus output** automatically attached to form
 
-## 🛠️ Installation
+* 📱 **Mobile-friendly, PWA-capable**, no 3rd-party dependencies
+
+* 🧠 **Clean JS** codebase ready for extensions (transcription, waveform, MP3 export)
+
+---
+
+## **📂 File Structure**
+
+starmus-audio-recorder/  
+├── starmus-audio-recorder.php         \# Plugin loader, shortcode, enqueuing  
+├── templates/  
+│   └── starmus-audio-recorder-ui.html \# Recorder UI HTML  
+├── assets/  
+│   ├── js/  
+│   │   └── starmus-audio-recorder.js  \# MediaRecorder API logic  
+│   └── css/  
+│       └── starmus-audio-recorder-style.css \# Styling (optional)
+
+---
+
+## **🛠️ Installation**
+
 1. Download or clone this repository.
-2. Place it in your WordPress `/wp-content/plugins/` directory.
-3. Activate **Starmus Audio Recorder** via the WordPress admin dashboard.
 
-To embed the recorder UI, include this HTML on your page or form:
+2. Place it in your `/wp-content/plugins/` directory.
 
-```html 
-<div id="audioRecorder">
-    <label for="field_consent">
-        <input type="checkbox" id="field_consent" name="item_meta[YOUR_CONSENT_FIELD_NUMBER]" value="1">
-        I consent to the recording of this oral history.
-    </label><br>
+3. Activate **Starmus Audio Recorder** in WordPress admin.
 
-    <div class="controls">
-        <button type="button" id="recordButton">Record</button>
-        <button type="button" id="pauseButton" disabled>Pause</button>
-        <button type="button" id="playButton" disabled>Play</button>
-    </div>
+4. Embed the UI using shortcode or insert this HTML:
 
-    <div id="timer">00:00</div>
+\<div id="audioRecorder"\>  
+  \<label for="field\_consent"\>  
+    \<input type="checkbox" id="field\_consent" name="item\_meta\[YOUR\_CONSENT\_FIELD\_NUMBER\]" value="1"\>  
+    I consent to the recording of this oral history.  
+  \</label\>\<br\>
 
-    <audio id="audioPlayer" controls></audio>
+  \<div class="controls"\>  
+    \<button type="button" id="recordButton"\>Record\</button\>  
+    \<button type="button" id="pauseButton" disabled\>Pause\</button\>  
+    \<button type="button" id="playButton" disabled\>Play\</button\>  
+  \</div\>
 
-    <input type="file" id="field_audio_attachment" name="item_meta[YOUR_AUDIO_UPLOAD_FIELD_NUMBER]" style="display:none;" accept="audio/*">
-</div>
-```
+  \<div id="timer"\>00:00\</div\>  
+  \<audio id="audioPlayer" controls\>\</audio\>
 
----
-
-### Made for creators. Built for culture. Inspired by the stars. 
-
-## 🌠 Why "Starmus"?
-
-The name **Starmus** pays tribute to the [Starmus Festival](https://www.starmus.com/), founded by astrophysicist **Dr. Garik Israelian** and **Dr. Brian May** — the legendary guitarist of Queen and a PhD in astrophysics. Starmus is where **stellar science and cosmic sound converge**, bringing together visionaries like **Professor Stephen Hawking**, **Peter Gabriel**, astronauts, Nobel laureates, and iconic musicians.
-
-This plugin, like the festival, is a bridge between **voice and vision**, built to capture **human expression** — whether it's an oral history from a rural village or a voice memo beneath the stars.
-
-**Starmus Audio Recorder** is a small tool with a big mission: preserving stories, song, and spirit in their purest form.
-
+  \<input type="file" id="field\_audio\_attachment" name="item\_meta\[YOUR\_AUDIO\_UPLOAD\_FIELD\_NUMBER\]" style="display:none;" accept="audio/\*"\>  
+  \<input type="hidden" name="audio\_uuid"\>  
+\</div\>
 
 ---
 
-### 🤝 Creative and Cultural Projects Welcome
+## **🚀 Why "Starmus"?**
 
-Although this software is released under a restricted proprietary license, we actively support projects that center on **creative expression**, **cultural preservation**, **oral history**, or **community storytelling**.
+Starmus honors the **Starmus Festival** founded by Dr. Garik Israelian and **Dr. Brian May** (guitarist of Queen \+ astrophysicist).
 
-If you represent a nonprofit, educational institution, or grassroots effort aligned with these values — especially in underrepresented regions — please reach out. We're happy to explore **free or discounted licensing** and **collaborative support**.
+Where **science meets sound**, this plugin captures that same cosmic energy — whether it’s a voice memo beneath the stars or an oral history from a rural village.
 
-📩 Contact us at [support@aiwestafrica.com](mailto:support@aiwestafrica.com).
-
----
-
-## 🔮 Future Directions
-- Offline saving and local encryption (PWA support)
-- Metadata tagging and speaker consent logging
-- Optional MP3 conversion (via FFmpeg or web worker-based transcoding)
+**Starmus Audio Recorder** is a small tool with a **big mission**: to preserve stories, songs, and spirit in their purest form.
 
 ---
 
-## 📄 License
+## **🤝 Cultural & Creative Projects Welcome**
+
+While this plugin is released under a restricted proprietary license, we actively **support nonprofit, educational, and cultural storytelling** projects.
+
+If you're working in **underserved communities** or preserving oral traditions, reach out. We’re happy to explore **free or discounted licensing**.
+
+**📧 Contact: support@aiwestafrica.com**
+
+---
+
+## **🔮 Future Directions**
+
+* Offline saving & encryption (PWA)
+
+* Metadata tagging & speaker consent logging
+
+* Optional MP3 conversion via WebAssembly
+
+---
+
+## **📄 License**
 
 **LicenseRef-Starisian-Technologies-Proprietary**
 
-This repository is governed by the [STARISIAN TECHNOLOGIES CONFIDENTIAL LICENSE](./LICENSE.md) and contains proprietary materials related to the Starisian Technologies.
+This software is governed by the **Starisian Technologies Confidential License**. Unauthorized use or distribution is strictly prohibited.
 
-Access to this repository is restricted. Use, reproduction, or distribution of any materials herein without explicit written consent from Starisian Technologies is strictly prohibited and may result in legal action.
+By accessing this repo, you accept:
 
-By accessing or interacting with this repository, you acknowledge and agree to the terms outlined in:
+* LICENSE.md — legal terms, jurisdiction
 
-- [LICENSE.md](./LICENSE.md) – Legal terms of access and enforcement jurisdiction  
-- [TERMS.md](./TERMS.md) – Project-specific ethical and operational conditions
-- ❌ **No use in surveillance, coercion, military or exploitative contexts.**
-- ✅ **Legitimate governments and NGOs engaged in cultural preservation may contact us for licensing.**
+* TERMS.md — ethics, allowed use
 
-> This repository is public to support creative and cultural collaboration. **If you represent a nonprofit, indigenous initiative, or youth-focused project—please
-> [support@aiwestafrica.com](mailto:support@aiwestafrica.com). We’re here to help.**
+**Not allowed:** surveillance, coercion, military use.  
+ **Encouraged:** oral history, education, culture, community voice.
 
 ---
 
-## 🤝 Ethics Statement
-Use of this software implies agreement with our ethical standards:
+## **📰 Ethics & Governance**
 
-- **No use for surveillance, coercion, or exploitative tracking**
-- **No deployment in policing, military, or intelligence contexts**
-- **Governments or institutions working on preservation, education, and oral history may request exemptions with review**
+You must adhere to these standards:
 
-For full policy details, see [ETHICS.md](ETHICS.md) or reach out.
+* No use in surveillance or coercion
+
+* No use by military, police, or intelligence agencies
+
+* Exemptions may be granted for verified educational/cultural programs
+
+Full details in `ETHICS.md` or by request.
 
 ---
 
+## **🌍 Contact**
 
-## 🌐 Contact
 **Starisian Technologies**  
-815 E Street, Suite 12083  
-San Diego, CA 92101  
+ 815 E Street, Suite 12083  
+ San Diego, CA 92101  
+ **Email:** support@starisian.com
 
-📩 Email: [support@starisian.com](mailto:support@starisian.com).
+---
 
-
+**Made for creators. Built for culture. Inspired by the stars.**
 

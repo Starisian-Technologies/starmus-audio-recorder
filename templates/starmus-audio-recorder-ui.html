@@ -1,55 +1,41 @@
 <!--
   Starmus Audio Recorder UI
   This HTML is designed to work with mic-recorder-wrapper.js and uses the native MediaRecorder API.
-  It enables a user to record audio in-browser, with consent, and attach the file to a hidden form field for submission.
+  It enables a user to record audio in-browser.
+  The JavaScript (starmus-audio-recorder.js) is responsible for handling the recorded audio data
+  for playback and any subsequent submission or processing.
 -->
 
-<div id="sparxstar_audioRecorder">
-    <!-- Consent Checkbox -->
-    <!-- This must be checked by the user before recording is allowed -->
-    <label for="field_consent">
-        <input
-            type="checkbox"
-            id="field_consent"
-            name="item_meta[YOUR_CONSENT_FIELD_NUMBER]"
-            value="1"
-        >
-        I consent to the recording of this oral history.
-    </label><br>
+<div id="starmus_audioWrapper" class="sparxstar-audioWrapper" data-enabled-recorder>
+    <h2 id="sparxstar_audioRecorderHeading" class="sparxstar-h2">Audio Recorder</h2>
+    <div id="sparxstar_audioRecorder" class="sparxstar_audioRecorder" role="region" aria-labelledby="sparxstar_audioRecorderHeading">
 
-    <!-- Recorder Controls -->
-    <!-- These buttons are wired to JS handlers for controlling the recording session -->
-    <div class="sparxstar_controls">
-        <button type="button" id="recordButton">Record</button>
-        <button type="button" id="pauseButton" disabled>Pause</button>
-        <button type="button" id="playButton" disabled>Play</button>
+        <!-- Recorder Controls -->
+        <div class="sparxstar_recorderControls" role="group" aria-label="Recording controls">
+            <button type="button" id="recordButton" class="sparxstar_button">Record</button>
+            <button type="button" id="pauseButton" class="sparxstar_button" disabled>Pause</button>
+            <button type="button" id="playButton" class="sparxstar_button" disabled>Play</button>
+        </div>
+
+        <!-- Volume Meter -->
+        <div id="sparxstar_audioLevelWrap" class="sparxstar_audioLevelWrap" aria-hidden="true">
+            <div id="sparxstar_audioLevelBar"
+                 class="sparxstar_audioLevelBar"
+                 role="meter"
+                 aria-valuenow="0"
+                 aria-valuemin="0"
+                 aria-valuemax="100"
+                 aria-label="Microphone input level"></div>
+        </div>
+
+        <!-- Optional Status Message -->
+        <div id="sparxstar_status" role="status" aria-live="polite" class="visually-hidden"></div>
+
+        <!-- Timer Display -->
+        <div id="sparxstar_timer" class="sparxstar_timer" role="timer" aria-live="polite">00:00</div>
+
+        <!-- Audio Playback -->
+        <audio id="sparxstar_audioPlayer" class="sparxstar_audioPlayer" controls aria-label="Recorded audio preview"></audio>
+
     </div>
-
-    <!-- Volume Meter -->
-    <!-- Displays the current volume level during recording -->
-   <div id="sparxstar_audioLevelWrap" style="height: 60px; width: 10px; background: #ddd; margin: 1em auto;">
-        <div id="sparxstar_audioLevelBar" style="width: 100%; background: green; height: 0%; transition: height 0.1s;"></div>
-    </div>
-
-    <!-- Timer Display -->
-    <!-- Shows countdown from 20 minutes; turns orange/red as time runs out -->
-    <div id="sparxstar_timer">00:00</div>
-
-    <!-- Audio Playback -->
-    <!-- Allows the user to listen to their recorded audio before submission -->
-    <audio id="sparxstar_audioPlayer" controls></audio>
-
-    <!-- Hidden File Input for Upload -->
-    <!-- JS script injects the recorded audio blob into this field for form submission -->
-    <input
-        type="file"
-        id="field_audio_attachment"
-        class="sparxstar_hidden"
-        name="item_meta[YOUR_AUDIO_UPLOAD_FIELD_NUMBER]"
-        style="display:none;"
-        accept="audio/*"
-    >
 </div>
-<!--
-  Note: Replace YOUR_CONSENT_FIELD_NUMBER and YOUR_AUDIO_UPLOAD_FIELD_NUMBER with the actual field numbers from your system.
-  The JavaScript file mic-recorder-wrapper.js should handle the recording logic and file attachment. -->
