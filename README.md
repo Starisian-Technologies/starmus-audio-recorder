@@ -46,25 +46,58 @@ starmus-audio-recorder/
 
 4. Embed the UI using shortcode or insert this HTML:
 
-\<div id="audioRecorder"\>  
-  \<label for="field\_consent"\>  
-    \<input type="checkbox" id="field\_consent" name="item\_meta\[YOUR\_CONSENT\_FIELD\_NUMBER\]" value="1"\>  
-    I consent to the recording of this oral history.  
-  \</label\>\<br\>
+```html
+<!--
+  Starmus Audio Recorder UI
+  This HTML is designed to work with starmus-audio-recorder.js and uses the native MediaRecorder API.
+  It enables a user to record audio in-browser.
+  The JavaScript is responsible for handling the recorded audio data
+  for playback and submission via the form fields below.
+-->
 
-  \<div class="controls"\>  
-    \<button type="button" id="recordButton"\>Record\</button\>  
-    \<button type="button" id="pauseButton" disabled\>Pause\</button\>  
-    \<button type="button" id="playButton" disabled\>Play\</button\>  
-  \</div\>
+<div id="starmus_audioWrapper" class="sparxstar-audioWrapper" data-enabled-recorder>
+    <h2 id="sparxstar_audioRecorderHeading" class="sparxstar-h2">Audio Recorder</h2>
+    <div id="sparxstar_audioRecorder" class="sparxstar_audioRecorder" role="region" aria-labelledby="sparxstar_audioRecorderHeading">
 
-  \<div id="timer"\>00:00\</div\>  
-  \<audio id="audioPlayer" controls\>\</audio\>
+        <!-- Consent Checkbox -->
+        <label for="field_consent">
+            <input type="checkbox" id="field_consent" name="item_meta[YOUR_CONSENT_FIELD_NUMBER]" value="1" required>
+            I consent to the recording and submission of this oral history.
+        </label>
 
-  \<input type="file" id="field\_audio\_attachment" name="item\_meta\[YOUR\_AUDIO\_UPLOAD\_FIELD\_NUMBER\]" style="display:none;" accept="audio/\*"\>  
-  \<input type="hidden" name="audio\_uuid"\>  
-\</div\>
+        <!-- Recorder Controls -->
+        <div class="sparxstar_recorderControls" role="group" aria-label="Recording controls">
+            <button type="button" id="recordButton" class="sparxstar_button">Record</button>
+            <button type="button" id="pauseButton" class="sparxstar_button" disabled>Pause</button>
+            <button type="button" id="playButton" class="sparxstar_button" disabled>Play</button>
+        </div>
 
+        <!-- Volume Meter -->
+        <div id="sparxstar_audioLevelWrap" class="sparxstar_audioLevelWrap" aria-hidden="true">
+            <div id="sparxstar_audioLevelBar"
+                 class="sparxstar_audioLevelBar"
+                 role="meter"
+                 aria-valuenow="0"
+                 aria-valuemin="0"
+                 aria-valuemax="100"
+                 aria-label="Microphone input level"></div>
+        </div>
+
+        <!-- Optional Status Message -->
+        <div id="sparxstar_status" role="status" aria-live="polite" class="visually-hidden"></div>
+
+        <!-- Timer Display -->
+        <div id="sparxstar_timer" class="sparxstar_timer" role="timer" aria-live="polite">00:00</div>
+
+        <!-- Audio Playback -->
+        <audio id="sparxstar_audioPlayer" class="sparxstar_audioPlayer" controls aria-label="Recorded audio preview"></audio>
+
+        <!-- Hidden Form Fields -->
+        <input type="file" name="item_meta[YOUR_AUDIO_UPLOAD_FIELD_NUMBER]" accept="audio/*" style="display:none;">
+        <input type="hidden" name="audio_uuid">
+    </div>
+</div>
+```
 ---
 
 ## **🚀 Why "Starmus"?**
