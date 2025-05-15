@@ -20,6 +20,16 @@
  * 
  * If these fields are missing, the script logs a warning and continues without breaking.
  * This keeps the recorder modular and compatible with dynamic form systems.
+ *  
+ * RATIONALE:
+ * - Keeps the recorder UI modular and presentation-focused.
+ * - Avoids hardcoding field names or HTML structures that vary by form plugin.
+ * - Ensures compatibility across WordPress multisite and dynamic form configurations.
+ *
+ * BEHAVIOR:
+ * - If these fields are not found on the page, the script logs a warning.
+ * - Recording still works locally (timer, playback, visualization) but will not attach data to a form.
+ * - This fail-soft pattern allows flexible integration without breaking user experience.
  */
 document.addEventListener('DOMContentLoaded', function () {
   const container = document.querySelector('[data-enabled-recorder]');

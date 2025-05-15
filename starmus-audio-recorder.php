@@ -125,14 +125,17 @@ final class AudioRecorder {
 	}
 
 	public function enqueue_assets(): void {
-		/*$allowed_pages = apply_filters( 'starmus_audio_recorder_allowed_pages', array( 'submit-oral-history', 'test' ) );
-		if ( ! is_page( $allowed_pages ) ) {
-			return;
-		}*/
+		 // --- TEMPORARY DEBUGGING ---
+		error_log('Starmus Plugin URL: ' . $this->plugin_url);
+		$js_url = $this->plugin_url . 'assets/js/starmus-audio-recorder.min.js';
+		$css_url = $this->plugin_url . 'assets/css/starmus-audio-recorder-style.min.css';
+		error_log('Starmus JS URL: ' . $js_url);
+		error_log('Starmus CSS URL: ' . $css_url);
+		// --- END TEMPORARY DEBUGGING ---
 
 		wp_enqueue_script(
 			'starmus-audio-recorder',
-			$this->plugin_url . 'assets/js/starmus-audio-recorder.min.js',
+			$js_url,
 			array(),
 			self::VERSION,
 			true
@@ -140,7 +143,7 @@ final class AudioRecorder {
 
 		wp_enqueue_style(
 			'starmus-audio-recorder-style',
-			$this->plugin_url . 'assets/css/starmus-audio-recorder-style.min.css',
+			$css_url,
 			array(),
 			self::VERSION
 		);
