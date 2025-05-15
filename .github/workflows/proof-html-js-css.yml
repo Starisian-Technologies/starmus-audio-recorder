@@ -1,0 +1,36 @@
+name: Proof HTML, Lint JS & CSS
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Validate HTML (templates folder)
+        uses: anishathalye/proof-html@v1.1.0
+        with:
+          directory: ./templates
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm install eslint stylelint stylelint-config-standard --save-dev
+
+      - name: Lint JavaScript
+        run: |
+          npx eslint assets/js/**/*.js
+
+      - name: Lint CSS
+        run: |
+          npx stylelint assets/css/**/*.css

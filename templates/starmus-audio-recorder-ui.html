@@ -4,7 +4,7 @@
   It enables a user to record audio in-browser, with consent, and attach the file to a hidden form field for submission.
 -->
 
-<div id="audioRecorder">
+<div id="sparxstar_audioRecorder">
     <!-- Consent Checkbox -->
     <!-- This must be checked by the user before recording is allowed -->
     <label for="field_consent">
@@ -19,25 +19,32 @@
 
     <!-- Recorder Controls -->
     <!-- These buttons are wired to JS handlers for controlling the recording session -->
-    <div class="controls">
+    <div class="sparxstar_controls">
         <button type="button" id="recordButton">Record</button>
         <button type="button" id="pauseButton" disabled>Pause</button>
         <button type="button" id="playButton" disabled>Play</button>
     </div>
 
+    <!-- Volume Meter -->
+    <!-- Displays the current volume level during recording -->
+   <div id="sparxstar_audioLevelWrap" style="height: 60px; width: 10px; background: #ddd; margin: 1em auto;">
+        <div id="sparxstar_audioLevelBar" style="width: 100%; background: green; height: 0%; transition: height 0.1s;"></div>
+    </div>
+
     <!-- Timer Display -->
     <!-- Shows countdown from 20 minutes; turns orange/red as time runs out -->
-    <div id="timer">00:00</div>
+    <div id="sparxstar_timer">00:00</div>
 
     <!-- Audio Playback -->
     <!-- Allows the user to listen to their recorded audio before submission -->
-    <audio id="audioPlayer" controls></audio>
+    <audio id="sparxstar_audioPlayer" controls></audio>
 
     <!-- Hidden File Input for Upload -->
     <!-- JS script injects the recorded audio blob into this field for form submission -->
     <input
         type="file"
         id="field_audio_attachment"
+        class="sparxstar_hidden"
         name="item_meta[YOUR_AUDIO_UPLOAD_FIELD_NUMBER]"
         style="display:none;"
         accept="audio/*"

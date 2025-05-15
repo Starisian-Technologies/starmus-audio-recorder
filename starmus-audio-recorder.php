@@ -34,8 +34,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Class AudioRecorder
+ *
+ * Handles audio recording functionalities for the Starmus Audio Recorder WordPress plugin.
+ * This class is declared as final and cannot be extended.
+ *
+ * @package StarmusAudioRecorder
+ */
 final class AudioRecorder {
-	const VERSION = '0.4.0';
+	/**
+	 * Plugin version constant.
+	 *
+	 * Represents the current version of the Starmus Audio Recorder plugin.
+	 *
+	 * @var string
+	 */
+	const VERSION = '0.1.0';
 	const MINIMUM_PHP_VERSION = '7.2';
 	const MINIMUM_WP_VERSION = '5.2';
 
@@ -56,6 +71,11 @@ final class AudioRecorder {
 		$this->register_hooks();
 	}
 
+	/**
+	 * Retrieves the singleton instance of the AudioRecorder class.
+	 *
+	 * @return AudioRecorder The single instance of the AudioRecorder.
+	 */
 	public static function get_instance(): AudioRecorder {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -76,6 +96,14 @@ final class AudioRecorder {
 		return true;
 	}
 
+	/**
+	 * Displays an admin notice regarding compatibility issues.
+	 *
+	 * This method outputs a notice in the WordPress admin area to inform users about
+	 * compatibility concerns related to the plugin or its environment.
+	 *
+	 * @return void
+	 */
 	public function admin_notice_compatibility(): void {
 		echo '<div class="notice notice-error"><p>';
 		if ( version_compare( PHP_VERSION, self::MINIMUM_PHP_VERSION, '<' ) ) {
@@ -93,13 +121,14 @@ final class AudioRecorder {
 
 	private function register_hooks(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+
 	}
 
 	public function enqueue_assets(): void {
-		$allowed_pages = apply_filters( 'starmus_audio_recorder_allowed_pages', array( 'submit-oral-history', 'test' ) );
+		/*$allowed_pages = apply_filters( 'starmus_audio_recorder_allowed_pages', array( 'submit-oral-history', 'test' ) );
 		if ( ! is_page( $allowed_pages ) ) {
 			return;
-		}
+		}*/
 
 		wp_enqueue_script(
 			'starmus-audio-recorder',
@@ -117,6 +146,14 @@ final class AudioRecorder {
 		);
 	}
 
+	/**
+	 * Executes the main functionality of the Starmus Audio Recorder plugin.
+	 *
+	 * This static method is the entry point for running the plugin's core logic.
+	 * It should be called to initialize and start the audio recording features.
+	 *
+	 * @return void
+	 */
 	public static function starmus_run(): void {
 		if (
 			! isset( $GLOBALS['Starmus\AudioRecorder'] ) ||
@@ -143,5 +180,7 @@ final class AudioRecorder {
 register_activation_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_activate' ) );
 register_deactivation_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_deactivate' ) );
 register_uninstall_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_uninstall' ) );
+// Initialize the plugin
+add_action( 'plugins_loaded', array( 'Starmus\AudioRecorder', 'get_instance' ) );
+add_action( 'init', array( 'Starmus\AudioRecorder', 'starmus_run' ) );
 
-Starmus\AudioRecorder::starmus_run();

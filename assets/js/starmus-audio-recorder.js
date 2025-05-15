@@ -20,6 +20,8 @@
  * - Audio player (ID: 'audioPlayer')
  * - Consent checkbox (ID: 'field_consent')
  * - File input for audio attachment (ID: 'field_audio_attachment')
+ * - Audio level meter wrapper (ID: 'sparxstar_audioLevelWrap')
+ * - Audio level meter bar (ID: 'sparxstar_audioLevelBar')
  * 
  * Constants:
  * - MAX_RECORDING_TIME: Maximum allowed recording time in milliseconds (20 minutes).
@@ -36,6 +38,7 @@
  * - startRecording(): Initiates audio recording with permission and consent checks.
  * - stopRecording(): Stops or finalizes the recording.
  * - setupRecorder(): Initializes UI and permission checks on page load.
+ * - animateBar(): Animates the audio level meter based on microphone input.
  * 
  * Event Listeners:
  * - Record button: Starts or stops recording.
@@ -47,11 +50,11 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
-  const recordButton = document.getElementById('recordButton');
-  const pauseButton = document.getElementById('pauseButton');
-  const playButton = document.getElementById('playButton');
-  const timerDisplay = document.getElementById('timer');
-  const audioPlayer = document.getElementById('audioPlayer');
+  const recordButton = document.getElementById('sparxstar_recordButton') || document.getElementById('recordButton');
+  const pauseButton = document.getElementById('sparxstar_pauseButton') || document.getElementById('pauseButton');
+  const playButton = document.getElementById('sparxstar_playButton') || document.getElementById('playButton');
+  const timerDisplay = document.getElementById('sparxstar_timer') || document.getElementById('timer');
+  const audioPlayer = document.getElementById('sparxstar_audioPlayer') || document.getElementById('audioPlayer');
   const audioAttachmentFieldId = 'field_audio_attachment';
   const consentCheckboxId = 'field_consent';
   const MAX_RECORDING_TIME = 1200000;
@@ -75,6 +78,27 @@ document.addEventListener('DOMContentLoaded', function () {
   let timerInterval;
   let isRecording = false;
   let isPaused = false;
+  let currentStream = null; // Track the current audio stream
+
+  // Accessibility: ensure timer is announced by screen readers
+  timerDisplay.setAttribute('aria-live', 'polite');
+
+  // Audio level meter elements
+  const levelWrap = document.getElementById('sparxstar_audioLevelWrap');
+  const levelBar = document.getElementById('sparxstar_audioLevelBar');
+  let audioContext, analyser, dataArray, sourceNode;
+
+  function animateBar() {
+    if (analyser && dataArray && levelBar) {
+      analyser.getByteFrequencyData(dataArray);
+      const volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+      const percent = Math.min((volume / 255) * 100, 100);
+      levelBar.style.height = `${percent}%`;
+    }
+    requestAnimationFrame(animateBar);
+  }
+
+  animateBar();
 
   function updateTimerColor(remainingTime) {
     const twoMinutes = 120000;
@@ -89,17 +113,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-/**
- * Updates the timer display element with the remaining recording time in MM:SS format.
- * Changes the timer color based on the remaining time and stops the recording when time is up.
- *
- * Relies on the following external variables/functions:
- * - startTime: The timestamp when recording started (in milliseconds).
- * - MAX_RECORDING_TIME: The maximum allowed recording time (in milliseconds).
- * - timerDisplay: The DOM element displaying the timer.
- * - updateTimerColor(remainingTime): Function to update the timer's color based on remaining time.
- * - stopRecording(): Function to stop the recording when time runs out.
- */
   function updateTimerDisplay() {
     const elapsedTime = Date.now() - startTime;
     const remainingTime = Math.max(0, MAX_RECORDING_TIME - elapsedTime);
@@ -137,20 +150,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-/**
- * Handles the stop event for the audio recording process.
- * 
- * This function finalizes the recording, processes the recorded audio data,
- * determines the correct file type based on the MIME type, creates a Blob,
- * generates a URL for playback, attaches the audio to a form for submission,
- * resets the UI, and calls the callback for when recording is ready.
- * 
- * If no audio data is available or the MediaRecorder is not initialized,
- * it resets the UI and exits gracefully.
- * 
- * @function
- * @returns {void}
- */
   function handleStop() {
     if (!mediaRecorder || audioChunks.length === 0) {
       console.warn(
@@ -164,6 +163,11 @@ document.addEventListener('DOMContentLoaded', function () {
       isPaused = false;
       recordButton.textContent = 'Record';
       handleRecordingReady();
+      // Release the microphone if a stream exists
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+      }
       return;
     }
 
@@ -202,18 +206,13 @@ document.addEventListener('DOMContentLoaded', function () {
     isPaused = false;
     recordButton.textContent = 'Record';
     handleRecordingReady();
+    // Release the microphone if a stream exists
+    if (currentStream) {
+      currentStream.getTracks().forEach(track => track.stop());
+      currentStream = null;
+    }
   }
 
-/**
- * Attaches an audio Blob as a file to a form input field.
- *
- * Creates a File object from the provided audio Blob, assigns it a filename with the given extension,
- * and programmatically sets it as the value of the file input field identified by `audioAttachmentFieldId`.
- * If the input field is not found, logs an error and alerts the user.
- *
- * @param {Blob} audioBlob - The audio data to attach as a file.
- * @param {string} fileExtension - The file extension to use for the audio file (e.g., 'wav', 'mp3').
- */
   function attachAudioToForm(audioBlob, fileExtension) {
     const fileName = `oral_history_recording.${fileExtension}`;
     const file = new File([audioBlob], fileName, { type: audioBlob.type });
@@ -232,15 +231,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-/**
- * Starts audio recording using the MediaRecorder API after checking for browser support,
- * user consent, and available audio MIME types. Handles microphone access permissions,
- * initializes recording, updates UI elements, and manages error scenarios with user-friendly messages.
- *
- * @async
- * @function
- * @returns {Promise<void>} Resolves when recording starts or exits early on error/unsupported conditions.
- */
   async function startRecording() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       alert(
@@ -292,6 +282,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      currentStream = stream; // Save reference to release later
       audioChunks = [];
       mediaRecorder = new MediaRecorder(stream, { mimeType: selectedMimeType });
       mediaRecorder.ondataavailable = handleDataAvailable;
@@ -305,6 +296,18 @@ document.addEventListener('DOMContentLoaded', function () {
       audioPlayer.src = '';
       startTimer();
       updateTimerDisplay();
+      // Audio level meter setup
+      if (levelBar && window.AudioContext) {
+        if (audioContext) {
+          audioContext.close();
+        }
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        sourceNode = audioContext.createMediaStreamSource(stream);
+        sourceNode.connect(analyser);
+      }
     } catch (error) {
       let userMessage =
         'Failed to access the microphone or start recording. Please ensure it is enabled and not in use by another application.';
@@ -332,11 +335,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-/**
- * Stops the current audio recording if it is active.
- * If the recorder is not active but `isRecording` is true, attempts to finalize the recording.
- * Logs a warning if an inconsistency is detected between `isRecording` and the recorder state.
- */
   function stopRecording() {
     if (isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop();

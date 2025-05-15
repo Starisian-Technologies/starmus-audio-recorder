@@ -59,3 +59,19 @@
     width: 100%; /* Make the audio player take full width of its container */
     margin-top: 10px;
 }
+
+/* Style for the audio level indicator */
+#sparxstar_audioLevelWrap {
+  height: 8px;
+  background: #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+#sparxstar_audioLevelBar {
+  height: 100%;
+  width: 0%;
+  background-color: #4caf50;
+  transition: width 0.1s linear;
+}
