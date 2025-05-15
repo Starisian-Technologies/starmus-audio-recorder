@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write # Needed to commit back changes
 
 jobs:
   lint-and-validate:
@@ -15,9 +15,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate HTML (templates folder)
-        uses: anishathalye/proof-html@v1.1.0
+        uses: anishathalye/proof-html@53ebd742d61a1a6071a391260c7088a67a0e52ca
         with:
           directory: ./templates
 
@@ -30,10 +32,18 @@ jobs:
         run: |
           npm install eslint stylelint stylelint-config-standard --save-dev
 
-      - name: Lint JavaScript
+      - name: Fix JavaScript issues
         run: |
-          npx eslint assets/js/**/*.js
+          npx eslint assets/js/**/*.js --fix
 
-      - name: Lint CSS
+      - name: Fix CSS issues
         run: |
-          npx stylelint assets/css/**/*.css
+          npx stylelint assets/css/**/*.css --fix
+
+      - name: Commit fixes (if any)
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/js assets/css || true
+          git diff --cached --quiet || git commit -m "chore: auto-fix JS/CSS lint issues"
+          git push
