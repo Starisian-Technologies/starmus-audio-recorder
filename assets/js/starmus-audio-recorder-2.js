@@ -1,8 +1,61 @@
 // Add this at the very top of your starmus-audio-recorder.js file
 console.log('RECORDER SCRIPT FILE: PARSING STARTED - TOP OF FILE');
+console.log('Starmus Recorder Build Hash: 1d51ca08edb9');
+function createButtonStateEnforcer(buttonElement, sharedStateObject, permissionKey, logFn = console.log) {
+  if (!buttonElement) {
+    console.error('Enforcer Init: buttonElement is null or undefined.');
+    return null;
+  }
+  if (!sharedStateObject || typeof sharedStateObject[permissionKey] === 'undefined') {
+    console.warn(`Enforcer Init: Shared state does not contain "${permissionKey}".`);
+  }
+
+  const shouldBeEnabled = () => {
+    const state = sharedStateObject?.[permissionKey];
+    return state === 'granted' || state === 'prompt';
+  };
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'disabled') {
+        const disabled = buttonElement.disabled;
+        const allowed = shouldBeEnabled();
+
+        if (disabled && allowed) {
+          logFn('StateEnforcer: Button was disabled externally — re-enabling.');
+          buttonElement.disabled = false;
+        } else if (!disabled && !allowed) {
+          logFn('StateEnforcer: Button enabled while permission is denied — disabling.');
+          buttonElement.disabled = true;
+        }
+      }
+    }
+  });
+
+  observer.observe(buttonElement, {
+    attributes: true,
+    attributeFilter: ['disabled']
+  });
+
+  // Initial delayed correction after Forminator load
+  setTimeout(() => {
+    if (buttonElement.disabled && shouldBeEnabled()) {
+      logFn('StateEnforcer: Initial correction — re-enabling button.');
+      buttonElement.disabled = false;
+    }
+  }, 1500);
+
+  logFn('StateEnforcer: MutationObserver active.');
+  return observer;
+}
 
 document.addEventListener('DOMContentLoaded', function () {
   console.log('RECORDER: DOMContentLoaded event fired. Script starting.');
+  window.StarmusRecorderBuild = '1d51ca08edb9';
+
+  window.SparxstarUtils = window.SparxstarUtils || {};
+  window.SparxstarUtils.createButtonStateEnforcer = createButtonStateEnforcer;
+
 
   const container = document.querySelector('[data-enabled-recorder]');
   console.log('RECORDER: Container element:', container);
@@ -53,6 +106,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   let audioContext, analyser, dataArray, sourceNode, animationFrameId;
+
+   window.sparxstarRecorderState = window.sparxstarRecorderState || {
+    micPermission: 'prompt',
+  };
 
   // --- Your existing functions (animateBar, stopAnimationBarLoop, formatTime, etc.) go here ---
   // Make sure they are all present. I'll just show where the event listeners and setupRecorder go.
@@ -168,16 +225,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function handleRecordingReady() {
-    console.log("RECORDER: handleRecordingReady called");
-    if(recordButton) recordButton.disabled = false;
-    if(pauseButton) {
-        pauseButton.disabled = true;
-        pauseButton.textContent = 'Pause';
-    }
-    if(playButton && audioPlayer) {
-        playButton.disabled = !audioPlayer.src || audioPlayer.src === window.location.href || audioPlayer.readyState === 0;
-    }
+  console.log("RECORDER: handleRecordingReady called");
+  if (pauseButton) {
+    pauseButton.disabled = true;
+    pauseButton.textContent = 'Pause';
   }
+  if (playButton && audioPlayer) {
+    playButton.disabled = !audioPlayer.src || audioPlayer.src === window.location.href || audioPlayer.readyState === 0;
+  }
+}
 
   function handleDataAvailable(event) {
     console.log("RECORDER: handleDataAvailable called, data size:", event.data.size);
@@ -513,62 +569,78 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
 
-  async function setupRecorder() {
-    console.log('RECORDER: setupRecorder() CALLED.');
-    if(recordButton) recordButton.disabled = true;
-    if(pauseButton) pauseButton.disabled = true;
-    if(playButton) playButton.disabled = true;
+ async function setupRecorder() {
+  console.log('RECORDER: setupRecorder() called.');
 
-    if (navigator.permissions && navigator.permissions.query) {
-      try {
-        console.log('RECORDER: Querying microphone permissions via Permissions API.');
-        const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
-        console.log('RECORDER: Microphone permission state from API:', permissionStatus.state);
-        const updateButtonOnPermission = () => {
-          console.log('RECORDER: updateButtonOnPermission called. Current state:', permissionStatus.state);
-          if (!recordButton) {
-              console.error("RECORDER ERROR: Record button not found in updateButtonOnPermission.");
-              return;
-          }
-          if (permissionStatus.state === 'granted' || permissionStatus.state === 'prompt') {
-            recordButton.disabled = false;
-            console.log(`RECORDER: Mic permission: ${permissionStatus.state}. Record button ENABLED.`);
-          } else {
-            recordButton.disabled = true;
-            // alert('Microphone access denied. Enable in browser settings to record.'); // Keep commented for now
-            console.warn('RECORDER WARNING: Mic permission: DENIED. Record button DISABLED.');
-          }
-        };
-        updateButtonOnPermission(); // Call it once to set initial state
-        permissionStatus.onchange = () => { // Re-query or use event data if available
-            console.log('RECORDER: Microphone permission status CHANGED to:', permissionStatus.state);
-            updateButtonOnPermission();
-        };
-      } catch (error) {
-        console.error('RECORDER ERROR: Error querying microphone permissions:', error);
-        if(recordButton) recordButton.disabled = false; // Fallback
-        console.log('RECORDER: Fallback - Record button ENABLED after permission query error.');
-      }
-    } else {
-      console.warn('RECORDER WARNING: Permissions API not supported. Mic access will be requested on record attempt. Enabling record button.');
-      if(recordButton) recordButton.disabled = false; // Allow attempt
-    }
+  // Disable all controls initially
+  if (recordButton) recordButton.disabled = true;
+  if (pauseButton) pauseButton.disabled = true;
+  if (playButton) playButton.disabled = true;
 
-    if (timerDisplay) {
-        timerDisplay.textContent = formatTime(MAX_RECORDING_TIME);
-        updateTimerColor(MAX_RECORDING_TIME);
-    } else {
-        console.warn("RECORDER WARNING: timerDisplay not found in setupRecorder.");
+  // Initialize mic permission state
+  let permissionStatus = null;
+
+  if (navigator.permissions && navigator.permissions.query) {
+    try {
+      console.log('RECORDER: Querying microphone permission via Permissions API...');
+      permissionStatus = await navigator.permissions.query({ name: 'microphone' });
+
+      const updateButtonState = () => {
+        console.log(`RECORDER: Permission state is "${permissionStatus.state}". Updating button state.`);
+        if (!recordButton) {
+          console.error('RECORDER ERROR: Record button not found during permission update.');
+          return;
+        }
+        const isAllowed = ['granted', 'prompt'].includes(permissionStatus.state);
+        recordButton.disabled = !isAllowed;
+        console.log(`RECORDER: Record button ${isAllowed ? 'ENABLED' : 'DISABLED'}.`);
+      };
+
+      // Set global state for observers
+      window.sparxstarRecorderState.micPermission = permissionStatus.state;
+
+      // Initial and onchange state sync
+      updateButtonState();
+      permissionStatus.onchange = () => {
+        console.log(`RECORDER: Permission state CHANGED to "${permissionStatus.state}".`);
+        window.sparxstarRecorderState.micPermission = permissionStatus.state;
+        updateButtonState();
+      };
+
+    } catch (err) {
+      console.error('RECORDER ERROR: Permissions API query failed:', err);
+      if (recordButton) recordButton.disabled = false;
+      console.log('RECORDER: Fallback — record button ENABLED.');
     }
-    handleRecordingReady(); // Ensure UI is in a consistent state initially
-    console.log('RECORDER: setupRecorder() finished.');
+  } else {
+    console.warn('RECORDER WARNING: Permissions API not supported. Enabling record button by default.');
+    if (recordButton) recordButton.disabled = false;
+    window.sparxstarRecorderState.micPermission = 'prompt'; // Default fallback
   }
 
-  console.log('RECORDER: Calling setupRecorder().');
-  setupRecorder();
-  console.log('RECORDER: Script initialization finished.');
+  // Initialize timer display
+  if (timerDisplay) {
+    timerDisplay.textContent = formatTime(MAX_RECORDING_TIME);
+    updateTimerColor(MAX_RECORDING_TIME);
+  } else {
+    console.warn('RECORDER WARNING: timerDisplay not found.');
+  }
 
- console.log('RECORDER: Script initialization finished.'); // This log should already be there
+  handleRecordingReady(); // Reset UI to a usable state
+  console.log('RECORDER: setupRecorder() finished.');
+}
+
+  
+  console.log('RECORDER: Calling setupRecorder().');
+  setupRecorder().then(() => {
+  createButtonStateEnforcer(recordButton, window.sparxstarRecorderState, 'micPermission');
+}).catch(err => {
+  console.error('RECORDER ERROR: setupRecorder failed:', err);
+});
+
+  
+ console.log('RECORDER: All scripts parsed and initialized. [Starmus Audio Recorder]'); 
+
 
   // ADD THIS BLOCK:
   setTimeout(() => {
@@ -586,5 +658,3 @@ document.addEventListener('DOMContentLoaded', function () {
   }, 2000); // Check after 2 seconds
 }); // End of DOMContentLoaded
 
-// Add this at the very bottom of your starmus-audio-recorder.js file
-console.log('RECORDER SCRIPT FILE: PARSING FINISHED - BOTTOM OF FILE');
