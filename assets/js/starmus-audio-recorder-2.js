@@ -1,93 +1,108 @@
 // Add this at the very top of your starmus-audio-recorder.js file
 console.log('RECORDER SCRIPT FILE: PARSING STARTED - TOP OF FILE');
 console.log('Starmus Recorder Build Hash: 1d51ca08edb9');
-function createButtonStateEnforcer(buttonElement, sharedStateObject, permissionKey, logFn = console.log) {
-  if (!buttonElement) {
-    console.error('StateEnforcer: buttonElement is null or undefined.');
+function createButtonStateEnforcer(initialButtonElement, sharedStateObject, permissionKey, logFn = console.log) {
+  // ✅ KEY CHANGE: Re-select the button using its ID every time the enforcer's logic runs,
+  // or at least at critical points.
+  // For the observer itself, it needs to be attached to a specific instance.
+  // But for checks and corrections, always get the latest.
+
+  // Get the button that the observer will be attached to.
+  // This initialButtonElement is passed when the observer is first created.
+  let observedButtonElement = document.getElementById(initialButtonElement?.id || 'recordButton'); // Or pass the ID string directly
+
+  if (!observedButtonElement) {
+    console.error('StateEnforcer Init: Could not find button to observe in DOM using ID:', initialButtonElement?.id || 'recordButton');
     return null;
   }
 
-  if (!sharedStateObject || typeof sharedStateObject[permissionKey] === 'undefined') {
-    logFn.warn(`StateEnforcer: Shared state missing or permissionKey "${permissionKey}" undefined.`);
-  }
+  const getLiveButton = () => document.getElementById(observedButtonElement.id); // Function to always get the current live button by its ID
 
   const shouldBeEnabled = () => {
     const state = sharedStateObject?.[permissionKey];
-    logFn(`StateEnforcer [shouldBeEnabled]: sharedState["${permissionKey}"] = "${state}"`);
+    // logFn(`StateEnforcer [shouldBeEnabled]: For button id "${observedButtonElement.id}", sharedState["${permissionKey}"] = "${state}"`);
     return state === 'granted' || state === 'prompt';
   };
 
-  // Immediate check on init
-  (function immediateInitCheck() {
-    const allow = shouldBeEnabled();
-    const isDisabled = buttonElement.disabled;
-    if (isDisabled && allow) {
-      logFn('StateEnforcer (Immediate Init): Button is disabled but permission allows. Re-enabling.');
-      buttonElement.disabled = false;
-      if (!buttonElement.disabled) logFn('StateEnforcer (Immediate Init): Re-enable successful.');
-      else logFn.error('StateEnforcer (Immediate Init): Re-enable FAILED.');
-    } else if (!isDisabled && !allow) {
-      logFn('StateEnforcer (Immediate Init): Button is enabled but permission denies. Disabling.');
-      buttonElement.disabled = true;
-    } else {
-      logFn(`StateEnforcer (Immediate Init): No correction needed. isDisabled=${isDisabled}, shouldEnable=${allow}`);
-    }
-  })();
+  // --- Immediate correction on the button we are about to observe ---
+  let liveButtonForImmediateCheck = getLiveButton();
+  if (liveButtonForImmediateCheck) { // Check if it still exists
+      if (liveButtonForImmediateCheck.disabled && shouldBeEnabled()) {
+        logFn(`StateEnforcer (Immediate Init for ID ${liveButtonForImmediateCheck.id}): Button is disabled but should be enabled. Re-enabling.`);
+        liveButtonForImmediateCheck.disabled = false;
+      } else if (!liveButtonForImmediateCheck.disabled && !shouldBeEnabled()) {
+        logFn(`StateEnforcer (Immediate Init for ID ${liveButtonForImmediateCheck.id}): Button is enabled but should be disabled. Disabling.`);
+        liveButtonForImmediateCheck.disabled = true;
+      } else {
+        // logFn(`StateEnforcer (Immediate Init for ID ${liveButtonForImmediateCheck.id}): No immediate correction needed. isDisabled=${liveButtonForImmediateCheck.disabled}, shouldEnable=${shouldBeEnabled()}`);
+      }
+  } else {
+      logFn.warn(`StateEnforcer (Immediate Init): Button with ID ${observedButtonElement.id} not found for immediate check.`);
+  }
+  // --- End Immediate correction ---
 
-  // MutationObserver
   const observer = new MutationObserver((mutations) => {
-    logFn('StateEnforcer: MutationObserver triggered.');
+    let currentLiveButton = getLiveButton(); // Re-fetch inside observer in case it was replaced between mutations
+    if (!currentLiveButton) {
+        // logFn('StateEnforcer (Mutation): Observed button no longer in DOM. Original ID was ' + observedButtonElement.id);
+        // The observer is still attached to the old, detached node.
+        // The setInterval approach from previous discussion is better to handle re-attaching the observer itself.
+        // For now, this observer will stop being effective if the element it's attached to is removed.
+        return;
+    }
+
     for (const mutation of mutations) {
       if (mutation.type === 'attributes' && mutation.attributeName === 'disabled') {
-        logFn('StateEnforcer: "disabled" attribute mutation detected.');
-        const allow = shouldBeEnabled();
-        if (buttonElement.disabled && allow) {
-          logFn('StateEnforcer: Detected external disable. Re-enabling...');
-          buttonElement.disabled = false;
-          if (!buttonElement.disabled) logFn('StateEnforcer: Button successfully re-enabled.');
-          else logFn.error('StateEnforcer: FAILED to re-enable button.');
-        } else if (!buttonElement.disabled && !allow) {
-          logFn('StateEnforcer: Button is enabled but should not be. Disabling.');
-          buttonElement.disabled = true;
-        } else {
-          logFn('StateEnforcer: No action needed after mutation.');
+        // logFn(`StateEnforcer (Mutation for ID ${currentLiveButton.id}): "disabled" attribute mutated.`);
+        const allowed = shouldBeEnabled();
+        // Check the live button's state
+        if (currentLiveButton.disabled && allowed) {
+          logFn(`StateEnforcer (Mutation for ID ${currentLiveButton.id}): Button was disabled externally — re-enabling.`);
+          currentLiveButton.disabled = false;
+        } else if (!currentLiveButton.disabled && !allowed) {
+          logFn(`StateEnforcer (Mutation for ID ${currentLiveButton.id}): Button enabled while permission is denied — disabling.`);
+          currentLiveButton.disabled = true;
         }
       }
     }
   });
 
-  observer.observe(buttonElement, {
+  // Observe the specific instance found at init.
+  // If THIS `observedButtonElement` is removed, this observer becomes ineffective for the new button.
+  observer.observe(observedButtonElement, {
     attributes: true,
     attributeFilter: ['disabled']
   });
+  logFn(`StateEnforcer: MutationObserver active on initial button instance with ID "${observedButtonElement.id}".`);
 
-  // Staggered correction attempts
+
+  // --- Delayed Timeouts ---
+  // These timeouts will always try to get the LATEST button by ID.
   [1500, 3000, 5000].forEach((delay) => {
     setTimeout(() => {
-      if (!document.body.contains(buttonElement)) {
-        logFn(`StateEnforcer: Button no longer in DOM at ${delay}ms. Aborting correction.`);
+      const freshButton = getLiveButton(); // Always get the current live button
+      if (!freshButton) { // Check if any button with that ID exists
+        // logFn(`StateEnforcer (Timeout ${delay}ms): Button with ID ${observedButtonElement.id} no longer in DOM. Aborting correction.`);
         return;
       }
-      const allow = shouldBeEnabled();
-      const isDisabled = buttonElement.disabled;
+      // Check if the *original observed element* is still in the DOM for context, though we operate on freshButton
+      if (!document.body.contains(observedButtonElement)) {
+          // logFn(`StateEnforcer (Timeout ${delay}ms): Original observed button instance no longer in DOM. Operating on fresh instance if found.`);
+      }
 
-      logFn(`StateEnforcer: Fallback check at ${delay}ms — isDisabled=${isDisabled}, shouldEnable=${allow}`);
-      if (isDisabled && allow) {
-        logFn(`StateEnforcer: Correction attempt at ${delay}ms — Re-enabling.`);
-        buttonElement.disabled = false;
-        if (!buttonElement.disabled) logFn(`StateEnforcer: Re-enable success at ${delay}ms.`);
-        else logFn.error(`StateEnforcer: Re-enable FAILED at ${delay}ms.`);
-      } else if (!isDisabled && !allow) {
-        logFn(`StateEnforcer: Correction attempt at ${delay}ms — Disabling.`);
-        buttonElement.disabled = true;
+      if (freshButton.disabled && shouldBeEnabled()) {
+        logFn(`StateEnforcer (Timeout ${delay}ms for ID ${freshButton.id}): Correction — re-enabling button.`);
+        freshButton.disabled = false;
+      } else if (!freshButton.disabled && !shouldBeEnabled()) {
+        logFn(`StateEnforcer (Timeout ${delay}ms for ID ${freshButton.id}): Button enabled, should be disabled. Disabling.`);
+        freshButton.disabled = true;
       } else {
-        logFn(`StateEnforcer: No correction needed at ${delay}ms.`);
+        // logFn(`StateEnforcer (Timeout ${delay}ms for ID ${freshButton.id}): No correction needed.`);
       }
     }, delay);
   });
 
-  logFn('StateEnforcer: MutationObserver active.');
-  return observer;
+  return observer; // Return the observer attached to the *initial* button
 }
 
 
@@ -675,11 +690,85 @@ document.addEventListener('DOMContentLoaded', function () {
   
   console.log('RECORDER: Calling setupRecorder().');
   setupRecorder().then(() => {
-  createButtonStateEnforcer(recordButton, window.sparxstarRecorderState, 'micPermission');
+  let currentRecordButton = document.getElementById('recordButton') || document.getElementById('sparxstar_recordButton');
+let observerInstance = null;
+let observerButtonId = currentRecordButton?.id || 'recordButton';
+
+if (currentRecordButton) {
+  observerInstance = createButtonStateEnforcer(currentRecordButton, window.sparxstarRecorderState, 'micPermission');
+}
+
+setupRecorder().then(() => {
+    // Get the initial button (instance A)
+    let currentRecordButton = document.getElementById('recordButton') || document.getElementById('sparxstar_recordButton');
+    let observerInstance = null;
+    // Use the ID of the button we expect to find.
+    // This assumes the ID 'recordButton' (or 'sparxstar_recordButton') remains consistent
+    // even if the element instance changes.
+    let observerButtonId = currentRecordButton?.id || (document.getElementById('recordButton') ? 'recordButton' : 'sparxstar_recordButton');
+
+
+    if (currentRecordButton) {
+      // Attach observer to initial button (instance A)
+      observerInstance = createButtonStateEnforcer(currentRecordButton, window.sparxstarRecorderState, 'micPermission');
+    }
+
+    setInterval(() => {
+      // Periodically get the LATEST button in the DOM with the expected ID (could be instance B, C, etc.)
+      const latestRecordButton = document.getElementById(observerButtonId);
+
+      if (!latestRecordButton) {
+        console.warn('RECORDER (Interval Check): recordButton not found in DOM using ID:', observerButtonId);
+        // If button is gone, disconnect old observer if it exists
+        if (observerInstance) {
+            console.log('RECORDER (Interval Check): Disconnecting observer from potentially detached old button.');
+            observerInstance.disconnect();
+            observerInstance = null;
+        }
+        currentRecordButton = null; // Reset
+        return;
+      }
+
+      // If the live button is a NEW instance OR if no observer is currently active on it
+      // (The second condition !currentRecordButton.dataset.observerAttached might be more robust
+      // if createButtonStateEnforcer marks the button it attaches to)
+      if (latestRecordButton !== currentRecordButton) { // Check if the actual DOM element reference has changed
+        console.warn('RECORDER (Interval Check): Detected new recordButton instance. Reinitializing observer.');
+        currentRecordButton = latestRecordButton; // Update our reference to the new live button
+        if (observerInstance) {
+          console.log('RECORDER (Interval Check): Disconnecting observer from old button instance.');
+          observerInstance.disconnect(); // Disconnect from the old, possibly detached, button
+        }
+        // Attach a NEW observer to the NEW button instance
+        observerInstance = createButtonStateEnforcer(currentRecordButton, window.sparxstarRecorderState, 'micPermission');
+
+        // Immediate correction for the newly found (and now observed) button
+        // This uses the shared state, which should be up-to-date via setupRecorder's onchange.
+        const shouldEnable = ['granted', 'prompt'].includes(window.sparxstarRecorderState?.micPermission);
+        if (currentRecordButton.disabled && shouldEnable) {
+          console.log('RECORDER (Interval Check - Correcting New Instance): Enabling newly found recordButton.');
+          currentRecordButton.disabled = false;
+        } else if (!currentRecordButton.disabled && !shouldEnable) {
+          console.log('RECORDER (Interval Check - Correcting New Instance): Disabling newly found recordButton as per permissions.');
+          currentRecordButton.disabled = true;
+        }
+      } else {
+        // Optional: Safety net if the same button instance is still there but somehow its state is wrong
+        // and the observer didn't catch it (unlikely for 'disabled' with attributeFilter, but for completeness)
+        const shouldEnable = ['granted', 'prompt'].includes(window.sparxstarRecorderState?.micPermission);
+        if (currentRecordButton.disabled && shouldEnable) {
+            // console.warn('RECORDER (Interval Check - Safety Net on same instance): Forcing enable.');
+            // currentRecordButton.disabled = false;
+        } else if (!currentRecordButton.disabled && !shouldEnable) {
+            // console.warn('RECORDER (Interval Check - Safety Net on same instance): Forcing disable.');
+            // currentRecordButton.disabled = true;
+        }
+      }
+    }, 2000); // Check every 2 seconds (Adjust as needed)
+
 }).catch(err => {
   console.error('RECORDER ERROR: setupRecorder failed:', err);
 });
-
   
  console.log('RECORDER: All scripts parsed and initialized. [Starmus Audio Recorder]'); 
 
