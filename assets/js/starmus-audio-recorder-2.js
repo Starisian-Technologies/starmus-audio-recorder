@@ -3,30 +3,54 @@ console.log('RECORDER SCRIPT FILE: PARSING STARTED - TOP OF FILE');
 console.log('Starmus Recorder Build Hash: 1d51ca08edb9');
 function createButtonStateEnforcer(buttonElement, sharedStateObject, permissionKey, logFn = console.log) {
   if (!buttonElement) {
-    console.error('Enforcer Init: buttonElement is null or undefined.');
+    console.error('StateEnforcer: buttonElement is null or undefined.');
     return null;
   }
+
   if (!sharedStateObject || typeof sharedStateObject[permissionKey] === 'undefined') {
-    console.warn(`Enforcer Init: Shared state does not contain "${permissionKey}".`);
+    logFn.warn(`StateEnforcer: Shared state missing or permissionKey "${permissionKey}" undefined.`);
   }
 
   const shouldBeEnabled = () => {
     const state = sharedStateObject?.[permissionKey];
+    logFn(`StateEnforcer [shouldBeEnabled]: sharedState["${permissionKey}"] = "${state}"`);
     return state === 'granted' || state === 'prompt';
   };
 
+  // Immediate check on init
+  (function immediateInitCheck() {
+    const allow = shouldBeEnabled();
+    const isDisabled = buttonElement.disabled;
+    if (isDisabled && allow) {
+      logFn('StateEnforcer (Immediate Init): Button is disabled but permission allows. Re-enabling.');
+      buttonElement.disabled = false;
+      if (!buttonElement.disabled) logFn('StateEnforcer (Immediate Init): Re-enable successful.');
+      else logFn.error('StateEnforcer (Immediate Init): Re-enable FAILED.');
+    } else if (!isDisabled && !allow) {
+      logFn('StateEnforcer (Immediate Init): Button is enabled but permission denies. Disabling.');
+      buttonElement.disabled = true;
+    } else {
+      logFn(`StateEnforcer (Immediate Init): No correction needed. isDisabled=${isDisabled}, shouldEnable=${allow}`);
+    }
+  })();
+
+  // MutationObserver
   const observer = new MutationObserver((mutations) => {
+    logFn('StateEnforcer: MutationObserver triggered.');
     for (const mutation of mutations) {
       if (mutation.type === 'attributes' && mutation.attributeName === 'disabled') {
-        const disabled = buttonElement.disabled;
-        const allowed = shouldBeEnabled();
-
-        if (disabled && allowed) {
-          logFn('StateEnforcer: Button was disabled externally — re-enabling.');
+        logFn('StateEnforcer: "disabled" attribute mutation detected.');
+        const allow = shouldBeEnabled();
+        if (buttonElement.disabled && allow) {
+          logFn('StateEnforcer: Detected external disable. Re-enabling...');
           buttonElement.disabled = false;
-        } else if (!disabled && !allowed) {
-          logFn('StateEnforcer: Button enabled while permission is denied — disabling.');
+          if (!buttonElement.disabled) logFn('StateEnforcer: Button successfully re-enabled.');
+          else logFn.error('StateEnforcer: FAILED to re-enable button.');
+        } else if (!buttonElement.disabled && !allow) {
+          logFn('StateEnforcer: Button is enabled but should not be. Disabling.');
           buttonElement.disabled = true;
+        } else {
+          logFn('StateEnforcer: No action needed after mutation.');
         }
       }
     }
@@ -37,17 +61,35 @@ function createButtonStateEnforcer(buttonElement, sharedStateObject, permissionK
     attributeFilter: ['disabled']
   });
 
-  // Initial delayed correction after Forminator load
-  setTimeout(() => {
-    if (buttonElement.disabled && shouldBeEnabled()) {
-      logFn('StateEnforcer: Initial correction — re-enabling button.');
-      buttonElement.disabled = false;
-    }
-  }, 1500);
+  // Staggered correction attempts
+  [1500, 3000, 5000].forEach((delay) => {
+    setTimeout(() => {
+      if (!document.body.contains(buttonElement)) {
+        logFn(`StateEnforcer: Button no longer in DOM at ${delay}ms. Aborting correction.`);
+        return;
+      }
+      const allow = shouldBeEnabled();
+      const isDisabled = buttonElement.disabled;
+
+      logFn(`StateEnforcer: Fallback check at ${delay}ms — isDisabled=${isDisabled}, shouldEnable=${allow}`);
+      if (isDisabled && allow) {
+        logFn(`StateEnforcer: Correction attempt at ${delay}ms — Re-enabling.`);
+        buttonElement.disabled = false;
+        if (!buttonElement.disabled) logFn(`StateEnforcer: Re-enable success at ${delay}ms.`);
+        else logFn.error(`StateEnforcer: Re-enable FAILED at ${delay}ms.`);
+      } else if (!isDisabled && !allow) {
+        logFn(`StateEnforcer: Correction attempt at ${delay}ms — Disabling.`);
+        buttonElement.disabled = true;
+      } else {
+        logFn(`StateEnforcer: No correction needed at ${delay}ms.`);
+      }
+    }, delay);
+  });
 
   logFn('StateEnforcer: MutationObserver active.');
   return observer;
 }
+
 
 document.addEventListener('DOMContentLoaded', function () {
   console.log('RECORDER: DOMContentLoaded event fired. Script starting.');
