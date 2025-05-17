@@ -127,7 +127,7 @@ final class AudioRecorder {
 	public function enqueue_assets(): void {
 		 // --- TEMPORARY DEBUGGING ---
 		error_log('Starmus Plugin URL: ' . $this->plugin_url);
-		$js_url = $this->plugin_url . 'assets/js/starmus-audio-recorder.min.js';
+		$js_url = $this->plugin_url . 'assets/js/starmus-audio-recorder-2.js';
 		$css_url = $this->plugin_url . 'assets/css/starmus-audio-recorder-style.min.css';
 		error_log('Starmus JS URL: ' . $js_url);
 		error_log('Starmus CSS URL: ' . $css_url);
