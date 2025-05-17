@@ -567,7 +567,24 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('RECORDER: Calling setupRecorder().');
   setupRecorder();
   console.log('RECORDER: Script initialization finished.');
-});
+
+ console.log('RECORDER: Script initialization finished.'); // This log should already be there
+
+  // ADD THIS BLOCK:
+  setTimeout(() => {
+    const finalRecordButton = document.getElementById('recordButton') || document.getElementById('sparxstar_recordButton');
+    if (finalRecordButton) {
+      console.log('RECORDER DELAYED CHECK (2 seconds): Record button "disabled" attribute status:', finalRecordButton.hasAttribute('disabled'), 'Actual disabled property:', finalRecordButton.disabled);
+      if (finalRecordButton.hasAttribute('disabled')) {
+        console.warn('RECORDER DELAYED CHECK: The "disabled" attribute IS PRESENT on the record button after 2 seconds!');
+      } else {
+        console.log('RECORDER DELAYED CHECK: The "disabled" attribute IS NOT PRESENT on the record button after 2 seconds.');
+      }
+    } else {
+      console.error('RECORDER DELAYED CHECK: Record button not found after 2 seconds!');
+    }
+  }, 2000); // Check after 2 seconds
+}); // End of DOMContentLoaded
 
 // Add this at the very bottom of your starmus-audio-recorder.js file
 console.log('RECORDER SCRIPT FILE: PARSING FINISHED - BOTTOM OF FILE');
