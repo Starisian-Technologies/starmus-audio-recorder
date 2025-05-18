@@ -6,8 +6,11 @@
  * The JavaScript (starmus-audio-recorder.js) is responsible for handling the recorded audio data
  * for playback and any subsequent submission or processing.
 */
+$form_id = 'sparxstarAudioForm_' . $unique_suffix;
 ?>
 <form id="<?php echo esc_attr( $form_id ); ?>" method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url('admin-ajax.php') ); ?>">
+  
+
   <input type="hidden" name="action" id="action_<?php echo esc_attr( $form_id ); ?>" value="starmus_submit_audio" />
   <!-- nonce -->
   <?php wp_nonce_field( 'starmus_submit_audio_action', 'starmus_audio_nonce_field' ); ?>

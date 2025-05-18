@@ -1,9 +1,82 @@
 // ==== starmus-audio-recorder-module.js ====
+// Build Hash (SHA-1):   c8aaf461c00bc0b613a759027af26b2faeaad730
+// Build Hash (SHA-256): 2ade7463624fafe901e8968080483099e9ea2cf5d6c8e8b7db666a295b0e8093
 
 // Utility: Button State Enforcer (already somewhat modular, keep it that way)
 function createButtonStateEnforcer(initialButtonElement, sharedStateObject, permissionKey, logFn = console.log) {
-  // ... your existing createButtonStateEnforcer code ...
-  // Ensure it's robust and handles cases where the button might be temporarily removed/re-added.
+  // KEY CHANGE: Re-select the button using its ID every time the enforcer's logic runs,
+  // or at least at critical points.
+  // For the observer itself, it needs to be attached to a specific instance.
+  // But for checks and corrections, always get the latest.
+
+  let observedButtonElement = document.getElementById(initialButtonElement?.id || 'recordButton');
+
+  if (!observedButtonElement) {
+    console.error('StateEnforcer Init: Could not find button to observe in DOM using ID:', initialButtonElement?.id || 'recordButton');
+    return null;
+  }
+
+  const getLiveButton = () => document.getElementById(observedButtonElement.id);
+
+  const shouldBeEnabled = () => {
+    const state = sharedStateObject?.[permissionKey];
+    return state === 'granted' || state === 'prompt';
+  };
+
+  let liveButtonForImmediateCheck = getLiveButton();
+  if (liveButtonForImmediateCheck) {
+    if (liveButtonForImmediateCheck.disabled && shouldBeEnabled()) {
+      logFn(`StateEnforcer (Immediate Init for ID ${liveButtonForImmediateCheck.id}): Button is disabled but should be enabled. Re-enabling.`);
+      liveButtonForImmediateCheck.disabled = false;
+    } else if (!liveButtonForImmediateCheck.disabled && !shouldBeEnabled()) {
+      logFn(`StateEnforcer (Immediate Init for ID ${liveButtonForImmediateCheck.id}): Button is enabled but should be disabled. Disabling.`);
+      liveButtonForImmediateCheck.disabled = true;
+    }
+  } else {
+    logFn.warn(`StateEnforcer (Immediate Init): Button with ID ${observedButtonElement.id} not found for immediate check.`);
+  }
+
+  const observer = new MutationObserver((mutations) => {
+    let currentLiveButton = getLiveButton();
+    if (!currentLiveButton) return;
+
+    for (const mutation of mutations) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'disabled') {
+        const allowed = shouldBeEnabled();
+        if (currentLiveButton.disabled && allowed) {
+          logFn(`StateEnforcer (Mutation for ID ${currentLiveButton.id}): Button was disabled externally — re-enabling.`);
+          currentLiveButton.disabled = false;
+        } else if (!currentLiveButton.disabled && !allowed) {
+          logFn(`StateEnforcer (Mutation for ID ${currentLiveButton.id}): Button enabled while permission is denied — disabling.`);
+          currentLiveButton.disabled = true;
+        }
+      }
+    }
+  });
+
+  observer.observe(observedButtonElement, {
+    attributes: true,
+    attributeFilter: ['disabled']
+  });
+  logFn(`StateEnforcer: MutationObserver active on initial button instance with ID "${observedButtonElement.id}".`);
+
+  [1500, 3000, 5000].forEach((delay) => {
+    setTimeout(() => {
+      const freshButton = getLiveButton();
+      if (!freshButton) return;
+      if (!document.body.contains(observedButtonElement)) {}
+
+      if (freshButton.disabled && shouldBeEnabled()) {
+        logFn(`StateEnforcer (Timeout ${delay}ms for ID ${freshButton.id}): Correction — re-enabling button.`);
+        freshButton.disabled = false;
+      } else if (!freshButton.disabled && !shouldBeEnabled()) {
+        logFn(`StateEnforcer (Timeout ${delay}ms for ID ${freshButton.id}): Button enabled, should be disabled. Disabling.`);
+        freshButton.disabled = true;
+      }
+    }, delay);
+  });
+
+  return observer;
 }
 
 // Main Recorder Module
@@ -17,6 +90,7 @@ const StarmusAudioRecorder = (function () {
     recordButtonId: 'recordButton',
     pauseButtonId: 'pauseButton',
     playButtonId: 'playButton',
+    deleteButtonId: 'deleteButton',
     timerDisplayId: 'sparxstar_timer',
     audioPlayerId: 'sparxstar_audioPlayer',
     statusDisplayId: 'sparxstar_status',
@@ -25,8 +99,8 @@ const StarmusAudioRecorder = (function () {
     fileInputId: 'audio_file', // Matches your form HTML
     recorderContainerSelector: '[data-enabled-recorder]',
     maxRecordingTime: 1200000, // 20 minutes
-    buildHash: 'YOUR_BUILD_HASH_HERE', // Update this
-    logPrefix: 'RECORDER:'
+    buildHash: 'c8aaf461c00bc0b613a759027af26b2faeaad730', // SHA-1 hash
+    logPrefix: 'STARMUS:'
   };
 
   let dom = {}; // To store DOM element references
@@ -125,8 +199,16 @@ const StarmusAudioRecorder = (function () {
     _updateTimerDisplay();
   }
 
-  function _resumeTimer() { /* ... */ }
-  function _pauseTimer() { /* ... */ }
+  function _resumeTimer() {
+    segmentStartTime = Date.now();
+    if (!timerInterval) timerInterval = setInterval(_updateTimerDisplay, 1000);
+  }
+
+  function _pauseTimer() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    accumulatedElapsedTime += (Date.now() - segmentStartTime);
+  }
   function _stopTimerAndResetDisplay() {
      clearInterval(timerInterval);
      timerInterval = null;
@@ -139,10 +221,21 @@ const StarmusAudioRecorder = (function () {
 
   function _updateStatus(msg) {
     _log("STATUS UPDATE:", msg);
-    if (dom.statusDisplay) dom.statusDisplay.textContent = msg;
-    // Make status visible if it was visually-hidden
-    if (dom.statusDisplay && dom.statusDisplay.classList.contains('visually-hidden')) {
-        dom.statusDisplay.classList.remove('visually-hidden');
+    if (dom.statusDisplay) {
+      const span = dom.statusDisplay.querySelector('.sparxstar_status__text');
+      if (span) {
+        span.textContent = msg;
+      } else {
+        dom.statusDisplay.textContent = msg;
+      }
+      dom.statusDisplay.classList.remove('sparxstar_visually_hidden');
+    }
+  }
+
+  function _handleDataAvailable(event) {
+    if (event.data.size > 0) {
+      audioChunks.push(event.data);
+      _log("Data chunk received:", event.data.size);
     }
   }
 
@@ -156,21 +249,30 @@ const StarmusAudioRecorder = (function () {
     if (dom.playButton && dom.audioPlayer) {
       dom.playButton.disabled = !dom.audioPlayer.src || dom.audioPlayer.src === window.location.href || dom.audioPlayer.readyState === 0;
     }
+    if (dom.deleteButton) {
+      dom.deleteButton.disabled = true;
+      dom.deleteButton.classList.add('sparxstar_visually_hidden'); // Or use your custom hidden class
+    }
   }
-
-  function _handleDataAvailable(event) { /* ... */ }
 
   function _handleStop() {
     _log("handleStop called. isRecording:", isRecording, "isPaused:", isPaused, "audioChunks length:", audioChunks.length);
     _stopAnimationBarLoop();
+    if (dom.deleteButton) dom.deleteButton.classList.remove('hidden');
 
     if (isRecording && !isPaused) {
         accumulatedElapsedTime += (Date.now() - segmentStartTime);
     }
+    const audioBlob = new Blob(audioChunks, { type: mimeType });
+    const audioUrl = URL.createObjectURL(audioBlob); // Define before use
+    if (dom.audioPlayer) {
+      dom.audioPlayer.src = audioUrl;
+      dom.audioPlayer.classList.remove('sparxstar_visually_hidden'); // Show it
+    }
      _log(`Total recorded duration (accumulated): ${_formatTime(accumulatedElapsedTime)}`);
 
     if (!mediaRecorder || audioChunks.length === 0) {
-      // ... (reset UI as before) ...
+      
       _updateStatus('Recording stopped, no audio captured.');
       _handleRecordingReady();
       // ...
@@ -178,9 +280,14 @@ const StarmusAudioRecorder = (function () {
     }
 
     const mimeType = mediaRecorder.mimeType;
-    let fileType;
-    // ... (determine fileType) ...
-
+    // determine file type
+    if (mimeType.includes('opus') || mimeType.includes('webm')) fileType = 'webm';
+    else if (mimeType.includes('aac') || mimeType.includes('mp4')) fileType = 'm4a';
+    else {
+      _error('Unsupported recorded MIME type:', mimeType);
+      alert('Unsupported recording format. Try a different browser.');
+      return;
+    }
     const audioBlob = new Blob(audioChunks, { type: mimeType });
     const audioUrl = URL.createObjectURL(audioBlob);
     if (dom.audioPlayer) dom.audioPlayer.src = audioUrl;
@@ -280,19 +387,19 @@ const StarmusAudioRecorder = (function () {
       }
 
       // Find DOM elements (scoped to the container if they are inside it, or globally if IDs are unique)
-      // The IDs in your HTML are sparxstar_ prefixed or generic. Using the generic ones for simplicity here.
-      dom.recordButton = document.getElementById(config.recordButtonId); // e.g., 'recordButton'
-      dom.pauseButton = document.getElementById(config.pauseButtonId);
-      dom.playButton = document.getElementById(config.playButtonId);
-      dom.timerDisplay = document.getElementById(config.timerDisplayId);
-      dom.audioPlayer = document.getElementById(config.audioPlayerId);
-      dom.statusDisplay = document.getElementById(config.statusDisplayId);
-      dom.levelBar = document.getElementById(config.levelBarId); // Assuming levelBar is uniquely ID'd
-
+      const id = (baseId) => `${baseId}_${config.formInstanceId}`;
+      dom.recordButton = document.getElementById(id(config.recordButtonId));
+      dom.pauseButton = document.getElementById(id(config.pauseButtonId));
+      dom.playButton = document.getElementById(id(config.playButtonId));
+      dom.deleteButton = document.getElementById(id(config.deleteButtonId));
+      dom.timerDisplay = document.getElementById(id(config.timerDisplayId));
+      dom.audioPlayer = document.getElementById(id(config.audioPlayerId));
+      dom.statusDisplay = document.getElementById(id(config.statusDisplayId));
+      dom.levelBar = document.getElementById(id(config.levelBarId));
       // These are critical for the form submission part
-      dom.uuidField = document.getElementById(config.uuidFieldId);
-      dom.fileInput = document.getElementById(config.fileInputId);
-
+      dom.uuidField = document.getElementById(id(config.uuidFieldId));
+      dom.fileInput = document.getElementById(id(config.fileInputId));
+      dom.container = document.getElementById(`starmus_audioWrapper_${config.formInstanceId}`);
 
       if (!dom.recordButton || !dom.pauseButton || !dom.playButton || !dom.timerDisplay || !dom.audioPlayer || !dom.statusDisplay) {
         _error('One or more essential UI elements are missing. Recorder cannot initialize.');
@@ -345,6 +452,15 @@ const StarmusAudioRecorder = (function () {
             _log("Play button clicked, but no valid audio source or player not ready.");
         }
       });
+
+      if (dom.deleteButton) {
+        dom.deleteButton.addEventListener('click', () => {
+          _log('Delete button clicked.');
+          publicMethods.cleanup(); // Also resets form state
+          if (dom.deleteButton) dom.deleteButton.classList.add('hidden');
+        });   
+      }
+
     },
 
     setupPermissionsAndUI: async function () {
@@ -496,7 +612,15 @@ const StarmusAudioRecorder = (function () {
       } catch (error) {
         // ... (error handling as before, update status, reset UI via _handleRecordingReady, etc.) ...
         _error('getUserMedia error:', error.name, error.message);
-        // ... user messages ...
+        let userMessage = 'Microphone access error. Please check permissions.';
+        switch (error.name) {
+          case 'NotAllowedError':
+            userMessage = 'Microphone permission denied. Please allow mic access.';
+            break;
+          case 'NotFoundError':
+            userMessage = 'No microphone found. Please connect one.';
+            break;
+        }
         alert(userMessage); // (Define userMessage based on error.name)
         isRecording = false; isPaused = false;
         if(dom.recordButton) dom.recordButton.textContent = 'Record';
@@ -573,6 +697,7 @@ const StarmusAudioRecorder = (function () {
       if (dom.audioPlayer && dom.audioPlayer.src.startsWith('blob:')) {
         URL.revokeObjectURL(dom.audioPlayer.src);
         dom.audioPlayer.src = '';
+        dom.audioPlayer.classList.add('sparxstar_visually_hidden'); // Hide it
         _log("Revoked audio player blob URL.");
       }
       audioChunks = [];
@@ -588,6 +713,14 @@ const StarmusAudioRecorder = (function () {
       _log("Recorder state and UI fully reset.");
     },
 
+    destroy: function () {
+      this.cleanup();
+      recordButtonEnforcer?.disconnect();
+      recordButtonEnforcer = null;
+      dom = {}; // Drop all DOM refs
+      config = {}; // Reset config if needed
+    },
+
     getGeneratedUUID: function() { // If the submission script needs to get it after recording
         return dom.uuidField ? dom.uuidField.value : null;
     }
@@ -599,104 +732,70 @@ const StarmusAudioRecorder = (function () {
 
 // ==== How to use it in your modal context (e.g., in a script loaded with your modal form) ====
 
+// Modal usage example - place in your modal controller script
 /*
-// This part would go into the script that manages the modal itself.
-// It assumes starmus-audio-recorder-module.js has been loaded.
-
 document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('yourRecorderModalId'); // The modal container
-    const openModalButton = document.getElementById('openRecorderModalButton');
-    const closeModalButton = document.getElementById('closeRecorderModalButton'); // Your modal's close button
-    const audioForm = document.getElementById('sparxstarAudioForm'); // Your form ID
-    const formStatusDiv = document.getElementById('sparxstar_status'); // Your form's status div
-    const formUuidField = document.getElementById('audio_uuid'); // Your form's UUID field
+  const modal = document.getElementById('yourRecorderModalId');
+  const openModalButton = document.getElementById('openRecorderModalButton');
+  const closeModalButton = document.getElementById('closeRecorderModalButton');
+  const audioForm = document.getElementById('sparxstarAudioForm');
+  const formStatusDiv = document.getElementById('sparxstar_status');
+  const formUuidField = document.getElementById('audio_uuid');
 
-    let recorderInstance = null; // To hold the initialized recorder
+  let recorderInstance = null;
 
-    function initializeAndShowModal() {
-        if (!recorderInstance) {
-            // Pass the correct IDs if they differ from defaults in the module
-            recorderInstance = StarmusAudioRecorder; // The module itself
-            const initSuccess = await recorderInstance.init({
-                // Example: override default IDs if your modal HTML uses different ones
-                // recordButtonId: 'modalRecordBtn',
-                // buildHash: 'CURRENT_BUILD_HASH_FROM_YOUR_BUILD_PROCESS'
-            });
-            if (!initSuccess) {
-                console.error("Failed to initialize StarmusAudioRecorder in modal.");
-                // Show error in modal or disable modal opening
-                return;
-            }
-        } else {
-            // If already initialized, ensure it's reset for a new session
-            recorderInstance.cleanup(); // Clean previous state
-            // Re-setup permissions as they might have changed or if UI was torn down
-            await recorderInstance.setupPermissionsAndUI();
-        }
-        modal.style.display = 'block'; // Or use modal.showModal() for <dialog>
+  recorderInstance.init({
+    formInstanceId: 'sparxstarAudioForm_xyz', // must match PHP-rendered ID suffix
+    buildHash: '1d51ca08edb9'
+  });
+
+  function initializeAndShowModal() {
+    if (!recorderInstance) {
+      recorderInstance = StarmusAudioRecorder;
+      recorderInstance.init({ formInstanceId: 'modalForm1', buildHash: 'abc123' });
+    } else {
+      recorderInstance.cleanup();
+      recorderInstance.setupPermissionsAndUI();
     }
+    modal.style.display = 'block';
+  }
 
-    function hideAndCleanupModal() {
-        modal.style.display = 'none'; // Or modal.close() for <dialog>
-        if (recorderInstance) {
-            recorderInstance.cleanup();
-        }
-    }
+  function hideAndCleanupModal() {
+    modal.style.display = 'none';
+    if (recorderInstance) recorderInstance.cleanup();
+  }
 
-    if (openModalButton) {
-        openModalButton.addEventListener('click', initializeAndShowModal);
-    }
-    if (closeModalButton) {
-        closeModalButton.addEventListener('click', hideAndCleanupModal);
-    }
+  openModalButton?.addEventListener('click', initializeAndShowModal);
+  closeModalButton?.addEventListener('click', hideAndCleanupModal);
 
-    // --- Form Submission Logic (from your other script, adapted) ---
-    if (audioForm) {
-        // Listen for the custom event from the recorder module
-        const recorderContainerForEvent = document.querySelector('[data-enabled-recorder]'); // Or pass this element ref to the recorder
-        if (recorderContainerForEvent) {
-            recorderContainerForEvent.addEventListener('starmusAudioReady', (event) => {
-                console.log('FORM: starmusAudioReady event received!', event.detail);
-                // The UUID is now in event.detail.uuid and also in formUuidField.value
-                // The cookie can be set here before submission if not already handled
-                document.cookie = `audio_uuid=${event.detail.uuid}; path=/; max-age=86400; SameSite=Lax; Secure`;
-                console.log("FORM: Cookie set with UUID:", event.detail.uuid);
-            });
-        }
+  if (audioForm) {
+    const recorderContainer = document.querySelector('[data-enabled-recorder]');
+    recorderContainer?.addEventListener('starmusAudioReady', (event) => {
+      document.cookie = `audio_uuid=${event.detail.uuid}; path=/; max-age=86400; SameSite=Lax; Secure`;
+    });
 
+    audioForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!formUuidField.value) {
+        formStatusDiv.textContent = ' Error: Audio not recorded or UUID missing.';
+        return;
+      }
 
-        audioForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!formUuidField.value) { // Ensure UUID is set (by recorder)
-                formStatusDiv.textContent = '❌ Error: Audio not recorded or UUID missing.';
-                return;
-            }
-            // Cookie should have been set by the 'starmusAudioReady' event listener
-            // or ensure it's set here if that event isn't used.
+      formStatusDiv.textContent = 'Uploading…';
+      formStatusDiv.classList.remove('visually-hidden');
 
-            formStatusDiv.textContent = 'Uploading…';
-            formStatusDiv.classList.remove('visually-hidden');
-
-            const formData = new FormData(audioForm);
-            try {
-                const response = await fetch(audioForm.action, {
-                    method: 'POST',
-                    body: formData
-                });
-                const text = await response.text(); // Or .json()
-                if (response.ok) {
-                    formStatusDiv.textContent = '✅ Successfully submitted!';
-                    audioForm.reset();
-                    if (recorderInstance) recorderInstance.cleanup(); // Also cleanup recorder UI
-                    // setTimeout(hideAndCleanupModal, 2000); // Optionally close modal after success
-                } else {
-                    formStatusDiv.textContent = '❌ Error: ' + text;
-                }
-            } catch (error) {
-                formStatusDiv.textContent = '❌ Network error. Please try again.';
-                console.error("FORM Submit Error:", error);
-            }
-        });
-    }
+      const formData = new FormData(audioForm);
+      try {
+        const response = await fetch(audioForm.action, { method: 'POST', body: formData });
+        const text = await response.text();
+        formStatusDiv.textContent = response.ok ? 'Successfully submitted!' : 'Error: ' + text;
+        if (response.ok) audioForm.reset();
+        recorderInstance?.cleanup();
+      } catch (error) {
+        formStatusDiv.textContent = 'Network error. Please try again.';
+        console.error("FORM Submit Error:", error);
+      }
+    });
+  }
 });
 */
