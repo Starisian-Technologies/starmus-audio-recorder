@@ -130,6 +130,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const uuidField = container.querySelector('input[name="audio_uuid"]'); // Keep as is
   const levelBar = container.querySelector('#sparxstar_audioLevelBar'); // Keep as is
 
+  attachRecorderEventListeners(recordButton, pauseButton, playButton, audioPlayer);
+
   console.log('RECORDER: Record button:', recordButton);
   console.log('RECORDER: Pause button:', pauseButton);
   console.log('RECORDER: Play button:', playButton);
@@ -548,83 +550,78 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   // --- EVENT LISTENERS ---
-  if(recordButton) {
-      recordButton.addEventListener('click', () => {
-        console.log('RECORDER: Record button CLICKED. isRecording:', isRecording);
-        if (!isRecording) {
-            console.log('RECORDER: Calling startRecording() from click.');
-            startRecording();
-        } else {
-            console.log('RECORDER: Calling stopRecording() from click.');
-            stopRecording();
-        }
-      });
+function attachRecorderEventListeners(recordBtn, pauseBtn, playBtn, audioPlayer) {
+  if (recordBtn) {
+    recordBtn.addEventListener('click', () => {
+      console.log('RECORDER: Record button CLICKED. isRecording:', isRecording);
+      if (!isRecording) {
+        console.log('RECORDER: Calling startRecording() from click.');
+        startRecording();
+      } else {
+        console.log('RECORDER: Calling stopRecording() from click.');
+        stopRecording();
+      }
+    });
   } else {
-      console.error("RECORDER ERROR: Record button not found, cannot add click listener!");
+    console.error("RECORDER ERROR: Record button not found, cannot add click listener!");
   }
 
-  if(pauseButton) {
-      pauseButton.addEventListener('click', () => {
-        console.log('RECORDER: Pause button CLICKED. isRecording:', isRecording, 'isPaused:', isPaused);
-        if (!isRecording) {
-            console.log("RECORDER: Pause clicked but not recording.");
-            return;
-        }
-        if (!isPaused) {
-          console.log("RECORDER: PAUSING recording.");
-          if (mediaRecorder && mediaRecorder.state === 'recording') {
-              try {
-                mediaRecorder.pause();
-                console.log("RECORDER: mediaRecorder.pause() called.");
-              } catch (e) {
-                console.error("RECORDER ERROR: mediaRecorder.pause() failed", e);
-              }
-          } else {
-              console.warn("RECORDER: Tried to pause, but mediaRecorder not in 'recording' state. State:", mediaRecorder ? mediaRecorder.state : "N/A");
+  if (pauseBtn) {
+    pauseBtn.addEventListener('click', () => {
+      console.log('RECORDER: Pause button CLICKED. isRecording:', isRecording, 'isPaused:', isPaused);
+      if (!isRecording) return console.log("RECORDER: Pause clicked but not recording.");
+
+      if (!isPaused) {
+        console.log("RECORDER: PAUSING recording.");
+        try {
+          if (mediaRecorder?.state === 'recording') {
+            mediaRecorder.pause();
+            console.log("RECORDER: mediaRecorder.pause() called.");
           }
-          pauseTimer();
-          isPaused = true;
-          stopAnimationBarLoop();
-          pauseButton.textContent = 'Resume';
-          pauseButton.setAttribute('aria-pressed', 'true'); // Use string
-          updateStatus('Recording paused');
-        } else {
-          console.log("RECORDER: RESUMING recording.");
-          if (mediaRecorder && mediaRecorder.state === 'paused') {
-              try {
-                mediaRecorder.resume();
-                console.log("RECORDER: mediaRecorder.resume() called.");
-              } catch (e) {
-                console.error("RECORDER ERROR: mediaRecorder.resume() failed", e);
-              }
-          }  else {
-              console.warn("RECORDER: Tried to resume, but mediaRecorder not in 'paused' state. State:", mediaRecorder ? mediaRecorder.state : "N/A");
+        } catch (e) {
+          console.error("RECORDER ERROR: mediaRecorder.pause() failed", e);
+        }
+        pauseTimer();
+        isPaused = true;
+        stopAnimationBarLoop();
+        pauseBtn.textContent = 'Resume';
+        pauseBtn.setAttribute('aria-pressed', 'true');
+        updateStatus('Recording paused');
+      } else {
+        console.log("RECORDER: RESUMING recording.");
+        try {
+          if (mediaRecorder?.state === 'paused') {
+            mediaRecorder.resume();
+            console.log("RECORDER: mediaRecorder.resume() called.");
           }
-          isPaused = false;
-          resumeTimer();
-          if (analyser) animateBar();
-          pauseButton.textContent = 'Pause';
-          pauseButton.setAttribute('aria-pressed', 'false'); // Use string
-          updateStatus('Recording started…'); // Or 'Recording resumed...'
+        } catch (e) {
+          console.error("RECORDER ERROR: mediaRecorder.resume() failed", e);
         }
-      });
+        isPaused = false;
+        resumeTimer();
+        if (analyser) animateBar();
+        pauseBtn.textContent = 'Pause';
+        pauseBtn.setAttribute('aria-pressed', 'false');
+        updateStatus('Recording resumed...');
+      }
+    });
   } else {
-      console.warn("RECORDER WARNING: Pause button not found, cannot add click listener.");
+    console.warn("RECORDER WARNING: Pause button not found, cannot add click listener.");
   }
 
-  if(playButton && audioPlayer) {
-      playButton.addEventListener('click', () => {
-        console.log('RECORDER: Play button CLICKED. audioPlayer.src:', audioPlayer.src);
-        if (audioPlayer.src && audioPlayer.src !== window.location.href && audioPlayer.readyState > 0) { // Check readyState
-            audioPlayer.play().catch(e => console.error("RECORDER: Error playing audio:", e));
-        } else {
-            console.log("RECORDER: Play button clicked, but no valid audio source or player not ready.");
-        }
-      });
+  if (playBtn && audioPlayer) {
+    playBtn.addEventListener('click', () => {
+      console.log('RECORDER: Play button CLICKED. audioPlayer.src:', audioPlayer.src);
+      if (audioPlayer.src && audioPlayer.src !== window.location.href && audioPlayer.readyState > 0) {
+        audioPlayer.play().catch(e => console.error("RECORDER: Error playing audio:", e));
+      } else {
+        console.log("RECORDER: Play button clicked, but no valid audio source or player not ready.");
+      }
+    });
   } else {
-      console.warn("RECORDER WARNING: Play button or audioPlayer not found, cannot add click listener for play.");
+    console.warn("RECORDER WARNING: Play button or audioPlayer not found, cannot add click listener for play.");
   }
-
+}
 
  async function setupRecorder() {
   console.log('RECORDER: setupRecorder() called.');
