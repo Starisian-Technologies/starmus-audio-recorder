@@ -239,63 +239,64 @@ const StarmusAudioRecorder = (function () {
     }
   }
 
-  function _handleRecordingReady() {
-    _log("handleRecordingReady called");
-    if (dom.recordButton) dom.recordButton.disabled = (window.sparxstarRecorderState.micPermission === 'denied');
-    if (dom.pauseButton) {
-      dom.pauseButton.disabled = true;
-      dom.pauseButton.textContent = 'Pause';
-    }
-    if (dom.playButton && dom.audioPlayer) {
-      dom.playButton.disabled = !dom.audioPlayer.src || dom.audioPlayer.src === window.location.href || dom.audioPlayer.readyState === 0;
-    }
-    if (dom.deleteButton) {
-      dom.deleteButton.disabled = true;
-      dom.deleteButton.classList.add('sparxstar_visually_hidden'); // Or use your custom hidden class
-    }
-  }
-
   function _handleStop() {
     _log("handleStop called. isRecording:", isRecording, "isPaused:", isPaused, "audioChunks length:", audioChunks.length);
     _stopAnimationBarLoop();
-    if (dom.deleteButton) dom.deleteButton.classList.remove('hidden');
+
+    // Show delete button IF there are audio chunks that might be deleted
+    if (dom.deleteButton) {
+      if (audioChunks.length > 0) {
+        dom.deleteButton.classList.remove('sparxstar_visually_hidden');
+        dom.deleteButton.disabled = false;
+      } else {
+        dom.deleteButton.classList.add('sparxstar_visually_hidden');
+        dom.deleteButton.disabled = true;
+      }
+    }
 
     if (isRecording && !isPaused) {
         accumulatedElapsedTime += (Date.now() - segmentStartTime);
     }
-    const audioBlob = new Blob(audioChunks, { type: mimeType });
-    const audioUrl = URL.createObjectURL(audioBlob); // Define before use
-    if (dom.audioPlayer) {
-      dom.audioPlayer.src = audioUrl;
-      dom.audioPlayer.classList.remove('sparxstar_visually_hidden'); // Show it
-    }
-     _log(`Total recorded duration (accumulated): ${_formatTime(accumulatedElapsedTime)}`);
+    _log(`Total recorded duration (accumulated): ${_formatTime(accumulatedElapsedTime)}`);
 
     if (!mediaRecorder || audioChunks.length === 0) {
-      
-      _updateStatus('Recording stopped, no audio captured.');
-      _handleRecordingReady();
-      // ...
-      return;
+        _updateStatus('Recording stopped, no audio captured.');
+        // Ensure UI reflects no recording (e.g., audio player remains hidden, delete button hidden)
+        if (dom.audioPlayer) dom.audioPlayer.classList.add('sparxstar_visually_hidden');
+        if (dom.deleteButton) {
+            dom.deleteButton.classList.add('sparxstar_visually_hidden');
+            dom.deleteButton.disabled = true;
+        }
+        _handleRecordingReady(); // Resets record/pause/play
+        // Clear any partially set fields if necessary
+        if (dom.uuidField) dom.uuidField.value = '';
+        if (dom.fileInput) dom.fileInput.value = '';
+        return;
     }
 
+    // Moved mimeType definition and fileType determination up
     const mimeType = mediaRecorder.mimeType;
-    // determine file type
+    let fileType;
     if (mimeType.includes('opus') || mimeType.includes('webm')) fileType = 'webm';
     else if (mimeType.includes('aac') || mimeType.includes('mp4')) fileType = 'm4a';
     else {
-      _error('Unsupported recorded MIME type:', mimeType);
-      alert('Unsupported recording format. Try a different browser.');
-      return;
+        _error('Unsupported recorded MIME type:', mimeType);
+        alert('Unsupported recording format. Try a different browser.');
+        publicMethods.cleanup();
+        return;
     }
+
     const audioBlob = new Blob(audioChunks, { type: mimeType });
     const audioUrl = URL.createObjectURL(audioBlob);
-    if (dom.audioPlayer) dom.audioPlayer.src = audioUrl;
+
+    if (dom.audioPlayer) {
+        dom.audioPlayer.src = audioUrl;
+        dom.audioPlayer.classList.remove('sparxstar_visually_hidden');
+    }
     _log("Audio blob created, URL:", audioUrl);
 
-    _attachAudioToForm(audioBlob, fileType); // This needs access to uuidField and fileInput
+    _attachAudioToForm(audioBlob, fileType);
 
-    audioChunks = [];
     _stopTimerAndResetDisplay();
     isRecording = false;
     isPaused = false;
@@ -305,8 +306,8 @@ const StarmusAudioRecorder = (function () {
     }
     _handleRecordingReady();
     if (currentStream) {
-      currentStream.getTracks().forEach(track => track.stop());
-      currentStream = null;
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
     }
     _log("handleStop finished.");
   }
@@ -379,6 +380,12 @@ const StarmusAudioRecorder = (function () {
       config = { ...config, ...userConfig }; // Merge user config
       _log('Using Build Hash:', config.buildHash);
 
+      // Explicit formInstanceId check for developer clarity
+      if (!config.formInstanceId) {
+        _error('formInstanceId is missing in config. Cannot initialize recorder.');
+        return false;
+      }
+
       // Get main container first
       dom.container = document.querySelector(config.recorderContainerSelector);
       if (!dom.container) {
@@ -434,7 +441,6 @@ const StarmusAudioRecorder = (function () {
       });
 
       dom.pauseButton.addEventListener('click', () => {
-        // ... (pause/resume logic calling this.pause() and this.resume()) ...
         _log('Pause button CLICKED. isRecording:', isRecording, 'isPaused:', isPaused);
         if (!isRecording) return;
         if (!isPaused) {
@@ -457,7 +463,7 @@ const StarmusAudioRecorder = (function () {
         dom.deleteButton.addEventListener('click', () => {
           _log('Delete button clicked.');
           publicMethods.cleanup(); // Also resets form state
-          if (dom.deleteButton) dom.deleteButton.classList.add('hidden');
+          dom.deleteButton.classList.add('sparxstar_visually_hidden'); // Consistent hiding
         });   
       }
 
@@ -797,5 +803,42 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+});
+*/
+
+/*
+// In your modal controller script that finds ALL recorder triggers
+// NOTE: Call init() inside the modal open handler, not on DOMContentLoaded!
+document.querySelectorAll('.open-starmus-recorder-modal-button').forEach(button => {
+    const formInstanceId = button.dataset.formInstanceId; // e.g., <button data-form-instance-id="form1_abc">
+    const modalId = button.dataset.modalId; // e.g., <button data-modal-id="recorderModal_form1_abc">
+
+    button.addEventListener('click', async () => {
+        const modal = document.getElementById(modalId);
+        // This is where you'd pass the specific formInstanceId
+        await StarmusAudioRecorder.init({
+            formInstanceId: formInstanceId, // CRITICAL
+            buildHash: 'YOUR_BUILD_HASH',
+        });
+        modal.style.display = 'block';
+    });
+
+    const closeModalButton = document.getElementById(`closeButton_${formInstanceId}`);
+    closeModalButton?.addEventListener('click', () => {
+        const modal = document.getElementById(modalId);
+        modal.style.display = 'none';
+        StarmusAudioRecorder.cleanup();
+    });
+
+    const audioForm = document.getElementById(formInstanceId);
+    const formStatusDiv = document.getElementById(`sparxstar_status_${formInstanceId}`);
+    const formUuidField = document.getElementById(`audio_uuid_${formInstanceId}`);
+    const recorderContainer = document.getElementById(`starmus_audioWrapper_${formInstanceId}`);
+    recorderContainer?.addEventListener('starmusAudioReady', (event) => {
+        // ... set cookie ...
+    });
+    audioForm?.addEventListener('submit', async (e) => {
+        // ... submit logic for THIS formInstanceId ...
+    });
 });
 */
