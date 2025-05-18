@@ -760,11 +760,8 @@ setupRecorder().then(() => {
 }).catch(err => {
   console.error('RECORDER ERROR: setupRecorder failed:', err);
 });
-}); // End of setupRecorder().then(...)
- console.log('RECORDER: All scripts parsed and initialized. [Starmus Audio Recorder]'); 
 
-
-// ADD THIS BLOCK:
+// ADD THIS BLOCK INSIDE DOMContentLoaded (before it closes)
 setTimeout(() => {
   const finalRecordButton = document.getElementById('recordButton') || document.getElementById('sparxstar_recordButton');
   if (finalRecordButton) {
@@ -783,3 +780,6 @@ setTimeout(() => {
     console.error('RECORDER DELAYED CHECK: Record button not found after 2 seconds!');
   }
 }, 2000); // Check after 2 seconds
+
+console.log('RECORDER: All scripts parsed and initialized. [Starmus Audio Recorder]');
+});
