@@ -776,7 +776,6 @@ setupRecorder().then(() => {
       }
     } else {
       console.error('RECORDER DELAYED CHECK: Record button not found after 2 seconds!');
-    }
   }, 2000); // Check after 2 seconds
 }); // End of DOMContentLoaded
 
