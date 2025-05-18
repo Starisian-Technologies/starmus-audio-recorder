@@ -185,7 +185,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
 
                 wp_enqueue_style(
                     'starmus-audio-recorder-style',
-                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/starmus-audio-recorder.css',
+                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/starmus-audio-recorder-style.css',
                     [],
                     '1.0.0'
                 );
