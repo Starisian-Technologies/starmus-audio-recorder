@@ -2,7 +2,7 @@
 console.log('RECORDER SCRIPT FILE: PARSING STARTED - TOP OF FILE');
 console.log('Starmus Recorder Build Hash: 1d51ca08edb9');
 function createButtonStateEnforcer(initialButtonElement, sharedStateObject, permissionKey, logFn = console.log) {
-  // ✅ KEY CHANGE: Re-select the button using its ID every time the enforcer's logic runs,
+  // KEY CHANGE: Re-select the button using its ID every time the enforcer's logic runs,
   // or at least at critical points.
   // For the observer itself, it needs to be attached to a specific instance.
   // But for checks and corrections, always get the latest.
@@ -689,15 +689,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   
   console.log('RECORDER: Calling setupRecorder().');
-  setupRecorder().then(() => {
-  let currentRecordButton = document.getElementById('recordButton') || document.getElementById('sparxstar_recordButton');
-let observerInstance = null;
-let observerButtonId = currentRecordButton?.id || 'recordButton';
-
-if (currentRecordButton) {
-  observerInstance = createButtonStateEnforcer(currentRecordButton, window.sparxstarRecorderState, 'micPermission');
-}
-
 setupRecorder().then(() => {
     // Get the initial button (instance A)
     let currentRecordButton = document.getElementById('recordButton') || document.getElementById('sparxstar_recordButton');
@@ -769,7 +760,7 @@ setupRecorder().then(() => {
 }).catch(err => {
   console.error('RECORDER ERROR: setupRecorder failed:', err);
 });
-  
+}); // End of setupRecorder().then(...)
  console.log('RECORDER: All scripts parsed and initialized. [Starmus Audio Recorder]'); 
 
 
