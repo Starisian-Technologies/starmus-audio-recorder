@@ -764,18 +764,22 @@ setupRecorder().then(() => {
  console.log('RECORDER: All scripts parsed and initialized. [Starmus Audio Recorder]'); 
 
 
-  // ADD THIS BLOCK:
-  setTimeout(() => {
-    const finalRecordButton = document.getElementById('recordButton') || document.getElementById('sparxstar_recordButton');
-    if (finalRecordButton) {
-      console.log('RECORDER DELAYED CHECK (2 seconds): Record button "disabled" attribute status:', finalRecordButton.hasAttribute('disabled'), 'Actual disabled property:', finalRecordButton.disabled);
-      if (finalRecordButton.hasAttribute('disabled')) {
-        console.warn('RECORDER DELAYED CHECK: The "disabled" attribute IS PRESENT on the record button after 2 seconds!');
-      } else {
-        console.log('RECORDER DELAYED CHECK: The "disabled" attribute IS NOT PRESENT on the record button after 2 seconds.');
-      }
+// ADD THIS BLOCK:
+setTimeout(() => {
+  const finalRecordButton = document.getElementById('recordButton') || document.getElementById('sparxstar_recordButton');
+  if (finalRecordButton) {
+    console.log(
+      'RECORDER DELAYED CHECK (2 seconds): Record button "disabled" attribute status:',
+      finalRecordButton.hasAttribute('disabled'),
+      'Actual disabled property:',
+      finalRecordButton.disabled
+    );
+    if (finalRecordButton.hasAttribute('disabled')) {
+      console.warn('RECORDER DELAYED CHECK: The "disabled" attribute IS PRESENT on the record button after 2 seconds!');
     } else {
-      console.error('RECORDER DELAYED CHECK: Record button not found after 2 seconds!');
-  }, 2000); // Check after 2 seconds
-}); // End of DOMContentLoaded
-
+      console.log('RECORDER DELAYED CHECK: The "disabled" attribute IS NOT PRESENT on the record button after 2 seconds.');
+    }
+  } else {
+    console.error('RECORDER DELAYED CHECK: Record button not found after 2 seconds!');
+  }
+}, 2000); // Check after 2 seconds
