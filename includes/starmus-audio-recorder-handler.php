@@ -52,26 +52,22 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
          * Validates data, saves the audio to the media library, and creates a new post.
          */
         public function handle_submission() {
-            // Ensure the request includes a valid nonce
             if ( ! isset( $_POST[self::NONCE_FIELD] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[self::NONCE_FIELD] ) ), self::NONCE_ACTION ) ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Nonce verification failed.' ], 403 );
                 return;
             }
 
-            // Validate user consent checkbox
             if ( empty( $_POST['audio_consent'] ) || sanitize_text_field($_POST['audio_consent']) !== 'on' ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Consent is required.' ], 400 );
                 return;
             }
 
-            // Retrieve and validate UUID
             $uuid = isset( $_POST['audio_uuid'] ) ? sanitize_text_field( $_POST['audio_uuid'] ) : '';
             if ( ! $this->is_valid_uuid( $uuid ) ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Invalid or missing UUID.' ], 400 );
                 return;
             }
 
-            // Verify uploaded file
             if ( empty( $_FILES['audio_file'] ) || $_FILES['audio_file']['error'] !== UPLOAD_ERR_OK ) {
                 wp_send_json_error( [ 'success' => false, 'message' => $this->get_upload_error_message($_FILES['audio_file']['error'] ?? UPLOAD_ERR_NO_FILE) ], 400 );
                 return;
@@ -83,20 +79,17 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                 return;
             }
 
-            // Attempt to upload the audio file to the media library
             $attachment_id = $this->upload_file_to_media_library( 'audio_file' );
             if ( is_wp_error( $attachment_id ) ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Failed to save audio file: ' . $attachment_id->get_error_message() ], 500 );
                 return;
             }
 
-            // Supplementary submission metadata for auditing
             $ip_address    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( $_SERVER['REMOTE_ADDR'] ) : 'unknown';
             $user_agent    = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ) : 'unknown';
             $submitted_at  = current_time( 'mysql' );
             $submission_id = uniqid( 'submission_', true );
 
-            // Create new post with metadata and attach audio file
             $post_data = [
                 'post_title'   => 'Audio Recording ' . $uuid,
                 'post_type'    => $this->get_target_post_type(),
@@ -119,7 +112,6 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                 return;
             }
 
-            // Send JSON success response back to frontend
             wp_send_json_success( [
                 'success' => true,
                 'message' => 'Submission successful.',
@@ -144,7 +136,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
             $submit_button_text = esc_html( $attributes['submit_button_text'] );
             $nonce_action = self::NONCE_ACTION;
             $nonce_field_name = self::NONCE_FIELD;
-            $template_path = plugin_dir_path( __FILE__ ) . 'templates/audio-recorder-ui.php';
+            $template_path = plugin_dir_path( __FILE__ ) . 'templates/audio-recorder-form-template.php';
 
             if ( file_exists( $template_path ) ) {
                 include $template_path;
@@ -185,7 +177,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
 
                 wp_enqueue_style(
                     'starmus-audio-recorder-style',
-                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/starmus-audio-recorder-style.css',
+                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/starmus-audio-recorder.css',
                     [],
                     '1.0.0'
                 );
