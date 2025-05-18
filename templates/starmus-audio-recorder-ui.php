@@ -7,20 +7,26 @@
  * for playback and any subsequent submission or processing.
 */
 ?>
-<form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>">
+<form id="<?php echo esc_attr( $form_id ); ?>" method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url('admin-ajax.php') ); ?>">
+  <input type="hidden" name="action" value="starmus_submit_audio" class="sparxstar_hidden" />
   <!-- nonce -->
   <?php wp_nonce_field( 'starmus_submit_audio_action', 'starmus_audio_nonce_field' ); ?>
+
+  <!--audioWrapper-->
   <div id="starmus_audioWrapper" class="sparxstar-audioWrapper" data-enabled-recorder>
     <h2 id="sparxstar_audioRecorderHeading" class="sparxstar-h2">Audio Recorder</h2>
+    
       <!-- Consent Checkbox -->
       <label for="audio_consent" class="sparxstar_consent">
         <input type="checkbox" id="audio_consent" name="audio_consent" required>
         I give permission to record and submit my audio.
       </label>
+    
     <!-- Recorder -->
     <div id="sparxstar_audioRecorder" class="sparxstar_audioRecorder" role="region" aria-labelledby="sparxstar_audioRecorderHeading">
-      <!-- Status -->
-      <div id="sparxstar_status" role="status" aria-live="polite" class="sparxstar_status">
+      
+      <!-- Status Message -->
+      <div id="sparxstar_status" role="status" aria-live="polite" class="sparxstar_visually_hidden">
         <span class="sparxstar_status__text">Ready to record.</span>
       </div>
       
@@ -29,6 +35,8 @@
         <button type="button" id="recordButton" class="sparxstar_button">Record</button>
         <button type="button" id="pauseButton" class="sparxstar_button" disabled>Pause</button>
         <button type="button" id="playButton" class="sparxstar_button" disabled>Play</button>
+        <button type="button" id="deleteButton" class="sparxstar_button sparxstar_button--danger sparxstar_visually_hidden" disabled>Delete</button>
+
       </div>
     
       <!-- Volume Meter -->
@@ -42,14 +50,11 @@
              aria-label="Microphone input level"></div>
       </div>
     
-      <!-- Status Message -->
-      <div id="sparxstar_status" role="status" aria-live="polite" class="visually-hidden"></div>
-    
       <!-- Timer Display -->
       <div id="sparxstar_timer" class="sparxstar_timer" role="timer" aria-live="polite">00:00</div>
     
       <!-- Audio Playback -->
-      <audio id="sparxstar_audioPlayer" class="sparxstar_audioPlayer .sparxstar_hidden" controls aria-label="Recorded audio preview"></audio>
+      <audio id="sparxstar_audioPlayer" class="sparxstar_audioPlayer sparxstar_visually_hidden" controls aria-label="Recorded audio preview"></audio>
     
       <!-- Hidden Inputs for Form Submission -->
       <input type="hidden" name="audio_uuid" id="audio_uuid" class="sparxstar_hidden"/>
@@ -58,7 +63,10 @@
     
     <!-- Submit -->
     <button type="submit" class="sparxstar_submitButton">Submit Recording</button>
-    
+    <!-- Submit Loader -->
+    <div id="sparxstar_loader" class="sparxstar_status sparxstar_visually_hidden" aria-live="polite">
+      <span class="sparxstar_status__text">Submitting… please wait.</span>
+    </div>
 
   </div>
 </form>
