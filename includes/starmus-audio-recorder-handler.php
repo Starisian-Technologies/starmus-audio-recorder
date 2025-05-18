@@ -5,84 +5,73 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
     class Starmus_Audio_Submission_Handler {
 
         /**
-         * Action hook for logged-in users.
-         * @var string
+         * AJAX action hook for logged-in users.
+         * This should match the 'action' parameter used in your JavaScript.
          */
         const ACTION_AUTH = 'starmus_submit_audio';
 
         /**
-         * Action hook for non-logged-in users.
-         * @var string
+         * AJAX action hook for non-logged-in users.
          */
         const ACTION_NO_PRIV = 'nopriv_starmus_submit_audio';
 
         /**
-         * Nonce action name.
-         * @var string
+         * Security nonce action name used to validate the form submission.
          */
-        const NONCE_ACTION = 'starmus_submit_audio_action'; // Matches your HTML form's nonce
+        const NONCE_ACTION = 'starmus_submit_audio_action';
 
         /**
-         * Nonce field name.
-         * @var string
+         * HTML form field name for the nonce value.
          */
-        const NONCE_FIELD = 'starmus_audio_nonce_field'; // Matches your HTML form's nonce
-        /**
-         * Shortcode tag.
-         * @var string
-         */
-        const SHORTCODE_TAG = 'starmus_audio_recorder'; // Define the shortcode tag
+        const NONCE_FIELD = 'starmus_audio_nonce_field';
 
         /**
-         * Constructor. Hooks into WordPress AJAX and registers the shortcode.
+         * WordPress shortcode tag that renders the recorder form.
+         */
+        const SHORTCODE_TAG = 'starmus_audio_recorder';
+
+        /**
+         * Default custom post type where audio submissions are stored.
+         * This allows future expansion via options or filters.
+         */
+        const POST_TYPE = 'starmus_audio';
+
+        /**
+         * Class constructor.
+         * Binds AJAX actions, shortcode registration, and conditional asset loading.
          */
         public function __construct() {
-            // AJAX handlers
             add_action( 'wp_ajax_nopriv_' . self::ACTION_NO_PRIV, [ $this, 'handle_submission' ] );
             add_action( 'wp_ajax_' . self::ACTION_AUTH, [ $this, 'handle_submission' ] );
-
-            // Register shortcode
             add_shortcode( self::SHORTCODE_TAG, [ $this, 'render_recorder_form_shortcode' ] );
-
-            // Action to enqueue scripts and styles if the shortcode is used (optional but good practice)
             add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts_if_shortcode_is_present' ] );
         }
 
         /**
          * Handles the audio submission AJAX request.
+         * Validates data, saves the audio to the media library, and creates a new post.
          */
         public function handle_submission() {
-            // Verify nonce for security
+            // Ensure the request includes a valid nonce
             if ( ! isset( $_POST[self::NONCE_FIELD] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[self::NONCE_FIELD] ) ), self::NONCE_ACTION ) ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Nonce verification failed.' ], 403 );
                 return;
             }
-            
-            // Basic capability check (optional, adjust as needed)
-            // if ( ! current_user_can( 'upload_files' ) ) { // Example capability
-            //     wp_send_json_error( [ 'success' => false, 'message' => 'You do not have permission to upload files.' ], 403 );
-            //     return;
-            // }
 
-            $response_data = []; // For accumulating data before sending JSON
-
-            // Validate consent
-            if ( empty( $_POST['audio_consent'] ) || sanitize_text_field($_POST['audio_consent']) !== 'on' ) { // Checkboxes often send 'on' or their value if set
-                // Your HTML has <input type="checkbox" ... name="audio_consent" required>
-                // If the value attribute isn't set for the checkbox, it defaults to 'on' when checked.
-                // If you set value="yes", then check for 'yes'.
+            // Validate user consent checkbox
+            if ( empty( $_POST['audio_consent'] ) || sanitize_text_field($_POST['audio_consent']) !== 'on' ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Consent is required.' ], 400 );
                 return;
             }
 
-            // Validate UUID
+            // Retrieve and validate UUID
             $uuid = isset( $_POST['audio_uuid'] ) ? sanitize_text_field( $_POST['audio_uuid'] ) : '';
             if ( ! $this->is_valid_uuid( $uuid ) ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Invalid or missing UUID.' ], 400 );
                 return;
             }
 
-            // Validate file
+            // Verify uploaded file
             if ( empty( $_FILES['audio_file'] ) || $_FILES['audio_file']['error'] !== UPLOAD_ERR_OK ) {
                 wp_send_json_error( [ 'success' => false, 'message' => $this->get_upload_error_message($_FILES['audio_file']['error'] ?? UPLOAD_ERR_NO_FILE) ], 400 );
                 return;
@@ -94,209 +83,159 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                 return;
             }
 
-            // Save file to media library
+            // Attempt to upload the audio file to the media library
             $attachment_id = $this->upload_file_to_media_library( 'audio_file' );
             if ( is_wp_error( $attachment_id ) ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Failed to save audio file: ' . $attachment_id->get_error_message() ], 500 );
                 return;
             }
-            $response_data['attachment_id'] = $attachment_id;
 
-            // Create post
+            // Supplementary submission metadata for auditing
+            $ip_address    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( $_SERVER['REMOTE_ADDR'] ) : 'unknown';
+            $user_agent    = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ) : 'unknown';
+            $submitted_at  = current_time( 'mysql' );
+            $submission_id = uniqid( 'submission_', true );
+
+            // Create new post with metadata and attach audio file
             $post_data = [
                 'post_title'   => 'Audio Recording ' . $uuid,
                 'post_type'    => $this->get_target_post_type(),
-                'post_status'  => 'publish', // Or 'draft', 'pending'
+                'post_status'  => 'publish',
                 'meta_input'   => [
-                    'audio_uuid'     => $uuid,
-                    'audio_consent'  => 'yes', // Storing 'yes' explicitly
-                    '_audio_attachment_id' => $attachment_id, // Storing attachment ID as meta
+                    'audio_uuid'           => $uuid,
+                    'audio_consent'        => 'yes',
+                    '_audio_attachment_id' => $attachment_id,
+                    'ip_address'           => $ip_address,
+                    'user_agent'           => $user_agent,
+                    'submitted_at'         => $submitted_at,
+                    'submission_id'        => $submission_id,
                 ],
             ];
             $post_id = wp_insert_post( $post_data );
 
             if ( is_wp_error( $post_id ) ) {
-                // If post creation fails, consider deleting the orphaned attachment
                 wp_delete_attachment( $attachment_id, true );
                 wp_send_json_error( [ 'success' => false, 'message' => 'Failed to create post: ' . $post_id->get_error_message() ], 500 );
                 return;
             }
-            $response_data['post_id'] = $post_id;
 
-            // Optionally, set the audio attachment as a "featured image" or a specific meta field
-            // set_post_thumbnail($post_id, $attachment_id); // This is for images usually.
-            // For audio, you might just store the attachment_id in post meta (already done above)
-            // or the file URL.
-
-            // Set cookie (as done by your JS, server-side is more reliable if this is the primary way)
-            // Note: Your JS already sets this. If you want server to be authoritative, ensure JS doesn't set it
-            // or that this overrides it with the same parameters.
-            // For AJAX, the cookie set here will be available on subsequent *page loads*,
-            // not necessarily immediately in JS on the same "page" after the AJAX response.
-            // However, since your JS sets it, this server-side setcookie might be redundant unless
-            // this AJAX endpoint is also hit by non-JS submissions (unlikely given the setup).
-            // If the goal is for the *next* form to read this cookie, JS setting is usually sufficient.
-            // $cookie_set = setcookie( 'audio_uuid', $uuid, time() + 86400, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
-            // $response_data['cookie_set_by_server'] = $cookie_set;
-
-
-            $response_data['success'] = true;
-            $response_data['message'] = 'Submission successful.';
-            wp_send_json_success( $response_data, 200 );
+            // Send JSON success response back to frontend
+            wp_send_json_success( [
+                'success' => true,
+                'message' => 'Submission successful.',
+                'attachment_id' => $attachment_id,
+                'post_id' => $post_id,
+            ], 200 );
         }
 
-
         /**
-         * Renders the audio recorder form HTML for the shortcode.
-         *
-         * @param array $atts Shortcode attributes.
-         * @param string|null $content Shortcode content.
-         * @return string HTML output for the form.
+         * Outputs the audio recorder form when shortcode is used.
+         * This will be replaced by a dynamic template include.
          */
         public function render_recorder_form_shortcode( $atts = [], $content = null ): string {
-            // Normalize shortcode attributes with defaults
             $attributes = shortcode_atts( [
-                'form_id'           => 'sparxstarAudioForm', // Default form ID
+                'form_id'           => 'sparxstarAudioForm',
                 'submit_button_text' => 'Submit Recording',
-                // Add more attributes if needed (e.g., for customizing labels, etc.)
             ], $atts );
 
-            // It's better to not directly echo within a shortcode handler, but to return the HTML.
-            // Output buffering is a clean way to capture HTML from an included file or generated here.
             ob_start();
-
-            // --- Prepare variables for the template ---
-            $form_action_url = esc_url( admin_url( 'admin-ajax.php' ) ); // For AJAX submission
-            // If you were using admin-post.php, it would be:
-            // $form_action_url = esc_url( admin_url( 'admin-post.php' ) );
-            // And you'd need a hidden field: <input type="hidden" name="action" value="your_admin_post_action_hook_name">
-
+            $form_action_url = esc_url( admin_url( 'admin-ajax.php' ) );
             $form_id = esc_attr( $attributes['form_id'] );
             $submit_button_text = esc_html( $attributes['submit_button_text'] );
-
-            // Nonce values
             $nonce_action = self::NONCE_ACTION;
             $nonce_field_name = self::NONCE_FIELD;
-
-            // Path to your HTML template file for the form
-            // Assumes your class file is in 'includes/' and your template in 'includes/templates/'
-            $template_path = plugin_dir_path( __FILE__ ) . 'templates/audio-recorder-form-template.php';
+            $template_path = plugin_dir_path( __FILE__ ) . 'templates/audio-recorder-ui.php';
 
             if ( file_exists( $template_path ) ) {
-                include $template_path; // This file will use the variables defined above
+                include $template_path;
             } else {
-                // Fallback or error message if template is missing
                 echo '<p>Error: Audio recorder form template not found.</p>';
             }
 
             return ob_get_clean();
         }
 
-
         /**
-         * Enqueues scripts and styles if the shortcode is detected on the page.
-         * This is a more efficient way than always loading them.
+         * Conditionally loads scripts and styles only if shortcode is present.
          */
         public function enqueue_scripts_if_shortcode_is_present() {
             global $post;
             if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, self::SHORTCODE_TAG ) ) {
-                // Enqueue your main recorder JavaScript (the modular one)
                 wp_enqueue_script(
                     'starmus-audio-recorder-module',
-                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/starmus-audio-recorder-module.js', // Adjust path
-                    [], // Dependencies
-                    'YOUR_VERSION_HERE', // Version
-                    true // In footer
-                );
-
-                // Enqueue your AJAX form submission JavaScript
-                wp_enqueue_script(
-                    'starmus-audio-form-submission',
-                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/starmus-audio-form-submission.js', // Adjust path
-                    ['starmus-audio-recorder-module'], // Depends on the recorder module
-                    'YOUR_VERSION_HERE',
+                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/starmus-audio-recorder-module.js',
+                    [],
+                    '1.0.0',
                     true
                 );
 
-                // Localize data for the submission script if needed (e.g., AJAX URL, nonce)
-                // Though the nonce is in the form, AJAX URL can be passed this way
+                wp_enqueue_script(
+                    'starmus-audio-form-submission',
+                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/starmus-audio-form-submission.js',
+                    ['starmus-audio-recorder-module'],
+                    '1.0.0',
+                    true
+                );
+
                 wp_localize_script('starmus-audio-form-submission', 'starmusFormData', [
                     'ajax_url' => admin_url('admin-ajax.php'),
-                    'nonce_action' => self::NONCE_ACTION, // For potential JS-side nonce creation/validation if needed elsewhere
-                    'nonce_field' => self::NONCE_FIELD,  // For JS reference
-                    // 'form_action_hook' => self::ACTION_AUTH // Your AJAX action name
+                    'nonce_action' => self::NONCE_ACTION,
+                    'nonce_field' => self::NONCE_FIELD,
                 ]);
 
-
-                // Enqueue your CSS
                 wp_enqueue_style(
                     'starmus-audio-recorder-style',
-                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/starmus-audio-recorder.css', // Adjust path
+                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/starmus-audio-recorder.css',
                     [],
-                    'YOUR_VERSION_HERE'
+                    '1.0.0'
                 );
             }
         }
 
-
         /**
-         * Validates a UUID.
-         * @param string $uuid
-         * @return bool
+         * Validates a UUID format using a regular expression.
          */
         protected function is_valid_uuid( string $uuid ): bool {
             return !empty( $uuid ) && preg_match( '/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i', $uuid );
         }
 
         /**
-         * Checks if the file type is allowed.
-         * @param string $file_type
-         * @return bool
+         * Determines whether a file type is allowed for audio uploads.
          */
         protected function is_allowed_file_type( string $file_type ): bool {
             $allowed_types = apply_filters('starmus_allowed_audio_types', [
-                'audio/mpeg', // mp3
-                'audio/wav',  // wav
-                'audio/webm', // webm
-                'audio/mp4',  // m4a / mp4 audio
-                'audio/ogg',  // ogg (Opus)
-                'audio/aac',  // aac
+                'audio/mpeg', 'audio/wav', 'audio/webm', 'audio/mp4', 'audio/ogg', 'audio/aac',
             ]);
             return in_array( strtolower( $file_type ), $allowed_types, true );
         }
 
         /**
-         * Handles file upload to media library.
-         * @param string $file_key The key in $_FILES array.
-         * @param int $post_id Optional. Post ID to attach to.
-         * @return int|WP_Error Attachment ID on success, WP_Error on failure.
+         * Handles moving an uploaded file to the media library.
+         *
+         * @param string $file_key The input name from $_FILES
+         * @param int $post_id Optional post ID to associate media with
+         * @return int|WP_Error
          */
         protected function upload_file_to_media_library( string $file_key, int $post_id = 0 ) {
             if ( ! function_exists( 'media_handle_upload' ) ) {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
                 require_once ABSPATH . 'wp-admin/includes/media.php';
-                require_once ABSPATH . 'wp-admin/includes/image.php'; // Though not an image, media_handle_upload often uses it.
+                require_once ABSPATH . 'wp-admin/includes/image.php';
             }
-            // media_handle_upload expects the file key, and an optional post_id to attach to.
-            // If $post_id is 0, the attachment is unattached. We'll attach it later if needed.
-            $attachment_id = media_handle_upload( $file_key, $post_id );
-            return $attachment_id;
+            return media_handle_upload( $file_key, $post_id );
         }
 
         /**
-         * Gets the target post type for the audio submission.
-         * Allows filtering.
-         * @return string
+         * Gets the post type where the audio entry should be stored.
+         *
+         * @return string Custom post type slug.
          */
         protected function get_target_post_type(): string {
-            $default_post_type = 'starmus_audio'; // Consider a custom post type
-            return apply_filters( 'starmus_audio_submission_post_type', $default_post_type );
+            return apply_filters( 'starmus_audio_submission_post_type', self::POST_TYPE );
         }
 
         /**
-         * Gets a user-friendly message for a file upload error code.
-         * @param int $error_code
-         * @return string
+         * Provides readable error messages for known upload failures.
          */
         protected function get_upload_error_message(int $error_code) : string {
             switch ($error_code) {
@@ -318,9 +257,9 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                     return "Unknown upload error.";
             }
         }
-   } // End class
+    }
 
-    // Instantiate the class
+    // Register the audio submission handler
     new Starmus_Audio_Submission_Handler();
 
-} // End if class_exists
+}
