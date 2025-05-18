@@ -19,6 +19,11 @@
       </label>
     <!-- Recorder -->
     <div id="sparxstar_audioRecorder" class="sparxstar_audioRecorder" role="region" aria-labelledby="sparxstar_audioRecorderHeading">
+      <!-- Status -->
+      <div id="sparxstar_status" role="status" aria-live="polite" class="sparxstar_status">
+        <span class="sparxstar_status__text">Ready to record.</span>
+      </div>
+      
       <!-- Recorder Controls -->
       <div class="sparxstar_recorderControls" role="group" aria-label="Recording controls">
         <button type="button" id="recordButton" class="sparxstar_button">Record</button>
@@ -44,7 +49,7 @@
       <div id="sparxstar_timer" class="sparxstar_timer" role="timer" aria-live="polite">00:00</div>
     
       <!-- Audio Playback -->
-      <audio id="sparxstar_audioPlayer" class="sparxstar_audioPlayer sparxstar_hidden" controls aria-label="Recorded audio preview"></audio>
+      <audio id="sparxstar_audioPlayer" class="sparxstar_audioPlayer .sparxstar_hidden" controls aria-label="Recorded audio preview"></audio>
     
       <!-- Hidden Inputs for Form Submission -->
       <input type="hidden" name="audio_uuid" id="audio_uuid" class="sparxstar_hidden"/>
@@ -53,6 +58,7 @@
     
     <!-- Submit -->
     <button type="submit" class="sparxstar_submitButton">Submit Recording</button>
+    
 
   </div>
 </form>
