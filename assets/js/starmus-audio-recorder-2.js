@@ -1,6 +1,6 @@
 // Add this at the very top of your starmus-audio-recorder.js file
 console.log('RECORDER SCRIPT FILE: PARSING STARTED - TOP OF FILE');
-console.log('Starmus Recorder Build Hash: 1d51ca08edb9');
+console.log('Starmus Recorder Build Hash: 405d1ca76c174ad6393013e57239507e20e5ee3a');
 function createButtonStateEnforcer(initialButtonElement, sharedStateObject, permissionKey, logFn = console.log) {
   // KEY CHANGE: Re-select the button using its ID every time the enforcer's logic runs,
   // or at least at critical points.
@@ -131,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const levelBar = container.querySelector('#sparxstar_audioLevelBar'); // Keep as is
 
   attachRecorderEventListeners(recordButton, pauseButton, playButton, audioPlayer);
+
 
   console.log('RECORDER: Record button:', recordButton);
   console.log('RECORDER: Pause button:', pauseButton);
