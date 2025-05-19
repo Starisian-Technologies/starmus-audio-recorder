@@ -59,7 +59,7 @@ $form_id = 'sparxstarAudioForm_' . $unique_suffix;
       <div id="sparxstar_timer_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_timer" role="timer" aria-live="polite">00:00</div>
     
       <!-- Audio Playback -->
-      <audio id="sparxstar_audioPlayer_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_audioPlayer" controls aria-label="Recorded audio preview" style="display: none;"></audio>
+      <audio id="sparxstar_audioPlayer_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_audioPlayer sparxstar_visually_hidden" controls aria-label="Recorded audio preview"></audio>
     
       <!-- Hidden Inputs for Form Submission -->
       <input type="hidden" name="audio_uuid" id="audio_uuid_<?php echo esc_attr( $form_id ); ?>"/>

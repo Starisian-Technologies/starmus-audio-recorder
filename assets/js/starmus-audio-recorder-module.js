@@ -384,20 +384,17 @@ const StarmusAudioRecorder = (function () {
       dom.fileInput.files = dataTransfer.files;
       _log('Audio attached to form input:', dom.fileInput.name || dom.fileInput.id);
       _updateStatus('Recording saved and attached to form.');
-      const event = new CustomEvent('starmusAudioReady', { detail: { uuid: generatedAudioID, fileName: fileName } });
-      dom.container.dispatchEvent(event);
+      // Compatibility check for file input assignment
+      if (!dom.fileInput.files || dom.fileInput.files.length === 0) {
+        _warn('File could not be attached to the file input. This browser may not support programmatic file assignment.');
+        _updateStatus('Recording saved, but your browser does not support automatic file attachment. Please try a different browser.');
+      }
     } catch (e) {
       _error("Could not attach file to fileInput. DataTransfer may not be supported or fileInput is problematic.", e);
       _updateStatus('Recording saved locally. Error attaching to form.');
     }
-    const submitButton = document.getElementById(`submit_button_${config.formInstanceId}`);
-    if (dom.uuidField?.value && dom.fileInput?.files.length > 0 && submitButton) {
-      submitButton.disabled = false;
-      _log('Submit button enabled because UUID and file are ready.');
-    } else if (submitButton) {
-      submitButton.disabled = true;
-      _warn('Submit button not enabled — missing UUID or file input.');
-    }
+    const event = new CustomEvent('starmusAudioReady', { detail: { uuid: generatedAudioID, fileName: fileName } });
+    dom.container.dispatchEvent(event);
   }
 
   // --- Public Methods ---
