@@ -60,7 +60,7 @@ final class AudioRecorder {
 	 *
 	 * @var string
 	 */
-	const VERSION = '0.1.0';
+	const VERSION = '0.5.0';
 	const MINIMUM_PHP_VERSION = '7.2';
 	const MINIMUM_WP_VERSION = '5.2';
 
@@ -79,7 +79,8 @@ final class AudioRecorder {
 		}
 
 		$this->load_dependencies();
-		//$this->register_hooks();
+		// add the handler
+		$this->StarmusHandler = new \Starmus\includes\Starmus_Audio_Submission_Handler();
 	}
 
 	/**
@@ -128,39 +129,8 @@ final class AudioRecorder {
 
 	private function load_dependencies(): void {
 		require_once $this->plugin_path . 'includes/starmus-audio-recorder-handler.php';
-		$this->StarmusHandler = new \Starmus\includes\Starmus_Audio_Submission_Handler();
 	}
-
-	private function register_hooks(): void {
-		//add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-
-	}
-
-	/*public function enqueue_assets(): void {
-		 // --- TEMPORARY DEBUGGING ---
-		error_log('Starmus Plugin URL: ' . $this->plugin_url);
-		$js_url = $this->plugin_url . 'assets/js/starmus-audio-recorder-2.js';
-		$css_url = $this->plugin_url . 'assets/css/starmus-audio-recorder-style.min.css';
-		error_log('Starmus JS URL: ' . $js_url);
-		error_log('Starmus CSS URL: ' . $css_url);
-		// --- END TEMPORARY DEBUGGING ---
-
-		wp_enqueue_script(
-			'starmus-audio-recorder',
-			$js_url,
-			array(),
-			self::VERSION,
-			true
-		);
-
-		wp_enqueue_style(
-			'starmus-audio-recorder-style',
-			$css_url,
-			array(),
-			self::VERSION
-		);
-	}*/
-
+	
 	/**
 	 * Executes the main functionality of the Starmus Audio Recorder plugin.
 	 *
