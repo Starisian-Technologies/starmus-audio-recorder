@@ -155,7 +155,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
             $submit_button_text = esc_html( $attributes['submit_button_text'] );
             $nonce_action = self::NONCE_ACTION;
             $nonce_field_name = self::NONCE_FIELD;
-            $template_path = $this->plugin_path . 'templates/audio-recorder-form-template.php';
+            $template_path = $this->plugin_path . 'templates/starmus-audio-recorder-ui.php';
 
             if ( file_exists( $template_path ) ) {
                 include $template_path;
