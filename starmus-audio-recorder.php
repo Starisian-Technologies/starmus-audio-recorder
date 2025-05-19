@@ -34,9 +34,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define('STARMUS_PATH', plugin_dir_path( __FILE__ ));
-define('STARMUS_URL', plugin_dir_url( __FILE__ ));
-define('STARMUS_VERSION', '0.5.0');
+if ( ! defined( 'STARMUS_PATH' ) ) {
+	define( 'STARMUS_PATH', plugin_dir_path( __FILE__ ) );
+}
+if ( ! defined( 'STARMUS_URL' ) ) {
+	define( 'STARMUS_URL', plugin_dir_url( __FILE__ ) );
+}
+if ( ! defined( 'STARMUS_VERSION' ) ) {
+	define( 'STARMUS_VERSION', '0.5.0' );
+}
 
 /**
  * Class AudioRecorder
@@ -73,7 +79,7 @@ final class AudioRecorder {
 		}
 
 		$this->load_dependencies();
-		$this->register_hooks();
+		//$this->register_hooks();
 	}
 
 	/**
@@ -121,8 +127,8 @@ final class AudioRecorder {
 	}
 
 	private function load_dependencies(): void {
-		require_once $this.plugin_path . 'includes/starmus-audio-recorder-handler.php';
-		$this.StarmusHandler = new \Starmus\includes\Starmus_Audio_Submission_Handler();
+		require_once $this->plugin_path . 'includes/starmus-audio-recorder-handler.php';
+		$this->StarmusHandler = new \Starmus\includes\Starmus_Audio_Submission_Handler();
 	}
 
 	private function register_hooks(): void {
