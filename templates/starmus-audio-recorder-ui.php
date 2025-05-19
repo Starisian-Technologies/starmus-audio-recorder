@@ -68,7 +68,7 @@ $form_id = 'sparxstarAudioForm_' . $unique_suffix;
     </div>
     
     <!-- Submit -->
-    <button type="submit" id="submit_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_submitButton">Submit Recording</button>
+    <button type="submit" id="submit_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_submitButton" disabled>Submit Recording</button>
     <!-- Submit Loader -->
     <div id="sparxstar_loader_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_status sparxstar_visually_hidden" aria-live="polite">
       <span class="sparxstar_status__text">Submitting… please wait.</span>
