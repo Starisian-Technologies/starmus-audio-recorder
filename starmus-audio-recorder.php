@@ -118,11 +118,11 @@ final class AudioRecorder {
 
 	private function load_dependencies(): void {
 		require_once $this.plugin_path . 'includes/starmus-audio-recorder-handler.php';
-		$this.StarmusHandler = new Starmus\includes\Starmus_Audio_Submission_Handler();
+		$this.StarmusHandler = new \Starmus\includes\Starmus_Audio_Submission_Handler();
 	}
 
 	private function register_hooks(): void {
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		//add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
 	}
 
