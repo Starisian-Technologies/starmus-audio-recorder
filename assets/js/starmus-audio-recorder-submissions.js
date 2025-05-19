@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(logPrefix, `Initializing StarmusAudioRecorder module for instance: ${formInstanceId}`);
             StarmusAudioRecorder.init({
                 formInstanceId: formInstanceId, // This is the key for the recorder to find its elements
-                buildHash: 66b1d653d14e7c7f31fe6b00158f7cdf6eb3cd6e9b6e8ca97e6271430253fc00, // Pass the actual hash
+                buildHash: '66b1d653d14e7c7f31fe6b00158f7cdf6eb3cd6e9b6e8ca97e6271430253fc00', // Pass the actual hash
                 recorderContainerSelector: `#starmus_audioWrapper_${formInstanceId}` // Make container specific
                 // Other base IDs (recordButton, pauseButton etc.) are default in the module
             }).then(success => {
