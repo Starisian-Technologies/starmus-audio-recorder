@@ -13,14 +13,11 @@ Named after the iconic **Starmus Festival**, where rock legends and astrophysici
 ## **🔥 Features**
 
 * 🎤 **Native, in-browser recording** using the MediaRecorder API (no external libraries)
-
 * 🛡️ **Consent-first UX** — checkbox, timer, and playback before upload
-
 * 📤 **MP4/AAC & WebM/Opus output** automatically attached to form
-
 * 📱 **Mobile-friendly, PWA-capable**, no 3rd-party dependencies
-
 * 🧠 **Clean JS** codebase ready for extensions (transcription, waveform, MP3 export)
+* 👉 Developed for **low-bandwidth, mobile-first usage in The Gambia**, prioritizing offline, accessibility, and minimal dependencies.
 
 ---
 
