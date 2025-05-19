@@ -388,6 +388,13 @@ const StarmusAudioRecorder = (function () {
       if (!dom.fileInput.files || dom.fileInput.files.length === 0) {
         _warn('File could not be attached to the file input. This browser may not support programmatic file assignment.');
         _updateStatus('Recording saved, but your browser does not support automatic file attachment. Please try a different browser.');
+      } else {
+        // Enable submit button if everything is valid
+        const submitButton = document.getElementById(`submit_button_${config.formInstanceId}`);
+        if (submitButton && dom.uuidField && dom.uuidField.value && dom.fileInput.files.length > 0) {
+          submitButton.disabled = false;
+          _log('Submit button enabled: recording and UUID present.');
+        }
       }
     } catch (e) {
       _error("Could not attach file to fileInput. DataTransfer may not be supported or fileInput is problematic.", e);
