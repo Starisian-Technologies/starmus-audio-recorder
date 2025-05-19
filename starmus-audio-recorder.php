@@ -57,6 +57,7 @@ final class AudioRecorder {
 	private static $instance = null;
 	private $plugin_path;
 	private $plugin_url;
+	private $StarmusHandler = null;
 
 	private function __construct() {
 		$this->plugin_path = plugin_dir_path( __FILE__ );
@@ -116,7 +117,8 @@ final class AudioRecorder {
 	}
 
 	private function load_dependencies(): void {
-		// No external dependencies yet.
+		require_once $this.plugin_path . 'includes/starmus-audio-recorder-handler.php';
+		$this.StarmusHandler = new Starmus_Audio_Submission_Handler();
 	}
 
 	private function register_hooks(): void {
@@ -124,7 +126,7 @@ final class AudioRecorder {
 
 	}
 
-	public function enqueue_assets(): void {
+	/*public function enqueue_assets(): void {
 		 // --- TEMPORARY DEBUGGING ---
 		error_log('Starmus Plugin URL: ' . $this->plugin_url);
 		$js_url = $this->plugin_url . 'assets/js/starmus-audio-recorder-2.js';
@@ -147,7 +149,7 @@ final class AudioRecorder {
 			array(),
 			self::VERSION
 		);
-	}
+	}*/
 
 	/**
 	 * Executes the main functionality of the Starmus Audio Recorder plugin.
