@@ -343,6 +343,7 @@ const StarmusAudioRecorder = (function () {
     } catch (error) {
         _error("Crypto API failed during AudioID generation, falling back.", error);
     }
+    // codeql[js/insecure-randomness]: This use of Math.random is for filename uniqueness only, not for security. See project README and code comments.
     // Fallback: Math.random() is used for filename uniqueness only, not for security. This is intentional for compatibility with old browsers in low-bandwidth regions.
     _warn("Generating AudioID using Math.random(). Not cryptographically secure, but safe for filename uniqueness.");
     let d = new Date().getTime();

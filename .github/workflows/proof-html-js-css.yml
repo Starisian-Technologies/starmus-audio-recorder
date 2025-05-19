@@ -19,7 +19,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate HTML (templates folder)
-        uses: anishathalye/proof-html@v2
+        uses: anishathalye/proof-html@b7e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e # pinned commit SHA for security
         with:
           directory: ./templates
 

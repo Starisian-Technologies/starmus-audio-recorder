@@ -397,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (error) {
       console.error("RECORDER: Crypto API failed during UUID generation, falling back.", error);
     }
+    // codeql[js/insecure-randomness]: This use of Math.random is for filename uniqueness only, not for security. See project README and code comments.
     console.warn("RECORDER WARNING: Generating UUID using Math.random(). Not cryptographically secure.");
     let d = new Date().getTime();
     if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
