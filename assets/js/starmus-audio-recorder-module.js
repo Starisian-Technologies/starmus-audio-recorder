@@ -263,6 +263,11 @@ const StarmusAudioRecorder = (function () {
         dom.deleteButton.disabled = true;
       }
     }
+    if (dom.audioPlayer) {
+      dom.audioPlayer.src = audioUrl;
+      dom.audioPlayer.style.display = 'block'; // show the native player
+      dom.audioPlayer.controls = true; // ensure controls are active
+    }
 
     if (isRecording && !isPaused) {
         accumulatedElapsedTime += (Date.now() - segmentStartTime);
@@ -371,12 +376,7 @@ const StarmusAudioRecorder = (function () {
       _updateStatus('Recording saved locally. File input not found in form.');
       return;
     }
-    // activate submit button
-    const submitButton = document.getElementById(`submit_button_${config.formInstanceId}`);
-    if (submitButton) {
-      submitButton.disabled = false;
-      _log('Submit button enabled after recording completed.');
-    }
+   
     try {
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
@@ -392,6 +392,18 @@ const StarmusAudioRecorder = (function () {
     } catch (e) {
         _error("Could not attach file to fileInput. DataTransfer may not be supported or fileInput is problematic.", e);
         _updateStatus('Recording saved locally. Error attaching to form.');
+    }
+    if (dom.uuidField?.value && dom.fileInput?.files.length > 0 && submitButton) {
+      submitButton.disabled = false;
+      _log('Submit button enabled because UUID and file are ready.');
+    } else {
+      _warn('Submit button not enabled — missing UUID or file input.');
+    }
+     // activate submit button
+    const submitButton = document.getElementById(`submit_button_${config.formInstanceId}`);
+    if (submitButton) {
+      submitButton.disabled = false;
+      _log('Submit button enabled after recording completed.');
     }
   }
 
