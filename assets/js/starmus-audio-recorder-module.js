@@ -344,13 +344,13 @@ const StarmusAudioRecorder = (function () {
 
   function _attachAudioToForm(audioBlob, fileType) {
     _log("attachAudioToForm called. File type:", fileType);
-    const generatedUuid = _generateUniqueAudioId(); // Generate UUID here when audio is ready
-    const fileName = `audio_${generatedUuid}.${fileType}`;
+    const generatedAudioID = _generateUniqueAudioId(); // Generate UUID here when audio is ready
+    const fileName = `audio_${generatedAudioID}.${fileType}`;
     _log("Generated filename:", fileName);
 
     if (dom.uuidField) {
-        dom.uuidField.value = generatedUuid; // Populate the hidden UUID field
-        _log("UUID field value set to:", generatedUuid);
+        dom.uuidField.value = generatedAudioID; // Populate the hidden UUID field
+        _log("UUID field value set to:", generatedAudioID);
     } else {
         _warn("UUID field not found in DOM. Skipping setting its value.");
     }
@@ -361,6 +361,12 @@ const StarmusAudioRecorder = (function () {
       _updateStatus('Recording saved locally. File input not found in form.');
       return;
     }
+    // activate submit button
+    const submitButton = document.getElementById(`submit_button_${config.formInstanceId}`);
+    if (submitButton) {
+      submitButton.disabled = false;
+      _log('Submit button enabled after recording completed.');
+    }
     try {
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
@@ -370,7 +376,7 @@ const StarmusAudioRecorder = (function () {
 
         // Optionally, dispatch a custom event to notify the submission script
         // that the audio is ready and fields are populated.
-        const event = new CustomEvent('starmusAudioReady', { detail: { uuid: generatedUuid, fileName: fileName } });
+        const event = new CustomEvent('starmusAudioReady', { detail: { uuid: generatedAudioID, fileName: fileName } });
         dom.container.dispatchEvent(event); // Dispatch on the main recorder container
 
     } catch (e) {
@@ -713,6 +719,11 @@ const StarmusAudioRecorder = (function () {
         dom.audioPlayer.classList.add('sparxstar_visually_hidden'); // Hide it
         _log("Revoked audio player blob URL.");
       }
+      const submitButton = document.getElementById(`submit_button_${config.formInstanceId}`);
+        if (submitButton) {
+          submitButton.disabled = true;
+          _log('Submit button disabled after cleanup.');
+        }
       audioChunks = [];
       isRecording = false;
       isPaused = false;
@@ -730,11 +741,12 @@ const StarmusAudioRecorder = (function () {
       this.cleanup();
       recordButtonEnforcer?.disconnect();
       recordButtonEnforcer = null;
+      submitButton.disabled = true;
       dom = {}; // Drop all DOM refs
       config = {}; // Reset config if needed
     },
 
-    getGeneratedUUID: function() { // If the submission script needs to get it after recording
+    generateUniqueAudioId: function() { // If the submission script needs to get it after recording
         return dom.uuidField ? dom.uuidField.value : null;
     }
 
