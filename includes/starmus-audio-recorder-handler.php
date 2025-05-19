@@ -40,10 +40,11 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
          * Default custom post type where audio submissions are stored.
          * This allows future expansion via options or filters.
          */
-        const POST_TYPE = 'starmus_audio';
+        const POST_TYPE = 'post';
 
 	private string $plugin_path;
 	private string $plugin_url;
+	private string $version;
 
         /**
          * Class constructor.
@@ -52,6 +53,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
         public function __construct() {
 		$this->plugin_path = STARMUS_PATH;
 		$this->plugin_url  = STARMUS_URL;
+		$this->version = STARMUS_VERSION;
 
 		$this->register_hooks();
             
@@ -174,7 +176,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                     'starmus-audio-recorder-module',
                     $this->plugin_url . 'assets/js/starmus-audio-recorder-module.js',
                     [],
-                    '1.0.0',
+                    $this->version,
                     true
                 );
 
@@ -182,7 +184,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                     'starmus-audio-form-submission',
                     $this->plugin_url . 'assets/js/starmus-audio-form-submission.js',
                     ['starmus-audio-recorder-module'],
-                    '1.0.0',
+                    $this->version,
                     true
                 );
 
@@ -196,7 +198,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                     'starmus-audio-recorder-style',
                     $this->plugin_url . 'assets/css/starmus-audio-recorder.css',
                     [],
-                    '1.0.0'
+                    $this->version
                 );
             }
         }
