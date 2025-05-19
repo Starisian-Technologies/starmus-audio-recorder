@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
 
-    class Starmus_Audio_Submission_Handler {
+    class StarmusAudioSubmissionHandler {
 
         /**
          * AJAX action hook for logged-in users.
@@ -71,6 +71,20 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
          * Validates data, saves the audio to the media library, and creates a new post.
          */
         public function handle_submission(): void {
+            // Check if the request is an AJAX request
+            if ( ! wp_doing_ajax() ) {
+                wp_send_json_error( [ 'success' => false, 'message' => 'Invalid request.' ], 400 );
+                return;
+            }
+            error_log('--- START SUBMISSION HANDLER ---');
+            error_log('FILES: ' . print_r($_FILES, true));
+            error_log('POST: ' . print_r($_POST, true))
+            // Check if the user is logged in
+            //if ( ! is_user_logged_in() ) {
+            //    wp_send_json_error([ 'success' => false, 'message' => 'User is not logged in.' ], 403);
+            //    return;
+           // }
+
             if ( ! isset( $_POST[self::NONCE_FIELD] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[self::NONCE_FIELD] ) ), self::NONCE_ACTION ) ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Nonce verification failed.' ], 403 );
                 return;
@@ -103,6 +117,8 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Failed to save audio file: ' . $attachment_id->get_error_message() ], 500 );
                 return;
             }
+
+
             
             $ip_address    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( $_SERVER['REMOTE_ADDR'] ) : 'unknown';
             $user_agent    = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ) : 'unknown';
@@ -257,6 +273,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
          * Provides readable error messages for known upload failures.
          */
         protected function get_upload_error_message(int $error_code) : string {
+            error_log('UPLOAD ERROR CODE: ' . $error_code);
             switch ($error_code) {
                 case UPLOAD_ERR_INI_SIZE:
                     return "The uploaded file exceeds the upload_max_filesize directive in php.ini.";

@@ -44,6 +44,9 @@ if ( ! defined( 'STARMUS_VERSION' ) ) {
 	define( 'STARMUS_VERSION', '0.5.0' );
 }
 
+
+use Starmus\includes\StarmusAudioRecorderHandler;
+
 /**
  * Class AudioRecorder
  *
@@ -80,7 +83,9 @@ final class AudioRecorder {
 
 		$this->load_dependencies();
 		// add the handler
-		$this->StarmusHandler = new \Starmus\includes\Starmus_Audio_Submission_Handler();
+		if ( ! isset( $this->StarmusHandler ) ) {
+			$this->StarmusHandler = new \Starmus\includes\StarmusAudioSubmissionHandler();
+		}
 	}
 
 	/**

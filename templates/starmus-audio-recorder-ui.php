@@ -1,6 +1,7 @@
 <?php
 namespace Starmus\templates;
 
+use Starmus\includes\StarmusAudioRecorderHandler;
 
 /*
  * Starmus Audio Recorder UI
@@ -9,7 +10,9 @@ namespace Starmus\templates;
  * The JavaScript (starmus-audio-recorder.js) is responsible for handling the recorded audio data
  * for playback and any subsequent submission or processing.
 */
-$form_id = 'sparxstarAudioForm_' . $unique_suffix;
+if (!isset($unique_suffix)) {
+  $unique_suffix = Starmus\includes\StarmusAudioRecorderHandler::uniqid();
+}
 ?>
 <form id="<?php echo esc_attr( $form_id ); ?>" method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url('admin-ajax.php') ); ?>">
   
