@@ -40,7 +40,6 @@ $form_id = 'sparxstarAudioForm_' . $unique_suffix;
       <div class="sparxstar_recorderControls" role="group" aria-label="Recording controls">
         <button type="button" id="recordButton_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_button">Record</button>
         <button type="button" id="pauseButton_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_button" disabled>Pause</button>
-        <button type="button" id="playButton_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_button" disabled>Play</button>
         <button type="button" id="deleteButton_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_button sparxstar_button--danger sparxstar_visually_hidden" disabled>Delete</button>
 
       </div>
@@ -64,7 +63,7 @@ $form_id = 'sparxstarAudioForm_' . $unique_suffix;
     
       <!-- Hidden Inputs for Form Submission -->
       <input type="hidden" name="audio_uuid" id="audio_uuid_<?php echo esc_attr( $form_id ); ?>"/>
-      <input type="file" name="audio_file" id="audio_file_<?php echo esc_attr($form_id); ?>" class="sparxstar_hidden" accept="audio/*">
+      <input type="file" name="audio_file" id="audio_file_<?php echo esc_attr($form_id); ?>" class="sparxstar_hidden sparxstar_visually_hidden" accept="audio/*">
     </div>
     
     <!-- Submit -->
