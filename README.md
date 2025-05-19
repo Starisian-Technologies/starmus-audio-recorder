@@ -6,6 +6,8 @@ The **Starmus Audio Recorder** is a minimalist front-end WordPress plugin for ca
 
 Named after the iconic **Starmus Festival**, where rock legends and astrophysicists share the stage, this tool is built for creators and communities who believe **voice has gravity**.
 
+[![CodeQL](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql)
+
 ---
 
 ## **🔥 Features**
