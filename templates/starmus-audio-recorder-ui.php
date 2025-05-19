@@ -1,4 +1,7 @@
 <?php
+namespace Starmus\templates;
+
+
 /*
  * Starmus Audio Recorder UI
  * This HTML is designed to work with mic-recorder-wrapper.js and uses the native MediaRecorder API.
