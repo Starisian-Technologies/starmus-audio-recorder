@@ -181,14 +181,14 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                 );
 
                 wp_enqueue_script(
-                    'starmus-audio-recorder-submission',
-                    $this->plugin_url . 'assets/js/starmus-audio-recorder-submission.js',
+                    'starmus-audio-recorder-submissions',
+                    $this->plugin_url . 'assets/js/starmus-audio-recorder-submissions.js',
                     ['starmus-audio-recorder-module'],
                     $this->version,
                     true
                 );
 
-                wp_localize_script('starmus-audio-recorder-submission', 'starmusFormData', [
+                wp_localize_script('starmus-audio-recorder-submissions', 'starmusFormData', [
                     'ajax_url' => admin_url('admin-ajax.php'),
                     'nonce_action' => self::NONCE_ACTION,
                     'nonce_field' => self::NONCE_FIELD,
