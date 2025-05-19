@@ -312,17 +312,17 @@ const StarmusAudioRecorder = (function () {
     _log("handleStop finished.");
   }
 
-  function _generateUUID() {
-    _log("generateUUID called");
+  function _generateUniqueAudioId() {
+    _log("generateUniqueAudioId called");
     try {
         if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
             return crypto.randomUUID();
         }
         // ... rest of your fallback UUID logic ...
     } catch (error) {
-        _error("Crypto API failed during UUID generation, falling back.", error);
+        _error("Crypto API failed during AudioID generation, falling back.", error);
     }
-    _warn("Generating UUID using Math.random(). Not cryptographically secure.");
+    _warn("Generating AudioID using Math.random(). Not cryptographically secure.");
     // ... Math.random() fallback ...
     let d = new Date().getTime();
     if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
@@ -337,7 +337,7 @@ const StarmusAudioRecorder = (function () {
 
   function _attachAudioToForm(audioBlob, fileType) {
     _log("attachAudioToForm called. File type:", fileType);
-    const generatedUuid = _generateUUID(); // Generate UUID here when audio is ready
+    const generatedUuid = _generateUniqueAudioId(); // Generate UUID here when audio is ready
     const fileName = `audio_${generatedUuid}.${fileType}`;
     _log("Generated filename:", fileName);
 
