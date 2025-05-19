@@ -263,9 +263,10 @@ const StarmusAudioRecorder = (function () {
     }
 
     if (dom.audioPlayer) {
-      dom.audioPlayer.classList.add('sparxstar_visually_hidden');
-      dom.audioPlayer.controls = false;
-      dom.audioPlayer.src = '';
+      dom.audioPlayer.src = audioUrl;
+      dom.audioPlayer.controls = true;
+      dom.audioPlayer.style.display = 'block'; // <-- ADD THIS LINE
+      dom.audioPlayer.classList.remove('sparxstar_visually_hidden');
     }
 
     if (isRecording && !isPaused) {
