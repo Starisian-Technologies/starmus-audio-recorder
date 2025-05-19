@@ -318,12 +318,19 @@ const StarmusAudioRecorder = (function () {
         if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
             return crypto.randomUUID();
         }
-        // ... rest of your fallback UUID logic ...
+        if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+          const buffer = new Uint8Array(16);
+          crypto.getRandomValues(buffer);
+          buffer[6] = (buffer[6] & 0x0f) | 0x40;
+          buffer[8] = (buffer[8] & 0x3f) | 0x80;
+          const U = (i) => buffer[i].toString(16).padStart(2, '0');
+          return `${U(0)}${U(1)}${U(2)}${U(3)}-${U(4)}${U(5)}-${U(6)}${U(7)}-${U(8)}${U(9)}-${U(10)}${U(11)}${U(12)}${U(13)}${U(14)}${U(15)}`;
+        }
     } catch (error) {
         _error("Crypto API failed during AudioID generation, falling back.", error);
     }
     _warn("Generating AudioID using Math.random(). Not cryptographically secure.");
-    // ... Math.random() fallback ...
+    // Math.random() fallback for old browsers
     let d = new Date().getTime();
     if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
       d += performance.now();
