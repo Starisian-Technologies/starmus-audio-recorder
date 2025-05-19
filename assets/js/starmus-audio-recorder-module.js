@@ -235,10 +235,34 @@ const StarmusAudioRecorder = (function () {
   }
 
   function _handleRecordingReady() {
-    if (dom.pauseButton) {
-      dom.pauseButton.disabled = true;
-      dom.pauseButton.textContent = 'Pause';
+     _log("handleRecordingReady called - resetting controls for a new recording session or after cleanup");
+    if (dom.recordButton) {
+        dom.recordButton.disabled = !['granted', 'prompt'].includes(window.sparxstarRecorderState.micPermission);
+        dom.recordButton.textContent = 'Record';
+        dom.recordButton.setAttribute('aria-pressed', 'false');
     }
+    if (dom.pauseButton) {
+        dom.pauseButton.disabled = true;
+        dom.pauseButton.textContent = 'Pause';
+        dom.pauseButton.setAttribute('aria-pressed', 'false');
+    }
+    if (dom.deleteButton) {
+        dom.deleteButton.disabled = true;
+        dom.deleteButton.classList.add('sparxstar_visually_hidden');
+    }
+    if (dom.audioPlayer) { // Ensure native player is reset/hidden
+        if (dom.audioPlayer.src && dom.audioPlayer.src.startsWith('blob:')) {
+            URL.revokeObjectURL(dom.audioPlayer.src);
+        }
+        dom.audioPlayer.src = '';
+        dom.audioPlayer.removeAttribute('controls');
+        dom.audioPlayer.classList.add('sparxstar_visually_hidden');
+    }
+    const submitButton = document.getElementById(`submit_button_${config.formInstanceId}`);
+    if (submitButton) {
+        submitButton.disabled = true;
+    }
+    _updateStatus("Ready to record.");
   }
 
   function _handleDataAvailable(event) {
@@ -252,42 +276,13 @@ const StarmusAudioRecorder = (function () {
     _log("handleStop called. isRecording:", isRecording, "isPaused:", isPaused, "audioChunks length:", audioChunks.length);
     _stopAnimationBarLoop();
 
-    if (dom.deleteButton) {
-      if (audioChunks.length > 0) {
-        dom.deleteButton.classList.remove('sparxstar_visually_hidden');
-        dom.deleteButton.disabled = false;
-      } else {
-        dom.deleteButton.classList.add('sparxstar_visually_hidden');
-        dom.deleteButton.disabled = true;
-      }
-    }
-
-    if (dom.audioPlayer) {
-      dom.audioPlayer.src = audioUrl;
-      dom.audioPlayer.controls = true;
-      dom.audioPlayer.style.display = 'block'; // <-- ADD THIS LINE
-      dom.audioPlayer.classList.remove('sparxstar_visually_hidden');
-    }
-
-    if (isRecording && !isPaused) {
-      accumulatedElapsedTime += (Date.now() - segmentStartTime);
-    }
-    _log(`Total recorded duration (accumulated): ${_formatTime(accumulatedElapsedTime)}`);
-
     if (!mediaRecorder || audioChunks.length === 0) {
-      _updateStatus('Recording stopped, no audio captured.');
-      if (dom.deleteButton) {
-        dom.deleteButton.classList.add('sparxstar_visually_hidden');
-        dom.deleteButton.disabled = true;
-      }
-      _handleRecordingReady();
-      if (dom.uuidField) dom.uuidField.value = '';
-      if (dom.fileInput) dom.fileInput.value = '';
-      const submitButton = document.getElementById(`submit_button_${config.formInstanceId}`);
-      if (submitButton) submitButton.disabled = true;
-      return;
+        _updateStatus('Recording stopped, no audio captured.');
+        publicMethods.cleanup(); // Full UI reset
+        return;
     }
 
+    // --- Process successful recording ---
     const mimeType = mediaRecorder.mimeType;
     let fileType;
     if (mimeType.includes('opus') || mimeType.includes('webm')) fileType = 'webm';
@@ -303,28 +298,39 @@ const StarmusAudioRecorder = (function () {
     const audioUrl = URL.createObjectURL(audioBlob);
 
     if (dom.audioPlayer) {
-      dom.audioPlayer.src = audioUrl;
-      dom.audioPlayer.classList.remove('sparxstar_visually_hidden');
-      dom.audioPlayer.controls = true;
+        dom.audioPlayer.src = audioUrl;
+        dom.audioPlayer.setAttribute('controls', '');
+        dom.audioPlayer.classList.remove('sparxstar_visually_hidden');
     }
     _log("Audio blob created, URL:", audioUrl);
 
-    _attachAudioToForm(audioBlob, fileType);
+    _attachAudioToForm(audioBlob, fileType); // This will enable submit if successful
 
     _stopTimerAndResetDisplay();
     isRecording = false;
     isPaused = false;
+
     if (dom.recordButton) {
-      dom.recordButton.textContent = 'Record';
-      dom.recordButton.setAttribute('aria-pressed', 'false');
-      dom.recordButton.disabled = !['granted', 'prompt'].includes(window.sparxstarRecorderState.micPermission);
+        dom.recordButton.textContent = 'Record';
+        dom.recordButton.setAttribute('aria-pressed', 'false');
+        dom.recordButton.disabled = !['granted', 'prompt'].includes(window.sparxstarRecorderState.micPermission);
     }
-    _handleRecordingReady();
+    if (dom.pauseButton) {
+        dom.pauseButton.disabled = true;
+        dom.pauseButton.textContent = 'Pause';
+        dom.pauseButton.setAttribute('aria-pressed', 'false');
+    }
+    if (dom.deleteButton) {
+        dom.deleteButton.disabled = false;
+        dom.deleteButton.classList.remove('sparxstar_visually_hidden');
+    }
+
     if (currentStream) {
-      currentStream.getTracks().forEach(track => track.stop());
-      currentStream = null;
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
     }
-    _log("handleStop finished.");
+    _log("handleStop finished. Recording is ready for playback or submission.");
+    _updateStatus("Recording complete. Play, Delete, or Submit.");
   }
 
   function _generateUniqueAudioId() {
@@ -384,12 +390,10 @@ const StarmusAudioRecorder = (function () {
       dom.fileInput.files = dataTransfer.files;
       _log('Audio attached to form input:', dom.fileInput.name || dom.fileInput.id);
       _updateStatus('Recording saved and attached to form.');
-      // Compatibility check for file input assignment
       if (!dom.fileInput.files || dom.fileInput.files.length === 0) {
         _warn('File could not be attached to the file input. This browser may not support programmatic file assignment.');
         _updateStatus('Recording saved, but your browser does not support automatic file attachment. Please try a different browser.');
       } else {
-        // Enable submit button if everything is valid
         const submitButton = document.getElementById(`submit_button_${config.formInstanceId}`);
         if (submitButton && dom.uuidField && dom.uuidField.value && dom.fileInput.files.length > 0) {
           submitButton.disabled = false;
@@ -400,7 +404,7 @@ const StarmusAudioRecorder = (function () {
       _error("Could not attach file to fileInput. DataTransfer may not be supported or fileInput is problematic.", e);
       _updateStatus('Recording saved locally. Error attaching to form.');
     }
-    const event = new CustomEvent('starmusAudioReady', { detail: { uuid: generatedAudioID, fileName: fileName } });
+    const event = new CustomEvent('starmusAudioReady', { detail: { audioId: generatedAudioID, fileName: fileName } });
     dom.container.dispatchEvent(event);
   }
 
@@ -646,14 +650,32 @@ const StarmusAudioRecorder = (function () {
 
         isRecording = true;
         isPaused = false;
-        if (dom.recordButton) {
+         if (dom.recordButton) {
             dom.recordButton.textContent = 'Stop';
             dom.recordButton.setAttribute('aria-pressed', 'true');
         }
-        if (dom.pauseButton) dom.pauseButton.disabled = false;
-        if (dom.pauseButton) dom.pauseButton.textContent = 'Pause';
-        if (dom.audioPlayer) dom.audioPlayer.src = '';
-
+        if (dom.pauseButton) {
+            dom.pauseButton.disabled = false; // Enable Pause button
+            dom.pauseButton.textContent = 'Pause';
+            dom.pauseButton.setAttribute('aria-pressed', 'false');
+        }
+        // Ensure delete button is hidden/disabled at start of new recording
+        if (dom.deleteButton) {
+            dom.deleteButton.disabled = true;
+            dom.deleteButton.classList.add('sparxstar_visually_hidden');
+        }
+        // Ensure audio player is hidden
+        if (dom.audioPlayer) {
+            dom.audioPlayer.classList.add('sparxstar_visually_hidden');
+            dom.audioPlayer.removeAttribute('controls');
+            if (dom.audioPlayer.src.startsWith('blob:')) URL.revokeObjectURL(dom.audioPlayer.src);
+            dom.audioPlayer.src = '';
+        }
+        // Disable submit button when a new recording starts
+        const submitButton = document.getElementById(`submit_button_${config.formInstanceId}`);
+        if (submitButton) {
+            submitButton.disabled = true;
+        }
         _startTimerForNewRecording();
         if (dom.levelBar) {
           dom.levelBar.classList.remove('sparxstar_visually_hidden');
@@ -714,6 +736,7 @@ const StarmusAudioRecorder = (function () {
             isPaused = true;
             _pauseTimer();
             _stopAnimationBarLoop();
+            // ... (mediaRecorder.pause() logic) ...
             if (dom.pauseButton) {
                 dom.pauseButton.textContent = 'Resume';
                 dom.pauseButton.setAttribute('aria-pressed', 'true');
@@ -808,7 +831,7 @@ const StarmusAudioRecorder = (function () {
       config = {}; // Reset config if needed
     },
 
-    generateUniqueAudioId: function() { // If the submission script needs to get it after recording
+    getRecordedAudioId: function() { // Renamed for clarity
         return dom.uuidField ? dom.uuidField.value : null;
     }
 
