@@ -84,13 +84,12 @@ const StarmusAudioRecorder = (function () {
   let config = { // To be set during init
     recordButtonId: 'recordButton',
     pauseButtonId: 'pauseButton',
-    playButtonId: 'playButton',
     deleteButtonId: 'deleteButton',
     timerDisplayId: 'sparxstar_timer',
     audioPlayerId: 'sparxstar_audioPlayer',
     statusDisplayId: 'sparxstar_status',
     levelBarId: 'sparxstar_audioLevelBar',
-    uuidFieldId: 'audio_uuid', // Matches your form HTML
+    uuidFieldId: 'audio_uuid', // Matches your form HTM
     fileInputId: 'audio_file', // Matches your form HTML
     recorderContainerSelector: '[data-enabled-recorder]',
     maxRecordingTime: 1200000, // 20 minutes
@@ -239,9 +238,6 @@ const StarmusAudioRecorder = (function () {
     if (dom.pauseButton) {
       dom.pauseButton.disabled = true;
       dom.pauseButton.textContent = 'Pause';
-    }
-    if (dom.playButton) {
-      dom.playButton.disabled = !(dom.audioPlayer && dom.audioPlayer.src && dom.audioPlayer.src.startsWith('blob:'));
     }
   }
 
@@ -412,21 +408,20 @@ const StarmusAudioRecorder = (function () {
       // Explicit formInstanceId check for developer clarity
       if (!config.formInstanceId) {
         _error('formInstanceId is missing in config. Cannot initialize recorder.');
-        return false;
+        return Promise.resolve(false);
       }
 
       // Get main container first
       dom.container = document.querySelector(config.recorderContainerSelector);
       if (!dom.container) {
         _warn(`Container "${config.recorderContainerSelector}" not found. Recorder will not run.`);
-        return false;
+        return Promise.resolve(false);
       }
 
       // Find DOM elements (scoped to the container if they are inside it, or globally if IDs are unique)
       const id = (baseId) => `${baseId}_${config.formInstanceId}`;
       dom.recordButton = document.getElementById(id(config.recordButtonId));
       dom.pauseButton = document.getElementById(id(config.pauseButtonId));
-      dom.playButton = document.getElementById(id(config.playButtonId));
       dom.deleteButton = document.getElementById(id(config.deleteButtonId));
       dom.timerDisplay = document.getElementById(id(config.timerDisplayId));
       dom.audioPlayer = document.getElementById(id(config.audioPlayerId));
@@ -440,17 +435,15 @@ const StarmusAudioRecorder = (function () {
       // Remove old event listeners before adding new ones
       if (dom.recordButton) dom.recordButton.replaceWith(dom.recordButton.cloneNode(true));
       if (dom.pauseButton) dom.pauseButton.replaceWith(dom.pauseButton.cloneNode(true));
-      if (dom.playButton) dom.playButton.replaceWith(dom.playButton.cloneNode(true));
       if (dom.deleteButton) dom.deleteButton.replaceWith(dom.deleteButton.cloneNode(true));
       // Re-query after replace
       dom.recordButton = document.getElementById(id(config.recordButtonId));
       dom.pauseButton = document.getElementById(id(config.pauseButtonId));
-      dom.playButton = document.getElementById(id(config.playButtonId));
       dom.deleteButton = document.getElementById(id(config.deleteButtonId));
 
-      if (!dom.recordButton || !dom.pauseButton || !dom.playButton || !dom.timerDisplay || !dom.audioPlayer || !dom.statusDisplay) {
+      if (!dom.recordButton || !dom.pauseButton || !dom.timerDisplay || !dom.audioPlayer || !dom.statusDisplay) {
         _error('One or more essential UI elements are missing. Recorder cannot initialize.');
-        return false;
+        return Promise.resolve(false);
       }
       if (!dom.uuidField || !dom.fileInput) {
         _warn('UUID field or File input field for form submission not found. Attachment will fail.');
@@ -463,12 +456,13 @@ const StarmusAudioRecorder = (function () {
       if (recordButtonIntervalId) clearInterval(recordButtonIntervalId);
 
       this.setupEventListeners(); // Call internal method
-      return this.setupPermissionsAndUI(); // Call internal method, returns a Promise
+      // Always return a Promise
+      return Promise.resolve(this.setupPermissionsAndUI()); // setupPermissionsAndUI already returns a Promise
     },
 
     setupEventListeners: function () {
       _log('Setting up event listeners...');
-      if (!dom.recordButton || !dom.pauseButton || !dom.playButton) {
+      if (!dom.recordButton || !dom.pauseButton) {
           _error("Cannot setup event listeners: one or more buttons not found.");
           return;
       }
@@ -492,15 +486,6 @@ const StarmusAudioRecorder = (function () {
         }
       });
 
-      dom.playButton.addEventListener('click', () => {
-        _log('Play button CLICKED. audioPlayer.src:', dom.audioPlayer.src);
-        if (dom.audioPlayer.src && dom.audioPlayer.src !== window.location.href && dom.audioPlayer.readyState > 0) {
-            dom.audioPlayer.play().catch(e => _error("Error playing audio:", e));
-        } else {
-            _log("Play button clicked, but no valid audio source or player not ready.");
-        }
-      });
-
       if (dom.deleteButton) {
         dom.deleteButton.addEventListener('click', () => {
           _log('Delete button clicked.');
@@ -514,7 +499,7 @@ const StarmusAudioRecorder = (function () {
     setupPermissionsAndUI: async function () {
       _log('setupPermissionsAndUI called.');
       if (dom.recordButton) dom.recordButton.disabled = true; // Start disabled
-      _handleRecordingReady(); // Set initial button states for pause/play
+      _handleRecordingReady(); // Set initial button states for pause
 
       // Initialize mic permission state
       let permissionQuerySupported = (navigator.permissions && navigator.permissions.query);
@@ -661,8 +646,6 @@ const StarmusAudioRecorder = (function () {
         }
         if (dom.pauseButton) dom.pauseButton.disabled = false;
         if (dom.pauseButton) dom.pauseButton.textContent = 'Pause';
-        if (dom.playButton) dom.playButton.disabled = true;
-        _updateStatus('Recording started…');
         if (dom.audioPlayer) dom.audioPlayer.src = '';
 
         _startTimerForNewRecording();
@@ -782,9 +765,6 @@ const StarmusAudioRecorder = (function () {
       if (dom.deleteButton) {
         dom.deleteButton.classList.add('sparxstar_visually_hidden');
         dom.deleteButton.disabled = true;
-      }
-      if (dom.playButton) {
-        dom.playButton.disabled = true;
       }
       if (dom.recordButton) {
         dom.recordButton.textContent = 'Record';
