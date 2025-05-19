@@ -264,6 +264,28 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                     return "Failed to write file to disk.";
                 case UPLOAD_ERR_EXTENSION:
                     return "A PHP extension stopped the file upload.";
+                case UPLOAD_ERR_OK:
+                    return "File uploaded successfully.";
+                case UPLOAD_ERR_EMPTY_FILE:
+                    return "The uploaded file is empty.";
+                case UPLOAD_ERR_INVALID_FILE:
+                    return "The uploaded file is invalid.";
+                case UPLOAD_ERR_INVALID_TYPE:
+                    return "The uploaded file type is not allowed.";
+                case UPLOAD_ERR_FILE_TOO_LARGE:
+                    return "The uploaded file is too large.";
+                case UPLOAD_ERR_FILE_NOT_FOUND:
+                    return "The uploaded file was not found.";
+                case UPLOAD_ERR_FILE_NOT_READABLE:
+                    return "The uploaded file is not readable.";
+                case UPLOAD_ERR_FILE_NOT_WRITABLE:
+                    return "The uploaded file is not writable.";
+                case UPLOAD_ERR_FILE_EXISTS:
+                    return "The uploaded file already exists.";
+                case UPLOAD_ERR_FILE_NOT_SUPPORTED:
+                    return "The uploaded file type is not supported.";
+                case UPLOAD_ERR_FILE_TOO_SHORT:
+                    return "The uploaded file is too short.";
                 default:
                     return "Unknown upload error.";
             }
