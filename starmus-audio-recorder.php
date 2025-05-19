@@ -34,6 +34,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+define('STARMUS_PATH', plugin_dir_path( __FILE__ ));
+define('STARMUS_URL', plugin_dir_url( __FILE__ ));
+define('STARMUS_VERSION', '0.5.0');
+
 /**
  * Class AudioRecorder
  *
@@ -60,8 +64,8 @@ final class AudioRecorder {
 	private $StarmusHandler = null;
 
 	private function __construct() {
-		$this->plugin_path = plugin_dir_path( __FILE__ );
-		$this->plugin_url  = plugin_dir_url( __FILE__ );
+		$this->plugin_path = STARMUS_PATH;
+		$this->plugin_url  = STARMUS_URL;
 
 		if ( ! $this->check_compatibility() ) {
 			add_action( 'admin_notices', array( $this, 'admin_notice_compatibility' ) );
