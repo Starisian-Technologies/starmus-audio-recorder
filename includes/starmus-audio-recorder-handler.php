@@ -182,7 +182,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
 
                 wp_enqueue_script(
                     'starmus-audio-recorder-submission',
-                    $this->plugin_url . 'assets/js/starmus-audio-form-submission.js',
+                    $this->plugin_url . 'assets/js/starmus-audio-recorder-submission.js',
                     ['starmus-audio-recorder-module'],
                     $this->version,
                     true
