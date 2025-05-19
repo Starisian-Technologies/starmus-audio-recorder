@@ -42,16 +42,27 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
          */
         const POST_TYPE = 'starmus_audio';
 
+	private string $plugin_path;
+	private string $plugin_url;
+
         /**
          * Class constructor.
          * Binds AJAX actions, shortcode registration, and conditional asset loading.
          */
         public function __construct() {
-            add_action( 'wp_ajax_nopriv_' . self::ACTION_NO_PRIV, [ $this, 'handle_submission' ] );
+		$this->plugin_path = STARMUS_PATH;
+		$this->plugin_url  = STARMUS_URL;
+
+		$this->register_hooks();
+            
+        }
+
+	public function register_hooks(): void{
+	    add_action( 'wp_ajax_nopriv_' . self::ACTION_NO_PRIV, [ $this, 'handle_submission' ] );
             add_action( 'wp_ajax_' . self::ACTION_AUTH, [ $this, 'handle_submission' ] );
             add_shortcode( self::SHORTCODE_TAG, [ $this, 'render_recorder_form_shortcode' ] );
             add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts_if_shortcode_is_present' ] );
-        }
+	}
 
         /**
          * Handles the audio submission AJAX request.
@@ -142,7 +153,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
             $submit_button_text = esc_html( $attributes['submit_button_text'] );
             $nonce_action = self::NONCE_ACTION;
             $nonce_field_name = self::NONCE_FIELD;
-            $template_path = plugin_dir_path( __FILE__ ) . 'templates/audio-recorder-form-template.php';
+            $template_path = $this->plugin_path . 'templates/audio-recorder-form-template.php';
 
             if ( file_exists( $template_path ) ) {
                 include $template_path;
@@ -161,7 +172,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
             if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, self::SHORTCODE_TAG ) ) {
                 wp_enqueue_script(
                     'starmus-audio-recorder-module',
-                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/starmus-audio-recorder-module.js',
+                    $this->plugin_url . 'assets/js/starmus-audio-recorder-module.js',
                     [],
                     '1.0.0',
                     true
@@ -169,7 +180,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
 
                 wp_enqueue_script(
                     'starmus-audio-form-submission',
-                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/starmus-audio-form-submission.js',
+                    $this->plugin_url . 'assets/js/starmus-audio-form-submission.js',
                     ['starmus-audio-recorder-module'],
                     '1.0.0',
                     true
@@ -183,7 +194,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
 
                 wp_enqueue_style(
                     'starmus-audio-recorder-style',
-                    plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/starmus-audio-recorder.css',
+                    $this->plugin_url . 'assets/css/starmus-audio-recorder.css',
                     [],
                     '1.0.0'
                 );
