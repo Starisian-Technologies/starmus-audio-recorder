@@ -42,9 +42,9 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
          */
         const POST_TYPE = 'post';
 
-	private string $plugin_path;
-	private string $plugin_url;
-	private string $version;
+        private string $plugin_path;
+        private string $plugin_url;
+        private string $version;
 
         /**
          * Class constructor.
@@ -70,7 +70,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
          * Handles the audio submission AJAX request.
          * Validates data, saves the audio to the media library, and creates a new post.
          */
-        public function handle_submission() {
+        public function handle_submission(): void {
             if ( ! isset( $_POST[self::NONCE_FIELD] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[self::NONCE_FIELD] ) ), self::NONCE_ACTION ) ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Nonce verification failed.' ], 403 );
                 return;
@@ -103,7 +103,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Failed to save audio file: ' . $attachment_id->get_error_message() ], 500 );
                 return;
             }
-
+            
             $ip_address    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( $_SERVER['REMOTE_ADDR'] ) : 'unknown';
             $user_agent    = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ) : 'unknown';
             $submitted_at  = current_time( 'mysql' );
@@ -113,6 +113,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                 'post_title'   => 'Audio Recording ' . $uuid,
                 'post_type'    => $this->get_target_post_type(),
                 'post_status'  => 'publish',
+                'post_content' => '',
                 'meta_input'   => [
                     'audio_uuid'           => $uuid,
                     'audio_consent'        => 'yes',
@@ -121,6 +122,9 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                     'user_agent'           => $user_agent,
                     'submitted_at'         => $submitted_at,
                     'submission_id'        => $submission_id,
+                    'audio_file_type'      => $file['type'],
+                    'audio_file_size'      => $file['size'],
+                    'audio_file_name'      => $file['name'],
                 ],
             ];
             $post_id = wp_insert_post( $post_data );
@@ -130,6 +134,10 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
                 wp_send_json_error( [ 'success' => false, 'message' => 'Failed to create post: ' . $post_id->get_error_message() ], 500 );
                 return;
             }
+            update_post_meta($post_id, 'audio_file_type', $file['type']);
+            update_post_meta($post_id, 'audio_file_size', $file['size']);
+            update_post_meta($post_id, 'audio_file_name', $file['name']);
+
 
             wp_send_json_success( [
                 'success' => true,
@@ -169,7 +177,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
         /**
          * Conditionally loads scripts and styles only if shortcode is present.
          */
-        public function enqueue_scripts_if_shortcode_is_present() {
+        public function enqueue_scripts_if_shortcode_is_present(): void {
             global $post;
             if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, self::SHORTCODE_TAG ) ) {
                 wp_enqueue_script(
@@ -227,7 +235,7 @@ if ( ! class_exists( 'Starmus_Audio_Submission_Handler' ) ) {
          * @param int $post_id Optional post ID to associate media with
          * @return int|WP_Error
          */
-        protected function upload_file_to_media_library( string $file_key, int $post_id = 0 ) {
+        protected function upload_file_to_media_library( string $file_key, int $post_id = 0 ): mixed {
             if ( ! function_exists( 'media_handle_upload' ) ) {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
                 require_once ABSPATH . 'wp-admin/includes/media.php';
