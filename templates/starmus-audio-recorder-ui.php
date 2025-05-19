@@ -64,7 +64,7 @@ $form_id = 'sparxstarAudioForm_' . $unique_suffix;
     
       <!-- Hidden Inputs for Form Submission -->
       <input type="hidden" name="audio_uuid" id="audio_uuid_<?php echo esc_attr( $form_id ); ?>"/>
-      <input type="file" name="audio_file" id="audio_file_<?php echo esc_attr( $form_id ); ?>" accept="audio/*" class="sparxstar_hidden" />
+      <input type="file" name="audio_file" id="audio_file_<?php echo esc_attr($form_id); ?>" class="sparxstar_hidden" accept="audio/*">
     </div>
     
     <!-- Submit -->
