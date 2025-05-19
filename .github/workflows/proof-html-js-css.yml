@@ -18,10 +18,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Validate HTML (templates folder)
-        uses: anishathalye/proof-html@b7e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e # pinned commit SHA for security
-        with:
-          directory: ./templates
+      # Remove or comment this out completely — no static HTML to validate
+      # - name: Validate HTML and CSS
+      #   uses: anishathalye/proof-html@v2
+      #   with:
+      #     directory: ./site
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
