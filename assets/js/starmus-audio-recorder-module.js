@@ -232,6 +232,16 @@ const StarmusAudioRecorder = (function () {
     }
   }
 
+  function _handleRecordingReady() {
+    if (dom.pauseButton) {
+      dom.pauseButton.disabled = true;
+      dom.pauseButton.textContent = 'Pause';
+    }
+    if (dom.playButton) {
+      dom.playButton.disabled = false;
+    }
+  }
+
   function _handleDataAvailable(event) {
     if (event.data.size > 0) {
       audioChunks.push(event.data);
