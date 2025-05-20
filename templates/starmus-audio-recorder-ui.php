@@ -53,21 +53,53 @@ if (!isset($unique_suffix)) {
 
       </div>
 
-      <!-- Volume Meter -->
-      <div id="sparxstar_audioLevelWrap_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioLevelWrap"
-        aria-hidden="true">
-        <div id="sparxstar_audioLevelBar_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioLevelBar"
-          role="meter" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Microphone input level">
+    <!-- Volume Meter -->
+    <div id="sparxstar_audioLevelContainer_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioLevelContainer">
+        <label id="sparxstar_audioLevelVisibleLabel_<?php echo esc_attr($form_id); ?>"
+              for="sparxstar_audioLevelBar_<?php echo esc_attr($form_id); ?>"
+              class="sparxstar_audioLevelVisibleLabel">
+            Microphone Level:
+        </label>
+        <div id="sparxstar_audioLevelWrap_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_audioLevelWrap">
+            <div id="sparxstar_audioLevelBar_<?php echo esc_attr($form_id); ?>"
+                class="sparxstar_audioLevelBar"
+                role="meter"
+                aria-labelledby="sparxstar_audioLevelVisibleLabel_<?php echo esc_attr($form_id); ?>" 
+                aria-describedby="sparxstar_audioLevelText_<?php echo esc_attr($form_id); ?>" 
+                aria-valuenow="0"
+                aria-valuemin="0"
+                aria-valuemax="100">
+                <!-- No inner text here if aria-labelledby is used -->
+            </div>
         </div>
-      </div>
+        <span id="sparxstar_audioLevelText_<?php echo esc_attr($form_id); ?>" 
+              class="sparxstar_audioLevelText" 
+              aria-live="polite">0%</span> <!-- aria-live if you want changes announced -->
+    </div>
 
       <!-- Timer Display -->
+      <div id="sparxstar_audioTimerContainer_<?php echo esc_attr($form_id); ?>"
+        class="sparxstar_audioTimerContainer" aria-live="polite">
+        <label for="sparxstar_timer_<?php echo esc_attr($form_id); ?>" class="sparxstar_visually_hidden">Recording
+          Timer</label>
       <div id="sparxstar_timer_<?php echo esc_attr($form_id); ?>" class="sparxstar_timer" role="timer"
         aria-live="polite">00:00</div>
+      </div>
+      
 
       <!-- Audio Playback -->
       <audio id="sparxstar_audioPlayer_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioPlayer" controls
         aria-label="Recorded audio preview"></audio>
+
+      <!-- Download Link -->
+      <a id="sparxstar_audioDownload_<?php echo esc_attr($form_id); ?>"
+        class="sparxstar_button sparxstar_audioDownload sparxstar_visually_hidden"
+        href="#"
+        download="audio_recording.wav"
+        aria-label="Download recorded audio"
+        aria-disabled="true"> <!-- Use aria-disabled -->
+        Download
+      </a>
 
       <!-- Hidden Inputs for Form Submission -->
       <input type="hidden" name="audio_uuid" id="audio_uuid_<?php echo esc_attr($form_id); ?>" />
@@ -78,6 +110,15 @@ if (!isset($unique_suffix)) {
     <!-- Submit -->
     <button type="submit" id="submit_button_<?php echo esc_attr($form_id); ?>" class="sparxstar_submitButton"
       disabled>Submit Recording</button>
+
+      <!-- Hidden fields  -->
+      <input type="hidden" name="submission_id" id="submission_id_<?php echo esc_attr( $form_id ); ?>" value="" />
+      <input type="hidden" name="user_id" id="linked_user_id_<?php echo esc_attr( $form_id ); ?>" value="" />
+      <input type="hidden" name="user_agent" id="linked_user_agent_<?php echo esc_attr( $form_id ); ?>" value="" />
+      <input type="hidden" name="user_ip" id="linked_user_ip_<?php echo esc_attr( $form_id ); ?>" value="" />
+      <input type="hidden" name="datetime" id="linked_datetime_<?php echo esc_attr( $form_id ); ?>" value="" />
+      <input type="hidden" name="user_email" id="linked_user_email_<?php echo esc_attr( $form_id ); ?>" value="" />
+    
     <!-- Submit Loader -->
     <div id="sparxstar_loader_<?php echo esc_attr($form_id); ?>" class="sparxstar_status sparxstar_visually_hidden"
       aria-live="polite">
@@ -86,3 +127,11 @@ if (!isset($unique_suffix)) {
 
   </div>
 </form>
+<!-- Submit Loader / Overlay -->
+<div id="sparxstar_loader_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_loader_overlay sparxstar_visually_hidden" role="alert" aria-live="assertive">
+    <div class="sparxstar_loader_content">
+        <div class="sparxstar_spinner"></div>
+        <span id="sparxstar_loader_text_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_status__text">Submitting your recording…</span>
+        <p class="sparxstar_upload_eta_note">Large recordings may take several minutes to upload. Please keep this window open.</p>
+    </div>
+</div>

@@ -88,7 +88,9 @@ const StarmusAudioRecorder = (function () {
     timerDisplayId: 'sparxstar_timer',
     audioPlayerId: 'sparxstar_audioPlayer',
     statusDisplayId: 'sparxstar_status',
-    levelBarId: 'sparxstar_audioLevelBar',
+    levelBarId: 'sparxstar_audioLevelBar',         // This is now the FILL element
+    audioLevelTextId: 'sparxstar_audioLevelText', // New ID for the text percentage
+    levelBarWrapId: 'sparxstar_audioLevelWrap',   // ID for the visual track/background container
     uuidFieldId: 'audio_uuid', // Matches your form HTM
     fileInputId: 'audio_file', // Matches your form HTML
     recorderContainerSelector: '[data-enabled-recorder]',
@@ -130,30 +132,81 @@ const StarmusAudioRecorder = (function () {
     console.error(config.logPrefix, ...args);
   }
 
-  function _animateBar() {
-    if (analyser && dataArray && dom.levelBar && isRecording && !isPaused) {
-      analyser.getByteFrequencyData(dataArray);
-      const volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-      const percent = Math.min((volume / 255) * 100, 100);
-      dom.levelBar.style.width = `${percent}%`;
-      dom.levelBar.setAttribute('aria-valuenow', Math.round(percent));
-      dom.levelBar.classList.remove('sparxstar_visually_hidden');
-      animationFrameId = requestAnimationFrame(_animateBar);
-    } else {
-      _stopAnimationBarLoop();
-    }
-  }
+  // In your StarmusAudioRecorder module or the form submission script
+  window.addEventListener('offline', () => {
+      if (isRecording || isPaused || audioChunks.length > 0) {
+          _updateStatus("Network connection lost. Current recording is paused. Do NOT close page if you wish to save. Try to Stop and Submit when online.");
+          if (isRecording && !isPaused && mediaRecorder && mediaRecorder.state === 'recording') {
+              publicMethods.pause(); // Auto-pause if they were actively recording
+          }
+      }
+  });
 
+  window.addEventListener('online', () => {
+      // Only show this if they were previously offline and had a recording in progress/paused
+      if (audioChunks.length > 0) { // Check if there's something to recover
+          _updateStatus("Network connection restored. You can now Stop your recording and Submit, or Delete and start over.");
+      } else {
+          _updateStatus("Network connection restored.");
+      }
+  });
+
+  function _animateBar() {
+      // Add dom.audioLevelText to the condition
+      if (analyser && dataArray && dom.levelBar && dom.audioLevelText && isRecording && !isPaused) {
+          analyser.getByteFrequencyData(dataArray); // Populates dataArray (0-255)
+
+          const averageVolume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+
+          // Calculate raw percentage
+          let rawPercent = (averageVolume / 255) * 100;
+
+          // Apply an amplification factor to make the bar more responsive
+          // Adjust this factor (e.g., 2.0, 2.5, 3.0, 3.5) based on testing to get the desired feel.
+          const amplificationFactor = 2.5; // START WITH THIS AND TUNE
+          let amplifiedPercent = rawPercent * amplificationFactor;
+
+          // Ensure the final percentage doesn't exceed 100 or go below 0
+          const finalPercent = Math.max(0, Math.min(amplifiedPercent, 100));
+          const roundedFinalPercent = Math.round(finalPercent);
+
+          // Update the fill bar's width (use unrounded for smoother visual if desired)
+          dom.levelBar.style.width = `${finalPercent}%`;
+          dom.levelBar.setAttribute('aria-valuenow', roundedFinalPercent);
+
+          // Update the text percentage
+          dom.audioLevelText.textContent = `${roundedFinalPercent}%`;
+
+          // Ensure the whole bar unit (wrap) is visible when animating
+          // This check also implicitly handles making the fill bar (dom.levelBar) visible
+          // because if the wrap is hidden, the fill won't be seen.
+          if (dom.levelBarWrap && dom.levelBarWrap.classList.contains('sparxstar_visually_hidden')) {
+              dom.levelBarWrap.classList.remove('sparxstar_visually_hidden');
+          }
+
+          animationFrameId = requestAnimationFrame(_animateBar);
+      } else {
+          _stopAnimationBarLoop(); // Call if conditions aren't met (e.g., paused, stopped)
+      }
+  }
   function _stopAnimationBarLoop() {
-    if (animationFrameId) {
-      cancelAnimationFrame(animationFrameId);
-      animationFrameId = null;
-    }
-    if (dom.levelBar) {
-      dom.levelBar.style.width = '0%';
-      dom.levelBar.setAttribute('aria-valuenow', 0);
-      dom.levelBar.classList.add('sparxstar_visually_hidden');
-    }
+      if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+      }
+      // Reset the fill bar
+      if (dom.levelBar) {
+          dom.levelBar.style.width = '0%';
+          dom.levelBar.setAttribute('aria-valuenow', 0);
+      }
+      // Reset the text percentage
+      if (dom.audioLevelText) {
+          dom.audioLevelText.textContent = '0%';
+      }
+      // Hide the entire visual bar unit (the wrap)
+      if (dom.levelBarWrap) {
+          dom.levelBarWrap.classList.add('sparxstar_visually_hidden');
+      }
   }
 
   function _formatTime(ms) {
@@ -281,6 +334,13 @@ const StarmusAudioRecorder = (function () {
         publicMethods.cleanup(); // Full UI reset
         return;
     }
+    if (dom.downloadLink) {
+        dom.downloadLink.classList.add('sparxstar_visually_hidden');
+        dom.downloadLink.setAttribute('aria-disabled', 'true');
+        dom.downloadLink.href = '#'; // Reset href
+        // Remove filename or set to default
+        dom.downloadLink.removeAttribute('download'); // Or set to a placeholder
+    }
 
     // --- Process successful recording ---
     const mimeType = mediaRecorder.mimeType;
@@ -293,7 +353,8 @@ const StarmusAudioRecorder = (function () {
       publicMethods.cleanup();
       return;
     }
-
+    _log("Recording MIME type:", mimeType, "File type:", fileType);
+    _stopTimerAndResetDisplay();
     const audioBlob = new Blob(audioChunks, { type: mimeType });
     const audioUrl = URL.createObjectURL(audioBlob);
 
@@ -302,11 +363,20 @@ const StarmusAudioRecorder = (function () {
         dom.audioPlayer.setAttribute('controls', '');
         dom.audioPlayer.classList.remove('sparxstar_visually_hidden');
     }
-    _log("Audio blob created, URL:", audioUrl);
-
     _attachAudioToForm(audioBlob, fileType); // This will enable submit if successful
 
-    _stopTimerAndResetDisplay();
+    // Add a download link
+    const downloadLink = document.getElementById(`downloadLink_${config.formInstanceId}`); // Add this to your HTML template
+   
+    if (dom.downloadLink) {
+        dom.downloadLink.href = audioUrl;
+        dom.downloadLink.download = fileName; // Set the dynamic filename
+        dom.downloadLink.removeAttribute('aria-disabled');
+        dom.downloadLink.classList.remove('sparxstar_visually_hidden');
+    }
+    _updateStatus("Recording complete. Play, Download, Delete, or Submit.");
+    _log("Audio blob created, URL:", audioUrl);
+    
     isRecording = false;
     isPaused = false;
 
@@ -330,7 +400,6 @@ const StarmusAudioRecorder = (function () {
         currentStream = null;
     }
     _log("handleStop finished. Recording is ready for playback or submission.");
-    _updateStatus("Recording complete. Play, Delete, or Submit.");
   }
 
   function _generateUniqueAudioId() {
@@ -404,8 +473,18 @@ const StarmusAudioRecorder = (function () {
       _error("Could not attach file to fileInput. DataTransfer may not be supported or fileInput is problematic.", e);
       _updateStatus('Recording saved locally. Error attaching to form.');
     }
-    const event = new CustomEvent('starmusAudioReady', { detail: { audioId: generatedAudioID, fileName: fileName } });
+    // ...
+    const finalDurationMs = accumulatedElapsedTime; // Capture it before it's reset by _stopTimerAndResetDisplay
+    // ...
+    const event = new CustomEvent('starmusAudioReady', {
+        detail: {
+            audioId: generatedAudioID, // Assuming you renamed from uuid
+            fileName: fileName,
+            durationMs: finalDurationMs // ADDED DURATION
+        }
+    });
     dom.container.dispatchEvent(event);
+    _log("starmusAudioReady event dispatched with details:", event.detail);
   }
 
   // --- Public Methods ---
@@ -436,7 +515,9 @@ const StarmusAudioRecorder = (function () {
       dom.timerDisplay = document.getElementById(id(config.timerDisplayId));
       dom.audioPlayer = document.getElementById(id(config.audioPlayerId));
       dom.statusDisplay = document.getElementById(id(config.statusDisplayId));
-      dom.levelBar = document.getElementById(id(config.levelBarId));
+      dom.levelBar = document.getElementById(id(config.levelBarId)); // The fill div
+      dom.audioLevelText = document.getElementById(id(config.audioLevelTextId)); // The text span
+      dom.levelBarWrap = document.getElementById(id(config.levelBarWrapId));   // The visual track div
       // These are critical for the form submission part
       dom.uuidField = document.getElementById(id(config.uuidFieldId));
       dom.fileInput = document.getElementById(id(config.fileInputId));

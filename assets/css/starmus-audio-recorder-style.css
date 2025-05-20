@@ -111,11 +111,18 @@
 /* --------------------------------------------------
    Timer Styles
 -------------------------------------------------- */
-.sparxstar_timer {
+.sparxstar_audioTimerContainer { /* New outer wrapper */
+  margin: 10px 0; /* Moved outer spacing here */
+  /* Add any layout styles if needed for label (though it's visually hidden) 
+     and timer div, e.g., text-align if you want the 00:00 centered within this container. */
+  /* text-align: center; */ /* Example */
+}
+
+.sparxstar_timer { /* This is still the div showing "00:00" */
   font-size: 1.2em;
   font-weight: bold;
-  margin: 10px 0;
-  color: #333;
+  /* margin: 0; */ /* Reset margins if they were for outer spacing */
+  color: #333; /* Default color */
 }
 
 .sparxstar_timer.orange {
@@ -125,7 +132,6 @@
 .sparxstar_timer.red {
   color: red;
 }
-
 /* --------------------------------------------------
    Audio Player
 -------------------------------------------------- */
@@ -137,20 +143,42 @@
 /* --------------------------------------------------
    Audio Level Meter
 -------------------------------------------------- */
-.sparxstar_audioLevelWrap {
+.sparxstar_audioLevelContainer { /* New outermost wrapper */
+  display: flex;        /* Arrange label, bar, text in a row */
+  align-items: center;  /* Vertically align them */
+  gap: 8px;             /* Space between label, bar, and text */
+  margin-top: 10px;     /* Moved outer spacing here */
+  margin-bottom: 15px;  /* Moved outer spacing here */
+}
+
+.sparxstar_audioLevelVisibleLabel { /* New visible label */
+  font-size: 0.9em; /* Example style */
+  color: #555;     /* Example style */
+  /* flex-shrink: 0; */ /* Prevent label from shrinking if space is tight */
+}
+
+.sparxstar_audioLevelWrap { /* This is still the track/background for the bar itself */
+  flex-grow: 1;         /* Allow the bar to take up available horizontal space */
   height: 8px;
   background: #e0e0e0;
   border-radius: 4px;
   overflow: hidden;
-  margin-top: 10px;
-  margin-bottom: 15px;
+  /* margin: 0; */ /* Reset outer margins, now handled by container */
 }
 
-.sparxstar_audioLevelBar {
+.sparxstar_audioLevelBar { /* This is still the fill */
   height: 100%;
   width: 0%;
   background-color: #4caf50;
   transition: width 0.05s linear;
+}
+
+.sparxstar_audioLevelText { /* New text percentage display */
+  font-size: 0.9em; /* Example style */
+  color: #555;     /* Example style */
+  min-width: 35px;  /* Reserve space for "100%" to prevent jiggle */
+  text-align: right;/* Align text to the right if min-width makes it wider than content */
+  /* flex-shrink: 0; */ /* Prevent text from shrinking */
 }
 
 /* --------------------------------------------------
