@@ -18,11 +18,6 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
         const ACTION_AUTH = 'starmus_submit_audio';
 
         /**
-         * AJAX action hook for non-logged-in users.
-         */
-        const ACTION_NO_PRIV = 'nopriv_starmus_submit_audio';
-
-        /**
          * Security nonce action name used to validate the form submission.
          */
         const NONCE_ACTION = 'starmus_submit_audio_action';
@@ -67,6 +62,14 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
             add_action('wp_ajax_' . self::ACTION_AUTH, [$this, 'handle_submission']);
             add_shortcode(self::SHORTCODE_TAG, [$this, 'render_recorder_form_shortcode']);
             add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts_if_shortcode_is_present']);
+            add_filter('upload_mimes', function ($mimes): array {
+                $mimes['webm'] = 'audio/webm';
+                $mimes['ogg']  = 'audio/ogg';
+                $mimes['opus'] = 'audio/ogg';
+                $mimes['m4a']  = 'audio/mp4';
+                $mimes['mp4']  = 'audio/mp4'; // iOS might mislabel audio-only recordings
+                return $mimes;
+            });
         }
 
         /**
@@ -234,10 +237,14 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
         }
 
         /**
-         * Validates a UUID format using a regular expression.
+         * Validates a UUID format using a regular expression, but allows fallback via filter.
          */
         protected function is_valid_uuid(string $uuid): bool
         {
+            $strict = apply_filters('starmus_uuid_strict', true);
+            if (!$strict && !empty($uuid)) {
+                return true;
+            }
             return !empty($uuid) && preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i', $uuid);
         }
 
@@ -247,12 +254,14 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
         protected function is_allowed_file_type(string $file_type): bool
         {
             $allowed_types = apply_filters('starmus_allowed_audio_types', [
-                'audio/mpeg',
-                'audio/wav',
-                'audio/webm',
-                'audio/mp4',
-                'audio/ogg',
-                'audio/aac',
+                'audio/wav',    // WAV format
+                'audio/wave',   // WAV format
+                'audio/webm',   // Android Chrome/Firefox
+                'audio/ogg',    // Android with Opus
+                'audio/opus',   // Explicit Opus label
+                'audio/mp4',    // iOS Safari
+                'audio/m4a',    // iOS Safari
+                'video/mp4',    // Some iOS audio files labeled as video/mp4
             ]);
             return in_array(strtolower($file_type), $allowed_types, true);
         }
@@ -264,12 +273,20 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
          * @param int $post_id Optional post ID to associate media with
          * @return int|WP_Error
          */
-        protected function upload_file_to_media_library(string $file_key, int $post_id = 0): mixed
+        protected function upload_file_to_media_library(string $file_key, int $post_id = 0): int|\WP_Error
         {
             if (!function_exists('media_handle_upload')) {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
                 require_once ABSPATH . 'wp-admin/includes/media.php';
                 require_once ABSPATH . 'wp-admin/includes/image.php';
+            }
+            // Extra filetype/ext check for security
+            $file = $_FILES[$file_key] ?? null;
+            if ($file) {
+                $check = wp_check_filetype_and_ext($file['tmp_name'], $file['name']);
+                if (!$check['ext'] || !$check['type']) {
+                    return new \WP_Error('invalid_filetype', 'File type or extension not allowed.');
+                }
             }
             return media_handle_upload($file_key, $post_id);
         }
@@ -334,6 +351,6 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
     }
 
     // Register the audio submission handler
-    // Register in main class file :: new Starmus_Audio_Submission_Handler();
+    // Register in main class file :: new StarmusAudioSubmissionHandler(); // Fixed class name
 
 }
