@@ -61,9 +61,13 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
             add_action('wp_ajax_nopriv_' . self::ACTION_AUTH, [$this, 'handle_submission']);
             add_action('wp_ajax_' . self::ACTION_AUTH, [$this, 'handle_submission']);
             add_shortcode(self::SHORTCODE_TAG, [$this, 'render_recorder_form_shortcode']);
+            // Set priority to 1 so our filter runs before others and is not overridden
+            add_filter('wp_check_filetype_and_ext', [$this, 'force_allowed_audio_filetypes'], 10, 4);
             add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts_if_shortcode_is_present']);
             add_filter('upload_mimes', function ($mimes): array {
                 $mimes['webm'] = 'audio/webm';
+                $mimes['wav']  = 'audio/wav';
+                $mimes['mp3']  = 'audio/mpeg';
                 $mimes['ogg']  = 'audio/ogg';
                 $mimes['opus'] = 'audio/ogg';
                 $mimes['m4a']  = 'audio/mp4';
@@ -253,6 +257,36 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
                 return true;
             }
             return !empty($uuid) && preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i', $uuid);
+        }
+
+        /**
+         * Forces allowed audio file types for uploads.
+         * This is a workaround for WordPress MIME type checks.
+         */
+        public function force_allowed_audio_filetypes($data, $file, $filename, $mimes)
+        {
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+            $map = [
+                'webm' => 'audio/webm',
+                'ogg'  => 'audio/ogg',
+                'opus' => 'audio/ogg',
+                'm4a'  => 'audio/mp4',
+                'mp4'  => 'audio/mp4',
+                'wav'  => 'audio/wav',
+                'wave' => 'audio/wav',
+                'mp3'  => 'audio/mpeg',
+            ];
+
+            if (isset($map[$ext])) {
+                return [
+                    'ext'             => $ext,
+                    'type'            => $map[$ext],
+                    'proper_filename' => $filename,
+                ];
+            }
+
+            return $data;
         }
 
         /**
