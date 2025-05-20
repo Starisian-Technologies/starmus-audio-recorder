@@ -114,8 +114,15 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
             }
 
             $file = $_FILES['audio_file'];
+            error_log('DEBUG: Uploaded file type: ' . $file['type'] . ', name: ' . $file['name']);
+            $check = wp_check_filetype_and_ext($file['tmp_name'], $file['name']);
+            error_log('DEBUG: wp_check_filetype_and_ext: ' . print_r($check, true));
             if (!$this->is_allowed_file_type($file['type'])) {
                 wp_send_json_error(['success' => false, 'message' => 'Unsupported audio file type: ' . esc_html($file['type'])], 400);
+                return;
+            }
+            if (!$check['ext'] || !$check['type']) {
+                wp_send_json_error(['success' => false, 'message' => 'File type or extension not allowed (server check).'], 400);
                 return;
             }
 

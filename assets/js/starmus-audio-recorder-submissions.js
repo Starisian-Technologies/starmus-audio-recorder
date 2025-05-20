@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const statusTextSpan = statusDiv ? statusDiv.querySelector('.sparxstar_status__text') : null;
         const loaderDiv = document.getElementById(`sparxstar_loader_${formInstanceId}`);
         const loaderTextSpan = loaderDiv ? loaderDiv.querySelector('.sparxstar_status__text') : null;
-        const uuidField = document.getElementById(`audio_uuid_${formInstanceId}`); // The hidden UUID field
+        const audioIdField = document.getElementById(`audio_uuid_${formInstanceId}`); // The hidden audio ID field
 
         if (!formElement) {
             console.error(logPrefix, `Form element not found for instance ID: ${formInstanceId}. Skipping.`);
@@ -46,9 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!loaderDiv || !loaderTextSpan) {
             console.warn(logPrefix, `Loader display not fully found for instance ID: ${formInstanceId}.`);
         }
-        if (!uuidField) {
-            console.error(logPrefix, `UUID field not found for instance ID: ${formInstanceId}. Submission will likely fail.`);
-            // Potentially disable submit button here if UUID field is critical and missing
+        if (!audioIdField) {
+            console.error(logPrefix, `Audio ID field not found for instance ID: ${formInstanceId}. Submission will likely fail.`);
+            // Potentially disable submit button here if audio ID field is critical and missing
         }
 
         // --- Initialize the StarmusAudioRecorder for this specific form instance ---
@@ -84,14 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Listen for the custom event from the recorder module when audio is ready ---
         wrapper.addEventListener('starmusAudioReady', (event) => {
             console.log(logPrefix, `starmusAudioReady event received for ${formInstanceId}!`, event.detail);
-            if (event.detail && event.detail.uuid) {
-                // The UUID is in event.detail.uuid and also populated in the uuidField by the recorder
-                document.cookie = `audio_uuid=${uuidField.value}; path=/; SameSite=Lax; Secure`;
-                console.log(logPrefix, `Cookie set for ${formInstanceId} with UUID:`, event.detail.uuid);
+            if (event.detail && event.detail.audioId) {
+                // The audioId is in event.detail.audioId and also populated in the audioIdField by the recorder
+                document.cookie = `audio_uuid=${audioIdField.value}; path=/; SameSite=Lax; Secure`;
+                console.log(logPrefix, `Cookie set for ${formInstanceId} with audioId:`, event.detail.audioId);
                 if (statusTextSpan) statusTextSpan.textContent = 'Recording ready to submit.'; // Update status
                 if (statusDiv) statusDiv.classList.remove('sparxstar_visually_hidden');
             } else {
-                console.warn(logPrefix, `starmusAudioReady event for ${formInstanceId} missing UUID in detail.`);
+                console.warn(logPrefix, `starmusAudioReady event for ${formInstanceId} missing audioId in detail.`);
             }
         });
 
@@ -100,17 +100,17 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             console.log(logPrefix, `Submit event for form: ${formInstanceId}`);
 
-            if (!uuidField || !uuidField.value) {
-                console.error(logPrefix, `UUID not set for ${formInstanceId}. Cannot submit.`);
-                if (statusTextSpan) statusTextSpan.textContent = 'Error: Audio not recorded or UUID missing.';
+            if (!audioIdField || !audioIdField.value) {
+                console.error(logPrefix, `Audio ID not set for ${formInstanceId}. Cannot submit.`);
+                if (statusTextSpan) statusTextSpan.textContent = 'Error: Audio not recorded or ID missing.';
                 if (statusDiv) statusDiv.classList.remove('sparxstar_visually_hidden');
                 return;
             }
 
-            // Ensure cookie is set with the latest UUID from the field (in case event was missed or timing)
+            // Ensure cookie is set with the latest audio ID from the field (in case event was missed or timing)
             // Though the event listener is the primary way. This is a fallback.
-            if (uuidField.value) {
-                 document.cookie = `audio_uuid=${uuidField.value}; path=/; SameSite=Lax; Secure`;
+            if (audioIdField.value) {
+                 document.cookie = `audio_uuid=${audioIdField.value}; path=/; SameSite=Lax; Secure`;
             }
 
             // Show loader, hide status
