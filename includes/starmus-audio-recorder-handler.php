@@ -324,10 +324,7 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
             // Extra filetype/ext check for security
             $file = $_FILES[$file_key] ?? null;
             if ($file) {
-                $check = wp_check_filetype_and_ext($file['tmp_name'], $file['name']);
-                if (!$check['ext'] || !$check['type']) {
-                    return new \WP_Error('invalid_filetype', 'File type or extension not allowed.');
-                }
+               // Let WordPress validate using media_handle_upload with our custom filter already applied
             }
             return media_handle_upload($file_key, $post_id);
         }
