@@ -1,3 +1,4 @@
+// This file is obsolete in ESM projects. Please use .stylelintrc.cjs instead.
 module.exports = {
   extends: ['stylelint-config-standard'],
   rules: {

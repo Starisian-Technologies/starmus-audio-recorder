@@ -1,14 +1,10 @@
 module.exports = {
-  extends: [
-    "stylelint-config-standard"
-  ],
+  extends: ['stylelint-config-standard'],
   rules: {
-    // Example: allow BEM and underscores in class selectors
-    "selector-class-pattern": [
-      "^[a-zA-Z0-9_-]+$",
-      {
-        "message": "Class selectors should only contain letters, numbers, underscores, or hyphens."
-      }
-    ]
+    'selector-class-pattern': null,
+    'selector-id-pattern': null,
+    'string-quotes': 'single',
+    'block-no-empty': true,
+    'color-no-invalid-hex': true
   }
 };
