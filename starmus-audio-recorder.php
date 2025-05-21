@@ -19,7 +19,7 @@ namespace Starmus;
  * Plugin Name:       Starmus Audio Recorder
  * Plugin URI:        https://github.com/Starisian-Technologies/starmus-audio-recorder
  * Description:       Adds a mobile-friendly MP3 audio recorder for oral history submission in low-bandwidth environments.
- * Version:           0.2.0
+ * Version:           0.5.0
  * Requires at least: 5.2
  * Requires PHP:      7.2
  * Author:            Starisian Technologies (Max Barrett)

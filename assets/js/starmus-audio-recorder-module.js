@@ -149,6 +149,12 @@ const StarmusAudioRecorder = (function () {
       } else {
           _updateStatus("Network connection restored.");
       }
+      if (dom.downloadLink) {
+          dom.downloadLink.classList.add('sparxstar_visually_hidden');
+          dom.downloadLink.setAttribute('aria-disabled', 'true');
+          dom.downloadLink.href = '#';
+          dom.downloadLink.removeAttribute('download');
+      }
   });
 
   function _animateBar() {
@@ -315,6 +321,12 @@ const StarmusAudioRecorder = (function () {
     if (submitButton) {
         submitButton.disabled = true;
     }
+    if (dom.downloadLink) {
+        dom.downloadLink.classList.add('sparxstar_visually_hidden');
+        dom.downloadLink.setAttribute('aria-disabled', 'true');
+        dom.downloadLink.href = '#';
+        dom.downloadLink.removeAttribute('download');
+    }
     _updateStatus("Ready to record.");
   }
 
@@ -335,11 +347,17 @@ const StarmusAudioRecorder = (function () {
         return;
     }
     if (dom.downloadLink) {
-        dom.downloadLink.classList.add('sparxstar_visually_hidden');
-        dom.downloadLink.setAttribute('aria-disabled', 'true');
-        dom.downloadLink.href = '#'; // Reset href
-        // Remove filename or set to default
-        dom.downloadLink.removeAttribute('download'); // Or set to a placeholder
+        if (!navigator.onLine) {
+            dom.downloadLink.href = audioUrl;
+            dom.downloadLink.download = fileName; // Set the dynamic filename
+            dom.downloadLink.removeAttribute('aria-disabled');
+            dom.downloadLink.classList.remove('sparxstar_visually_hidden');
+        } else {
+            dom.downloadLink.classList.add('sparxstar_visually_hidden');
+            dom.downloadLink.setAttribute('aria-disabled', 'true');
+            dom.downloadLink.href = '#';
+            dom.downloadLink.removeAttribute('download');
+        }
     }
 
     // --- Process successful recording ---
@@ -365,15 +383,6 @@ const StarmusAudioRecorder = (function () {
     }
     _attachAudioToForm(audioBlob, fileType); // This will enable submit if successful
 
-    // Add a download link
-    const downloadLink = document.getElementById(`downloadLink_${config.formInstanceId}`); // Add this to your HTML template
-   
-    if (dom.downloadLink) {
-        dom.downloadLink.href = audioUrl;
-        dom.downloadLink.download = fileName; // Set the dynamic filename
-        dom.downloadLink.removeAttribute('aria-disabled');
-        dom.downloadLink.classList.remove('sparxstar_visually_hidden');
-    }
     _updateStatus("Recording complete. Play, Download, Delete, or Submit.");
     _log("Audio blob created, URL:", audioUrl);
     
@@ -522,6 +531,7 @@ const StarmusAudioRecorder = (function () {
       dom.uuidField = document.getElementById(id(config.uuidFieldId));
       dom.fileInput = document.getElementById(id(config.fileInputId));
       dom.container = document.getElementById(`starmus_audioWrapper_${config.formInstanceId}`);
+      dom.downloadLink = document.getElementById(`downloadLink_${config.formInstanceId}`); // Add this to your HTML template
 
       // Remove old event listeners before adding new ones
       if (dom.recordButton) dom.recordButton.replaceWith(dom.recordButton.cloneNode(true));
@@ -889,6 +899,12 @@ const StarmusAudioRecorder = (function () {
       if (submitButton) {
         submitButton.disabled = true;
         _log('Submit button disabled after cleanup.');
+      }
+      if (dom.downloadLink) {
+        dom.downloadLink.classList.add('sparxstar_visually_hidden');
+        dom.downloadLink.setAttribute('aria-disabled', 'true');
+        dom.downloadLink.href = '#';
+        dom.downloadLink.removeAttribute('download');
       }
       audioChunks = [];
       isRecording = false;
