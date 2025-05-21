@@ -4,9 +4,19 @@ export default [
     languageOptions: {
       ecmaVersion: 2017,
       sourceType: 'script',
-      globals: { window: 'readonly', document: 'readonly' }
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        // browser globals
+        navigator: 'readonly',
+        location: 'readonly',
+        console: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+      }
     },
-    env: { browser: true },
     rules: {
       'no-unused-vars': 'warn',
       'no-console': 'off',
