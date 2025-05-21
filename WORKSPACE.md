@@ -3,6 +3,19 @@
 ## Project Overview
 This project is a mobile-first, offline-friendly audio recording and submission tool designed for low-bandwidth, low-power devices in The Gambia, West Africa. It prioritizes compatibility, accessibility, and resilience to poor connectivity.
 
+## Linting Instructions
+
+- **ESLint** is used for JavaScript code quality.
+- Lint all JavaScript source files in `assets/js/` except for minified files (`*.min.js`) and source maps (`*.js.map`).
+- Example glob for linting:
+  - `assets/js/**/*.js`
+  - Exclude: `assets/js/**/*.min.js`, `assets/js/**/*.js.map`
+- Do **not** lint files in `node_modules/` or any third-party vendor directories.
+- Run ESLint from the project root:
+  - `npx eslint assets/js/**/*.js --ignore-pattern '*.min.js' --ignore-pattern '*.js.map'`
+- Fixable issues can be auto-fixed with:
+  - `npx eslint assets/js/**/*.js --ignore-pattern '*.min.js' --ignore-pattern '*.js.map' --fix`
+
 ## Key Workspace Guidelines
 - **No build step required:** All scripts and styles should work directly from `/assets/`.
 - **No CDN dependencies:** Bundle all critical assets locally.
