@@ -346,19 +346,6 @@ const StarmusAudioRecorder = (function () {
         publicMethods.cleanup(); // Full UI reset
         return;
     }
-    if (dom.downloadLink) {
-        if (!navigator.onLine) {
-            dom.downloadLink.href = audioUrl;
-            dom.downloadLink.download = fileName; // Set the dynamic filename
-            dom.downloadLink.removeAttribute('aria-disabled');
-            dom.downloadLink.classList.remove('sparxstar_visually_hidden');
-        } else {
-            dom.downloadLink.classList.add('sparxstar_visually_hidden');
-            dom.downloadLink.setAttribute('aria-disabled', 'true');
-            dom.downloadLink.href = '#';
-            dom.downloadLink.removeAttribute('download');
-        }
-    }
 
     // --- Process successful recording ---
     const mimeType = mediaRecorder.mimeType;
@@ -375,6 +362,7 @@ const StarmusAudioRecorder = (function () {
     _stopTimerAndResetDisplay();
     const audioBlob = new Blob(audioChunks, { type: mimeType });
     const audioUrl = URL.createObjectURL(audioBlob);
+    const fileName = `audio_${dom.uuidField ? dom.uuidField.value || _generateUniqueAudioId() : _generateUniqueAudioId()}.${fileType}`;
 
     if (dom.audioPlayer) {
         dom.audioPlayer.src = audioUrl;
@@ -382,6 +370,21 @@ const StarmusAudioRecorder = (function () {
         dom.audioPlayer.classList.remove('sparxstar_visually_hidden');
     }
     _attachAudioToForm(audioBlob, fileType); // This will enable submit if successful
+
+    // Show download link only if offline and after recording is stopped
+    if (dom.downloadLink) {
+        if (!navigator.onLine) {
+            dom.downloadLink.href = audioUrl;
+            dom.downloadLink.download = fileName;
+            dom.downloadLink.removeAttribute('aria-disabled');
+            dom.downloadLink.classList.remove('sparxstar_visually_hidden');
+        } else {
+            dom.downloadLink.classList.add('sparxstar_visually_hidden');
+            dom.downloadLink.setAttribute('aria-disabled', 'true');
+            dom.downloadLink.href = '#';
+            dom.downloadLink.removeAttribute('download');
+        }
+    }
 
     _updateStatus("Recording complete. Play, Download, Delete, or Submit.");
     _log("Audio blob created, URL:", audioUrl);
@@ -853,7 +856,7 @@ const StarmusAudioRecorder = (function () {
         } catch (e) { _error("mediaRecorder.resume() failed", e); }
     },
 
-    cleanup: function() {
+    cleanup: function(suppressFinalStatusUpdate) {
       if (cleanupInProgress) return;
       cleanupInProgress = true;
       _log("Cleanup called.");
@@ -913,7 +916,9 @@ const StarmusAudioRecorder = (function () {
       _handleRecordingReady();
       if (dom.uuidField) dom.uuidField.value = '';
       if (dom.fileInput) dom.fileInput.value = '';
-      _updateStatus("Recorder reset.");
+      if (!suppressFinalStatusUpdate) {
+        _updateStatus("Recorder reset.");
+      }
       _log("Recorder state and UI fully reset.");
       cleanupInProgress = false;
     },

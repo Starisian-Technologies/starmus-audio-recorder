@@ -256,10 +256,66 @@
 }
 
 /* --------------------------------------------------
-   Optional Global (if not done elsewhere)
+   Overlay Styles
 -------------------------------------------------- */
-/*
-*, *::before, *::after {
-  box-sizing: border-box;
+/* Styles for the Overlay Div Itself */
+.sparxstar_loader_overlay {
+    position: absolute; /* Position relative to the nearest positioned ancestor (the form or wrapper) */
+    top: 0;
+    left: 0;
+    width: 100%; /* Cover the width of the parent */
+    height: 100%; /* Cover the height of the parent */
+    background-color: rgba(255, 255, 255, 0.85); /* Semi-transparent white background */
+    z-index: 100; /* Ensure it sits above other form content */
+    display: flex; /* Use flexbox to center content */
+    flex-direction: column; /* Stack spinner, text, note vertically */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    text-align: center; /* Center text */
 }
-*/
+
+/* Style for hiding the overlay (controlled by JS) */
+.sparxstar_visually_hidden {
+    /* Use your existing visually_hidden definition */
+    display: none !important; /* Ensure it hides the flex container */
+}
+
+/* Styles for the content box inside the overlay (optional, but good for spinner/text) */
+.sparxstar_loader_content {
+    /* Add padding, background, border-radius if you want a distinct box within the overlay */
+    /* background-color: #fff; */
+    /* padding: 20px; */
+    /* border-radius: 5px; */
+}
+
+/* Styles for the Spinner (assuming you have a spinner element) */
+.sparxstar_spinner {
+    /* Add your spinner animation and basic size/color styles here */
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px; /* Space below spinner */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Styles for the ETA Note paragraph */
+.sparxstar_upload_eta_note {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 10px;
+}
+
+/* Styles for the text span inside overlay (reusing status text style) */
+.sparxstar_loader_overlay .sparxstar_status__text {
+    font-weight: bold;
+    font-size: 1em;
+    color: #444; /* Match your status text default color */
+}
+
