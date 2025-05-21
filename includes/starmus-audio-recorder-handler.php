@@ -137,9 +137,6 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
             }
             
             // --- Data for THIS audio submission (captured by your PHP handler) ---
-            $attachment_id = $this->upload_file_to_media_library( 'audio_file' );
-            // ... (error check for attachment_id) ...
-            // In Starmus_Audio_Submission_Handler::handle_submission()
             $audio_url = wp_get_attachment_url( $attachment_id );
             $audio_player_html = '';
             if ( $audio_url ) {

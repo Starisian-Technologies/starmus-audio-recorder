@@ -196,6 +196,11 @@
   border: 0;
 }
 
+/* Overlay Hidden (Visual Only, for overlays) */
+.sparxstar_overlay_hidden {
+  display: none !important;
+}
+
 /* Completely Hidden (No access at all) */
 .sparxstar_completely_hidden {
    display: none;
@@ -272,20 +277,6 @@
     justify-content: center; /* Center content vertically */
     align-items: center; /* Center content horizontally */
     text-align: center; /* Center text */
-}
-
-/* Style for hiding the overlay (controlled by JS) */
-.sparxstar_visually_hidden {
-    /* Use your existing visually_hidden definition */
-    display: none !important; /* Ensure it hides the flex container */
-}
-
-/* Styles for the content box inside the overlay (optional, but good for spinner/text) */
-.sparxstar_loader_content {
-    /* Add padding, background, border-radius if you want a distinct box within the overlay */
-    /* background-color: #fff; */
-    /* padding: 20px; */
-    /* border-radius: 5px; */
 }
 
 /* Styles for the Spinner (assuming you have a spinner element) */

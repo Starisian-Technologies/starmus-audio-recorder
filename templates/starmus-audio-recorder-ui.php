@@ -111,14 +111,13 @@ if (!isset($unique_suffix)) {
     <input type="hidden" name="user_email" id="linked_user_email_<?php echo esc_attr($form_id); ?>" value="" />
 
     <!-- Submit Loader -->
-    <div id="sparxstar_loader_<?php echo esc_attr($form_id); ?>" class="sparxstar_status sparxstar_visually_hidden"
+    <div id="sparxstar_status_loader_<?php echo esc_attr($form_id); ?>" class="sparxstar_status sparxstar_visually_hidden"
       aria-live="polite">
       <span class="sparxstar_status__text">Submitting… please wait.</span>
     </div>
 
-
     <!-- Submit Loader / Overlay -->
-    <div id="sparxstar_loader_<?php echo esc_attr($form_id); ?>"
+    <div id="sparxstar_loader_overlay_<?php echo esc_attr($form_id); ?>"
       class="sparxstar_loader_overlay sparxstar_visually_hidden" role="alert" aria-live="assertive">
       <div class="sparxstar_loader_content">
         <div class="sparxstar_spinner"></div>
