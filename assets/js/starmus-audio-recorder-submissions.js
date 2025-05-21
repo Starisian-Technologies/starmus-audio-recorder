@@ -95,17 +95,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Client-side validation (as before)
             if (!audioIdField || !audioIdField.value) {
-                _updateStatusForInstance(formInstanceId, '❌ Error: Audio not recorded or Audio ID missing.', 'error');
+                _updateStatusForInstance(formInstanceId, 'Error: Audio not recorded or Audio ID missing.', 'error');
                 return;
             }
             const audioFileInput = document.getElementById(`audio_file_${formInstanceId}`);
             if (!audioFileInput || audioFileInput.files.length === 0) {
-                _updateStatusForInstance(formInstanceId, '❌ Error: No audio file data to submit.', 'error');
+                _updateStatusForInstance(formInstanceId, 'Error: No audio file data to submit.', 'error');
                 return;
             }
             const consentCheckbox = document.getElementById(`audio_consent_${formInstanceId}`);
             if (consentCheckbox && !consentCheckbox.checked) {
-                _updateStatusForInstance(formInstanceId, '❌ Error: Consent is required.', 'error');
+                _updateStatusForInstance(formInstanceId, 'Error: Consent is required.', 'error');
                 return;
             }
 
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (parseError) {
                     const responseText = await response.text();
                     console.error(logPrefix, `JSON parsing error for ${formInstanceId}. Status: ${response.status}. Response:`, responseText, parseError);
-                    _updateStatusForInstance(formInstanceId, `❌ Error: Invalid server response. (${response.status})`, 'error', true, submitButton);
+                    _updateStatusForInstance(formInstanceId, `Error: Invalid server response. (${response.status})`, 'error', true, submitButton);
                     if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden'); // Hide loader on error too
                     return;
                 }
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden'); // Hide loader after getting response
 
                 if (response.ok && responseData.success) {
-                    _updateStatusForInstance(formInstanceId, responseData.message || '✅ Successfully submitted!', 'success', true);
+                    _updateStatusForInstance(formInstanceId, responseData.message || 'Successfully submitted!', 'success', true);
                     formElement.reset();
                     if (typeof StarmusAudioRecorder !== 'undefined' && StarmusAudioRecorder.cleanup) {
                         StarmusAudioRecorder.cleanup();
@@ -170,12 +170,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } else {
                     const errorMessage = responseData.data?.message || responseData.message || 'Unknown server error.';
-                    _updateStatusForInstance(formInstanceId, `❌ Error: ${errorMessage}`, 'error', true, submitButton);
+                    _updateStatusForInstance(formInstanceId, `Error: ${errorMessage}`, 'error', true, submitButton);
                 }
             } catch (networkError) {
                 console.error(logPrefix, `Network error during submission for ${formInstanceId}:`, networkError);
                 if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden');
-                _updateStatusForInstance(formInstanceId, '❌ Network error. Please check connection and try again.', 'error', true, submitButton);
+                _updateStatusForInstance(formInstanceId, 'Network error. Please check connection and try again.', 'error', true, submitButton);
             }
         });
 
