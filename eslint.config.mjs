@@ -2,7 +2,7 @@ export default [
   {
     files: ['assets/js/**/*.js', '!assets/js/**/*.min.js', '!assets/js/**/*.js.map'],
     languageOptions: {
-      ecmaVersion: 2017,
+      ecmaVersion: 2020,
       sourceType: 'script',
       globals: {
         window: 'readonly',
