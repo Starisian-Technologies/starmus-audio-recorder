@@ -43,7 +43,7 @@ starmus-audio-recorder/
 
 3. Activate **Starmus Audio Recorder** in WordPress admin.
 
-4. Embed the UI using shortcode or insert this HTML:
+4. Embed the UI using shortcode [starmus_audio_recorder] or insert this HTML:
 
 ```html
 <!--
