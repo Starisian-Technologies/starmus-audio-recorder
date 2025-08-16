@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-if (!class_exists('Starmus_Audio_Submission_Handler')) {
+if ( ! class_exists( __NAMESPACE__ . '\StarmusAudioSubmissionHandler' ) ) {
 
     class StarmusAudioSubmissionHandler
     {
