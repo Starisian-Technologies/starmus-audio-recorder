@@ -87,9 +87,27 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
                 wp_send_json_error(['success' => false, 'message' => 'Invalid request.'], 400);
                 return;
             }
-            error_log('--- START SUBMISSION HANDLER ---');
-            error_log('FILES: ' . print_r($_FILES, true));
-            error_log('POST: ' . print_r($_POST, true));
+            if ($this->should_log()) {
+                $log_files = array_map(
+                    static function ($f) {
+                        return [
+                            'type' => $f['type'] ?? '',
+                            'size' => $f['size'] ?? 0,
+                        ];
+                    },
+                    $_FILES
+                );
+                $allowed_post_keys = ['audio_uuid', 'audio_consent', 'submission_id'];
+                $log_post = [];
+                foreach ($allowed_post_keys as $key) {
+                    if (isset($_POST[$key])) {
+                        $log_post[$key] = sanitize_text_field(wp_unslash($_POST[$key]));
+                    }
+                }
+                $this->debug_log('--- START SUBMISSION HANDLER ---');
+                $this->debug_log('FILES: ' . wp_json_encode($log_files));
+                $this->debug_log('POST: ' . wp_json_encode($log_post));
+            }
             // Check if the user is logged in
             //if ( ! is_user_logged_in() ) {
             //    wp_send_json_error([ 'success' => false, 'message' => 'User is not logged in.' ], 403);
@@ -118,9 +136,19 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
             }
 
             $file = $_FILES['audio_file'];
-            error_log('DEBUG: Uploaded file type: ' . $file['type'] . ', name: ' . $file['name']);
+            $this->debug_log(
+                sprintf(
+                    'Uploaded file type: %s, size: %d bytes',
+                    sanitize_text_field($file['type']),
+                    isset($file['size']) ? (int) $file['size'] : 0
+                )
+            );
             $check = wp_check_filetype_and_ext($file['tmp_name'], $file['name']);
-            error_log('DEBUG: wp_check_filetype_and_ext: ' . print_r($check, true));
+            $sanitized_check = [
+                'ext'  => $check['ext'] ?? '',
+                'type' => $check['type'] ?? '',
+            ];
+            $this->debug_log('wp_check_filetype_and_ext: ' . wp_json_encode($sanitized_check));
             if (!$this->is_allowed_file_type($file['type'])) {
                 wp_send_json_error(['success' => false, 'message' => 'Unsupported audio file type: ' . esc_html($file['type'])], 400);
                 return;
@@ -376,11 +404,29 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
         }
 
         /**
+         * Determines whether debug logging is enabled.
+         */
+        protected function should_log(): bool
+        {
+            return defined('WP_DEBUG') && WP_DEBUG && apply_filters('starmus_debug_logging', true);
+        }
+
+        /**
+         * Writes debug information to the error log when enabled.
+         */
+        protected function debug_log(string $message): void
+        {
+            if ($this->should_log()) {
+                error_log($message);
+            }
+        }
+
+        /**
          * Provides readable error messages for known upload failures.
          */
         protected function get_upload_error_message(int $error_code): string
         {
-            error_log('UPLOAD ERROR CODE: ' . $error_code);
+            $this->debug_log('UPLOAD ERROR CODE: ' . $error_code);
             switch ($error_code) {
                 case UPLOAD_ERR_INI_SIZE:
                     return "The uploaded file exceeds the upload_max_filesize directive in php.ini.";
