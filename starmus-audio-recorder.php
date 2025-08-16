@@ -81,12 +81,15 @@ final class AudioRecorder {
 			return;
 		}
 
-		$this->load_dependencies();
-		// add the handler
-		if ( ! isset( $this->StarmusHandler ) ) {
-			$this->StarmusHandler = new \Starmus\includes\StarmusAudioSubmissionHandler();
-		}
-	}
+                $this->load_dependencies();
+                // add the handler
+                if ( ! isset( $this->StarmusHandler ) ) {
+                        $this->StarmusHandler = new \Starmus\includes\StarmusAudioSubmissionHandler();
+                }
+                // Register custom post type and ACF fields for recording sessions
+                new \Starmus\includes\RecordingSessionPostType();
+                new \Starmus\includes\RecordingSessionFields();
+        }
 
 	/**
 	 * Retrieves the singleton instance of the AudioRecorder class.
@@ -133,8 +136,10 @@ final class AudioRecorder {
 	}
 
 	private function load_dependencies(): void {
-		require_once $this->plugin_path . 'includes/starmus-audio-recorder-handler.php';
-	}
+                require_once $this->plugin_path . 'includes/starmus-audio-recorder-handler.php';
+                require_once $this->plugin_path . 'includes/class-recording-session-post-type.php';
+                require_once $this->plugin_path . 'includes/class-recording-session-fields.php';
+        }
 	
 	/**
 	 * Executes the main functionality of the Starmus Audio Recorder plugin.
