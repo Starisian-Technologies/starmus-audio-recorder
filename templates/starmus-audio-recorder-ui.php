@@ -22,33 +22,33 @@ if (!isset($unique_suffix)) {
   <?php wp_nonce_field('starmus_submit_audio_action', 'starmus_audio_nonce_field'); ?>
 
   <!--audioWrapper-->
-  <div id="starmus_audioWrapper_<?php echo esc_attr($form_id); ?>" class="sparxstar-audioWrapper" data-enabled-recorder>
-    <h2 id="sparxstar_audioRecorderHeading_<?php echo esc_attr($form_id); ?>" class="sparxstar-h2">Audio Recorder</h2>
+    <div id="starmus_audioWrapper_<?php echo esc_attr($form_id); ?>" class="sparxstar-audioWrapper" data-enabled-recorder>
+      <h2 id="sparxstar_audioRecorderHeading_<?php echo esc_attr($form_id); ?>" class="sparxstar-h2"><?php echo esc_html__('🎙️ Recorder', 'starmus-audio-recorder'); ?></h2>
 
-    <!-- Consent Checkbox -->
-    <label for="audio_consent_<?php echo esc_attr($form_id); ?>" ...>
-      <input type="checkbox" id="audio_consent_<?php echo esc_attr($form_id); ?>" name="audio_consent" required>
-      I give permission to record and submit my audio.
-    </label>
+      <!-- Consent Checkbox -->
+      <label for="audio_consent_<?php echo esc_attr($form_id); ?>">
+        <input type="checkbox" id="audio_consent_<?php echo esc_attr($form_id); ?>" name="audio_consent" required>
+        <?php echo esc_html__('✅ Allow recording', 'starmus-audio-recorder'); ?>
+      </label>
 
     <!-- Recorder -->
     <div id="sparxstar_audioRecorder_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioRecorder" role="region"
       aria-labelledby="sparxstar_audioRecorderHeading_<?php echo esc_attr($form_id); ?>">
 
       <!-- Status Message -->
-      <div id="sparxstar_status_<?php echo esc_attr($form_id); ?>" role="status" aria-live="polite"
-        class="sparxstar_visually_hidden">
-        <span class="sparxstar_status__text">Ready to record.</span>
-      </div>
+        <div id="sparxstar_status_<?php echo esc_attr($form_id); ?>" role="status" aria-live="polite"
+          class="sparxstar_visually_hidden">
+          <span class="sparxstar_status__text"><?php echo esc_html__('✅ Ready', 'starmus-audio-recorder'); ?></span>
+        </div>
 
       <!-- Recorder Controls -->
-      <div class="sparxstar_recorderControls" role="group" aria-label="Recording controls">
+      <div class="sparxstar_recorderControls" role="group" aria-label="<?php echo esc_attr__('Recording controls', 'starmus-audio-recorder'); ?>">
         <button type="button" id="recordButton_<?php echo esc_attr($form_id); ?>"
-          class="sparxstar_button">Record</button>
+          class="sparxstar_button"><?php echo esc_html__('⏺ Rec', 'starmus-audio-recorder'); ?></button>
         <button type="button" id="pauseButton_<?php echo esc_attr($form_id); ?>" class="sparxstar_button"
-          disabled>Pause</button>
+          disabled><?php echo esc_html__('⏸ Pause', 'starmus-audio-recorder'); ?></button>
         <button type="button" id="deleteButton_<?php echo esc_attr($form_id); ?>"
-          class="sparxstar_button sparxstar_button--danger sparxstar_visually_hidden" disabled>Delete</button>
+          class="sparxstar_button sparxstar_button--danger sparxstar_visually_hidden" disabled><?php echo esc_html__('🗑 Del', 'starmus-audio-recorder'); ?></button>
 
       </div>
 
@@ -56,8 +56,8 @@ if (!isset($unique_suffix)) {
       <div id="sparxstar_audioLevelContainer_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioLevelContainer">
         <label id="sparxstar_audioLevelVisibleLabel_<?php echo esc_attr($form_id); ?>"
           for="sparxstar_audioLevelBar_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioLevelVisibleLabel">
-          Microphone Level:
-        </label>
+            <?php echo esc_html__('🎤 Level', 'starmus-audio-recorder'); ?>
+          </label>
         <div id="sparxstar_audioLevelWrap_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioLevelWrap">
           <div id="sparxstar_audioLevelBar_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioLevelBar"
             role="meter" aria-labelledby="sparxstar_audioLevelVisibleLabel_<?php echo esc_attr($form_id); ?>"
@@ -66,31 +66,30 @@ if (!isset($unique_suffix)) {
             <!-- No inner text here if aria-labelledby is used -->
           </div>
         </div>
-        <span id="sparxstar_audioLevelText_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioLevelText"
-          aria-live="polite">0%</span> <!-- aria-live if you want changes announced -->
+          <span id="sparxstar_audioLevelText_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioLevelText"
+            aria-live="polite"><?php echo esc_html__('0%', 'starmus-audio-recorder'); ?></span> <!-- aria-live if you want changes announced -->
       </div>
 
       <!-- Timer Display -->
       <div id="sparxstar_audioTimerContainer_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioTimerContainer"
         aria-live="polite">
-        <label for="sparxstar_timer_<?php echo esc_attr($form_id); ?>" class="sparxstar_visually_hidden">Recording
-          Timer</label>
+        <label for="sparxstar_timer_<?php echo esc_attr($form_id); ?>" class="sparxstar_visually_hidden"><?php echo esc_html__('⏱ Timer', 'starmus-audio-recorder'); ?></label>
         <div id="sparxstar_timer_<?php echo esc_attr($form_id); ?>" class="sparxstar_timer" role="timer"
           aria-live="polite">00:00</div>
       </div>
 
 
       <!-- Audio Playback -->
-      <audio id="sparxstar_audioPlayer_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioPlayer" controls
-        aria-label="Recorded audio preview"></audio>
+        <audio id="sparxstar_audioPlayer_<?php echo esc_attr($form_id); ?>" class="sparxstar_audioPlayer" controls
+          aria-label="<?php echo esc_attr__('Recorded audio preview', 'starmus-audio-recorder'); ?>"></audio>
 
       <!-- Download Link -->
-      <a id="sparxstar_audioDownload_<?php echo esc_attr($form_id); ?>"
-        class="sparxstar_button sparxstar_audioDownload sparxstar_visually_hidden" href="#"
-        download="audio_recording.wav" aria-label="Download recorded audio" aria-disabled="true">
-        <!-- Use aria-disabled -->
-        Download
-      </a>
+        <a id="sparxstar_audioDownload_<?php echo esc_attr($form_id); ?>"
+          class="sparxstar_button sparxstar_audioDownload sparxstar_visually_hidden" href="#"
+          download="audio_recording.wav" aria-label="<?php echo esc_attr__('Save audio', 'starmus-audio-recorder'); ?>" aria-disabled="true">
+          <!-- Use aria-disabled -->
+          <?php echo esc_html__('⬇ Save', 'starmus-audio-recorder'); ?>
+        </a>
 
       <!-- Hidden Inputs for Form Submission -->
       <input type="hidden" name="audio_uuid" id="audio_uuid_<?php echo esc_attr($form_id); ?>" />
@@ -98,9 +97,9 @@ if (!isset($unique_suffix)) {
         class="sparxstar_visually_hidden" accept="audio/*">
     </div>
 
-    <!-- Submit -->
-    <button type="submit" id="submit_button_<?php echo esc_attr($form_id); ?>" class="sparxstar_submitButton"
-      disabled>Submit Recording</button>
+      <!-- Submit -->
+      <button type="submit" id="submit_button_<?php echo esc_attr($form_id); ?>" class="sparxstar_submitButton"
+        disabled><?php echo esc_html__('📤 Send', 'starmus-audio-recorder'); ?></button>
 
     <!-- Hidden fields  -->
     <input type="hidden" name="submission_id" id="submission_id_<?php echo esc_attr($form_id); ?>" value="" />
@@ -111,21 +110,19 @@ if (!isset($unique_suffix)) {
     <input type="hidden" name="user_email" id="linked_user_email_<?php echo esc_attr($form_id); ?>" value="" />
 
     <!-- Submit Loader -->
-    <div id="sparxstar_status_loader_<?php echo esc_attr($form_id); ?>" class="sparxstar_status sparxstar_visually_hidden"
-      aria-live="polite">
-      <span class="sparxstar_status__text">Submitting… please wait.</span>
-    </div>
+      <div id="sparxstar_status_loader_<?php echo esc_attr($form_id); ?>" class="sparxstar_status sparxstar_visually_hidden"
+        aria-live="polite">
+        <span class="sparxstar_status__text"><?php echo esc_html__('⏳ Sending…', 'starmus-audio-recorder'); ?></span>
+      </div>
 
     <!-- Submit Loader / Overlay -->
-    <div id="sparxstar_loader_overlay_<?php echo esc_attr($form_id); ?>"
-      class="sparxstar_loader_overlay sparxstar_visually_hidden" role="alert" aria-live="assertive">
-      <div class="sparxstar_loader_content">
-        <div class="sparxstar_spinner"></div>
-        <span id="sparxstar_loader_text_<?php echo esc_attr($form_id); ?>" class="sparxstar_status__text">Submitting
-          your recording…</span>
-        <p class="sparxstar_upload_eta_note">Large recordings may take several minutes to upload. Please keep this
-          window open.</p>
+      <div id="sparxstar_loader_overlay_<?php echo esc_attr($form_id); ?>"
+        class="sparxstar_loader_overlay sparxstar_visually_hidden" role="alert" aria-live="assertive">
+        <div class="sparxstar_loader_content">
+          <div class="sparxstar_spinner"></div>
+          <span id="sparxstar_loader_text_<?php echo esc_attr($form_id); ?>" class="sparxstar_status__text"><?php echo esc_html__('⏳ Sending…', 'starmus-audio-recorder'); ?></span>
+          <p class="sparxstar_upload_eta_note"><?php echo esc_html__('📶 Big file. Stay open.', 'starmus-audio-recorder'); ?></p>
+        </div>
       </div>
-    </div>
   </div>
 </form>
