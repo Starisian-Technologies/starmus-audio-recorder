@@ -1,12 +1,10 @@
 <?php
-namespace Starmus\includes;
+namespace Starisian\src\Includes;
 
 // exit if access directly
 if (!defined('ABSPATH')) {
     exit;
 }
-
-if (!class_exists('Starmus_Audio_Submission_Handler')) {
 
     class StarmusAudioSubmissionHandler
     {
@@ -424,7 +422,3 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
         }
     }
 
-    // Register the audio submission handler
-    // Register in main class file :: new StarmusAudioSubmissionHandler(); // Fixed class name
-
-}
