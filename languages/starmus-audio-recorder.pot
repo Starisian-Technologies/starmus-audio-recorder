@@ -1,0 +1,355 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-12 22:31+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/starmus-audio-recorder-ui.php:26
+msgid "Audio Recorder"
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:31
+msgid "I give permission to record and submit my audio."
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:41
+#: includes/starmus-audio-recorder-handler.php:270
+msgid "Ready to record."
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:45
+msgid "Recording controls"
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:47
+msgid "Record"
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:49
+msgid "Pause"
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:51
+msgid "Delete"
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:59
+msgid "Microphone Level:"
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:76
+msgid "Recording Timer"
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:84
+msgid "Recorded audio preview"
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:89
+msgid "Download recorded audio"
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:91
+msgid "Download"
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:115
+msgid "Submitting… please wait."
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:123
+#: includes/starmus-audio-recorder-handler.php:313
+msgid "Submitting your recording…"
+msgstr ""
+
+#: templates/starmus-audio-recorder-ui.php:124
+msgid ""
+"Large recordings may take several minutes to upload. Please keep this window "
+"open."
+msgstr ""
+
+#: starmus-audio-recorder.php:127
+#, php-format
+msgid "Starmus Audio Recorder requires PHP version %s or higher."
+msgstr ""
+
+#: starmus-audio-recorder.php:131
+#, php-format
+msgid "Starmus Audio Recorder requires WordPress version %s or higher."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:87
+msgid "Invalid request."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:100
+msgid "Nonce verification failed."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:105
+msgid "Consent is required."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:111
+msgid "Invalid or missing UUID."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:125
+#, php-format
+msgid "Unsupported audio file type: %s"
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:129
+msgid "File type or extension not allowed (server check)."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:135
+#, php-format
+msgid "Failed to save audio file: %s"
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:175
+#, php-format
+msgid "Audio Recording %s"
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:204
+#, php-format
+msgid "Failed to create post: %s"
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:214
+msgid "Submission successful."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:228
+msgid "Submit Recording"
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:242
+msgid "Error: Audio recorder form template not found."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:267
+msgid ""
+"Network connection lost. Current recording is paused. Do NOT close page if "
+"you wish to save. Try to Stop and Submit when online."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:268
+msgid ""
+"Network connection restored. You can now Stop your recording and Submit, or "
+"Delete and start over."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:269
+msgid "Network connection restored."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:271
+msgid "Recording stopped, no audio captured."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:272
+msgid "Recording complete. Play, Download, Delete, or Submit."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:273
+msgid "Recording saved locally. File input not found in form."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:274
+msgid "Recording saved and attached to form."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:275
+msgid ""
+"Recording saved, but your browser does not support automatic file "
+"attachment. Please try a different browser."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:276
+msgid "Recording saved locally. Error attaching to form."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:277
+msgid "Microphone permission denied. Please allow mic access."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:278
+msgid "Microphone permission check failed. Please check your browser settings."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:279
+msgid "Audio level visualization not available."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:280
+msgid "Recording paused"
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:281
+msgid "Recording resumed..."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:282
+msgid "Recorder reset."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:283
+msgid "Unsupported recording format. Try a different browser."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:303
+msgid "No audio recorder forms found on this page."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:304
+msgid "Recorder failed to load."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:305
+msgid "Error loading recorder."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:306
+msgid "Critical error: Recorder unavailable."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:307
+msgid "Recording ready."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:308
+#, php-format
+msgid "Your recording is about %s min long and may take some time to upload."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:309
+msgid "Please submit when ready."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:310
+msgid "Error: Audio not recorded or Audio ID missing."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:311
+msgid "Error: No audio file data to submit."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:312
+msgid "Error: Consent is required."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:314
+#, php-format
+msgid "Error: Invalid server response. (%s)"
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:315
+msgid "Successfully submitted!"
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:316
+msgid "Unknown server error."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:317
+#, php-format
+msgid "Error: %s"
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:318
+msgid "Network error. Please check connection and try again."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:432
+msgid "The uploaded file exceeds the upload_max_filesize directive in php.ini."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:434
+msgid ""
+"The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in "
+"the HTML form."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:436
+msgid "The uploaded file was only partially uploaded."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:438
+msgid "No file was uploaded."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:440
+msgid "Missing a temporary folder."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:442
+msgid "Failed to write file to disk."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:444
+msgid "A PHP extension stopped the file upload."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:446
+msgid "File uploaded successfully."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:448
+msgid "The uploaded file is empty."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:450
+msgid "The uploaded file is invalid."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:452
+msgid "The uploaded file type is not allowed."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:454
+msgid "The uploaded file is too large."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:456
+msgid "The uploaded file was not found."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:458
+msgid "The uploaded file is not readable."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:460
+msgid "The uploaded file is not writable."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:462
+msgid "The uploaded file already exists."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:464
+msgid "The uploaded file type is not supported."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:466
+msgid "The uploaded file is too short."
+msgstr ""
+
+#: includes/starmus-audio-recorder-handler.php:468
+msgid "Unknown upload error."
+msgstr ""

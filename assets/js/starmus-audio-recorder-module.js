@@ -78,6 +78,8 @@ function createButtonStateEnforcer(initialButtonElement, sharedStateObject, perm
 const StarmusAudioRecorder = (function () {
   'use strict';
 
+  const strings = window.starmusRecorderStrings || {};
+
   console.log('RECORDER MODULE: Loaded.');
 
   // --- Private State Variables ---
@@ -135,7 +137,7 @@ const StarmusAudioRecorder = (function () {
   // In your StarmusAudioRecorder module or the form submission script
   window.addEventListener('offline', () => {
       if (isRecording || isPaused || audioChunks.length > 0) {
-          _updateStatus("Network connection lost. Current recording is paused. Do NOT close page if you wish to save. Try to Stop and Submit when online.");
+          _updateStatus(strings.network_lost || "Network connection lost. Current recording is paused. Do NOT close page if you wish to save. Try to Stop and Submit when online.");
           if (isRecording && !isPaused && mediaRecorder && mediaRecorder.state === 'recording') {
               publicMethods.pause(); // Auto-pause if they were actively recording
           }
@@ -145,9 +147,9 @@ const StarmusAudioRecorder = (function () {
   window.addEventListener('online', () => {
       // Only show this if they were previously offline and had a recording in progress/paused
       if (audioChunks.length > 0) { // Check if there's something to recover
-          _updateStatus("Network connection restored. You can now Stop your recording and Submit, or Delete and start over.");
+          _updateStatus(strings.network_restored_recording || "Network connection restored. You can now Stop your recording and Submit, or Delete and start over.");
       } else {
-          _updateStatus("Network connection restored.");
+          _updateStatus(strings.network_restored || "Network connection restored.");
       }
       if (dom.downloadLink) {
           dom.downloadLink.classList.add('sparxstar_visually_hidden');
@@ -327,7 +329,7 @@ const StarmusAudioRecorder = (function () {
         dom.downloadLink.href = '#';
         dom.downloadLink.removeAttribute('download');
     }
-    _updateStatus("Ready to record.");
+    _updateStatus(strings.ready_to_record || "Ready to record.");
   }
 
   function _handleDataAvailable(event) {
@@ -342,7 +344,7 @@ const StarmusAudioRecorder = (function () {
     _stopAnimationBarLoop();
 
     if (!mediaRecorder || audioChunks.length === 0) {
-        _updateStatus('Recording stopped, no audio captured.');
+        _updateStatus(strings.recording_stopped || 'Recording stopped, no audio captured.');
         publicMethods.cleanup(); // Full UI reset
         return;
     }
@@ -353,8 +355,8 @@ const StarmusAudioRecorder = (function () {
     if (mimeType.includes('opus') || mimeType.includes('webm')) fileType = 'webm';
     else if (mimeType.includes('aac') || mimeType.includes('mp4')) fileType = 'm4a';
     else {
-      _error('Unsupported recorded MIME type:', mimeType);
-      alert('Unsupported recording format. Try a different browser.');
+        _error('Unsupported recorded MIME type:', mimeType);
+        alert(strings.unsupported_format || 'Unsupported recording format. Try a different browser.');
       publicMethods.cleanup();
       return;
     }
@@ -386,7 +388,7 @@ const StarmusAudioRecorder = (function () {
         }
     }
 
-    _updateStatus("Recording complete. Play, Download, Delete, or Submit.");
+    _updateStatus(strings.recording_complete || "Recording complete. Play, Download, Delete, or Submit.");
     _log("Audio blob created, URL:", audioUrl);
     
     isRecording = false;
@@ -461,7 +463,7 @@ const StarmusAudioRecorder = (function () {
     const file = new File([audioBlob], fileName, { type: audioBlob.type });
     if (!dom.fileInput) {
       _warn('No audio file input (dom.fileInput) found. Skipping attachment to form.');
-      _updateStatus('Recording saved locally. File input not found in form.');
+      _updateStatus(strings.recording_saved_no_input || 'Recording saved locally. File input not found in form.');
       return;
     }
 
@@ -470,10 +472,10 @@ const StarmusAudioRecorder = (function () {
       dataTransfer.items.add(file);
       dom.fileInput.files = dataTransfer.files;
       _log('Audio attached to form input:', dom.fileInput.name || dom.fileInput.id);
-      _updateStatus('Recording saved and attached to form.');
+      _updateStatus(strings.recording_saved_attached || 'Recording saved and attached to form.');
       if (!dom.fileInput.files || dom.fileInput.files.length === 0) {
         _warn('File could not be attached to the file input. This browser may not support programmatic file assignment.');
-        _updateStatus('Recording saved, but your browser does not support automatic file attachment. Please try a different browser.');
+        _updateStatus(strings.recording_saved_no_support || 'Recording saved, but your browser does not support automatic file attachment. Please try a different browser.');
       } else {
         const submitButton = document.getElementById(`submit_button_${config.formInstanceId}`);
         if (submitButton && dom.uuidField && dom.uuidField.value && dom.fileInput.files.length > 0) {
@@ -483,7 +485,7 @@ const StarmusAudioRecorder = (function () {
       }
     } catch (e) {
       _error("Could not attach file to fileInput. DataTransfer may not be supported or fileInput is problematic.", e);
-      _updateStatus('Recording saved locally. Error attaching to form.');
+      _updateStatus(strings.recording_saved_error || 'Recording saved locally. Error attaching to form.');
     }
     // ...
     const finalDurationMs = accumulatedElapsedTime; // Capture it before it's reset by _stopTimerAndResetDisplay
@@ -626,7 +628,7 @@ const StarmusAudioRecorder = (function () {
             dom.recordButton.disabled = !isAllowed;
             _log(`Record button ${isAllowed ? 'ENABLED' : 'DISABLED'}.`);
             if (!isAllowed) {
-              _updateStatus('Microphone permission denied. Please allow mic access.');
+              _updateStatus(strings.mic_denied || 'Microphone permission denied. Please allow mic access.');
               _stopAnimationBarLoop();
             }
           };
@@ -674,7 +676,7 @@ const StarmusAudioRecorder = (function () {
           _error('Permissions API query failed:', err);
           window.sparxstarRecorderState.micPermission = 'prompt'; // Fallback assumption
           if (dom.recordButton) dom.recordButton.disabled = false; // Fallback enable
-          _updateStatus('Microphone permission check failed. Please check your browser settings.');
+          _updateStatus(strings.mic_failed || 'Microphone permission check failed. Please check your browser settings.');
           _stopAnimationBarLoop();
         }
       } else {
@@ -786,7 +788,7 @@ const StarmusAudioRecorder = (function () {
               _animateBar();
             } catch (e) {
               _error('AudioContext creation failed:', e);
-              _updateStatus('Audio level visualization not available.');
+              _updateStatus(strings.level_unavailable || 'Audio level visualization not available.');
             }
         }
       } catch (error) {
@@ -835,7 +837,7 @@ const StarmusAudioRecorder = (function () {
                 dom.pauseButton.textContent = 'Resume';
                 dom.pauseButton.setAttribute('aria-pressed', 'true');
             }
-            _updateStatus('Recording paused');
+            _updateStatus(strings.recording_paused || 'Recording paused');
         } catch (e) { _error("mediaRecorder.pause() failed", e); }
     },
 
@@ -852,7 +854,7 @@ const StarmusAudioRecorder = (function () {
                 dom.pauseButton.textContent = 'Pause';
                 dom.pauseButton.setAttribute('aria-pressed', 'false');
             }
-            _updateStatus('Recording resumed...');
+            _updateStatus(strings.recording_resumed || 'Recording resumed...');
         } catch (e) { _error("mediaRecorder.resume() failed", e); }
     },
 
@@ -917,7 +919,7 @@ const StarmusAudioRecorder = (function () {
       if (dom.uuidField) dom.uuidField.value = '';
       if (dom.fileInput) dom.fileInput.value = '';
       if (!suppressFinalStatusUpdate) {
-        _updateStatus("Recorder reset.");
+        _updateStatus(strings.recorder_reset || "Recorder reset.");
       }
       _log("Recorder state and UI fully reset.");
       cleanupInProgress = false;

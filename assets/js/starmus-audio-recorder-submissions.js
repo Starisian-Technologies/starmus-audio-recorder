@@ -5,12 +5,13 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     const logPrefix = 'STARMUS_FORM:';
+    const l10n = (typeof starmusFormData !== 'undefined' && starmusFormData.strings) ? starmusFormData.strings : {};
     console.log(logPrefix, 'DOM fully loaded. Initializing audio form submissions.');
 
     const recorderWrappers = document.querySelectorAll('[data-enabled-recorder]');
 
     if (recorderWrappers.length === 0) {
-        console.log(logPrefix, 'No audio recorder forms found on this page.');
+        console.log(logPrefix, l10n.no_forms || 'No audio recorder forms found on this page.');
         return;
     }
 
@@ -57,17 +58,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log(logPrefix, `Recorder module initialized successfully for ${formInstanceId}.`);
                 } else {
                     console.error(logPrefix, `Recorder module FAILED to initialize for ${formInstanceId}.`);
-                    if (statusTextSpan) statusTextSpan.textContent = 'Recorder failed to load.';
+                    if (statusTextSpan) statusTextSpan.textContent = l10n.recorder_failed || 'Recorder failed to load.';
                     if (statusDiv) statusDiv.classList.remove('sparxstar_visually_hidden');
                 }
             }).catch(error => {
                 console.error(logPrefix, `Error during recorder module initialization for ${formInstanceId}:`, error);
-                if (statusTextSpan) statusTextSpan.textContent = 'Error loading recorder.';
+                if (statusTextSpan) statusTextSpan.textContent = l10n.error_loading || 'Error loading recorder.';
                 if (statusDiv) statusDiv.classList.remove('sparxstar_visually_hidden');
             });
         } else {
             console.error(logPrefix, 'StarmusAudioRecorder module is not available.');
-            if (statusTextSpan) statusTextSpan.textContent = 'Critical error: Recorder unavailable.';
+            if (statusTextSpan) statusTextSpan.textContent = l10n.recorder_unavailable || 'Critical error: Recorder unavailable.';
             if (statusDiv) statusDiv.classList.remove('sparxstar_visually_hidden');
         }
 
@@ -76,12 +77,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (event.detail && event.detail.audioId) {
                 document.cookie = `audio_uuid=${audioIdField.value}; path=/; SameSite=Lax; Secure`;
                 console.log(logPrefix, `Cookie set for ${formInstanceId} with audioId:`, event.detail.audioId);
-                let readyMessage = 'Recording ready. ';
+                let readyMessage = l10n.recording_ready || 'Recording ready.';
                 if (event.detail.durationMs && event.detail.durationMs > (60 * 1000 * 1)) {
                     const minutes = Math.floor(event.detail.durationMs / 60000);
-                    readyMessage += `Your recording is about ${minutes} min long and may take some time to upload. `;
+                    if (l10n.long_recording) {
+                        readyMessage += ' ' + l10n.long_recording.replace('%s', minutes);
+                    } else {
+                        readyMessage += ` Your recording is about ${minutes} min long and may take some time to upload.`;
+                    }
                 }
-                readyMessage += 'Please submit when ready.';
+                readyMessage += ' ' + (l10n.submit_when_ready || 'Please submit when ready.');
                 _updateStatusForInstance(formInstanceId, readyMessage, 'info');
                 if (statusDiv) statusDiv.classList.remove('sparxstar_visually_hidden');
             } else {
@@ -95,17 +100,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Client-side validation (as before)
             if (!audioIdField || !audioIdField.value) {
-                _updateStatusForInstance(formInstanceId, 'Error: Audio not recorded or Audio ID missing.', 'error');
+                _updateStatusForInstance(formInstanceId, l10n.error_audio_missing || 'Error: Audio not recorded or Audio ID missing.', 'error');
                 return;
             }
             const audioFileInput = document.getElementById(`audio_file_${formInstanceId}`);
             if (!audioFileInput || audioFileInput.files.length === 0) {
-                _updateStatusForInstance(formInstanceId, 'Error: No audio file data to submit.', 'error');
+                _updateStatusForInstance(formInstanceId, l10n.error_no_audio || 'Error: No audio file data to submit.', 'error');
                 return;
             }
             const consentCheckbox = document.getElementById(`audio_consent_${formInstanceId}`);
             if (consentCheckbox && !consentCheckbox.checked) {
-                _updateStatusForInstance(formInstanceId, 'Error: Consent is required.', 'error');
+                _updateStatusForInstance(formInstanceId, l10n.error_consent || 'Error: Consent is required.', 'error');
                 return;
             }
 
@@ -114,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Show overlay loader and update its text
             if (loaderDiv) {
                 const loaderTextElement = loaderDiv.querySelector('.sparxstar_status__text'); // Get the text span inside loader
-                if (loaderTextElement) loaderTextElement.textContent = 'Submitting your recording…';
+                if (loaderTextElement) loaderTextElement.textContent = l10n.submitting || 'Submitting your recording…';
                 loaderDiv.classList.remove('sparxstar_visually_hidden'); // Make overlay visible
             }
             if (statusDiv) statusDiv.classList.add('sparxstar_visually_hidden'); // Hide regular status
@@ -152,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (parseError) {
                     const responseText = await response.text();
                     console.error(logPrefix, `JSON parsing error for ${formInstanceId}. Status: ${response.status}. Response:`, responseText, parseError);
-                    _updateStatusForInstance(formInstanceId, `Error: Invalid server response. (${response.status})`, 'error', true, submitButton);
+                    _updateStatusForInstance(formInstanceId, (l10n.error_invalid ? l10n.error_invalid.replace('%s', response.status) : `Error: Invalid server response. (${response.status})`), 'error', true, submitButton);
                     if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden'); // Hide loader on error too
                     return;
                 }
@@ -160,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden'); // Hide loader after getting response
 
                 if (response.ok && responseData.success) {
-                    _updateStatusForInstance(formInstanceId, responseData.message || 'Successfully submitted!', 'success', true);
+                    _updateStatusForInstance(formInstanceId, responseData.message || l10n.submit_success || 'Successfully submitted!', 'success', true);
                     formElement.reset();
                     if (typeof StarmusAudioRecorder !== 'undefined' && StarmusAudioRecorder.cleanup) {
                         StarmusAudioRecorder.cleanup();
@@ -169,13 +174,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         window.onStarmusSubmitSuccess(formInstanceId, responseData);
                     }
                 } else {
-                    const errorMessage = responseData.data?.message || responseData.message || 'Unknown server error.';
-                    _updateStatusForInstance(formInstanceId, `Error: ${errorMessage}`, 'error', true, submitButton);
+                    const errorMessage = responseData.data?.message || responseData.message || l10n.error_unknown || 'Unknown server error.';
+                    const errText = l10n.error_template ? l10n.error_template.replace('%s', errorMessage) : `Error: ${errorMessage}`;
+                    _updateStatusForInstance(formInstanceId, errText, 'error', true, submitButton);
                 }
             } catch (networkError) {
                 console.error(logPrefix, `Network error during submission for ${formInstanceId}:`, networkError);
                 if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden');
-                _updateStatusForInstance(formInstanceId, 'Network error. Please check connection and try again.', 'error', true, submitButton);
+                _updateStatusForInstance(formInstanceId, l10n.network_error || 'Network error. Please check connection and try again.', 'error', true, submitButton);
             }
         });
 

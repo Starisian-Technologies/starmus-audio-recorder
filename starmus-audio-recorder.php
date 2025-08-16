@@ -123,12 +123,13 @@ final class AudioRecorder {
 	 */
 	public function admin_notice_compatibility(): void {
 		echo '<div class="notice notice-error"><p>';
-		if ( version_compare( PHP_VERSION, self::MINIMUM_PHP_VERSION, '<' ) ) {
-			echo esc_html__( 'Starmus Audio Recorder requires PHP version ' . self::MINIMUM_PHP_VERSION . ' or higher.', 'starmus-audio-recorder' ) . '<br>';
-		}
-		if ( version_compare( $GLOBALS['wp_version'], self::MINIMUM_WP_VERSION, '<' ) ) {
-			echo esc_html__( 'Starmus Audio Recorder requires WordPress version ' . self::MINIMUM_WP_VERSION . ' or higher.', 'starmus-audio-recorder' );
-		}
+                if ( version_compare( PHP_VERSION, self::MINIMUM_PHP_VERSION, '<' ) ) {
+                        printf( esc_html__( 'Starmus Audio Recorder requires PHP version %s or higher.', 'starmus-audio-recorder' ), self::MINIMUM_PHP_VERSION );
+                        echo '<br>';
+                }
+                if ( version_compare( $GLOBALS['wp_version'], self::MINIMUM_WP_VERSION, '<' ) ) {
+                        printf( esc_html__( 'Starmus Audio Recorder requires WordPress version %s or higher.', 'starmus-audio-recorder' ), self::MINIMUM_WP_VERSION );
+                }
 		echo '</p></div>';
 	}
 
@@ -172,5 +173,10 @@ register_deactivation_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_d
 register_uninstall_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_uninstall' ) );
 // Initialize the plugin
 add_action( 'plugins_loaded', array( 'Starmus\AudioRecorder', 'starmus_run' ) );
+
+function starmus_load_textdomain(): void {
+        \load_plugin_textdomain( 'starmus-audio-recorder', false, dirname( \plugin_basename( __FILE__ ) ) . '/languages' );
+}
+add_action( 'plugins_loaded', __NAMESPACE__ . '\\starmus_load_textdomain', 0 );
 
 
