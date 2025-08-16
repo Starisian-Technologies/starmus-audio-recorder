@@ -1,5 +1,4 @@
 <?php
-namespace Starmus;
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
@@ -43,6 +42,9 @@ if ( ! defined( 'STARMUS_URL' ) ) {
 if ( ! defined( 'STARMUS_VERSION' ) ) {
 	define( 'STARMUS_VERSION', '0.5.0' );
 }
+
+require_once __DIR__ . '/src/includes/Autoloader.php';
+Starisian\src\Includes\Autoloader::register();
 
 
 use Starmus\includes\StarmusAudioRecorderHandler;
@@ -175,10 +177,10 @@ final class AudioRecorder {
 	}
 }
 
-register_activation_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_activate' ) );
-register_deactivation_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_deactivate' ) );
-register_uninstall_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_uninstall' ) );
-// Initialize the plugin
-add_action( 'plugins_loaded', array( 'Starmus\AudioRecorder', 'starmus_run' ) );
+
+register_activation_hook( __FILE__, [ 'Starisian\\src\\Core\\AudioRecorder', 'starmus_activate' ] );
+register_deactivation_hook( __FILE__, [ 'Starisian\\src\\Core\\AudioRecorder', 'starmus_deactivate' ] );
+register_uninstall_hook( __FILE__, [ 'Starisian\\src\\Core\\AudioRecorder', 'starmus_uninstall' ] );
 
 
+add_action( 'plugins_loaded', [ 'Starisian\\src\\Core\\AudioRecorder', 'starmus_run' ] );
