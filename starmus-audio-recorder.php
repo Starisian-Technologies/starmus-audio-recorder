@@ -47,7 +47,7 @@ require_once __DIR__ . '/src/includes/Autoloader.php';
 Starisian\src\Includes\Autoloader::register();
 
 
-use Starmus\includes\StarmusAudioRecorderHandler;
+use Starmus\includes\StarmusAudioSubmissionHandler;
 
 /**
  * Class AudioRecorder
@@ -87,7 +87,7 @@ final class AudioRecorder {
 		$this->load_dependencies();
 		// add the handler
 		if ( ! isset( $this->StarmusHandler ) ) {
-			$this->StarmusHandler = new \Starmus\includes\StarmusAudioSubmissionHandler();
+			$this->StarmusHandler = new StarmusAudioSubmissionHandler();
 		}
 	}
 
@@ -143,7 +143,7 @@ final class AudioRecorder {
         }
 
 	private function load_dependencies(): void {
-		require_once $this->plugin_path . 'includes/starmus-audio-recorder-handler.php';
+		require_once $this->plugin_path . 'includes/StarmusAudioSubmissionHandler.php';
 	}
 	
 	/**
