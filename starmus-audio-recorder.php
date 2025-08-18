@@ -1,5 +1,4 @@
 <?php
-namespace Starmus;
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
@@ -20,8 +19,8 @@ namespace Starmus;
  * Plugin URI:        https://github.com/Starisian-Technologies/starmus-audio-recorder
  * Description:       Adds a mobile-friendly MP3 audio recorder for oral history submission in low-bandwidth environments.
  * Version:           0.5.0
- * Requires at least: 5.2
- * Requires PHP:      7.2
+ * Requires at least: 6.4
+ * Requires PHP:      8.2
  * Author:            Starisian Technologies (Max Barrett)
  * Author URI:        https://starisian.com
  * Text Domain:       starmus-audio-recorder
@@ -44,8 +43,11 @@ if ( ! defined( 'STARMUS_VERSION' ) ) {
 	define( 'STARMUS_VERSION', '0.5.0' );
 }
 
+require_once __DIR__ . '/src/includes/Autoloader.php';
+Starisian\src\Includes\Autoloader::register();
 
-use Starmus\includes\StarmusAudioRecorderHandler;
+
+use Starmus\includes\StarmusAudioSubmissionHandler;
 
 /**
  * Class AudioRecorder
@@ -63,14 +65,15 @@ final class AudioRecorder {
 	 *
 	 * @var string
 	 */
-	const VERSION = '0.5.0';
-	const MINIMUM_PHP_VERSION = '7.2';
-	const MINIMUM_WP_VERSION = '5.2';
+        const VERSION = '0.5.0';
+        const MINIMUM_PHP_VERSION = '8.2';
+        const MINIMUM_WP_VERSION = '6.4';
 
 	private static $instance = null;
 	private $plugin_path;
 	private $plugin_url;
-	private $StarmusHandler = null;
+        private $StarmusHandler = null;
+        private array $compatibility_messages = [];
 
 	private function __construct() {
 		$this->plugin_path = STARMUS_PATH;
@@ -84,7 +87,7 @@ final class AudioRecorder {
 		$this->load_dependencies();
 		// add the handler
 		if ( ! isset( $this->StarmusHandler ) ) {
-			$this->StarmusHandler = new \Starmus\includes\StarmusAudioSubmissionHandler();
+			$this->StarmusHandler = new StarmusAudioSubmissionHandler();
 		}
 	}
 
@@ -100,18 +103,24 @@ final class AudioRecorder {
 		return self::$instance;
 	}
 
-	private function check_compatibility(): bool {
-		if ( version_compare( PHP_VERSION, self::MINIMUM_PHP_VERSION, '<' ) ) {
-			return false;
-		}
+        private function check_compatibility(): bool {
+                if ( version_compare( PHP_VERSION, self::MINIMUM_PHP_VERSION, '<' ) ) {
+                        $this->compatibility_messages[] = sprintf(
+                                __( 'Starmus Audio Recorder requires PHP version %1$s or higher.', 'starmus-audio-recorder' ),
+                                self::MINIMUM_PHP_VERSION
+                        );
+                }
 
-		global $wp_version;
-		if ( version_compare( $wp_version, self::MINIMUM_WP_VERSION, '<' ) ) {
-			return false;
-		}
+                global $wp_version;
+                if ( version_compare( $wp_version, self::MINIMUM_WP_VERSION, '<' ) ) {
+                        $this->compatibility_messages[] = sprintf(
+                                __( 'Starmus Audio Recorder requires WordPress version %1$s or higher.', 'starmus-audio-recorder' ),
+                                self::MINIMUM_WP_VERSION
+                        );
+                }
 
-		return true;
-	}
+                return empty( $this->compatibility_messages );
+        }
 
 	/**
 	 * Displays an admin notice regarding compatibility issues.
@@ -122,18 +131,19 @@ final class AudioRecorder {
 	 * @return void
 	 */
 	public function admin_notice_compatibility(): void {
-		echo '<div class="notice notice-error"><p>';
-		if ( version_compare( PHP_VERSION, self::MINIMUM_PHP_VERSION, '<' ) ) {
-			echo esc_html__( 'Starmus Audio Recorder requires PHP version ' . self::MINIMUM_PHP_VERSION . ' or higher.', 'starmus-audio-recorder' ) . '<br>';
-		}
-		if ( version_compare( $GLOBALS['wp_version'], self::MINIMUM_WP_VERSION, '<' ) ) {
-			echo esc_html__( 'Starmus Audio Recorder requires WordPress version ' . self::MINIMUM_WP_VERSION . ' or higher.', 'starmus-audio-recorder' );
-		}
-		echo '</p></div>';
-	}
+                if ( empty( $this->compatibility_messages ) ) {
+                        return;
+                }
+
+                echo '<div class="notice notice-error"><p>';
+                foreach ( $this->compatibility_messages as $message ) {
+                        echo esc_html( $message ) . '<br>';
+                }
+                echo '</p></div>';
+        }
 
 	private function load_dependencies(): void {
-		require_once $this->plugin_path . 'includes/starmus-audio-recorder-handler.php';
+		require_once $this->plugin_path . 'includes/StarmusAudioSubmissionHandler.php';
 	}
 	
 	/**
@@ -167,10 +177,10 @@ final class AudioRecorder {
 	}
 }
 
-register_activation_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_activate' ) );
-register_deactivation_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_deactivate' ) );
-register_uninstall_hook( __FILE__, array( 'Starmus\AudioRecorder', 'starmus_uninstall' ) );
-// Initialize the plugin
-add_action( 'plugins_loaded', array( 'Starmus\AudioRecorder', 'starmus_run' ) );
+
+register_activation_hook( __FILE__, [ 'Starisian\\src\\Core\\AudioRecorder', 'starmus_activate' ] );
+register_deactivation_hook( __FILE__, [ 'Starisian\\src\\Core\\AudioRecorder', 'starmus_deactivate' ] );
+register_uninstall_hook( __FILE__, [ 'Starisian\\src\\Core\\AudioRecorder', 'starmus_uninstall' ] );
 
 
+add_action( 'plugins_loaded', [ 'Starisian\\src\\Core\\AudioRecorder', 'starmus_run' ] );
