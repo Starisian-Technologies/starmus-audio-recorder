@@ -1,12 +1,10 @@
 <?php
-namespace Starmus\includes;
+namespace Starisian\src\Includes;
 
 // exit if access directly
 if (!defined('ABSPATH')) {
     exit;
 }
-
-if (!class_exists('Starmus_Audio_Submission_Handler')) {
 
     class StarmusAudioSubmissionHandler
     {
@@ -84,7 +82,7 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
         {
             // Check if the request is an AJAX request
             if (!wp_doing_ajax()) {
-                wp_send_json_error(['success' => false, 'message' => __( 'Invalid request.', 'starmus-audio-recorder' )], 400);
+                wp_send_json_error(['success' => false, 'message' => 'Invalid request.'], 400);
                 return;
             }
             error_log('--- START SUBMISSION HANDLER ---');
@@ -97,18 +95,18 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
             // }
 
             if (!isset($_POST[self::NONCE_FIELD]) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST[self::NONCE_FIELD])), self::NONCE_ACTION)) {
-                wp_send_json_error(['success' => false, 'message' => __( 'Nonce verification failed.', 'starmus-audio-recorder' )], 403);
+                wp_send_json_error(['success' => false, 'message' => 'Nonce verification failed.'], 403);
                 return;
             }
 
             if (empty($_POST['audio_consent']) || sanitize_text_field($_POST['audio_consent']) !== 'on') {
-                wp_send_json_error(['success' => false, 'message' => __( 'Consent is required.', 'starmus-audio-recorder' )], 400);
+                wp_send_json_error(['success' => false, 'message' => 'Consent is required.'], 400);
                 return;
             }
 
             $uuid = isset($_POST['audio_uuid']) ? sanitize_text_field($_POST['audio_uuid']) : '';
             if (!$this->is_valid_uuid($uuid)) {
-                wp_send_json_error(['success' => false, 'message' => __( 'Invalid or missing UUID.', 'starmus-audio-recorder' )], 400);
+                wp_send_json_error(['success' => false, 'message' => 'Invalid or missing UUID.'], 400);
                 return;
             }
 
@@ -122,17 +120,17 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
             $check = wp_check_filetype_and_ext($file['tmp_name'], $file['name']);
             error_log('DEBUG: wp_check_filetype_and_ext: ' . print_r($check, true));
             if (!$this->is_allowed_file_type($file['type'])) {
-                wp_send_json_error(['success' => false, 'message' => sprintf( __( 'Unsupported audio file type: %s', 'starmus-audio-recorder' ), esc_html($file['type']) )], 400);
+                wp_send_json_error(['success' => false, 'message' => 'Unsupported audio file type: ' . esc_html($file['type'])], 400);
                 return;
             }
             if (!$check['ext'] || !$check['type']) {
-                wp_send_json_error(['success' => false, 'message' => __( 'File type or extension not allowed (server check).', 'starmus-audio-recorder' )], 400);
+                wp_send_json_error(['success' => false, 'message' => 'File type or extension not allowed (server check).'], 400);
                 return;
             }
 
             $attachment_id = $this->upload_file_to_media_library('audio_file');
             if (is_wp_error($attachment_id)) {
-                wp_send_json_error(['success' => false, 'message' => sprintf( __( 'Failed to save audio file: %s', 'starmus-audio-recorder' ), $attachment_id->get_error_message() )], 500);
+                wp_send_json_error(['success' => false, 'message' => 'Failed to save audio file: ' . $attachment_id->get_error_message()], 500);
                 return;
             }
             
@@ -172,7 +170,7 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
             $file = $_FILES['audio_file']; // Already validated
 
             $post_data = [
-                'post_title'   => sprintf( __( 'Audio Recording %s', 'starmus-audio-recorder' ), $audio_uuid_from_js ),
+                'post_title'   => 'Audio Recording ' . $audio_uuid_from_js,
                 'post_type'    => $this->get_target_post_type(),
                 'post_status'  => 'publish',
                 'post_author'  => $current_user_id, // Assign post to the logged-in user
@@ -201,7 +199,7 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
 
             if (is_wp_error($post_id)) {
                 wp_delete_attachment($attachment_id, true);
-                wp_send_json_error(['success' => false, 'message' => sprintf( __( 'Failed to create post: %s', 'starmus-audio-recorder' ), $post_id->get_error_message() )], 500);
+                wp_send_json_error(['success' => false, 'message' => 'Failed to create post: ' . $post_id->get_error_message()], 500);
                 return;
             }
             update_post_meta($post_id, 'audio_file_type', $file['type']);
@@ -211,7 +209,7 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
 
             wp_send_json_success([
                 'success' => true,
-                'message' => __( 'Submission successful.', 'starmus-audio-recorder' ),
+                'message' => 'Submission successful.',
                 'attachment_id' => $attachment_id,
                 'post_id' => $post_id,
             ], 200);
@@ -225,7 +223,7 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
         {
             $attributes = shortcode_atts([
                 'form_id' => 'sparxstarAudioForm',
-                'submit_button_text' => esc_html__( 'Submit Recording', 'starmus-audio-recorder' ),
+                'submit_button_text' => 'Submit Recording',
             ], $atts);
 
             ob_start();
@@ -239,7 +237,7 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
             if (file_exists($template_path)) {
                 include $template_path;
             } else {
-                echo '<p>' . esc_html__( 'Error: Audio recorder form template not found.', 'starmus-audio-recorder' ) . '</p>';
+                echo '<p>Error: Audio recorder form template not found.</p>';
             }
 
             return ob_get_clean();
@@ -260,30 +258,6 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
                     true
                 );
 
-                wp_localize_script(
-                    'starmus-audio-recorder-module',
-                    'starmusRecorderStrings',
-                    [
-                        'network_lost'               => esc_html__( 'Network connection lost. Current recording is paused. Do NOT close page if you wish to save. Try to Stop and Submit when online.', 'starmus-audio-recorder' ),
-                        'network_restored_recording' => esc_html__( 'Network connection restored. You can now Stop your recording and Submit, or Delete and start over.', 'starmus-audio-recorder' ),
-                        'network_restored'           => esc_html__( 'Network connection restored.', 'starmus-audio-recorder' ),
-                        'ready_to_record'            => esc_html__( 'Ready to record.', 'starmus-audio-recorder' ),
-                        'recording_stopped'          => esc_html__( 'Recording stopped, no audio captured.', 'starmus-audio-recorder' ),
-                        'recording_complete'         => esc_html__( 'Recording complete. Play, Download, Delete, or Submit.', 'starmus-audio-recorder' ),
-                        'recording_saved_no_input'   => esc_html__( 'Recording saved locally. File input not found in form.', 'starmus-audio-recorder' ),
-                        'recording_saved_attached'   => esc_html__( 'Recording saved and attached to form.', 'starmus-audio-recorder' ),
-                        'recording_saved_no_support' => esc_html__( 'Recording saved, but your browser does not support automatic file attachment. Please try a different browser.', 'starmus-audio-recorder' ),
-                        'recording_saved_error'      => esc_html__( 'Recording saved locally. Error attaching to form.', 'starmus-audio-recorder' ),
-                        'mic_denied'                 => esc_html__( 'Microphone permission denied. Please allow mic access.', 'starmus-audio-recorder' ),
-                        'mic_failed'                 => esc_html__( 'Microphone permission check failed. Please check your browser settings.', 'starmus-audio-recorder' ),
-                        'level_unavailable'          => esc_html__( 'Audio level visualization not available.', 'starmus-audio-recorder' ),
-                        'recording_paused'           => esc_html__( 'Recording paused', 'starmus-audio-recorder' ),
-                        'recording_resumed'          => esc_html__( 'Recording resumed...', 'starmus-audio-recorder' ),
-                        'recorder_reset'             => esc_html__( 'Recorder reset.', 'starmus-audio-recorder' ),
-                        'unsupported_format'         => esc_html__( 'Unsupported recording format. Try a different browser.', 'starmus-audio-recorder' ),
-                    ]
-                );
-
                 wp_enqueue_script(
                     'starmus-audio-recorder-submissions',
                     $this->plugin_url . 'assets/js/starmus-audio-recorder-submissions.js',
@@ -292,33 +266,11 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
                     true
                 );
 
-                wp_localize_script(
-                    'starmus-audio-recorder-submissions',
-                    'starmusFormData',
-                    [
-                        'ajax_url'     => admin_url('admin-ajax.php'),
-                        'nonce_action' => self::NONCE_ACTION,
-                        'nonce_field'  => self::NONCE_FIELD,
-                        'strings'      => [
-                            'no_forms'             => esc_html__( 'No audio recorder forms found on this page.', 'starmus-audio-recorder' ),
-                            'recorder_failed'      => esc_html__( 'Recorder failed to load.', 'starmus-audio-recorder' ),
-                            'error_loading'        => esc_html__( 'Error loading recorder.', 'starmus-audio-recorder' ),
-                            'recorder_unavailable' => esc_html__( 'Critical error: Recorder unavailable.', 'starmus-audio-recorder' ),
-                            'recording_ready'      => esc_html__( 'Recording ready.', 'starmus-audio-recorder' ),
-                            'long_recording'       => esc_html__( 'Your recording is about %s min long and may take some time to upload.', 'starmus-audio-recorder' ),
-                            'submit_when_ready'    => esc_html__( 'Please submit when ready.', 'starmus-audio-recorder' ),
-                            'error_audio_missing'  => esc_html__( 'Error: Audio not recorded or Audio ID missing.', 'starmus-audio-recorder' ),
-                            'error_no_audio'       => esc_html__( 'Error: No audio file data to submit.', 'starmus-audio-recorder' ),
-                            'error_consent'        => esc_html__( 'Error: Consent is required.', 'starmus-audio-recorder' ),
-                            'submitting'           => esc_html__( 'Submitting your recording…', 'starmus-audio-recorder' ),
-                            'error_invalid'        => esc_html__( 'Error: Invalid server response. (%s)', 'starmus-audio-recorder' ),
-                            'submit_success'       => esc_html__( 'Successfully submitted!', 'starmus-audio-recorder' ),
-                            'error_unknown'        => esc_html__( 'Unknown server error.', 'starmus-audio-recorder' ),
-                            'error_template'       => esc_html__( 'Error: %s', 'starmus-audio-recorder' ),
-                            'network_error'        => esc_html__( 'Network error. Please check connection and try again.', 'starmus-audio-recorder' ),
-                        ],
-                    ]
-                );
+                wp_localize_script('starmus-audio-recorder-submissions', 'starmusFormData', [
+                    'ajax_url' => admin_url('admin-ajax.php'),
+                    'nonce_action' => self::NONCE_ACTION,
+                    'nonce_field' => self::NONCE_FIELD,
+                ]);
 
                 wp_enqueue_style(
                     'starmus-audio-recorder-style',
@@ -429,49 +381,44 @@ if (!class_exists('Starmus_Audio_Submission_Handler')) {
             error_log('UPLOAD ERROR CODE: ' . $error_code);
             switch ($error_code) {
                 case UPLOAD_ERR_INI_SIZE:
-                    return __( 'The uploaded file exceeds the upload_max_filesize directive in php.ini.', 'starmus-audio-recorder' );
+                    return "The uploaded file exceeds the upload_max_filesize directive in php.ini.";
                 case UPLOAD_ERR_FORM_SIZE:
-                    return __( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.', 'starmus-audio-recorder' );
+                    return "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.";
                 case UPLOAD_ERR_PARTIAL:
-                    return __( 'The uploaded file was only partially uploaded.', 'starmus-audio-recorder' );
+                    return "The uploaded file was only partially uploaded.";
                 case UPLOAD_ERR_NO_FILE:
-                    return __( 'No file was uploaded.', 'starmus-audio-recorder' );
+                    return "No file was uploaded.";
                 case UPLOAD_ERR_NO_TMP_DIR:
-                    return __( 'Missing a temporary folder.', 'starmus-audio-recorder' );
+                    return "Missing a temporary folder.";
                 case UPLOAD_ERR_CANT_WRITE:
-                    return __( 'Failed to write file to disk.', 'starmus-audio-recorder' );
+                    return "Failed to write file to disk.";
                 case UPLOAD_ERR_EXTENSION:
-                    return __( 'A PHP extension stopped the file upload.', 'starmus-audio-recorder' );
+                    return "A PHP extension stopped the file upload.";
                 case UPLOAD_ERR_OK:
-                    return __( 'File uploaded successfully.', 'starmus-audio-recorder' );
+                    return "File uploaded successfully.";
                 case UPLOAD_ERR_EMPTY_FILE:
-                    return __( 'The uploaded file is empty.', 'starmus-audio-recorder' );
+                    return "The uploaded file is empty.";
                 case UPLOAD_ERR_INVALID_FILE:
-                    return __( 'The uploaded file is invalid.', 'starmus-audio-recorder' );
+                    return "The uploaded file is invalid.";
                 case UPLOAD_ERR_INVALID_TYPE:
-                    return __( 'The uploaded file type is not allowed.', 'starmus-audio-recorder' );
+                    return "The uploaded file type is not allowed.";
                 case UPLOAD_ERR_FILE_TOO_LARGE:
-                    return __( 'The uploaded file is too large.', 'starmus-audio-recorder' );
+                    return "The uploaded file is too large.";
                 case UPLOAD_ERR_FILE_NOT_FOUND:
-                    return __( 'The uploaded file was not found.', 'starmus-audio-recorder' );
+                    return "The uploaded file was not found.";
                 case UPLOAD_ERR_FILE_NOT_READABLE:
-                    return __( 'The uploaded file is not readable.', 'starmus-audio-recorder' );
+                    return "The uploaded file is not readable.";
                 case UPLOAD_ERR_FILE_NOT_WRITABLE:
-                    return __( 'The uploaded file is not writable.', 'starmus-audio-recorder' );
+                    return "The uploaded file is not writable.";
                 case UPLOAD_ERR_FILE_EXISTS:
-                    return __( 'The uploaded file already exists.', 'starmus-audio-recorder' );
+                    return "The uploaded file already exists.";
                 case UPLOAD_ERR_FILE_NOT_SUPPORTED:
-                    return __( 'The uploaded file type is not supported.', 'starmus-audio-recorder' );
+                    return "The uploaded file type is not supported.";
                 case UPLOAD_ERR_FILE_TOO_SHORT:
-                    return __( 'The uploaded file is too short.', 'starmus-audio-recorder' );
+                    return "The uploaded file is too short.";
                 default:
-                    return __( 'Unknown upload error.', 'starmus-audio-recorder' );
+                    return "Unknown upload error.";
             }
         }
     }
-
-    // Register the audio submission handler
-    // Register in main class file :: new StarmusAudioSubmissionHandler(); // Fixed class name
-
-}
 
