@@ -7,6 +7,197 @@ document.addEventListener('DOMContentLoaded', () => {
     const logPrefix = 'STARMUS_FORM:';
     console.log(logPrefix, 'DOM fully loaded. Initializing audio form submissions.');
 
+    // Offline queue configuration
+    const DB_NAME = 'starmus_audio_queue';
+    const STORE_NAME = 'queue';
+    const CHUNK_SIZE = 512 * 1024; // 512KB chunks
+    const canUseIDB = 'indexedDB' in window;
+    const dbPromise = canUseIDB ? new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+            }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    }) : Promise.resolve(null);
+
+    function blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    function base64ToBlob(base64) {
+        const parts = base64.split(',');
+        const mime = parts[0].match(/:(.*?);/)[1];
+        const binary = atob(parts[1]);
+        const array = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+            array[i] = binary.charCodeAt(i);
+        }
+        return new Blob([array], { type: mime });
+    }
+
+    async function enqueue(item) {
+        if (canUseIDB) {
+            const db = await dbPromise;
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).put(item);
+                tx.oncomplete = () => {
+                    updateQueueUI();
+                    resolve();
+                };
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+        const list = JSON.parse(localStorage.getItem(DB_NAME) || '[]');
+        const base64 = await blobToBase64(item.audio);
+        list.push({ ...item, audioData: base64 });
+        localStorage.setItem(DB_NAME, JSON.stringify(list));
+        updateQueueUI();
+    }
+
+    async function getAllItems() {
+        if (canUseIDB) {
+            const db = await dbPromise;
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const req = tx.objectStore(STORE_NAME).getAll();
+                req.onsuccess = () => resolve(req.result || []);
+                req.onerror = () => reject(req.error);
+            });
+        }
+        const list = JSON.parse(localStorage.getItem(DB_NAME) || '[]');
+        return list.map(item => {
+            if (item.audioData) {
+                item.audio = base64ToBlob(item.audioData);
+            }
+            return item;
+        });
+    }
+
+    async function updateItem(id, fields) {
+        if (canUseIDB) {
+            const db = await dbPromise;
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.get(id);
+                req.onsuccess = () => {
+                    const data = Object.assign(req.result, fields);
+                    store.put(data);
+                };
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+        const list = JSON.parse(localStorage.getItem(DB_NAME) || '[]');
+        const idx = list.findIndex(i => i.id === id);
+        if (idx > -1) {
+            list[idx] = Object.assign(list[idx], fields);
+            localStorage.setItem(DB_NAME, JSON.stringify(list));
+        }
+    }
+
+    async function deleteItem(id) {
+        if (canUseIDB) {
+            const db = await dbPromise;
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).delete(id);
+                tx.oncomplete = () => {
+                    updateQueueUI();
+                    resolve();
+                };
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+        const list = JSON.parse(localStorage.getItem(DB_NAME) || '[]');
+        const filtered = list.filter(i => i.id !== id);
+        localStorage.setItem(DB_NAME, JSON.stringify(filtered));
+        updateQueueUI();
+    }
+
+    const queueBanner = document.createElement('div');
+    queueBanner.id = 'starmus_queue_banner';
+    queueBanner.className = 'sparxstar_status sparxstar_visually_hidden';
+    queueBanner.innerHTML = '<span class="sparxstar_status__text" id="starmus_queue_count"></span> <button type="button" id="starmus_queue_retry">Retry</button>';
+    document.body.appendChild(queueBanner);
+
+    document.getElementById('starmus_queue_retry').addEventListener('click', () => {
+        processQueue();
+    });
+
+    async function updateQueueUI() {
+        const items = await getAllItems();
+        const countSpan = document.getElementById('starmus_queue_count');
+        if (items.length > 0) {
+            countSpan.textContent = `${items.length} recording${items.length > 1 ? 's' : ''} pending upload`;
+            queueBanner.classList.remove('sparxstar_visually_hidden');
+        } else {
+            queueBanner.classList.add('sparxstar_visually_hidden');
+        }
+    }
+
+    let processingQueue = false;
+    async function processQueue() {
+        if (processingQueue) return;
+        processingQueue = true;
+        const items = await getAllItems();
+        for (const item of items) {
+            const success = await uploadQueuedItem(item);
+            if (!success) {
+                break;
+            }
+        }
+        processingQueue = false;
+        updateQueueUI();
+    }
+
+    async function uploadQueuedItem(item) {
+        let offset = item.uploadedBytes || 0;
+        while (offset < item.audio.size) {
+            const chunk = item.audio.slice(offset, offset + CHUNK_SIZE);
+            const fd = new FormData();
+            for (const key in item.meta) {
+                fd.append(key, item.meta[key]);
+            }
+            fd.append(item.audioField, chunk, item.meta.fileName || 'audio.webm');
+            fd.append('chunk_offset', offset);
+            fd.append('total_size', item.audio.size);
+            try {
+                const response = await fetch(item.ajaxUrl, { method: 'POST', body: fd });
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Upload error');
+                }
+                offset += chunk.size;
+                await updateItem(item.id, { uploadedBytes: offset });
+            } catch (err) {
+                console.error(logPrefix, 'Chunk upload failed:', err);
+                return false;
+            }
+        }
+        await deleteItem(item.id);
+        return true;
+    }
+
+    window.addEventListener('online', () => {
+        processQueue();
+    });
+
+    updateQueueUI();
+    if (navigator.onLine) {
+        processQueue();
+    }
+
     const recorderWrappers = document.querySelectorAll('[data-enabled-recorder]');
 
     if (recorderWrappers.length === 0) {
@@ -140,6 +331,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const ajaxUrl = (typeof starmusFormData !== 'undefined' && starmusFormData.ajax_url) ? starmusFormData.ajax_url : '/wp-admin/admin-ajax.php';
 
+            async function queueCurrentSubmission() {
+                const meta = {};
+                formData.forEach((value, key) => {
+                    if (!(value instanceof File)) {
+                        meta[key] = value;
+                    }
+                });
+                const queueEntry = {
+                    id: audioIdField.value || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+                    meta,
+                    audio: audioFileInput.files[0],
+                    ajaxUrl,
+                    audioField: audioFileInput.name,
+                    uploadedBytes: 0
+                };
+                await enqueue(queueEntry);
+            }
+
+            if (!navigator.onLine) {
+                await queueCurrentSubmission();
+                if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden');
+                _updateStatusForInstance(formInstanceId, 'Offline: saved for later upload.', 'info', true, submitButton);
+                formElement.reset();
+                if (typeof StarmusAudioRecorder !== 'undefined' && StarmusAudioRecorder.cleanup) {
+                    StarmusAudioRecorder.cleanup();
+                }
+                return;
+            }
+
             try {
                 const response = await fetch(ajaxUrl, {
                     method: 'POST',
@@ -175,7 +395,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (networkError) {
                 console.error(logPrefix, `Network error during submission for ${formInstanceId}:`, networkError);
                 if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden');
-                _updateStatusForInstance(formInstanceId, 'Network error. Please check connection and try again.', 'error', true, submitButton);
+                await queueCurrentSubmission();
+                _updateStatusForInstance(formInstanceId, 'Offline: saved for later upload.', 'info', true, submitButton);
+                formElement.reset();
+                if (typeof StarmusAudioRecorder !== 'undefined' && StarmusAudioRecorder.cleanup) {
+                    StarmusAudioRecorder.cleanup();
+                }
             }
         });
 
