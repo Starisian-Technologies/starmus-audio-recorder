@@ -103,7 +103,7 @@ if (!isset($unique_suffix)) {
       disabled>Submit Recording</button>
 
     <!-- Hidden fields  -->
-    <input type="hidden" name="submission_id" id="submission_id_<?php echo esc_attr($form_id); ?>" value="" />
+    <input type="hidden" name="submission_id" id="submission_id_<?php echo esc_attr($form_id); ?>" value="<?php echo esc_attr($submission_id); ?>" />
     <input type="hidden" name="user_id" id="linked_user_id_<?php echo esc_attr($form_id); ?>" value="" />
     <input type="hidden" name="user_agent" id="linked_user_agent_<?php echo esc_attr($form_id); ?>" value="" />
     <input type="hidden" name="user_ip" id="linked_user_ip_<?php echo esc_attr($form_id); ?>" value="" />

@@ -132,9 +132,12 @@ final class AudioRecorder {
 		echo '</p></div>';
 	}
 
-	private function load_dependencies(): void {
-		require_once $this->plugin_path . 'includes/starmus-audio-recorder-handler.php';
-	}
+        private function load_dependencies(): void {
+                require_once $this->plugin_path . 'src/includes/Autoloader.php';
+                new \Starisian\src\includes\Autoloader( $this->plugin_path . 'src' );
+                new \Starisian\src\Core\RecordingSessionCPT();
+                require_once $this->plugin_path . 'includes/starmus-audio-recorder-handler.php';
+        }
 	
 	/**
 	 * Executes the main functionality of the Starmus Audio Recorder plugin.
