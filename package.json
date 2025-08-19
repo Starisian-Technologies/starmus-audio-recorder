@@ -5,7 +5,8 @@
   "type": "module",
   "main": "assets/js/starmus-audio-recorder-module.js",
   "scripts": {
-    "lint": "eslint assets/js/**/*.js"
+    "lint": "eslint assets/js/starmus-audio-recorder-module.js",
+    "build": "node build-starmus.js"
   },
   "author": "Starisian Technologies (Max Barrett)",
     "homepage": "https://starisian.com",
