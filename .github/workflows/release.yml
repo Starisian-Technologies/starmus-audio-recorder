@@ -1,0 +1,20 @@
+permissions:
+  contents: read
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build changelog
+        run: echo "Generate changelog" 
+      - name: Package
+        run: zip -r artifact.zip .
+      - uses: actions/upload-artifact@v3
+        with:
+          name: plugin
+          path: artifact.zip

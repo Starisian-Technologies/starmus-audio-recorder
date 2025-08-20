@@ -1,0 +1,15 @@
+permissions:
+  contents: read
+name: Security Checks
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Composer audit
+        run: composer audit || true
+      - name: NPM audit
+        run: npm audit || true

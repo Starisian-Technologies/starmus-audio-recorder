@@ -1,6 +1,6 @@
 // ==== starmus-audio-recorder-module.js ====
-// Build Hash (SHA-1):   c8aaf461c00bc0b613a759027af26b2faeaad730
-// Build Hash (SHA-256): 2ade7463624fafe901e8968080483099e9ea2cf5d6c8e8b7db666a295b0e8093
+// Build Hash (SHA-1):   7093e4fb8fac4967d14f42cdd86673cb0359bbf1
+// Build Hash (SHA-256): 866647047144ea374fff10f3f33cab4d0e7cc564b691b464a33d803662902806
 
 // Utility: Button State Enforcer (already somewhat modular, keep it that way)
 function createButtonStateEnforcer(initialButtonElement, sharedStateObject, permissionKey, logFn = console.log) {
@@ -95,7 +95,7 @@ const StarmusAudioRecorder = (function () {
     fileInputId: 'audio_file', // Matches your form HTML
     recorderContainerSelector: '[data-enabled-recorder]',
     maxRecordingTime: 1200000, // 20 minutes
-    buildHash: 'c8aaf461c00bc0b613a759027af26b2faeaad730', // SHA-1 hash
+    buildHash: '7093e4fb8fac4967d14f42cdd86673cb0359bbf1', // SHA-1 hash
     logPrefix: 'STARMUS:'
   };
 

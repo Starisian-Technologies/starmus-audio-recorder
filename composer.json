@@ -1,0 +1,42 @@
+{
+    "name": "starisian/starmus-audio-recorder",
+    "description": "Mobile-first, offline-friendly audio recorder for WordPress.",
+    "version": "0.5.0",
+    "type": "wordpress-plugin",
+    "license": "SEE LICENSE IN LICENSE.md",
+    "autoload": {
+        "psr-4": {
+            "Starisian\\StarmusAudioRecorder\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Max Barrett",
+            "email": "maximilliangroup@gmail.com"
+        }
+    ],
+    "homepage": "https://starisian.com",
+    "support": {
+        "issues": "https://github.com/Starisian-Technologies/starmus-audio-recorder/issues",
+        "source": "https://github.com/Starisian-Technologies/starmus-audio-recorder"
+    },
+    "keywords": [
+        "wordpress",
+        "audio",
+        "recorder",
+        "plugin",
+        "starmus",
+        "MediaRecorder",
+        "API",
+        "webm",
+        "opus"
+    ],
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/Starisian-Technologies/starmus-audio-recorder.git"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}

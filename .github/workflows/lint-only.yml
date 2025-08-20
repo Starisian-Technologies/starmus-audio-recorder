@@ -1,0 +1,14 @@
+permissions:
+  contents: read
+name: Lint Only
+on:
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: composer lint:php
+      - run: npm run lint
