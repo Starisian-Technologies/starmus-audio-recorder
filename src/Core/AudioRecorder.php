@@ -50,7 +50,7 @@ final class AudioRecorder {
 
         return true;
     }
-
+ 
     public function admin_notice_compatibility(): void {
         echo '<div class="notice notice-error"><p>';
         if ( version_compare( PHP_VERSION, self::MINIMUM_PHP_VERSION, '<' ) ) {

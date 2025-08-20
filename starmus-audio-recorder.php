@@ -13,7 +13,7 @@
  * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
  * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
  */
-
+ 
 /**
  * Plugin Name:       Starmus Audio Recorder
  * Plugin URI:        https://github.com/Starisian-Technologies/starmus-audio-recorder
@@ -47,7 +47,7 @@ require_once __DIR__ . '/src/includes/Autoloader.php';
 Starisian\src\Includes\Autoloader::register();
 
 
-use Starmus\includes\StarmusAudioSubmissionHandler;
+use Starisian\src\Includes\StarmusAudioSubmissionHandler;
 
 /**
  * Class AudioRecorder

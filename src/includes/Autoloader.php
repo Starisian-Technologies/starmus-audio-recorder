@@ -4,7 +4,7 @@ namespace Starisian\src\Includes;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-
+ 
 class Autoloader {
     public static function register(): void {
         spl_autoload_register( [ __CLASS__, 'autoload' ] );

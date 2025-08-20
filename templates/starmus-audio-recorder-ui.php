@@ -16,7 +16,7 @@ if (!isset($unique_suffix)) {
 <form id="<?php echo esc_attr($form_id); ?>" method="post" enctype="multipart/form-data"
   action="<?php echo esc_url(admin_url('admin-ajax.php')); ?>">
 
-
+ 
   <input type="hidden" name="action" id="action_<?php echo esc_attr($form_id); ?>" value="starmus_submit_audio" />
   <!-- nonce -->
   <?php wp_nonce_field('starmus_submit_audio_action', 'starmus_audio_nonce_field'); ?>
@@ -26,7 +26,7 @@ if (!isset($unique_suffix)) {
     <h2 id="sparxstar_audioRecorderHeading_<?php echo esc_attr($form_id); ?>" class="sparxstar-h2">Audio Recorder</h2>
 
     <!-- Consent Checkbox -->
-    <label for="audio_consent_<?php echo esc_attr($form_id); ?>" ...>
+    <label for="audio_consent_<?php echo esc_attr($form_id); ?>">
       <input type="checkbox" id="audio_consent_<?php echo esc_attr($form_id); ?>" name="audio_consent" required>
       I give permission to record and submit my audio.
     </label>

@@ -6,7 +6,7 @@
     "license": "SEE LICENSE IN LICENSE.md",
     "autoload": {
         "psr-4": {
-            "Starisian\\StarmusAudioRecorder\\": "src/"
+            "Starisian\\src\\": "src/"
         }
     },
     "authors": [
