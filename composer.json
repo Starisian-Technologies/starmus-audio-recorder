@@ -1,7 +1,7 @@
 {
     "name": "starisian/starmus-audio-recorder",
     "description": "Mobile-first, offline-friendly audio recorder for WordPress.",
-    "version": "0.5.0",
+    "version": "0.3.0",
     "type": "wordpress-plugin",
     "license": "SEE LICENSE IN LICENSE.md",
     "autoload": {
