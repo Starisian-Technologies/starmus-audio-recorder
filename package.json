@@ -5,28 +5,43 @@
   "type": "module",
   "main": "assets/js/starmus-audio-recorder-module.js",
   "scripts": {
-    "lint": "eslint assets/js/starmus-audio-recorder-module.js",
+  "lint": "npm run lint:js && npm run lint:css && npm run lint:md && npm run lint:php",
+  "lint:js": "eslint \"assets/js/**/*.js\"",
+  "lint:js:fix": "eslint \"assets/js/**/*.js\" --fix",
+  "lint:css": "stylelint \"assets/css/**/*.css\"",
+  "lint:css:fix": "stylelint \"assets/css/**/*.css\" --fix",
+  "lint:md": "markdownlint \"**/*.md\"",
+  "lint:md:fix": "markdownlint \"**/*.md\" --fix",
+  "lint:php": "vendor/bin/phpcs",
+  "lint:php:fix": "vendor/bin/phpcbf",
+  "format": "npm run lint:js:fix && npm run lint:css:fix && npm run lint:md:fix && npm run lint:php:fix && prettier --write .",
     "build": "node build-starmus.js"
   },
   "author": "Starisian Technologies (Max Barrett)",
-    "homepage": "https://starisian.com",
+  "homepage": "https://starisian.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/Starisian-Technologies/starmus-audio-recorder.git"
   },
-    "keywords": [
-        "wordpress",
-        "audio",
-        "recorder",
-        "plugin",
-        "starmus",
-        "MediaRecorder",
-        "API",
-        "webm",
-        "opus"
-    ],
+  "keywords": [
+    "wordpress",
+    "audio",
+    "recorder",
+    "plugin",
+    "starmus",
+    "MediaRecorder",
+    "API",
+    "webm",
+    "opus"
+  ],
   "license": "SEE LICENSE IN LICENSE.md",
   "devDependencies": {
-    "eslint": "^9.0.0"
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "eslint": "^9.33.0",
+    "markdownlint-cli": "^0.45.0",
+    "prettier": "^3.6.2",
+    "stylelint": "^16.23.1",
+    "stylelint-config-standard": "^39.0.0"
   }
 }

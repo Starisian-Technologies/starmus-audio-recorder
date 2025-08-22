@@ -7,5 +7,5 @@ module.exports = {
     'string-quotes': 'single',
     'block-no-empty': true,
     'color-no-invalid-hex': true
-  }
+  } 
 };
