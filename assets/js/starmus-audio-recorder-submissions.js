@@ -289,6 +289,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!(value instanceof File)) meta[key] = value;
             });
 
+            if (starmusFormData?.action) {
+                meta.action = starmusFormData.action;
+            }
+            if (starmusFormData?.nonce) {
+                meta.nonce = starmusFormData.nonce;
+            }
+
             const submissionItem = {
                 id: audioIdField.value,
                 meta: meta,
