@@ -119,10 +119,10 @@ class StarmusAudioRecorderUI
         if ($has_recorder) {
             // Enqueue the two JS files required for the form to function
             wp_enqueue_script('starmus-audio-recorder-module', STARMUS_URL . 'assets/js/starmus-audio-recorder-module.js', [], STARMUS_VERSION, true);
-            wp_enqueue_script('starmus-audio-form-submission', STARMUS_URL . 'assets/js/starmus-audio-form-submission.js', ['starmus-audio-recorder-module'], STARMUS_VERSION, true);
+            wp_enqueue_script('starmus-audio-recorder-submissions', STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.js', ['starmus-audio-recorder-module'], STARMUS_VERSION, true);
 
             // Pass the NEW action name and nonce to the submission script
-            wp_localize_script('starmus-audio-form-submission', 'starmusFormData', [
+            wp_localize_script('starmus-audio-recorder-submissions', 'starmusFormData', [
                 'ajax_url'      => admin_url('admin-ajax.php'),
                 'action'        => 'starmus_handle_upload_chunk', // Use the new single endpoint
                 'nonce'         => wp_create_nonce('starmus_chunk_upload'),
@@ -156,6 +156,19 @@ class StarmusAudioRecorderUI
 
         if (empty($uuid) || !$file_chunk || $file_chunk['error'] !== UPLOAD_ERR_OK) {
             wp_send_json_error(['message' => esc_html__('Invalid request: Missing required data.', 'starmus')], 400);
+        }
+
+        $max_size_mb   = (int) StarmusAdminSettings::get_option('file_size_limit');
+        $max_size_bytes = $max_size_mb * 1024 * 1024;
+        if ($max_size_bytes > 0 && $file_chunk['size'] > $max_size_bytes) {
+            wp_send_json_error(['message' => esc_html__('File exceeds maximum allowed size.', 'starmus')], 400);
+        }
+
+        $allowed_types = StarmusAdminSettings::get_option('allowed_file_types', '');
+        $allowed       = array_map('strtolower', array_map('trim', explode(',', $allowed_types)));
+        $file_info     = wp_check_filetype_and_ext($file_chunk['tmp_name'], $file_name);
+        if (! $file_info['type'] || ! in_array(strtolower($file_info['ext']), $allowed, true)) {
+            wp_send_json_error(['message' => esc_html__('Invalid file type.', 'starmus')], 400);
         }
 
         // 2. Prepare Temporary Storage
