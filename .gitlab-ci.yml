@@ -1,0 +1,16 @@
+stages: [lint, test, release]
+
+lint:
+  stage: lint
+  script:
+    - composer lint:php
+
+test:
+  stage: test
+  script:
+    - composer test:php
+
+release:
+  stage: release
+  script:
+    - echo "package"

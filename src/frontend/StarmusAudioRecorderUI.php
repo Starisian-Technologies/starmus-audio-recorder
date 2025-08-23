@@ -65,12 +65,12 @@ class StarmusAudioRecorderUI
 ?>
             <div class="starmus-recording-item">
                 <h4><?php the_title(); ?></h4>
-                <p><em><?php echo get_the_date(); ?> (Status: <?php echo esc_html(get_post_status()); ?>)</em></p>
+                <p><em><?php echo esc_html(get_the_date()); ?> (<?php echo esc_html__('Status:', 'starmus'); ?> <?php echo esc_html(get_post_status()); ?>)</em></p>
                 <?php if ($audio_url) : ?>
                     <audio controls src="<?php echo esc_url($audio_url); ?>"></audio>
-                    <p><a href="<?php echo esc_url($edit_link); ?>" class="button">Edit Details & Annotate</a></p>
+                    <p><a href="<?php echo esc_url($edit_link); ?>" class="button"><?php esc_html_e('Edit Details & Annotate', 'starmus'); ?></a></p>
                 <?php else : ?>
-                    <p><em>Audio file is processing or missing.</em></p>
+                    <p><em><?php esc_html_e('Audio file is processing or missing.', 'starmus'); ?></em></p>
                 <?php endif; ?>
             </div>
 <?php
@@ -119,10 +119,10 @@ class StarmusAudioRecorderUI
         if ($has_recorder) {
             // Enqueue the two JS files required for the form to function
             wp_enqueue_script('starmus-audio-recorder-module', STARMUS_URL . 'assets/js/starmus-audio-recorder-module.js', [], STARMUS_VERSION, true);
-            wp_enqueue_script('starmus-audio-form-submission', STARMUS_URL . 'assets/js/starmus-audio-form-submission.js', ['starmus-audio-recorder-module'], STARMUS_VERSION, true);
+            wp_enqueue_script('starmus-audio-recorder-submissions', STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.js', ['starmus-audio-recorder-module'], STARMUS_VERSION, true);
 
             // Pass the NEW action name and nonce to the submission script
-            wp_localize_script('starmus-audio-form-submission', 'starmusFormData', [
+            wp_localize_script('starmus-audio-recorder-submissions', 'starmusFormData', [
                 'ajax_url'      => admin_url('admin-ajax.php'),
                 'action'        => 'starmus_handle_upload_chunk', // Use the new single endpoint
                 'nonce'         => wp_create_nonce('starmus_chunk_upload'),
@@ -145,7 +145,7 @@ class StarmusAudioRecorderUI
         check_ajax_referer('starmus_chunk_upload', 'nonce');
 
         if (! current_user_can('upload_files')) {
-            wp_send_json_error(['message' => 'You do not have permission to upload files.'], 403);
+            wp_send_json_error(['message' => esc_html__('You do not have permission to upload files.', 'starmus')], 403);
         }
 
         $uuid = isset($_POST['audio_uuid']) ? sanitize_key($_POST['audio_uuid']) : '';
@@ -155,7 +155,20 @@ class StarmusAudioRecorderUI
         $file_name = isset($_POST['fileName']) ? sanitize_file_name($_POST['fileName']) : 'audio-submission.webm';
 
         if (empty($uuid) || !$file_chunk || $file_chunk['error'] !== UPLOAD_ERR_OK) {
-            wp_send_json_error(['message' => 'Invalid request: Missing required data.'], 400);
+            wp_send_json_error(['message' => esc_html__('Invalid request: Missing required data.', 'starmus')], 400);
+        }
+
+        $max_size_mb   = (int) StarmusAdminSettings::get_option('file_size_limit');
+        $max_size_bytes = $max_size_mb * 1024 * 1024;
+        if ($max_size_bytes > 0 && $file_chunk['size'] > $max_size_bytes) {
+            wp_send_json_error(['message' => esc_html__('File exceeds maximum allowed size.', 'starmus')], 400);
+        }
+
+        $allowed_types = StarmusAdminSettings::get_option('allowed_file_types', '');
+        $allowed       = array_map('strtolower', array_map('trim', explode(',', $allowed_types)));
+        $file_info     = wp_check_filetype_and_ext($file_chunk['tmp_name'], $file_name);
+        if (! $file_info['type'] || ! in_array(strtolower($file_info['ext']), $allowed, true)) {
+            wp_send_json_error(['message' => esc_html__('Invalid file type.', 'starmus')], 400);
         }
 
         // 2. Prepare Temporary Storage
@@ -168,7 +181,7 @@ class StarmusAudioRecorderUI
         // 3. Append Chunk to Temporary File
         $chunk_content = file_get_contents($file_chunk['tmp_name']);
         if (false === file_put_contents($temp_file_path, $chunk_content, FILE_APPEND)) {
-            wp_send_json_error(['message' => 'Server error: Could not write chunk to disk.'], 500);
+            wp_send_json_error(['message' => esc_html__('Server error: Could not write chunk to disk.', 'starmus')], 500);
         }
 
         // 4. Handle First Chunk: Create the draft post
@@ -203,7 +216,7 @@ class StarmusAudioRecorderUI
 
             if (!$post) {
                 unlink($temp_file_path); // Cleanup temp file
-                wp_send_json_error(['message' => 'Database error: Could not find original submission entry to finalize.'], 500);
+                wp_send_json_error(['message' => esc_html__('Database error: Could not find original submission entry to finalize.', 'starmus')], 500);
             }
 
             // Move the completed temp file into the WordPress media library
@@ -215,7 +228,12 @@ class StarmusAudioRecorderUI
 
             if (!empty($upload['error'])) {
                 unlink($temp_file_path); // Cleanup temp file
-                wp_send_json_error(['message' => 'File finalization error: ' . $upload['error']], 500);
+                wp_send_json_error([
+                    'message' => sprintf(
+                        esc_html__('File finalization error: %s', 'starmus'),
+                        esc_html($upload['error'])
+                    )
+                ], 500);
             }
 
             $attachment_id = wp_insert_attachment([
@@ -238,10 +256,13 @@ class StarmusAudioRecorderUI
 
             unlink($temp_file_path); // Cleanup successful upload
 
-            wp_send_json_success(['message' => 'Submission complete!', 'post_id' => $post->ID]);
+            wp_send_json_success([
+                'message' => esc_html__('Submission complete!', 'starmus'),
+                'post_id'   => $post->ID,
+            ]);
         }
 
         // For all intermediate chunks, just acknowledge success
-        wp_send_json_success(['message' => 'Chunk received.']);
+        wp_send_json_success(['message' => esc_html__('Chunk received.', 'starmus')]);
     }
 }
