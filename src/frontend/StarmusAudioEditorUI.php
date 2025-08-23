@@ -59,8 +59,10 @@ class StarmusAudioEditorUI {
 			// --- NEW: Enqueue the editor-specific stylesheet ---
 			wp_enqueue_style('starmus-audio-editor', STARMUS_URL.'assets/css/starmus-audio-editor.css', [], @filemtime(STARMUS_PATH.'assets/css/starmus-audio-editor.css') ?: STARMUS_VERSION);
 
-			wp_enqueue_script('peaks', 'https://unpkg.com/peaks.js@2.2.1/dist/peaks.min.js', [], null, true);
-			wp_enqueue_script('starmus-audio-editor', STARMUS_URL . 'assets/js/starmus-audio-editor.js', ['peaks','jquery'], @filemtime(STARMUS_PATH.'assets/js/starmus-audio-editor.js') ?: STARMUS_VERSION, true);
+                        $peaks_path = STARMUS_PATH . 'assets/js/peaks.min.js';
+                        $peaks_ver  = file_exists( $peaks_path ) ? md5_file( $peaks_path ) : STARMUS_VERSION;
+                        wp_enqueue_script('peaks', STARMUS_URL . 'assets/js/peaks.min.js', [], $peaks_ver, true);
+                        wp_enqueue_script('starmus-audio-editor', STARMUS_URL . 'assets/js/starmus-audio-editor.js', ['peaks','jquery'], @filemtime(STARMUS_PATH.'assets/js/starmus-audio-editor.js') ?: STARMUS_VERSION, true);
 
 			wp_localize_script( 'starmus-audio-editor', 'STARMUS_EDITOR_DATA', [
 				'restUrl'     => esc_url_raw( rest_url( 'starmus/v1/annotations' ) ),
