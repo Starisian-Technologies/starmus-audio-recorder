@@ -56,11 +56,15 @@ class StarmusAudioEditorUI {
 			$audio_url = $attachment_id ? wp_get_attachment_url( $attachment_id ) : '';
 			$annotations = get_post_meta( $post_id, 'starmus_annotations_json', true ) ?: '[]';
 
-			// --- NEW: Enqueue the editor-specific stylesheet ---
-			wp_enqueue_style('starmus-audio-editor', STARMUS_URL.'assets/css/starmus-audio-editor.css', [], @filemtime(STARMUS_PATH.'assets/css/starmus-audio-editor.css') ?: STARMUS_VERSION);
+                        // --- NEW: Enqueue the editor-specific stylesheet ---
+                        $css_path = STARMUS_PATH . 'assets/css/starmus-audio-editor.css';
+                        $css_version = file_exists( $css_path ) ? filemtime( $css_path ) : STARMUS_VERSION;
+                        wp_enqueue_style( 'starmus-audio-editor', STARMUS_URL . 'assets/css/starmus-audio-editor.css', [], $css_version );
 
-			wp_enqueue_script('peaks', 'https://unpkg.com/peaks.js@2.2.1/dist/peaks.min.js', [], null, true);
-			wp_enqueue_script('starmus-audio-editor', STARMUS_URL . 'assets/js/starmus-audio-editor.js', ['peaks','jquery'], @filemtime(STARMUS_PATH.'assets/js/starmus-audio-editor.js') ?: STARMUS_VERSION, true);
+                        wp_enqueue_script( 'peaks', 'https://unpkg.com/peaks.js@2.2.1/dist/peaks.min.js', [], null, true );
+                        $js_path = STARMUS_PATH . 'assets/js/starmus-audio-editor.js';
+                        $js_version = file_exists( $js_path ) ? filemtime( $js_path ) : STARMUS_VERSION;
+                        wp_enqueue_script( 'starmus-audio-editor', STARMUS_URL . 'assets/js/starmus-audio-editor.js', [ 'peaks', 'jquery' ], $js_version, true );
 
 			wp_localize_script( 'starmus-audio-editor', 'STARMUS_EDITOR_DATA', [
 				'restUrl'     => esc_url_raw( rest_url( 'starmus/v1/annotations' ) ),
