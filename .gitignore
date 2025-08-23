@@ -26,4 +26,4 @@ git add assets/css/starmus-audio-editor.css templates/*.php src/frontend src/inc
 git commit -S -m "feat(editor): add Peaks.js editor UI + REST + CSS"
 git push -u origin feat/editor-ui
 # open PR on GitHub; let CodeQL/required checks pass
-# merge PR using "Squash and merge"
+# merge PR using "Squash and merge".gitlab-ci.yml
