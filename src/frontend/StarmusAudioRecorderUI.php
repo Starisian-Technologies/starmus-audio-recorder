@@ -158,6 +158,19 @@ class StarmusAudioRecorderUI
             wp_send_json_error(['message' => 'Invalid request: Missing required data.'], 400);
         }
 
+        $max_size_mb   = (int) StarmusAdminSettings::get_option('file_size_limit');
+        $max_size_bytes = $max_size_mb * 1024 * 1024;
+        if ($max_size_bytes > 0 && $file_chunk['size'] > $max_size_bytes) {
+            wp_send_json_error(['message' => esc_html__('File exceeds maximum allowed size.', 'starmus')], 400);
+        }
+
+        $allowed_types = StarmusAdminSettings::get_option('allowed_file_types', '');
+        $allowed       = array_map('strtolower', array_map('trim', explode(',', $allowed_types)));
+        $file_info     = wp_check_filetype_and_ext($file_chunk['tmp_name'], $file_name);
+        if (! $file_info['type'] || ! in_array(strtolower($file_info['ext']), $allowed, true)) {
+            wp_send_json_error(['message' => esc_html__('Invalid file type.', 'starmus')], 400);
+        }
+
         // 2. Prepare Temporary Storage
         $temp_dir = trailingslashit(wp_upload_dir()['basedir']) . 'starmus-temp';
         if (!file_exists($temp_dir)) {
