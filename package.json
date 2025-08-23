@@ -1,6 +1,6 @@
 {
   "name": "starmus-audio-recorder",
-  "version": "0.5.0",
+  "version": "0.3.1",
   "description": "Mobile-first, offline-friendly audio recorder for WordPress.",
   "type": "module",
   "main": "assets/js/starmus-audio-recorder-module.js",

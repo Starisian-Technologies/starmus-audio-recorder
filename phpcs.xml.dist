@@ -44,7 +44,6 @@
 
   <!-- Run in parallel -->
   <arg name="parallel" value="8"/>
-  <arg name="parallel-threads" value="4"/>
   <arg name="parallel-queue-size" value="8"/>
   <arg name="parallel-queue-timeout" value="10"/>
   <arg name="parallel-queue-interval" value="0.5"/>

@@ -19,19 +19,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class StarmusAdminSettings {
 
-	/**
-	 * The key for our settings array in the wp_options table.
-	 */
 	const OPTION_NAME = 'starmus_settings';
-
-	/**
-	 * The slug for the admin menu page.
-	 */
 	const MENU_SLUG = 'starmus-settings';
 
-	/**
-	 * Class constructor.
-	 */
 	public function __construct() {
 		add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
 		add_action( 'admin_init', [ $this, 'register_settings' ] );
@@ -41,7 +31,8 @@ class StarmusAdminSettings {
 	 * Adds the submenu page under the Custom Post Type menu.
 	 */
 	public function add_admin_menu(): void {
-		$parent_slug = 'edit.php?post_type=' . self::get_option( 'cpt_slug', 'starmus_submission' );
+		// FIX #2: Ensure the fallback here matches the main default.
+		$parent_slug = 'edit.php?post_type=' . self::get_option( 'cpt_slug', 'audio-recording' );
 		add_submenu_page(
 			$parent_slug,
 			__( 'Audio Recorder Settings', 'starmus' ),
@@ -74,19 +65,10 @@ class StarmusAdminSettings {
 	 * Registers settings, sections, and fields using the Settings API.
 	 */
 	public function register_settings(): void {
-        // sanitize the submitted data
-		register_setting( 'starmus_settings_group', self::OPTION_NAME, [ $this, 'sanitize_settings' ] );
-        // refresh the class file of associated class
         register_setting( 'starmus_settings_group', self::OPTION_NAME, [ $this, 'sanitize_and_refresh' ] );
 
 		// Section 1: Custom Post Type Settings
-		add_settings_section(
-			'starmus_cpt_section',
-			__( 'Custom Post Type Settings', 'starmus' ),
-			null,
-			self::MENU_SLUG
-		);
-
+		add_settings_section( 'starmus_cpt_section', __( 'Custom Post Type Settings', 'starmus' ), null, self::MENU_SLUG );
 		add_settings_field(
 			'cpt_slug',
 			__( 'Post Type Slug', 'starmus' ),
@@ -97,13 +79,7 @@ class StarmusAdminSettings {
 		);
 
 		// Section 2: File Upload and Recording Rules
-		add_settings_section(
-			'starmus_rules_section',
-			__( 'File Upload & Recording Rules', 'starmus' ),
-			null,
-			self::MENU_SLUG
-		);
-
+		add_settings_section( 'starmus_rules_section', __( 'File Upload & Recording Rules', 'starmus' ), null, self::MENU_SLUG );
 		add_settings_field(
 			'file_size_limit',
 			__( 'Max File Size (MB)', 'starmus' ),
@@ -112,7 +88,6 @@ class StarmusAdminSettings {
 			'starmus_rules_section',
 			[ 'id' => 'file_size_limit', 'description' => __( 'Maximum allowed file size for uploads in Megabytes.', 'starmus' ) ]
 		);
-
 		add_settings_field(
 			'recording_time_limit',
 			__( 'Max Recording Time (seconds)', 'starmus' ),
@@ -121,7 +96,6 @@ class StarmusAdminSettings {
 			'starmus_rules_section',
 			[ 'id' => 'recording_time_limit', 'description' => __( 'Maximum duration for a browser recording in seconds. Set to 0 for no limit.', 'starmus' ) ]
 		);
-
 		add_settings_field(
 			'allowed_file_types',
 			__( 'Allowed File Extensions', 'starmus' ),
@@ -132,13 +106,7 @@ class StarmusAdminSettings {
 		);
 
 		// Section 3: Form Settings
-		add_settings_section(
-			'starmus_form_section',
-			__( 'Submission Form Settings', 'starmus' ),
-			null,
-			self::MENU_SLUG
-		);
-
+		add_settings_section( 'starmus_form_section', __( 'Submission Form Settings', 'starmus' ), null, self::MENU_SLUG );
 		add_settings_field(
 			'consent_message',
 			__( 'Consent Checkbox Message', 'starmus' ),
@@ -151,23 +119,17 @@ class StarmusAdminSettings {
 
 	/**
 	 * Sanitizes all settings before saving to the database.
-	 *
-	 * @param array $input The submitted settings.
-	 * @return array The sanitized settings.
 	 */
 	public function sanitize_settings( array $input ): array {
 		$sanitized = [];
-
-		$sanitized['cpt_slug'] = ! empty( $input['cpt_slug'] ) ? sanitize_key( $input['cpt_slug'] ) : 'starmus_submission';
+		$sanitized['cpt_slug'] = ! empty( $input['cpt_slug'] ) ? sanitize_key( $input['cpt_slug'] ) : 'audio-recording';
 		$sanitized['file_size_limit'] = isset( $input['file_size_limit'] ) ? absint( $input['file_size_limit'] ) : 10;
 		$sanitized['recording_time_limit'] = isset( $input['recording_time_limit'] ) ? absint( $input['recording_time_limit'] ) : 300;
 
 		if ( ! empty( $input['allowed_file_types'] ) ) {
-			$types = explode( ',', $input['allowed_file_types'] );
-			$types = array_map( 'trim', $types );
-			$types = array_map( 'sanitize_text_field', $types );
-			$types = array_filter( $types );
-			$sanitized['allowed_file_types'] = implode( ',', $types );
+			$types = array_map('trim', explode(',', $input['allowed_file_types']));
+			$types = array_map('sanitize_text_field', $types);
+			$sanitized['allowed_file_types'] = implode(',', array_filter($types));
 		} else {
 			$sanitized['allowed_file_types'] = 'mp3,wav,webm,m4a,ogg';
 		}
@@ -182,13 +144,11 @@ class StarmusAdminSettings {
 		$value = self::get_option( $args['id'] );
 		printf(
 			'<input type="text" id="%s" name="%s[%s]" value="%s" class="regular-text" />',
-			esc_attr( $args['id'] ),
-			esc_attr( self::OPTION_NAME ),
-			esc_attr( $args['id'] ),
-			esc_attr( $value )
+			esc_attr( $args['id'] ), esc_attr( self::OPTION_NAME ), esc_attr( $args['id'] ), esc_attr( $value )
 		);
 		if ( ! empty( $args['description'] ) ) {
-			printf( '<p class="description">%s</p>', esc_html( $args['description'] ) );
+			// FIX #3: Use wp_kses for consistency, allowing bold tags.
+			printf( '<p class="description">%s</p>', wp_kses( $args['description'], ['strong' => []] ) );
 		}
 	}
 
@@ -196,13 +156,11 @@ class StarmusAdminSettings {
 		$value = self::get_option( $args['id'] );
 		printf(
 			'<input type="number" id="%s" name="%s[%s]" value="%s" class="small-text" min="0" />',
-			esc_attr( $args['id'] ),
-			esc_attr( self::OPTION_NAME ),
-			esc_attr( $args['id'] ),
-			esc_attr( $value )
+			esc_attr( $args['id'] ), esc_attr( self::OPTION_NAME ), esc_attr( $args['id'] ), esc_attr( $value )
 		);
 		if ( ! empty( $args['description'] ) ) {
-			printf( '<p class="description">%s</p>', esc_html( $args['description'] ) );
+			// FIX #3: Use wp_kses for consistency.
+			printf( '<p class="description">%s</p>', wp_kses( $args['description'], ['strong' => []] ) );
 		}
 	}
 
@@ -210,29 +168,22 @@ class StarmusAdminSettings {
 		$value = self::get_option( $args['id'] );
 		printf(
 			'<textarea id="%s" name="%s[%s]" rows="4" class="large-text">%s</textarea>',
-			esc_attr( $args['id'] ),
-			esc_attr( self::OPTION_NAME ),
-			esc_attr( $args['id'] ),
-			esc_textarea( $value )
+			esc_attr( $args['id'] ), esc_attr( self::OPTION_NAME ), esc_attr( $args['id'] ), esc_textarea( $value )
 		);
 		if ( ! empty( $args['description'] ) ) {
-			printf( '<p class="description">%s</p>', wp_kses_post( $args['description'] ) );
+			printf( '<p class="description">%s</p>', wp_kses( $args['description'], ['strong' => []] ) );
 		}
 	}
 
 	/**
 	 * Helper function to safely get a setting value.
-	 *
-	 * @param string $key     The setting key to retrieve.
-	 * @param mixed  $default Optional default value to return if the key is not set.
-	 * @return mixed The value of the setting.
 	 */
 	public static function get_option( string $key, $default = '' ) {
 		$options = get_option( self::OPTION_NAME );
 		$defaults = [
-			'cpt_slug'             => 'starmus_submission',
+			'cpt_slug'             => 'audio-recording',
 			'file_size_limit'      => 10,
-			'recording_time_limit' => 300, // 5 minutes
+			'recording_time_limit' => 300,
 			'allowed_file_types'   => 'mp3,wav,webm,m4a,ogg,opus',
 			'consent_message'      => __( 'I consent to having this audio recording stored and used.', 'starmus' ),
 		];
@@ -240,20 +191,12 @@ class StarmusAdminSettings {
 		return $options[ $key ] ?? $defaults[ $key ] ?? $default;
 	}
 
-     /**
-     * Sanitize callback that also refreshes the other class.
+    /**
+     * The single sanitization callback for the settings group.
      */
     public function sanitize_and_refresh( array $input ): array {
-        $sanitized_input = $this->sanitize_settings( $input ); // Assuming you move sanitation to a separate method
-
-        // AFTER WordPress saves the new options, we can tell the Singleton to reload.
-        // We register an action that runs right after the option is updated.
-        add_action( 'updated_option', function( $option_name ) {
-            if ( self::OPTION_NAME === $option_name ) {
-                 StarmusSubmissionManager::get_instance()->load_settings();
-            }
-        }, 10, 1 );
-
-        return $sanitized_input;
+		// FIX #1: Remove the reference to the old class and the 'updated_option' hook.
+        // The static get_option() method makes that logic redundant and harmful.
+        return $this->sanitize_settings( $input );
     }
 }
