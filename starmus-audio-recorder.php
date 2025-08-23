@@ -14,15 +14,12 @@ define( 'STARMUS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'STARMUS_URL', plugin_dir_url( __FILE__ ) );
 define( 'STARMUS_VERSION', '0.3.1' ); // Or your get_file_data logic
 
-// 2. INCLUDE ALL NECESSARY FILES
-// This is the crucial step you were missing. This file contains all your
-// add_action('init', ...) calls for CPTs and Taxonomies.
-require_once STARMUS_PATH . 'includes/post-types.php';
+// 2. LOAD AUTOLOADER AND INCLUDE NECESSARY FILES
+require_once STARMUS_PATH . 'src/Autoloader.php';
+Starisian\src\Autoloader::register();
 
-// Include class files
-require_once STARMUS_PATH . 'src/includes/StarmusPlugin.php';
-require_once STARMUS_PATH . 'src/admin/StarmusAdminSettings.php';
-// ... include other classes like StarmusAudioEditorUI, StarmusAudioRecorderUI etc.
+// This file contains all add_action('init', ...) calls for CPTs and Taxonomies.
+require_once STARMUS_PATH . 'includes/post-types.php';
 
 use Starisian\src\includes\StarmusPlugin;
 
