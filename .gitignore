@@ -1,1 +1,29 @@
-/vendor/
+# branch
+git switch -c feat/editor-ui
+
+# .gitignore
+cat >> .gitignore <<'EOF'
+node_modules/
+vendor/
+dist/
+coverage/
+*.map
+*.log
+.DS_Store
+*.zip
+EOF
+git rm -r --cached node_modules || true
+
+# sign commits (SSH signing is simplest)
+git config --global gpg.format ssh
+ssh-keygen -t ed25519 -C "codespace-signing" -f ~/.ssh/id_ed25519 -N ""
+git config --global user.signingkey ~/.ssh/id_ed25519.pub
+git config --global commit.gpgsign true
+# Add ~/.ssh/id_ed25519.pub as a "Signing key" in GitHub Settings
+
+# add only real sources
+git add assets/css/starmus-audio-editor.css templates/*.php src/frontend src/includes/StarmusPlugin.php starmus-audio-recorder.php .gitignore
+git commit -S -m "feat(editor): add Peaks.js editor UI + REST + CSS"
+git push -u origin feat/editor-ui
+# open PR on GitHub; let CodeQL/required checks pass
+# merge PR using "Squash and merge"
