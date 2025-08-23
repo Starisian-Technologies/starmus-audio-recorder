@@ -119,10 +119,10 @@ class StarmusAudioRecorderUI
         if ($has_recorder) {
             // Enqueue the two JS files required for the form to function
             wp_enqueue_script('starmus-audio-recorder-module', STARMUS_URL . 'assets/js/starmus-audio-recorder-module.js', [], STARMUS_VERSION, true);
-            wp_enqueue_script('starmus-audio-form-submission', STARMUS_URL . 'assets/js/starmus-audio-form-submission.js', ['starmus-audio-recorder-module'], STARMUS_VERSION, true);
+            wp_enqueue_script('starmus-audio-recorder-submissions', STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.js', ['starmus-audio-recorder-module'], STARMUS_VERSION, true);
 
             // Pass the NEW action name and nonce to the submission script
-            wp_localize_script('starmus-audio-form-submission', 'starmusFormData', [
+            wp_localize_script('starmus-audio-recorder-submissions', 'starmusFormData', [
                 'ajax_url'      => admin_url('admin-ajax.php'),
                 'action'        => 'starmus_handle_upload_chunk', // Use the new single endpoint
                 'nonce'         => wp_create_nonce('starmus_chunk_upload'),
