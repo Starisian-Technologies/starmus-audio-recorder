@@ -20,9 +20,9 @@ use Starisian\src\Autoloader;
  * Plugin Name:       Starmus Audio Recorder
  * Plugin URI:        https://github.com/Starisian-Technologies/starmus-audio-recorder
  * Description:       Adds a mobile-friendly MP3 audio recorder for oral history submission in low-bandwidth environments.
- * Version:           0.2.0
- * Requires at least: 5.2
- * Requires PHP:      7.2
+ * Version:           0.3.1
+ * Requires at least: 6.4
+ * Requires PHP:      8.2
  * Author:            Starisian Technologies (Max Barrett)
  * Author URI:        https://starisian.com
  * Text Domain:       starmus-audio-recorder
@@ -41,13 +41,13 @@ define( 'STARMUS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'STARMUS_URL', plugin_dir_url( __FILE__ ) );
 define( 'STARMUS_VERSION', '0.3.1' ); // Or your get_file_data logic
 
-
-// 2. LOAD AUTOLOADER AND INCLUDE NECESSARY FILES
-require_once STARMUS_PATH . 'src/Autoloader.php';
-Starisian\src\Autoloader::register();
+// Load Composer autoloader if present
+if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
 
 // This file contains all add_action('init', ...) calls for CPTs and Taxonomies.
-require_once STARMUS_PATH . 'includes/StarmusCustomPostType.php';
+require_once STARMUS_PATH . 'src/includes/StarmusCustomPostType.php';
 
 
 use Starisian\src\includes\StarmusPlugin;
@@ -92,13 +92,13 @@ final class StarmusAudioRecorder {
 		return;
 	}
 
-	public function init(): void {
-		$this->get_starmus_plugin()->init();
-	}
+        public function init(): void {
+                StarmusPlugin::get_instance()->init();
+        }
 
-	public function get_starmus_plugin(): StarmusPlugin {
-		return $this->starmus_plugin;
-	}
+        public function get_starmus_plugin(): StarmusPlugin {
+                return $this->starmus_plugin;
+        }
 
 	/**
 	 * FIX: Activation callback. ONLY flush rewrite rules.
@@ -121,21 +121,27 @@ final class StarmusAudioRecorder {
 	 * WARNING: This is a destructive operation.
 	 * It deletes all data associated with this plugin.
 	 */
-	public static function uninstall(): void {
+        public static function uninstall(): void {
         // You might want to keep this, but be aware of the consequences.
-		delete_option( 'starmus_settings' ); // Ensure this option name is correct
+                require_once STARMUS_PATH . 'src/admin/StarmusAdmin.php';
 
-        // This is still not robust because the slug can be changed in settings.
-		$posts = get_posts( [
-			'post_type'   => StarmusAdminSettings::get_option( 'cpt_slug', 'starmus_submission' ), // Safer way
-			'numberposts' => -1,
-			'post_status' => 'any'
-		] );
+                $cpt_slug = 'starmus_submission';
+                if ( class_exists( '\\Starisian\\src\\admin\\StarmusAdminSettings' ) ) {
+                        $cpt_slug = \Starisian\src\admin\StarmusAdminSettings::get_option( 'cpt_slug', $cpt_slug );
+                }
 
-		foreach ( $posts as $post ) {
-			wp_delete_post( $post->ID, true );
-		}
-	}
+                delete_option( 'starmus_settings' ); // Ensure this option name is correct
+
+                $posts = get_posts( [
+                        'post_type'   => $cpt_slug,
+                        'numberposts' => -1,
+                        'post_status' => 'any'
+                ] );
+
+                foreach ( $posts as $post ) {
+                        wp_delete_post( $post->ID, true );
+                }
+        }
     
     private function check_compatibility(): bool {
         if ( version_compare( PHP_VERSION, self::MINIMUM_PHP_VERSION, '<' ) ) {
