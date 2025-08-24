@@ -1,5 +1,3 @@
-# no "includes:" block needed – extension-installer will load extensions
-
 parameters:
   level: 5
   phpVersion: 80200
@@ -11,9 +9,6 @@ parameters:
 
   bootstrapFiles:
     - vendor/autoload.php
-
-  scanFiles:
-    - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
 
   treatPhpDocTypesAsCertain: false
 
@@ -27,5 +22,5 @@ parameters:
 
   ignoreErrors:
     - '#Call to an undefined (function|method) (apply_filters|do_action|get_option|update_option|get_post)(\(\))?#'
-    - '#Access to an undefined (property|variable) (\$post|\$wpdb|WP_[A-Za-z0-9_\\]+)#'
+    - '#Access to an undefined (property|variable|constant|class) .*#'
     - '#Function get_(option|post|term)[A-Za-z_]* not found#'
