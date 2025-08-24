@@ -143,7 +143,37 @@ final class StarmusAudioRecorder {
                 }
         }
     
-    // Paste your other methods (check_compatibility, display_compatibility_notice, clone, wakeup) here.
+    private function check_compatibility(): bool {
+        if ( version_compare( PHP_VERSION, self::MINIMUM_PHP_VERSION, '<' ) ) {
+            $this->compatibility_messages[] = sprintf(
+                __( 'Starmus Audio Recorder requires PHP %1$s or higher. You are running %2$s.', 'starmus-audio-recorder' ),
+                self::MINIMUM_PHP_VERSION,
+                PHP_VERSION
+            );
+        }
+
+        if ( version_compare( get_bloginfo( 'version' ), self::MINIMUM_WP_VERSION, '<' ) ) {
+            $this->compatibility_messages[] = sprintf(
+                __( 'Starmus Audio Recorder requires WordPress %1$s or higher. You are running %2$s.', 'starmus-audio-recorder' ),
+                self::MINIMUM_WP_VERSION,
+                get_bloginfo( 'version' )
+            );
+        }
+
+        return empty( $this->compatibility_messages );
+    }
+
+    public function display_compatibility_notice(): void {
+        foreach ( $this->compatibility_messages as $message ) {
+            echo '<div class="notice notice-error"><p>' . esc_html( $message ) . '</p></div>';
+        }
+    }
+
+    private function __clone() {}
+
+    public function __wakeup() {
+        $this->check_compatibility();
+    }
 }
 
 // Register plugin lifecycle hooks.
