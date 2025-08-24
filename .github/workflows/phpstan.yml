@@ -1,16 +1,17 @@
+name: PHPStan
 permissions:
   contents: read
-name: PHPStan
+
 
 on:
   push:
     paths:
       - '**.php'
-      - 'phpstan.neon.dist'
+      - 'phpstan.neon'
   pull_request:
     paths:
       - '**.php'
-      - 'phpstan.neon.dist'
+      - 'phpstan.neon'
 
 jobs:
   phpstan:
@@ -22,7 +23,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup PHP
-        uses:   # uses: shivammathur/setup-php@20529878ed81ef8e78ddf08b480401e6101a850f
+        uses: shivammathur/setup-php@20529878ed81ef8e78ddf08b480401e6101a850f
         with:
           php-version: '8.2'
           extensions: mbstring, json
@@ -35,4 +36,4 @@ jobs:
           fi
 
       - name: Run PHPStan
-        run: vendor/bin/phpstan analyse --configuration=phpstan.neon.dist
+        run: vendor/bin/phpstan analyse --configuration=phpstan.neon
