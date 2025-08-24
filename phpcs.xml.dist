@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="AiWA Oral History Plugin" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Starmus Audio Recorder Plugin" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
 
-  <description>Coding standards for the AiWA Oral History Recorder WordPress plugin.</description>
+  <description>Coding standards for the Starmus Audio Recorder WordPress plugin.</description>
   <author>Starisian Technologies</author>
   <license>proprietary</license>
 
@@ -41,66 +41,47 @@
   <!-- Base path normalization -->
   <arg name="basepath" value="."/>
 
-
-  <!-- Run in parallel -->
-  <arg name="parallel" value="8"/>
-  <arg name="parallel-queue-size" value="8"/>
-  <arg name="parallel-queue-timeout" value="10"/>
-  <arg name="parallel-queue-interval" value="0.5"/>
-
   <!-- Coding standards to include -->
   <rule ref="WordPress-Extra"/>
   <rule ref="WordPress-Docs"/>
   <rule ref="Generic.Commenting.Todo"/>
   <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
-  <rule ref="Generic.WhiteSpace.DisallowIndentationTabs"/>
+  
 
   <!-- Optional: Enable if PHPCompatibilityWP is installed -->
-  <!--
+
   <config name="testVersion" value="7.4-"/>
   <rule ref="PHPCompatibilityWP">
     <include-pattern>*\.php</include-pattern>
   </rule>
-  -->
+
 
   <!-- Set WordPress version -->
-  <config name="minimum_wp_version" value="6.0"/>
-  <config name="testVersion" value="6.0-"/>
+  <config name="minimum_wp_version" value="7.4"/>
+  <config name="testVersion" value="7.4-8.4"/>
+  <config name="showProgress" value="true"/>
+
+
 
   <!-- Configure I18n text domain -->
   <rule ref="WordPress.WP.I18n">
     <properties>
       <property name="text_domain" type="array">
-        <element value="aiwa-oral-history"/>
+        <element value="starmus_audio_recorder"/>
       </property>
     </properties>
   </rule>
 
-  <!-- Prefix all globals with "aiwa" -->
+  <!-- Prefix all globals with "star" -->
   <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
     <properties>
       <property name="prefixes" type="array">
-        <element value="aiwa"/>
+        <element value="star"/>
       </property>
     </properties>
   </rule>
 
-  <!-- Example of test-specific sniff exclusion -->
-  <rule ref="WordPress.WP.GlobalVariablesOverride">
-    <properties>
-      <property name="allowSuperGlobal" type="array">
-        <element value="$_SERVER"/>
-        <element value="$_POST"/>
-        <element value="$_GET"/>
-        <element value="$_COOKIE"/>
-        <element value="$_REQUEST"/>
-      </property>
-    </properties>
-    <exclude-pattern>/tests/*Test\.php</exclude-pattern>
-  </rule>
-  <rule ref="WordPress.WP.GlobalVariablesOverride">
-    <exclude-pattern>/tests/*Test\.php</exclude-pattern>
-  </rule>
+
   <rule ref="WordPress.Files.FileName">
     <exclude-pattern>/tests/*Test\.php</exclude-pattern>
   </rule>
