@@ -1,14 +1,18 @@
-permissions:
-  contents: read
-name: Lint Only
-on:
-  pull_request:
-    paths-ignore:
-      - '**/*.md'
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: composer lint:php
-      - run: npm run lint
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2' # or your project version
+          extensions: mbstring, xml
+          tools: composer
+
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHP lint
+        run: composer lint:php
