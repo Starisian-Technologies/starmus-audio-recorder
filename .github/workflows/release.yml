@@ -1,20 +1,36 @@
-permissions:
-  contents: read
 name: Release
+
 on:
   push:
     tags:
       - 'v*'
+
+permissions:
+  contents: write # needed for gh-release to create a release
+
 jobs:
   publish:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      - name: Build changelog
-        run: echo "Generate changelog" 
-      - name: Package
-        run: zip -r artifact.zip .
-      - uses: actions/upload-artifact@v3
+
+      - name: Generate Changelog
+        run: echo "Generate changelog here or use an action"
+
+      - name: Build Plugin Zip
+        run: |
+          mkdir -p build
+          rsync -av --exclude-from=.distignore ./ build/
+          cd build && zip -r ../plugin.zip .
+
+      - name: Upload Artifact to GitHub
+        uses: actions/upload-artifact@v3
         with:
           name: plugin
-          path: artifact.zip
+          path: plugin.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: plugin.zip
