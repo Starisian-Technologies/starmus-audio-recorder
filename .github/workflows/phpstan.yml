@@ -1,7 +1,7 @@
 name: PHPStan
+
 permissions:
   contents: read
-
 
 on:
   push:
@@ -20,14 +20,21 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@20529878ed81ef8e78ddf08b480401e6101a850f
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           extensions: mbstring, json
           coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
 
       - name: Install dependencies (if needed)
         run: |
