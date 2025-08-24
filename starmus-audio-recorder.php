@@ -121,21 +121,27 @@ final class StarmusAudioRecorder {
 	 * WARNING: This is a destructive operation.
 	 * It deletes all data associated with this plugin.
 	 */
-	public static function uninstall(): void {
+        public static function uninstall(): void {
         // You might want to keep this, but be aware of the consequences.
-		delete_option( 'starmus_settings' ); // Ensure this option name is correct
+                require_once STARMUS_PATH . 'src/admin/StarmusAdmin.php';
 
-        // This is still not robust because the slug can be changed in settings.
-		$posts = get_posts( [
-			'post_type'   => StarmusAdminSettings::get_option( 'cpt_slug', 'starmus_submission' ), // Safer way
-			'numberposts' => -1,
-			'post_status' => 'any'
-		] );
+                $cpt_slug = 'starmus_submission';
+                if ( class_exists( '\\Starisian\\src\\admin\\StarmusAdminSettings' ) ) {
+                        $cpt_slug = \Starisian\src\admin\StarmusAdminSettings::get_option( 'cpt_slug', $cpt_slug );
+                }
 
-		foreach ( $posts as $post ) {
-			wp_delete_post( $post->ID, true );
-		}
-	}
+                delete_option( 'starmus_settings' ); // Ensure this option name is correct
+
+                $posts = get_posts( [
+                        'post_type'   => $cpt_slug,
+                        'numberposts' => -1,
+                        'post_status' => 'any'
+                ] );
+
+                foreach ( $posts as $post ) {
+                        wp_delete_post( $post->ID, true );
+                }
+        }
     
     // Paste your other methods (check_compatibility, display_compatibility_notice, clone, wakeup) here.
 }
