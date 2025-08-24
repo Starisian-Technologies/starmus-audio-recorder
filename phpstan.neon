@@ -1,18 +1,22 @@
-includes:
-  - vendor/szepeviktor/phpstan-wordpress/extension.neon
+# no "includes:" block needed – extension-installer will load extensions
 
 parameters:
   level: 5
   phpVersion: 80200
+
   paths:
     - src
     - templates
     - starmus-audio-recorder.php
+
   bootstrapFiles:
     - vendor/autoload.php
+
   scanFiles:
     - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+
   treatPhpDocTypesAsCertain: false
+
   excludePaths:
     analyse:
       - tests/*
@@ -20,6 +24,7 @@ parameters:
       - node_modules/*
       - assets/*
       - includes/lib/*
+
   ignoreErrors:
     - '#Call to an undefined (function|method) (apply_filters|do_action|get_option|update_option|get_post)(\(\))?#'
     - '#Access to an undefined (property|variable) (\$post|\$wpdb|WP_[A-Za-z0-9_\\]+)#'

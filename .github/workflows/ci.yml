@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup PHP
-        uses:   # uses: shivammathur/setup-php@20529878ed81ef8e78ddf08b480401e6101a850f
+        uses: shivammathur/setup-php@20529878ed81ef8e78ddf08b480401e6101a850f
         with:
           php-version: '8.2'
       - name: Install dependencies
