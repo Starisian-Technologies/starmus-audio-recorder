@@ -1,15 +1,41 @@
-permissions:
-  contents: read
 name: Security Checks
+
 on:
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: '0 0 * * 0' # every Sunday at midnight UTC
+
+permissions:
+  contents: read
+
 jobs:
   audit:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Cache Composer packages
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
       - name: Composer audit
-        run: composer audit || true
+        run: composer audit || echo "Composer audit found vulnerabilities"
+
+      - name: Cache NPM packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install NPM dependencies
+        run: npm ci
+
       - name: NPM audit
-        run: npm audit || true
+        run: npm audit --audit-level=moderate || echo "NPM audit found vulnerabilities"
