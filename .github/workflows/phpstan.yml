@@ -37,4 +37,4 @@ jobs:
           fi
 
       - name: Run PHPStan
-        run: vendor/bin/phpstan analyse --configuration=phpstan.neon.dist
+        run: vendor/bin/phpstan analyse --configuration=phpstan.neon
