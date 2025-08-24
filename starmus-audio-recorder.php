@@ -41,7 +41,6 @@ define( 'STARMUS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'STARMUS_URL', plugin_dir_url( __FILE__ ) );
 define( 'STARMUS_VERSION', '0.3.1' ); // Or your get_file_data logic
 
-
 // Load Composer autoloader if present
 if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
     require_once __DIR__ . '/vendor/autoload.php';
