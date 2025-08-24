@@ -5,9 +5,9 @@ parameters:
   phpVersion: 80200
 
   paths:
-    - ./includes
+    - ./templates
     - ./src
-    - ./aiwa-oral-history-recording.php
+    - ./starmus-audio-recorder.php
 
   autoload_files:
     - ./vendor/autoload.php
