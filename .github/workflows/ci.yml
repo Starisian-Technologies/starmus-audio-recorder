@@ -1,25 +1,52 @@
-permissions:
-  contents: read
 name: CI
+
 on:
   push:
   pull_request:
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup PHP
         uses: shivammathur/setup-php@20529878ed81ef8e78ddf08b480401e6101a850f
         with:
           php-version: '8.2'
-      - name: Install dependencies
+
+      - name: Cache Composer packages
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install PHP dependencies
         run: composer install --no-interaction
+
+      - name: Cache NPM packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install JS dependencies
+        run: npm ci
+
       - name: PHP Lint
         run: composer lint:php
+
       - name: PHPStan
         run: composer analyze:php
+
       - name: PHPUnit
         run: composer test:php
-      - name: Node tests
+
+      - name: Node Tests
         run: npm test
