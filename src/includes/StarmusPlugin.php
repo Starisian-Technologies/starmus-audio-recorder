@@ -20,18 +20,15 @@ use Starisian\src\frontend\StarmusAudioRecorderUI;
 class StarmusPlugin {
     private static ?StarmusPlugin $instance = null;
 
-    public function __construct() {
+    private function __construct() {
         // Initialize the plugin's components.
-        // This is the single entry point for loading functionality.
-        $this->get_instance();
     }
 
-    private function get_instance(): StarmusPlugin {
-        static $instance = null;
-        if ( null === $instance ) {
-            $instance = new self();
+    public static function get_instance(): StarmusPlugin {
+        if ( null === self::$instance ) {
+            self::$instance = new self();
         }
-        return $instance;
+        return self::$instance;
     }
 
     public function init() {

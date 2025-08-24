@@ -92,13 +92,13 @@ final class StarmusAudioRecorder {
 		return;
 	}
 
-	public function init(): void {
-		$this->get_starmus_plugin()->init();
-	}
+        public function init(): void {
+                StarmusPlugin::get_instance()->init();
+        }
 
-	public function get_starmus_plugin(): StarmusPlugin {
-		return $this->starmus_plugin;
-	}
+        public function get_starmus_plugin(): StarmusPlugin {
+                return $this->starmus_plugin;
+        }
 
 	/**
 	 * FIX: Activation callback. ONLY flush rewrite rules.
