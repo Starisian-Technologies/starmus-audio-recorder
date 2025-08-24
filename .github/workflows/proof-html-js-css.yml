@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write # Needed to commit back changes
+  contents: write
 
 jobs:
   lint-and-validate:
@@ -14,34 +14,32 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      # Remove or comment this out completely — no static HTML to validate
-      # - name: Validate HTML and CSS
-      #   uses: anishathalye/proof-html@v2
-      #   with:
-      #     directory: ./site
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
-        run: |
-          npm install eslint stylelint stylelint-config-standard --save-dev
+        run: npm ci
 
       - name: Fix JavaScript issues
-        run: |
-          npx eslint assets/js/**/*.js --fix
+        run: npx eslint assets/js/**/*.js --fix
 
       - name: Fix CSS issues
-        run: |
-          npx stylelint assets/css/**/*.css --fix
+        run: npx stylelint assets/css/**/*.css --fix
 
       - name: Commit fixes (if any)
+        continue-on-error: true
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
