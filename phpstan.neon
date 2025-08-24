@@ -1,33 +1,26 @@
 includes:
-  - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+  - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
 parameters:
   level: 5
   phpVersion: 80200
-
   paths:
-    - ./templates
-    - ./src
-    - ./starmus-audio-recorder.php
-
-  autoload_files:
-    - ./vendor/autoload.php
-
-  # Treat PHPDoc types as hints, not hard truth (more forgiving)
+    - src
+    - templates
+    - starmus-audio-recorder.php
+  bootstrapFiles:
+    - vendor/autoload.php
+  scanFiles:
+    - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
   treatPhpDocTypesAsCertain: false
-
-  # Exclude folders not relevant for analysis
   excludePaths:
-    - tests/*
-    - vendor/*
-    - node_modules/*
-    - assets/*
-    - includes/lib/*
-
-  checkMissingIterableValueType: false
-  checkGenericClassInNonGenericObjectType: false
-
-  # You can relax rules here if needed
+    analyse:
+      - tests/*
+      - vendor/*
+      - node_modules/*
+      - assets/*
+      - includes/lib/*
   ignoreErrors:
-  - '#Call to an undefined (function|method) (apply_filters|do_action|get_option|update_option|get_post)(\(\))?#'
-  - '#Access to an undefined (property|variable) (\$post|\$wpdb|WP_[A-Za-z0-9_\\]+)::?#'
-  - '#Function get_(option|post|term)[A-Za-z_]* not found#'
+    - '#Call to an undefined (function|method) (apply_filters|do_action|get_option|update_option|get_post)(\(\))?#'
+    - '#Access to an undefined (property|variable) (\$post|\$wpdb|WP_[A-Za-z0-9_\\]+)#'
+    - '#Function get_(option|post|term)[A-Za-z_]* not found#'
