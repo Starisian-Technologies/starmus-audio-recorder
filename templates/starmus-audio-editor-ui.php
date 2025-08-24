@@ -7,7 +7,7 @@
  * @package Starmus\templates
  */
 
-namespace Starmus\templates;
+namespace Starisian\templates;
 
 // Exit if accessed directly.
 if (! defined('ABSPATH')) {
