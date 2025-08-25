@@ -1,18 +1,50 @@
+# .github/workflows/lint.yml
+
+name: PHP Code Quality Check
+
+# 1. TRIGGER: Run on pushes and pull requests to main branches
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 jobs:
   lint:
+    name: Run PHP Linter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@20529878ed81ef8e78ddf08b480401e6101a850f
+        uses: shivammathur/setup-php@v2 # Using a major version tag is more common
         with:
-          php-version: '8.2' # or your project version
+          php-version: '8.2'
           extensions: mbstring, xml
           tools: composer
 
+      # 2. PERFORMANCE: Cache Composer dependencies
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor # The directory to cache
+          # The cache key includes the OS and a hash of the lock file.
+          # A new cache is created only when composer.lock changes.
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
       - name: Install PHP dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
 
       - name: Run PHP lint
         run: composer lint:php
