@@ -1,6 +1,8 @@
 # .github/workflows/lint.yml
 
 name: PHP Code Quality Check
+permissions:
+  contents: read
 
 # 1. TRIGGER: Run on pushes and pull requests to main branches
 on:
