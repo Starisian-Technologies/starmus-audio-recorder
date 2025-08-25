@@ -4,10 +4,10 @@
  * Manages the front-end audio recording submission process and the user's recordings list.
  * This class implements a resilient, chunked upload handler to support intermittent connections.
  *
- * @package Starisian\src\frontend
+ * @package Starmus\frontend
  */
 
-namespace Starisian\src\frontend;
+namespace Starmus\frontend;
 
 use Starisian\src\admin\StarmusAdmin;
 
