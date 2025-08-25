@@ -107,15 +107,38 @@ class StarmusAdminSettings {
 
 		// Section 3: Form Settings
 		add_settings_section( 'starmus_form_section', __( 'Submission Form Settings', 'starmus' ), null, self::MENU_SLUG );
-		add_settings_field(
-			'consent_message',
-			__( 'Consent Checkbox Message', 'starmus' ),
-			[ $this, 'render_textarea_field' ],
-			self::MENU_SLUG,
-			'starmus_form_section',
-			[ 'id' => 'consent_message', 'description' => __( 'The text displayed next to the consent checkbox. Basic HTML is allowed.', 'starmus' ) ]
-		);
-	}
+                add_settings_field(
+                        'consent_message',
+                        __( 'Consent Checkbox Message', 'starmus' ),
+                        [ $this, 'render_textarea_field' ],
+                        self::MENU_SLUG,
+                        'starmus_form_section',
+                        [ 'id' => 'consent_message', 'description' => __( 'The text displayed next to the consent checkbox. Basic HTML is allowed.', 'starmus' ) ]
+                );
+
+                // Section 4: Privacy Settings
+                add_settings_section( 'starmus_privacy_section', __( 'Privacy Settings', 'starmus' ), null, self::MENU_SLUG );
+                add_settings_field(
+                        'collect_ip_ua',
+                        __( 'Store IP & User Agent', 'starmus' ),
+                        [ $this, 'render_checkbox_field' ],
+                        self::MENU_SLUG,
+                        'starmus_privacy_section',
+                        [
+                                'id'          => 'collect_ip_ua',
+                                'label'       => __( 'Save submitter IP address and browser user agent.', 'starmus' ),
+                                'description' => __( 'Requires user consent. Leave unchecked to anonymize submissions.', 'starmus' ),
+                        ]
+                );
+                add_settings_field(
+                        'data_policy_url',
+                        __( 'Data Policy URL', 'starmus' ),
+                        [ $this, 'render_text_field' ],
+                        self::MENU_SLUG,
+                        'starmus_privacy_section',
+                        [ 'id' => 'data_policy_url', 'description' => __( 'Optional link shown above the form for your privacy or data policy.', 'starmus' ) ]
+                );
+        }
 
 	/**
 	 * Sanitizes all settings before saving to the database.
@@ -134,10 +157,13 @@ class StarmusAdminSettings {
 			$sanitized['allowed_file_types'] = 'mp3,wav,webm,m4a,ogg';
 		}
 
-		$sanitized['consent_message'] = ! empty( $input['consent_message'] ) ? wp_kses_post( $input['consent_message'] ) : '';
+                $sanitized['consent_message'] = ! empty( $input['consent_message'] ) ? wp_kses_post( $input['consent_message'] ) : '';
 
-		return $sanitized;
-	}
+                $sanitized['collect_ip_ua'] = ! empty( $input['collect_ip_ua'] ) ? 1 : 0;
+                $sanitized['data_policy_url'] = ! empty( $input['data_policy_url'] ) ? esc_url_raw( $input['data_policy_url'] ) : '';
+
+                return $sanitized;
+        }
 
 	// --- RENDER CALLBACKS ---
 	public function render_text_field( array $args ): void {
@@ -164,16 +190,31 @@ class StarmusAdminSettings {
 		}
 	}
 
-	public function render_textarea_field( array $args ): void {
-		$value = self::get_option( $args['id'] );
-		printf(
-			'<textarea id="%s" name="%s[%s]" rows="4" class="large-text">%s</textarea>',
-			esc_attr( $args['id'] ), esc_attr( self::OPTION_NAME ), esc_attr( $args['id'] ), esc_textarea( $value )
-		);
-		if ( ! empty( $args['description'] ) ) {
-			printf( '<p class="description">%s</p>', wp_kses( $args['description'], ['strong' => []] ) );
-		}
-	}
+        public function render_textarea_field( array $args ): void {
+                $value = self::get_option( $args['id'] );
+                printf(
+                        '<textarea id="%s" name="%s[%s]" rows="4" class="large-text">%s</textarea>',
+                        esc_attr( $args['id'] ), esc_attr( self::OPTION_NAME ), esc_attr( $args['id'] ), esc_textarea( $value )
+                );
+                if ( ! empty( $args['description'] ) ) {
+                        printf( '<p class="description">%s</p>', wp_kses( $args['description'], ['strong' => []] ) );
+                }
+        }
+
+        public function render_checkbox_field( array $args ): void {
+                $value = self::get_option( $args['id'] );
+                printf(
+                        '<label><input type="checkbox" id="%s" name="%s[%s]" value="1" %s /> %s</label>',
+                        esc_attr( $args['id'] ),
+                        esc_attr( self::OPTION_NAME ),
+                        esc_attr( $args['id'] ),
+                        checked( 1, $value, false ),
+                        isset( $args['label'] ) ? esc_html( $args['label'] ) : ''
+                );
+                if ( ! empty( $args['description'] ) ) {
+                        printf( '<p class="description">%s</p>', wp_kses( $args['description'], [ 'strong' => [] ] ) );
+                }
+        }
 
 	/**
 	 * Helper function to safely get a setting value.
@@ -184,9 +225,11 @@ class StarmusAdminSettings {
 			'cpt_slug'             => 'audio-recording',
 			'file_size_limit'      => 10,
 			'recording_time_limit' => 300,
-			'allowed_file_types'   => 'mp3,wav,webm,m4a,ogg,opus',
-			'consent_message'      => __( 'I consent to having this audio recording stored and used.', 'starmus' ),
-		];
+                        'allowed_file_types'   => 'mp3,wav,webm,m4a,ogg,opus',
+                        'consent_message'      => __( 'I consent to having this audio recording stored and used.', 'starmus' ),
+                        'collect_ip_ua'        => 0,
+                        'data_policy_url'      => '',
+                ];
 		
 		return $options[ $key ] ?? $defaults[ $key ] ?? $default;
 	}

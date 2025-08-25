@@ -18,6 +18,7 @@ Named after the iconic **Starmus Festival**, where rock legends and astrophysici
 * 📱 **Mobile-friendly, PWA-capable**, no 3rd-party dependencies
 * 🧠 **Clean JS** codebase ready for extensions (transcription, waveform, MP3 export)
 * 👉 Developed for **low-bandwidth, mobile-first usage in The Gambia**, prioritizing offline, accessibility, and minimal dependencies.
+* 🔒 Optional IP & user-agent logging with admin-controlled consent and policy link
 
 ---
 

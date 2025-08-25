@@ -19,6 +19,9 @@ if (! defined('ABSPATH')) {
 if (!isset($form_id)) {
     $form_id = 'starmus_default_form';
 }
+if (!isset($data_policy_url)) {
+    $data_policy_url = '';
+}
 ?>
 
 <!-- 
@@ -33,6 +36,10 @@ if (!isset($form_id)) {
         <h2 id="sparxstar_audioRecorderHeading_<?php echo esc_attr($form_id); ?>" class="sparxstar-h2">
             <?php esc_html_e('Audio Recorder', 'starmus'); ?>
         </h2>
+
+        <?php if (!empty($data_policy_url)) : ?>
+            <p class="starmus-data-policy"><a href="<?php echo esc_url($data_policy_url); ?>" target="_blank" rel="noopener"><?php esc_html_e('View data policy', 'starmus'); ?></a></p>
+        <?php endif; ?>
 
         <!-- Consent Checkbox is a required part of the form -->
         <div class="starmus-form-field starmus-consent-field">
