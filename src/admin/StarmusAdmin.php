@@ -4,10 +4,10 @@
  *
  * Creates and manages the plugin's settings page.
  *
- * @package Starisian\src\admin
+ * @package Starmys\admin
  */
 
-namespace Starisian\src\admin;
+namespace Starmus\admin;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
