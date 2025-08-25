@@ -52,9 +52,9 @@ if ( file_exists( STARMUS_MAIN_DIR . '/vendor/autoload.php' ) ) {
 
 // 3. Register Plugin Lifecycle Hooks.
 // These point to the static methods in your namespaced class.
-register_activation_hook( STARMUS_MAIN_FILE, [ 'Starisian\src\includes\StarmusPlugin', 'activate' ] );
-register_deactivation_hook( STARMUS_MAIN_FILE, [ 'Starisian\src\includes\StarmusPlugin', 'deactivate' ] );
-register_uninstall_hook( STARMUS_MAIN_FILE, [ 'Starisian\src\includes\StarmusPlugin', 'uninstall' ] );
+register_activation_hook( STARMUS_MAIN_FILE, [ 'Starmus\includes\StarmusPlugin', 'activate' ] );
+register_deactivation_hook( STARMUS_MAIN_FILE, [ 'Starmus\includes\StarmusPlugin', 'deactivate' ] );
+register_uninstall_hook( STARMUS_MAIN_FILE, [ 'Starmus\includes\StarmusPlugin', 'uninstall' ] );
 
 // 4. Instantiate the Main Plugin Class (Bootstrap).
-add_action( 'plugins_loaded', [ 'Starisian\src\includes\StarmusPlugin', 'get_instance' ] );
+add_action( 'plugins_loaded', [ 'Starmus\includes\StarmusPlugin', 'get_instance' ] );
