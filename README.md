@@ -7,6 +7,7 @@ The **Starmus Audio Recorder** is a minimalist front-end WordPress plugin for ca
 Named after the iconic **Starmus Festival**, where rock legends and astrophysicists share the stage, this tool is built for creators and communities who believe **voice has gravity**.
 
 [![CodeQL](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql) [![Proof HTML, Lint JS & CSS](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml)
+[![Security Checks](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml)
 
 ---
 
@@ -58,6 +59,7 @@ starmus-audio-recorder/
 <div id="starmus_audioWrapper" class="sparxstar-audioWrapper" data-enabled-recorder>
     <h2 id="sparxstar_audioRecorderHeading" class="sparxstar-h2">Audio Recorder</h2>
     <div id="sparxstar_audioRecorder" class="sparxstar_audioRecorder" role="region" aria-labelledby="sparxstar_audioRecorderHeading">
+
 
         <!-- Consent Checkbox -->
         <label for="field_consent">
