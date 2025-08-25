@@ -1,30 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php"
-         colors="true"
-         verbose="true"
-         stopOnFailure="false">
-         
+<phpunit
+    bootstrap="tests/bootstrap.php"
+    colors="true"
+    verbose="true"
+    stopOnFailure="false"
+    backupGlobals="false"
+    failOnWarning="true"
+    failOnRisky="true"
+>
   <php>
     <ini name="error_reporting" value="-1"/>
     <ini name="display_errors" value="1"/>
     <ini name="display_startup_errors" value="1"/>
     <ini name="memory_limit" value="-1"/>
     <ini name="max_execution_time" value="0"/>
+    <server name="WP_TESTS_DIR" value="wp-tests"/>
+    <server name="WP_PHP_BINARY" value="php"/>
+    <server name="WP_DEBUG" value="1"/>
   </php>
 
   <testsuites>
     <testsuite name="Unit Tests">
-      <directory>./unit-tests</directory>
+      <directory>./tests/unit</directory>
+    </testsuite>
+
+    <testsuite name="Integration Tests">
+      <directory>./tests/integration</directory>
     </testsuite>
   </testsuites>
+
+  <coverage>
+    <include>
+      <directory suffix=".php">src</directory>
+    </include>
+    <report>
+      <clover outputFile="build/coverage.xml"/>
+    </report>
+  </coverage>
 </phpunit>
-<!--
-  This is a PHPUnit configuration file. It specifies the settings for running unit tests in a PHP project.
-  The file includes the following key elements:
-  
-  - Bootstrap: Specifies the autoload file to load dependencies.
-  - Colors: Enables colored output in the console.
-  - Verbose: Enables verbose output for more detailed test results.
-  - Stop on Failure: Stops the test suite execution on the first failure.
-  - PHP Settings: Configures PHP settings such as error reporting, display errors, memory limit, and max execution time.
-  - Test Suites: Defines the test suites and their respective directories.
