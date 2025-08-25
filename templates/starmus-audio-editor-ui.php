@@ -4,10 +4,10 @@
  *
  * This template provides the HTML structure for the Peaks.js audio editor.
  *
- * @package Starisian\templates
+ * @package Starmus\templates
  */
 
-namespace Starisian\templates;
+namespace Starmus\templates;
 
 // Exit if accessed directly.
 if (! defined('ABSPATH')) {
