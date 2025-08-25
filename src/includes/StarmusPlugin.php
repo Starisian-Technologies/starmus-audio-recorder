@@ -33,7 +33,7 @@ class StarmusPlugin {
 
     public function init() {
         // load custom post types
-        require_once STARMUS_PATH . 'src/include/StarmusCustomPostType.php';
+        require_once STARMUS_PATH . 'src/includes/StarmusCustomPostType.php';
         // if admin
         if ( is_admin() ) {
             new StarmusAdminSettings();
