@@ -1,15 +1,40 @@
+# Repo metadata
 .git/
 .github/
+.gitattributes
 .gitignore
+
+# Build & analysis tools
 phpcs.xml.dist
 phpstan.neon
 phpstan.neon.dist
+
+# Node / JS deps
+node_modules/
 package.json
 package-lock.json
-node_modules/
+yarn.lock
+
+# PHP deps (if bundled)
+vendor/
+composer.lock
+composer.phar
+
+# Test suites & coverage
 tests/
-*.dist
-distignore
+coverage/
+phpunit.xml*
+*.test.*
+
+# Editor / IDE cruft
 .vscode/
 .idea/
+.DS_Store
+
+# Local / secrets
 .env
+*.log
+
+# Misc artifacts
+*.dist
+distignore
