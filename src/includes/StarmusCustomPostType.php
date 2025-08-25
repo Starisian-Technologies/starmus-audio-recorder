@@ -1,5 +1,5 @@
 <?php
-namespace Starisian\src\includes;
+namespace Starisian\includes;
 /**
  * Registers Custom Post Types, Taxonomies, and ACF fields.
  *
