@@ -2,10 +2,10 @@
 /**
  * Manages the front-end audio editing interface.
  *
- * @package Starisian\src\frontend
+ * @package Starmus\frontend
  */
 
-namespace Starisian\src\frontend;
+namespace Starmus\frontend;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
