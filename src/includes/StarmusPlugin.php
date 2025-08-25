@@ -3,10 +3,10 @@
 /**
  * Main plugin class. Handles initialization, hooks, and compatibility checks.
  *
- * @package Starisian\src\includes
+ * @package Starmus\includes
  */
 
-namespace Starisian\src\includes;
+namespace Starmus\includes;
 
 // These are the 'use' statements that match YOUR specific file structure.
 // They will work with a custom autoloader that understands this structure.
