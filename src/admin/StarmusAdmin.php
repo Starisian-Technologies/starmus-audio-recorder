@@ -4,7 +4,7 @@
  *
  * Creates and manages the plugin's settings page.
  *
- * @package Starmys\admin
+ * @package Starmus\admin
  */
 
 namespace Starmus\admin;
