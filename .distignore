@@ -4,7 +4,6 @@
 phpcs.xml.dist
 phpstan.neon
 phpstan.neon.dist
-composer.*
 package.json
 package-lock.json
 node_modules/
