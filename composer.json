@@ -14,7 +14,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Starmus\\Tests\\": "tests/"
+      "Starmus\\tests\\": "tests/"
     }
   },
     "authors": [
@@ -60,7 +60,7 @@
     },
     "config": {
         "platform": {
-            "php": "8.0.30"
+            "php": "8.2.27"
         },
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,

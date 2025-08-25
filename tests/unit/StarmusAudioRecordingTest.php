@@ -1,9 +1,9 @@
 <?php
 
 declare(strict_types=1);
-
+namespace Starmus\tests\unit;
 use PHPUnit\Framework\TestCase;
-use Starisian\src\frontend\StarmusAudioRecording;
+use Starmus\frontend\StarmusAudioRecording;
 
 final class StarmusAudioRecordingTest extends TestCase
 {

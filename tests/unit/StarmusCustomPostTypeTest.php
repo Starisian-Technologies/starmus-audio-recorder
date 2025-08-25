@@ -1,9 +1,9 @@
 <?php
 
 declare(strict_types=1);
-
+namespace Starmus\tests\unit;
 use PHPUnit\Framework\TestCase;
-use Starisian\src\includes\StarmusCustomPostType;
+use Starmus\includes\StarmusCustomPostType;
 
 final class StarmusCustomPostTypeTest extends TestCase
 {

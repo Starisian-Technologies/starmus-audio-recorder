@@ -1,4 +1,10 @@
 <?php
+/**
+ * Bootstrap file for PHPUnit tests.
+ *
+ * @package StarmusAudioRecorder
+ */
+
 $autoload = dirname(__DIR__) . '/vendor/autoload.php';
 if ( file_exists( $autoload ) ) {
     require $autoload;

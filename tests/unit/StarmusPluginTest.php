@@ -1,9 +1,9 @@
 <?php
 
 declare(strict_types=1);
-
+namespace Starmus\tests\unit;
 use PHPUnit\Framework\TestCase;
-use Starisian\src\includes\StarmusPlugin;
+use Starmus\includes\StarmusPlugin;
 
 final class StarmusPluginTest extends TestCase
 {

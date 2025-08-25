@@ -9,7 +9,7 @@
 
 namespace Starmus\frontend;
 
-use Starisian\src\admin\StarmusAdmin;
+use Starisian\admin\StarmusAdmin;
 
 // Exit if accessed directly.
 if (! defined('ABSPATH')) {
