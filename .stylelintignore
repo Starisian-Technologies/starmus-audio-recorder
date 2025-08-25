@@ -1,0 +1,5 @@
+# .stylelintignore
+node_modules/
+dist/
+build/
+assets/css/**/*.min.css
