@@ -90,12 +90,13 @@ class StarmusAudioRecorderUI
         $attributes = shortcode_atts(['form_id' => 'starmusAudioForm'], $atts);
         $form_id = esc_attr($attributes['form_id']);
         $consent_message = StarmusAdminSettings::get_option('consent_message');
+        $data_policy_url = StarmusAdminSettings::get_option('data_policy_url');
 
         ob_start();
         $template_path = STARMUS_PATH . 'templates/starmus-audio-recorder-ui.php';
 
         if (file_exists($template_path)) {
-            // The variables $form_id and $consent_message are now available inside the included file.
+            // The variables $form_id, $consent_message, and $data_policy_url are now available inside the included file.
             include $template_path;
         } else {
             return '<p>' . esc_html__('Error: Audio recorder form template not found.', 'starmus') . '</p>';
@@ -186,19 +187,22 @@ class StarmusAudioRecorderUI
 
         // 4. Handle First Chunk: Create the draft post
         if ($offset === 0) {
+            $meta_input = [
+                'audio_uuid'        => $uuid,
+                'upload_total_size' => $total_size,
+            ];
+
+            if (StarmusAdminSettings::get_option('collect_ip_ua') && ! empty($_POST['audio_consent'])) {
+                $meta_input['submission_ip'] = sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? '');
+                $meta_input['submission_user_agent'] = sanitize_text_field($_SERVER['HTTP_USER_AGENT'] ?? '');
+            }
+
             $post_data = [
                 'post_title'   => $file_name,
                 'post_type'    => StarmusAdminSettings::get_option('cpt_slug', 'audio-recording'),
                 'post_status'  => 'draft',
                 'post_author'  => get_current_user_id(),
-                'meta_input'   => [
-                    'audio_uuid'            => $uuid,
-                    'upload_total_size'     => $total_size,
-                    'submission_ip'         => sanitize_text_field($_SERVER['REMOTE_ADDR']),
-                    'submission_user_agent' => sanitize_text_field($_SERVER['HTTP_USER_AGENT']),
-                    // Add any other metadata from your form here, sanitizing each one
-                    // 'recording_language'   => isset($_POST['language']) ? sanitize_text_field($_POST['language']) : '',
-                ],
+                'meta_input'   => $meta_input,
             ];
             wp_insert_post($post_data);
         }
