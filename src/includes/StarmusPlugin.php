@@ -10,10 +10,10 @@ namespace Starmus\includes;
 
 // These are the 'use' statements that match YOUR specific file structure.
 // They will work with a custom autoloader that understands this structure.
-use Starisian\src\admin\StarmusAdmin;
-use Starisian\src\frontend\StarmusAudioEditorUI;
-use Starisian\src\frontend\StarmusAudioRecorderUI;
-use Starisian\src\includes\StarmusCustomPostType;
+use Starisian\admin\StarmusAdmin;
+use Starisian\frontend\StarmusAudioEditorUI;
+use Starisian\frontend\StarmusAudioRecorderUI;
+use Starisian\includes\StarmusCustomPostType;
 
 /**
  * Summary of StarmusPlugin
