@@ -4,15 +4,10 @@
 /phpcs.xml.dist export-ignore
 /phpstan.neon export-ignore
 /phpstan.neon.dist export-ignore
-/composer.* export-ignore
 /package.json export-ignore
 /package-lock.json export-ignore
 /node_modules export-ignore
-/tests export-ignore
-/*.md export-ignore
-/*.xml export-ignore
 /distignore export-ignore
 /.vscode export-ignore
 /.idea export-ignore
-/phpunit.xml export-ignore
 /.env export-ignore
