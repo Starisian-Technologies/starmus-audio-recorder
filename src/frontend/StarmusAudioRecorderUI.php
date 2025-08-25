@@ -244,7 +244,22 @@ class StarmusAudioRecorderUI
                 'post_status'    => 'inherit'
             ], $upload['file'], $post->ID);
 
-            wp_generate_attachment_metadata($attachment_id, $upload['file']);
+            $metadata = wp_generate_attachment_metadata($attachment_id, $upload['file']);
+
+            if (empty($metadata) || is_wp_error($metadata)) {
+                if (defined('WP_DEBUG') && WP_DEBUG && is_wp_error($metadata)) {
+                    error_log('Metadata generation error: ' . $metadata->get_error_message());
+                }
+
+                wp_delete_attachment($attachment_id, true);
+                unlink($temp_file_path); // Cleanup failed upload
+
+                wp_send_json_error([
+                    'message' => esc_html__('Metadata processing error.', 'starmus'),
+                ], 500);
+            }
+
+            wp_update_attachment_metadata($attachment_id, $metadata);
 
             // Update the main post to publish it and link the attachment
             wp_update_post([
