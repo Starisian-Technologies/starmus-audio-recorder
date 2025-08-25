@@ -1,0 +1,19 @@
+{
+  "categories": [
+    {
+      "title": "🚀 Features",
+      "labels": ["feature", "feat", "enhancement"]
+    },
+    {
+      "title": "🐛 Fixes",
+      "labels": ["bug", "fix", "hotfix"]
+    },
+    {
+      "title": "🧹 Maintenance",
+      "labels": ["chore", "refactor", "ci", "tests", "docs"]
+    }
+  ],
+  "ignore_labels": ["duplicate", "invalid", "question", "wontfix"],
+  "pr_template": "- ${{TITLE}} (#${{NUMBER}}) by @${{AUTHOR}}",
+  "sort": "MERGED_AT"
+}
