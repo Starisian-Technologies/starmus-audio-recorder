@@ -5,10 +5,10 @@
  * This template provides the HTML structure for the audio recorder.
  * It is designed to work with the resilient, chunked-upload JavaScript modules.
  *
- * @package Starisian\templates
+ * @package Starmus\templates
  */
 
-namespace Starisian\templates;
+namespace Starmus\templates;
 
 // Exit if accessed directly.
 if (! defined('ABSPATH')) {
