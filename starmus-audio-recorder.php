@@ -123,7 +123,7 @@ final class StarmusAudioRecorder {
 	 */
         public static function uninstall(): void {
         // You might want to keep this, but be aware of the consequences.
-                require_once STARMUS_PATH . 'src/admin/StarmusAdmin.php';
+               require_once STARMUS_PATH . 'src/admin/StarmusAdminSettings.php';
 
                 $cpt_slug = 'starmus_submission';
                 if ( class_exists( '\\Starisian\\src\\admin\\StarmusAdminSettings' ) ) {
