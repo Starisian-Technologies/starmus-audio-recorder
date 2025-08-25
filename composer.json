@@ -6,7 +6,8 @@
   "license": "proprietary",
   "autoload": {
     "psr-4": {
-      "Starisian\\src\\": "src/"
+      "Starisian\\src\\": "src/",
+      "Starisian\\Starmus\\": "src/"
     }
   },
   "authors": [
