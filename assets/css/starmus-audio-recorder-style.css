@@ -1,349 +1,238 @@
 /**
- * starmus-audio-recorder-style.css
- * Styles for the Starmus Audio Recorder shortcode UI component
+ * STARISIAN TECHNOLOGIES CONFIDENTIAL
+ * © 2023–2025 Starisian Technologies. All Rights Reserved.
+ *
+ * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
+ * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
  */
 
-/* --------------------------------------------------
-   Main Wrapper
--------------------------------------------------- */
+/**
+ * starmus-audio-recorder-style.css
+ * Mobile-first styles for the Starmus Audio Recorder and My Recordings shortcodes.
+ */
 
-/* Scoped box-sizing reset for all recorder children */
-.sparxstar-audioWrapper,
-.sparxstar-audioWrapper * {
+/* --- CSS Variables for Easy Theming --- */
+.starmus-recorder-form,
+.starmus-my-recordings-list {
+  --starmus-primary-color: #0073aa;
+  --starmus-primary-hover: #005b8c;
+  --starmus-danger-color: #dc3545;
+  --starmus-danger-hover: #c82333;
+  --starmus-border-color: #ccd0d4;
+  --starmus-background-light: #f6f7f7;
+  --starmus-text-color: #2c3338;
+  --starmus-text-muted: #50575e;
+  --starmus-spacing-unit: 1rem; /* 16px */
+  --starmus-border-radius: 4px;
+}
+
+/* --- Scoped Box-Sizing Reset --- */
+.starmus-recorder-form *,
+.starmus-my-recordings-list * {
   box-sizing: border-box;
 }
 
-.sparxstar-audioWrapper {
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
+/* --- Main Wrapper (Mobile First) --- */
+.starmus-recorder-form,
+.starmus-my-recordings-list {
+  position: relative; /* Anchor for the loader overlay */
+  margin-bottom: var(--starmus-spacing-unit);
+  padding: var(--starmus-spacing-unit);
+  border: 1px solid var(--starmus-border-color);
+  border-radius: var(--starmus-border-radius);
+  background-color: var(--starmus-background-light);
+  color: var(--starmus-text-color);
 }
 
-/* --------------------------------------------------
-   Recorder Controls
--------------------------------------------------- */
+.starmus-my-recordings-list .starmus-recording-item {
+  border-bottom: 1px solid var(--starmus-border-color);
+  padding-bottom: var(--starmus-spacing-unit);
+  margin-bottom: var(--starmus-spacing-unit);
+}
+.starmus-my-recordings-list .starmus-recording-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* --- UI Elements (Mobile First) --- */
 .sparxstar_recorderControls {
   display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 15px;
+  flex-direction: column; /* Stack vertically on mobile */
+  align-items: stretch; /* Full width buttons */
+  gap: 0.5rem;
+  margin-bottom: var(--starmus-spacing-unit);
 }
 
-/* General Button Styles */
 .sparxstar_button {
-  padding: 8px 15px;
-  border: 1px solid #aaa;
-  border-radius: 3px;
-  background-color: #eee;
+  padding: 0.6rem 1rem;
+  border: 1px solid #8c8f94;
+  border-radius: var(--starmus-border-radius);
+  background-color: #f3f5f6;
   cursor: pointer;
   font-family: inherit;
-  font-size: inherit;
+  font-size: 1rem;
+  text-align: center;
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
 
-.sparxstar_button:disabled {
-  background-color: #ddd;
-  color: #888;
-  cursor: not-allowed;
+.sparxstar_button:hover:not(:disabled) {
+  background-color: #f0f0f1;
+  border-color: #0a4b78;
 }
 
 .sparxstar_button:focus-visible {
-  outline: 2px solid dodgerblue;
+  outline: 2px solid var(--starmus-primary-color);
   outline-offset: 2px;
 }
 
-/* --------------------------------------------------
-   Consent Label
--------------------------------------------------- */
-.sparxstar_consent {
-  display: block;
-  margin-bottom: 15px;
-  font-size: 0.95em;
-}
-
-/* --------------------------------------------------
-   Submit Button
--------------------------------------------------- */
-.sparxstar_submitButton {
-  margin-top: 10px;
-  padding: 10px 18px;
-  font-size: 1rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 3px;
-  background-color: #0073aa;
-  color: #fff;
-  cursor: pointer;
-}
-
-.sparxstar_submitButton:hover {
-  background-color: #005b8c;
-}
-
-.sparxstar_submitButton:disabled {
-  background-color: #999;
+.sparxstar_button:disabled {
+  background-color: #e8eaeb;
+  color: #a7aaad;
   cursor: not-allowed;
 }
 
-/* === DELETE BUTTON: Red + hidden by default === */
-
-/* .sparxstar_button--danger {
-  background-color: #e53935;
-  color: #fff;
-  border-color: #c62828;
-}
-
-.sparxstar_button--danger:hover:not(:disabled) {
-  background-color: #d32f2f;
-  border-color: #b71c1c;
-} */
-
+/* Danger Button */
 .sparxstar_button--danger {
-  background-color: #dc3545; /* Example danger color */
+  background-color: var(--starmus-danger-color);
   color: white;
-  border-color: #dc3545;
+  border-color: var(--starmus-danger-color);
+}
+.sparxstar_button--danger:hover:not(:disabled) {
+  background-color: var(--starmus-danger-hover);
+  border-color: var(--starmus-danger-hover);
 }
 
-.sparxstar_button--danger:hover {
-  background-color: #c82333;
-  border-color: #bd2130;
+.starmus-form-field,
+.starmus-data-policy {
+  margin-bottom: var(--starmus-spacing-unit);
+}
+.starmus-consent-field label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.starmus-consent-field input[type="checkbox"] {
+  margin-top: 0.2em;
 }
 
-/* --------------------------------------------------
-   Timer Styles
--------------------------------------------------- */
-.sparxstar_audioTimerContainer {
-  /* New outer wrapper */
-  margin: 10px 0; /* Moved outer spacing here */
-
-  /* Add any layout styles if needed for label (though it's visually hidden) 
-     and timer div, e.g., text-align if you want the 00:00 centered within this container. */
-
-  /* text-align: center; */
-
- /* Example */
-}
-
+/* Timer */
 .sparxstar_timer {
-  /* This is still the div showing "00:00" */
-  font-size: 1.2em;
+  font-size: 1.5em;
   font-weight: bold;
-
-  /* margin: 0; */
-
- /* Reset margins if they were for outer spacing */
-  color: #333; /* Default color */
+  font-variant-numeric: tabular-nums;
+  color: var(--starmus-text-color);
+  margin-bottom: 0.5rem;
+  text-align: center;
 }
 
-.sparxstar_timer.orange {
-  color: orange;
-}
-
-.sparxstar_timer.red {
-  color: red;
-}
-
-/* --------------------------------------------------
-   Audio Player
--------------------------------------------------- */
-.sparxstar_audioPlayer {
+/* Audio Player */
+.sparxstar_audioPlayer,
+.starmus-recording-item audio {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 0.5rem;
 }
 
-/* --------------------------------------------------
-   Audio Level Meter
--------------------------------------------------- */
+/* Volume Meter */
 .sparxstar_audioLevelContainer {
-  /* New outermost wrapper */
-  display: flex; /* Arrange label, bar, text in a row */
-  align-items: center; /* Vertically align them */
-  gap: 8px; /* Space between label, bar, and text */
-  margin-top: 10px; /* Moved outer spacing here */
-  margin-bottom: 15px; /* Moved outer spacing here */
-}
-
-.sparxstar_audioLevelVisibleLabel {
-  /* New visible label */
-  font-size: 0.9em; /* Example style */
-  color: #555; /* Example style */
-
-  /* flex-shrink: 0; */
-
- /* Prevent label from shrinking if space is tight */
-}
-
-.sparxstar_audioLevelWrap {
-  /* This is still the track/background for the bar itself */
-  flex-grow: 1; /* Allow the bar to take up available horizontal space */
   height: 8px;
   background: #e0e0e0;
   border-radius: 4px;
   overflow: hidden;
-
-  /* margin: 0; */
-
- /* Reset outer margins, now handled by container */
+  margin: var(--starmus-spacing-unit) 0;
 }
-
 .sparxstar_audioLevelBar {
-  /* This is still the fill */
   height: 100%;
   width: 0%;
   background-color: #4caf50;
   transition: width 0.05s linear;
 }
 
-.sparxstar_audioLevelText {
-  /* New text percentage display */
-  font-size: 0.9em; /* Example style */
-  color: #555; /* Example style */
-  min-width: 35px; /* Reserve space for "100%" to prevent jiggle */
-  text-align: right; /* Align text to the right if min-width makes it wider than content */
-
-  /* flex-shrink: 0; */
-
- /* Prevent text from shrinking */
+/* Submit Button */
+.sparxstar_submitButton {
+  width: 100%; /* Full width on mobile */
+  padding: 0.75rem 1.25rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: var(--starmus-border-radius);
+  background-color: var(--starmus-primary-color);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+.sparxstar_submitButton:hover:not(:disabled) {
+  background-color: var(--starmus-primary-hover);
+}
+.sparxstar_submitButton:disabled {
+  background-color: #949698;
+  cursor: not-allowed;
 }
 
-/* --------------------------------------------------
-   Visually Hidden (Screen Reader Accessible)
--------------------------------------------------- */
-.sparxstar_visually_hidden {
+/* --- Loader Overlay --- */
+.sparxstar_loader_overlay {
   position: absolute;
+  inset: 0; /* Modern equivalent of top/left/right/bottom: 0 */
+  background-color: rgb(255 255 255 / 85%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+}
+
+.sparxstar_spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--starmus-primary-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Utility Classes --- */
+.sparxstar_visually_hidden {
+  position: absolute !important;
   width: 1px;
   height: 1px;
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip-path: polygon(0, 0, 0, 0);
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
 }
 
-/* Overlay Hidden (Visual Only, for overlays) */
-.sparxstar_overlay_hidden {
-  display: none !important;
-}
-
-/* Completely Hidden (No access at all) */
-.sparxstar_completely_hidden {
-  display: none;
-  visibility: hidden;
-}
-
-/* --------------------------------------------------
-   Status Message Display (AJAX UX)
--------------------------------------------------- */
 .sparxstar_status {
-  margin-top: 1rem;
+  margin-top: var(--starmus-spacing-unit);
   min-height: 1.5em; /* Prevent layout shift */
-}
-
-.sparxstar_status__text {
   font-weight: bold;
-  font-size: 1em;
-  color: #444;
 }
+.sparxstar_status.error { color: var(--starmus-danger-color); }
+.sparxstar_status.success { color: #227122; }
 
-.sparxstar_status__text.success {
-  color: green;
-}
-
-.sparxstar_status__text.error {
-  color: red;
-}
-
-.sparxstar_status__text.loading {
-  color: orange;
-}
-
-/* === STATUS LOADER === */
-#sparxstar_loader {
-  margin-top: 15px;
-  padding: 10px;
-  border-left: 4px solid #1976d2;
-  background-color: #e3f2fd;
-  font-size: 0.95em;
-  font-weight: 500;
-  color: #0d47a1;
-}
-
-/* --------------------------------------------------
-   Responsive Tweaks
--------------------------------------------------- */
-@media (width <= 600px) {
+/* --- Desktop Adjustments (Mobile First) --- */
+@media (min-width: 600px) {
   .sparxstar_recorderControls {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row; /* Horizontal on desktop */
+    align-items: center;
   }
 
-  .sparxstar_button,
+  .sparxstar_button {
+    width: auto; /* Auto width on desktop */
+  }
+
   .sparxstar_submitButton {
-    width: 100%;
-  }
-}
-
-/* --------------------------------------------------
-   Overlay Styles
--------------------------------------------------- */
-
-/* Styles for the Overlay Div Itself */
-.sparxstar_loader_overlay {
-  position: absolute; /* Position relative to the nearest positioned ancestor (the form or wrapper) */
-  top: 0;
-  left: 0;
-  width: 100%; /* Cover the width of the parent */
-  height: 100%; /* Cover the height of the parent */
-  background-color: rgb(
-    255
-    255
-    255 /
-    85%
-  ); /* Semi-transparent white background */
-
-  z-index: 100; /* Ensure it sits above other form content */
-  display: flex; /* Use flexbox to center content */
-  flex-direction: column; /* Stack spinner, text, note vertically */
-  justify-content: center; /* Center content vertically */
-  align-items: center; /* Center content horizontally */
-  text-align: center; /* Center text */
-}
-
-/* Styles for the Spinner (assuming you have a spinner element) */
-.sparxstar_spinner {
-  /* Add your spinner animation and basic size/color styles here */
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 15px; /* Space below spinner */
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
+    width: auto; /* Auto width on desktop */
   }
 
-  100% {
-    transform: rotate(360deg);
+  .sparxstar_timer {
+    text-align: left;
   }
-}
-
-/* Styles for the ETA Note paragraph */
-.sparxstar_upload_eta_note {
-  font-size: 0.9em;
-  color: #555;
-  margin-top: 10px;
-}
-
-/* Styles for the text span inside overlay (reusing status text style) */
-.sparxstar_loader_overlay .sparxstar_status__text {
-  font-weight: bold;
-  font-size: 1em;
-  color: #444; /* Match your status text default color */
 }

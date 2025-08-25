@@ -1,67 +1,70 @@
 {
-  "name": "starisian/starmus-audio-recorder",
-  "description": "Mobile-first, offline-friendly audio recorder for WordPress.",
-  "version": "0.3.1",
-  "type": "wordpress-plugin",
-  "license": "proprietary",
-  "autoload": {
-    "psr-4": {
-      "Starisian\\src\\": "src/",
-      "Starisian\\Starmus\\": "src/"
-    }
-  },
-  "authors": [
-    {
-      "name": "Starisian Technology (Max Barrett)",
-      "email": "support@starisian.com"
-    }
-  ],
-  "homepage": "https://starisian.com",
-  "support": {
-    "issues": "https://github.com/Starisian-Technologies/starmus-audio-recorder/issues",
-    "source": "https://github.com/Starisian-Technologies/starmus-audio-recorder"
-  },
-  "keywords": [
-    "wordpress",
-    "audio",
-    "recorder",
-    "plugin",
-    "starmus",
-    "MediaRecorder",
-    "API",
-    "webm",
-    "opus"
-  ],
-  "repositories": [
-    {
-      "type": "git",
-      "url": "https://github.com/Starisian-Technologies/starmus-audio-recorder.git"
-    }
-  ],
-  "minimum-stability": "stable",
+    "name": "starisian/starmus-audio-recorder",
+    "description": "Mobile-first, offline-friendly audio recorder for WordPress.",
+    "version": "0.3.1",
+    "type": "wordpress-plugin",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Starisian\\src\\": "src/",
+            "Starisian\\templates\\": "templates/",
+            "Starisian\\tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Starisian Technology (Max Barrett)",
+            "email": "support@starisian.com"
+        }
+    ],
+    "homepage": "https://starisian.com",
+    "support": {
+        "issues": "https://github.com/Starisian-Technologies/starmus-audio-recorder/issues",
+        "source": "https://github.com/Starisian-Technologies/starmus-audio-recorder"
+    },
+    "keywords": [
+        "wordpress",
+        "audio",
+        "recorder",
+        "plugin",
+        "starmus",
+        "MediaRecorder",
+        "API",
+        "webm",
+        "opus"
+    ],
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/Starisian-Technologies/starmus-audio-recorder.git"
+        }
+    ],
+    "minimum-stability": "stable",
     "require-dev": {
-    "php-stubs/wordpress-stubs": "^6.8",
-    "phpstan/phpstan": "^2.1",
-    "wp-coding-standards/wpcs": "^3",
-    "squizlabs/php_codesniffer": "^3",
-    "phpunit/phpunit": "^9.6",
-    "dealerdirect/phpcodesniffer-composer-installer": "^1",
-    "phpstan/extension-installer": "^1.4",
-    "szepeviktor/phpstan-wordpress": "^2.0",
-    "phpcompatibility/php-compatibility": "^9.3",
-    "phpcompatibility/phpcompatibility-wp": "^2.1"
-  },
-  "config": {
-    "platform": { "php": "8.0.30" },
-    "allow-plugins": {
-      "dealerdirect/phpcodesniffer-composer-installer": true,
-      "phpstan/extension-installer": true
+        "php-stubs/wordpress-stubs": "^6.8",
+        "phpstan/phpstan": "^2.1",
+        "wp-coding-standards/wpcs": "^3",
+        "squizlabs/php_codesniffer": "^3",
+        "phpunit/phpunit": "^9.6",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1",
+        "phpstan/extension-installer": "^1.4",
+        "szepeviktor/phpstan-wordpress": "^2.0",
+        "phpcompatibility/php-compatibility": "^9.3",
+        "phpcompatibility/phpcompatibility-wp": "^2.1"
+    },
+    "config": {
+        "platform": {
+            "php": "8.0.30"
+        },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "scripts": {
+        "lint:php": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full src templates",
+        "fix:php": "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php src templates",
+        "analyze:php": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist",
+        "test:php": "vendor/bin/phpunit --colors=always"
     }
-  },
-  "scripts": {
-    "lint:php": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full src templates",
-    "fix:php": "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php src templates",
-    "analyze:php": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist",
-    "test:php": "vendor/bin/phpunit --colors=always"
-  }
 }

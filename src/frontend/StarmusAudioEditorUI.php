@@ -2,7 +2,7 @@
 /**
  * Manages the front-end audio editing interface.
  *
- * @package Starmus\src\frontend
+ * @package Starisian\src\frontend
  */
 
 namespace Starisian\src\frontend;
@@ -29,7 +29,7 @@ class StarmusAudioEditorUI {
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 
 		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
-			return '<div class="notice notice-error"><p>' . esc_html__( 'Invalid submission ID or you do not have permission to edit this item.', 'starmus' ) . '</p></div>';
+			return '<div class="notice notice-error"><p>' . esc_html__( 'Invalid submission ID or you do not have permission to edit this item.', STARMUS_TEXT_DOMAIN ) . '</p></div>';
 		}
 
 		// --- UPDATED: Load the UI from a dedicated template file ---
@@ -59,13 +59,13 @@ class StarmusAudioEditorUI {
                         // --- NEW: Enqueue the editor-specific stylesheet ---
                         $css_path = STARMUS_PATH . 'assets/css/starmus-audio-editor.css';
                         $css_version = file_exists( $css_path ) ? filemtime( $css_path ) : STARMUS_VERSION;
-                        wp_enqueue_style( 'starmus-audio-editor', STARMUS_URL . 'assets/css/starmus-audio-editor.css', [], $css_version );
+                        wp_enqueue_style( 'starmus-audio-editor', STARMUS_URL . 'assets/css/starmus-audio-editor-style.min.css', [], $css_version );
 
 
                         $peaks_path = STARMUS_PATH . 'assets/js/peaks.min.js';
                         $peaks_ver  = file_exists( $peaks_path ) ? md5_file( $peaks_path ) : STARMUS_VERSION;
                         wp_enqueue_script('peaks', STARMUS_URL . 'assets/js/peaks.min.js', [], $peaks_ver, true);
-                        wp_enqueue_script('starmus-audio-editor', STARMUS_URL . 'assets/js/starmus-audio-editor.js', ['peaks','jquery'], @filemtime(STARMUS_PATH.'assets/js/starmus-audio-editor.js') ?: STARMUS_VERSION, true);
+                        wp_enqueue_script('starmus-audio-editor', STARMUS_URL . 'assets/js/starmus-audio-editor.min.js', ['peaks','jquery'], @filemtime(STARMUS_PATH.'assets/js/starmus-audio-editor.js') ?: STARMUS_VERSION, true);
 
 
 			wp_localize_script( 'starmus-audio-editor', 'STARMUS_EDITOR_DATA', [

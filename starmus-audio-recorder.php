@@ -1,4 +1,5 @@
 <?php
+
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
@@ -13,9 +14,6 @@
  * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
  * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
  */
-
-use Starisian\src\Autoloader;
-
 /**
  * Plugin Name:       Starmus Audio Recorder
  * Plugin URI:        https://github.com/Starisian-Technologies/starmus-audio-recorder
@@ -26,29 +24,37 @@ use Starisian\src\Autoloader;
  * Author:            Starisian Technologies (Max Barrett)
  * Author URI:        https://starisian.com
  * Text Domain:       starmus-audio-recorder
+ * Domain Path:       /languages
  * License:           LicenseRef-Starisian-Technologies-Proprietary
  * License URI:       https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
- * Update URI:        https://github.com/Starisian-Technologies/starmus-audio-recorder
+ * Update URI:        https://github.com/Starisian-Technologies/starmus-audio-recorder.git
  */
 
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Define plugin constants.
+// 1. Define Plugin Constants.
 define( 'STARMUS_PATH', plugin_dir_path( __FILE__ ) );
-define( 'STARMUS_URL', plugin_dir_url( __FILE__ ) );
-define( 'STARMUS_VERSION', '0.3.1' );
+define('STARMUS_URL', plugin_dir_url( __FILE__ ));
 define( 'STARMUS_MAIN_FILE', __FILE__ );
+define('STARMUS_MAIN_DIR', plugin_dir_path( __FILE__ ));
 
-// Register custom autoloader.
-require_once STARMUS_PATH . 'src/Autoloader.php';
-Autoloader::register();
+// ... other constants ...
+define('STARMUS_VERSION',"0.3.1");
+define('STARMUS_TEXT_DOMAIN','starmus-audio-recorder');
 
 // Load Composer autoloader if present.
-if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
-    require __DIR__ . '/vendor/autoload.php';
+if ( file_exists( STARMUS_MAIN_DIR . '/vendor/autoload.php' ) ) {
+    require STARMUS_MAIN_DIR . '/vendor/autoload.php';
 }
 
-// Bootstrap the plugin.
-new \Starisian\Starmus\Plugin();
+// 3. Register Plugin Lifecycle Hooks.
+// These point to the static methods in your namespaced class.
+register_activation_hook( STARMUS_MAIN_FILE, [ 'Starisian\src\includes\StarmusPlugin', 'activate' ] );
+register_deactivation_hook( STARMUS_MAIN_FILE, [ 'Starisian\src\includes\StarmusPlugin', 'deactivate' ] );
+register_uninstall_hook( STARMUS_MAIN_FILE, [ 'Starisian\src\includes\StarmusPlugin', 'uninstall' ] );
+
+// 4. Instantiate the Main Plugin Class (Bootstrap).
+add_action( 'plugins_loaded', [ 'Starisian\src\includes\StarmusPlugin', 'get_instance' ] );

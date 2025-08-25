@@ -1,0 +1,170 @@
+/**
+ * STARISIAN TECHNOLOGIES CONFIDENTIAL
+ * © 2023–2025 Starisian Technologies. All Rights Reserved.
+ *
+ * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
+ * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
+ */
+
+/**
+ * starmus-audio-editor.css
+ * Mobile-first styles for the Peaks.js annotation editor.
+ */
+
+/* --- CSS Variables for Easy Theming --- */
+.starmus-editor {
+  --starmus-primary-color: #0073aa;
+  --starmus-border-color: #ccd0d4;
+  --starmus-border-radius: 4px;
+  --starmus-spacing-unit: 1rem;
+  --starmus-notice-bg: #fff8e1;
+  --starmus-notice-border: #ffecb3;
+  --starmus-notice-text: #6b5e00;
+
+  /* Dark Mode Variables */
+  --starmus-dark-bg: #1e1e1e;
+  --starmus-dark-border: #3a3a3a;
+  --starmus-dark-text: #d4d4d4;
+  --starmus-dark-notice-bg: #3a320c;
+  --starmus-dark-notice-border: #5b4e12;
+  --starmus-dark-notice-text: #f5e6a1;
+}
+
+/* --- Base Styles & Accessibility (Mobile First) --- */
+.starmus-editor {
+  display: grid;
+  gap: var(--starmus-spacing-unit);
+  padding: calc(var(--starmus-spacing-unit) / 2);
+}
+
+.screen-reader-text,
+.starmus-editor [aria-label] + .screen-reader-text,
+.starmus-editor .screen-reader-text {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .starmus-editor * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- Editor Layout (Mobile First) --- */
+.starmus-editor__head {
+  display: flex;
+  flex-direction: column; /* Stack on mobile */
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.starmus-editor__title {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.starmus-editor__time {
+  font-variant-numeric: tabular-nums;
+  opacity: .8;
+}
+
+.starmus-editor__wave {
+  border: 1px solid var(--starmus-border-color);
+  border-radius: var(--starmus-border-radius);
+  padding: 0.5rem;
+}
+
+.starmus-editor__zoom { height: 180px; }
+.starmus-editor__overview { height: 64px; margin-top: 0.5rem; }
+
+.starmus-editor__controls {
+  display: flex;
+  flex-direction: column; /* Stack on mobile */
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.starmus-editor__controls .button {
+  min-height: 44px;
+}
+.starmus-editor__controls .button:focus-visible {
+  outline: 2px solid var(--starmus-primary-color);
+  outline-offset: 2px;
+}
+.starmus-editor__spacer { display: none; } /* Not needed on mobile */
+
+/* Notice Bar */
+.starmus-editor__notice {
+  background: var(--starmus-notice-bg);
+  border: 1px solid var(--starmus-notice-border);
+  color: var(--starmus-notice-text);
+  padding: 0.75rem;
+  border-radius: var(--starmus-border-radius);
+}
+.starmus-editor__notice.starmus-editor__notice--success {
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+  color: #3c763d;
+}
+
+/* Annotations List */
+.starmus-editor__list {
+  overflow-x: auto; /* Allow horizontal scrolling on small screens */
+}
+.starmus-editor__list table {
+  min-width: 600px;
+}
+.starmus-editor__list .wp-list-table input {
+  width: 100%;
+}
+
+/* --- Desktop Adjustments (Mobile First) --- */
+@media (min-width: 782px) { /* Common WordPress breakpoint */
+  .starmus-editor {
+    padding: var(--starmus-spacing-unit);
+  }
+
+  .starmus-editor__head {
+    flex-direction: row; /* Side-by-side on desktop */
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .starmus-editor__controls {
+    flex-direction: row; /* Horizontal on desktop */
+    flex-wrap: wrap; /* Allow wrapping if needed */
+    align-items: center;
+  }
+  
+  .starmus-editor__controls .button {
+    width: auto;
+  }
+
+  .starmus-editor__spacer {
+    display: block;
+    flex: 1 1 auto;
+  }
+}
+
+/* --- Dark Mode --- */
+@media (prefers-color-scheme: dark) {
+  .starmus-editor {
+    background-color: var(--starmus-dark-bg);
+    color: var(--starmus-dark-text);
+  }
+  .starmus-editor__wave {
+    border-color: var(--starmus-dark-border);
+  }
+  .starmus-editor__notice {
+    background: var(--starmus-dark-notice-bg);
+    border-color: var(--starmus-dark-notice-border);
+    color: var(--starmus-dark-notice-text);
+  }
+}
