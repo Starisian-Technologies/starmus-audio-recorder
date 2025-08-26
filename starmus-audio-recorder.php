@@ -63,3 +63,4 @@ register_uninstall_hook( STARMUS_MAIN_FILE, [ 'Starmus\includes\StarmusPlugin', 
 
 // 4. Instantiate the Main Plugin Class (Bootstrap).
 add_action( 'plugins_loaded', [ 'Starmus\includes\StarmusPlugin', 'starmus_run' ] );
+
