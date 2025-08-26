@@ -35,8 +35,8 @@ class StarmusAdmin {
 		$parent_slug = 'edit.php?post_type=' . self::get_option( 'cpt_slug', 'audio-recording' );
 		add_submenu_page(
 			$parent_slug,
-			__( 'Audio Recorder Settings', STARMUS_TEXT_DOMAIN ),
-			__( 'Settings', STARMUS_TEXT_DOMAIN ),
+			__( 'Audio Recorder Settings', 'starmus-audio-recorder' ),
+			__( 'Settings', 'starmus-audio-recorder' ),
 			'manage_options',
 			self::MENU_SLUG,
 			[ $this, 'render_settings_page' ]
@@ -49,12 +49,12 @@ class StarmusAdmin {
 	public function render_settings_page(): void {
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Starmus Audio Recorder Settings', STARMUS_TEXT_DOMAIN ); ?></h1>
+			<h1><?php esc_html_e( 'Starmus Audio Recorder Settings', 'starmus-audio-recorder' ); ?></h1>
 			<form action="options.php" method="post">
 				<?php
 				settings_fields( 'starmus_settings_group' );
 				do_settings_sections( self::MENU_SLUG );
-				submit_button( __( 'Save Settings', STARMUS_TEXT_DOMAIN ) );
+				submit_button( __( 'Save Settings', 'starmus-audio-recorder' ) );
 				?>
 			</form>
 		</div>
@@ -68,75 +68,75 @@ class StarmusAdmin {
         register_setting( 'starmus_settings_group', self::OPTION_NAME, [ $this, 'sanitize_settings' ] );
 
 		// Section 1: Custom Post Type Settings
-		add_settings_section( 'starmus_cpt_section', __( 'Custom Post Type Settings', STARMUS_TEXT_DOMAIN ), null, self::MENU_SLUG );
+		add_settings_section( 'starmus_cpt_section', __( 'Custom Post Type Settings', 'starmus-audio-recorder' ), null, self::MENU_SLUG );
 		add_settings_field(
 			'cpt_slug',
-			__( 'Post Type Slug', STARMUS_TEXT_DOMAIN ),
+			__( 'Post Type Slug', 'starmus-audio-recorder' ),
 			[ $this, 'render_text_field' ],
 			self::MENU_SLUG,
 			'starmus_cpt_section',
-			[ 'id' => 'cpt_slug', 'description' => __( 'The internal name for the post type. Use lowercase letters, numbers, and underscores only. <strong>Warning: Changing this will hide existing submissions until it\'s changed back.</strong>', STARMUS_TEXT_DOMAIN ) ]
+			[ 'id' => 'cpt_slug', 'description' => __( 'The internal name for the post type. Use lowercase letters, numbers, and underscores only. <strong>Warning: Changing this will hide existing submissions until it\'s changed back.</strong>', 'starmus-audio-recorder' ) ]
 		);
 
 		// Section 2: File Upload and Recording Rules
-		add_settings_section( 'starmus_rules_section', __( 'File Upload & Recording Rules', STARMUS_TEXT_DOMAIN ), null, self::MENU_SLUG );
+		add_settings_section( 'starmus_rules_section', __( 'File Upload & Recording Rules', 'starmus-audio-recorder' ), null, self::MENU_SLUG );
 		add_settings_field(
 			'file_size_limit',
-			__( 'Max File Size (MB)', STARMUS_TEXT_DOMAIN ),
+			__( 'Max File Size (MB)', 'starmus-audio-recorder' ),
 			[ $this, 'render_number_field' ],
 			self::MENU_SLUG,
 			'starmus_rules_section',
-			[ 'id' => 'file_size_limit', 'description' => __( 'Maximum allowed file size for uploads in Megabytes.', STARMUS_TEXT_DOMAIN ) ]
+			[ 'id' => 'file_size_limit', 'description' => __( 'Maximum allowed file size for uploads in Megabytes.', 'starmus-audio-recorder' ) ]
 		);
 		add_settings_field(
 			'recording_time_limit',
-			__( 'Max Recording Time (seconds)', STARMUS_TEXT_DOMAIN ),
+			__( 'Max Recording Time (seconds)', 'starmus-audio-recorder' ),
 			[ $this, 'render_number_field' ],
 			self::MENU_SLUG,
 			'starmus_rules_section',
-			[ 'id' => 'recording_time_limit', 'description' => __( 'Maximum duration for a browser recording in seconds. Set to 0 for no limit.', STARMUS_TEXT_DOMAIN ) ]
+			[ 'id' => 'recording_time_limit', 'description' => __( 'Maximum duration for a browser recording in seconds. Set to 0 for no limit.', 'starmus-audio-recorder' ) ]
 		);
 		add_settings_field(
 			'allowed_file_types',
-			__( 'Allowed File Extensions', STARMUS_TEXT_DOMAIN ),
+			__( 'Allowed File Extensions', 'starmus-audio-recorder' ),
 			[ $this, 'render_textarea_field' ],
 			self::MENU_SLUG,
 			'starmus_rules_section',
-			[ 'id' => 'allowed_file_types', 'description' => __( 'Comma-separated list of allowed audio file extensions (e.g., mp3, wav, webm, m4a).', STARMUS_TEXT_DOMAIN ) ]
+			[ 'id' => 'allowed_file_types', 'description' => __( 'Comma-separated list of allowed audio file extensions (e.g., mp3, wav, webm, m4a).', 'starmus-audio-recorder' ) ]
 		);
 
 		// Section 3: Form Settings
-		add_settings_section( 'starmus_form_section', __( 'Submission Form Settings', STARMUS_TEXT_DOMAIN ), null, self::MENU_SLUG );
+		add_settings_section( 'starmus_form_section', __( 'Submission Form Settings', 'starmus-audio-recorder' ), null, self::MENU_SLUG );
                 add_settings_field(
                         'consent_message',
-                        __( 'Consent Checkbox Message', STARMUS_TEXT_DOMAIN ),
+                        __( 'Consent Checkbox Message', 'starmus-audio-recorder' ),
                         [ $this, 'render_textarea_field' ],
                         self::MENU_SLUG,
                         'starmus_form_section',
-                        [ 'id' => 'consent_message', 'description' => __( 'The text displayed next to the consent checkbox. Basic HTML is allowed.', STARMUS_TEXT_DOMAIN ) ]
+                        [ 'id' => 'consent_message', 'description' => __( 'The text displayed next to the consent checkbox. Basic HTML is allowed.', 'starmus-audio-recorder' ) ]
                 );
 
                 // Section 4: Privacy Settings
-                add_settings_section( 'starmus_privacy_section', __( 'Privacy Settings', STARMUS_TEXT_DOMAIN ), null, self::MENU_SLUG );
+                add_settings_section( 'starmus_privacy_section', __( 'Privacy Settings', 'starmus-audio-recorder' ), null, self::MENU_SLUG );
                 add_settings_field(
                         'collect_ip_ua',
-                        __( 'Store IP & User Agent', STARMUS_TEXT_DOMAIN ),
+                        __( 'Store IP & User Agent', 'starmus-audio-recorder' ),
                         [ $this, 'render_checkbox_field' ],
                         self::MENU_SLUG,
                         'starmus_privacy_section',
                         [
                                 'id'          => 'collect_ip_ua',
-                                'label'       => __( 'Save submitter IP address and browser user agent.', STARMUS_TEXT_DOMAIN ),
-                                'description' => __( 'Requires user consent. Leave unchecked to anonymize submissions.', STARMUS_TEXT_DOMAIN ),
+                                'label'       => __( 'Save submitter IP address and browser user agent.', 'starmus-audio-recorder' ),
+                                'description' => __( 'Requires user consent. Leave unchecked to anonymize submissions.', 'starmus-audio-recorder' ),
                         ]
                 );
                 add_settings_field(
                         'data_policy_url',
-                        __( 'Data Policy URL', STARMUS_TEXT_DOMAIN ),
+                        __( 'Data Policy URL', 'starmus-audio-recorder' ),
                         [ $this, 'render_text_field' ],
                         self::MENU_SLUG,
                         'starmus_privacy_section',
-                        [ 'id' => 'data_policy_url', 'description' => __( 'Optional link shown above the form for your privacy or data policy.', STARMUS_TEXT_DOMAIN ) ]
+                        [ 'id' => 'data_policy_url', 'description' => __( 'Optional link shown above the form for your privacy or data policy.', 'starmus-audio-recorder' ) ]
                 );
         }
 
@@ -215,23 +215,5 @@ class StarmusAdmin {
                         printf( '<p class="description">%s</p>', wp_kses( $args['description'], [ 'strong' => [] ] ) );
                 }
         }
-
-	/**
-	 * Helper function to safely get a setting value.
-	 */
-	public static function get_option( string $key, $default = '' ) {
-		$options = get_option( self::OPTION_NAME );
-		$defaults = [
-			'cpt_slug'             => 'audio-recording',
-			'file_size_limit'      => 10,
-			'recording_time_limit' => 300,
-                        'allowed_file_types'   => 'mp3,wav,webm,m4a,ogg,opus',
-                        'consent_message'      => __( 'I consent to having this audio recording stored and used.', STARMUS_TEXT_DOMAIN ),
-                        'collect_ip_ua'        => 0,
-                        'data_policy_url'      => '',
-                ];
-		
-		return $options[ $key ] ?? $defaults[ $key ] ?? $default;
-	}
 
 }

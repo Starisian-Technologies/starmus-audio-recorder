@@ -43,7 +43,6 @@ define('STARMUS_MAIN_DIR', plugin_dir_path( __FILE__ ));
 
 // ... other constants ...
 define('STARMUS_VERSION',"0.3.1");
-define('STARMUS_TEXT_DOMAIN','starmus-audio-recorder');
 
 // Load Composer autoloader if present.
 if ( file_exists( STARMUS_MAIN_DIR . '/vendor/autoload.php' ) ) {
@@ -57,4 +56,4 @@ register_deactivation_hook( STARMUS_MAIN_FILE, [ 'Starmus\includes\StarmusPlugin
 register_uninstall_hook( STARMUS_MAIN_FILE, [ 'Starmus\includes\StarmusPlugin', 'uninstall' ] );
 
 // 4. Instantiate the Main Plugin Class (Bootstrap).
-add_action( 'plugins_loaded', [ 'Starmus\includes\StarmusPlugin', 'get_instance' ] );
+add_action( 'plugins_loaded', [ 'Starmus\includes\StarmusPlugin', 'starmus_run' ] );

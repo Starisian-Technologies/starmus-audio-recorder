@@ -10,10 +10,10 @@ namespace Starmus\includes;
 
 // These are the 'use' statements that match YOUR specific file structure.
 // They will work with a custom autoloader that understands this structure.
-use Starisian\admin\StarmusAdmin;
-use Starisian\frontend\StarmusAudioEditorUI;
-use Starisian\frontend\StarmusAudioRecorderUI;
-use Starisian\includes\StarmusCustomPostType;
+use Starmus\admin\StarmusAdmin;
+use Starmus\frontend\StarmusAudioEditorUI;
+use Starmus\frontend\StarmusAudioRecorderUI;
+use Starmus\includes\StarmusSettings;
 
 /**
  * Summary of StarmusPlugin
@@ -42,7 +42,7 @@ final class StarmusPlugin
             add_action('admin_notices', [$this, 'display_compatibility_notice']);
             return;
         }
-        add_action('init', [$this, 'init_plugin_features']);
+        add_action('init', [$this, 'starmus_init']);
     }
     /**
      * Main singleton instance method.
@@ -61,7 +61,7 @@ final class StarmusPlugin
     public function load_textdomain(): void
     {
         load_plugin_textdomain(
-            STARMUS_TEXT_DOMAIN, // Your text domain
+            'starmus-audio-recorder', // Your text domain
             false,
             dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/'
         );
@@ -70,7 +70,7 @@ final class StarmusPlugin
     /**
      * Initializes all plugin features.
      */
-    public function init_plugin_features(): void
+    public function starmus_init(): void
     {
          // We include this file to execute its 'add_action' calls to build cpt.
         require_once STARMUS_PATH . 'src/includes/StarmusCustomPostType.php';
@@ -81,7 +81,7 @@ final class StarmusPlugin
 
         if (is_user_logged_in()) {
             $user = wp_get_current_user();
-            if (array_intersect(['author', 'editor', 'administrator'], (array) $user->roles) || is_super_admin($user->ID)) {
+            if (array_intersect(['contributor','author', 'editor', 'administrator'], (array) $user->roles) || is_super_admin($user->ID)) {
                 new StarmusAudioEditorUI();
             }
             if (array_intersect(['contributor', 'community_contributor', 'editor', 'author', 'administrator'], (array) $user->roles) || is_super_admin($user->ID)) {
@@ -89,6 +89,11 @@ final class StarmusPlugin
             }
         }
     }
+
+    public function starmus_run(): void
+    {
+        $this->get_instance();
+    }   
 
     // --- Plugin Lifecycle Methods ---
 
@@ -105,10 +110,15 @@ final class StarmusPlugin
     public static function uninstall(): void
     {
         $cpt_slug = 'starmus-admin';
-        // This requires the StarmusAdminSettings class to be loaded.
-        if (class_exists(StarmusAdmin::class)) {
-            $cpt_slug = StarmusAdmin::get_option('cpt_slug', $cpt_slug);
+        // This requires the StarmusSettings class to be loaded.
+        if (!class_exists(StarmusSettings::class)) {
+            $file = STARMUS_PATH . 'src/includes/StarmusSettings.php';
+            if(file_exists($file)){
+                require_once $file;
+            }
         }
+        $cpt_slug = StarmusSettings::starmus_get_option('cpt_slug', $cpt_slug);
+
 
         delete_option('starmus_settings');
 

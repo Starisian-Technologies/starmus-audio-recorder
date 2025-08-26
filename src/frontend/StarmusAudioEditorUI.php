@@ -29,7 +29,7 @@ class StarmusAudioEditorUI {
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 
 		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
-			return '<div class="notice notice-error"><p>' . esc_html__( 'Invalid submission ID or you do not have permission to edit this item.', STARMUS_TEXT_DOMAIN ) . '</p></div>';
+			return '<div class="notice notice-error"><p>' . esc_html__( 'Invalid submission ID or you do not have permission to edit this item.', 'starmus-audio-recorder' ) . '</p></div>';
 		}
 
 		// --- UPDATED: Load the UI from a dedicated template file ---
