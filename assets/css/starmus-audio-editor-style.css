@@ -94,6 +94,7 @@
 .starmus-editor__controls .button {
   min-height: 44px;
 }
+
 .starmus-editor__controls .button:focus-visible {
   outline: 2px solid var(--starmus-primary-color);
   outline-offset: 2px;
@@ -108,6 +109,7 @@
   padding: 0.75rem;
   border-radius: var(--starmus-border-radius);
 }
+
 .starmus-editor__notice.starmus-editor__notice--success {
   background-color: #dff0d8;
   border-color: #d6e9c6;
@@ -118,15 +120,17 @@
 .starmus-editor__list {
   overflow-x: auto; /* Allow horizontal scrolling on small screens */
 }
+
 .starmus-editor__list table {
   min-width: 600px;
 }
+
 .starmus-editor__list .wp-list-table input {
   width: 100%;
 }
 
 /* --- Desktop Adjustments (Mobile First) --- */
-@media (min-width: 782px) { /* Common WordPress breakpoint */
+@media (width >= 782px) { /* Common WordPress breakpoint */
   .starmus-editor {
     padding: var(--starmus-spacing-unit);
   }
@@ -138,8 +142,7 @@
   }
   
   .starmus-editor__controls {
-    flex-direction: row; /* Horizontal on desktop */
-    flex-wrap: wrap; /* Allow wrapping if needed */
+    flex-flow: row wrap; /* Horizontal on desktop */ /* Allow wrapping if needed */
     align-items: center;
   }
   
@@ -159,9 +162,11 @@
     background-color: var(--starmus-dark-bg);
     color: var(--starmus-dark-text);
   }
+
   .starmus-editor__wave {
     border-color: var(--starmus-dark-border);
   }
+
   .starmus-editor__notice {
     background: var(--starmus-dark-notice-bg);
     border-color: var(--starmus-dark-notice-border);
