@@ -1,40 +1,39 @@
-# Repo metadata
+# Repo / CI
 .git/
 .github/
 .gitattributes
 .gitignore
 
-# Build & analysis tools
+# Dev & analysis configs
 phpcs.xml.dist
 phpstan.neon
 phpstan.neon.dist
-
-# Node / JS deps
-node_modules/
-package.json
-package-lock.json
-yarn.lock
-
-# PHP deps (if bundled)
-vendor/
-composer.lock
-composer.phar
-
-# Test suites & coverage
-tests/
-coverage/
 phpunit.xml*
 *.test.*
 
-# Editor / IDE cruft
+# Node dev
+node_modules/
+.eslintrc*
+eslint.config.js
+stylelint.config.js
+.prettier*
+*.map
+package-lock.json
+yarn.lock
+
+# Composer (KEEP vendor in release!)
+composer.phar
+# Optional (either include or exclude; not required at runtime):
+# composer.json
+# composer.lock
+
+# Tests & coverage
+tests/
+coverage/
+
+# IDE & misc
 .vscode/
 .idea/
 .DS_Store
-
-# Local / secrets
 .env
 *.log
-
-# Misc artifacts
-*.dist
-distignore
