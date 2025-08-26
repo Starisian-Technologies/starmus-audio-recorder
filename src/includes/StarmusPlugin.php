@@ -61,7 +61,7 @@ final class StarmusPlugin
     public function load_textdomain(): void
     {
         load_plugin_textdomain(
-            'starmus-audio-recorder', // Your text domain
+            'starmus_audio_recorder', // Your text domain
             false,
             dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/'
         );
@@ -73,7 +73,13 @@ final class StarmusPlugin
     public function starmus_init(): void
     {
          // We include this file to execute its 'add_action' calls to build cpt.
-        require_once STARMUS_PATH . 'src/includes/StarmusCustomPostType.php';
+        $file = STARMUS_PATH . 'src/includes/StarmusCustomPostType.php';
+        if (!file_exists($file)) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('StarmusCustomPostType.php file is missing.');
+            }
+        }
+        require_once $file;
 
         if (is_admin()) {
             new StarmusAdmin();
@@ -93,6 +99,7 @@ final class StarmusPlugin
     public function starmus_run(): void
     {
         $this->get_instance();
+        return;
     }   
 
     // --- Plugin Lifecycle Methods ---
@@ -139,7 +146,7 @@ final class StarmusPlugin
     {
         if (version_compare(PHP_VERSION, self::MINIMUM_PHP_VERSION, '<')) {
             $this->compatibility_messages[] = sprintf(
-                __('Starmus Audio Recorder requires PHP %1$s or higher. You are running %2$s.', 'starmus-audio-recorder'),
+                __('Starmus Audio Recorder requires PHP %1$s or higher. You are running %2$s.', 'starmus_audio_recorder'),
                 self::MINIMUM_PHP_VERSION,
                 PHP_VERSION
             );
@@ -147,7 +154,7 @@ final class StarmusPlugin
 
         if (version_compare(get_bloginfo('version'), self::MINIMUM_WP_VERSION, '<')) {
             $this->compatibility_messages[] = sprintf(
-                __('Starmus Audio Recorder requires WordPress %1$s or higher. You are running %2$s.', 'starmus-audio-recorder'),
+                __('Starmus Audio Recorder requires WordPress %1$s or higher. You are running %2$s.', 'starmus_audio_recorder'),
                 self::MINIMUM_WP_VERSION,
                 get_bloginfo('version')
             );
