@@ -22,6 +22,9 @@ if (!isset($form_id)) {
 if (!isset($data_policy_url)) {
     $data_policy_url = '';
 }
+if (!isset($consent_message)) {
+    $consent_message = 'I consent to the recording of my voice.';
+}
 ?>
 
 <!-- 
@@ -34,11 +37,11 @@ if (!isset($data_policy_url)) {
     <div id="starmus_audioWrapper_<?php echo esc_attr($form_id); ?>" class="sparxstar-audioWrapper" data-enabled-recorder>
         
         <h2 id="sparxstar_audioRecorderHeading_<?php echo esc_attr($form_id); ?>" class="sparxstar-h2">
-            <?php esc_html_e('Audio Recorder', STARMUS_TEXT_DOMAIN); ?>
+            <?php esc_html_e('Audio Recorder', 'starmus_audio_recorder'); ?>
         </h2>
 
         <?php if (!empty($data_policy_url)) : ?>
-            <p class="starmus-data-policy"><a href="<?php echo esc_url($data_policy_url); ?>" target="_blank" rel="noopener"><?php esc_html_e('View data policy', STARMUS_TEXT_DOMAIN); ?></a></p>
+            <p class="starmus-data-policy"><a href="<?php echo esc_url($data_policy_url); ?>" target="_blank" rel="noopener"><?php esc_html_e('View data policy', 'starmus_audio_recorder'); ?></a></p>
         <?php endif; ?>
 
         <!-- Consent Checkbox is a required part of the form -->
@@ -63,9 +66,9 @@ if (!isset($data_policy_url)) {
 
             <!-- Recorder Controls -->
             <div class="sparxstar_recorderControls" role="group" aria-label="Recording controls">
-                <button type="button" id="recordButton_<?php echo esc_attr($form_id); ?>" class="sparxstar_button"><?php esc_html_e('Record', STARMUS_TEXT_DOMAIN); ?></button>
-                <button type="button" id="pauseButton_<?php echo esc_attr($form_id); ?>" class="sparxstar_button" disabled><?php esc_html_e('Pause', STARMUS_TEXT_DOMAIN); ?></button>
-                <button type="button" id="deleteButton_<?php echo esc_attr($form_id); ?>" class="sparxstar_button sparxstar_button--danger sparxstar_visually_hidden" disabled><?php esc_html_e('Delete', STARMUS_TEXT_DOMAIN); ?></button>
+                <button type="button" id="recordButton_<?php echo esc_attr($form_id); ?>" class="sparxstar_button"><?php esc_html_e('Record', 'starmus_audio_recorder'); ?></button>
+                <button type="button" id="pauseButton_<?php echo esc_attr($form_id); ?>" class="sparxstar_button" disabled><?php esc_html_e('Pause', 'starmus_audio_recorder'); ?></button>
+                <button type="button" id="deleteButton_<?php echo esc_attr($form_id); ?>" class="sparxstar_button sparxstar_button--danger sparxstar_visually_hidden" disabled><?php esc_html_e('Delete', 'starmus_audio_recorder'); ?></button>
             </div>
 
             <!-- Volume Meter -->
@@ -93,14 +96,14 @@ if (!isset($data_policy_url)) {
 
         <!-- Submit Button -->
         <button type="submit" id="submit_button_<?php echo esc_attr($form_id); ?>" class="sparxstar_submitButton" disabled>
-            <?php esc_html_e('Submit Recording', STARMUS_TEXT_DOMAIN); ?>
+            <?php esc_html_e('Submit Recording', 'starmus_audio_recorder'); ?>
         </button>
 
         <!-- Loader Overlay for visual feedback during submission -->
         <div id="sparxstar_loader_overlay_<?php echo esc_attr($form_id); ?>" class="sparxstar_loader_overlay sparxstar_visually_hidden" role="alert" aria-live="assertive">
             <div class="sparxstar_loader_content">
                 <div class="sparxstar_spinner"></div>
-                <span class="sparxstar_status__text"><?php esc_html_e('Submitting your recording…', STARMUS_TEXT_DOMAIN); ?></span>
+                <span class="sparxstar_status__text"><?php esc_html_e('Submitting your recording…', 'starmus_audio_recorder'); ?></span>
             </div>
         </div>
 

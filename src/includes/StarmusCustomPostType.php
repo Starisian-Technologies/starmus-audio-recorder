@@ -1,9 +1,9 @@
 <?php
-namespace Starisian\includes;
+namespace Starmus\includes;
 /**
  * Registers Custom Post Types, Taxonomies, and ACF fields.
  *
- * @package Starmus
+ * @package Starmus\includes
  */
 
 // Exit if accessed directly.

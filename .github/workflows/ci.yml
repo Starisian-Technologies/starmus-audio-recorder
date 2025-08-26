@@ -5,7 +5,7 @@ on:
   pull_request:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -41,6 +41,15 @@ jobs:
 
       - name: PHP Lint
         run: composer lint:php
+
+      - name: Automatically fix coding standards
+        run: ./vendor/bin/phpcbf
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Fix PHP coding standards"
+          branch: ${{ github.head_ref }}
 
       - name: PHPStan
         run: composer analyze:php

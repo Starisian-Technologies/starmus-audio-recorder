@@ -29,7 +29,7 @@ class StarmusAudioEditorUI {
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 
 		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
-			return '<div class="notice notice-error"><p>' . esc_html__( 'Invalid submission ID or you do not have permission to edit this item.', STARMUS_TEXT_DOMAIN ) . '</p></div>';
+			return '<div class="notice notice-error"><p>' . esc_html__( 'Invalid submission ID or you do not have permission to edit this item.', 'starmus_audio_recorder' ) . '</p></div>';
 		}
 
 		// --- UPDATED: Load the UI from a dedicated template file ---
@@ -56,16 +56,24 @@ class StarmusAudioEditorUI {
 			$audio_url = $attachment_id ? wp_get_attachment_url( $attachment_id ) : '';
 			$annotations = get_post_meta( $post_id, 'starmus_annotations_json', true ) ?: '[]';
 
-                        // --- NEW: Enqueue the editor-specific stylesheet ---
-                        $css_path = STARMUS_PATH . 'assets/css/starmus-audio-editor.css';
-                        $css_version = file_exists( $css_path ) ? filemtime( $css_path ) : STARMUS_VERSION;
-                        wp_enqueue_style( 'starmus-audio-editor', STARMUS_URL . 'assets/css/starmus-audio-editor-style.min.css', [], $css_version );
+			// --- NEW: Enqueue the editor-specific stylesheet ---
+			$css_path = STARMUS_PATH . 'assets/css/starmus-audio-editor.css';
+			$css_version = file_exists( $css_path ) ? filemtime( $css_path ) : STARMUS_VERSION;
+			wp_enqueue_style( 'starmus-audio-editor', STARMUS_URL . 'assets/css/starmus-audio-editor-style.min.css', [], $css_version );
 
 
-                        $peaks_path = STARMUS_PATH . 'assets/js/peaks.min.js';
-                        $peaks_ver  = file_exists( $peaks_path ) ? md5_file( $peaks_path ) : STARMUS_VERSION;
-                        wp_enqueue_script('peaks', STARMUS_URL . 'assets/js/peaks.min.js', [], $peaks_ver, true);
-                        wp_enqueue_script('starmus-audio-editor', STARMUS_URL . 'assets/js/starmus-audio-editor.min.js', ['peaks','jquery'], @filemtime(STARMUS_PATH.'assets/js/starmus-audio-editor.js') ?: STARMUS_VERSION, true);
+			$peaks_path = STARMUS_PATH . 'assets/js/peaks.min.js';
+			$peaks_ver  = file_exists( $peaks_path ) ? md5_file( $peaks_path ) : STARMUS_VERSION;
+			wp_enqueue_script( 'peaks', STARMUS_URL . 'assets/js/peaks.min.js', [], $peaks_ver, true );
+			$editor_js_path    = STARMUS_PATH . 'assets/js/starmus-audio-editor.js';
+			$editor_js_version = file_exists( $editor_js_path ) ? filemtime( $editor_js_path ) : STARMUS_VERSION;
+			wp_enqueue_script(
+			        'starmus-audio-editor',
+			        STARMUS_URL . 'assets/js/starmus-audio-editor.min.js',
+			        [ 'peaks', 'jquery' ],
+			        $editor_js_version,
+			        true
+			);
 
 
 			wp_localize_script( 'starmus-audio-editor', 'STARMUS_EDITOR_DATA', [
@@ -121,13 +129,28 @@ class StarmusAudioEditorUI {
                 'label'     => isset($segment['label']) ? sanitize_text_field( $segment['label'] ) : '',
             ];
         }
-        usort($sanitized_annotations, fn($a, $b) => $a['startTime'] <=> $b['startTime']);
-		for ($i=1;$i<count($sanitized_annotations);$i++){
-			if ($sanitized_annotations[$i]['startTime'] < $sanitized_annotations[$i-1]['endTime']){
-				return new \WP_REST_Response(['success'=>false,'message'=>'Overlapping annotations are not allowed.'],400);
-			}
-		}
-		update_post_meta( $post_id, 'starmus_annotations_json', wp_json_encode( $sanitized_annotations ) );
-		return new \WP_REST_Response( [ 'success' => true, 'message' => 'Annotations saved.', 'annotations' => $sanitized_annotations, ], 200 );
+        usort( $sanitized_annotations, fn( $a, $b ) => $a['startTime'] <=> $b['startTime'] );
+        for ( $i = 1; $i < count( $sanitized_annotations ); $i++ ) {
+                if ( $sanitized_annotations[ $i ]['startTime'] < $sanitized_annotations[ $i - 1 ]['endTime'] ) {
+                        $message = sanitize_text_field( __( 'Overlapping annotations are not allowed.', STARMUS_TEXT_DOMAIN ) );
+                        return new \WP_REST_Response(
+                                [
+                                        'success' => false,
+                                        'message' => $message,
+                                ],
+                                400
+                        );
+                }
+        }
+        update_post_meta( $post_id, 'starmus_annotations_json', wp_json_encode( $sanitized_annotations ) );
+        $message = sanitize_text_field( __( 'Annotations saved.', STARMUS_TEXT_DOMAIN ) );
+        return new \WP_REST_Response(
+                [
+                        'success'      => true,
+                        'message'      => $message,
+                        'annotations'  => $sanitized_annotations,
+                ],
+                200
+        );
     }
 }

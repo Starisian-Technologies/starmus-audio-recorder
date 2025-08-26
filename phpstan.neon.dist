@@ -1,33 +1,32 @@
-includes:
-  - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+# phpstan.neon.dist
 parameters:
   level: 5
   phpVersion: 80200
 
   paths:
-    - ./includes
-    - ./src
-    - ./aiwa-oral-history-recording.php
+    - src
+    - templates
+    - starmus-audio-recorder.php
 
-  autoload_files:
-    - ./vendor/autoload.php
+  bootstrapFiles:
+    - vendor/autoload.php
+    - phpstan-bootstrap.php
 
-  # Treat PHPDoc types as hints, not hard truth (more forgiving)
   treatPhpDocTypesAsCertain: false
 
-  # Exclude folders not relevant for analysis
   excludePaths:
-    - tests/*
-    - vendor/*
-    - node_modules/*
-    - assets/*
-    - includes/lib/*
+    analyse:
+      - tests/*
+      - vendor/*
+      - node_modules/*
+      - assets/*
+      - includes/lib/*
 
-  checkMissingIterableValueType: false
-  checkGenericClassInNonGenericObjectType: false
-
-  # You can relax rules here if needed
+  # You can now remove these lines. The phpstan-wordpress extension
+  # provides stubs for these functions, so PHPStan will understand them.
+  #
   ignoreErrors:
-    - '#Call to an undefined method (WP_|apply_filters|do_action|get_option|update_option|get_post).*#'
-    - '#Access to an undefined property (WP_|$post|$wpdb).*#'
-    - '#Function get_(option|post|term).* not found.#'
+  #   - '#Call to an undefined (function|method) (apply_filters|do_action|get_option|update_option|get_post)(\(\))?#'
+  #   - '#Access to an undefined (property|variable|constant|class) .*#'
+  #   - '#Function get_(option|post|term)[A-Za-z_]* not found#'
+        - '#Parameter \#3 \$callback of function add_settings_section expects callable\(\): mixed, null given.#'
