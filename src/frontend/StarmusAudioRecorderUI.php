@@ -181,6 +181,11 @@ class StarmusAudioRecorderUI
 
         // 3. Append Chunk to Temporary File
         $chunk_content = file_get_contents($file_chunk['tmp_name']);
+
+        if (false === $chunk_content) {
+            wp_send_json_error(['message' => esc_html__('Server error: Could not read uploaded chunk.', 'starmus_audio_recorder')], 500);
+        }
+
         if (false === file_put_contents($temp_file_path, $chunk_content, FILE_APPEND)) {
             wp_send_json_error(['message' => esc_html__('Server error: Could not write chunk to disk.', 'starmus_audio_recorder')], 500);
         }
