@@ -64,7 +64,7 @@ class StarmusAudioRecorderUI
             $edit_link     = add_query_arg('post_id', get_the_ID(), $edit_page_url);
 ?>
             <div class="starmus-recording-item">
-                <h4><?php the_title(); ?></h4>
+                <h4><?php echo esc_html( get_the_title() ); ?></h4>
                 <p><em><?php echo esc_html(get_the_date()); ?> (<?php echo esc_html__('Status:', 'starmus_audio_recorder'); ?> <?php echo esc_html(get_post_status()); ?>)</em></p>
                 <?php if ($audio_url) : ?>
                     <audio controls src="<?php echo esc_url($audio_url); ?>"></audio>
