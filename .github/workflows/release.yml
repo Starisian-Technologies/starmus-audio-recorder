@@ -2,8 +2,7 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    tags: ['v*']
 
 permissions:
   contents: write
@@ -29,19 +28,33 @@ jobs:
           VER=$(grep -E "^\s*\*\s*Version:\s*" starmus-audio-recorder.php | sed -E 's/.*Version:\s*//')
           echo "version=${VER:-${GITHUB_REF_NAME#v}}" >> $GITHUB_OUTPUT
 
-      - name: Ensure .distignore exists
-        run: |
-          if [ ! -f .distignore ]; then
-            echo ".distignore is missing"; exit 1;
-          fi
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
 
-      - name: Build plugin ZIP (distignore)
+      - name: Install PHP dependencies (no-dev)
+        run: |
+          composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
+          test -f vendor/autoload.php || { echo "vendor/autoload.php missing (did .distignore exclude vendor/?)"; exit 1; }
+
+      # Optional: build frontend if you rely on a build step
+      # - name: Build assets
+      #   run: |
+      #     npm ci
+      #     npm run build
+
+      - name: Ensure .distignore exists
+        run: test -f .distignore || { echo ".distignore is missing"; exit 1; }
+
+      - name: Build plugin ZIP (uses .distignore; DO NOT exclude vendor/)
         run: |
           SLUG="starmus-audio-recorder"
           mkdir -p build
           rsync -a --delete --exclude-from=.distignore ./ build/${SLUG}/
-          (cd build && zip -r "${SLUG}-${{ steps.vers.outputs.version }}.zip" "${SLUG}")
-          mv "build/${SLUG}-${{ steps.vers.outputs.version }}.zip" .
+          (cd build && zip -r "../${SLUG}-${{ steps.vers.outputs.version }}.zip" "${SLUG}")
 
       - name: Generate checksums
         run: |
@@ -57,18 +70,11 @@ jobs:
             starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip.sha256
             starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip.sha1
 
-      - name: Generate changelog (optional)
-        id: changelog
-        if: ${{ hashFiles('.github/changelog-config.json') != '' }}
-        uses: mikepenz/release-changelog-builder-action@5f623dcdc2669b6cdbe6fd40fc15501a25676aa6        
-        with:
-          configuration: .github/changelog-config.json
-
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8        
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip
             starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip.sha256
             starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip.sha1
-          body: ${{ steps.changelog.outputs.changelog || 'Automated release.' }}
+          body: 'Automated release.'
