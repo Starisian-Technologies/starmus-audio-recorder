@@ -7,11 +7,11 @@ on:
   push:
     paths:
       - '**.php'
-      - 'phpstan.neon'
+      - 'phpstan.neon.dist'
   pull_request:
     paths:
       - '**.php'
-      - 'phpstan.neon'
+      - 'phpstan.neon.dist'
 
 jobs:
   phpstan:
