@@ -17,7 +17,7 @@ if (! defined('ABSPATH')) {
  * 
  */
 final class StarmusSettings {
-  const KEY = 'starmus_options';
+  public const KEY = 'starmus_options';
   public static function get(string $k, $default=null){ $o=get_option(self::KEY, []); return $o[$k] ?? $default; }
   public static function all(): array { return (array) get_option(self::KEY, []); }
 
