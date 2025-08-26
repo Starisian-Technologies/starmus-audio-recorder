@@ -25,7 +25,7 @@ final class StarmusSettings {
 	 * Helper function to safely get a setting value.
 	 */
 	public static function starmus_get_option( string $key, $default = '' ) {
-		$options = get_option( self::OPTION_NAME );
+		$options = get_option( self::KEY );
 		$defaults = [
 			'cpt_slug'             => 'audio-recording',
 			'file_size_limit'      => 10,

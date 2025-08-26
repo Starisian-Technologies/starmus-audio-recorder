@@ -21,7 +21,7 @@ use Starmus\includes\StarmusSettings;
  */
 class StarmusAdmin {
 
-	const OPTION_NAME = 'starmus_admin';
+	const OPTION_NAME = 'starmus_options';
 	const MENU_SLUG = 'starmus-admin';
 
 	public function __construct() {
