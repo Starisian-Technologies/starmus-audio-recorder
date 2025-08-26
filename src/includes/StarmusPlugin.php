@@ -96,9 +96,9 @@ final class StarmusPlugin
         }
     }
 
-    public function starmus_run(): void
+    public static function starmus_run(): void
     {
-        $this->get_instance();
+        self::get_instance();
         return;
     }   
 
