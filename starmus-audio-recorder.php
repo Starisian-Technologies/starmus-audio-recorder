@@ -49,6 +49,12 @@ if ( file_exists( STARMUS_MAIN_DIR . '/vendor/autoload.php' ) ) {
     require STARMUS_MAIN_DIR . '/vendor/autoload.php';
 }
 
+// Now, your classes should be loadable
+use Starmus\includes\StarmusPlugin; // Good practice to include
+
+// Instantiate your main plugin class
+$starmus_plugin = new StarmusPlugin();
+
 // 3. Register Plugin Lifecycle Hooks.
 // These point to the static methods in your namespaced class.
 register_activation_hook( STARMUS_MAIN_FILE, [ 'Starmus\includes\StarmusPlugin', 'activate' ] );
