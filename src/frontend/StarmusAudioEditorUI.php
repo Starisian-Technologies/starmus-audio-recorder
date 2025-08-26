@@ -129,13 +129,28 @@ class StarmusAudioEditorUI {
                 'label'     => isset($segment['label']) ? sanitize_text_field( $segment['label'] ) : '',
             ];
         }
-        usort($sanitized_annotations, fn($a, $b) => $a['startTime'] <=> $b['startTime']);
-		for ($i=1;$i<count($sanitized_annotations);$i++){
-			if ($sanitized_annotations[$i]['startTime'] < $sanitized_annotations[$i-1]['endTime']){
-				return new \WP_REST_Response(['success'=>false,'message'=>'Overlapping annotations are not allowed.'],400);
-			}
-		}
-		update_post_meta( $post_id, 'starmus_annotations_json', wp_json_encode( $sanitized_annotations ) );
-		return new \WP_REST_Response( [ 'success' => true, 'message' => 'Annotations saved.', 'annotations' => $sanitized_annotations, ], 200 );
+        usort( $sanitized_annotations, fn( $a, $b ) => $a['startTime'] <=> $b['startTime'] );
+        for ( $i = 1; $i < count( $sanitized_annotations ); $i++ ) {
+                if ( $sanitized_annotations[ $i ]['startTime'] < $sanitized_annotations[ $i - 1 ]['endTime'] ) {
+                        $message = sanitize_text_field( __( 'Overlapping annotations are not allowed.', STARMUS_TEXT_DOMAIN ) );
+                        return new \WP_REST_Response(
+                                [
+                                        'success' => false,
+                                        'message' => $message,
+                                ],
+                                400
+                        );
+                }
+        }
+        update_post_meta( $post_id, 'starmus_annotations_json', wp_json_encode( $sanitized_annotations ) );
+        $message = sanitize_text_field( __( 'Annotations saved.', STARMUS_TEXT_DOMAIN ) );
+        return new \WP_REST_Response(
+                [
+                        'success'      => true,
+                        'message'      => $message,
+                        'annotations'  => $sanitized_annotations,
+                ],
+                200
+        );
     }
 }
