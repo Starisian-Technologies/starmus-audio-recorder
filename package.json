@@ -45,5 +45,8 @@
     "prettier": "^3.6.2",
     "stylelint": "^16.23.1",
     "stylelint-config-standard": "^39.0.0"
+  },
+  "dependencies": {
+    "peaks.js": "^3.4.2"
   }
 }
