@@ -15,7 +15,8 @@
     "lint:php": "vendor/bin/phpcs",
     "lint:php:fix": "vendor/bin/phpcbf",
     "format": "npm run lint:js:fix && npm run lint:css:fix && npm run lint:md:fix && npm run lint:php:fix && prettier --write .",
-    "build:hash": "node build-starmus.js"
+    "build:hash": "node build-starmus.js",
+    "build": "fs-extra copy node_modules/peaks.js/dist/peaks.min.js assets/js/vendor/peaks.min.js"
   },
   "author": "Starisian Technologies (Max Barrett)",
   "homepage": "https://starisian.com",
@@ -40,6 +41,7 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.34.0",
     "eslint": "^9.34.0",
+    "fs-extra": "^11.3.1",
     "globals": "^16.3.0",
     "markdownlint-cli": "^0.45.0",
     "prettier": "^3.6.2",
