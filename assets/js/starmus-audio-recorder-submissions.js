@@ -21,24 +21,27 @@
  * is processed automatically when the user comes back online.
  */
 
+/* global starmusFormData, StarmusAudioRecorder */
 document.addEventListener('DOMContentLoaded', () => {
     'use strict';
-    
-    const logPrefix = 'STARMUS_FORM:';
-    console.log(logPrefix, 'DOM fully loaded. Initializing audio form submissions.');
 
     // --- Configuration ---
-    const isDebugMode = new URLSearchParams(window.location.search).has('starmus_debug');
-    const DB_NAME = 'starmus_audio_queue';
-    const STORE_NAME = 'queue';
-    const CHUNK_SIZE = 512 * 1024; // 512KB chunks
+    const CONFIG = {
+        LOG_PREFIX: 'STARMUS_FORM:',
+        DB_NAME: 'starmus_audio_queue',
+        STORE_NAME: 'queue',
+        CHUNK_SIZE: 512 * 1024, // 512KB chunks
+        DEBUG_MODE: new URLSearchParams(window.location.search).has('starmus_debug')
+    };
+
+    console.log(CONFIG.LOG_PREFIX, 'DOM fully loaded. Initializing audio form submissions.');
 
     // --- Offline Queue Storage (IndexedDB with localStorage Fallback) ---
     /**
      * @type {boolean} - Flag indicating if IndexedDB is available and operational.
      */
     let idbAvailable = 'indexedDB' in window;
-    
+
     /**
      * A promise that resolves with the IndexedDB database instance.
      * @type {Promise<IDBDatabase|null>}
@@ -46,16 +49,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const dbPromise = (() => {
         if (!idbAvailable) return Promise.resolve(null);
         return new Promise((resolve) => {
-            const request = indexedDB.open(DB_NAME, 1);
+            const request = indexedDB.open(CONFIG.DB_NAME, 1);
             request.onupgradeneeded = event => {
                 const db = event.target.result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                if (!db.objectStoreNames.contains(CONFIG.STORE_NAME)) {
+                    db.createObjectStore(CONFIG.STORE_NAME, { keyPath: 'id' });
                 }
             };
             request.onsuccess = () => resolve(request.result);
             request.onerror = event => {
-                console.error(logPrefix, 'IndexedDB failed to open. Falling back to localStorage.', event.target.error);
+                console.error(CONFIG.LOG_PREFIX, 'IndexedDB failed to open. Falling back to localStorage.', event.target.error);
                 idbAvailable = false;
                 resolve(null);
             };
@@ -87,24 +90,30 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function enqueue(item) {
         if (idbAvailable) {
-            const db = await dbPromise;
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(STORE_NAME, 'readwrite');
-                tx.objectStore(STORE_NAME).put(item);
-                tx.oncomplete = resolve;
-                tx.onerror = () => reject(tx.error);
-            });
+            try {
+                const db = await dbPromise;
+                const tx = db.transaction(CONFIG.STORE_NAME, 'readwrite');
+                tx.objectStore(CONFIG.STORE_NAME).put(item);
+                return new Promise((resolve, reject) => {
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+            } catch (err) {
+                console.error(CONFIG.LOG_PREFIX, 'IndexedDB put failed. Retrying with localStorage.', err);
+                idbAvailable = false; // Fallback for this session
+            }
         }
-        const list = JSON.parse(localStorage.getItem(DB_NAME) || '[]');
+        // Fallback to localStorage
+        const list = JSON.parse(localStorage.getItem(CONFIG.DB_NAME) || '[]');
         const base64 = await blobToBase64(item.audio);
+        const storableItem = { ...item, audioData: base64, audio: undefined }; // Don't store blob in LS
         const existingIndex = list.findIndex(i => i.id === item.id);
-        const storableItem = { ...item, audioData: base64, audio: undefined };
         if (existingIndex > -1) {
             list[existingIndex] = storableItem;
         } else {
             list.push(storableItem);
         }
-        localStorage.setItem(DB_NAME, JSON.stringify(list));
+        localStorage.setItem(CONFIG.DB_NAME, JSON.stringify(list));
     }
 
     /**
@@ -113,14 +122,19 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function getAllItems() {
         if (idbAvailable) {
-            const db = await dbPromise;
-            return new Promise((resolve, reject) => {
-                const req = db.transaction(STORE_NAME, 'readonly').objectStore(STORE_NAME).getAll();
-                req.onsuccess = () => resolve(req.result || []);
-                req.onerror = () => reject(req.error);
-            });
+            try {
+                const db = await dbPromise;
+                return new Promise((resolve, reject) => {
+                    const req = db.transaction(CONFIG.STORE_NAME, 'readonly').objectStore(CONFIG.STORE_NAME).getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => reject(req.error);
+                });
+            } catch (err) {
+                console.error(CONFIG.LOG_PREFIX, 'IndexedDB getAll failed. Retrying with localStorage.', err);
+                idbAvailable = false;
+            }
         }
-        const list = JSON.parse(localStorage.getItem(DB_NAME) || '[]');
+        const list = JSON.parse(localStorage.getItem(CONFIG.DB_NAME) || '[]');
         return list.map(item => ({ ...item, audio: base64ToBlob(item.audioData) }));
     }
 
@@ -131,20 +145,24 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function deleteItem(id) {
         if (idbAvailable) {
-            const db = await dbPromise;
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(STORE_NAME, 'readwrite');
-                tx.objectStore(STORE_NAME).delete(id);
-                tx.oncomplete = resolve;
-                tx.onerror = () => reject(tx.error);
-            });
+            try {
+                const db = await dbPromise;
+                const tx = db.transaction(CONFIG.STORE_NAME, 'readwrite');
+                tx.objectStore(CONFIG.STORE_NAME).delete(id);
+                return new Promise((resolve, reject) => {
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+            } catch (err) {
+                 console.error(CONFIG.LOG_PREFIX, 'IndexedDB delete failed. Retrying with localStorage.', err);
+                 idbAvailable = false;
+            }
         }
-        const list = JSON.parse(localStorage.getItem(DB_NAME) || '[]');
-        localStorage.setItem(DB_NAME, JSON.stringify(list.filter(i => i.id !== id)));
+        const list = JSON.parse(localStorage.getItem(CONFIG.DB_NAME) || '[]');
+        localStorage.setItem(CONFIG.DB_NAME, JSON.stringify(list.filter(i => i.id !== id)));
     }
 
     // --- Unified Uploader & Queue Processing ---
-
     /**
      * The core upload function. Handles chunking, retries, and queueing.
      * @param {object} item - The submission item to upload.
@@ -155,42 +173,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
         while (offset < item.audio.size) {
             if (!navigator.onLine) {
-                console.warn(logPrefix, 'Upload paused: connection lost.');
+                console.warn(CONFIG.LOG_PREFIX, 'Upload paused: connection lost.');
                 await enqueue({ ...item, uploadedBytes: offset });
                 return false;
             }
 
-            const chunk = item.audio.slice(offset, offset + CHUNK_SIZE);
+            const chunk = item.audio.slice(offset, offset + CONFIG.CHUNK_SIZE);
             const fd = new FormData();
-            for (const key in item.meta) fd.append(key, item.meta[key]);
+
+            // Append WordPress-specific data (action, nonce) from the saved item
+            for (const key in item.wordpressData) {
+                fd.append(key, item.wordpressData[key]);
+            }
+            // Append other metadata from the form
+            for (const key in item.meta) {
+                fd.append(key, item.meta[key]);
+            }
+            
             fd.append(item.audioField, chunk, item.meta.fileName || 'audio.webm');
             fd.append('chunk_offset', offset);
             fd.append('total_size', item.audio.size);
 
             try {
                 const response = await fetch(item.ajaxUrl, { method: 'POST', body: fd });
-                const data = await response.json();
+                if (!response.ok) {
+                    // Try to get a specific error message from the JSON body
+                    const errorData = await response.json().catch(() => null);
+                    const errorMessage = errorData?.data?.message || `Server responded with status ${response.status}`;
+                    throw new Error(errorMessage);
+                }
 
-                if (!response.ok || !data.success) {
-                    throw new Error(data?.message || 'Server returned an error');
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data?.data?.message || 'Server returned a failure response.');
                 }
                 
                 offset += chunk.size;
-                console.log(logPrefix, `Chunk uploaded. Progress: ${offset}/${item.audio.size}`);
+                console.log(CONFIG.LOG_PREFIX, `Chunk uploaded. Progress: ${offset}/${item.audio.size}`);
 
             } catch (err) {
-                console.error(logPrefix, 'Chunk upload failed. Queuing submission for later.', err);
-                try {
-                    await enqueue({ ...item, uploadedBytes: offset });
-                } catch (enqueueErr) {
-                    idbAvailable = false;
-                    await enqueue({ ...item, uploadedBytes: offset });
-                }
+                console.error(CONFIG.LOG_PREFIX, 'Chunk upload failed. Queuing submission for later.', err);
+                await enqueue({ ...item, uploadedBytes: offset });
                 return false;
             }
         }
 
-        console.log(logPrefix, `Upload complete for item ${item.id}. Removing from queue.`);
+        console.log(CONFIG.LOG_PREFIX, `Upload complete for item ${item.id}. Removing from queue.`);
         await deleteItem(item.id);
         return true;
     }
@@ -205,28 +233,30 @@ document.addEventListener('DOMContentLoaded', () => {
         isProcessingQueue = true;
         const retryBtn = document.getElementById('starmus_queue_retry');
         if (retryBtn) retryBtn.disabled = true;
-        console.log(logPrefix, "Processing offline queue...");
+        console.log(CONFIG.LOG_PREFIX, "Processing offline queue...");
 
         const items = await getAllItems();
-        for (const item of items) {
-            const success = await uploadSubmission(item);
-            if (!success) {
-                console.warn(logPrefix, "Queue processing paused due to an upload failure.");
-                break;
+        if (items.length > 0) {
+            for (const item of items) {
+                const success = await uploadSubmission(item);
+                if (!success) {
+                    console.warn(CONFIG.LOG_PREFIX, "Queue processing paused due to an upload failure.");
+                    break; // Stop processing further items if one fails
+                }
             }
         }
 
         isProcessingQueue = false;
         if (retryBtn) retryBtn.disabled = false;
-        updateQueueUI();
+        await updateQueueUI();
     }
 
     // --- UI and Event Listeners ---
     const queueBanner = document.createElement('div');
     queueBanner.id = 'starmus_queue_banner';
-    queueBanner.className = 'sparxstar_status sparxstar_visually_hidden';
+    queueBanner.className = 'starmus_status starmus_visually_hidden';
     queueBanner.setAttribute('aria-live', 'polite');
-    queueBanner.innerHTML = `<span class="sparxstar_status__text" id="starmus_queue_count"></span> <button type="button" id="starmus_queue_retry" class="button">Retry Uploads</button>`;
+    queueBanner.innerHTML = `<span class="starmus_status__text" id="starmus_queue_count"></span> <button type="button" id="starmus_queue_retry" class="button">Retry Uploads</button>`;
     document.body.appendChild(queueBanner);
 
     document.getElementById('starmus_queue_retry').addEventListener('click', processQueue);
@@ -240,15 +270,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const countSpan = document.getElementById('starmus_queue_count');
         if (items.length > 0) {
             countSpan.textContent = `${items.length} recording${items.length > 1 ? 's are' : ' is'} pending upload.`;
-            queueBanner.classList.remove('sparxstar_visually_hidden');
+            queueBanner.classList.remove('starmus_visually_hidden');
         } else {
-            queueBanner.classList.add('sparxstar_visually_hidden');
+            queueBanner.classList.add('starmus_visually_hidden');
         }
     }
 
     window.addEventListener('online', processQueue);
     updateQueueUI();
-    if (navigator.onLine) processQueue();
+    if (navigator.onLine) {
+        // Delay initial queue processing slightly to let the page settle.
+        setTimeout(processQueue, 2000);
+    }
 
     // --- Form Initialization and Handling ---
     const recorderWrappers = document.querySelectorAll('[data-enabled-recorder]');
@@ -259,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formElement = document.getElementById(formInstanceId);
 
         const _updateStatus = (message, type = 'info', makeVisible = true, reEnableSubmit = false) => {
-            const statusDiv = document.getElementById(`sparxstar_status_${formInstanceId}`);
+            const statusDiv = document.getElementById(`sparxstar_status_${formInstanceId}`); // Keep old name for compatibility if needed
             if (statusDiv) {
                 const textSpan = statusDiv.querySelector('.sparxstar_status__text');
                 if (textSpan) textSpan.textContent = message;
@@ -272,17 +305,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        if (!formElement) return console.error(logPrefix, `Form element not found for instance ID: ${formInstanceId}.`);
+        if (!formElement) {
+            return console.error(CONFIG.LOG_PREFIX, `Form element not found for instance ID: ${formInstanceId}.`);
+        }
 
         if (typeof StarmusAudioRecorder?.init === 'function') {
             StarmusAudioRecorder.init({
                 formInstanceId: formInstanceId
             }).then(success => {
-                if (success) console.log(logPrefix, `Recorder module initialized successfully for ${formInstanceId}.`);
-                else _updateStatus('Recorder failed to load.', 'error');
+                if (success) {
+                    console.log(CONFIG.LOG_PREFIX, `Recorder module initialized successfully for ${formInstanceId}.`);
+                } else {
+                    _updateStatus('Recorder failed to load.', 'error');
+                }
             });
         } else {
-            console.error(logPrefix, 'StarmusAudioRecorder module is not available.');
+            console.error(CONFIG.LOG_PREFIX, 'StarmusAudioRecorder module is not available.');
             _updateStatus('Critical error: Recorder unavailable.', 'error');
         }
 
@@ -295,28 +333,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const submitButton = document.getElementById(`submit_button_${formInstanceId}`);
             const loaderDiv = document.getElementById(`sparxstar_loader_overlay_${formInstanceId}`);
 
-            if (!audioIdField?.value || !audioFileInput?.files?.length) return _updateStatus('Error: No audio file has been recorded to submit.', 'error');
-            if (consentCheckbox && !consentCheckbox.checked) return _updateStatus('Error: You must provide consent to submit.', 'error');
+            if (!audioIdField?.value || !audioFileInput?.files?.length) {
+                return _updateStatus('Error: No audio file has been recorded or selected to submit.', 'error');
+            }
+            if (consentCheckbox && !consentCheckbox.checked) {
+                return _updateStatus('Error: You must provide consent to submit.', 'error');
+            }
 
             if (submitButton) submitButton.disabled = true;
             if (loaderDiv) loaderDiv.classList.remove('sparxstar_visually_hidden');
 
             const formData = new FormData(formElement);
             const meta = {};
-            formData.forEach((value, key) => { if (!(value instanceof File)) meta[key] = value; });
-            if (starmusFormData?.action) meta.action = starmusFormData.action;
-            if (starmusFormData?.nonce) meta.nonce = starmusFormData.nonce;
+            formData.forEach((value, key) => {
+                if (!(value instanceof File)) {
+                    meta[key] = value;
+                }
+            });
+
+            // CRITICAL FIX: Save the WordPress-specific data to the submission item
+            // so it persists in the offline queue and can be used by processQueue().
+            const wordpressData = {
+                action: starmusFormData?.action,
+                nonce: starmusFormData?.nonce,
+            };
 
             const submissionItem = {
                 id: audioIdField.value,
                 meta: meta,
+                wordpressData: wordpressData, // Save it here!
                 audio: audioFileInput.files[0],
                 ajaxUrl: starmusFormData?.ajax_url || '/wp-admin/admin-ajax.php',
                 audioField: audioFileInput.name,
                 uploadedBytes: 0
             };
 
-            if (isDebugMode) console.log(logPrefix, '--- Submission Data ---', submissionItem);
+            if (CONFIG.DEBUG_MODE) {
+                console.log(CONFIG.LOG_PREFIX, '--- Submission Data ---', submissionItem);
+            }
 
             const success = await uploadSubmission(submissionItem);
 
@@ -325,15 +379,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (success) {
                 _updateStatus('Successfully submitted!', 'success');
                 formElement.reset();
-                StarmusAudioRecorder?.cleanup();
+                if (typeof StarmusAudioRecorder?.cleanup === 'function') {
+                    StarmusAudioRecorder.cleanup(formInstanceId);
+                }
                 if (typeof window.onStarmusSubmitSuccess === 'function') {
                     window.onStarmusSubmitSuccess(formInstanceId, { message: 'Success' });
                 }
             } else {
                 _updateStatus('Connection issue. Your recording has been saved and will be uploaded automatically when you are back online.', 'info', true, true);
                 formElement.reset();
-                StarmusAudioRecorder?.cleanup();
-                updateQueueUI();
+                if (typeof StarmusAudioRecorder?.cleanup === 'function') {
+                    StarmusAudioRecorder.cleanup(formInstanceId);
+                }
+                await updateQueueUI();
             }
         });
     });
