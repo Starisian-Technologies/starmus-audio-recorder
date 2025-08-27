@@ -85,7 +85,10 @@ function createButtonStateEnforcer(buttonElement, stateObject, permissionKey, lo
  * Encapsulates all functionality for the audio recorder to prevent global namespace pollution.
  * @namespace StarmusAudioRecorder
  */
-const StarmusAudioRecorder = (function () {
+// LINTING FIX: Attach the module directly to the window object.
+// This explicitly declares it as a global for other scripts to use,
+// resolving both the 'no-redeclare' and 'no-unused-vars' linting errors.
+window.StarmusAudioRecorder = (function () {
     "use strict";
 
     // --- Module Configuration & State ---
@@ -115,6 +118,7 @@ const StarmusAudioRecorder = (function () {
     let isRecording = false;
     let isPaused = false;
     let accumulatedElapsedTime = 0;
+    let timerInterval = null;
 
     // --- Private Helper Functions ---
     /**
@@ -149,7 +153,13 @@ const StarmusAudioRecorder = (function () {
             dom[key] = document.getElementById(elementIds[key]);
         });
 
-        return dom.container && dom.recordButton && dom.pauseButton && dom.timerDisplay && dom.audioPlayer && dom.statusDisplay;
+        // Check for essential elements that must exist for the module to function.
+        const essentialElements = [dom.container, dom.recordButton, dom.pauseButton, dom.uuidField, dom.fileInput];
+        if (essentialElements.some(el => !el)) {
+            _error('One or more essential UI elements are missing from the DOM.');
+            return false;
+        }
+        return true;
     }
     
     function _formatTime(ms) {
@@ -159,11 +169,13 @@ const StarmusAudioRecorder = (function () {
         return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
     }
 
-    function _updateStatus(msg) {
+    function _updateStatus(msg, type = 'info') {
         if (dom.statusDisplay && typeof msg === 'string') {
-            const sanitizedMsg = String(msg).replace(/[<>"'&\r\n]/g, char => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', '&': '&amp;', '\r': ' ', '\n': ' ' }[char] || char));
-            const span = dom.statusDisplay.querySelector(".sparxstar_status__text") || dom.statusDisplay;
-            span.textContent = sanitizedMsg;
+            const textSpan = dom.statusDisplay.querySelector(".sparxstar_status__text");
+            if (textSpan) {
+                textSpan.textContent = msg;
+            }
+            dom.statusDisplay.className = `sparxstar_status ${type}`;
             dom.statusDisplay.classList.remove("sparxstar_visually_hidden");
         }
     }
@@ -171,13 +183,14 @@ const StarmusAudioRecorder = (function () {
     function _generateUniqueAudioId() {
         try {
             if (crypto && crypto.randomUUID) return crypto.randomUUID();
+            // Fallback for environments without randomUUID but with getRandomValues
             if (crypto && crypto.getRandomValues) {
                 const buffer = new Uint8Array(16);
                 crypto.getRandomValues(buffer);
-                buffer[6] = (buffer[6] & 0x0f) | 0x40;
-                buffer[8] = (buffer[8] & 0x3f) | 0x80;
-                const U = i => buffer[i].toString(16).padStart(2, "0");
-                return `${U(0)}${U(1)}${U(2)}${U(3)}-${U(4)}${U(5)}-${U(6)}${U(7)}-${U(8)}${U(9)}-${U(10)}${U(11)}${U(12)}${U(13)}${U(14)}${U(15)}`;
+                buffer[6] = (buffer[6] & 0x0f) | 0x40; // Version 4
+                buffer[8] = (buffer[8] & 0x3f) | 0x80; // Variant
+                const hex = Array.from(buffer, byte => byte.toString(16).padStart(2, '0'));
+                return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10).join('')}`;
             }
         } catch (error) {
             _error("Crypto API failed during UUID generation, falling back.", error);
@@ -199,11 +212,10 @@ const StarmusAudioRecorder = (function () {
      */
     function _attachAudioToForm(audioBlob, fileType) {
         const generatedAudioID = _generateUniqueAudioId();
-        const fileName = `audio_${generatedAudioID}.${fileType}`;
+        const fileName = `recording_${generatedAudioID}.${fileType}`;
         _log(`Attaching audio to form with filename: ${fileName}`);
 
         if (dom.uuidField) dom.uuidField.value = generatedAudioID;
-        if (!dom.fileInput) return _warn("File input not found. Cannot attach audio to form.");
 
         try {
             const dataTransfer = new DataTransfer();
@@ -217,7 +229,7 @@ const StarmusAudioRecorder = (function () {
             }
         } catch (e) {
             _error("Failed to attach file using DataTransfer API.", e);
-            _updateStatus("Error attaching file. Your browser may not be supported.");
+            _updateStatus("Error attaching file. Your browser may not be supported.", "error");
         }
 
         const event = new CustomEvent("starmusAudioReady", { detail: { audioId: generatedAudioID, fileName, durationMs: accumulatedElapsedTime } });
@@ -231,6 +243,10 @@ const StarmusAudioRecorder = (function () {
      * @private
      */
     function _handleRecordingReady() {
+        clearInterval(timerInterval);
+        accumulatedElapsedTime = 0;
+        if (dom.timerDisplay) dom.timerDisplay.textContent = "00:00";
+
         if (dom.recordButton) {
             dom.recordButton.disabled = !["granted", "prompt"].includes(internalState.micPermission);
             dom.recordButton.textContent = "Record";
@@ -264,9 +280,10 @@ const StarmusAudioRecorder = (function () {
      */
     function _handleStop() {
         _log("handleStop called. Finalizing recording.");
+        clearInterval(timerInterval);
         if (!mediaRecorder || audioChunks.length === 0) {
-            _updateStatus("Recording stopped, no audio captured.");
-            publicMethods.cleanup();
+            _updateStatus("Recording stopped, but no audio was captured.", "info");
+            publicMethods.cleanup(config.formInstanceId); // Pass instanceId to cleanup
             return;
         }
 
@@ -276,9 +293,6 @@ const StarmusAudioRecorder = (function () {
         const audioUrl = URL.createObjectURL(audioBlob);
 
         if (dom.audioPlayer) {
-            if (dom.audioPlayer.src && dom.audioPlayer.src.startsWith("blob:")) {
-                URL.revokeObjectURL(dom.audioPlayer.src);
-            }
             dom.audioPlayer.src = audioUrl;
             dom.audioPlayer.controls = true;
             dom.audioPlayer.classList.remove("sparxstar_visually_hidden");
@@ -287,7 +301,7 @@ const StarmusAudioRecorder = (function () {
         _attachAudioToForm(audioBlob, fileType);
         isRecording = false;
         isPaused = false;
-        if (dom.recordButton) dom.recordButton.disabled = !["granted", "prompt"].includes(internalState.micPermission);
+        if (dom.recordButton) dom.recordButton.disabled = false;
         if (dom.pauseButton) dom.pauseButton.disabled = true;
         if (dom.deleteButton) {
             dom.deleteButton.disabled = false;
@@ -309,35 +323,31 @@ const StarmusAudioRecorder = (function () {
          * @public
          */
         init: async function (userConfig = {}) {
-            _log("Initializing recorder module...");
             Object.assign(config, userConfig);
-            if (!config.formInstanceId) return _error("`formInstanceId` is missing in config. Initialization failed."), false;
-            if (!_cacheDomElements()) return _error("One or more essential UI elements are missing. Cannot initialize."), false;
+            if (!config.formInstanceId) {
+                _error("`formInstanceId` is missing in config. Initialization failed.");
+                return false;
+            }
+            _log(`Initializing recorder module for instance: ${config.formInstanceId}`);
+            if (!_cacheDomElements()) {
+                _error("One or more essential UI elements are missing. Cannot initialize.");
+                return false;
+            }
             this.setupEventListeners();
             return this.setupPermissionsAndUI();
         },
 
-        /**
-         * Sets up or removes event listeners for the UI controls.
-         * @param {boolean} [remove=false] - If true, removes the event listeners instead of adding them.
-         * @public
-         */
         setupEventListeners: function (remove = false) {
             if (!dom.recordButton || !dom.pauseButton || !dom.deleteButton) return;
             eventHandlers.recordClick = eventHandlers.recordClick || (() => isRecording ? this.stop() : this.start());
             eventHandlers.pauseClick = eventHandlers.pauseClick || (() => isRecording && (isPaused ? this.resume() : this.pause()));
-            eventHandlers.deleteClick = eventHandlers.deleteClick || (() => this.cleanup());
+            eventHandlers.deleteClick = eventHandlers.deleteClick || (() => this.cleanup(config.formInstanceId));
             const action = remove ? 'removeEventListener' : 'addEventListener';
             dom.recordButton[action]('click', eventHandlers.recordClick);
             dom.pauseButton[action]('click', eventHandlers.pauseClick);
             dom.deleteButton[action]('click', eventHandlers.deleteClick);
         },
 
-        /**
-         * Queries for microphone permissions using the Permissions API and sets up the UI accordingly.
-         * @returns {Promise<boolean>} A promise that resolves to true on success.
-         * @public
-         */
         setupPermissionsAndUI: async function () {
             _handleRecordingReady();
             if (!navigator.permissions?.query) {
@@ -366,14 +376,13 @@ const StarmusAudioRecorder = (function () {
             }
         },
         
-        /**
-         * Starts the audio recording process. Requests microphone access if needed.
-         * @returns {Promise<void>}
-         * @public
-         */
         start: async function () {
+            if (isRecording) return;
             _log("start() called.");
-            if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) return _updateStatus("Audio recording is not supported on your browser.");
+            if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+                _updateStatus("Audio recording is not supported on your browser.", "error");
+                return;
+            }
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 currentStream = stream;
@@ -382,60 +391,64 @@ const StarmusAudioRecorder = (function () {
                 mediaRecorder = new MediaRecorder(stream, { mimeType: selectedMimeType });
                 mediaRecorder.ondataavailable = _handleDataAvailable;
                 mediaRecorder.onstop = _handleStop;
-                mediaRecorder.start();
+                mediaRecorder.start(1000); // Trigger dataavailable event every second
+                
+                const startTime = Date.now();
+                timerInterval = setInterval(() => {
+                    accumulatedElapsedTime = Date.now() - startTime;
+                    if (dom.timerDisplay) dom.timerDisplay.textContent = _formatTime(accumulatedElapsedTime);
+                }, 1000);
+
                 isRecording = true;
                 isPaused = false;
                 if (dom.recordButton) dom.recordButton.textContent = "Stop";
                 if (dom.pauseButton) dom.pauseButton.disabled = false;
-                _updateStatus("Recording...");
+                _updateStatus("Recording...", "info");
             } catch (error) {
-                _error("getUserMedia error:", error.name);
-                _updateStatus(error.name === "NotAllowedError" ? "Microphone permission denied." : "No microphone found.");
+                _error("getUserMedia error:", error.name, error.message);
+                const message = error.name === "NotAllowedError" ? "Microphone permission denied." : "Could not find a microphone.";
+                _updateStatus(message, "error");
             }
         },
         
-        /**
-         * Stops the current recording and triggers the processing of the captured audio.
-         * @public
-         */
         stop: function () {
-            if (isRecording && mediaRecorder?.state !== "inactive") mediaRecorder.stop();
+            if (isRecording && mediaRecorder?.state !== "inactive") {
+                mediaRecorder.stop();
+            }
         },
 
-        /**
-         * Pauses the current recording.
-         * @public
-         */
         pause: function () {
             if (isRecording && !isPaused && mediaRecorder?.state === "recording") {
                 mediaRecorder.pause();
+                clearInterval(timerInterval);
                 isPaused = true;
                 if (dom.pauseButton) dom.pauseButton.textContent = "Resume";
-                _updateStatus("Recording paused.");
+                _updateStatus("Recording paused.", "info");
             }
         },
 
-        /**
-         * Resumes a paused recording.
-         * @public
-         */
         resume: function () {
             if (isRecording && isPaused && mediaRecorder?.state === "paused") {
                 mediaRecorder.resume();
+                const resumeTime = Date.now();
+                timerInterval = setInterval(() => {
+                    const elapsedSinceResume = Date.now() - resumeTime;
+                    if (dom.timerDisplay) dom.timerDisplay.textContent = _formatTime(accumulatedElapsedTime + elapsedSinceResume);
+                }, 1000);
+
                 isPaused = false;
                 if (dom.pauseButton) dom.pauseButton.textContent = "Pause";
-                _updateStatus("Recording resumed.");
+                _updateStatus("Recording resumed.", "info");
             }
         },
 
-        /**
-         * Resets the recorder to its initial state, deleting any captured audio.
-         * @public
-         */
-        cleanup: function () {
-             _log("Cleanup called.");
+        cleanup: function (instanceId) {
+             _log(`Cleanup called for instance: ${instanceId}`);
              if (isRecording) this.stop();
-             if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+             if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+             }
              audioChunks = [];
              isRecording = false;
              isPaused = false;
@@ -444,32 +457,19 @@ const StarmusAudioRecorder = (function () {
              if (dom.fileInput) dom.fileInput.value = "";
         },
 
-        /**
-         * Completely tears down the module instance, removing event listeners and cleaning up resources.
-         * @public
-         */
         destroy: function () {
             _log("Destroying recorder instance.");
-            this.cleanup();
+            this.cleanup(config.formInstanceId);
             this.setupEventListeners(true);
-            if (dom.audioPlayer?.src.startsWith("blob:")) URL.revokeObjectURL(dom.audioPlayer.src);
             recordButtonEnforcer?.disconnect();
             recordButtonEnforcer = null;
             dom = {};
         },
 
-        /**
-         * Gets the unique ID of the last recorded audio file.
-         * @returns {string|null} The audio UUID or null if not set.
-         * @public
-         */
         getAudioId: function () {
             return dom.uuidField ? dom.uuidField.value : null;
         },
     };
-
-    window.addEventListener("offline", () => isRecording && (_updateStatus("Network offline. Recording paused."), publicMethods.pause()));
-    window.addEventListener("online", () => audioChunks.length > 0 && _updateStatus("Network restored. You can now submit your recording."));
 
     return publicMethods;
 })();
