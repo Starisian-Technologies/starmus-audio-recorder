@@ -14,7 +14,6 @@ use Throwable; // Catch both Exceptions and Errors (PHP 7+) for maximum robustne
 
 /**
  * Main plugin class. Initializes hooks and manages plugin components.
- * Adheres to a singleton pattern to ensure it is only loaded once.
  */
 final class StarmusPlugin
 {
@@ -26,27 +25,16 @@ final class StarmusPlugin
     private static ?StarmusPlugin $instance = null;
     private array $compatibility_messages = [];
     private array $runtime_errors = [];
-
-    /**
-     * @var array<string, object> Holds instantiated component objects for potential later use or unhooking.
-     */
     private array $components = [];
 
     /**
-     * Private constructor to enforce the singleton pattern.
-     * It should only set up the most essential hooks.
+     * Private constructor. Hooks into WordPress.
      */
     private function __construct()
     {
-        add_action('plugins_loaded', [$this, 'load_textdomain']);
-
-        if ($this->check_compatibility()) {
-            // Defer all major logic to the 'init' hook to ensure the WordPress environment is ready.
-            add_action('init', [$this, 'init']);
-        } else {
-            // If incompatible, only register the notice.
-            add_action('admin_notices', [$this, 'display_compatibility_notice']);
-        }
+        // Use 'plugins_loaded' to run the initial setup.
+        // This is safer than running logic directly in the constructor.
+        add_action('plugins_loaded', [$this, 'bootstrap']);
     }
 
     /**
@@ -61,121 +49,93 @@ final class StarmusPlugin
     }
 
     /**
-     * Wires up all plugin components.
-     * This runs on the 'init' hook, ensuring user capabilities and roles are available.
+     * Bootstraps the plugin: checks compatibility and hooks the main init function.
+     * This is an INSTANCE method, so it can safely use $this.
+     */
+    public function bootstrap(): void
+    {
+        $this->load_textdomain();
+
+        if ($this->check_compatibility()) {
+            // If compatible, hook the main initialization.
+            add_action('init', [$this, 'init']);
+        } else {
+            // If not compatible, show an admin notice.
+            add_action('admin_notices', [$this, 'display_compatibility_notice']);
+        }
+    }
+
+    /**
+     * Wires up all plugin components. Runs on 'init'.
      */
     public function init(): void
     {
-        // Because the CPT file is procedural, we load it here to ensure
-        // its hooks are registered at the correct time.
+        // Load the procedural CPT file.
         require_once STARMUS_PATH . 'src/includes/StarmusCustomPostType.php';
-        // initialize classes
+        
         $this->instantiate_components();
         add_action('admin_notices', [$this, 'display_runtime_error_notice']);
     }
 
-    /**
-     * Instantiates all necessary plugin components in the correct order and at the right time.
-     */
     private function instantiate_components(): void
     {
         if (is_admin()) {
             $this->instantiate_component(StarmusAdmin::class);
         }
 
-        // Always instantiate frontend UI classes to ensure shortcodes are registered
-        // The classes themselves handle permission checks in their methods
         $this->instantiate_component(StarmusAudioEditorUI::class);
         $this->instantiate_component(StarmusAudioRecorderUI::class);
     }
 
-    /**
-     * Safely instantiates a component class, handles errors, and stores the instance.
-     *
-     * @param string $class_name The fully qualified name of the class to instantiate.
-     */
-    private function instantiate_component(string $class_name): void
-    {
-        // Don't re-instantiate if it already exists.
-        if (isset($this->components[$class_name])) {
-            return;
-        }
-
-        try {
-            // The PSR-4 autoloader should handle class availability.
-            $instance = new $class_name();
-            $this->components[$class_name] = $instance; // Store the instance.
-
-        } catch (Throwable $e) {
-            $error_message = sprintf(
-                'Starmus Plugin: Runtime error while instantiating %s. Message: "%s"',
-                $class_name,
-                $e->getMessage()
-            );
-
-            // Log the error. error_log() respects WP_DEBUG_LOG.
-            error_log($error_message);
-
-            // Trigger a warning for developers if WP_DEBUG is on.
-            // Do not escape HTML here; error logs should contain raw data.
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                trigger_error($error_message, E_USER_WARNING);
-            }
-
-            $this->runtime_errors[] = $error_message;
-        }
-    }
-
-    /**
-     * Displays captured runtime errors as persistent admin notices.
-     */
-    public function display_runtime_error_notice(): void
-    {
-        if (empty($this->runtime_errors) || !current_user_can('manage_options')) {
-            return;
-        }
-        $unique_errors = array_unique($this->runtime_errors);
-        foreach ($unique_errors as $message) {
-            echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus Audio Recorder Plugin Error:</strong><br>' . esc_html($message) . '</p></div>';
-        }
-    }
-
-    /**
-     * Loads the plugin text domain for internationalization.
-     */
-    public function load_textdomain(): void
-    {
-        load_plugin_textdomain('starmus_audio_recorder', false, dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/');
-    }
-
-    // --- Plugin Lifecycle Methods (Called statically from the bootstrap file) ---
-
+    // --- Plugin Activation Hook (STATIC METHOD) ---
+    // This is called directly by WordPress and CANNOT use $this.
     public static function activate(): void
     {
-        // On activation, directly load the CPT class to ensure the post type is registered.
+        // Load the CPT file to ensure the post type is available for flushing.
         require_once STARMUS_PATH . 'src/includes/StarmusCustomPostType.php';
-
+        
         self::add_custom_capabilities();
-        flush_rewrite_rules(); // Flush rules after CPT and capabilities are correctly defined.
-    }
-
-    public static function deactivate(): void
-    {
         flush_rewrite_rules();
     }
 
-    private static function add_custom_capabilities(): void
-    {
-        $roles_to_modify = [
-            'editor'                => [self::CAP_EDIT_AUDIO, self::CAP_RECORD_AUDIO],
-            'administrator'         => [self::CAP_EDIT_AUDIO, self::CAP_RECORD_AUDIO],
-            'contributor'           => [self::CAP_RECORD_AUDIO],
-            'community_contributor' => [self::CAP_RECORD_AUDIO], // Custom role example
-        ];
+    // --- (The rest of the file is correct and can remain as it was) ---
+    
+    public static function deactivate(): void { flush_rewrite_rules(); }
+    public static function starmus_run(): void { self::get_instance(); }
 
+    private function instantiate_component(string $class_name): void {
+        if (isset($this->components[$class_name])) { return; }
+        try {
+            $instance = new $class_name();
+            $this->components[$class_name] = $instance;
+        } catch (Throwable $e) {
+            $error_message = sprintf('Starmus Plugin: Runtime error while instantiating %s. Message: "%s"', $class_name, $e->getMessage());
+            error_log($error_message);
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                trigger_error($error_message, E_USER_WARNING);
+            }
+            $this->runtime_errors[] = $error_message;
+        }
+    }
+    public function display_runtime_error_notice(): void {
+        if (empty($this->runtime_errors) || !current_user_can('manage_options')) { return; }
+        $unique_errors = array_unique($this->runtime_errors);
+        foreach ($unique_errors as $message) {
+            echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus Plugin Error:</strong><br>' . esc_html($message) . '</p></div>';
+        }
+    }
+    public function load_textdomain(): void {
+        load_plugin_textdomain('starmus_audio_recorder', false, dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/');
+    }
+    private static function add_custom_capabilities(): void {
+        $roles_to_modify = [
+            'editor' => [self::CAP_EDIT_AUDIO, self::CAP_RECORD_AUDIO],
+            'administrator' => [self::CAP_EDIT_AUDIO, self::CAP_RECORD_AUDIO],
+            'contributor' => [self::CAP_RECORD_AUDIO],
+            'community_contributor' => [self::CAP_RECORD_AUDIO],
+        ];
         foreach ($roles_to_modify as $role_name => $caps) {
             $role = get_role($role_name);
-            // Harden by verifying the role exists before adding capabilities.
             if ($role) {
                 foreach ($caps as $cap) {
                     $role->add_cap($cap);
@@ -183,11 +143,7 @@ final class StarmusPlugin
             }
         }
     }
-
-    // --- Compatibility Checks ---
-
-    private function check_compatibility(): bool
-    {
+    private function check_compatibility(): bool {
         if (version_compare(PHP_VERSION, self::MINIMUM_PHP_VERSION, '<')) {
             $this->compatibility_messages[] = sprintf(__('Starmus Audio Recorder requires PHP %1$s or higher. You are running %2$s.', 'starmus_audio_recorder'), self::MINIMUM_PHP_VERSION, PHP_VERSION);
         }
@@ -196,25 +152,12 @@ final class StarmusPlugin
         }
         return empty($this->compatibility_messages);
     }
-
-    public function display_compatibility_notice(): void
-    {
+    public function display_compatibility_notice(): void {
         if (!current_user_can('activate_plugins')) { return; }
         foreach ($this->compatibility_messages as $message) {
             echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($message) . '</p></div>';
         }
     }
-
-    /**
-     * Public static method to run the plugin. This is the main entry point.
-     */
-    public static function starmus_run(): void
-    {
-        self::get_instance();
-    }
-
-    // --- Singleton Prevention ---
-
     public function __clone() { throw new \Exception('Cloning of ' . __CLASS__ . ' is not allowed.'); }
     public function __wakeup() { throw new \Exception('Unserializing of ' . __CLASS__ . ' is not allowed.'); }
 }
