@@ -46,7 +46,7 @@ jobs:
         run: ./vendor/bin/phpcbf
 
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0
         with:
           commit_message: "Fix PHP coding standards"
           branch: ${{ github.head_ref }}
