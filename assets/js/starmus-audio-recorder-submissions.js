@@ -142,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(CONFIG.DB_NAME, JSON.stringify(list.filter(i => i.id !== id)));
     }
 
+    // --- REFACTORED: UPLOAD LOGIC TO USE REST API ---
     async function uploadSubmission(item, formInstanceId) {
         let offset = item.uploadedBytes || 0;
 
@@ -155,31 +156,40 @@ document.addEventListener('DOMContentLoaded', () => {
             const chunk = item.audio.slice(offset, offset + CONFIG.CHUNK_SIZE);
             const fd = new FormData();
             
-            Object.keys(item.wordpressData).forEach(key => fd.append(key, item.wordpressData[key]));
+            // Append metadata and other form fields
             Object.keys(item.meta).forEach(key => fd.append(key, item.meta[key]));
             
+            // Append the audio chunk itself
             fd.append(item.audioField, chunk, item.meta.fileName || 'audio.webm');
             fd.append('chunk_offset', offset);
             fd.append('total_size', item.audio.size);
 
             try {
-                const response = await fetch(item.ajaxUrl, { method: 'POST', body: fd });
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => null);
-                    throw new Error(errorData?.data?.message || `Server responded with status ${response.status}`);
-                }
-                const data = await response.json();
-                if (!data.success) {
-                    throw new Error(data?.data?.message || 'Server returned a failure response.');
-                }
+                // CHANGE: Use rest_url and add the X-WP-Nonce header for authentication.
+                const response = await fetch(item.restUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-WP-Nonce': starmusFormData.rest_nonce
+                    },
+                    body: fd
+                });
                 
+                // The new REST API returns structured errors, which we can parse.
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Could not parse error response.' }));
+                    throw new Error(errorData.message || `Server responded with status ${response.status}`);
+                }
+
+                const data = await response.json();
+
                 offset += chunk.size;
                 if (CONFIG.DEBUG_MODE) console.log(CONFIG.LOG_PREFIX, `Chunk uploaded. Progress: ${offset}/${item.audio.size}`);
 
-                // If this is the last chunk, the response may contain the redirect URL
+                // If this is the last chunk, the response contains the final payload.
                 if (offset >= item.audio.size) {
                     await deleteItem(item.id);
-                    return { success: true, queued: false, redirectUrl: data.data?.redirect_url };
+                    // CHANGE: The redirect_url is now at the top level of the JSON response.
+                    return { success: true, queued: false, redirectUrl: data?.redirect_url };
                 }
 
             } catch (err) {
@@ -254,7 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return console.error(CONFIG.LOG_PREFIX, `Form element not found for instance ID: ${formInstanceId}.`);
         }
 
-        // --- NEW: Two-Step Form & Geolocation Logic ---
         const step1 = formElement.querySelector(`#starmus_step_1_${formInstanceId}`);
         const step2 = formElement.querySelector(`#starmus_step_2_${formInstanceId}`);
         const continueBtn = formElement.querySelector(`#starmus_continue_btn_${formInstanceId}`);
@@ -263,7 +272,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(CONFIG.LOG_PREFIX, 'Multi-step form elements are missing. Defaulting to show recorder.');
             if (step1) step1.style.display = 'none';
             if (step2) step2.style.display = 'block';
-            // Initialize recorder directly as a fallback
             initializeRecorder(formInstanceId); 
             return;
         }
@@ -347,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- Original Submit Handler ---
+        // --- REFACTORED: SUBMIT HANDLER ---
         formElement.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -369,30 +377,31 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.forEach((value, key) => {
                 if (!(value instanceof File)) meta[key] = value;
             });
-
-            const wordpressData = {
-                action: starmusFormData?.action,
-                nonce: starmusFormData?.nonce,
-            };
-
+            
+            // CHANGE: Simplified submission item. No need for wordpressData (action/nonce) in the body.
             const submissionItem = {
                 id: audioIdField.value,
-                meta,
-                wordpressData,
+                meta, // Contains all form fields, which will be sent in the body.
                 audio: audioFileInput.files[0],
-                ajaxUrl: starmusFormData?.ajax_url || '/wp-admin/admin-ajax.php',
+                restUrl: starmusFormData?.rest_url, // Use the new REST URL from wp_localize_script
                 audioField: audioFileInput.name,
                 uploadedBytes: 0
             };
 
             if (CONFIG.DEBUG_MODE) console.log(CONFIG.LOG_PREFIX, '--- Submission Data ---', submissionItem);
 
+            if (!submissionItem.restUrl) {
+                alert('Error: The submission endpoint is not configured. Please contact support.');
+                if (submitButton) submitButton.disabled = false;
+                if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden');
+                return;
+            }
+
             const result = await uploadSubmission(submissionItem, formInstanceId);
 
             if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden');
 
             if (result.success) {
-                // Check for a redirect URL from the final successful chunk upload
                 if (result.redirectUrl) {
                     window.location.href = result.redirectUrl;
                 } else {
@@ -410,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 await updateQueueUI();
             } else {
-                alert('An unknown error occurred during upload.');
+                alert('An unknown error occurred during upload. Please try again.');
                 if (submitButton) submitButton.disabled = false;
             }
         });
