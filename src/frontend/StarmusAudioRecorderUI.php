@@ -13,7 +13,7 @@ use Starmus\includes\StarmusSettings;
 use WP_Query;
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if (!defined('ABSPATH')) {
     exit;
 }
 
@@ -36,7 +36,7 @@ class StarmusAudioRecorderUI
      */
     public function render_my_recordings_shortcode($atts = []): string
     {
-        if (! is_user_logged_in()) {
+        if (!is_user_logged_in()) {
             return '<p>' . esc_html__('You must be logged in to view your recordings.', 'starmus_audio_recorder') . '</p>';
         }
 
@@ -84,7 +84,7 @@ class StarmusAudioRecorderUI
     public function enqueue_scripts(): void
     {
         global $post;
-        if (!is_a($post, 'WP_Post') || ! is_singular()) {
+        if (!is_a($post, 'WP_Post') || !is_singular()) {
             return;
         }
 
@@ -124,11 +124,11 @@ class StarmusAudioRecorderUI
         $total_size = isset($_POST['total_size']) ? absint($_POST['total_size']) : 0;
         $file_chunk = $_FILES['audio_file'] ?? null;
         $file_name = isset($_POST['fileName']) ? sanitize_file_name($_POST['fileName']) : 'audio-submission.webm';
-        
+
         if (empty($uuid) || !$file_chunk || $file_chunk['error'] !== UPLOAD_ERR_OK) {
-             wp_send_json_error(['message' => esc_html__('Invalid request: Missing required data.', 'starmus_audio_recorder')], 400);
+            wp_send_json_error(['message' => esc_html__('Invalid request: Missing required data.', 'starmus_audio_recorder')], 400);
         }
-        
+
         // 2. Prepare Temporary Storage and Append Chunk
         $temp_dir = trailingslashit(wp_get_upload_dir()['basedir']) . 'starmus-temp';
         if (!file_exists($temp_dir)) {
@@ -147,7 +147,8 @@ class StarmusAudioRecorderUI
 
         // 4. Handle Final Chunk: Finalize the post and media
         if (($offset + $file_chunk['size']) >= $total_size) {
-            $this->finalize_submission($uuid, $file_name, $temp_file_path);
+            // Pass $_POST to finalize_submission to make it available for hooks
+            $this->finalize_submission($uuid, $file_name, $temp_file_path, $_POST);
         }
 
         // For all intermediate chunks, just acknowledge success
@@ -159,8 +160,8 @@ class StarmusAudioRecorderUI
      */
     private function create_draft_post_from_upload_data(string $uuid, int $total_size, string $file_name, array $form_data): void
     {
-        $post_title = !empty($form_data['audio_title']) 
-            ? sanitize_text_field($form_data['audio_title']) 
+        $post_title = !empty($form_data['audio_title'])
+            ? sanitize_text_field($form_data['audio_title'])
             : sanitize_text_field(pathinfo($file_name, PATHINFO_FILENAME));
 
         $meta_input = [
@@ -180,14 +181,14 @@ class StarmusAudioRecorderUI
             'post_author'  => get_current_user_id(),
             'meta_input'   => $meta_input,
         ];
-        
+
         wp_insert_post($post_data);
     }
 
     /**
      * Finalizes the submission after the last chunk is received.
      */
-    private function finalize_submission(string $uuid, string $file_name, string $temp_file_path): void
+    private function finalize_submission(string $uuid, string $file_name, string $temp_file_path, array $form_data): void
     {
         $post = $this->find_post_by_uuid($uuid);
         if (!$post) {
@@ -231,11 +232,35 @@ class StarmusAudioRecorderUI
         ]);
         update_post_meta($post->ID, '_audio_attachment_id', $attachment_id);
 
-        wp_send_json_success([
-            'message' => esc_html__('Submission complete!', 'starmus_audio_recorder'),
-            'post_id'   => $post->ID,
+        /**
+         * === ACTION HOOK FOR EXTENSIBILITY ===
+         * Fires after an audio recording has been successfully uploaded and processed.
+         *
+         * @param int    $post_id         The ID of the newly created post (audio recording).
+         * @param int    $attachment_id   The ID of the attachment representing the audio file.
+         * @param array  $form_data       All form data submitted with the audio recording (the $_POST array).
+         * @param string $final_filepath  The absolute server path to the final audio file.
+         */
+        do_action('starmus_audio_recorder_after_upload', $post->ID, $attachment_id, $form_data, $final_filepath);
+
+
+        /**
+         * === FILTER HOOK FOR EXTENSIBILITY ===
+         * Allows modification of the success data sent back to the client.
+         * Useful for adding a custom redirect URL or other data.
+         *
+         * @param array  $response_data   The default success response data.
+         * @param int    $post_id         The ID of the newly created post.
+         * @param int    $attachment_id   The ID of the attachment.
+         * @param array  $form_data       All form data submitted with the audio recording.
+         */
+        $response_data = apply_filters('starmus_audio_recorder_success_response', [
+            'message'            => esc_html__('Submission complete!', 'starmus_audio_recorder'),
+            'post_id'            => $post->ID,
             'waveform_generated' => $waveform_generated,
-        ]);
+        ], $post->ID, $attachment_id, $form_data);
+
+        wp_send_json_success($response_data);
     }
 
     /**
