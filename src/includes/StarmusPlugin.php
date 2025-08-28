@@ -11,8 +11,7 @@ namespace Starmus\includes;
 use Starmus\admin\StarmusAdmin;
 use Starmus\frontend\StarmusAudioEditorUI;
 use Starmus\frontend\StarmusAudioRecorderUI;
-use Starmus\includes\StarmusSettings;
-use Exception; // It's good practice to explicitly use common exceptions.
+use Exception; // Use the base Exception class for catching.
 
 /**
  * Summary of StarmusPlugin
@@ -23,9 +22,6 @@ final class StarmusPlugin
 {
     public const MINIMUM_PHP_VERSION = '8.2';
     public const MINIMUM_WP_VERSION = '6.4';
-
-    // Define custom capabilities for better control over who can use the UI components.
-    // It's good to define these as constants for consistency.
     public const CAP_EDIT_AUDIO = 'starmus_edit_audio';
     public const CAP_RECORD_AUDIO = 'starmus_record_audio';
 
@@ -33,31 +29,25 @@ final class StarmusPlugin
     private array $compatibility_messages = [];
 
     /**
+     * @var array Stores runtime error messages to be displayed in an admin notice.
+     */
+    private array $runtime_errors = [];
+
+    /**
      * Private constructor to enforce the singleton pattern.
      */
     private function __construct()
     {
-        // Load the plugin text domain as early as possible.
-        // `plugins_loaded` is often a better hook than `init` for textdomain,
-        // as it's fired earlier and ensures translations are available for all hooks.
         add_action('plugins_loaded', [$this, 'load_textdomain']);
 
         if (!$this->check_compatibility()) {
             add_action('admin_notices', [$this, 'display_compatibility_notice']);
-            // If incompatible, prevent further plugin initialization.
             return;
         }
 
-        // Use plugins_loaded for the main initialization to ensure all other plugins are ready.
-        // This is generally safer than 'init' for plugin-level setup.
-        add_action('plugins_loaded', [$this, 'starmus_init']);
-
-        // Register activation/deactivation/uninstall hooks if not done in the main plugin file.
-        // It's generally best to register these outside the class in the main plugin file.
-        // If registering here, ensure it's done only once.
-        // register_activation_hook(STARMUS_MAIN_FILE, [__CLASS__, 'activate']);
-        // register_deactivation_hook(STARMUS_MAIN_FILE, [__CLASS__, 'deactivate']);
-        // register_uninstall_hook(STARMUS_MAIN_FILE, [__CLASS__, 'uninstall']);
+        // Hook the main initialization and the error notice display.
+        add_action('plugins_loaded', [$this, 'init']);
+        add_action('admin_notices', [$this, 'display_runtime_error_notice']);
     }
 
     /**
@@ -72,12 +62,12 @@ final class StarmusPlugin
     }
 
     /**
-     * Loads the plugin text domain.
+     * Loads the plugin text domain for internationalization.
      */
     public function load_textdomain(): void
     {
         load_plugin_textdomain(
-            'starmus_audio_recorder', // Your text domain
+            'starmus_audio_recorder',
             false,
             dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/'
         );
@@ -85,103 +75,104 @@ final class StarmusPlugin
 
     /**
      * Initializes all plugin features.
-     * This method is now much cleaner and delegates to specific private methods.
      */
-    public function starmus_init(): void
+    public function init(): void
     {
-        $this->load_custom_post_type();
-        $this->initialize_admin_components();
-        $this->initialize_frontend_user_interfaces();
-        // You might also register settings, widgets, shortcodes here, e.g.:
-        // new StarmusSettings(); // If StarmusSettings handles its own hooks.
+        $this->load_and_instantiate_components();
     }
 
     /**
-     * Loads the Custom Post Type file and instantiates its class.
+     * Loads component files and safely instantiates their classes.
      */
-    private function load_custom_post_type(): void
+    private function load_and_instantiate_components(): void
     {
+        // --- Critical Components ---
+        // The Custom Post Type is essential and should always be loaded.
         $cpt_file = STARMUS_PATH . 'src/includes/StarmusCustomPostType.php';
-
-        if (!file_exists($cpt_file)) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Starmus: StarmusCustomPostType.php file is missing.');
-            }
-            // If CPT is critical, consider deactivating plugin or stopping further execution.
-            return;
+        if (file_exists($cpt_file)) {
+            require_once $cpt_file;
+            $this->instantiate_component(\Starmus\includes\StarmusCustomPostType::class);
+        } elseif (defined('WP_DEBUG') && WP_DEBUG) {
+            trigger_error('Starmus Plugin Critical Error: StarmusCustomPostType.php file is missing.', E_USER_WARNING);
         }
-        require_once $cpt_file;
 
-        // Assuming StarmusCustomPostType class exists and its constructor registers hooks.
-        if (class_exists('Starmus\includes\StarmusCustomPostType')) {
-            new \Starmus\includes\StarmusCustomPostType();
-        } else {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Starmus: StarmusCustomPostType class not found after inclusion.');
-            }
-        }
-    }
-
-    /**
-     * Initializes admin-specific components if in the admin area.
-     */
-    private function initialize_admin_components(): void
-    {
+        // --- Conditional Components ---
         if (is_admin()) {
-            if (class_exists(StarmusAdmin::class)) { // Use ::class for better refactoring.
-                new StarmusAdmin();
-            } else {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Starmus: StarmusAdmin class not found.');
-                }
+            $this->instantiate_component(StarmusAdmin::class);
+        }
+
+        if (is_user_logged_in()) {
+            if (current_user_can(self::CAP_EDIT_AUDIO) || current_user_can('edit_posts')) {
+                $this->instantiate_component(StarmusAudioEditorUI::class);
+            }
+
+            if (current_user_can(self::CAP_RECORD_AUDIO) || current_user_can('edit_posts') || current_user_can('contributor')) {
+                $this->instantiate_component(StarmusAudioRecorderUI::class);
             }
         }
     }
 
     /**
-     * Initializes frontend user interfaces based on user login and capabilities.
+     * Helper method to safely instantiate a class and report runtime exceptions.
+     *
+     * @param string $class_name The fully qualified name of the class to instantiate.
+     * @return bool True on success, false on failure.
      */
-    private function initialize_frontend_user_interfaces(): void
+    private function instantiate_component(string $class_name): bool
     {
-        if (!is_user_logged_in()) {
+        if (!class_exists($class_name)) {
+            $error_message = "Starmus Plugin: Cannot instantiate component because class does not exist: $class_name";
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                trigger_error(esc_html($error_message), E_USER_WARNING);
+            }
+            return false;
+        }
+
+        try {
+            // Attempt to create the component. A runtime error in the
+            // constructor will be caught below.
+            new $class_name();
+            return true;
+        } catch (Exception $e) {
+            // A runtime exception was caught. Report it.
+            $error_message = sprintf(
+                'Starmus Plugin: A runtime error occurred in the constructor of %s. Error: "%s"',
+                $class_name,
+                $e->getMessage()
+            );
+
+            // Always log the specific error.
+            error_log($error_message);
+
+            // If debugging, trigger a visible PHP warning for immediate feedback.
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                trigger_error(esc_html($error_message), E_USER_WARNING);
+            }
+
+            // Store the error to display in a persistent admin notice.
+            $this->runtime_errors[] = $error_message;
+
+            return false;
+        }
+    }
+
+    /**
+     * Displays any captured runtime errors as dismissible admin notices.
+     */
+    public function display_runtime_error_notice(): void
+    {
+        if (empty($this->runtime_errors) || !current_user_can('manage_options')) {
             return;
         }
 
-        // Define which capabilities grant access to the editor/recorder.
-        // It's often better to define a custom capability and then assign it to roles.
-        // For example, on activation, assign 'starmus_edit_audio' to 'editor' and 'administrator'.
-
-        // Check for Audio Editor UI access
-        if (current_user_can(self::CAP_EDIT_AUDIO) || current_user_can('edit_posts')) {
-            if (class_exists(StarmusAudioEditorUI::class)) {
-                new StarmusAudioEditorUI();
-            } else {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Starmus: StarmusAudioEditorUI class not found.');
-                }
-            }
-        }
-
-        // Check for Audio Recorder UI access
-        // Including 'community_contributor' explicitly as it's a plugin-specific role.
-        if (current_user_can(self::CAP_RECORD_AUDIO) ||
-            current_user_can('edit_posts') || // Broad capability for admins/editors
-            current_user_can('contributor') ||
-            current_user_can('community_contributor') // Specific plugin role
-        ) {
-            if (class_exists(StarmusAudioRecorderUI::class)) {
-                new StarmusAudioRecorderUI();
-            } else {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Starmus: StarmusAudioRecorderUI class not found.');
-                }
-            }
+        $unique_errors = array_unique($this->runtime_errors);
+        foreach ($unique_errors as $message) {
+            echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus Audio Recorder Plugin Error:</strong><br>' . esc_html($message) . '</p></div>';
         }
     }
 
     /**
-     * Public static method to run the plugin.
-     * This is the main entry point from the plugin's root file.
+     * Public static method to run the plugin. Main entry point.
      */
     public static function starmus_run(): void
     {
@@ -190,146 +181,77 @@ final class StarmusPlugin
 
     // --- Plugin Lifecycle Methods ---
 
-    /**
-     * Handles plugin activation.
-     * Registers custom capabilities and flushes rewrite rules.
-     */
     public static function activate(): void
     {
-        // Ensure CPTs are registered before flushing rewrite rules.
-        // Temporarily instantiate the CPT class here if its constructor registers post types.
-        if (class_exists('\Starmus\includes\StarmusCustomPostType')) {
-            new \Starmus\includes\StarmusCustomPostType();
-        } else {
-            // If the CPT class isn't loaded, require it here for activation.
-            // This ensures rewrite rules for the CPT are correctly generated.
-            $cpt_file = STARMUS_PATH . 'src/includes/StarmusCustomPostType.php';
-            if (file_exists($cpt_file)) {
-                require_once $cpt_file;
-                if (class_exists('\Starmus\includes\StarmusCustomPostType')) {
-                    new \Starmus\includes\StarmusCustomPostType();
+        // Ensure CPT is available for rewrite rule flushing.
+        $cpt_file = STARMUS_PATH . 'src/includes/StarmusCustomPostType.php';
+        if (file_exists($cpt_file)) {
+            require_once $cpt_file;
+            if (class_exists('\Starmus\includes\StarmusCustomPostType')) {
+                new \Starmus\includes\StarmusCustomPostType();
+            }
+        }
+        self::add_custom_capabilities();
+        flush_rewrite_rules();
+    }
+
+    public static function deactivate(): void
+    {
+        flush_rewrite_rules();
+    }
+
+    public static function uninstall(): void
+    {
+        if (!current_user_can('activate_plugins')) { return; }
+
+        if (!class_exists(StarmusSettings::class)) {
+            $file = STARMUS_PATH . 'src/includes/StarmusSettings.php';
+            if (file_exists($file)) { require_once $file; }
+        }
+
+        $cpt_slug = class_exists(StarmusSettings::class) ? StarmusSettings::get('cpt_slug', 'audio-recording') : 'audio-recording';
+
+        $posts = get_posts(['post_type' => $cpt_slug, 'numberposts' => -1, 'post_status' => 'any', 'fields' => 'ids']);
+        foreach ($posts as $post_id) {
+            wp_delete_post($post_id, true);
+        }
+
+        delete_option('starmus_settings');
+        self::remove_custom_capabilities();
+        flush_rewrite_rules();
+    }
+
+    // --- Capability Management ---
+
+    private static function add_custom_capabilities(): void
+    {
+        $roles_to_modify = [
+            'editor' => [self::CAP_EDIT_AUDIO, self::CAP_RECORD_AUDIO],
+            'administrator' => [self::CAP_EDIT_AUDIO, self::CAP_RECORD_AUDIO],
+            'contributor' => [self::CAP_RECORD_AUDIO],
+            'community_contributor' => [self::CAP_RECORD_AUDIO]
+        ];
+
+        foreach ($roles_to_modify as $role_name => $caps) {
+            $role = get_role($role_name);
+            if ($role) {
+                foreach ($caps as $cap) {
+                    $role->add_cap($cap);
                 }
             }
         }
-
-        // Add custom capabilities.
-        self::add_custom_capabilities();
-
-        flush_rewrite_rules();
     }
 
-    /**
-     * Handles plugin deactivation.
-     * Flushes rewrite rules.
-     */
-    public static function deactivate(): void
-    {
-        // Flush rewrite rules to remove plugin's custom rules.
-        flush_rewrite_rules();
-
-        // Optionally, remove custom capabilities on deactivation.
-        // self::remove_custom_capabilities();
-    }
-
-    /**
-     * Handles plugin uninstallation.
-     * Deletes plugin options, custom posts, and custom capabilities.
-     */
-    public static function uninstall(): void
-    {
-        // Check for current user capabilities to prevent unauthorized uninstallation.
-        if (!current_user_can('activate_plugins')) {
-            return;
-        }
-
-        // Ensure StarmusSettings is available to get the CPT slug.
-        if (!class_exists(StarmusSettings::class)) {
-            $file = STARMUS_PATH . 'src/includes/StarmusSettings.php';
-            if (file_exists($file)) {
-                require_once $file;
-            }
-        }
-
-        $cpt_slug = 'starmus-audio'; // Default slug if settings not found
-        if (class_exists(StarmusSettings::class)) {
-            $cpt_slug = StarmusSettings::starmus_get_option('cpt_slug', $cpt_slug);
-        }
-
-        // Delete all posts of the custom post type.
-        $posts = get_posts([
-            'post_type'      => $cpt_slug,
-            'numberposts'    => -1,
-            'post_status'    => 'any',
-            'fields'         => 'ids', // Only fetch IDs for performance
-            'perm'           => 'fully_public', // Ensure all posts are fetched
-            'suppress_filters' => true, // Bypass filters that might hide posts
-        ]);
-
-        foreach ($posts as $post_id) {
-            wp_delete_post($post_id, true); // true for permanent deletion
-        }
-
-        // Delete plugin options from the database.
-        delete_option('starmus_settings');
-        // If there are other options, delete them here too.
-        // delete_option('other_starmus_option');
-
-        // Remove custom capabilities and roles.
-        self::remove_custom_capabilities();
-
-        // Ensure rewrite rules are flushed one last time to remove CPT rules.
-        flush_rewrite_rules();
-    }
-
-    /**
-     * Adds custom capabilities to relevant user roles.
-     * This should be called on plugin activation.
-     */
-    private static function add_custom_capabilities(): void
-    {
-        // Get roles that should have the capabilities.
-        $editor_role = get_role('editor');
-        $admin_role = get_role('administrator');
-        $contributor_role = get_role('contributor'); // For CAP_RECORD_AUDIO
-        $community_contributor_role = get_role('community_contributor'); // Your custom role
-
-        if ($editor_role) {
-            $editor_role->add_cap(self::CAP_EDIT_AUDIO);
-            $editor_role->add_cap(self::CAP_RECORD_AUDIO);
-        }
-        if ($admin_role) {
-            $admin_role->add_cap(self::CAP_EDIT_AUDIO);
-            $admin_role->add_cap(self::CAP_RECORD_AUDIO);
-        }
-        if ($contributor_role) {
-            $contributor_role->add_cap(self::CAP_RECORD_AUDIO);
-        }
-        // If 'community_contributor' role exists, add capability to it.
-        if ($community_contributor_role) {
-            $community_contributor_role->add_cap(self::CAP_RECORD_AUDIO);
-        }
-        // You might also create the 'community_contributor' role here if it's dynamic.
-        // e.g., if (!get_role('community_contributor')) { add_role(...) }
-    }
-
-    /**
-     * Removes custom capabilities from roles.
-     * This can be called on deactivation or uninstall.
-     */
     private static function remove_custom_capabilities(): void
     {
-        $roles = ['editor', 'administrator', 'contributor', 'community_contributor']; // Add all relevant roles
-
-        foreach ($roles as $role_name) {
+        $roles_to_modify = ['editor', 'administrator', 'contributor', 'community_contributor'];
+        foreach ($roles_to_modify as $role_name) {
             $role = get_role($role_name);
             if ($role) {
                 $role->remove_cap(self::CAP_EDIT_AUDIO);
                 $role->remove_cap(self::CAP_RECORD_AUDIO);
             }
         }
-        // If you added a custom role like 'community_contributor' dynamically,
-        // you might want to remove it here as well.
-        // remove_role('community_contributor');
     }
 
     // --- Compatibility Checks ---
@@ -337,51 +259,24 @@ final class StarmusPlugin
     private function check_compatibility(): bool
     {
         if (version_compare(PHP_VERSION, self::MINIMUM_PHP_VERSION, '<')) {
-            $this->compatibility_messages[] = sprintf(
-                __('Starmus Audio Recorder requires PHP %1$s or higher. You are running %2$s.', 'starmus_audio_recorder'),
-                self::MINIMUM_PHP_VERSION,
-                PHP_VERSION
-            );
+            $this->compatibility_messages[] = sprintf(__('Starmus Audio Recorder requires PHP %1$s or higher. You are running %2$s.', 'starmus_audio_recorder'), self::MINIMUM_PHP_VERSION, PHP_VERSION);
         }
-
         if (version_compare(get_bloginfo('version'), self::MINIMUM_WP_VERSION, '<')) {
-            $this->compatibility_messages[] = sprintf(
-                __('Starmus Audio Recorder requires WordPress %1$s or higher. You are running %2$s.', 'starmus_audio_recorder'),
-                self::MINIMUM_WP_VERSION,
-                get_bloginfo('version')
-            );
+            $this->compatibility_messages[] = sprintf(__('Starmus Audio Recorder requires WordPress %1$s or higher. You are running %2$s.', 'starmus_audio_recorder'), self::MINIMUM_WP_VERSION, get_bloginfo('version'));
         }
-
         return empty($this->compatibility_messages);
     }
 
     public function display_compatibility_notice(): void
     {
-        // Only display notices in the admin area.
-        if (!is_admin()) {
-            return;
-        }
-
+        if (!is_admin()) { return; }
         foreach ($this->compatibility_messages as $message) {
             echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($message) . '</p></div>';
         }
     }
 
-    /**
-     * Prevent cloning of the instance.
-     * @throws Exception
-     */
-    public function __clone()
-    {
-        throw new Exception('Cloning of ' . __CLASS__ . ' is not allowed.');
-    }
+    // --- Singleton Prevention ---
 
-    /**
-     * Prevent unserializing of the instance.
-     * @throws Exception
-     */
-    public function __wakeup()
-    {
-        throw new Exception('Unserializing of ' . __CLASS__ . ' is not allowed.');
-    }
+    public function __clone() { throw new Exception('Cloning of ' . __CLASS__ . ' is not allowed.'); }
+    public function __wakeup() { throw new Exception('Unserializing of ' . __CLASS__ . ' is not allowed.'); }
 }
