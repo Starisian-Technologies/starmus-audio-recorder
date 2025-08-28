@@ -71,26 +71,43 @@ class StarmusAudioRecorderUI {
 	}
 
 	/**
-	 * [starmus_audio_recorder]
-	 * Renders the recorder form, fetching taxonomies for dynamic dropdowns.
-	 */
-	public function render_recorder_shortcode( $atts = [] ): string {
-		$attributes = shortcode_atts( [ 'form_id' => 'starmusAudioForm' ], $atts );
+ * [starmus_audio_recorder]
+ * Renders the recorder form, fetching taxonomies for dynamic dropdowns.
+ */
+public function render_recorder_shortcode( $atts = [] ): string {
+    /**
+     * NEW PRE-RENDER HOOK
+     * Fires right before the audio recorder shortcode attempts to render.
+     * This is the perfect place to run checks and redirect the user away
+     * if they do not meet certain criteria (e.g., incomplete profile).
+     *
+     * To redirect from this hook, use wp_redirect() and then exit().
+     * Example:
+     *   if ( ! my_profile_is_complete() ) {
+     *       wp_redirect( home_url('/profile-setup/') );
+     *       exit;
+     *   }
+     */
+    do_action( 'starmus_before_recorder_render' );
 
-		$recording_types = get_terms( [ 'taxonomy' => 'recording_type', 'hide_empty' => false ] );
-		$languages       = get_terms( [ 'taxonomy' => 'language', 'hide_empty' => false ] );
+    // --- The rest of the original function continues below ---
 
-		return $this->render_template(
-			'starmus-audio-recorder-ui.php',
-			[
-				'form_id'         => esc_attr( $attributes['form_id'] ),
-				'consent_message' => $this->get_setting( 'consent_message' ),
-				'data_policy_url' => $this->get_setting( 'data_policy_url' ),
-				'recording_types' => $recording_types,
-				'languages'       => $languages,
-			]
-		);
-	}
+    $attributes = shortcode_atts( [ 'form_id' => 'starmusAudioForm' ], $atts );
+
+    $recording_types = get_terms( [ 'taxonomy' => 'recording_type', 'hide_empty' => false ] );
+    $languages       = get_terms( [ 'taxonomy' => 'language', 'hide_empty' => false ] );
+
+    return $this->render_template(
+        'starmus-audio-recorder-ui.php',
+        [
+            'form_id'         => esc_attr( $attributes['form_id'] ),
+            'consent_message' => $this->get_setting( 'consent_message' ),
+            'data_policy_url' => $this->get_setting( 'data_policy_url' ),
+            'recording_types' => $recording_types,
+            'languages'       => $languages,
+        ]
+    );
+}
 
 	/**
 	 * Enqueues scripts and styles when either shortcode is present on the page.

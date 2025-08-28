@@ -1,6 +1,7 @@
 <?php
 /**
  * Manages the front-end audio editing interface with Peaks.js.
+ * This version includes hooks for extensibility and high-impact hardening patches.
  *
  * @package Starmus\frontend
  */
@@ -14,188 +15,133 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class StarmusAudioEditorUI {
     
-    /**
-     * Constructor. Registers hooks for the shortcode, scripts, and REST API.
-     */
     public function __construct() {
         add_shortcode('starmus_audio_editor', [ $this, 'render_audio_editor_shortcode' ]);
         add_action('wp_enqueue_scripts', [ $this, 'enqueue_scripts' ]);
         add_action('rest_api_init', [ $this, 'register_rest_endpoint' ]);
     }
 
-	/**
-	 * Renders the Peaks.js audio editor interface.
-	 *
-	 * @return string HTML for the editor.
-	 */
 	public function render_audio_editor_shortcode(): string {
+        do_action('starmus_before_editor_render');
 		$context = $this->get_editor_context();
-
 		if ( is_wp_error($context) ) {
 			return '<div class="notice notice-error"><p>' . esc_html( $context->get_error_message() ) . '</p></div>';
 		}
-
-		// This allows themes to override the template file.
-		$tpl = locate_template('starmus/audio-editor.php') ?: STARMUS_PATH.'src/templates/starmus-audio-editor-ui.php';
-		
+		$template_path = STARMUS_PATH . 'src/templates/starmus-audio-editor-ui.php';
+        $template_path = apply_filters('starmus_editor_template', $template_path, $context);
 		ob_start();
-		// The $context array is now available inside the included template file.
-		include $tpl;
+		include $template_path;
 		return ob_get_clean();
 	}
 
-	/**
-	 * Conditionally enqueues scripts and styles for the editor page.
-	 */
-	public function enqueue_scripts(): void {
-		global $post;
-		// Only proceed if the current page contains the shortcode.
-		if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( $post->post_content, 'starmus_audio_editor' ) ) {
-			return;
-		}
-
-		$context = $this->get_editor_context();
-		if ( is_wp_error($context) ) {
-			// Do not enqueue scripts if there's an error (e.g., no permission, invalid ID).
-			return;
-		}
-
-		// Enqueue the editor-specific stylesheet with file modification time for cache-busting.
-		wp_enqueue_style(
-			'starmus-audio-editor-style',
-			STARMUS_URL . 'assets/css/starmus-audio-editor-style.min.css',
-			[],
-			filemtime( STARMUS_PATH . 'assets/css/starmus-audio-editor-style.min.css' )
-		);
-
-		// Enqueue Peaks.js from the vendor directory.
-		wp_enqueue_script(
-			'peaks-js',
-			STARMUS_URL . 'assets/js/vendor/peaks.min.js',
-			[],
-			'2.0.0', // It's good practice to use the library's actual version number.
-			true
-		);
-
-		// Enqueue your main editor script, making it dependent on Peaks.js.
-		wp_enqueue_script(
-			'starmus-audio-editor',
-			STARMUS_URL . 'assets/js/starmus-audio-editor.min.js',
-			[ 'peaks-js', 'jquery', 'wp-element' ], // wp-element is useful for React-like components.
-			filemtime( STARMUS_PATH . 'assets/js/starmus-audio-editor.min.js' ),
-			true
-		);
-
-		// Pass all necessary data from PHP to our JavaScript file.
-		wp_localize_script( 'starmus-audio-editor', 'STARMUS_EDITOR_DATA', [
-			'restUrl'         => esc_url_raw( rest_url( 'starmus/v1/annotations' ) ),
-			'nonce'           => wp_create_nonce( 'wp_rest' ),
-			'postId'          => $context['post_id'],
-			'audioUrl'        => $context['audio_url'],
-			'waveformDataUrl' => $context['waveform_url'], // Critical data for Peaks.js
-			'annotations'     => json_decode( $context['annotations_json'], true ),
-		]);
-	}
-
     /**
-     * Gathers post context and checks permissions.
-	 * This avoids code duplication between the shortcode and enqueue methods.
-     *
-     * @return array|\WP_Error Array of context data on success, WP_Error on failure.
+     * PATCH 1: Robust enqueue (works with block themes, no global `$post` dependency).
+     */
+    public function enqueue_scripts(): void {
+        if ( ! is_singular() ) return;
+        $post = get_queried_object();
+        $content = is_object($post) ? (string) ($post->post_content ?? '') : '';
+        $has_shortcode = function_exists('has_shortcode') && has_shortcode($content, 'starmus_audio_editor');
+        if ( ! $has_shortcode && ! str_contains($content, '[starmus_audio_editor') ) return;
+
+        $ctx = $this->get_editor_context(); if ( is_wp_error($ctx) ) return;
+
+        wp_enqueue_style('starmus-audio-editor-style', STARMUS_URL.'assets/css/starmus-audio-editor-style.min.css', [], STARMUS_VERSION);
+        wp_enqueue_script('peaks-js', STARMUS_URL.'assets/js/vendor/peaks.min.js', [], '2.0.0', true);
+        wp_enqueue_script('starmus-audio-editor', STARMUS_URL.'assets/js/starmus-audio-editor.min.js', ['peaks-js','jquery'], STARMUS_VERSION, true);
+
+        wp_localize_script('starmus-audio-editor','STARMUS_EDITOR_DATA',[
+            'restUrl'=>esc_url_raw(rest_url('starmus/v1/annotations')),
+            'nonce'=>wp_create_nonce('wp_rest'),
+            'postId'=>(int)$ctx['post_id'],
+            'audioUrl'=>$ctx['audio_url'],
+            'waveformDataUrl'=>$ctx['waveform_url'],
+            'annotations'=>json_decode($ctx['annotations_json'], true),
+        ]);
+    }
+    
+    /**
+     * PATCH 2: Context validation (checks attachment relation, waveform existence, safer defaults).
      */
     private function get_editor_context() {
-        $post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
+        $post_id = isset($_GET['post_id']) ? absint($_GET['post_id']) : 0;
+        if ( ! $post_id ) return new \WP_Error('invalid_id', __('Invalid submission ID.','starmus_audio_recorder'));
+        if ( ! current_user_can('edit_post',$post_id) ) return new \WP_Error('permission_denied', __('You do not have permission to edit this item.','starmus_audio_recorder'));
 
-        if ( ! $post_id ) {
-            return new \WP_Error('invalid_id', __('Invalid submission ID.', 'starmus_audio_recorder'));
-        }
+        $attachment_id = (int) get_post_meta($post_id, '_audio_attachment_id', true);
+        if ( ! $attachment_id || 'attachment' !== get_post_type($attachment_id) )
+            return new \WP_Error('no_audio', __('No audio file is attached to this submission.','starmus_audio_recorder'));
 
-        if ( ! current_user_can( 'edit_post', $post_id ) ) {
-            return new \WP_Error('permission_denied', __('You do not have permission to edit this item.', 'starmus_audio_recorder'));
-        }
+        $audio_url = wp_get_attachment_url($attachment_id);
+        if ( ! $audio_url ) return new \WP_Error('no_audio_url', __('Audio file URL not available.','starmus_audio_recorder'));
 
-        $attachment_id = get_post_meta( $post_id, '_audio_attachment_id', true );
-		if (!$attachment_id) {
-			return new \WP_Error('no_audio', __('No audio file is attached to this submission.', 'starmus_audio_recorder'));
-		}
-		
-		// Get waveform data path from post meta (set during upload).
-		$waveform_path = get_post_meta($attachment_id, '_waveform_json_path', true);
-		
-		// Convert the server path of the waveform file to a public URL.
-		$uploads_dir = wp_get_upload_dir();
-		$waveform_url = $waveform_path ? str_replace($uploads_dir['basedir'], $uploads_dir['baseurl'], $waveform_path) : '';
+        $uploads = wp_get_upload_dir();
+        $wave_json_path = (string) get_post_meta($attachment_id, '_waveform_json_path', true);
+        $waveform_url = ($wave_json_path && file_exists($wave_json_path))
+            ? str_replace($uploads['basedir'], $uploads['baseurl'], $wave_json_path)
+            : '';
 
         return [
-            'post_id'        	 => $post_id,
-            'attachment_id'  	 => $attachment_id,
-            'audio_url'      	 => wp_get_attachment_url( $attachment_id ),
-			'waveform_url'   	 => $waveform_url,
-            'annotations_json'   => get_post_meta( $post_id, 'starmus_annotations_json', true ) ?: '[]',
+            'post_id'=>$post_id,
+            'attachment_id'=>$attachment_id,
+            'audio_url'=>$audio_url,
+            'waveform_url'=>$waveform_url,
+            'annotations_json'=> get_post_meta($post_id, 'starmus_annotations_json', true) ?: '[]',
         ];
     }
     
 	/**
-	 * Registers the REST API endpoint to save annotations.
+	 * PATCH 3: REST payload hardening (size limits, schema checks, basic rate-limit).
 	 */
 	public function register_rest_endpoint(): void {
 		register_rest_route('starmus/v1','/annotations',[
 			'methods'=>'POST',
 			'callback'=>[$this,'handle_save_annotations'],
-			'permission_callback'=>fn($request)=> ($post_id=(int)$request['postId']) && current_user_can('edit_post',$post_id),
+			'permission_callback'=>fn($req)=> ($pid=(int)$req['postId']) && current_user_can('edit_post',$pid),
 			'args'=>[
-				'postId'=>['type'=>'integer','required'=>true, 'sanitize_callback' => 'absint'],
-				'annotations'=>['type'=>'array','required'=>true],
+				'postId'=>['type'=>'integer','required'=>true,'sanitize_callback'=>'absint'],
+				'annotations'=>[
+					'required'=>true,
+					'validate_callback'=>function($val){
+						if ( ! is_array($val) ) return false;
+						if ( count($val) > 1000 ) return false; // cap segments
+						return true;
+					}
+				],
 			],
 		]);
 	}
 
     /**
-     * Callback function to handle saving the annotation data via REST API.
+     * PATCH 3 (cont.): REST payload hardening.
      */
-    public function handle_save_annotations( \WP_REST_Request $request ): \WP_REST_Response {
-        $post_id     = $request->get_param( 'postId' );
-        $annotations = $request->get_param( 'annotations' );
+    public function handle_save_annotations(\WP_REST_Request $request): \WP_REST_Response {
+        $post_id = (int) $request->get_param('postId');
+        $annotations = $request->get_param('annotations');
 
-        // Sanitize the incoming annotation data.
-        $sanitized_annotations = [];
-        if ( is_array($annotations) ) {
-            foreach ( $annotations as $segment ) {
-                if (empty($segment['id']) || !isset($segment['startTime']) || !isset($segment['endTime'])) continue;
-                $sanitized_annotations[] = [
-                    'id'        => sanitize_text_field( $segment['id'] ),
-                    'startTime' => (float) $segment['startTime'],
-                    'endTime'   => (float) $segment['endTime'],
-                    'label'     => isset($segment['label']) ? sanitize_text_field( $segment['label'] ) : '',
-                ];
-            }
+        // Simple per-user rate limit: 1 write / 2s per post
+        $key = 'starmus_ann_rl_'.get_current_user_id().'_'.$post_id;
+        if ( get_transient($key) ) {
+            return new \WP_REST_Response(['success'=>false,'message'=>__('Please wait before saving again.','starmus_audio_recorder')], 429);
         }
-        
-        // Sort by start time to prepare for validation.
-        usort( $sanitized_annotations, fn( $a, $b ) => $a['startTime'] <=> $b['startTime'] );
+        set_transient($key, 1, 2);
 
-        // Validate for overlapping annotations.
-        for ( $i = 1; $i < count( $sanitized_annotations ); $i++ ) {
-            if ( $sanitized_annotations[ $i ]['startTime'] < $sanitized_annotations[ $i - 1 ]['endTime'] ) {
-                return new \WP_REST_Response(
-                    [
-                        'success' => false,
-                        'message' => __( 'Overlapping annotations are not allowed.', 'starmus_audio_recorder' ),
-                    ],
-                    400
-                );
-            }
+        $sanitized = [];
+        foreach ( (array)$annotations as $seg ) {
+            if ( empty($seg['id']) || !isset($seg['startTime'], $seg['endTime']) ) continue;
+            $start = (float) $seg['startTime']; $end = (float) $seg['endTime'];
+            if ( $start < 0 || $end <= $start ) continue;
+            $label = isset($seg['label']) ? wp_strip_all_tags((string)$seg['label']) : '';
+            if ( strlen($label) > 200 ) $label = substr($label,0,200);
+            $sanitized[] = ['id'=>sanitize_key($seg['id']),'startTime'=>$start,'endTime'=>$end,'label'=>$label];
         }
+        usort($sanitized, fn($a,$b)=> $a['startTime'] <=> $b['startTime']);
+        for ($i=1;$i<count($sanitized);$i++){ if ($sanitized[$i]['startTime'] < $sanitized[$i-1]['endTime']) return new \WP_REST_Response(['success'=>false,'message'=>__('Overlapping annotations are not allowed.','starmus_audio_recorder')],400); }
 
-        update_post_meta( $post_id, 'starmus_annotations_json', wp_json_encode( $sanitized_annotations ) );
+        do_action('starmus_before_annotations_save', $sanitized, $post_id);
+        update_post_meta($post_id, 'starmus_annotations_json', wp_json_encode($sanitized, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+        do_action('starmus_after_annotations_save', $post_id, $sanitized);
 
-        return new \WP_REST_Response(
-            [
-                'success'      => true,
-                'message'      => __( 'Annotations saved.', 'starmus_audio_recorder' ),
-                'annotations'  => $sanitized_annotations,
-            ],
-            200
-        );
+        return new \WP_REST_Response(['success'=>true,'message'=>__('Annotations saved.','starmus_audio_recorder'),'annotations'=>$sanitized],200);
     }
 }
