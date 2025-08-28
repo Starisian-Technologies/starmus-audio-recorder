@@ -20,7 +20,7 @@
  * Description:       Adds a mobile-friendly MP3 audio recorder for oral history submission in low-bandwidth environments.
  * Version:           0.3.1
  * Requires at least: 6.4
- * Requires PHP:      8.2
+ * Requires PHP:      8.0
  * Author:            Starisian Technologies (Max Barrett)
  * Author URI:        https://starisian.com
  * Text Domain:       starmus-audio-recorder
@@ -49,20 +49,17 @@ if ( file_exists( STARMUS_MAIN_DIR . '/vendor/autoload.php' ) ) {
     require STARMUS_MAIN_DIR . '/vendor/autoload.php';
 }
 
-// Now, your classes should be loadable.
-use Starmus\includes\StarmusPlugin; // Good practice to include
-
-// add initialization hook.
-add_action( 'init', [ '\Starmus\includes\StarmusPlugin' , 'starmus_init' ] );
-
-// 3. Register Plugin Lifecycle Hooks.
-// These point to the static methods in your namespaced class.
+// Register Plugin Lifecycle Hooks.
 register_activation_hook( STARMUS_MAIN_FILE, [ 'Starmus\includes\StarmusPlugin', 'activate' ] );
 register_deactivation_hook( STARMUS_MAIN_FILE, [ 'Starmus\includes\StarmusPlugin', 'deactivate' ] );
-register_uninstall_hook( STARMUS_MAIN_FILE, [ 'Starmus\includes\StarmusPlugin', 'uninstall' ] );
 
-// 4. Instantiate the Main Plugin Class (Bootstrap).
-add_action('plugins_loaded', static function () {
-    \Starmus\includes\StarmusPlugin::starmus_run(); 
+// Initialize the plugin.
+add_action('plugins_loaded', function() {
+    \Starmus\includes\StarmusPlugin::starmus_run();
+});
+
+// Hook the init method to the WordPress init action.
+add_action('init', function() {
+    \Starmus\includes\StarmusPlugin::get_instance()->starmus_init();
 });
 

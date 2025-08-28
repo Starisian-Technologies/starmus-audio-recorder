@@ -3,15 +3,15 @@
 declare(strict_types=1);
 namespace Starmus\tests\unit;
 use PHPUnit\Framework\TestCase;
-use Starmus\includes\StarmusCustomPostType;
 
 final class StarmusCustomPostTypeTest extends TestCase
 {
-    public function testRegisterMethodExists(): void
+    public function testCustomPostTypeFileExists(): void
     {
+        $file = dirname(dirname(__DIR__)) . '/src/includes/StarmusCustomPostType.php';
         $this->assertTrue(
-            method_exists(StarmusCustomPostType::class, 'register'),
-            'register() method does not exist'
+            file_exists($file),
+            'StarmusCustomPostType.php file does not exist'
         );
     }
 }

@@ -3,15 +3,15 @@
 declare(strict_types=1);
 namespace Starmus\tests\unit;
 use PHPUnit\Framework\TestCase;
-use Starmus\frontend\StarmusAudioRecording;
+use Starmus\frontend\StarmusAudioRecorderUI;
 
 final class StarmusAudioRecordingTest extends TestCase
 {
     public function testClassExists(): void
     {
         $this->assertTrue(
-            class_exists(StarmusAudioRecording::class),
-            'StarmusAudioRecording class does not exist'
+            class_exists(StarmusAudioRecorderUI::class),
+            'StarmusAudioRecorderUI class does not exist'
         );
     }
 

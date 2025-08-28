@@ -19,99 +19,111 @@ if ( ! defined( 'ABSPATH' ) ) {
 class StarmusAudioRecorderUI {
 
 	private static $upload_dir_cache = null;
-	private static $settings_cache   = [];
+	private static $settings_cache   = array();
 
 	/**
 	 * Constructor. Registers hooks and shortcodes.
 	 */
 	public function __construct() {
 		// Shortcodes
-		add_shortcode( 'starmus_my_recordings', [ $this, 'render_my_recordings_shortcode' ] );
-		add_shortcode( 'starmus_audio_recorder', [ $this, 'render_recorder_shortcode' ] );
+		add_shortcode( 'starmus_my_recordings', array( $this, 'render_my_recordings_shortcode' ) );
+		add_shortcode( 'starmus_audio_recorder', array( $this, 'render_recorder_shortcode' ) );
 
 		// Frontend assets
-		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 		// Chunked upload endpoints
-		add_action( 'wp_ajax_starmus_handle_upload_chunk', [ $this, 'handle_upload_chunk' ] );
-		add_action( 'wp_ajax_nopriv_starmus_handle_upload_chunk', [ $this, 'handle_upload_chunk' ] );
+		add_action( 'wp_ajax_starmus_handle_upload_chunk', array( $this, 'handle_upload_chunk' ) );
+		add_action( 'wp_ajax_nopriv_starmus_handle_upload_chunk', array( $this, 'handle_upload_chunk' ) );
 
 		// Internal extension points
-		add_action( 'starmus_after_audio_upload', [ $this, 'save_all_metadata' ], 10, 3 );
-		add_filter( 'starmus_audio_upload_success_response', [ $this, 'add_conditional_redirect' ], 10, 3 );
+		add_action( 'starmus_after_audio_upload', array( $this, 'save_all_metadata' ), 10, 3 );
+		add_filter( 'starmus_audio_upload_success_response', array( $this, 'add_conditional_redirect' ), 10, 3 );
 	}
 
 	/**
 	 * [starmus_my_recordings]
 	 * Renders a paginated list of current user's audio submissions via template.
 	 */
-	public function render_my_recordings_shortcode( $atts = [] ): string {
+	public function render_my_recordings_shortcode( $atts = array() ): string {
 		if ( ! is_user_logged_in() ) {
 			return '<p>' . esc_html__( 'You must be logged in to view your recordings.', 'starmus_audio_recorder' ) . '</p>';
 		}
 
-		$attributes = shortcode_atts( [ 'posts_per_page' => 10 ], $atts );
+		$attributes = shortcode_atts( array( 'posts_per_page' => 10 ), $atts );
 		$paged      = get_query_var( 'paged' ) ? (int) get_query_var( 'paged' ) : 1;
 
-		$query = new WP_Query( [
-			'post_type'      => $this->get_setting( 'cpt_slug', 'audio-recording' ),
-			'author'         => get_current_user_id(),
-			'posts_per_page' => absint( $attributes['posts_per_page'] ),
-			'paged'          => $paged,
-			'post_status'    => [ 'publish', 'draft', 'pending', 'private' ],
-		] );
+		$query = new WP_Query(
+			array(
+				'post_type'      => $this->get_setting( 'cpt_slug', 'audio-recording' ),
+				'author'         => get_current_user_id(),
+				'posts_per_page' => absint( $attributes['posts_per_page'] ),
+				'paged'          => $paged,
+				'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+			)
+		);
 
 		return $this->render_template(
 			'starmus-my-recordings-list.php',
-			[
+			array(
 				'query'         => $query,
 				'edit_page_url' => $this->get_edit_page_url(),
-			]
+			)
 		);
 	}
 
 	/**
- * [starmus_audio_recorder]
- * Renders the recorder form, fetching taxonomies for dynamic dropdowns.
- */
-public function render_recorder_shortcode( $atts = [] ): string {
-    if ( ! is_user_logged_in() ) {
-        return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus_audio_recorder' ) . '</p>';
-    }
+	 * [starmus_audio_recorder]
+	 * Renders the recorder form, fetching taxonomies for dynamic dropdowns.
+	 */
+	public function render_recorder_shortcode( $atts = array() ): string {
+		if ( ! is_user_logged_in() ) {
+			return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus_audio_recorder' ) . '</p>';
+		}
 
-    /**
-     * NEW PRE-RENDER HOOK
-     * Fires right before the audio recorder shortcode attempts to render.
-     * This is the perfect place to run checks and redirect the user away
-     * if they do not meet certain criteria (e.g., incomplete profile).
-     *
-     * To redirect from this hook, use wp_redirect() and then exit().
-     * Example:
-     *   if ( ! my_profile_is_complete() ) {
-     *       wp_redirect( home_url('/profile-setup/') );
-     *       exit;
-     *   }
-     */
-    do_action( 'starmus_before_recorder_render' );
+		/**
+		 * NEW PRE-RENDER HOOK
+		 * Fires right before the audio recorder shortcode attempts to render.
+		 * This is the perfect place to run checks and redirect the user away
+		 * if they do not meet certain criteria (e.g., incomplete profile).
+		 *
+		 * To redirect from this hook, use wp_redirect() and then exit().
+		 * Example:
+		 *   if ( ! my_profile_is_complete() ) {
+		 *     wp_redirect( home_url('/profile-setup/') );
+		 *     exit;
+		 *   }
+		 */
+		do_action( 'starmus_before_recorder_render' );
 
-    // --- The rest of the original function continues below ---
+		// --- The rest of the original function continues below ---
 
-    $attributes = shortcode_atts( [ 'form_id' => 'starmusAudioForm' ], $atts );
+		$attributes = shortcode_atts( array( 'form_id' => 'starmusAudioForm' ), $atts );
 
-    $recording_types = get_terms( [ 'taxonomy' => 'recording_type', 'hide_empty' => false ] );
-    $languages       = get_terms( [ 'taxonomy' => 'language', 'hide_empty' => false ] );
+		$recording_types = get_terms(
+			array(
+				'taxonomy'   => 'recording_type',
+				'hide_empty' => false,
+			)
+		);
+		$languages       = get_terms(
+			array(
+				'taxonomy'   => 'language',
+				'hide_empty' => false,
+			)
+		);
 
-    return $this->render_template(
-        'starmus-audio-recorder-ui.php',
-        [
-            'form_id'         => esc_attr( $attributes['form_id'] ),
-            'consent_message' => $this->get_setting( 'consent_message' ),
-            'data_policy_url' => $this->get_setting( 'data_policy_url' ),
-            'recording_types' => $recording_types,
-            'languages'       => $languages,
-        ]
-    );
-}
+		return $this->render_template(
+			'starmus-audio-recorder-ui.php',
+			array(
+				'form_id'         => esc_attr( $attributes['form_id'] ),
+				'consent_message' => $this->get_setting( 'consent_message' ),
+				'data_policy_url' => $this->get_setting( 'data_policy_url' ),
+				'recording_types' => $recording_types,
+				'languages'       => $languages,
+			)
+		);
+	}
 
 	/**
 	 * Enqueues scripts and styles when either shortcode is present on the page.
@@ -138,7 +150,7 @@ public function render_recorder_shortcode( $atts = [] ): string {
 			wp_enqueue_script(
 				'starmus-recorder',
 				STARMUS_URL . 'assets/js/starmus-audio-recorder-module.min.js',
-				[],
+				array(),
 				STARMUS_VERSION,
 				true
 			);
@@ -146,7 +158,7 @@ public function render_recorder_shortcode( $atts = [] ): string {
 			wp_enqueue_script(
 				'starmus-submissions',
 				STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.min.js',
-				[ 'starmus-recorder' ],
+				array( 'starmus-recorder' ),
 				STARMUS_VERSION,
 				true
 			);
@@ -154,18 +166,18 @@ public function render_recorder_shortcode( $atts = [] ): string {
 			wp_localize_script(
 				'starmus-submissions',
 				'starmusFormData',
-				[
+				array(
 					'ajax_url' => admin_url( 'admin-ajax.php' ),
 					'action'   => 'starmus_handle_upload_chunk',
 					'nonce'    => wp_create_nonce( 'starmus_chunk_upload' ),
-				]
+				)
 			);
 		}
 
 		wp_enqueue_style(
 			'starmus-style',
 			STARMUS_URL . 'assets/css/starmus-audio-recorder-style.min.css',
-			[],
+			array(),
 			STARMUS_VERSION
 		);
 	}
@@ -177,10 +189,10 @@ public function render_recorder_shortcode( $atts = [] ): string {
 		check_ajax_referer( 'starmus_chunk_upload', 'nonce' );
 
 		if ( ! is_user_logged_in() ) {
-			wp_send_json_error( [ 'message' => 'Login required' ], 401 );
+			wp_send_json_error( array( 'message' => 'Login required' ), 401 );
 		}
 		if ( ! current_user_can( 'upload_files' ) ) {
-			wp_send_json_error( [ 'message' => 'Permission denied' ], 403 );
+			wp_send_json_error( array( 'message' => 'Permission denied' ), 403 );
 		}
 
 		$data = $this->validate_chunk_data();
@@ -206,7 +218,7 @@ public function render_recorder_shortcode( $atts = [] ): string {
 			return;
 		}
 
-		wp_send_json_success( [ 'message' => 'Chunk received' ] );
+		wp_send_json_success( array( 'message' => 'Chunk received' ) );
 	}
 
 	private function validate_chunk_data(): ?array {
@@ -217,7 +229,7 @@ public function render_recorder_shortcode( $atts = [] ): string {
 		$file_name  = sanitize_file_name( $_POST['fileName'] ?? 'audio.webm' );
 
 		if ( ! $uuid || ! $file_chunk || UPLOAD_ERR_OK !== ( $file_chunk['error'] ?? 0 ) || ! $total_size ) {
-			wp_send_json_error( [ 'message' => 'Invalid request data' ], 400 );
+			wp_send_json_error( array( 'message' => 'Invalid request data' ), 400 );
 			return null;
 		}
 
@@ -229,7 +241,7 @@ public function render_recorder_shortcode( $atts = [] ): string {
 		$temp_dir   = $upload_dir['basedir'] . '/starmus-temp';
 
 		if ( ! wp_mkdir_p( $temp_dir ) ) {
-			wp_send_json_error( [ 'message' => 'Cannot create temp directory' ], 500 );
+			wp_send_json_error( array( 'message' => 'Cannot create temp directory' ), 500 );
 			return null;
 		}
 
@@ -237,7 +249,7 @@ public function render_recorder_shortcode( $atts = [] ): string {
 		$bytes          = @file_put_contents( $temp_file_path, @file_get_contents( $file_chunk['tmp_name'] ), FILE_APPEND | LOCK_EX );
 
 		if ( false === $bytes ) {
-			wp_send_json_error( [ 'message' => 'Write failed' ], 500 );
+			wp_send_json_error( array( 'message' => 'Write failed' ), 500 );
 			return null;
 		}
 
@@ -245,23 +257,25 @@ public function render_recorder_shortcode( $atts = [] ): string {
 	}
 
 	private function create_draft_post( string $uuid, int $total_size, string $file_name, array $form_data ): void {
-		$meta_input = [
+		$meta_input = array(
 			'audio_uuid'        => $uuid,
 			'upload_total_size' => $total_size,
-		];
+		);
 
 		if ( $this->get_setting( 'collect_ip_ua' ) && ! empty( $form_data['audio_consent'] ) ) {
 			$meta_input['submission_ip']         = sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '' );
 			$meta_input['submission_user_agent'] = sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ?? '' );
 		}
 
-		wp_insert_post( [
-			'post_title'  => sanitize_text_field( $form_data['audio_title'] ?? pathinfo( $file_name, PATHINFO_FILENAME ) ),
-			'post_type'   => $this->get_setting( 'cpt_slug', 'audio-recording' ),
-			'post_status' => 'draft',
-			'post_author' => get_current_user_id(),
-			'meta_input'  => $meta_input,
-		] );
+		wp_insert_post(
+			array(
+				'post_title'  => sanitize_text_field( $form_data['audio_title'] ?? pathinfo( $file_name, PATHINFO_FILENAME ) ),
+				'post_type'   => $this->get_setting( 'cpt_slug', 'audio-recording' ),
+				'post_status' => 'draft',
+				'post_author' => get_current_user_id(),
+				'meta_input'  => $meta_input,
+			)
+		);
 	}
 
 	/**
@@ -271,13 +285,13 @@ public function render_recorder_shortcode( $atts = [] ): string {
 		$post = $this->find_post_by_uuid( $uuid );
 		if ( ! $post ) {
 			@unlink( $temp_file_path );
-			wp_send_json_error( [ 'message' => 'Submission not found' ], 500 );
+			wp_send_json_error( array( 'message' => 'Submission not found' ), 500 );
 		}
 
 		$u = $this->get_upload_dir();
 		if ( ! wp_mkdir_p( $u['path'] ) ) {
 			@unlink( $temp_file_path );
-			wp_send_json_error( [ 'message' => 'Upload directory not writable' ], 500 );
+			wp_send_json_error( array( 'message' => 'Upload directory not writable' ), 500 );
 		}
 
 		$final_filename = wp_unique_filename( $u['path'], $file_name );
@@ -287,14 +301,14 @@ public function render_recorder_shortcode( $atts = [] ): string {
 		// Move final file into uploads dir
 		if ( ! @rename( $temp_file_path, $final_filepath ) ) {
 			@unlink( $temp_file_path );
-			wp_send_json_error( [ 'message' => 'File move failed' ], 500 );
+			wp_send_json_error( array( 'message' => 'File move failed' ), 500 );
 		}
 
 		// Validate audio MIME
 		$ft = wp_check_filetype( $final_filepath );
 		if ( empty( $ft['type'] ) || strpos( $ft['type'], 'audio/' ) !== 0 ) {
 			@unlink( $final_filepath );
-			wp_send_json_error( [ 'message' => 'Invalid audio type' ], 400 );
+			wp_send_json_error( array( 'message' => 'Invalid audio type' ), 400 );
 		}
 
 		// Insert attachment
@@ -302,16 +316,20 @@ public function render_recorder_shortcode( $atts = [] ): string {
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		$attachment_id = wp_insert_attachment( [
-			'guid'           => $file_url,
-			'post_mime_type' => $ft['type'],
-			'post_title'     => pathinfo( $final_filename, PATHINFO_FILENAME ),
-			'post_status'    => 'inherit',
-		], $final_filepath, $post->ID );
+		$attachment_id = wp_insert_attachment(
+			array(
+				'guid'           => $file_url,
+				'post_mime_type' => $ft['type'],
+				'post_title'     => pathinfo( $final_filename, PATHINFO_FILENAME ),
+				'post_status'    => 'inherit',
+			),
+			$final_filepath,
+			$post->ID
+		);
 
 		if ( is_wp_error( $attachment_id ) ) {
 			@unlink( $final_filepath );
-			wp_send_json_error( [ 'message' => $attachment_id->get_error_message() ], 500 );
+			wp_send_json_error( array( 'message' => $attachment_id->get_error_message() ), 500 );
 		}
 
 		// Generate (noop for audio) but safe to call
@@ -321,7 +339,12 @@ public function render_recorder_shortcode( $atts = [] ): string {
 		$waveform_generated = $this->generate_waveform_data( (int) $attachment_id );
 
 		// Publish post + link attachment
-		wp_update_post( [ 'ID' => $post->ID, 'post_status' => 'publish' ] );
+		wp_update_post(
+			array(
+				'ID'          => $post->ID,
+				'post_status' => 'publish',
+			)
+		);
 		update_post_meta( $post->ID, '_audio_attachment_id', (int) $attachment_id );
 
 		/**
@@ -334,11 +357,11 @@ public function render_recorder_shortcode( $atts = [] ): string {
 		 */
 		$response_data = apply_filters(
 			'starmus_audio_upload_success_response',
-			[
+			array(
 				'message'            => esc_html__( 'Submission complete!', 'starmus_audio_recorder' ),
 				'post_id'            => (int) $post->ID,
 				'waveform_generated' => (bool) $waveform_generated,
-			],
+			),
 			(int) $post->ID,
 			$form_data
 		);
@@ -367,23 +390,25 @@ public function render_recorder_shortcode( $atts = [] ): string {
 		$user_id   = get_current_user_id();
 		$user_info = get_userdata( $user_id );
 
-		$consent_fields = [
-			'field_68aa07e16725b' => 'Recorded Submission',                               // Terms Type
-			'field_689a64f8ab306' => true,                                                // Agreed to Contributor Terms
-			'field_689a6646ab30c' => $user_id,                                            // Contributor ID
-			'field_689a6480ab303' => $user_info ? $user_info->display_name : 'Guest',     // Contributor Name
-			'field_689a64dfab305' => current_time( 'Y-m-d H:i:s' ),                       // Agreement Datetime
-			'field_689a6524ab307' => sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '' ),// Contributor IP
-			'field_689a6563ab308' => wp_generate_uuid4(),                                 // Submission ID
+		$consent_fields = array(
+			'field_68aa07e16725b' => 'Recorded Submission',                            // Terms Type
+			'field_689a64f8ab306' => true,                                              // Agreed to Contributor Terms
+			'field_689a6646ab30c' => $user_id,                                          // Contributor ID
+			'field_689a6480ab303' => $user_info ? $user_info->display_name : 'Guest',    // Contributor Name
+			'field_689a64dfab305' => current_time( 'Y-m-d H:i:s' ),                    // Agreement Datetime
+			'field_689a6524ab307' => sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '' ), // Contributor IP
+			'field_689a6563ab308' => wp_generate_uuid4(),                                // Submission ID
 			'field_689a6572ab309' => sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ?? '' ), // UA
-			'field_689a6588ab30a' => get_permalink( $audio_post_id ),                     // URL
-		];
+			'field_689a6588ab30a' => get_permalink( $audio_post_id ),                    // URL
+		);
 
-		$consent_post_id = wp_insert_post( [
-			'post_type'   => 'consent-agreement',
-			'post_status' => 'publish',
-			'post_title'  => 'Consent for Audio Recording #' . $audio_post_id,
-		] );
+		$consent_post_id = wp_insert_post(
+			array(
+				'post_type'   => 'consent-agreement',
+				'post_status' => 'publish',
+				'post_title'  => 'Consent for Audio Recording #' . $audio_post_id,
+			)
+		);
 
 		if ( $consent_post_id && ! is_wp_error( $consent_post_id ) ) {
 			foreach ( $consent_fields as $field_key => $value ) {
@@ -398,19 +423,19 @@ public function render_recorder_shortcode( $atts = [] ): string {
 	 * Update 'audio-recording' post with session metadata.
 	 */
 	private function update_audio_recording_metadata( int $audio_post_id, int $attachment_id, ?int $consent_post_id, array $form_data ): void {
-		$session_fields = [
-			'field_682cbb1a12a3e' => current_time( 'Y-m-d' ),      // Session Date
-			'field_682cbb6d12a3f' => current_time( 'H:i:s' ),      // Session Start Time
-			'field_682cbf3112a46' => (int) $attachment_id,         // Audio Files (Originals)
-			'field_68afe852920cd' => $consent_post_id,             // Related Consent Agreement
-		];
+		$session_fields = array(
+			'field_682cbb1a12a3e' => current_time( 'Y-m-d' ),     // Session Date
+			'field_682cbb6d12a3f' => current_time( 'H:i:s' ),     // Session Start Time
+			'field_682cbf3112a46' => (int) $attachment_id,       // Audio Files (Originals)
+			'field_68afe852920cd' => $consent_post_id,           // Related Consent Agreement
+		);
 
 		if ( ! empty( $form_data['gps_latitude'] ) && ! empty( $form_data['gps_longitude'] ) ) {
-			$session_fields['field_682cbc5312a42'] = [             // GPS Coordinates
+			$session_fields['field_682cbc5312a42'] = array(           // GPS Coordinates
 				'lat'     => (float) $form_data['gps_latitude'],
 				'lng'     => (float) $form_data['gps_longitude'],
 				'address' => 'Recorded Location',
-			];
+			);
 		}
 
 		foreach ( $session_fields as $field_key => $value ) {
@@ -424,21 +449,21 @@ public function render_recorder_shortcode( $atts = [] ): string {
 	private function assign_audio_recording_taxonomies( int $audio_post_id, array $form_data ): void {
 		// Language
 		if ( ! empty( $form_data['language'] ) ) {
-			$lng = sanitize_text_field( (string) $form_data['language'] );
+			$lng  = sanitize_text_field( (string) $form_data['language'] );
 			$term = get_term_by( 'slug', sanitize_key( $lng ), 'language' )
 				?: get_term_by( 'name', $lng, 'language' );
 			if ( $term && ! is_wp_error( $term ) ) {
-				wp_set_post_terms( $audio_post_id, [ (int) $term->term_id ], 'language', false );
+				wp_set_post_terms( $audio_post_id, array( (int) $term->term_id ), 'language', false );
 			}
 		}
 
 		// Recording Type
 		if ( ! empty( $form_data['recording_type'] ) ) {
-			$rt = sanitize_text_field( (string) $form_data['recording_type'] );
+			$rt   = sanitize_text_field( (string) $form_data['recording_type'] );
 			$term = get_term_by( 'slug', sanitize_key( $rt ), 'recording_type' )
 				?: get_term_by( 'name', $rt, 'recording_type' );
 			if ( $term && ! is_wp_error( $term ) ) {
-				wp_set_post_terms( $audio_post_id, [ (int) $term->term_id ], 'recording_type', false );
+				wp_set_post_terms( $audio_post_id, array( (int) $term->term_id ), 'recording_type', false );
 			}
 		}
 	}
@@ -505,10 +530,10 @@ public function render_recorder_shortcode( $atts = [] ): string {
 	/**
 	 * Render a template with theme override support: `wp-content/themes/<theme>/starmus/<template>.php`
 	 */
-	private function render_template( string $template_name, array $args = [] ): string {
+	private function render_template( string $template_name, array $args = array() ): string {
 		// Allow theme override
 		$theme_template = function_exists( 'locate_template' )
-			? locate_template( [ 'starmus/' . $template_name ] )
+			? locate_template( array( 'starmus/' . $template_name ) )
 			: '';
 
 		$template_path = $theme_template ?: ( STARMUS_PATH . 'src/templates/' . $template_name );

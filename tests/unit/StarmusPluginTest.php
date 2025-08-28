@@ -22,6 +22,6 @@ final class StarmusPluginTest extends TestCase
 
         // You might want to mock dependencies later
         $this->expectNotToPerformAssertions();
-        $plugin->init();
+        $plugin->starmus_init();
     }
 }

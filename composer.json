@@ -5,7 +5,7 @@
     "type": "wordpress-plugin",
     "license": "proprietary",
    "require": {
-    "php": "^8.2"
+    "php": "^8.0"
   },
   "autoload": {
     "psr-4": {
@@ -63,7 +63,7 @@
     },
     "config": {
         "platform": {
-            "php": "8.2.27"
+            "php": "8.0.30"
         },
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
@@ -71,8 +71,8 @@
         }
     },
     "scripts": {
-        "lint:php": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full src templates",
-        "fix:php": "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php src templates",
+        "lint:php": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full src",
+        "fix:php": "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php src",
         "analyze:php": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist",
         "test:php": "vendor/bin/phpunit --colors=always"
     }

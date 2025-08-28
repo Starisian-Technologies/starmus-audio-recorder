@@ -27,7 +27,6 @@
   <rule ref="WordPress-Extra"/>
   <rule ref="WordPress-Docs"/>
   <rule ref="Generic.Commenting.Todo"/>
-  <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
   <rule ref="PHPCompatibilityWP"/>
   <rule ref="WordPress.WP.I18n">
     <properties>

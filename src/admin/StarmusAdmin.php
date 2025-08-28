@@ -24,8 +24,8 @@ class StarmusAdmin {
 	const MENU_SLUG = 'starmus-admin';
 
 	public function __construct() {
-		add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
-		add_action( 'admin_init', [ $this, 'register_settings' ] );
+		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
 	}
 
 	/**
@@ -33,7 +33,7 @@ class StarmusAdmin {
 	 */
 	public function add_admin_menu(): void {
 		// REFACTOR: Use the get() method for consistency.
-		$cpt_slug = StarmusSettings::get( 'cpt_slug' );
+		$cpt_slug    = StarmusSettings::get( 'cpt_slug' );
 		$parent_slug = 'edit.php?post_type=' . $cpt_slug;
 
 		add_submenu_page(
@@ -42,7 +42,7 @@ class StarmusAdmin {
 			__( 'Settings', 'starmus_audio_recorder' ),
 			'manage_options',
 			self::MENU_SLUG,
-			[ $this, 'render_settings_page' ]
+			array( $this, 'render_settings_page' )
 		);
 	}
 
@@ -70,21 +70,21 @@ class StarmusAdmin {
 	 */
 	public function register_settings(): void {
 		// REFACTOR: Use the constant from StarmusSettings for a single source of truth.
-		register_setting( 'starmus_settings_group', StarmusSettings::OPTION_KEY, [ $this, 'sanitize_settings' ] );
+		register_setting( 'starmus_settings_group', StarmusSettings::OPTION_KEY, array( $this, 'sanitize_settings' ) );
 
 		// Section 1: Custom Post Type Settings
 		add_settings_section( 'starmus_cpt_section', __( 'Custom Post Type Settings', 'starmus_audio_recorder' ), null, self::MENU_SLUG );
 		add_settings_field(
 			'cpt_slug',
 			__( 'Post Type Slug', 'starmus_audio_recorder' ),
-			[ $this, 'render_field' ], // REFACTOR: Use the single render callback
+			array( $this, 'render_field' ), // REFACTOR: Use the single render callback
 			self::MENU_SLUG,
 			'starmus_cpt_section',
-			[ 
-				'id' => 'cpt_slug',
-				'type' => 'text',
+			array(
+				'id'          => 'cpt_slug',
+				'type'        => 'text',
 				'description' => __( 'The internal name for the post type. Use lowercase letters, numbers, and underscores only. <strong>Warning: Changing this will hide existing submissions until it\'s changed back.</strong>', 'starmus_audio_recorder' ),
-			]
+			)
 		);
 
 		// Section 2: File Upload and Recording Rules
@@ -92,92 +92,92 @@ class StarmusAdmin {
 		add_settings_field(
 			'file_size_limit',
 			__( 'Max File Size (MB)', 'starmus_audio_recorder' ),
-			[ $this, 'render_field' ], // REFACTOR: Use the single render callback
+			array( $this, 'render_field' ), // REFACTOR: Use the single render callback
 			self::MENU_SLUG,
 			'starmus_rules_section',
-			[ 
-				'id' => 'file_size_limit', 
-				'type' => 'number',
+			array(
+				'id'          => 'file_size_limit',
+				'type'        => 'number',
 				'description' => __( 'Maximum allowed file size for uploads in Megabytes.', 'starmus_audio_recorder' ),
-			]
+			)
 		);
 		add_settings_field(
 			'allowed_file_types',
 			__( 'Allowed File Extensions', 'starmus_audio_recorder' ),
-			[ $this, 'render_field' ], // REFACTOR: Use the single render callback
+			array( $this, 'render_field' ), // REFACTOR: Use the single render callback
 			self::MENU_SLUG,
 			'starmus_rules_section',
-			[ 
-				'id' => 'allowed_file_types', 
-				'type' => 'textarea',
+			array(
+				'id'          => 'allowed_file_types',
+				'type'        => 'textarea',
 				'description' => __( 'Comma-separated list of allowed audio file extensions (e.g., mp3, wav, webm, m4a).', 'starmus_audio_recorder' ),
-			]
+			)
 		);
-		
+
 		// Section 3: Privacy Settings
 		add_settings_section( 'starmus_privacy_section', __( 'Privacy & Form Settings', 'starmus_audio_recorder' ), null, self::MENU_SLUG );
 		add_settings_field(
 			'consent_message',
 			__( 'Consent Checkbox Message', 'starmus_audio_recorder' ),
-			[ $this, 'render_field' ], // REFACTOR: Use the single render callback
+			array( $this, 'render_field' ), // REFACTOR: Use the single render callback
 			self::MENU_SLUG,
 			'starmus_privacy_section',
-			[ 
-				'id' => 'consent_message', 
-				'type' => 'textarea',
+			array(
+				'id'          => 'consent_message',
+				'type'        => 'textarea',
 				'description' => __( 'The text displayed next to the consent checkbox. Basic HTML is allowed.', 'starmus_audio_recorder' ),
-			]
+			)
 		);
 		add_settings_field(
 			'collect_ip_ua',
 			__( 'Store IP & User Agent', 'starmus_audio_recorder' ),
-			[ $this, 'render_field' ], // REFACTOR: Use the single render callback
+			array( $this, 'render_field' ), // REFACTOR: Use the single render callback
 			self::MENU_SLUG,
 			'starmus_privacy_section',
-			[
-				'id' => 'collect_ip_ua',
-				'type' => 'checkbox',
-				'label' => __( 'Save submitter IP address and browser user agent.', 'starmus_audio_recorder' ),
+			array(
+				'id'          => 'collect_ip_ua',
+				'type'        => 'checkbox',
+				'label'       => __( 'Save submitter IP address and browser user agent.', 'starmus_audio_recorder' ),
 				'description' => __( 'Requires user consent. Leave unchecked to anonymize submissions.', 'starmus_audio_recorder' ),
-			]
+			)
 		);
 		// NEW: Add a setting for the edit page URL from the previous review
-        add_settings_field(
-            'edit_page_id',
-            __('Edit Page', 'starmus_audio_recorder'),
-            [$this, 'render_field'],
-            self::MENU_SLUG,
-            'starmus_privacy_section',
-            [
-                'id' => 'edit_page_id',
-                'type' => 'pages_dropdown',
-                'description' => __('Select the page that contains the `[starmus_audio_editor]` shortcode.', 'starmus_audio_recorder'),
-            ]
-        );
+		add_settings_field(
+			'edit_page_id',
+			__( 'Edit Page', 'starmus_audio_recorder' ),
+			array( $this, 'render_field' ),
+			self::MENU_SLUG,
+			'starmus_privacy_section',
+			array(
+				'id'          => 'edit_page_id',
+				'type'        => 'pages_dropdown',
+				'description' => __( 'Select the page that contains the `[starmus_audio_editor]` shortcode.', 'starmus_audio_recorder' ),
+			)
+		);
 	}
 
 	/**
 	 * Sanitizes all settings before saving to the database.
 	 */
 	public function sanitize_settings( array $input ): array {
-		$sanitized = [];
+		$sanitized = array();
 		// REFACTOR: Get defaults from the canonical source to stay in sync.
 		$defaults = StarmusSettings::get_defaults();
 
-		$sanitized['cpt_slug'] = ! empty( $input['cpt_slug'] ) ? sanitize_key( $input['cpt_slug'] ) : $defaults['cpt_slug'];
+		$sanitized['cpt_slug']        = ! empty( $input['cpt_slug'] ) ? sanitize_key( $input['cpt_slug'] ) : $defaults['cpt_slug'];
 		$sanitized['file_size_limit'] = isset( $input['file_size_limit'] ) ? absint( $input['file_size_limit'] ) : $defaults['file_size_limit'];
-		
+
 		if ( ! empty( $input['allowed_file_types'] ) ) {
-			$types = array_map('trim', explode(',', $input['allowed_file_types']));
-			$types = array_map('sanitize_text_field', $types);
-			$sanitized['allowed_file_types'] = implode(',', array_filter($types));
+			$types                           = array_map( 'trim', explode( ',', $input['allowed_file_types'] ) );
+			$types                           = array_map( 'sanitize_text_field', $types );
+			$sanitized['allowed_file_types'] = implode( ',', array_filter( $types ) );
 		} else {
 			$sanitized['allowed_file_types'] = $defaults['allowed_file_types'];
 		}
 
 		$sanitized['consent_message'] = ! empty( $input['consent_message'] ) ? wp_kses_post( $input['consent_message'] ) : $defaults['consent_message'];
-		$sanitized['collect_ip_ua'] = ! empty( $input['collect_ip_ua'] ) ? 1 : 0;
-		$sanitized['edit_page_id'] = isset($input['edit_page_id']) ? absint($input['edit_page_id']) : 0;
+		$sanitized['collect_ip_ua']   = ! empty( $input['collect_ip_ua'] ) ? 1 : 0;
+		$sanitized['edit_page_id']    = isset( $input['edit_page_id'] ) ? absint( $input['edit_page_id'] ) : 0;
 
 		return $sanitized;
 	}
@@ -201,21 +201,26 @@ class StarmusAdmin {
 			case 'checkbox':
 				printf(
 					'<label><input type="checkbox" id="%s" name="%s" value="1" %s /> %s</label>',
-					$id, $name, checked( 1, $value, false ), esc_html( $args['label'] ?? '' )
+					$id,
+					$name,
+					checked( 1, $value, false ),
+					esc_html( $args['label'] ?? '' )
 				);
 				break;
 
 			case 'number':
 				printf( '<input type="number" id="%s" name="%s" value="%s" class="small-text" min="0" />', $id, $name, esc_attr( $value ) );
 				break;
-			
+
 			case 'pages_dropdown':
-				wp_dropdown_pages([
-					'name' => $name,
-					'selected' => $value,
-					'show_option_none' => __('— Select a Page —', 'starmus_audio_recorder'),
-					'option_none_value' => '0',
-				]);
+				wp_dropdown_pages(
+					array(
+						'name'              => $name,
+						'selected'          => $value,
+						'show_option_none'  => __( '— Select a Page —', 'starmus_audio_recorder' ),
+						'option_none_value' => '0',
+					)
+				);
 				break;
 
 			case 'text':
@@ -225,7 +230,7 @@ class StarmusAdmin {
 		}
 
 		if ( ! empty( $args['description'] ) ) {
-			printf( '<p class="description">%s</p>', wp_kses( $args['description'], [ 'strong' => [] ] ) );
+			printf( '<p class="description">%s</p>', wp_kses( $args['description'], array( 'strong' => array() ) ) );
 		}
 	}
 }

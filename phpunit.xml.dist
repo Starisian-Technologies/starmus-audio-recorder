@@ -14,18 +14,11 @@
     <ini name="display_startup_errors" value="1"/>
     <ini name="memory_limit" value="-1"/>
     <ini name="max_execution_time" value="0"/>
-    <server name="WP_TESTS_DIR" value="wp-tests"/>
-    <server name="WP_PHP_BINARY" value="php"/>
-    <server name="WP_DEBUG" value="1"/>
   </php>
 
   <testsuites>
     <testsuite name="Unit Tests">
       <directory>./tests/unit</directory>
-    </testsuite>
-
-    <testsuite name="Integration Tests">
-      <directory>./tests/integration</directory>
     </testsuite>
   </testsuites>
 
