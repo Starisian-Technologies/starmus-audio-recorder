@@ -71,7 +71,7 @@ jobs:
             starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip.sha1
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8
         with:
           files: |
             starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip
