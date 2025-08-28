@@ -41,10 +41,10 @@ jobs:
           test -f vendor/autoload.php || { echo "vendor/autoload.php missing (did .distignore exclude vendor/?)"; exit 1; }
 
         # Optional: build frontend if you rely on a build step
-      - name: Build assets
-        run: |
-          npm ci
-          npm run build
+     # - name: Build assets
+      #  run: |
+      #    npm ci
+      #    npm run build
 
       - name: Ensure .distignore exists
         run: test -f .distignore || { echo ".distignore is missing"; exit 1; }
