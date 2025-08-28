@@ -27,8 +27,7 @@ final class StarmusPlugin
      */
     private function __construct()
     {
-        // Hook the main initialization method into the 'init' action.
-        add_action('init', [$this, 'init']);
+        // do nothing
     }
 
     /**
@@ -45,7 +44,7 @@ final class StarmusPlugin
     /**
      * The main "engine room" of the plugin. Runs on 'init'.
      */
-    public function init(): void
+    public function starmus_init(): void
     {
         // Load translations first.
         load_plugin_textdomain('starmus_audio_recorder', false, dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/');
