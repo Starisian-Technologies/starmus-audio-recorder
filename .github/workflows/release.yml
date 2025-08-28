@@ -29,7 +29,7 @@ jobs:
           echo "version=${VER:-${GITHUB_REF_NAME#v}}" >> $GITHUB_OUTPUT
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4
         with:
           php-version: '8.2'
           tools: composer:v2
@@ -40,11 +40,11 @@ jobs:
           composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
           test -f vendor/autoload.php || { echo "vendor/autoload.php missing (did .distignore exclude vendor/?)"; exit 1; }
 
-      # Optional: build frontend if you rely on a build step
-      # - name: Build assets
-      #   run: |
-      #     npm ci
-      #     npm run build
+        # Optional: build frontend if you rely on a build step
+      - name: Build assets
+        run: |
+          npm ci
+          npm run build
 
       - name: Ensure .distignore exists
         run: test -f .distignore || { echo ".distignore is missing"; exit 1; }
