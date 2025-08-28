@@ -66,6 +66,10 @@ final class StarmusPlugin
      */
     public function init(): void
     {
+        // Because the CPT file is procedural, we load it here to ensure
+        // its hooks are registered at the correct time.
+        require_once STARMUS_PATH . 'src/includes/StarmusCustomPostType.php';
+        // initialize classes
         $this->instantiate_components();
         add_action('admin_notices', [$this, 'display_runtime_error_notice']);
     }
@@ -75,9 +79,6 @@ final class StarmusPlugin
      */
     private function instantiate_components(): void
     {
-        // The Custom Post Type is fundamental and should be initialized on 'init'.
-        $this->instantiate_component(StarmusCustomPostType::class);
-
         if (is_admin()) {
             $this->instantiate_component(StarmusAdmin::class);
         }
@@ -164,7 +165,6 @@ final class StarmusPlugin
     {
         // On activation, directly load the CPT class to ensure the post type is registered.
         require_once STARMUS_PATH . 'src/includes/StarmusCustomPostType.php';
-        new StarmusCustomPostType();
 
         self::add_custom_capabilities();
         flush_rewrite_rules(); // Flush rules after CPT and capabilities are correctly defined.
