@@ -81,6 +81,14 @@ class StarmusAudioRecorderUI {
 	}
 
 	/**
+	 * Clears the taxonomy term transients when a term is created or edited.
+	 */
+	public function clear_taxonomy_transients(): void {
+		delete_transient( 'starmus_languages_list' );
+		delete_transient( 'starmus_recording_types_list' );
+	}
+
+	/**
 	 * [starmus_audio_recorder]
 	 * Renders the recorder form, fetching and caching taxonomies for dynamic dropdowns.
 	 */
@@ -90,11 +98,10 @@ class StarmusAudioRecorderUI {
 		}
 		do_action( 'starmus_before_recorder_render' );
 
-		// --- IMPROVEMENT: Caching for Taxonomy Terms ---
+		// --- Caching for Taxonomy Terms ---
 		$languages = get_transient( 'starmus_languages_list' );
 		if ( false === $languages ) {
 			$languages = get_terms( array( 'taxonomy' => 'language', 'hide_empty' => false ) );
-			// Cache for 12 hours. The cache is automatically cleared if a term is updated (see constructor hooks).
 			set_transient( 'starmus_languages_list', $languages, 12 * HOUR_IN_SECONDS );
 		}
 
@@ -103,7 +110,7 @@ class StarmusAudioRecorderUI {
 			$recording_types = get_terms( array( 'taxonomy' => 'recording_type', 'hide_empty' => false ) );
 			set_transient( 'starmus_recording_types_list', $recording_types, 12 * HOUR_IN_SECONDS );
 		}
-		// --- END IMPROVEMENT ---
+		// --- End Caching ---
 
 		$attributes = shortcode_atts( array( 'form_id' => 'starmusAudioForm' ), $atts );
 
@@ -118,7 +125,6 @@ class StarmusAudioRecorderUI {
 			)
 		);
 	}
-
     /**
 	 * IMPROVEMENT: Add a function to clear our custom caches when terms are updated.
 	 */
