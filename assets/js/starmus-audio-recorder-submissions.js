@@ -34,18 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
         DEBUG_MODE: new URLSearchParams(window.location.search).has('starmus_debug')
     };
 
-    console.log(CONFIG.LOG_PREFIX, 'DOM fully loaded. Initializing audio form submissions.');
+    if (CONFIG.DEBUG_MODE) {
+        console.log(CONFIG.LOG_PREFIX, 'DOM fully loaded. Initializing audio form submissions in debug mode.');
+    }
 
     // --- Offline Queue Storage (IndexedDB with localStorage Fallback) ---
-    /**
-     * @type {boolean} - Flag indicating if IndexedDB is available and operational.
-     */
     let idbAvailable = 'indexedDB' in window;
 
-    /**
-     * A promise that resolves with the IndexedDB database instance.
-     * @type {Promise<IDBDatabase|null>}
-     */
     const dbPromise = (() => {
         if (!idbAvailable) return Promise.resolve(null);
         return new Promise((resolve) => {
@@ -83,11 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Blob([array], { type: mime });
     }
 
-    /**
-     * Adds or updates an item in the offline queue.
-     * @param {object} item - The submission item to enqueue.
-     * @returns {Promise<void>}
-     */
     async function enqueue(item) {
         if (idbAvailable) {
             try {
@@ -103,10 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 idbAvailable = false; // Fallback for this session
             }
         }
-        // Fallback to localStorage
         const list = JSON.parse(localStorage.getItem(CONFIG.DB_NAME) || '[]');
         const base64 = await blobToBase64(item.audio);
-        const storableItem = { ...item, audioData: base64, audio: undefined }; // Don't store blob in LS
+        const storableItem = { ...item, audioData: base64, audio: undefined };
         const existingIndex = list.findIndex(i => i.id === item.id);
         if (existingIndex > -1) {
             list[existingIndex] = storableItem;
@@ -116,10 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(CONFIG.DB_NAME, JSON.stringify(list));
     }
 
-    /**
-     * Retrieves all items from the offline queue.
-     * @returns {Promise<object[]>}
-     */
     async function getAllItems() {
         if (idbAvailable) {
             try {
@@ -138,11 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return list.map(item => ({ ...item, audio: base64ToBlob(item.audioData) }));
     }
 
-    /**
-     * Deletes an item from the offline queue by its ID.
-     * @param {string} id - The unique ID of the item to delete.
-     * @returns {Promise<void>}
-     */
     async function deleteItem(id) {
         if (idbAvailable) {
             try {
@@ -162,33 +142,21 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(CONFIG.DB_NAME, JSON.stringify(list.filter(i => i.id !== id)));
     }
 
-    // --- Unified Uploader & Queue Processing ---
-    /**
-     * The core upload function. Handles chunking, retries, and queueing.
-     * @param {object} item - The submission item to upload.
-     * @returns {Promise<boolean>} - True if fully uploaded, false if failed and queued.
-     */
-    async function uploadSubmission(item) {
+    async function uploadSubmission(item, formInstanceId) {
         let offset = item.uploadedBytes || 0;
 
         while (offset < item.audio.size) {
             if (!navigator.onLine) {
                 console.warn(CONFIG.LOG_PREFIX, 'Upload paused: connection lost.');
                 await enqueue({ ...item, uploadedBytes: offset });
-                return false;
+                return { success: false, queued: true };
             }
 
             const chunk = item.audio.slice(offset, offset + CONFIG.CHUNK_SIZE);
             const fd = new FormData();
-
-            // Append WordPress-specific data (action, nonce) from the saved item
-            for (const key in item.wordpressData) {
-                fd.append(key, item.wordpressData[key]);
-            }
-            // Append other metadata from the form
-            for (const key in item.meta) {
-                fd.append(key, item.meta[key]);
-            }
+            
+            Object.keys(item.wordpressData).forEach(key => fd.append(key, item.wordpressData[key]));
+            Object.keys(item.meta).forEach(key => fd.append(key, item.meta[key]));
             
             fd.append(item.audioField, chunk, item.meta.fileName || 'audio.webm');
             fd.append('chunk_offset', offset);
@@ -197,74 +165,68 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(item.ajaxUrl, { method: 'POST', body: fd });
                 if (!response.ok) {
-                    // Try to get a specific error message from the JSON body
                     const errorData = await response.json().catch(() => null);
-                    const errorMessage = errorData?.data?.message || `Server responded with status ${response.status}`;
-                    throw new Error(errorMessage);
+                    throw new Error(errorData?.data?.message || `Server responded with status ${response.status}`);
                 }
-
                 const data = await response.json();
                 if (!data.success) {
                     throw new Error(data?.data?.message || 'Server returned a failure response.');
                 }
                 
                 offset += chunk.size;
-                console.log(CONFIG.LOG_PREFIX, `Chunk uploaded. Progress: ${offset}/${item.audio.size}`);
+                if (CONFIG.DEBUG_MODE) console.log(CONFIG.LOG_PREFIX, `Chunk uploaded. Progress: ${offset}/${item.audio.size}`);
+
+                // If this is the last chunk, the response may contain the redirect URL
+                if (offset >= item.audio.size) {
+                    await deleteItem(item.id);
+                    return { success: true, queued: false, redirectUrl: data.data?.redirect_url };
+                }
 
             } catch (err) {
                 console.error(CONFIG.LOG_PREFIX, 'Chunk upload failed. Queuing submission for later.', err);
                 await enqueue({ ...item, uploadedBytes: offset });
-                return false;
+                return { success: false, queued: true };
             }
         }
-
-        console.log(CONFIG.LOG_PREFIX, `Upload complete for item ${item.id}. Removing from queue.`);
+        
+        // This part should ideally be covered by the last chunk logic above
         await deleteItem(item.id);
-        return true;
+        return { success: true, queued: false };
     }
 
     let isProcessingQueue = false;
-    /**
-     * Processes all items currently in the offline queue.
-     * @returns {Promise<void>}
-     */
     async function processQueue() {
         if (isProcessingQueue || !navigator.onLine) return;
         isProcessingQueue = true;
+        
         const retryBtn = document.getElementById('starmus_queue_retry');
         if (retryBtn) retryBtn.disabled = true;
+        
         console.log(CONFIG.LOG_PREFIX, "Processing offline queue...");
-
         const items = await getAllItems();
         if (items.length > 0) {
             for (const item of items) {
-                const success = await uploadSubmission(item);
-                if (!success) {
+                const result = await uploadSubmission(item);
+                if (!result.success) {
                     console.warn(CONFIG.LOG_PREFIX, "Queue processing paused due to an upload failure.");
-                    break; // Stop processing further items if one fails
+                    break; 
                 }
             }
         }
-
         isProcessingQueue = false;
         if (retryBtn) retryBtn.disabled = false;
         await updateQueueUI();
     }
 
-    // --- UI and Event Listeners ---
     const queueBanner = document.createElement('div');
     queueBanner.id = 'starmus_queue_banner';
     queueBanner.className = 'starmus_status starmus_visually_hidden';
     queueBanner.setAttribute('aria-live', 'polite');
-    queueBanner.innerHTML = `<span class="starmus_status__text" id="starmus_queue_count"></span> <button type="button" id="starmus_queue_retry" class="button">Retry Uploads</button>`;
+    queueBanner.innerHTML = `<span class="starmus_status__text" id="starmus_queue_count"></span> <button type="button" id="starmus_queue_retry" class="sparxstar_button">Retry Uploads</button>`;
     document.body.appendChild(queueBanner);
 
-    document.getElementById('starmus_queue_retry').addEventListener('click', processQueue);
+    document.getElementById('starmus_queue_retry')?.addEventListener('click', processQueue);
 
-    /**
-     * Updates the visibility and text of the offline queue UI banner.
-     * @returns {Promise<void>}
-     */
     async function updateQueueUI() {
         const items = await getAllItems();
         const countSpan = document.getElementById('starmus_queue_count');
@@ -278,10 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('online', processQueue);
     updateQueueUI();
-    if (navigator.onLine) {
-        // Delay initial queue processing slightly to let the page settle.
-        setTimeout(processQueue, 2000);
-    }
+    if (navigator.onLine) setTimeout(processQueue, 2000);
 
     // --- Form Initialization and Handling ---
     const recorderWrappers = document.querySelectorAll('[data-enabled-recorder]');
@@ -291,53 +250,115 @@ document.addEventListener('DOMContentLoaded', () => {
         const formInstanceId = wrapper.id.substring('starmus_audioWrapper_'.length);
         const formElement = document.getElementById(formInstanceId);
 
-        const _updateStatus = (message, type = 'info', makeVisible = true, reEnableSubmit = false) => {
-            const statusDiv = document.getElementById(`sparxstar_status_${formInstanceId}`); // Keep old name for compatibility if needed
-            if (statusDiv) {
-                const textSpan = statusDiv.querySelector('.sparxstar_status__text');
-                if (textSpan) textSpan.textContent = message;
-                statusDiv.className = `sparxstar_status ${type}`;
-                if (makeVisible) statusDiv.classList.remove('sparxstar_visually_hidden');
-            }
-            if (reEnableSubmit) {
-                const submitButton = document.getElementById(`submit_button_${formInstanceId}`);
-                if (submitButton) submitButton.disabled = false;
-            }
-        };
-
         if (!formElement) {
             return console.error(CONFIG.LOG_PREFIX, `Form element not found for instance ID: ${formInstanceId}.`);
         }
 
-        if (typeof StarmusAudioRecorder?.init === 'function') {
-            StarmusAudioRecorder.init({
-                formInstanceId: formInstanceId
-            }).then(success => {
-                if (success) {
-                    console.log(CONFIG.LOG_PREFIX, `Recorder module initialized successfully for ${formInstanceId}.`);
-                } else {
-                    _updateStatus('Recorder failed to load.', 'error');
-                }
-            });
-        } else {
-            console.error(CONFIG.LOG_PREFIX, 'StarmusAudioRecorder module is not available.');
-            _updateStatus('Critical error: Recorder unavailable.', 'error');
+        // --- NEW: Two-Step Form & Geolocation Logic ---
+        const step1 = formElement.querySelector(`#starmus_step_1_${formInstanceId}`);
+        const step2 = formElement.querySelector(`#starmus_step_2_${formInstanceId}`);
+        const continueBtn = formElement.querySelector(`#starmus_continue_btn_${formInstanceId}`);
+        
+        if (!step1 || !step2 || !continueBtn) {
+            console.error(CONFIG.LOG_PREFIX, 'Multi-step form elements are missing. Defaulting to show recorder.');
+            if (step1) step1.style.display = 'none';
+            if (step2) step2.style.display = 'block';
+            // Initialize recorder directly as a fallback
+            initializeRecorder(formInstanceId); 
+            return;
         }
 
+        continueBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            const errorMessageDiv = formElement.querySelector(`#starmus_step_1_error_${formInstanceId}`);
+            
+            const fieldsToValidate = [
+                { id: `audio_title_${formInstanceId}`, name: 'Title', type: 'text' },
+                { id: `language_${formInstanceId}`, name: 'Language', type: 'select' },
+                { id: `recording_type_${formInstanceId}`, name: 'Recording Type', type: 'select' },
+                { id: `audio_consent_${formInstanceId}`, name: 'Consent', type: 'checkbox' }
+            ];
+
+            errorMessageDiv.style.display = 'none';
+            errorMessageDiv.textContent = '';
+            fieldsToValidate.forEach(field => document.getElementById(field.id)?.removeAttribute('aria-describedby'));
+
+            for (const field of fieldsToValidate) {
+                const input = document.getElementById(field.id);
+                if (!input) continue;
+                let isValid = true;
+                if (field.type === 'text') isValid = input.value.trim() !== '';
+                if (field.type === 'select') isValid = input.value !== '';
+                if (field.type === 'checkbox') isValid = input.checked;
+
+                if (!isValid) {
+                    errorMessageDiv.textContent = `Please complete the "${field.name}" field.`;
+                    errorMessageDiv.style.display = 'block';
+                    errorMessageDiv.id = `starmus_step_1_error_${formInstanceId}`; // Ensure it has an ID
+                    input.focus();
+                    input.setAttribute('aria-describedby', errorMessageDiv.id);
+                    return;
+                }
+            }
+            captureGeolocationAndProceed();
+        });
+        
+        function captureGeolocationAndProceed() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        formElement.querySelector(`#gps_latitude_${formInstanceId}`).value = position.coords.latitude;
+                        formElement.querySelector(`#gps_longitude_${formInstanceId}`).value = position.coords.longitude;
+                        if (CONFIG.DEBUG_MODE) console.log(CONFIG.LOG_PREFIX, 'GPS Location captured.');
+                        transitionToStep2();
+                    },
+                    (error) => {
+                        console.warn(CONFIG.LOG_PREFIX, `Geolocation error (${error.code}): ${error.message}`);
+                        transitionToStep2();
+                    }
+                );
+            } else {
+                console.log(CONFIG.LOG_PREFIX, "Geolocation is not available.");
+                transitionToStep2();
+            }
+        }
+
+        function transitionToStep2() {
+            step1.style.display = 'none';
+            step2.style.display = 'block';
+            const step2Heading = formElement.querySelector(`#sparxstar_audioRecorderHeading_${formInstanceId}`);
+            if (step2Heading) {
+                step2Heading.setAttribute('tabindex', '-1');
+                step2Heading.focus();
+            }
+            initializeRecorder(formInstanceId);
+        }
+
+        function initializeRecorder(instanceId) {
+            if (typeof StarmusAudioRecorder?.init === 'function') {
+                StarmusAudioRecorder.init({ formInstanceId: instanceId })
+                    .then(success => {
+                        if (success && CONFIG.DEBUG_MODE) {
+                            console.log(CONFIG.LOG_PREFIX, `Recorder module initialized for ${instanceId}.`);
+                        }
+                    });
+            } else {
+                console.error(CONFIG.LOG_PREFIX, 'StarmusAudioRecorder module is not available.');
+            }
+        }
+
+        // --- Original Submit Handler ---
         formElement.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const audioIdField = document.getElementById(`audio_uuid_${formInstanceId}`);
             const audioFileInput = document.getElementById(`audio_file_${formInstanceId}`);
-            const consentCheckbox = document.getElementById(`audio_consent_${formInstanceId}`);
             const submitButton = document.getElementById(`submit_button_${formInstanceId}`);
             const loaderDiv = document.getElementById(`sparxstar_loader_overlay_${formInstanceId}`);
 
             if (!audioIdField?.value || !audioFileInput?.files?.length) {
-                return _updateStatus('Error: No audio file has been recorded or selected to submit.', 'error');
-            }
-            if (consentCheckbox && !consentCheckbox.checked) {
-                return _updateStatus('Error: You must provide consent to submit.', 'error');
+                alert('Error: No audio file has been recorded to submit.');
+                return;
             }
 
             if (submitButton) submitButton.disabled = true;
@@ -346,13 +367,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData(formElement);
             const meta = {};
             formData.forEach((value, key) => {
-                if (!(value instanceof File)) {
-                    meta[key] = value;
-                }
+                if (!(value instanceof File)) meta[key] = value;
             });
 
-            // CRITICAL FIX: Save the WordPress-specific data to the submission item
-            // so it persists in the offline queue and can be used by processQueue().
             const wordpressData = {
                 action: starmusFormData?.action,
                 nonce: starmusFormData?.nonce,
@@ -360,38 +377,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const submissionItem = {
                 id: audioIdField.value,
-                meta: meta,
-                wordpressData: wordpressData, // Save it here!
+                meta,
+                wordpressData,
                 audio: audioFileInput.files[0],
                 ajaxUrl: starmusFormData?.ajax_url || '/wp-admin/admin-ajax.php',
                 audioField: audioFileInput.name,
                 uploadedBytes: 0
             };
 
-            if (CONFIG.DEBUG_MODE) {
-                console.log(CONFIG.LOG_PREFIX, '--- Submission Data ---', submissionItem);
-            }
+            if (CONFIG.DEBUG_MODE) console.log(CONFIG.LOG_PREFIX, '--- Submission Data ---', submissionItem);
 
-            const success = await uploadSubmission(submissionItem);
+            const result = await uploadSubmission(submissionItem, formInstanceId);
 
             if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden');
 
-            if (success) {
-                _updateStatus('Successfully submitted!', 'success');
-                formElement.reset();
-                if (typeof StarmusAudioRecorder?.cleanup === 'function') {
-                    StarmusAudioRecorder.cleanup(formInstanceId);
+            if (result.success) {
+                // Check for a redirect URL from the final successful chunk upload
+                if (result.redirectUrl) {
+                    window.location.href = result.redirectUrl;
+                } else {
+                    alert('Successfully submitted!');
+                    formElement.reset();
+                    if (typeof StarmusAudioRecorder?.cleanup === 'function') {
+                        StarmusAudioRecorder.cleanup(formInstanceId);
+                    }
                 }
-                if (typeof window.onStarmusSubmitSuccess === 'function') {
-                    window.onStarmusSubmitSuccess(formInstanceId, { message: 'Success' });
-                }
-            } else {
-                _updateStatus('Connection issue. Your recording has been saved and will be uploaded automatically when you are back online.', 'info', true, true);
+            } else if (result.queued) {
+                alert('Connection issue. Your recording has been saved and will be uploaded automatically when you are back online.');
                 formElement.reset();
                 if (typeof StarmusAudioRecorder?.cleanup === 'function') {
                     StarmusAudioRecorder.cleanup(formInstanceId);
                 }
                 await updateQueueUI();
+            } else {
+                alert('An unknown error occurred during upload.');
+                if (submitButton) submitButton.disabled = false;
             }
         });
     });
