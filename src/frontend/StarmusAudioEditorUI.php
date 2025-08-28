@@ -22,6 +22,10 @@ class StarmusAudioEditorUI {
     }
 
 	public function render_audio_editor_shortcode(): string {
+        if ( ! is_user_logged_in() ) {
+            return '<p>' . esc_html__( 'You must be logged in to edit audio.', 'starmus_audio_recorder' ) . '</p>';
+        }
+
         do_action('starmus_before_editor_render');
 		$context = $this->get_editor_context();
 		if ( is_wp_error($context) ) {

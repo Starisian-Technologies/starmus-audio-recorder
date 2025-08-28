@@ -75,6 +75,10 @@ class StarmusAudioRecorderUI {
  * Renders the recorder form, fetching taxonomies for dynamic dropdowns.
  */
 public function render_recorder_shortcode( $atts = [] ): string {
+    if ( ! is_user_logged_in() ) {
+        return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus_audio_recorder' ) . '</p>';
+    }
+
     /**
      * NEW PRE-RENDER HOOK
      * Fires right before the audio recorder shortcode attempts to render.

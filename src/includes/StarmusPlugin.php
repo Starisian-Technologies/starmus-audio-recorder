@@ -83,21 +83,10 @@ final class StarmusPlugin
             $this->instantiate_component(StarmusAdmin::class);
         }
 
-        // Defer frontend checks until the 'wp' action hook, when the main query is set up.
-        // This is a form of "lazy-loading" that prevents unnecessary object creation on every page load.
-        add_action('wp', function() {
-            if (!is_user_logged_in()) {
-                return;
-            }
-
-            if (current_user_can(self::CAP_EDIT_AUDIO) || current_user_can('edit_posts')) {
-                $this->instantiate_component(StarmusAudioEditorUI::class);
-            }
-
-            if (current_user_can(self::CAP_RECORD_AUDIO) || current_user_can('edit_posts') || current_user_can('contributor')) {
-                $this->instantiate_component(StarmusAudioRecorderUI::class);
-            }
-        });
+        // Always instantiate frontend UI classes to ensure shortcodes are registered
+        // The classes themselves handle permission checks in their methods
+        $this->instantiate_component(StarmusAudioEditorUI::class);
+        $this->instantiate_component(StarmusAudioRecorderUI::class);
     }
 
     /**
