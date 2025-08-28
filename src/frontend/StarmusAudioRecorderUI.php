@@ -47,7 +47,11 @@ class StarmusAudioRecorderUI {
 			wp_schedule_event( time(), 'hourly', 'starmus_cleanup_temp_files' );
 		}
 		add_action( 'starmus_cleanup_temp_files', array( $this, 'cleanup_stale_temp_files' ) );
-	}
+        
+	    // hooks that call the cache clearing function.
+        add_action( 'saved_term', array( $this, 'clear_taxonomy_transients' ) );
+        add_action( 'delete_term', array( $this, 'clear_taxonomy_transients' ) );
+    }
 
 	/**
 	 * [starmus_my_recordings]
@@ -78,15 +82,31 @@ class StarmusAudioRecorderUI {
 
 	/**
 	 * [starmus_audio_recorder]
+	 * Renders the recorder form, fetching and caching taxonomies for dynamic dropdowns.
 	 */
 	public function render_recorder_shortcode( $atts = array() ): string {
 		if ( ! is_user_logged_in() ) {
 			return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus_audio_recorder' ) . '</p>';
 		}
 		do_action( 'starmus_before_recorder_render' );
-		$attributes      = shortcode_atts( array( 'form_id' => 'starmusAudioForm' ), $atts );
-		$recording_types = get_terms( array( 'taxonomy' => 'recording_type', 'hide_empty' => false ) );
-		$languages       = get_terms( array( 'taxonomy' => 'language', 'hide_empty' => false ) );
+
+		// --- IMPROVEMENT: Caching for Taxonomy Terms ---
+		$languages = get_transient( 'starmus_languages_list' );
+		if ( false === $languages ) {
+			$languages = get_terms( array( 'taxonomy' => 'language', 'hide_empty' => false ) );
+			// Cache for 12 hours. The cache is automatically cleared if a term is updated (see constructor hooks).
+			set_transient( 'starmus_languages_list', $languages, 12 * HOUR_IN_SECONDS );
+		}
+
+		$recording_types = get_transient( 'starmus_recording_types_list' );
+		if ( false === $recording_types ) {
+			$recording_types = get_terms( array( 'taxonomy' => 'recording_type', 'hide_empty' => false ) );
+			set_transient( 'starmus_recording_types_list', $recording_types, 12 * HOUR_IN_SECONDS );
+		}
+		// --- END IMPROVEMENT ---
+
+		$attributes = shortcode_atts( array( 'form_id' => 'starmusAudioForm' ), $atts );
+
 		return $this->render_template(
 			'starmus-audio-recorder-ui.php',
 			array(
@@ -98,6 +118,15 @@ class StarmusAudioRecorderUI {
 			)
 		);
 	}
+
+    /**
+	 * IMPROVEMENT: Add a function to clear our custom caches when terms are updated.
+	 */
+	public function clear_taxonomy_transients(): void {
+		delete_transient( 'starmus_languages_list' );
+		delete_transient( 'starmus_recording_types_list' );
+	}
+
 
 	/**
 	 * Enqueues scripts and styles.
