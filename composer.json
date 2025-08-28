@@ -9,7 +9,10 @@
   },
   "autoload": {
     "psr-4": {
-      "Starmus\\": "src/"
+      "Starmus\\": "src/",
+      "Starmus\\admin\\": "src/admin/",
+      "Starmus\\frontend\\": "src/frontend/",
+      "Starmus\\includes\\": "src/includes/"
     }
   },
   "autoload-dev": {

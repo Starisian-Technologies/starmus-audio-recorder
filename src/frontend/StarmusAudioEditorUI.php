@@ -36,7 +36,7 @@ class StarmusAudioEditorUI {
 		}
 
 		// This allows themes to override the template file.
-		$tpl = locate_template('starmus/audio-editor.php') ?: STARMUS_PATH.'templates/starmus-audio-editor-ui.php';
+		$tpl = locate_template('starmus/audio-editor.php') ?: STARMUS_PATH.'src/templates/starmus-audio-editor-ui.php';
 		
 		ob_start();
 		// The $context array is now available inside the included template file.

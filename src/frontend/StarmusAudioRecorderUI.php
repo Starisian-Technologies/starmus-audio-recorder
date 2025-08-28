@@ -19,6 +19,9 @@ if (!defined('ABSPATH')) {
 
 class StarmusAudioRecorderUI
 {
+    private static $upload_dir_cache = null;
+    private static $settings_cache = [];
+
     /**
      * Constructor. Registers all necessary hooks and shortcodes.
      */
@@ -28,6 +31,7 @@ class StarmusAudioRecorderUI
         add_shortcode('starmus_audio_recorder', [$this, 'render_recorder_shortcode']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
         add_action('wp_ajax_starmus_handle_upload_chunk', [$this, 'handle_upload_chunk']);
+        add_action('wp_ajax_nopriv_starmus_handle_upload_chunk', [$this, 'handle_upload_chunk']);
     }
 
     /**
@@ -83,28 +87,30 @@ class StarmusAudioRecorderUI
      */
     public function enqueue_scripts(): void
     {
-        global $post;
-        if (!is_a($post, 'WP_Post') || !is_singular()) {
+        if (!is_singular() || !get_queried_object()) {
             return;
         }
 
-        $has_recorder = has_shortcode($post->post_content, 'starmus_audio_recorder');
-        $has_list = has_shortcode($post->post_content, 'starmus_my_recordings');
+        $content = get_queried_object()->post_content ?? '';
+        $has_recorder = str_contains($content, '[starmus_audio_recorder');
+        $has_list = str_contains($content, '[starmus_my_recordings');
+
+        if (!$has_recorder && !$has_list) {
+            return;
+        }
 
         if ($has_recorder) {
-            wp_enqueue_script('starmus-audio-recorder-module', STARMUS_URL . 'assets/js/starmus-audio-recorder-module.min.js', [], STARMUS_VERSION, ['in_footer' => true]);
-            wp_enqueue_script('starmus-audio-recorder-submissions', STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.min.js', ['starmus-audio-recorder-module'], STARMUS_VERSION, ['in_footer' => true]);
-
-            wp_localize_script('starmus-audio-recorder-submissions', 'starmusFormData', [
+            wp_enqueue_script('starmus-recorder', STARMUS_URL . 'assets/js/starmus-audio-recorder-module.min.js', [], STARMUS_VERSION, true);
+            wp_enqueue_script('starmus-submissions', STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.min.js', ['starmus-recorder'], STARMUS_VERSION, true);
+            
+            wp_localize_script('starmus-submissions', 'starmusFormData', [
                 'ajax_url' => admin_url('admin-ajax.php'),
-                'action'   => 'starmus_handle_upload_chunk',
-                'nonce'    => wp_create_nonce('starmus_chunk_upload'),
+                'action' => 'starmus_handle_upload_chunk',
+                'nonce' => wp_create_nonce('starmus_chunk_upload'),
             ]);
         }
 
-        if ($has_recorder || $has_list) {
-            wp_enqueue_style('starmus-audio-recorder-style', STARMUS_URL . 'assets/css/starmus-audio-recorder-style.min.css', [], STARMUS_VERSION);
-        }
+        wp_enqueue_style('starmus-style', STARMUS_URL . 'assets/css/starmus-audio-recorder-style.min.css', [], STARMUS_VERSION);
     }
 
     /**
@@ -112,77 +118,89 @@ class StarmusAudioRecorderUI
      */
     public function handle_upload_chunk(): void
     {
-        // 1. Security & Validation
         check_ajax_referer('starmus_chunk_upload', 'nonce');
 
         if (!current_user_can('upload_files')) {
-            wp_send_json_error(['message' => esc_html__('You do not have permission to upload files.', 'starmus_audio_recorder')], 403);
+            wp_send_json_error(['message' => 'Permission denied'], 403);
         }
 
-        $uuid = isset($_POST['audio_uuid']) ? sanitize_key($_POST['audio_uuid']) : '';
-        $offset = isset($_POST['chunk_offset']) ? absint($_POST['chunk_offset']) : 0;
-        $total_size = isset($_POST['total_size']) ? absint($_POST['total_size']) : 0;
-        $file_chunk = $_FILES['audio_file'] ?? null;
-        $file_name = isset($_POST['fileName']) ? sanitize_file_name($_POST['fileName']) : 'audio-submission.webm';
-
-        if (empty($uuid) || !$file_chunk || $file_chunk['error'] !== UPLOAD_ERR_OK) {
-            wp_send_json_error(['message' => esc_html__('Invalid request: Missing required data.', 'starmus_audio_recorder')], 400);
+        $data = $this->validate_chunk_data();
+        if (!$data) {
+            return; // Error already sent
         }
 
-        // 2. Prepare Temporary Storage and Append Chunk
-        $temp_dir = trailingslashit(wp_get_upload_dir()['basedir']) . 'starmus-temp';
-        if (!file_exists($temp_dir)) {
-            wp_mkdir_p($temp_dir);
-        }
-        $temp_file_path = $temp_dir . '/' . $uuid . '.part';
-
-        if (false === file_put_contents($temp_file_path, file_get_contents($file_chunk['tmp_name']), FILE_APPEND)) {
-            wp_send_json_error(['message' => esc_html__('Server error: Could not write chunk to disk.', 'starmus_audio_recorder')], 500);
+        $temp_file_path = $this->write_chunk($data['uuid'], $data['file_chunk']);
+        if (!$temp_file_path) {
+            return; // Error already sent
         }
 
-        // 3. Handle First Chunk: Create the draft post using form data
-        if ($offset === 0) {
-            $this->create_draft_post_from_upload_data($uuid, $total_size, $file_name, $_POST);
+        if ($data['offset'] === 0) {
+            $this->create_draft_post($data['uuid'], $data['total_size'], $data['file_name'], $_POST);
         }
 
-        // 4. Handle Final Chunk: Finalize the post and media
-        if (($offset + $file_chunk['size']) >= $total_size) {
-            // Pass $_POST to finalize_submission to make it available for hooks
-            $this->finalize_submission($uuid, $file_name, $temp_file_path, $_POST);
+        if (($data['offset'] + $data['file_chunk']['size']) >= $data['total_size']) {
+            $this->finalize_submission($data['uuid'], $data['file_name'], $temp_file_path, $_POST);
+            return;
         }
 
-        // For all intermediate chunks, just acknowledge success
-        wp_send_json_success(['message' => esc_html__('Chunk received.', 'starmus_audio_recorder')]);
+        wp_send_json_success(['message' => 'Chunk received']);
     }
 
     /**
      * Creates the initial draft post using data from the submitted form.
      */
-    private function create_draft_post_from_upload_data(string $uuid, int $total_size, string $file_name, array $form_data): void
+    private function validate_chunk_data(): ?array
     {
-        $post_title = !empty($form_data['audio_title'])
-            ? sanitize_text_field($form_data['audio_title'])
-            : sanitize_text_field(pathinfo($file_name, PATHINFO_FILENAME));
+        $uuid = sanitize_key($_POST['audio_uuid'] ?? '');
+        $offset = absint($_POST['chunk_offset'] ?? 0);
+        $total_size = absint($_POST['total_size'] ?? 0);
+        $file_chunk = $_FILES['audio_file'] ?? null;
+        $file_name = sanitize_file_name($_POST['fileName'] ?? 'audio.webm');
 
-        $meta_input = [
-            'audio_uuid'        => $uuid,
-            'upload_total_size' => $total_size,
-        ];
+        if (!$uuid || !$file_chunk || $file_chunk['error'] !== UPLOAD_ERR_OK || !$total_size) {
+            wp_send_json_error(['message' => 'Invalid request data'], 400);
+            return null;
+        }
 
-        if (StarmusSettings::get('collect_ip_ua') && !empty($form_data['audio_consent'])) {
+        return compact('uuid', 'offset', 'total_size', 'file_chunk', 'file_name');
+    }
+
+    private function write_chunk(string $uuid, array $file_chunk): ?string
+    {
+        $upload_dir = $this->get_upload_dir();
+        $temp_dir = $upload_dir['basedir'] . '/starmus-temp';
+        
+        if (!wp_mkdir_p($temp_dir)) {
+            wp_send_json_error(['message' => 'Cannot create temp directory'], 500);
+            return null;
+        }
+
+        $temp_file_path = $temp_dir . '/' . $uuid . '.part';
+        
+        if (!file_put_contents($temp_file_path, file_get_contents($file_chunk['tmp_name']), FILE_APPEND | LOCK_EX)) {
+            wp_send_json_error(['message' => 'Write failed'], 500);
+            return null;
+        }
+
+        return $temp_file_path;
+    }
+
+    private function create_draft_post(string $uuid, int $total_size, string $file_name, array $form_data): void
+    {
+        $meta_input = ['audio_uuid' => $uuid, 'upload_total_size' => $total_size];
+        
+        if ($this->get_setting('collect_ip_ua') && !empty($form_data['audio_consent'])) {
             $meta_input['submission_ip'] = sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? '');
             $meta_input['submission_user_agent'] = sanitize_text_field($_SERVER['HTTP_USER_AGENT'] ?? '');
         }
 
-        $post_data = [
-            'post_title'   => $post_title,
-            'post_type'    => StarmusSettings::get('cpt_slug'),
-            'post_status'  => 'draft',
-            'post_author'  => get_current_user_id(),
-            'meta_input'   => $meta_input,
-        ];
-
-        wp_insert_post($post_data);
+        wp_insert_post([
+            'post_title' => sanitize_text_field($form_data['audio_title'] ?? pathinfo($file_name, PATHINFO_FILENAME)),
+            'post_type' => $this->get_setting('cpt_slug'),
+            'post_status' => 'draft',
+            'post_author' => get_current_user_id(),
+            'meta_input' => $meta_input,
+        ]);
     }
 
     /**
@@ -192,31 +210,31 @@ class StarmusAudioRecorderUI
     {
         $post = $this->find_post_by_uuid($uuid);
         if (!$post) {
-            unlink($temp_file_path);
-            wp_send_json_error(['message' => esc_html__('Database error: Could not find original submission entry to finalize.', 'starmus_audio_recorder')], 500);
+            @unlink($temp_file_path);
+            wp_send_json_error(['message' => 'Submission not found'], 500);
+            return;
         }
 
-        $upload_dir = wp_get_upload_dir();
+        $upload_dir = $this->get_upload_dir();
         $final_filename = wp_unique_filename($upload_dir['path'], $file_name);
         $final_filepath = $upload_dir['path'] . '/' . $final_filename;
 
         if (!rename($temp_file_path, $final_filepath)) {
-            wp_send_json_error(['message' => esc_html__('Server error: Could not move temp file.', 'starmus_audio_recorder')], 500);
+            wp_send_json_error(['message' => 'File move failed'], 500);
+            return;
         }
 
-        $file_url = $upload_dir['url'] . '/' . $final_filename;
-        $file_type = mime_content_type($final_filepath);
-
         $attachment_id = wp_insert_attachment([
-            'guid'           => $file_url,
-            'post_mime_type' => $file_type,
-            'post_title'     => sanitize_text_field(pathinfo($final_filename, PATHINFO_FILENAME)),
-            'post_status'    => 'inherit'
+            'guid' => $upload_dir['url'] . '/' . $final_filename,
+            'post_mime_type' => wp_check_filetype($final_filepath)['type'],
+            'post_title' => pathinfo($final_filename, PATHINFO_FILENAME),
+            'post_status' => 'inherit'
         ], $final_filepath, $post->ID);
 
         if (is_wp_error($attachment_id)) {
-            unlink($final_filepath);
+            @unlink($final_filepath);
             wp_send_json_error(['message' => $attachment_id->get_error_message()], 500);
+            return;
         }
 
         require_once(ABSPATH . 'wp-admin/includes/image.php');
@@ -298,8 +316,9 @@ class StarmusAudioRecorderUI
      */
     private function render_template(string $template_name, array $args = []): string
     {
-        $template_path = STARMUS_PATH . 'templates/' . $template_name;
+        $template_path = STARMUS_PATH . 'src/templates/' . $template_name;
         if (!file_exists($template_path)) {
+            error_log('Starmus Template Error: Missing template file - ' . $template_path);
             return '<p>' . esc_html__('Error: A required template file is missing.', 'starmus_audio_recorder') . '</p>';
         }
         extract($args);
@@ -323,21 +342,25 @@ class StarmusAudioRecorderUI
     /**
      * Helper to find the draft post associated with a chunked upload UUID.
      */
+    private function get_upload_dir(): array
+    {
+        return self::$upload_dir_cache ??= wp_get_upload_dir();
+    }
+
+    private function get_setting(string $key, $default = null)
+    {
+        return self::$settings_cache[$key] ??= StarmusSettings::get($key, $default);
+    }
+
     private function find_post_by_uuid(string $uuid): ?\WP_Post
     {
-        $query = new WP_Query([
-            'post_type'      => StarmusSettings::get('cpt_slug'),
-            'meta_key'       => 'audio_uuid',
-            'meta_value'     => $uuid,
-            'post_status'    => 'draft',
-            'posts_per_page' => 1,
-            'fields'         => 'ids' // More efficient
-        ]);
+        global $wpdb;
+        
+        $post_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'audio_uuid' AND meta_value = %s LIMIT 1",
+            $uuid
+        ));
 
-        if (empty($query->posts)) {
-            return null;
-        }
-
-        return get_post($query->posts[0]);
+        return $post_id ? get_post($post_id) : null;
     }
 }
