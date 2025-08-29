@@ -156,34 +156,52 @@ class StarmusAudioRecorderUI {
 		);
 	}
 
-	/**
-	 * Enqueues scripts and styles for the recorder UI.
-	 */
-	public function enqueue_scripts(): void {
-		if ( ! is_singular() ) {
-			return;
-		}
-		$post = get_queried_object();
-		if ( ! isset( $post->post_content ) || ! has_shortcode( $post->post_content, 'starmus_audio_recorder' ) ) {
-			return;
-		}
+/**
+ * Enqueues scripts and styles for the recorder UI.
+ */
+public function enqueue_scripts(): void {
+    if ( ! is_singular() ) {
+        return;
+    }
+    $post = get_queried_object();
+    if ( ! isset( $post->post_content ) || ! has_shortcode( $post->post_content, 'starmus_audio_recorder' ) ) {
+        return;
+    }
 
-		wp_enqueue_script( 'starmus-recorder', STARMUS_URL . 'assets/js/starmus-audio-recorder-module.min.js', array(), STARMUS_VERSION, true );
-		wp_enqueue_script( 'starmus-submissions', STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.min.js', array( 'starmus-recorder', 'wp-api-fetch' ), STARMUS_VERSION, true );
+    // Use a single, consistent handle for each script.
+    wp_enqueue_script( 
+        'starmus-recorder-module', // Consistent Handle
+        STARMUS_URL . 'assets/js/starmus-audio-recorder-module.min.js', 
+        array(), 
+        STARMUS_VERSION, 
+        true 
+    );
 
-		wp_localize_script(
-			'starmus-submissions',
-			'starmusFormData',
-			array(
-				'rest_url'   => esc_url_raw( rest_url( self::REST_NAMESPACE . '/upload-chunk' ) ),
-				'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-				'max_mb'     => (int) $this->get_setting( 'max_file_size_mb', 25 ),
-			)
-		);
+    wp_enqueue_script( 
+        'starmus-recorder-submissions', // Consistent Handle
+        STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.min.js', 
+        array( 'starmus-recorder-module', 'wp-api-fetch' ), // Depends on the module
+        STARMUS_VERSION, 
+        true 
+    );
 
-		wp_enqueue_style( 'starmus-style', STARMUS_URL . 'assets/css/starmus-audio-recorder-style.min.css', array(), STARMUS_VERSION );
-	}
+    wp_localize_script(
+        'starmus-recorder-submissions', // Use the correct handle to attach data
+        'starmusFormData',
+        array(
+            'rest_url'   => esc_url_raw( rest_url( self::REST_NAMESPACE . '/upload-chunk' ) ),
+            'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+            'max_mb'     => (int) $this->get_setting( 'max_file_size_mb', 25 ),
+        )
+    );
 
+    wp_enqueue_style( 
+        'starmus-recorder-style', // Consistent Handle
+        STARMUS_URL . 'assets/css/starmus-audio-recorder-style.min.css', 
+        array(), 
+        STARMUS_VERSION 
+    );
+}
 	/**
 	 * Registers REST API routes for chunked uploads.
 	 */
