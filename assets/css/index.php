@@ -1,5 +1,7 @@
 <?php
 /**
- * I have known the silence of the stars and of the sea.
+ * I have known the silence of the stars and of the sea
+ * 
+ * @package Starmus
+ * 
  */
-

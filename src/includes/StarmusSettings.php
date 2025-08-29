@@ -1,6 +1,4 @@
 <?php
-namespace Starmus\includes;
-
 /**
  * A robust, centralized API for managing all plugin settings.
  *
@@ -9,7 +7,12 @@ namespace Starmus\includes;
  * handled consistently and have reliable default values.
  *
  * @package Starmus\includes
+ * @since 0.1.0
+ * @version 0.3.0
  */
+
+namespace Starmus\includes;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -30,6 +33,7 @@ final class StarmusSettings {
 	 * This is the primary method for getting settings. It merges saved options
 	 * with the defaults, ensuring a valid value is always returned.
 	 *
+	 * @since 0.1.0
 	 * @param string $key The key of the setting to retrieve.
 	 * @param mixed  $default A fallback default value if the key is not found in settings or defaults.
 	 * @return mixed The value of the setting.
@@ -42,6 +46,7 @@ final class StarmusSettings {
 	/**
 	 * Retrieves all settings, merged with defaults.
 	 *
+	 * @since 0.1.0
 	 * @return array A complete array of all settings.
 	 */
 	public static function all(): array {
@@ -58,7 +63,12 @@ final class StarmusSettings {
 	 * This method is kept for backward compatibility. It now acts as a wrapper
 	 * for the new `get()` method.
 	 *
-	 * @deprecated Use StarmusSettings::get() instead for new code.
+	 * @since 0.1.0
+	 * @deprecated 0.3.0 Use StarmusSettings::get() instead for new code.
+	 *
+	 * @param string $key     The key of the setting to retrieve.
+	 * @param mixed  $default A fallback default value.
+	 * @return mixed The value of the setting.
 	 */
 	public static function starmus_get_option( string $key, $default = '' ) {
 		// This now delegates to the new, more robust `get()` method.
@@ -69,6 +79,7 @@ final class StarmusSettings {
 	/**
 	 * Updates a single setting value.
 	 *
+	 * @since 0.1.0
 	 * @param string $key The key of the setting to update.
 	 * @param mixed  $value The new value for the setting.
 	 * @return bool True if the option was updated, false otherwise.
@@ -83,6 +94,7 @@ final class StarmusSettings {
 	 * Replaces all settings with a new array of settings.
 	 * Useful for handling a settings form submission.
 	 *
+	 * @since 0.1.0
 	 * @param array $settings An associative array of settings to save.
 	 * @return bool True if the option was updated, false otherwise.
 	 */
@@ -93,6 +105,7 @@ final class StarmusSettings {
 	/**
 	 * Provides a central, filterable list of default settings.
 	 *
+	 * @since 0.1.0
 	 * @return array The default plugin settings.
 	 */
 	public static function get_defaults(): array {
@@ -113,6 +126,8 @@ final class StarmusSettings {
 	/**
 	 * Saves the default options to the database on plugin activation.
 	 * This should be called from your plugin's activation hook.
+	 *
+	 * @since 0.1.0
 	 */
 	public static function add_defaults_on_activation(): void {
 		add_option( self::OPTION_KEY, self::get_defaults() );

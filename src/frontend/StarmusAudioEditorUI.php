@@ -7,7 +7,8 @@
  * endpoints for saving annotation data.
  *
  * @package Starmus\frontend
- * @since 1.0.0
+ * @since 0.1.0
+ * @version 0.3.0
  */
 
 // phpcs:ignore WordPress.Files.FileName

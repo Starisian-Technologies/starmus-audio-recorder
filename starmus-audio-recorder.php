@@ -1,5 +1,4 @@
 <?php
-
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
@@ -13,7 +12,12 @@
  *
  * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
  * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
+ *
+ * @since 0.1.0
+ * @version 0.3.0
+ * @package Starmus
  */
+
 /**
  * Plugin Name:       Starmus Audio Recorder
  * Plugin URI:        https://github.com/Starisian-Technologies/starmus-audio-recorder

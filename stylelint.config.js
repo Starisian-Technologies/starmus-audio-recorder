@@ -1,4 +1,8 @@
-// stylelint.config.cjs
+/**
+ * @file stylelint.config.cjs
+ * @description Stylelint configuration file.
+ */
+stylelint.config.cjs
 module.exports = {
 	extends: ['stylelint-config-standard'],
 	rules: {

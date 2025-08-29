@@ -1,12 +1,17 @@
 <?php
-// phpcs:ignore WordPress.Files.FileName
 /**
- * Manages the front-end audio recording submission process and all related metadata.
- * Handles two-step form UX, chunked uploads (streamed), CPT creation, metadata saving, and conditional redirects.
+ * Starmus Audio Recorder UI
+ *
+ * This file is responsible for rendering and managing the front-end audio
+ * recorder interface, including handling all related scripts and REST API
+ * endpoints for saving audio data.
  *
  * @package Starmus\frontend
+ * @since 0.1.0
+ * @version 0.3.0
  */
 
+// phpcs:ignore WordPress.Files.FileName
 namespace Starmus\frontend;
 
 use Starmus\includes\StarmusSettings;
@@ -37,27 +42,14 @@ class StarmusAudioRecorderUI {
 	 * Constructor. Registers hooks and shortcodes.
 	 */
 	public function __construct() {
-		// Register shortcodes for frontend display.
 		add_shortcode( 'starmus_my_recordings', array( $this, 'render_my_recordings_shortcode' ) );
 		add_shortcode( 'starmus_audio_recorder', array( $this, 'render_recorder_shortcode' ) );
-
-		// Enqueue scripts and styles.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-
-		// Register REST API endpoints for handling uploads.
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-
-		// Hook into the upload process to save metadata.
 		add_action( 'starmus_after_audio_upload', array( $this, 'save_all_metadata' ), 10, 3 );
-
-		// Filter the success response to add a conditional redirect.
 		add_filter( 'starmus_audio_upload_success_response', array( $this, 'add_conditional_redirect' ), 10, 3 );
-
-		// Defer cron scheduling so tests (and early bootstrap) don't explode.
 		add_action( 'init', array( $this, 'maybe_schedule_cron' ) );
 		add_action( 'starmus_cleanup_temp_files', array( $this, 'cleanup_stale_temp_files' ) );
-
-		// Hooks to clear taxonomy caches when terms are updated.
 		add_action( 'saved_term', array( $this, 'clear_taxonomy_transients' ) );
 		add_action( 'delete_term', array( $this, 'clear_taxonomy_transients' ) );
 	}
@@ -156,52 +148,52 @@ class StarmusAudioRecorderUI {
 		);
 	}
 
-/**
- * Enqueues scripts and styles for the recorder UI.
- */
-public function enqueue_scripts(): void {
-    if ( ! is_singular() ) {
-        return;
-    }
-    $post = get_queried_object();
-    if ( ! isset( $post->post_content ) || ! has_shortcode( $post->post_content, 'starmus_audio_recorder' ) ) {
-        return;
-    }
+	/**
+	 * Enqueues scripts and styles for the recorder UI.
+	 */
+	public function enqueue_scripts(): void {
+		if ( ! is_singular() ) {
+			return;
+		}
+		$post = get_queried_object();
+		if ( ! isset( $post->post_content ) || ! has_shortcode( $post->post_content, 'starmus_audio_recorder' ) ) {
+			return;
+		}
 
-    // Use a single, consistent handle for each script.
-    wp_enqueue_script( 
-        'starmus-recorder-module', // Consistent Handle
-        STARMUS_URL . 'assets/js/starmus-audio-recorder-module.min.js', 
-        array(), 
-        STARMUS_VERSION, 
-        true 
-    );
+		// Use a single, consistent handle for each script.
+		wp_enqueue_script(
+			'starmus-recorder-module',
+			STARMUS_URL . 'assets/js/starmus-audio-recorder-module.min.js',
+			array(),
+			STARMUS_VERSION,
+			true
+		);
 
-    wp_enqueue_script( 
-        'starmus-recorder-submissions', // Consistent Handle
-        STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.min.js', 
-        array( 'starmus-recorder-module', 'wp-api-fetch' ), // Depends on the module
-        STARMUS_VERSION, 
-        true 
-    );
+		wp_enqueue_script(
+			'starmus-recorder-submissions',
+			STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.min.js',
+			array( 'starmus-recorder-module', 'wp-api-fetch' ),
+			STARMUS_VERSION,
+			true
+		);
 
-    wp_localize_script(
-        'starmus-recorder-submissions', // Use the correct handle to attach data
-        'starmusFormData',
-        array(
-            'rest_url'   => esc_url_raw( rest_url( self::REST_NAMESPACE . '/upload-chunk' ) ),
-            'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-            'max_mb'     => (int) $this->get_setting( 'max_file_size_mb', 25 ),
-        )
-    );
+		wp_localize_script(
+			'starmus-recorder-submissions',
+			'starmusFormData',
+			array(
+				'rest_url'   => esc_url_raw( rest_url( self::REST_NAMESPACE . '/upload-chunk' ) ),
+				'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+				'max_mb'     => (int) $this->get_setting( 'max_file_size_mb', 25 ),
+			)
+		);
 
-    wp_enqueue_style( 
-        'starmus-recorder-style', // Consistent Handle
-        STARMUS_URL . 'assets/css/starmus-audio-recorder-style.min.css', 
-        array(), 
-        STARMUS_VERSION 
-    );
-}
+		wp_enqueue_style(
+			'starmus-recorder-style',
+			STARMUS_URL . 'assets/css/starmus-audio-recorder-style.min.css',
+			array(),
+			STARMUS_VERSION
+		);
+	}
 	/**
 	 * Registers REST API routes for chunked uploads.
 	 */
@@ -273,7 +265,7 @@ public function enqueue_scripts(): void {
 
 		// Verify the draft belongs to the current user before writing.
 		$post = $this->find_post_by_uuid( $data['uuid'] );
-		if ( ! $post || (int) $post->post_author !== (int) get_current_user_id() ) {
+		if ( ! $post || (int) get_current_user_id() !== (int) $post->post_author ) {
 			return new WP_Error(
 				'forbidden_submission',
 				__( 'You cannot modify this submission.', 'starmus_audio_recorder' ),
@@ -346,7 +338,7 @@ public function enqueue_scripts(): void {
 	}
 
 	/**
-	 * Stream-safe chunk writer with strict offset validation (no error suppression).
+	 * Stream-safe chunk writer with strict offset validation.
 	 *
 	 * @param string $uuid     Unique upload ID.
 	 * @param int    $offset   Chunk byte offset.
@@ -354,6 +346,9 @@ public function enqueue_scripts(): void {
 	 * @return string|WP_Error Path to the assembled temporary file or error.
 	 */
 	private function write_chunk_streamed( string $uuid, int $offset, string $tmp_name ): string|WP_Error {
+		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_exists
+		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_filesize
+		// Native functions are used here for performance and stream handling, which WP_Filesystem does not expose.
 		$temp_dir = $this->get_temp_dir();
 		if ( is_wp_error( $temp_dir ) ) {
 			return $temp_dir;
@@ -362,7 +357,7 @@ public function enqueue_scripts(): void {
 		$temp_file_path = trailingslashit( $temp_dir ) . $uuid . '.part';
 
 		$current_size = file_exists( $temp_file_path ) ? (int) filesize( $temp_file_path ) : 0;
-		if ( $current_size !== $offset ) {
+		if ( $offset !== $current_size ) {
 			return new WP_Error(
 				'bad_chunk_offset',
 				sprintf(
@@ -374,7 +369,9 @@ public function enqueue_scripts(): void {
 				array( 'status' => 409 )
 			);
 		}
+		// phpcs:enable
 
+		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen
 		$in = fopen( $tmp_name, 'rb' );
 		if ( false === $in ) {
 			return new WP_Error(
@@ -384,9 +381,9 @@ public function enqueue_scripts(): void {
 			);
 		}
 
-		$out = fopen( $temp_file_path, $current_size ? 'ab' : 'wb' );
+		$out = fopen( $temp_file_path, 0 === $current_size ? 'wb' : 'ab' );
 		if ( false === $out ) {
-			fclose( $in );
+			fclose( $in ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
 			return new WP_Error(
 				'stream_open_failed_out',
 				__( 'Failed to open temporary file for writing.', 'starmus_audio_recorder' ),
@@ -396,14 +393,14 @@ public function enqueue_scripts(): void {
 
 		stream_copy_to_stream( $in, $out );
 		fflush( $out );
-		fclose( $in );
-		fclose( $out );
-
+		fclose( $in ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+		// phpcs:enable
 		return $temp_file_path;
 	}
 
 	/**
-	 * Finalizes the submission (uses wp_handle_sideload; no error suppression).
+	 * Finalizes the submission.
 	 *
 	 * @param string $uuid           The unique upload identifier.
 	 * @param string $file_name      The original name of the file.
@@ -413,7 +410,7 @@ public function enqueue_scripts(): void {
 	 */
 	private function finalize_submission( string $uuid, string $file_name, string $temp_file_path, array $form_data ): WP_REST_Response|WP_Error {
 		$post = $this->find_post_by_uuid( $uuid );
-		if ( ! $post || (int) $post->post_author !== (int) get_current_user_id() ) {
+		if ( ! $post || (int) get_current_user_id() !== (int) $post->post_author ) {
 			if ( file_exists( $temp_file_path ) ) {
 				wp_delete_file( $temp_file_path );
 			}
@@ -452,7 +449,7 @@ public function enqueue_scripts(): void {
 			}
 		}
 
-		// Guarded WP includes (works in PHPUnit and prod)
+		// Guarded WP includes.
 		$__inc_file  = ABSPATH . 'wp-admin/includes/file.php';
 		$__inc_media = ABSPATH . 'wp-admin/includes/media.php';
 		$__inc_img   = ABSPATH . 'wp-admin/includes/image.php';
@@ -587,7 +584,7 @@ public function enqueue_scripts(): void {
 	}
 
 	/**
-	 * Creates a consent post if consent was given (private, PII stored in meta).
+	 * Creates a consent post if consent was given.
 	 *
 	 * @param int   $audio_post_id The ID of the audio recording post.
 	 * @param array $form_data     The submitted form data.
@@ -817,9 +814,9 @@ public function enqueue_scripts(): void {
 	/**
 	 * Gets a specific setting value using transients for caching.
 	 *
-	 * @param string $key      The setting key.
+	 * @param string $key     The setting key.
 	 * @param mixed  $default The default value if not found.
-	 * @return mixed           The setting value.
+	 * @return mixed          The setting value.
 	 */
 	private function get_setting( string $key, $default = null ) {
 		$cache_key = 'starmus_settings_cache';
@@ -962,12 +959,13 @@ public function enqueue_scripts(): void {
 		$post_id     = wp_cache_get( $cache_key, $cache_group );
 
 		if ( false === $post_id ) {
-			$q       = new WP_Query(
+			$q = new WP_Query(
 				array(
 					'post_type'              => $this->get_setting( 'cpt_slug', 'audio-recording' ),
 					'posts_per_page'         => 1,
 					'fields'                 => 'ids',
 					'post_status'            => array( 'publish', 'draft', 'pending', 'private' ),
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					'meta_query'             => array(
 						array(
 							'key'   => 'audio_uuid',
