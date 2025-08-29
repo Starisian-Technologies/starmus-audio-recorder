@@ -1,6 +1,7 @@
 # Starmus Audio Recorder: Workspace Setup
 
 ## Project Overview
+
 This project is a mobile-first, offline-friendly audio recording and submission tool designed for low-bandwidth, low-power devices in The Gambia, West Africa. It prioritizes compatibility, accessibility, and resilience to poor connectivity.
 
 ## Linting Instructions
@@ -17,6 +18,7 @@ This project is a mobile-first, offline-friendly audio recording and submission 
   - `npx eslint assets/js/**/*.js --ignore-pattern '*.min.js' --ignore-pattern '*.js.map' --fix`
 
 ## Key Workspace Guidelines
+
 - **No build step required:** All scripts and styles should work directly from `/assets/`.
 - **No CDN dependencies:** Bundle all critical assets locally.
 - **Browser compatibility:** Support Android WebView, Opera Mini, and older Chrome/Firefox.
@@ -26,6 +28,7 @@ This project is a mobile-first, offline-friendly audio recording and submission 
 - **PWA-ready:** Ensure manifest and service worker are present for installability.
 
 ## Audience
+
 - Students (ages 12–18)
 - Teachers
 - Community elders
@@ -34,6 +37,7 @@ This project is a mobile-first, offline-friendly audio recording and submission 
 **Note:** Users may have limited digital literacy. UI must be extremely intuitive, with clear, high-contrast visuals and tap-only controls.
 
 ## Development Checklist
+
 - [ ] All JS/CSS assets are local and <50kb where possible
 - [ ] No modern JS features without transpilation/polyfill
 - [ ] All async logic has timeouts and retry handling

@@ -5,7 +5,7 @@ parameters:
 
   paths:
     - src
-    - templates
+    - tests
     - starmus-audio-recorder.php
 
   bootstrapFiles:

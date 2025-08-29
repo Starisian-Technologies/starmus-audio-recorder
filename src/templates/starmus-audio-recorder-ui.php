@@ -32,7 +32,7 @@ $consent_message = $consent_message ?? 'I consent to the recording of my voice.'
 			<div class="starmus-form-field">
 				<label for="audio_title_<?php echo esc_attr( $form_id ); ?>"><?php esc_html_e( 'Title of Recording', 'starmus_audio_recorder' ); ?></label>
 				<input type="text" id="audio_title_<?php echo esc_attr( $form_id ); ?>" name="audio_title" required>
-                <p class="sparxstar-description">Enter either the word you are going to add or a description of the audio you are recording.</p>
+				<p class="sparxstar-description">Enter either the word you are going to add or a description of the audio you are recording.</p>
 			</div>
 
 			<div class="starmus-form-field">
@@ -74,20 +74,20 @@ $consent_message = $consent_message ?? 'I consent to the recording of my voice.'
 			<button type="button" id="starmus_continue_btn_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_button">
 				<?php esc_html_e( 'Continue to Recording', 'starmus_audio_recorder' ); ?>
 			</button>
-            
-            <!-- FIX: New status message for the transition between Step 1 and 2 -->
-            <div id="starmus_step_1_status_<?php echo esc_attr( $form_id ); ?>" class="starmus-status-message" style="display: none;" role="status">
-                <?php esc_html_e( 'Preparing recorder...', 'starmus_audio_recorder' ); ?>
-            </div>
+			
+			<!-- FIX: New status message for the transition between Step 1 and 2 -->
+			<div id="starmus_step_1_status_<?php echo esc_attr( $form_id ); ?>" class="starmus-status-message" style="display: none;" role="status">
+				<?php esc_html_e( 'Preparing recorder...', 'starmus_audio_recorder' ); ?>
+			</div>
 		</div>
 
 		<!-- Step 2 and the rest of the form remains exactly the same... -->
 		<div id="starmus_step_2_<?php echo esc_attr( $form_id ); ?>" class="starmus-form-step" style="display: none;">
-            <!-- ... -->
-        </div>
-        <div id="sparxstar_loader_overlay_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_loader_overlay sparxstar_visually_hidden" role="alert" aria-live="assertive">
-            <!-- ... -->
-        </div>
+			<!-- ... -->
+		</div>
+		<div id="sparxstar_loader_overlay_<?php echo esc_attr( $form_id ); ?>" class="sparxstar_loader_overlay sparxstar_visually_hidden" role="alert" aria-live="assertive">
+			<!-- ... -->
+		</div>
 
 	</div>
 </form>

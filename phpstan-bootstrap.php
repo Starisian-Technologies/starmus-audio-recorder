@@ -6,12 +6,12 @@ define( 'ABSPATH', __DIR__ . '/fake-wordpress-dir/' );
 define( 'WPINC', 'wp-includes' );
 // 1. Define Plugin Constants.
 define( 'STARMUS_PATH', plugin_dir_path( __FILE__ ) );
-define('STARMUS_URL', plugin_dir_url( __FILE__ ));
+define( 'STARMUS_URL', plugin_dir_url( __FILE__ ) );
 define( 'STARMUS_MAIN_FILE', __FILE__ );
-define('STARMUS_MAIN_DIR', plugin_dir_path( __FILE__ ));
+define( 'STARMUS_MAIN_DIR', plugin_dir_path( __FILE__ ) );
 
 // ... other constants ...
-define('STARMUS_VERSION',"0.3.1");
+define( 'STARMUS_VERSION', '0.3.1' );
 
 // Create dummy WordPress core files that are being required
 // This prevents "file not found" errors for `require_once`.

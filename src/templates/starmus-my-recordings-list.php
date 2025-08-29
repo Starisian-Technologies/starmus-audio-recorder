@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php if ( 0 === $query->current_post ) : // This is the first (most recent) post. ?>
 
 					<!-- Featured Recording (Full Width) -->
-					<article id="post-<?php echo esc_attr( $current_post_id ); ?>" class="starmus-recording starmus-recording--featured">
+					<article id="post-<?php echo esc_attr( strval( $current_post_id ) ); ?>" class="starmus-recording starmus-recording--featured">
 						<header class="starmus-recording__header">
 							<h2 class="starmus-recording__title">
 								<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
@@ -65,7 +65,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php else : // This is for all other recordings. ?>
 
 					<!-- Standard Grid Item -->
-					<article id="post-<?php echo esc_attr( $current_post_id ); ?>" class="starmus-recording">
+					<article id="post-<?php echo esc_attr( strval( $current_post_id ) ); ?>" class="starmus-recording">
 						<header class="starmus-recording__header">
 							<h3 class="starmus-recording__title">
 								<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>

@@ -15,217 +15,262 @@
 
 /**
  * @file Manages the submission lifecycle of audio recordings.
- * @description This script implements a resilient, offline-first upload strategy. It handles
- * form submissions, chunks audio files for robust uploads, and uses IndexedDB (with a
- * localStorage fallback) to queue submissions that fail due to network issues. The queue
- * is processed automatically when the user comes back online.
+ * @description This script handles form submissions for the Starmus Audio Recorder,
+ * including multi-step form logic and REST API uploads.
  */
 
-/* global starmusFormData, StarmusAudioRecorder */
+// eslint-disable-next-line no-redeclare
+/* global StarmusAudioRecorder */
 document.addEventListener('DOMContentLoaded', () => {
-    'use strict';
+	'use strict';
 
-    // --- Configuration and Offline Queue Storage (No Changes Here) ---
-    const CONFIG = { /* ... */ };
-    let idbAvailable = 'indexedDB' in window;
-    const dbPromise = (() => { /* ... */ })();
-    async function blobToBase64(blob) { /* ... */ }
-    function base64ToBlob(base64) { /* ... */ }
-    async function enqueue(item) { /* ... */ }
-    async function getAllItems() { /* ... */ }
-    async function deleteItem(id) { /* ... */ }
-    async function uploadSubmission(item, formInstanceId) { /* ... */ } // This remains the same as the REST API version
-    let isProcessingQueue = false;
-    async function processQueue() { /* ... */ }
-    const queueBanner = document.createElement('div');
-    /* ... */
-    document.body.appendChild(queueBanner);
-    document.getElementById('starmus_queue_retry')?.addEventListener('click', processQueue);
-    async function updateQueueUI() { /* ... */ }
-    window.addEventListener('online', processQueue);
-    updateQueueUI();
-    if (navigator.onLine) setTimeout(processQueue, 2000);
-    // --- End of Unchanged Section ---
+	const CONFIG = {
+		LOG_PREFIX: '[Starmus Submissions]',
+		DEBUG_MODE:
+			typeof window.STARMUS_DEBUG !== 'undefined'
+				? window.STARMUS_DEBUG
+				: false,
+	};
 
-    // --- Form Initialization and Handling ---
-    const recorderWrappers = document.querySelectorAll('[data-enabled-recorder]');
-    if (recorderWrappers.length === 0) return;
+	// --- Form Initialization and Handling ---
+	const recorderWrappers = document.querySelectorAll(
+		'[data-enabled-recorder]'
+	);
+	if (recorderWrappers.length === 0) {
+		return;
+	}
 
-    recorderWrappers.forEach(wrapper => {
-        const formInstanceId = wrapper.id.substring('starmus_audioWrapper_'.length);
-        const formElement = document.getElementById(formInstanceId);
+	recorderWrappers.forEach((wrapper) => {
+		const formInstanceId = wrapper.id.substring(
+			'starmus_audioWrapper_'.length
+		);
+		const formElement = document.getElementById(formInstanceId);
 
-        if (!formElement) {
-            return console.error(CONFIG.LOG_PREFIX, `Form element not found for instance ID: ${formInstanceId}.`);
-        }
+		if (!formElement) {
+			console.error(
+				CONFIG.LOG_PREFIX,
+				`Form element not found for instance ID: ${formInstanceId}.`
+			);
+			return;
+		}
 
-        const step1 = formElement.querySelector(`#starmus_step_1_${formInstanceId}`);
-        const step2 = formElement.querySelector(`#starmus_step_2_${formInstanceId}`);
-        const continueBtn = formElement.querySelector(`#starmus_continue_btn_${formInstanceId}`);
-        
-        if (!step1 || !step2 || !continueBtn) {
-            console.error(CONFIG.LOG_PREFIX, 'Multi-step form elements are missing. Defaulting to show recorder.');
-            if (step1) step1.style.display = 'none';
-            if (step2) step2.style.display = 'block';
-            initializeRecorder(formInstanceId); 
-            return;
-        }
+		const step1 = formElement.querySelector(
+			`#starmus_step_1_${formInstanceId}`
+		);
+		const step2 = formElement.querySelector(
+			`#starmus_step_2_${formInstanceId}`
+		);
+		const continueBtn = formElement.querySelector(
+			`#starmus_continue_btn_${formInstanceId}`
+		);
 
-        continueBtn.addEventListener('click', function(event) {
-            event.preventDefault();
-            const errorMessageDiv = formElement.querySelector(`#starmus_step_1_error_${formInstanceId}`);
-            const statusMessageDiv = formElement.querySelector(`#starmus_step_1_status_${formInstanceId}`);
-            
-            const fieldsToValidate = [
-                { id: `audio_title_${formInstanceId}`, name: 'Title', type: 'text' },
-                { id: `language_${formInstanceId}`, name: 'Language', type: 'select' },
-                { id: `recording_type_${formInstanceId}`, name: 'Recording Type', type: 'select' },
-                { id: `audio_consent_${formInstanceId}`, name: 'Consent', type: 'checkbox' }
-            ];
+		// Fallback for themes that might not have the multi-step structure.
+		if (!step1 || !step2 || !continueBtn) {
+			console.error(
+				CONFIG.LOG_PREFIX,
+				'Multi-step form elements are missing. Defaulting to show recorder.'
+			);
+			if (step1) step1.style.display = 'none';
+			if (step2) step2.style.display = 'block';
+			initializeRecorder(formInstanceId);
+			return;
+		}
 
-            errorMessageDiv.style.display = 'none';
-            errorMessageDiv.textContent = '';
-            fieldsToValidate.forEach(field => document.getElementById(field.id)?.removeAttribute('aria-describedby'));
+		continueBtn.addEventListener('click', function (event) {
+			event.preventDefault();
+			const errorMessageDiv = formElement.querySelector(
+				`#starmus_step_1_error_${formInstanceId}`
+			);
+			const statusMessageDiv = formElement.querySelector(
+				`#starmus_step_1_status_${formInstanceId}`
+			);
 
-            for (const field of fieldsToValidate) {
-                const input = document.getElementById(field.id);
-                if (!input) continue;
-                let isValid = true;
-                if (field.type === 'text') isValid = input.value.trim() !== '';
-                if (field.type === 'select') isValid = input.value !== '';
-                if (field.type === 'checkbox') isValid = input.checked;
+			const fieldsToValidate = [
+				{
+					id: `audio_title_${formInstanceId}`,
+					name: 'Title',
+					type: 'text',
+				},
+				{
+					id: `language_${formInstanceId}`,
+					name: 'Language',
+					type: 'select',
+				},
+				{
+					id: `recording_type_${formInstanceId}`,
+					name: 'Recording Type',
+					type: 'select',
+				},
+				{
+					id: `audio_consent_${formInstanceId}`,
+					name: 'Consent',
+					type: 'checkbox',
+				},
+			];
 
-                if (!isValid) {
-                    errorMessageDiv.textContent = `Please complete the "${field.name}" field.`;
-                    errorMessageDiv.style.display = 'block';
-                    errorMessageDiv.id = `starmus_step_1_error_${formInstanceId}`;
-                    input.focus();
-                    input.setAttribute('aria-describedby', errorMessageDiv.id);
-                    return;
-                }
-            }
+			errorMessageDiv.style.display = 'none';
+			errorMessageDiv.textContent = '';
+			fieldsToValidate.forEach((field) =>
+				document
+					.getElementById(field.id)
+					?.removeAttribute('aria-describedby')
+			);
 
-            if (statusMessageDiv) statusMessageDiv.style.display = 'block';
-            continueBtn.disabled = true;
+			for (const field of fieldsToValidate) {
+				const input = document.getElementById(field.id);
+				if (!input) continue;
+				let isValid = true;
+				if (field.type === 'text') isValid = input.value.trim() !== '';
+				if (field.type === 'select') isValid = input.value !== '';
+				if (field.type === 'checkbox') isValid = input.checked;
 
-            captureGeolocationAndProceed();
-        });
-        
-        // --- CORRECTED SCOPE: These functions are now defined INSIDE the forEach loop ---
-        function captureGeolocationAndProceed() {
-            if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        formElement.querySelector(`#gps_latitude_${formInstanceId}`).value = position.coords.latitude;
-                        formElement.querySelector(`#gps_longitude_${formInstanceId}`).value = position.coords.longitude;
-                        if (CONFIG.DEBUG_MODE) console.log(CONFIG.LOG_PREFIX, 'GPS Location captured.');
-                        transitionToStep2();
-                    },
-                    (error) => {
-                        console.warn(CONFIG.LOG_PREFIX, `Geolocation error (${error.code}): ${error.message}`);
-                        transitionToStep2(); // Proceed even if geolocation fails
-                    }
-                );
-            } else {
-                console.log(CONFIG.LOG_PREFIX, "Geolocation is not available.");
-                transitionToStep2();
-            }
-        }
+				if (!isValid) {
+					errorMessageDiv.textContent = `Please complete the "${field.name}" field.`;
+					errorMessageDiv.style.display = 'block';
+					errorMessageDiv.id = `starmus_step_1_error_${formInstanceId}`;
+					input.focus();
+					input.setAttribute('aria-describedby', errorMessageDiv.id);
+					return;
+				}
+			}
 
-        function transitionToStep2() {
-            const statusMessageDiv = formElement.querySelector(`#starmus_step_1_status_${formInstanceId}`);
-            if (statusMessageDiv) statusMessageDiv.style.display = 'none';
-            if (continueBtn) continueBtn.disabled = false;
+			if (statusMessageDiv) statusMessageDiv.style.display = 'block';
+			continueBtn.disabled = true;
 
-            step1.style.display = 'none';
-            step2.style.display = 'block';
-            
-            const step2Heading = formElement.querySelector(`#sparxstar_audioRecorderHeading_${formInstanceId}`);
-            if (step2Heading) {
-                step2Heading.setAttribute('tabindex', '-1');
-                step2Heading.focus();
-            }
-            initializeRecorder(formInstanceId);
-        }
+			captureGeolocationAndProceed();
+		});
 
-        function initializeRecorder(instanceId) {
-            if (typeof StarmusAudioRecorder?.init === 'function') {
-                StarmusAudioRecorder.init({ formInstanceId: instanceId })
-                    .then(success => {
-                        if (success && CONFIG.DEBUG_MODE) {
-                            console.log(CONFIG.LOG_PREFIX, `Recorder module initialized for ${instanceId}.`);
-                        }
-                    });
-            } else {
-                console.error(CONFIG.LOG_PREFIX, 'StarmusAudioRecorder module is not available.');
-            }
-        }
+		/**
+		 * Attempts to capture geolocation and then proceeds to the next step.
+		 */
+		function captureGeolocationAndProceed() {
+			if ('geolocation' in navigator) {
+				navigator.geolocation.getCurrentPosition(
+					(position) => {
+						const latField = formElement.querySelector(
+							`#gps_latitude_${formInstanceId}`
+						);
+						const lonField = formElement.querySelector(
+							`#gps_longitude_${formInstanceId}`
+						);
+						if (latField)
+							latField.value = position.coords.latitude;
+						if (lonField)
+							lonField.value = position.coords.longitude;
+						if (CONFIG.DEBUG_MODE)
+							console.log(
+								CONFIG.LOG_PREFIX,
+								'GPS Location captured.'
+							);
+						transitionToStep2();
+					},
+					(error) => {
+						console.warn(
+							CONFIG.LOG_PREFIX,
+							`Geolocation error (${error.code}): ${error.message}`
+						);
+						// Proceed even if geolocation fails.
+						transitionToStep2();
+					}
+				);
+			} else {
+				console.log(CONFIG.LOG_PREFIX, 'Geolocation is not available.');
+				transitionToStep2();
+			}
+		}
 
-        formElement.addEventListener('submit', async (e) => {
-            e.preventDefault();
+		/**
+		 * Hides step 1 and shows step 2, then initializes the audio recorder.
+		 */
+		function transitionToStep2() {
+			const statusMessageDiv = formElement.querySelector(
+				`#starmus_step_1_status_${formInstanceId}`
+			);
+			if (statusMessageDiv) statusMessageDiv.style.display = 'none';
+			if (continueBtn) continueBtn.disabled = false;
 
-            const audioIdField = document.getElementById(`audio_uuid_${formInstanceId}`);
-            const audioFileInput = document.getElementById(`audio_file_${formInstanceId}`);
-            const submitButton = document.getElementById(`submit_button_${formInstanceId}`);
-            const loaderDiv = document.getElementById(`sparxstar_loader_overlay_${formInstanceId}`);
+			step1.style.display = 'none';
+			step2.style.display = 'block';
 
-            if (!audioIdField?.value || !audioFileInput?.files?.length) {
-                alert('Error: No audio file has been recorded to submit.');
-                return;
-            }
+			const step2Heading = formElement.querySelector(
+				`#sparxstar_audioRecorderHeading_${formInstanceId}`
+			);
+			if (step2Heading) {
+				step2Heading.setAttribute('tabindex', '-1');
+				step2Heading.focus();
+			}
+			initializeRecorder(formInstanceId);
+		}
 
-            if (submitButton) submitButton.disabled = true;
-            if (loaderDiv) loaderDiv.classList.remove('sparxstar_visually_hidden');
+		/**
+		 * Initializes the StarmusAudioRecorder module for this specific form instance.
+		 * @param {string} instanceId - The unique ID of the form instance.
+		 */
+		function initializeRecorder(instanceId) {
+			// This check prevents errors if the StarmusAudioRecorder script fails to load.
+			if (typeof StarmusAudioRecorder?.init === 'function') {
+				StarmusAudioRecorder.init({ formInstanceId: instanceId }).then(
+					(success) => {
+						if (success && CONFIG.DEBUG_MODE) {
+							console.log(
+								CONFIG.LOG_PREFIX,
+								`Recorder module initialized for ${instanceId}.`
+							);
+						}
+					}
+				);
+			} else {
+				console.error(
+					CONFIG.LOG_PREFIX,
+					'StarmusAudioRecorder module is not available.'
+				);
+			}
+		}
 
-            const formData = new FormData(formElement);
-            const meta = {};
-            formData.forEach((value, key) => {
-                if (!(value instanceof File)) meta[key] = value;
-            });
-            
-            const submissionItem = {
-                id: audioIdField.value,
-                meta,
-                audio: audioFileInput.files[0],
-                restUrl: starmusFormData?.rest_url,
-                audioField: audioFileInput.name,
-                uploadedBytes: 0
-            };
+		formElement.addEventListener('submit', async (e) => {
+			e.preventDefault();
 
-            if (CONFIG.DEBUG_MODE) console.log(CONFIG.LOG_PREFIX, '--- Submission Data ---', submissionItem);
+			const submitButton = document.getElementById(
+				`submit_button_${formInstanceId}`
+			);
+			const loaderDiv = document.getElementById(
+				`sparxstar_loader_overlay_${formInstanceId}`
+			);
 
-            if (!submissionItem.restUrl) {
-                alert('Error: The submission endpoint is not configured. Please contact support.');
-                if (submitButton) submitButton.disabled = false;
-                if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden');
-                return;
-            }
+			// This function will be defined in the recorder module and handles the upload.
+			if (typeof StarmusAudioRecorder?.submit === 'function') {
+				if (submitButton) submitButton.disabled = true;
+				if (loaderDiv)
+					loaderDiv.classList.remove('sparxstar_visually_hidden');
 
-            const result = await uploadSubmission(submissionItem, formInstanceId);
+				const result = await StarmusAudioRecorder.submit(
+					formInstanceId
+				);
 
-            if (loaderDiv) loaderDiv.classList.add('sparxstar_visually_hidden');
+				if (loaderDiv)
+					loaderDiv.classList.add('sparxstar_visually_hidden');
 
-            if (result.success) {
-                if (result.redirectUrl) {
-                    window.location.href = result.redirectUrl;
-                } else {
-                    alert('Successfully submitted!');
-                    formElement.reset();
-                    if (typeof StarmusAudioRecorder?.cleanup === 'function') {
-                        StarmusAudioRecorder.cleanup(formInstanceId);
-                    }
-                }
-            } else if (result.queued) {
-                alert('Connection issue. Your recording has been saved and will be uploaded automatically when you are back online.');
-                formElement.reset();
-                if (typeof StarmusAudioRecorder?.cleanup === 'function') {
-                    StarmusAudioRecorder.cleanup(formInstanceId);
-                }
-                await updateQueueUI();
-            } else {
-                alert('An unknown error occurred during upload. Please try again.');
-                if (submitButton) submitButton.disabled = false;
-            }
-        });
-    }); // End of recorderWrappers.forEach
+				if (result.success) {
+					if (result.redirectUrl) {
+						window.location.href = result.redirectUrl;
+					} else {
+						alert('Successfully submitted!');
+						formElement.reset();
+						if (
+							typeof StarmusAudioRecorder?.cleanup === 'function'
+						) {
+							StarmusAudioRecorder.cleanup(formInstanceId);
+						}
+					}
+				} else {
+					// The recorder module's submit function should handle its own error messaging.
+					if (submitButton) submitButton.disabled = false;
+				}
+			} else {
+				alert(
+					'Error: Submission handler is not available. Please contact support.'
+				);
+			}
+		});
+	}); // End of recorderWrappers.forEach
 });

@@ -1,4 +1,4 @@
-# Security Policy 
+# Security Policy
 
 This document defines the security reporting and disclosure policy for the Starisian Technologies, which may contain culturally sensitive, ethically governed, and AI-training related data and code.
 

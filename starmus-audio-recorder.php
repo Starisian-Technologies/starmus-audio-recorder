@@ -32,34 +32,39 @@
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 // 1. Define Plugin Constants.
 define( 'STARMUS_PATH', plugin_dir_path( __FILE__ ) );
-define('STARMUS_URL', plugin_dir_url( __FILE__ ));
+define( 'STARMUS_URL', plugin_dir_url( __FILE__ ) );
 define( 'STARMUS_MAIN_FILE', __FILE__ );
-define('STARMUS_MAIN_DIR', plugin_dir_path( __FILE__ ));
+define( 'STARMUS_MAIN_DIR', plugin_dir_path( __FILE__ ) );
 
 // ... other constants ...
-define('STARMUS_VERSION',"0.3.1");
+define( 'STARMUS_VERSION', '0.3.1' );
 
 // Load Composer autoloader if present.
 if ( file_exists( STARMUS_MAIN_DIR . '/vendor/autoload.php' ) ) {
-    require STARMUS_MAIN_DIR . '/vendor/autoload.php';
+	require STARMUS_MAIN_DIR . '/vendor/autoload.php';
 }
 
 // Register Plugin Lifecycle Hooks.
-register_activation_hook( STARMUS_MAIN_FILE, [ 'Starmus\includes\StarmusPlugin', 'activate' ] );
-register_deactivation_hook( STARMUS_MAIN_FILE, [ 'Starmus\includes\StarmusPlugin', 'deactivate' ] );
+register_activation_hook( STARMUS_MAIN_FILE, array( 'Starmus\includes\StarmusPlugin', 'activate' ) );
+register_deactivation_hook( STARMUS_MAIN_FILE, array( 'Starmus\includes\StarmusPlugin', 'deactivate' ) );
 
 // Initialize the plugin.
-add_action('plugins_loaded', function() {
-    \Starmus\includes\StarmusPlugin::starmus_run();
-});
+add_action(
+	'plugins_loaded',
+	function () {
+		\Starmus\includes\StarmusPlugin::starmus_run();
+	}
+);
 
 // Hook the init method to the WordPress init action.
-add_action('init', function() {
-    \Starmus\includes\StarmusPlugin::get_instance()->starmus_init();
-});
-
+add_action(
+	'init',
+	function () {
+		\Starmus\includes\StarmusPlugin::get_instance()->starmus_init();
+	}
+);

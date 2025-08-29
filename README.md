@@ -10,7 +10,7 @@ The plugin is built to be **highly extensible**, offering developers a rich set 
 
 Named after the iconic **Starmus Festival**, where rock legends and astrophysicists share the stage, this tool is built for creators and communities who believe **voice has gravity**.
 
-[![CodeQL](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql) 
+[![CodeQL](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql)
 [![Security Checks](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml)
 
 ---
@@ -60,12 +60,15 @@ Named after the iconic **Starmus Festival**, where rock legends and astrophysici
 The plugin provides three primary shortcodes:
 
 ### 1. Audio Recorder
+
 Displays the two-step recording form.  
+
 ```php
 [starmus_audio_recorder]
 ```
 
 ### 2. User’s Recordings List
+
 Displays a paginated list of logged-in user submissions.  
 
 ```php
@@ -73,6 +76,7 @@ Displays a paginated list of logged-in user submissions.
 ```
 
 ### 3. Audio Editor
+
 Displays the Peaks.js annotation editor. Requires a `post_id` in the URL.  
 
 ```php
@@ -80,14 +84,17 @@ Displays the Peaks.js annotation editor. Requires a `post_id` in the URL.
 ```
 
 **Example URL:**  
+
 ```php
 https://yoursite.com/edit-recording/?post_id=123
 ```
+
 ---
 
 ## For Developers: Architecture & Extensibility
 
 ### Core Architecture
+
 - **StarmusPlugin** – main plugin controller  
 - **StarmusAudioRecorderUI** – manages recording form, chunked uploads, metadata, and redirects  
 - **StarmusAudioEditorUI** – manages the annotation editor and REST API  
@@ -96,6 +103,7 @@ https://yoursite.com/edit-recording/?post_id=123
   - `starmus-audio-recorder-submissions.js` (form UI, offline queue, AJAX)
 
 ### Custom Post Types & Taxonomies
+
 - **CPTs:**  
   - `audio-recording`  
   - `consent-agreement`  
@@ -108,6 +116,7 @@ https://yoursite.com/edit-recording/?post_id=123
 ## Hooks
 
 ### Audio Recorder Hooks
+
 - **`starmus_before_recorder_render` (Action)**  
   Fires before recorder form displays.
   *Example: Redirect if profile is incomplete.*
@@ -126,6 +135,7 @@ https://yoursite.com/edit-recording/?post_id=123
 - **`starmus_after_audio_upload` (Action)**  
   Fires after recording + metadata saved.  
   *Example: Send an email to the admin.*
+
 ```php  
 add_action('starmus_after_audio_upload', function($audio_post_id, $attachment_id, $form_data) {
     $title = get_the_title($audio_post_id);
@@ -151,6 +161,7 @@ add_action('starmus_after_audio_upload', function($audio_post_id, $attachment_id
 ```
 
 ### Audio Editor Hooks
+
 - **`starmus_before_editor_render` (Action)** – Before the editor loads  
 - **`starmus_editor_template` (Filter)** – Override the editor template  
 - **`starmus_before_annotations_save` (Action)** – Fires via REST before annotations are saved  
@@ -171,7 +182,7 @@ Starmus honors the **Starmus Festival** founded by Dr. Garik Israelian and **Dr.
 
 **Starmus Audio Recorder** is a small tool with a **big mission**: to preserve stories, songs, and spirit in their purest form.
 
---- 
+---
 
 ## **🤝 Cultural & Creative Projects Welcome**
 
@@ -179,17 +190,17 @@ While this plugin is released under a restricted proprietary license, we activel
 
 If you're working in **underserved communities** or preserving oral traditions, reach out. We’re happy to explore **free or discounted licensing**.
 
-**📧 Contact: support@aiwestafrica.com**
+**📧 Contact: <support@aiwestafrica.com>**
 
 ---
 
 ## **🔮 Future Directions**
 
-* Offline saving & encryption (PWA)
+- Offline saving & encryption (PWA)
 
-* Metadata tagging
+- Metadata tagging
 
-* Optional MP3 conversion via WebAssembly
+- Optional MP3 conversion via WebAssembly
 
 ---
 
@@ -201,8 +212,8 @@ This software is governed by the **Starisian Technologies Confidential License**
 
 By accessing this repo, you accept:
 
-* LICENSE.md — legal terms, jurisdiction
-* TERMS.md — ethics, allowed use
+- LICENSE.md — legal terms, jurisdiction
+- TERMS.md — ethics, allowed use
 
 **Not allowed:** surveillance, coercion, military use.  
  **Encouraged:** oral history, education, culture, community voice.
@@ -213,9 +224,9 @@ By accessing this repo, you accept:
 
 You must adhere to these standards:
 
-* No use in surveillance or coercion
-* No use by military, police, or intelligence agencies
-* Exemptions may be granted for verified educational/cultural programs
+- No use in surveillance or coercion
+- No use by military, police, or intelligence agencies
+- Exemptions may be granted for verified educational/cultural programs
 
 Full details in `ETHICS.md` or by request.
 
@@ -226,9 +237,8 @@ Full details in `ETHICS.md` or by request.
 **Starisian Technologies**  
  815 E Street, Suite 12083  
  San Diego, CA 92101  
- **Email:** support@starisian.com
+ **Email:** <support@starisian.com>
 
 ---
 
 **Made for creators. Built for culture. Inspired by the stars.**
-

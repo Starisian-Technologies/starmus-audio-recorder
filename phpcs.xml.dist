@@ -42,6 +42,12 @@
       </property>
     </properties>
   </rule>
+
+  <!--
+	Now, exclude the specific sniff that checks for lowercase-and-hyphenated file names.
+	This is the key to allowing your PSR-4 CamelCase file names.
+	-->
+	<exclude name="WordPress.Files.FileName"/>
   <rule ref="WordPress.Files.FileName">
     <exclude-pattern>/tests/*Test\.php</exclude-pattern>
   </rule>
