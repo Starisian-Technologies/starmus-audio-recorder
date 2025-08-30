@@ -229,11 +229,11 @@ final class StarmusPlugin
 	 */
 	private function instantiate_component(string $class_name): void
 	{
-		if (isset($this->star_components[$class_name])) {
+		$class_var = 'star_instance' . $class_name;
+		if (isset($class_var)) {
 			return;
 		}
 		try {
-			$class_var = 'star_instance' . $class_name;
 			$class_var === new $class_name();
 		} catch (Throwable $e) {
 			$error_message = sprintf('Starmus Plugin: Runtime error while instantiating %s. Message: "%s"', sanitize_text_field($class_name), sanitize_text_field($e->getMessage()));
@@ -259,6 +259,7 @@ final class StarmusPlugin
 			}
 			$unique_errors = array_unique($this->starmus_runtime_errors);
 			foreach ($unique_errors as $message) {
+				error_log('Starmus Audio Recorder', esc_html($message));
 				echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus Audio Recorder Plugin Error:</strong><br>' . esc_html($message) . '</p></div>';
 			}
 		} catch (Throwable $e) {
