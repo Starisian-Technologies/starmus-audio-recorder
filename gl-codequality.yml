@@ -1,2 +1,52 @@
-include:
-  template: Code-Quality.gitlab-ci.yml
+# This job runs the CodeQL static analysis engine and integrates its findings
+# into the GitLab Code Quality report.
+
+codeql_scan:
+  stage: test # Often runs in the 'test' or a dedicated 'code_quality' stage
+  image: ubuntu:20.04 # A base image to run the commands
+
+  variables:
+    # Define the language to be scanned. CodeQL supports many languages.
+    CODEQL_LANGUAGE: "php"
+    # Pin the version of the CodeQL CLI for consistent runs
+    CODEQL_VERSION: "8.3.0"
+
+  before_script:
+    # This section sets up the environment by downloading the CodeQL CLI
+    - apt-get update && apt-get install -y wget unzip
+    - wget "https://github.com/github/codeql-cli-binaries/releases/download/v${CODEQL_VERSION}/codeql-linux64.zip"
+    - unzip codeql-linux64.zip
+    - mv codeql codeql-cli
+
+  script:
+    # Step 1: Create a CodeQL database from the source code.
+    # This command analyzes your code and builds a structured representation of it.
+    - echo "Creating CodeQL database..."
+    - ./codeql-cli/codeql database create codeql-db --language=$CODEQL_LANGUAGE --source-root=.
+
+    # Step 2: Run the analysis by executing queries against the database.
+    # The output is a SARIF file, which is an industry standard for static analysis results.
+    - echo "Analyzing database..."
+    - ./codeql-cli/codeql database analyze codeql-db --format=sarif-latest --output=codeql-results.sarif "github/codeql/${CODEQL_LANGUAGE}-queries"
+
+    # Step 3: Convert the SARIF output to the GitLab Code Quality format.
+    # This is a crucial step. It requires a converter tool (this might be a custom script
+    # or a dedicated open-source tool). Let's assume a tool named 'sarif-to-gitlab'.
+    - echo "Converting SARIF to GitLab format..."
+    # The actual command might differ, but this is the concept.
+    # You would need to ensure this converter tool is available in your image or download it.
+    - ./sarif-to-gitlab -i codeql-results.sarif -o gl-code-quality-report.json
+
+  artifacts:
+    # This tells GitLab to save the generated report. The 'reports:code_quality' keyword
+    # is what enables the integration with the Merge Request widget.
+    reports:
+      code_quality: gl-code-quality-report.json
+    # Optionally, save the original SARIF file for deeper inspection later.
+    paths:
+      - codeql-results.sarif
+    when: always # Collect artifacts even if the job fails (e.g., if vulnerabilities are found)
+
+  rules:
+    # Run this job only on merge requests to provide feedback before merging.
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'

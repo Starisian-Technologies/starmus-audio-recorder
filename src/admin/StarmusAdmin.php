@@ -68,7 +68,7 @@ class StarmusAdmin {
 	 * Render settings page with CSRF protection.
 	 */
 	public function render_settings_page(): void {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) && (! is_Admin ) ) {
 			wp_die( __( 'You do not have sufficient permissions.', 'starmus_audio_recorder' ) );
 		}
 		?>

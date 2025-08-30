@@ -45,7 +45,10 @@ define( 'STARMUS_URL', plugin_dir_url( __FILE__ ) );
 define( 'STARMUS_MAIN_FILE', __FILE__ );
 define( 'STARMUS_MAIN_DIR', plugin_dir_path( __FILE__ ) );
 
+
 // ... other constants ...
+define( 'STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder');
+define('STARMUS_TEXT_DOMAIN', 'starmus_audio_recorder');
 define( 'STARMUS_VERSION', '0.3.1' );
 
 // Load Composer autoloader if present.
