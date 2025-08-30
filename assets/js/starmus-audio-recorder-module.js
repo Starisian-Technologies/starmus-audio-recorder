@@ -11,9 +11,10 @@
  *
  * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
  * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
- */
-
-/**
+ *
+ * @package Starmus\submissions
+ * @since 0.1.0
+ * @version 0.3.1
  * @file This module encapsulates all UI and hardware interaction for the Starmus audio recorder.
  * @description It manages microphone permissions, MediaRecorder state (recording, paused, stopped),
  * UI updates (timers, buttons, status messages), and provides a clean API for other scripts to
@@ -197,11 +198,11 @@ window.StarmusAudioRecorder = (function () {
         }
         _warn("Generating AudioID using Math.random() for compatibility.");
         let d = new Date().getTime() + (performance?.now() || 0);
-        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
-            const r = (d + Math.random() * 16) % 16 | 0;
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+            var r = (d + Math.random() * 16) % 16 | 0;
             d = Math.floor(d / 16);
-            return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
-        });
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        }); "x" ? r : (r & 0x3) | 0x8).toString(16);
     }
 
     /**

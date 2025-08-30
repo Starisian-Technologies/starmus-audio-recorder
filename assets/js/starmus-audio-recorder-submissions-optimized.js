@@ -70,13 +70,8 @@
 		return elementCache[id];
 	}
 
-	// User notification system (replaces alert) - XSS protected
+	// User notification system (replaces alert)
 	function showUserMessage(formInstanceId, message, type) {
-		// Sanitize inputs
-		formInstanceId = sanitizeForLog(String(formInstanceId));
-		message = sanitizeForLog(String(message));
-		type = sanitizeForLog(String(type || 'info'));
-		
 		var messageDiv = getCachedElement('starmus_user_message_' + formInstanceId);
 		if (!messageDiv) {
 			messageDiv = document.createElement('div');
@@ -88,9 +83,8 @@
 			if (form) form.insertBefore(messageDiv, form.firstChild);
 		}
 		
-		// Use textContent to prevent XSS
 		messageDiv.textContent = message;
-		messageDiv.className = 'starmus-user-message starmus-message-' + type;
+		messageDiv.className = 'starmus-user-message starmus-message-' + (type || 'info');
 		messageDiv.style.display = 'block';
 		
 		// Auto-hide after 5 seconds for non-error messages
@@ -177,15 +171,9 @@
 			fieldElements[field.id] = getCachedElement(field.id);
 		});
 
-		// Continue button handler with CSRF protection
+		// Continue button handler
 		continueBtn.addEventListener('click', function(event) {
 			event.preventDefault();
-			// Verify nonce exists
-			var nonceField = getCachedElement('starmus_nonce_' + formInstanceId);
-			if (!nonceField || !nonceField.value) {
-				showUserMessage(formInstanceId, 'Security check failed. Please refresh the page.', 'error');
-				return;
-			}
 			handleContinueClick(formElements, fieldElements, validationFields, formInstanceId);
 		});
 
@@ -374,21 +362,7 @@
 
 		if (result && result.success) {
 			if (result.redirectUrl) {
-				// Validate redirect URL to prevent open redirect attacks
-				var url = String(result.redirectUrl);
-				if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) {
-					// Only allow same-origin redirects
-					if (url.indexOf(window.location.origin) === 0) {
-						window.location.href = url;
-					} else {
-						showUserMessage(formInstanceId, 'Invalid redirect URL', 'error');
-					}
-				} else if (url.charAt(0) === '/') {
-					// Relative URLs are safe
-					window.location.href = url;
-				} else {
-					showUserMessage(formInstanceId, 'Invalid redirect URL', 'error');
-				}
+				window.location.href = result.redirectUrl;
 			} else {
 				showUserMessage(formInstanceId, 'Successfully submitted!', 'success');
 				var form = getCachedElement(formInstanceId);

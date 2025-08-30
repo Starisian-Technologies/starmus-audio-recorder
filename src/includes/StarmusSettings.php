@@ -1,135 +1,179 @@
 <?php
 /**
- * A robust, centralized API for managing all plugin settings.
- *
- * This final class provides a complete CRUD (Create, Read, Update, Delete)
- * interface for the plugin's options, ensuring that all settings are
- * handled consistently and have reliable default values.
+ * Optimized and secure settings management for Starmus plugin.
  *
  * @package Starmus\includes
- * @since 0.1.0
- * @version 0.3.0
+ * @since 0.3.1
  */
 
 namespace Starmus\includes;
 
-// Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (!defined('ABSPATH')) {
+    return;
 }
 
-final class StarmusSettings {
+final class StarmusSettings
+{
+    public const OPTION_KEY = 'starmus_options';
+    
+    private static ?array $cache = null;
+    private static ?array $defaults_cache = null;
 
-	/**
-	 * The single key used to store all plugin options in the wp_options table.
-	 *
-	 * @var string
-	 */
-	public const OPTION_KEY = 'starmus_options';
+    /**
+     * Get a single setting with caching.
+     */
+    public static function get(string $key, $default = null)
+    {
+        $settings = self::all();
+        return $settings[$key] ?? $default;
+    }
 
-	/**
-	 * Retrieves a single setting value.
-	 *
-	 * This is the primary method for getting settings. It merges saved options
-	 * with the defaults, ensuring a valid value is always returned.
-	 *
-	 * @since 0.1.0
-	 * @param string $key The key of the setting to retrieve.
-	 * @param mixed  $default A fallback default value if the key is not found in settings or defaults.
-	 * @return mixed The value of the setting.
-	 */
-	public static function get( string $key, $default = null ) {
-		$all_settings = self::all();
-		return $all_settings[ $key ] ?? $default;
-	}
+    /**
+     * Get all settings with caching optimization.
+     */
+    public static function all(): array
+    {
+        if (self::$cache === null) {
+            $saved = get_option(self::OPTION_KEY, []);
+            $defaults = self::get_defaults();
+            self::$cache = wp_parse_args($saved, $defaults);
+        }
+        return self::$cache;
+    }
 
-	/**
-	 * Retrieves all settings, merged with defaults.
-	 *
-	 * @since 0.1.0
-	 * @return array A complete array of all settings.
-	 */
-	public static function all(): array {
-		$saved_options = get_option( self::OPTION_KEY, array() );
-		$defaults      = self::get_defaults();
+    /**
+     * Set a single setting with validation.
+     */
+    public static function set(string $key, $value): bool
+    {
+        if (!self::is_valid_key($key)) {
+            return false;
+        }
 
-		// wp_parse_args is the WordPress standard for merging settings with defaults.
-		return wp_parse_args( $saved_options, $defaults );
-	}
+        $saved = get_option(self::OPTION_KEY, []);
+        $saved[$key] = self::sanitize_value($key, $value);
+        
+        $result = update_option(self::OPTION_KEY, $saved);
+        if ($result) {
+            self::clear_cache();
+        }
+        return $result;
+    }
 
-	/**
-	 * Helper function to safely get a setting value.
-	 *
-	 * This method is kept for backward compatibility. It now acts as a wrapper
-	 * for the new `get()` method.
-	 *
-	 * @since 0.1.0
-	 * @deprecated 0.3.0 Use StarmusSettings::get() instead for new code.
-	 *
-	 * @param string $key     The key of the setting to retrieve.
-	 * @param mixed  $default A fallback default value.
-	 * @return mixed The value of the setting.
-	 */
-	public static function starmus_get_option( string $key, $default = '' ) {
-		// This now delegates to the new, more robust `get()` method.
-		// All the logic is handled there, ensuring consistency.
-		return self::get( $key, $default );
-	}
+    /**
+     * Update all settings with validation and defaults merge.
+     */
+    public static function update_all(array $settings): bool
+    {
+        $sanitized = [];
+        foreach ($settings as $key => $value) {
+            if (self::is_valid_key($key)) {
+                $sanitized[$key] = self::sanitize_value($key, $value);
+            }
+        }
 
-	/**
-	 * Updates a single setting value.
-	 *
-	 * @since 0.1.0
-	 * @param string $key The key of the setting to update.
-	 * @param mixed  $value The new value for the setting.
-	 * @return bool True if the option was updated, false otherwise.
-	 */
-	public static function set( string $key, $value ): bool {
-		$all_settings         = self::all(); // Get all current settings, including defaults
-		$all_settings[ $key ] = $value;
-		return update_option( self::OPTION_KEY, $all_settings );
-	}
+        // Merge with defaults to prevent missing keys
+        $merged = wp_parse_args($sanitized, self::get_defaults());
+        
+        $result = update_option(self::OPTION_KEY, $merged);
+        if ($result) {
+            self::clear_cache();
+        }
+        return $result;
+    }
 
-	/**
-	 * Replaces all settings with a new array of settings.
-	 * Useful for handling a settings form submission.
-	 *
-	 * @since 0.1.0
-	 * @param array $settings An associative array of settings to save.
-	 * @return bool True if the option was updated, false otherwise.
-	 */
-	public static function update_all( array $settings ): bool {
-		return update_option( self::OPTION_KEY, $settings );
-	}
+    /**
+     * Get defaults with caching.
+     */
+    public static function get_defaults(): array
+    {
+        if (self::$defaults_cache === null) {
+            self::$defaults_cache = [
+                'cpt_slug' => 'audio-recording',
+                'file_size_limit' => 10,
+                'recording_time_limit' => 300,
+                'allowed_file_types' => 'mp3,wav,webm,m4a,ogg,opus',
+                'consent_message' => __('I consent to having this audio recording stored and used.', 'starmus_audio_recorder'),
+                'collect_ip_ua' => 0,
+                'data_policy_url' => '',
+                'edit_page_id' => 0,
+            ];
+            self::$defaults_cache = apply_filters('starmus_default_settings', self::$defaults_cache);
+        }
+        return self::$defaults_cache;
+    }
 
-	/**
-	 * Provides a central, filterable list of default settings.
-	 *
-	 * @since 0.1.0
-	 * @return array The default plugin settings.
-	 */
-	public static function get_defaults(): array {
-		$defaults = array(
-			'cpt_slug'             => 'audio-recording',
-			'file_size_limit'      => 10, // MB
-			'recording_time_limit' => 300, // Seconds
-			'allowed_file_types'   => 'mp3,wav,webm,m4a,ogg,opus',
-			'consent_message'      => __( 'I consent to having this audio recording stored and used.', 'starmus_audio_recorder' ),
-			'collect_ip_ua'        => 0, // Boolean-like (0 or 1)
-			'data_policy_url'      => '',
-			'edit_page_id'         => 0,
-		);
+    /**
+     * Initialize defaults on activation with proper handling.
+     */
+    public static function add_defaults_on_activation(): void
+    {
+        $existing = get_option(self::OPTION_KEY);
+        if ($existing === false) {
+            add_option(self::OPTION_KEY, self::get_defaults());
+        } else {
+            // Merge with existing to preserve user settings
+            $merged = wp_parse_args($existing, self::get_defaults());
+            update_option(self::OPTION_KEY, $merged);
+        }
+        self::clear_cache();
+    }
 
-		return apply_filters( 'starmus_default_settings', $defaults );
-	}
+    /**
+     * Validate setting key.
+     */
+    private static function is_valid_key(string $key): bool
+    {
+        $valid_keys = array_keys(self::get_defaults());
+        return in_array($key, $valid_keys, true);
+    }
 
-	/**
-	 * Saves the default options to the database on plugin activation.
-	 * This should be called from your plugin's activation hook.
-	 *
-	 * @since 0.1.0
-	 */
-	public static function add_defaults_on_activation(): void {
-		add_option( self::OPTION_KEY, self::get_defaults() );
-	}
+    /**
+     * Sanitize setting value based on key.
+     */
+    private static function sanitize_value(string $key, $value)
+    {
+        switch ($key) {
+            case 'cpt_slug':
+                return sanitize_key($value);
+            case 'file_size_limit':
+            case 'recording_time_limit':
+            case 'collect_ip_ua':
+            case 'edit_page_id':
+                return absint($value);
+            case 'allowed_file_types':
+                return sanitize_text_field($value);
+            case 'consent_message':
+                return wp_kses_post($value);
+            case 'data_policy_url':
+                return esc_url_raw($value);
+            default:
+                return sanitize_text_field($value);
+        }
+    }
+
+    /**
+     * Clear internal cache.
+     */
+    private static function clear_cache(): void
+    {
+        self::$cache = null;
+    }
+
+    /**
+     * Delete all settings (for uninstall).
+     */
+    public static function delete_all(): bool
+    {
+        self::clear_cache();
+        return delete_option(self::OPTION_KEY);
+    }
+
+    /**
+     * @deprecated Use get() instead
+     */
+    public static function starmus_get_option(string $key, $default = '')
+    {
+        return self::get($key, $default);
+    }
 }
