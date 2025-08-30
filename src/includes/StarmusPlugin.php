@@ -90,7 +90,7 @@ final class StarmusPlugin
 		}
 
 		// Instantiate all class-based star_components.
-		$this->instantiate_star_components();
+		$this->starmus_instantiate_class_components();
 
 		// Hook the admin notice for any runtime errors that occurred.
 		add_action('admin_notices', array($this, 'display_runtime_error_notice'));
@@ -103,11 +103,11 @@ final class StarmusPlugin
 	 *
 	 * @since 0.1.0
 	 */
-	private function instantiate_star_components(): void
+	private function starmus_instantiate_class_components(): void
 	{
 		try {
 			foreach ($this->star_class_array as $class_name) {
-				$this->instantiate_component($class_name::class);
+				$this->starmus_instantiate_component($class_name::class);
 			}
 		} catch (Throwable $e) {
 			if (debug === true) {
