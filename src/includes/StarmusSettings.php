@@ -14,10 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class StarmusSettings {
 
-	public const OPTION_KEY = 'starmus_options';
+	public const STAR_OPTION_KEY = 'starmus_options';
 
-	private static ?array $cache          = null;
-	private static ?array $defaults_cache = null;
+	private static ?array $starstar_cache          = null;
+	private static ?array $star_default_cache = null;
 
 	/**
 	 * Get a single setting with caching.
@@ -31,12 +31,12 @@ final class StarmusSettings {
 	 * Get all settings with caching optimization.
 	 */
 	public static function all(): array {
-		if ( self::$cache === null ) {
-			$saved       = get_option( self::OPTION_KEY, array() );
+		if ( self::$star_cache === null ) {
+			$saved       = get_option( self::STAR_OPTION_KEY, array() );
 			$defaults    = self::get_defaults();
 			self::$cache = wp_parse_args( $saved, $defaults );
 		}
-		return self::$cache;
+		return self::$star_cache;
 	}
 
 	/**
@@ -47,12 +47,12 @@ final class StarmusSettings {
 			return false;
 		}
 
-		$saved         = get_option( self::OPTION_KEY, array() );
+		$saved         = get_option( self::STAR_OPTION_KEY, array() );
 		$saved[ $key ] = self::sanitize_value( $key, $value );
 
-		$result = update_option( self::OPTION_KEY, $saved );
+		$result = update_option( self::STAR_OPTION_KEY, $saved );
 		if ( $result ) {
-			self::clear_cache();
+			self::clear(star_cache());
 		}
 		return $result;
 	}
@@ -71,9 +71,9 @@ final class StarmusSettings {
 		// Merge with defaults to prevent missing keys
 		$merged = wp_parse_args( $sanitized, self::get_defaults() );
 
-		$result = update_option( self::OPTION_KEY, $merged );
+		$result = update_option( self::STAR_OPTION_KEY, $merged );
 		if ( $result ) {
-			self::clear_cache();
+			self::starmus_clear_cache();
 		}
 		return $result;
 	}
@@ -82,8 +82,8 @@ final class StarmusSettings {
 	 * Get defaults with caching.
 	 */
 	public static function get_defaults(): array {
-		if ( self::$defaults_cache === null ) {
-			self::$defaults_cache = array(
+		if ( self::$star_default_cache  === null ) {
+			self::$star_default_cache  = array(
 				'cpt_slug'             => 'audio-recording',
 				'file_size_limit'      => 10,
 				'recording_time_limit' => 300,
@@ -93,24 +93,24 @@ final class StarmusSettings {
 				'data_policy_url'      => '',
 				'edit_page_id'         => 0,
 			);
-			self::$defaults_cache = apply_filters( 'starmus_default_settings', self::$defaults_cache );
+			self::$star_default_cache = apply_filters( 'starmus_default_settings', self::$star_default_cache );
 		}
-		return self::$defaults_cache;
+		return self::$star_default_cache;
 	}
 
 	/**
 	 * Initialize defaults on activation with proper handling.
 	 */
 	public static function add_defaults_on_activation(): void {
-		$existing = get_option( self::OPTION_KEY );
+		$existing = get_option( self::STAR_OPTION_KEY );
 		if ( $existing === false ) {
-			add_option( self::OPTION_KEY, self::get_defaults() );
+			add_option( self::STAR_OPTION_KEY, self::get_defaults() );
 		} else {
 			// Merge with existing to preserve user settings
 			$merged = wp_parse_args( $existing, self::get_defaults() );
-			update_option( self::OPTION_KEY, $merged );
+			update_option( self::STAR_OPTION_KEY, $merged );
 		}
-		self::clear_cache();
+		self::starmus_clear_cache();
 	}
 
 	/**
@@ -124,7 +124,7 @@ final class StarmusSettings {
 	/**
 	 * Sanitize setting value based on key.
 	 */
-	private static function sanitize_value( string $key, $value ) {
+	private static function starmus_sanitize_value( string $key, $value ) {
 		switch ( $key ) {
 			case 'cpt_slug':
 				return sanitize_key( $value );
@@ -147,7 +147,7 @@ final class StarmusSettings {
 	/**
 	 * Clear internal cache.
 	 */
-	private static function clear_cache(): void {
+	private static function starmus_clear_cache(): void {
 		self::$cache = null;
 	}
 
@@ -155,8 +155,8 @@ final class StarmusSettings {
 	 * Delete all settings (for uninstall).
 	 */
 	public static function delete_all(): bool {
-		self::clear_cache();
-		return delete_option( self::OPTION_KEY );
+		self::starmus_clear_cache();
+		return delete_option( self::STAR_OPTION_KEY );
 	}
 
 	/**

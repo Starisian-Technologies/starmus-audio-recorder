@@ -246,11 +246,14 @@ class StarmusAudioRecorderUI {
 	 */
 	public function handle_upload_chunk_rest( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		if ( $this->is_rate_limited() ) {
+			if(debug === true){
+			
 			return new WP_Error(
 				'rate_limit_exceeded',
 				__( 'You are uploading too frequently. Please wait a moment.', 'starmus_audio_recorder' ),
 				array( 'status' => 429 )
 			);
+		}
 		}
 
 		$params = $request->get_params();
@@ -258,7 +261,7 @@ class StarmusAudioRecorderUI {
 
 		$data = $this->validate_chunk_data( $params, $files );
 		if ( is_wp_error( $data ) ) {
-			return $data;
+			throw new WP_Error($data->get_error_message());
 		}
 
 		// Create draft post on first chunk (idempotent).
@@ -311,30 +314,36 @@ class StarmusAudioRecorderUI {
 		$file_chunk = $files['audio_file'] ?? null;
 
 		if ( ! $uuid || ! $file_chunk || UPLOAD_ERR_OK !== ( $file_chunk['error'] ?? 0 ) || ! $total_size ) {
+			if(debug === true){
 			return new WP_Error(
 				'invalid_request_data',
 				__( 'Invalid or missing request data.', 'starmus_audio_recorder' ),
 				array( 'status' => 400 )
 			);
+			}
 		}
 
 		$max_size = (int) $this->get_setting( 'max_file_size_mb', 25 ) * 1024 * 1024;
 		if ( $total_size > $max_size ) {
+			if (debug === true){
 			return new WP_Error(
 				'file_too_large',
 				__( 'The uploaded file exceeds the maximum allowed size.', 'starmus_audio_recorder' ),
 				array( 'status' => 413 )
 			);
 		}
+		}
 
 		$allowed_exts = array_map( 'strtolower', (array) $this->get_setting( 'allowed_extensions', array( 'webm', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
 		$extension    = strtolower( pathinfo( $file_name, PATHINFO_EXTENSION ) );
 		if ( ! in_array( $extension, $allowed_exts, true ) ) {
+			if (debug === true){
 			return new WP_Error(
 				'invalid_file_extension',
 				__( 'The file type is not permitted.', 'starmus_audio_recorder' ),
 				array( 'status' => 415 )
 			);
+		}
 		}
 
 		return compact( 'uuid', 'offset', 'total_size', 'file_chunk', 'file_name' );
@@ -352,12 +361,16 @@ class StarmusAudioRecorderUI {
 		// Validate UUID to prevent path traversal
 		$uuid = sanitize_key( $uuid );
 		if ( empty( $uuid ) || strlen( $uuid ) > 40 || ! preg_match( '/^[a-zA-Z0-9_-]+$/', $uuid ) ) {
+			if (debug === true){
 			return new WP_Error( 'invalid_uuid', __( 'Invalid upload identifier.', 'starmus_audio_recorder' ) );
+			}
 		}
 
 		// Validate tmp_name path
 		if ( ! is_uploaded_file( $tmp_name ) ) {
+			if (debug === true){
 			return new WP_Error( 'invalid_temp_file', __( 'Invalid temporary file.', 'starmus_audio_recorder' ) );
+			}
 		}
 
 		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_exists
@@ -365,7 +378,9 @@ class StarmusAudioRecorderUI {
 		// Native functions are used here for performance and stream handling, which WP_Filesystem does not expose.
 		$temp_dir = $this->get_temp_dir();
 		if ( is_wp_error( $temp_dir ) ) {
-			return $temp_dir;
+			if(debug === true){
+			throw new WP_Error($temp_dir->get_error_message());
+			}
 		}
 
 		$temp_file_path = trailingslashit( $temp_dir ) . $uuid . '.part';
@@ -374,11 +389,16 @@ class StarmusAudioRecorderUI {
 		$real_temp_dir  = realpath( $temp_dir );
 		$real_temp_file = realpath( dirname( $temp_file_path ) ) . '/' . basename( $temp_file_path );
 		if ( ! $real_temp_dir || strpos( $real_temp_file, $real_temp_dir ) !== 0 ) {
+						if(debug === true){
+
 			return new WP_Error( 'path_traversal_attempt', __( 'Invalid file path.', 'starmus_audio_recorder' ) );
+						}
 		}
 
 		$current_size = file_exists( $temp_file_path ) ? (int) filesize( $temp_file_path ) : 0;
 		if ( $offset !== $current_size ) {
+						if(debug === true){
+
 			return new WP_Error(
 				'bad_chunk_offset',
 				sprintf(
@@ -390,26 +410,34 @@ class StarmusAudioRecorderUI {
 				array( 'status' => 409 )
 			);
 		}
+		}
 		// phpcs:enable
 
 		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen
 		$in = fopen( $tmp_name, 'rb' );
 		if ( false === $in ) {
+						if(debug === true){
+
 			return new WP_Error(
 				'stream_open_failed_in',
 				__( 'Failed to open temporary chunk for reading.', 'starmus_audio_recorder' ),
 				array( 'status' => 500 )
+			
 			);
 		}
 
 		$out = fopen( $temp_file_path, 0 === $current_size ? 'wb' : 'ab' );
 		if ( false === $out ) {
 			fclose( $in ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+						if(debug === true){
+
 			return new WP_Error(
 				'stream_open_failed_out',
 				__( 'Failed to open temporary file for writing.', 'starmus_audio_recorder' ),
 				array( 'status' => 500 )
 			);
+						if(debug === true){
+
 		}
 
 		stream_copy_to_stream( $in, $out );
