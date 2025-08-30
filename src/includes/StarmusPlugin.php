@@ -14,6 +14,7 @@ namespace Starmus\includes;
 use Starmus\admin\StarmusAdmin;
 use Starmus\frontend\StarmusAudioEditorUI;
 use Starmus\frontend\StarmusAudioRecorderUI;
+use LogicException;
 use Throwable;
 
 /**
@@ -33,8 +34,9 @@ final class StarmusPlugin
 	public const STAR_CAP_RECORD_AUDIO = 'starmus_record_audio';
 
 	private static ?StarmusPlugin $instance = null;
-	private array $starmus_runtime_errors = array();
-	private array $star_class_array = array();
+	private array $runtimeErrors = [];
+	private array $componentClasses = [];
+	private array $components = [];
 
 	/**
 	 * Private constructor for singleton pattern.
@@ -43,17 +45,17 @@ final class StarmusPlugin
 	 */
 	private function __construct()
 	{
-		$this->star_class_array = array(
-			'StarmusAdmin',
-			'StarmusAudioEditorUI',
-			'StarmusAudioRecorderUI',
-		);
+		$this->componentClasses = [
+			StarmusAdmin::class,
+			StarmusAudioEditorUI::class,
+			StarmusAudioRecorderUI::class,
+		];
 	}
 
 	/**
 	 * Main singleton instance method.
 	 *
-	 * Intentionally empty - initialization happens in starmus_init()
+	 * Intentionally empty - initialization happens in init()
 	 * Ensures that only one instance of the plugin's main class exists.
 	 *
 	 * @since 0.1.0
@@ -75,7 +77,7 @@ final class StarmusPlugin
 	 *
 	 * @since 0.1.0
 	 */
-	public function starmus_init(): void
+	public function init(): void
 	{
 		// Load translations first.
 		load_plugin_textdomain(STARMUS_TEXT_DOMAIN, false, dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/');
@@ -86,14 +88,14 @@ final class StarmusPlugin
 			require_once $cpt_file;
 		} else {
 			error_log('Starmus Plugin: CPT file not found: ' . $cpt_file);
-			$this->starmus_runtime_errors[] = 'Custom Post Type file is missing.';
+			$this->runtimeErrors[] = 'Custom Post Type file is missing.';
 		}
 
 		// Instantiate all class-based star_components.
-		$this->starmus_instantiate_class_components();
+		$this->instantiateComponents();
 
 		// Hook the admin notice for any runtime errors that occurred.
-		add_action('admin_notices', array($this, 'display_runtime_error_notice'));
+		add_action('admin_notices', array($this, 'displayRuntimeErrorNotice'));
 	}
 
 	/**
@@ -103,11 +105,11 @@ final class StarmusPlugin
 	 *
 	 * @since 0.1.0
 	 */
-	private function starmus_instantiate_class_components(): void
+	private function instantiateComponents(): void
 	{
 		try {
-			foreach ($this->star_class_array as $class_name) {
-				$this->starmus_instantiate_component($class_name::class);
+			foreach ($this->componentClasses as $class_name) {
+				$this->instantiateComponent($class_name);
 			}
 		} catch (Throwable $e) {
 			if ( (WP_DEBUG === true) && (WP_DEBUG_LOG === true) ) {
@@ -115,7 +117,7 @@ final class StarmusPlugin
 			}
 			$error_message = 'Starmus Plugin: Runtime error during component instantiation - ' . sanitize_text_field($e->getMessage());
 			error_log($error_message);
-			$this->starmus_runtime_errors[] = $error_message;
+			$this->runtimeErrors[] = $error_message;
 		}
 	}
 
@@ -211,10 +213,9 @@ final class StarmusPlugin
 	 *
 	 * @since 0.1.0
 	 */
-	public static function starmus_run(): void
+	public static function run(): void
 	{
 		self::get_instance();
-		return;
 	}
 
 	/**
@@ -225,21 +226,20 @@ final class StarmusPlugin
 	 *
 	 * @param string $class_name The fully qualified name of the class to instantiate.
 	 */
-	private function starmus_instantiate_component(string $class_name): void
+	private function instantiateComponent(string $class_name): void
 	{
-		$class_var = 'star_instance' . $class_name;
-		if (isset($class_var)) {
+		if (isset($this->components[$class_name])) {
 			return;
 		}
 		try {
-			$class_var === new $class_name();
+			$this->components[$class_name] = new $class_name();
 		} catch (Throwable $e) {
 			$error_message = sprintf('Starmus Plugin: Runtime error while instantiating %s. Message: "%s"', sanitize_text_field($class_name), sanitize_text_field($e->getMessage()));
 			error_log($error_message);
 			if ( (WP_DEBUG === true) && (WP_DEBUG_LOG === true) ) {
 				trigger_error($error_message, E_USER_WARNING);
 			}
-			$this->starmus_runtime_errors[] = $error_message;
+			$this->runtimeErrors[] = $error_message;
 		}
 	}
 	/**
@@ -249,15 +249,14 @@ final class StarmusPlugin
 	 *
 	 * @since 0.1.0
 	 */
-	public function starmus_display_runtime_error_notice(): void
+	public function displayRuntimeErrorNotice(): void
 	{
 		try {
-			if (empty($this->starmus_runtime_errors) || !current_user_can('manage_options')) {
+			if (empty($this->runtimeErrors) || !current_user_can('manage_options')) {
 				return;
 			}
-			$unique_errors = array_unique($this->starmus_runtime_errors);
+			$unique_errors = array_unique($this->runtimeErrors);
 			foreach ($unique_errors as $message) {
-				error_log('Starmus Audio Recorder', esc_html($message));
 				echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus Audio Recorder Plugin Error:</strong><br>' . esc_html($message) . '</p></div>';
 			}
 		} catch (Throwable $e) {
@@ -268,21 +267,21 @@ final class StarmusPlugin
 	 * Prevents cloning of the singleton instance.
 	 *
 	 * @since 0.1.0
-	 * @throws Exception If someone tries to clone the object.
+	 * @throws LogicException If someone tries to clone the object.
 	 */
 	public function __clone()
 	{
-		throw new Exception('Cloning of ' . __CLASS__ . ' is not allowed.');
+		throw new LogicException('Cloning of ' . __CLASS__ . ' is not allowed.');
 	}
 
 	/**
 	 * Prevents unserializing of the singleton instance.
 	 *
 	 * @since 0.1.0
-	 * @throws Exception If someone tries to unserialize the object.
+	 * @throws LogicException If someone tries to unserialize the object.
 	 */
 	public function __wakeup()
 	{
-		throw new Exception('Unserializing of ' . __CLASS__ . ' is not allowed.');
+		throw new LogicException('Unserializing of ' . __CLASS__ . ' is not allowed.');
 	}
 }
