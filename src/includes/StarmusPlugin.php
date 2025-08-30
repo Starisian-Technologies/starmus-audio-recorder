@@ -227,7 +227,7 @@ final class StarmusPlugin
 	 *
 	 * @param string $class_name The fully qualified name of the class to instantiate.
 	 */
-	private function instantiate_component(string $class_name): void
+	private function starmus_instantiate_component(string $class_name): void
 	{
 		$class_var = 'star_instance' . $class_name;
 		if (isset($class_var)) {
@@ -251,7 +251,7 @@ final class StarmusPlugin
 	 *
 	 * @since 0.1.0
 	 */
-	public function display_runtime_error_notice(): void
+	public function starmus_display_runtime_error_notice(): void
 	{
 		try {
 			if (empty($this->starmus_runtime_errors) || !current_user_can('manage_options')) {
