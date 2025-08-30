@@ -110,7 +110,7 @@ final class StarmusPlugin
 				$this->starmus_instantiate_component($class_name::class);
 			}
 		} catch (Throwable $e) {
-			if (debug === true) {
+			if ( (WP_DEBUG === true) && (WP_DEBUG_LOG === true) ) {
 				trigger_error('Starmus Plugin: Runtime error during component instantiation - ' . sanitize_text_field($e->getMessage()), E_USER_WARNING);
 			}
 			$error_message = 'Starmus Plugin: Runtime error during component instantiation - ' . sanitize_text_field($e->getMessage());
@@ -168,7 +168,7 @@ final class StarmusPlugin
 		if (file_exists($file)) {
 			require_once $file;
 		} else {
-			if (debug === true) {
+			if ( (WP_DEBUG === true) && (WP_DEBUG_LOG === true) ) {
 				trigger_error('Starmus Plugin: Uninstall file not found: ' . $file, E_USER_WARNING);
 			}
 		}
@@ -197,9 +197,7 @@ final class StarmusPlugin
 				}
 			}
 		} catch (Throwable $e) {
-			if (debug === true) {
-				define('WP_DEBUG', true);
-
+			if ( (WP_DEBUG === true) && (WP_DEBUG_LOG === true) ) {
 				trigger_error('Starmus Plugin: Error adding capabilities - ' . sanitize_text_field($e->getMessage()), E_USER_WARNING);
 			}
 		}
@@ -238,7 +236,7 @@ final class StarmusPlugin
 		} catch (Throwable $e) {
 			$error_message = sprintf('Starmus Plugin: Runtime error while instantiating %s. Message: "%s"', sanitize_text_field($class_name), sanitize_text_field($e->getMessage()));
 			error_log($error_message);
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+			if ( (WP_DEBUG === true) && (WP_DEBUG_LOG === true) ) {
 				trigger_error($error_message, E_USER_WARNING);
 			}
 			$this->starmus_runtime_errors[] = $error_message;
