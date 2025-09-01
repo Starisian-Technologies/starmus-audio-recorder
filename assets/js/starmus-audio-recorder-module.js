@@ -11,465 +11,578 @@
  *
  * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
  * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
+ *
+ * @package Starmus\submissions
+ * @since 0.1.0
+ * @version 0.3.2
+ * @file Starmus Audio Recorder Module - Secure, Feature-Complete Version
+ * @version 0.3.2
+ * @description Merges a secure, modular architecture with features from the original
+ * recorder, including pause/resume, a live timer, robust UUID generation,
+ * and legacy browser support. It is designed to work with the Starmus
+ * submission handler and PHP backend.
  */
 
-/**
- * @file This module encapsulates all UI and hardware interaction for the Starmus audio recorder.
- * @description It manages microphone permissions, MediaRecorder state (recording, paused, stopped),
- * UI updates (timers, buttons, status messages), and provides a clean API for other scripts to
- * initialize, control, and clean up the recorder instance. It is designed to be self-contained
- * and prevent global namespace pollution using an IIFE pattern.
- */
+(function(window) {
+    'use strict';
 
-/**
- * A defensive utility to ensure a button's disabled state reflects a specific permission.
- * It uses a MutationObserver and timers to counteract external script interference.
- * @param {HTMLElement} buttonElement - The initial button element to observe.
- * @param {object} stateObject - The object containing the state to check.
- * @param {string} permissionKey - The key in stateObject that holds the permission ('granted', 'prompt', 'denied').
- * @param {function} logFn - The logging function to use for diagnostics.
- * @returns {MutationObserver|null} The observer instance or null if initialization fails.
- */
-function createButtonStateEnforcer(buttonElement, stateObject, permissionKey, logFn = console.log) {
-    if (!buttonElement) {
-        console.error("StateEnforcer Init: The button element provided is invalid.");
-        return null;
-    }
-
-    const getLiveButton = () => document.getElementById(buttonElement.id);
-    const shouldBeEnabled = () => ["granted", "prompt"].includes(stateObject?.[permissionKey]);
-
-    const liveButtonForCheck = getLiveButton();
-    if (liveButtonForCheck) {
-        liveButtonForCheck.disabled = !shouldBeEnabled();
-    }
-
-    const observer = new MutationObserver((mutations) => {
-        const currentLiveButton = getLiveButton();
-        if (!currentLiveButton) return;
-
-        for (const mutation of mutations) {
-            if (mutation.type === "attributes" && mutation.attributeName === "disabled") {
-                const allowed = shouldBeEnabled();
-                if (currentLiveButton.disabled && allowed) {
-                    logFn(`StateEnforcer (Mutation): Button for ID ${currentLiveButton.id} was disabled externally — re-enabling.`);
-                    currentLiveButton.disabled = false;
-                } else if (!currentLiveButton.disabled && !allowed) {
-                    logFn(`StateEnforcer (Mutation): Button for ID ${currentLiveButton.id} enabled while permission is denied — disabling.`);
-                    currentLiveButton.disabled = true;
+    // --- Feature detection and Polyfills ---
+    var hasMediaRecorder = !!(window.MediaRecorder && window.navigator.mediaDevices);
+    var hasCrypto = !!(window.crypto && (window.crypto.randomUUID || window.crypto.getRandomValues));
+    var hasPromise = typeof Promise !== 'undefined';
+    
+    /**
+     * Simple Promise polyfill for older browsers if not natively supported.
+     */
+    if (!hasPromise) {
+        window.Promise = function(executor) {
+            var self = this;
+            self.state = 'pending';
+            self.value = undefined;
+            self.handlers = [];
+            
+            function resolve(result) {
+                if (self.state === 'pending') {
+                    self.state = 'fulfilled';
+                    self.value = result;
+                    self.handlers.forEach(handle);
+                    self.handlers = null;
                 }
             }
-        }
-    });
-
-    observer.observe(buttonElement, {
-        attributes: true,
-        attributeFilter: ["disabled"],
-    });
-    logFn(`StateEnforcer: MutationObserver is now active on button ID "${buttonElement.id}".`);
-
-    [1500, 3000, 5000].forEach((delay) => {
-        setTimeout(() => {
-            const freshButton = getLiveButton();
-            if (freshButton) {
-                freshButton.disabled = !shouldBeEnabled();
+            
+            function reject(error) {
+                if (self.state === 'pending') {
+                    self.state = 'rejected';
+                    self.value = error;
+                    self.handlers.forEach(handle);
+                    self.handlers = null;
+                }
             }
-        }, delay);
-    });
-
-    return observer;
-}
-
-/**
- * StarmusAudioRecorder Module (IIFE Pattern)
- * Encapsulates all functionality for the audio recorder to prevent global namespace pollution.
- * @namespace StarmusAudioRecorder
- */
-// LINTING FIX: Attach the module directly to the window object.
-// This explicitly declares it as a global for other scripts to use,
-// resolving both the 'no-redeclare' and 'no-unused-vars' linting errors.
-window.StarmusAudioRecorder = (function () {
-    "use strict";
-
-    // --- Module Configuration & State ---
-    let config = {
-        formInstanceId: null,
-        recordButtonId: "recordButton",
-        pauseButtonId: "pauseButton",
-        deleteButtonId: "deleteButton",
-        timerDisplayId: "sparxstar_timer",
-        audioPlayerId: "sparxstar_audioPlayer",
-        statusDisplayId: "sparxstar_status",
-        levelBarId: "sparxstar_audioLevelBar",
-        uuidFieldId: "audio_uuid",
-        fileInputId: "audio_file",
-        submitButtonId: "submit_button",
-        recorderContainerSelector: "[data-enabled-recorder]",
-        logPrefix: "STARMUS:",
-    };
-
-    let dom = {};
-    let internalState = { micPermission: "prompt" };
-    let eventHandlers = {};
-    let recordButtonEnforcer = null;
-
-    let mediaRecorder, currentStream;
-    let audioChunks = [];
-    let isRecording = false;
-    let isPaused = false;
-    let accumulatedElapsedTime = 0;
-    let timerInterval = null;
-
-    // --- Private Helper Functions ---
-    /**
-     * Logs a message to the console with the module's prefix.
-     * @param {...*} args - The arguments to log.
-     */
-    function _log(...args) { console.log(config.logPrefix, ...args); }
-    function _warn(...args) { console.warn(config.logPrefix, ...args); }
-    function _error(...args) { console.error(config.logPrefix, ...args); }
-    
-    /**
-     * Caches all necessary DOM elements for a specific form instance.
-     * @returns {boolean} True if all essential elements were found, otherwise false.
-     * @private
-     */
-    function _cacheDomElements() {
-        const id = (baseId) => `${baseId}_${config.formInstanceId}`;
-        const elementIds = {
-            container: `starmus_audioWrapper_${config.formInstanceId}`,
-            recordButton: id(config.recordButtonId),
-            pauseButton: id(config.pauseButtonId),
-            deleteButton: id(config.deleteButtonId),
-            timerDisplay: id(config.timerDisplayId),
-            audioPlayer: id(config.audioPlayerId),
-            statusDisplay: id(config.statusDisplayId),
-            uuidField: id(config.uuidFieldId),
-            fileInput: id(config.fileInputId),
-            submitButton: id(config.submitButtonId)
+            
+            function handle(handler) {
+                if (self.state === 'pending') {
+                    self.handlers.push(handler);
+                } else {
+                    if (self.state === 'fulfilled' && handler.onFulfilled) {
+                        handler.onFulfilled(self.value);
+                    }
+                    if (self.state === 'rejected' && handler.onRejected) {
+                        handler.onRejected(self.value);
+                    }
+                }
+            }
+            
+            this.then = function(onFulfilled, onRejected) {
+                return new Promise(function(resolve, reject) {
+                    handle({
+                        onFulfilled: function(result) {
+                            try {
+                                resolve(onFulfilled ? onFulfilled(result) : result);
+                            } catch (ex) {
+                                reject(ex);
+                            }
+                        },
+                        onRejected: function(error) {
+                            try {
+                                resolve(onRejected ? onRejected(error) : error);
+                            } catch (ex) {
+                                reject(ex);
+                            }
+                        }
+                    });
+                });
+            };
+            
+            try {
+                executor(resolve, reject);
+            } catch (ex) {
+                reject(ex);
+            }
         };
-        
-        Object.keys(elementIds).forEach(key => {
-            dom[key] = document.getElementById(elementIds[key]);
-        });
-
-        // Check for essential elements that must exist for the module to function.
-        const essentialElements = [dom.container, dom.recordButton, dom.pauseButton, dom.uuidField, dom.fileInput];
-        if (essentialElements.some(el => !el)) {
-            _error('One or more essential UI elements are missing from the DOM.');
-            return false;
-        }
-        return true;
-    }
-    
-    function _formatTime(ms) {
-        const totalSeconds = Math.floor(ms / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-    }
-
-    function _updateStatus(msg, type = 'info') {
-        if (dom.statusDisplay && typeof msg === 'string') {
-            const textSpan = dom.statusDisplay.querySelector(".sparxstar_status__text");
-            if (textSpan) {
-                textSpan.textContent = msg;
-            }
-            dom.statusDisplay.className = `sparxstar_status ${type}`;
-            dom.statusDisplay.classList.remove("sparxstar_visually_hidden");
-        }
-    }
-
-    function _generateUniqueAudioId() {
-        try {
-            if (crypto && crypto.randomUUID) return crypto.randomUUID();
-            // Fallback for environments without randomUUID but with getRandomValues
-            if (crypto && crypto.getRandomValues) {
-                const buffer = new Uint8Array(16);
-                crypto.getRandomValues(buffer);
-                buffer[6] = (buffer[6] & 0x0f) | 0x40; // Version 4
-                buffer[8] = (buffer[8] & 0x3f) | 0x80; // Variant
-                const hex = Array.from(buffer, byte => byte.toString(16).padStart(2, '0'));
-                return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10).join('')}`;
-            }
-        } catch (error) {
-            _error("Crypto API failed during UUID generation, falling back.", error);
-        }
-        _warn("Generating AudioID using Math.random() for compatibility.");
-        let d = new Date().getTime() + (performance?.now() || 0);
-        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
-            const r = (d + Math.random() * 16) % 16 | 0;
-            d = Math.floor(d / 16);
-            return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
-        });
     }
 
     /**
-     * Attaches the recorded audio blob to the form's file input and dispatches a custom event.
-     * @param {Blob} audioBlob - The recorded audio data.
-     * @param {string} fileType - The file extension (e.g., 'webm').
-     * @private
+     * Sanitizes a string for logging by removing special characters and truncating.
+     * @param {string|*} input The input to sanitize.
+     * @returns {string} The sanitized string.
      */
-    function _attachAudioToForm(audioBlob, fileType) {
-        const generatedAudioID = _generateUniqueAudioId();
-        const fileName = `recording_${generatedAudioID}.${fileType}`;
-        _log(`Attaching audio to form with filename: ${fileName}`);
-
-        if (dom.uuidField) dom.uuidField.value = generatedAudioID;
-
-        try {
-            const dataTransfer = new DataTransfer();
-            const file = new File([audioBlob], fileName, { type: audioBlob.type });
-            dataTransfer.items.add(file);
-            dom.fileInput.files = dataTransfer.files;
-
-            if (dom.fileInput.files.length > 0 && dom.submitButton) {
-                dom.submitButton.disabled = false;
-                _log("Submit button enabled.");
-            }
-        } catch (e) {
-            _error("Failed to attach file using DataTransfer API.", e);
-            _updateStatus("Error attaching file. Your browser may not be supported.", "error");
-        }
-
-        const event = new CustomEvent("starmusAudioReady", { detail: { audioId: generatedAudioID, fileName, durationMs: accumulatedElapsedTime } });
-        dom.container.dispatchEvent(event);
+    function sanitizeForLog(input) {
+        if (typeof input !== 'string') return String(input);
+        return input.replace(/[\r\n\t<>]/g, ' ').substring(0, 100);
     }
-    
-    // --- Core Logic & Handlers ---
 
     /**
-     * Resets the UI to the "Ready to Record" state.
-     * @private
+     * Logs a message to the console securely after sanitizing inputs.
+     * @param {string} level The console log level (e.g., 'log', 'warn', 'error').
+     * @param {string} message The main message to log.
+     * @param {*} [data] Optional data to include in the log.
+     * @returns {void}
      */
-    function _handleRecordingReady() {
-        clearInterval(timerInterval);
-        accumulatedElapsedTime = 0;
-        if (dom.timerDisplay) dom.timerDisplay.textContent = "00:00";
-
-        if (dom.recordButton) {
-            dom.recordButton.disabled = !["granted", "prompt"].includes(internalState.micPermission);
-            dom.recordButton.textContent = "Record";
-            dom.recordButton.setAttribute("aria-pressed", "false");
-        }
-        if (dom.pauseButton) dom.pauseButton.disabled = true;
-        if (dom.deleteButton) dom.deleteButton.classList.add("sparxstar_visually_hidden");
-        if (dom.submitButton) dom.submitButton.disabled = true;
-        if (dom.audioPlayer) {
-            if (dom.audioPlayer.src && dom.audioPlayer.src.startsWith("blob:")) {
-                URL.revokeObjectURL(dom.audioPlayer.src);
-            }
-            dom.audioPlayer.src = "";
-            dom.audioPlayer.classList.add("sparxstar_visually_hidden");
-        }
-        _updateStatus("Ready to record.");
+    function secureLog(level, message, data) {
+        if (typeof console === 'undefined' || !console[level]) return;
+        var sanitizedMessage = sanitizeForLog(message);
+        var sanitizedData = data ? sanitizeForLog(String(data)) : '';
+        console[level]('[Starmus Recorder]', sanitizedMessage, sanitizedData);
     }
-    
+
     /**
-     * Event handler for the MediaRecorder's 'dataavailable' event.
-     * @param {BlobEvent} event - The event containing the audio data chunk.
-     * @private
+     * Validates that a form instance ID is a safe, non-empty string.
+     * @param {string} id The ID to validate.
+     * @returns {boolean} True if the ID is valid, false otherwise.
      */
-    function _handleDataAvailable(event) {
-        if (event.data.size > 0) audioChunks.push(event.data);
+    function validateFormInstanceId(id) {
+        return typeof id === 'string' && /^[a-zA-Z0-9_-]+$/.test(id) && id.length < 100;
     }
-    
+
     /**
-     * Event handler for the MediaRecorder's 'stop' event. Finalizes the recording.
-     * @private
+     * Validates that a blob is a non-empty audio file within size limits.
+     * @param {Blob} blob The Blob object to validate.
+     * @returns {boolean} True if the blob is valid, false otherwise.
      */
-    function _handleStop() {
-        _log("handleStop called. Finalizing recording.");
-        clearInterval(timerInterval);
-        if (!mediaRecorder || audioChunks.length === 0) {
-            _updateStatus("Recording stopped, but no audio was captured.", "info");
-            publicMethods.cleanup(config.formInstanceId); // Pass instanceId to cleanup
-            return;
-        }
-
-        const mimeType = mediaRecorder.mimeType;
-        const fileType = mimeType.includes("opus") || mimeType.includes("webm") ? "webm" : "m4a";
-        const audioBlob = new Blob(audioChunks, { type: mimeType });
-        const audioUrl = URL.createObjectURL(audioBlob);
-
-        if (dom.audioPlayer) {
-            dom.audioPlayer.src = audioUrl;
-            dom.audioPlayer.controls = true;
-            dom.audioPlayer.classList.remove("sparxstar_visually_hidden");
-        }
-
-        _attachAudioToForm(audioBlob, fileType);
-        isRecording = false;
-        isPaused = false;
-        if (dom.recordButton) dom.recordButton.disabled = false;
-        if (dom.pauseButton) dom.pauseButton.disabled = true;
-        if (dom.deleteButton) {
-            dom.deleteButton.disabled = false;
-            dom.deleteButton.classList.remove("sparxstar_visually_hidden");
-        }
-        if (currentStream) {
-            currentStream.getTracks().forEach(track => track.stop());
-            currentStream = null;
-        }
+    function validateAudioBlob(blob) {
+        return blob instanceof Blob && blob.type.startsWith('audio/') && blob.size > 0 && blob.size < 50 * 1024 * 1024;
     }
-    
-    // --- Public Methods (The Module's API) ---
-    const publicMethods = {
+
+    /**
+     * The main public module for the Starmus Audio Recorder. This object is attached
+     * to the window and serves as the public API for other scripts. It manages
+     * multiple recorder instances, handles UI creation, and orchestrates uploads.
+     * @namespace StarmusAudioRecorder
+     */
+    window.StarmusAudioRecorder = {
         /**
-         * Initializes the recorder module for a specific form instance. This is the main entry point.
-         * @param {object} userConfig - Configuration object to override defaults.
-         * @param {string} userConfig.formInstanceId - The unique ID of the form instance to control.
-         * @returns {Promise<boolean>} A promise that resolves to true on successful initialization, false on failure.
-         * @public
+         * A map of active recorder instances, keyed by their formInstanceId.
+         * @property {Object.<string, object>} instances
          */
-        init: async function (userConfig = {}) {
-            Object.assign(config, userConfig);
-            if (!config.formInstanceId) {
-                _error("`formInstanceId` is missing in config. Initialization failed.");
-                return false;
+        instances: {},
+        
+        /**
+         * Initializes a recorder instance for a given form. This is the main public entry point.
+         * @param {object} options - The initialization options.
+         * @param {string} options.formInstanceId - The unique ID of the form instance to manage.
+         * @returns {Promise<boolean>} A promise that resolves to true on successful initialization or rejects with an error.
+         */
+        init: function(options) {
+            if (!hasMediaRecorder) {
+                secureLog('error', 'MediaRecorder not supported in this browser.');
+                return Promise.reject(new Error('MediaRecorder not supported'));
             }
-            _log(`Initializing recorder module for instance: ${config.formInstanceId}`);
-            if (!_cacheDomElements()) {
-                _error("One or more essential UI elements are missing. Cannot initialize.");
-                return false;
+
+            if (!options || !validateFormInstanceId(options.formInstanceId)) {
+                secureLog('error', 'Invalid form instance ID');
+                return Promise.reject(new Error('Invalid form instance ID'));
             }
-            this.setupEventListeners();
-            return this.setupPermissionsAndUI();
+
+            var instanceId = options.formInstanceId;
+            
+            if (this.instances[instanceId]) {
+                secureLog('warn', 'Instance already exists', instanceId);
+                return Promise.resolve(true);
+            }
+
+            return this.initializeInstance(instanceId);
         },
 
-        setupEventListeners: function (remove = false) {
-            if (!dom.recordButton || !dom.pauseButton || !dom.deleteButton) return;
-            eventHandlers.recordClick = eventHandlers.recordClick || (() => isRecording ? this.stop() : this.start());
-            eventHandlers.pauseClick = eventHandlers.pauseClick || (() => isRecording && (isPaused ? this.resume() : this.pause()));
-            eventHandlers.deleteClick = eventHandlers.deleteClick || (() => this.cleanup(config.formInstanceId));
-            const action = remove ? 'removeEventListener' : 'addEventListener';
-            dom.recordButton[action]('click', eventHandlers.recordClick);
-            dom.pauseButton[action]('click', eventHandlers.pauseClick);
-            dom.deleteButton[action]('click', eventHandlers.deleteClick);
+        /**
+         * Internal helper to set up a new recorder instance state and acquire microphone permissions.
+         * @private
+         * @param {string} instanceId The unique ID for the new instance.
+         * @returns {Promise<boolean>} A promise that resolves to true on success or rejects on error.
+         */
+        initializeInstance: function(instanceId) {
+            var self = this;
+            
+            return new Promise(function(resolve, reject) {
+                try {
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(function(stream) {
+                            self.instances[instanceId] = {
+                                stream: stream,
+                                recorder: null,
+                                chunks: [],
+                                isRecording: false,
+                                isPaused: false,
+                                startTime: 0,
+                                timerInterval: null
+                            };
+                            
+                            self.setupUI(instanceId);
+                            resolve(true);
+                        })
+                        .catch(function(error) {
+                            secureLog('error', 'Media access denied', error.message);
+                            reject(error);
+                        });
+                } catch (error) {
+                    reject(error);
+                }
+            });
         },
 
-        setupPermissionsAndUI: async function () {
-            _handleRecordingReady();
-            if (!navigator.permissions?.query) {
-                _warn("Permissions API not supported. Button enabled by default.");
-                internalState.micPermission = "prompt";
-                if (dom.recordButton) dom.recordButton.disabled = false;
-                return true;
-            }
+        /**
+         * Dynamically creates the recorder's HTML UI inside its designated container.
+         * @param {string} instanceId The ID of the instance whose UI should be created.
+         * @returns {void}
+         */
+        setupUI: function(instanceId) {
+            var container = document.getElementById('starmus_recorder_container_' + instanceId);
+            if (!container) return;
+
+            container.innerHTML = [
+                '<div class="starmus-recorder-status" id="starmus_recorder_status_' + instanceId + '">Ready to record</div>',
+                '<div class="starmus-recorder-timer" id="starmus_timer_' + instanceId + '">00:00</div>',
+                '<div class="starmus-recorder-controls">',
+                '<button type="button" id="starmus_record_btn_' + instanceId + '" class="starmus-btn starmus-record-btn">Record</button>',
+                '<button type="button" id="starmus_pause_btn_' + instanceId + '" class="starmus-btn starmus-pause-btn" style="display:none;">Pause</button>',
+                '<button type="button" id="starmus_stop_btn_' + instanceId + '" class="starmus-btn starmus-stop-btn" disabled>Stop</button>',
+                '<button type="button" id="starmus_play_btn_' + instanceId + '" class="starmus-btn starmus-play-btn" disabled>Play</button>',
+                '</div>',
+                '<audio id="starmus_audio_preview_' + instanceId + '" controls style="display:none;"></audio>'
+            ].join('');
+
+            this.bindEvents(instanceId);
+        },
+
+        /**
+         * Attaches event listeners to the newly created UI elements for an instance.
+         * @param {string} instanceId The ID of the instance whose events should be bound.
+         * @returns {void}
+         */
+        bindEvents: function(instanceId) {
+            var self = this;
+            var recordBtn = document.getElementById('starmus_record_btn_' + instanceId);
+            var stopBtn = document.getElementById('starmus_stop_btn_' + instanceId);
+            var playBtn = document.getElementById('starmus_play_btn_' + instanceId);
+            var pauseBtn = document.getElementById('starmus_pause_btn_' + instanceId);
+
+            if (recordBtn) recordBtn.addEventListener('click', function() { self.startRecording(instanceId); });
+            if (stopBtn) stopBtn.addEventListener('click', function() { self.stopRecording(instanceId); });
+            if (playBtn) playBtn.addEventListener('click', function() { self.playRecording(instanceId); });
+            if (pauseBtn) pauseBtn.addEventListener('click', function() { self.togglePause(instanceId); });
+        },
+
+        /**
+         * Begins the recording process for a specific instance.
+         * @param {string} instanceId The ID of the instance to start recording.
+         * @returns {void}
+         */
+        startRecording: function(instanceId) {
+            var instance = this.instances[instanceId];
+            if (!instance || instance.isRecording) return;
+
             try {
-                const permissionStatus = await navigator.permissions.query({ name: "microphone" });
-                internalState.micPermission = permissionStatus.state;
-                _log(`Initial microphone permission state: ${internalState.micPermission}`);
-                permissionStatus.onchange = () => {
-                    internalState.micPermission = permissionStatus.state;
-                    _log(`Permission changed to: ${internalState.micPermission}`);
-                    if (dom.recordButton) dom.recordButton.disabled = !["granted", "prompt"].includes(internalState.micPermission);
+                instance.recorder = new MediaRecorder(instance.stream);
+                instance.chunks = [];
+                instance.isRecording = true;
+                instance.isPaused = false;
+                instance.startTime = Date.now();
+
+                instance.recorder.ondataavailable = function(event) {
+                    if (event.data.size > 0) instance.chunks.push(event.data);
                 };
-                if (recordButtonEnforcer) recordButtonEnforcer.disconnect();
-                if (dom.recordButton) recordButtonEnforcer = createButtonStateEnforcer(dom.recordButton, internalState, "micPermission", _log);
-                return true;
-            } catch (err) {
-                _error("Permissions API query failed:", err);
-                internalState.micPermission = "prompt";
-                if (dom.recordButton) dom.recordButton.disabled = false;
-                return false;
-            }
-        },
-        
-        start: async function () {
-            if (isRecording) return;
-            _log("start() called.");
-            if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
-                _updateStatus("Audio recording is not supported on your browser.", "error");
-                return;
-            }
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                currentStream = stream;
-                audioChunks = [];
-                const selectedMimeType = ["audio/webm;codecs=opus", "audio/mp4"].find(MediaRecorder.isTypeSupported) || "audio/webm";
-                mediaRecorder = new MediaRecorder(stream, { mimeType: selectedMimeType });
-                mediaRecorder.ondataavailable = _handleDataAvailable;
-                mediaRecorder.onstop = _handleStop;
-                mediaRecorder.start(1000); // Trigger dataavailable event every second
+
+                instance.recorder.onstop = function() {
+                    var blob = new Blob(instance.chunks, { type: 'audio/webm' });
+                    if (validateAudioBlob(blob)) {
+                        instance.audioBlob = blob;
+                        var audio = document.getElementById('starmus_audio_preview_' + instanceId);
+                        if (audio) {
+                            audio.src = URL.createObjectURL(blob);
+                            audio.style.display = 'block';
+                        }
+                    }
+                };
+
+                instance.recorder.start();
+                this.startTimer(instanceId);
+                this.updateUI(instanceId, 'recording');
                 
-                const startTime = Date.now();
-                timerInterval = setInterval(() => {
-                    accumulatedElapsedTime = Date.now() - startTime;
-                    if (dom.timerDisplay) dom.timerDisplay.textContent = _formatTime(accumulatedElapsedTime);
-                }, 1000);
-
-                isRecording = true;
-                isPaused = false;
-                if (dom.recordButton) dom.recordButton.textContent = "Stop";
-                if (dom.pauseButton) dom.pauseButton.disabled = false;
-                _updateStatus("Recording...", "info");
             } catch (error) {
-                _error("getUserMedia error:", error.name, error.message);
-                const message = error.name === "NotAllowedError" ? "Microphone permission denied." : "Could not find a microphone.";
-                _updateStatus(message, "error");
+                secureLog('error', 'Recording start failed', error.message);
+                instance.isRecording = false;
+            }
+        },
+
+        /**
+         * Stops the recording process for a specific instance.
+         * @param {string} instanceId The ID of the instance to stop recording.
+         * @returns {void}
+         */
+        stopRecording: function(instanceId) {
+            var instance = this.instances[instanceId];
+            if (!instance || !instance.isRecording) return;
+
+            try {
+                instance.recorder.stop();
+                instance.isRecording = false;
+                instance.isPaused = false;
+                this.stopTimer(instanceId);
+                this.updateUI(instanceId, 'stopped');
+                
+                var submitBtn = document.getElementById('submit_button_' + instanceId);
+                if (submitBtn) submitBtn.disabled = false;
+                
+            } catch (error) {
+                secureLog('error', 'Recording stop failed', error.message);
             }
         },
         
-        stop: function () {
-            if (isRecording && mediaRecorder?.state !== "inactive") {
-                mediaRecorder.stop();
+        /**
+         * Toggles the pause/resume state of a recording.
+         * @param {string} instanceId The ID of the instance to pause/resume.
+         * @returns {void}
+         */
+        togglePause: function(instanceId) {
+            var instance = this.instances[instanceId];
+            if (!instance || !instance.isRecording) return;
+            if (instance.isPaused) this.resumeRecording(instanceId);
+            else this.pauseRecording(instanceId);
+        },
+
+        /**
+         * Pauses an active recording.
+         * @param {string} instanceId The ID of the instance to pause.
+         * @returns {void}
+         */
+        pauseRecording: function(instanceId) {
+            var instance = this.instances[instanceId];
+            if (instance && instance.recorder && instance.recorder.state === 'recording') {
+                instance.recorder.pause();
+                instance.isPaused = true;
+                this.stopTimer(instanceId);
+                this.updateUI(instanceId, 'paused');
             }
         },
 
-        pause: function () {
-            if (isRecording && !isPaused && mediaRecorder?.state === "recording") {
-                mediaRecorder.pause();
-                clearInterval(timerInterval);
-                isPaused = true;
-                if (dom.pauseButton) dom.pauseButton.textContent = "Resume";
-                _updateStatus("Recording paused.", "info");
+        /**
+         * Resumes a paused recording.
+         * @param {string} instanceId The ID of the instance to resume.
+         * @returns {void}
+         */
+        resumeRecording: function(instanceId) {
+            var instance = this.instances[instanceId];
+            if (instance && instance.recorder && instance.recorder.state === 'paused') {
+                instance.recorder.resume();
+                instance.isPaused = false;
+                this.startTimer(instanceId);
+                this.updateUI(instanceId, 'recording');
             }
         },
 
-        resume: function () {
-            if (isRecording && isPaused && mediaRecorder?.state === "paused") {
-                mediaRecorder.resume();
-                const resumeTime = Date.now();
-                timerInterval = setInterval(() => {
-                    const elapsedSinceResume = Date.now() - resumeTime;
-                    if (dom.timerDisplay) dom.timerDisplay.textContent = _formatTime(accumulatedElapsedTime + elapsedSinceResume);
-                }, 1000);
-
-                isPaused = false;
-                if (dom.pauseButton) dom.pauseButton.textContent = "Pause";
-                _updateStatus("Recording resumed.", "info");
+        /**
+         * Plays the recorded audio preview for an instance.
+         * @param {string} instanceId The ID of the instance whose audio should be played.
+         * @returns {void}
+         */
+        playRecording: function(instanceId) {
+            var audio = document.getElementById('starmus_audio_preview_' + instanceId);
+            if (audio && audio.src) {
+                audio.play().catch(function(error) {
+                    secureLog('error', 'Playback failed', error.message);
+                });
             }
         },
 
-        cleanup: function (instanceId) {
-             _log(`Cleanup called for instance: ${instanceId}`);
-             if (isRecording) this.stop();
-             if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-                currentStream = null;
-             }
-             audioChunks = [];
-             isRecording = false;
-             isPaused = false;
-             _handleRecordingReady();
-             if (dom.uuidField) dom.uuidField.value = "";
-             if (dom.fileInput) dom.fileInput.value = "";
+        /**
+         * Starts the visual timer for a recording instance.
+         * @param {string} instanceId The ID of the instance.
+         * @returns {void}
+         */
+        startTimer: function(instanceId) {
+            var self = this;
+            var instance = this.instances[instanceId];
+            if (!instance) return;
+            
+            this.stopTimer(instanceId);
+            instance.timerInterval = setInterval(function() { self.updateTimer(instanceId); }, 1000);
         },
 
-        destroy: function () {
-            _log("Destroying recorder instance.");
-            this.cleanup(config.formInstanceId);
-            this.setupEventListeners(true);
-            recordButtonEnforcer?.disconnect();
-            recordButtonEnforcer = null;
-            dom = {};
+        /**
+         * Stops the visual timer for a recording instance.
+         * @param {string} instanceId The ID of the instance.
+         * @returns {void}
+         */
+        stopTimer: function(instanceId) {
+            var instance = this.instances[instanceId];
+            if (instance && instance.timerInterval) {
+                clearInterval(instance.timerInterval);
+                instance.timerInterval = null;
+            }
         },
 
-        getAudioId: function () {
-            return dom.uuidField ? dom.uuidField.value : null;
+        /**
+         * Updates the timer display with the elapsed recording time.
+         * @param {string} instanceId The ID of the instance.
+         * @returns {void}
+         */
+        updateTimer: function(instanceId) {
+            var instance = this.instances[instanceId];
+            var timerEl = document.getElementById('starmus_timer_' + instanceId);
+            if (!instance || !timerEl) return;
+            
+            var elapsed = Date.now() - instance.startTime;
+            var minutes = Math.floor(elapsed / 60000);
+            var seconds = Math.floor((elapsed % 60000) / 1000);
+            
+            timerEl.textContent = 
+                (minutes < 10 ? '0' : '') + minutes + ':' +
+                (seconds < 10 ? '0' : '') + seconds;
         },
+
+        /**
+         * Updates the UI buttons and status messages based on the recorder's state.
+         * @param {string} instanceId The ID of the instance to update.
+         * @param {string} state The new state ('recording', 'paused', 'stopped', or default 'ready').
+         * @returns {void}
+         */
+        updateUI: function(instanceId, state) {
+            var recordBtn = document.getElementById('starmus_record_btn_' + instanceId);
+            var stopBtn = document.getElementById('starmus_stop_btn_' + instanceId);
+            var playBtn = document.getElementById('starmus_play_btn_' + instanceId);
+            var pauseBtn = document.getElementById('starmus_pause_btn_' + instanceId);
+            var status = document.getElementById('starmus_recorder_status_' + instanceId);
+            var timer = document.getElementById('starmus_timer_' + instanceId);
+
+            if (!recordBtn || !stopBtn || !playBtn || !status || !pauseBtn || !timer) return;
+
+            switch (state) {
+                case 'recording':
+                    recordBtn.disabled = true; stopBtn.disabled = false; playBtn.disabled = true;
+                    pauseBtn.disabled = false; pauseBtn.textContent = 'Pause'; pauseBtn.style.display = 'inline-block';
+                    status.textContent = 'Recording...';
+                    break;
+                case 'paused':
+                    recordBtn.disabled = true; stopBtn.disabled = false; playBtn.disabled = true;
+                    pauseBtn.disabled = false; pauseBtn.textContent = 'Resume';
+                    status.textContent = 'Paused';
+                    break;
+                case 'stopped':
+                    recordBtn.disabled = false; stopBtn.disabled = true; playBtn.disabled = false;
+                    pauseBtn.style.display = 'none';
+                    status.textContent = 'Recording complete';
+                    break;
+                default:
+                    recordBtn.disabled = false; stopBtn.disabled = true; playBtn.disabled = true;
+                    pauseBtn.style.display = 'none';
+                    status.textContent = 'Ready to record';
+                    timer.textContent = '00:00';
+            }
+        },
+
+        /**
+         * Initiates the upload process for a completed recording. Called by the submission handler.
+         * @param {string} instanceId The ID of the instance to submit.
+         * @returns {Promise<object>} A promise that resolves with the server's JSON response or rejects with an error.
+         */
+        submit: function(instanceId) {
+            var instance = this.instances[instanceId];
+            if (!instance || !instance.audioBlob) return Promise.reject(new Error('No audio recording available'));
+            if (!validateAudioBlob(instance.audioBlob)) return Promise.reject(new Error('Invalid audio data'));
+            return this.uploadAudio(instanceId, instance.audioBlob);
+        },
+
+        /**
+         * Handles the chunked file upload to the REST API.
+         * @private
+         * @param {string} instanceId The ID of the instance being uploaded.
+         * @param {Blob} audioBlob The complete audio data to upload.
+         * @returns {Promise<object>} A promise that resolves with the server's final JSON response or rejects with an error.
+         */
+        uploadAudio: function(instanceId, audioBlob) {
+            var self = this;
+            var chunkSize = 1024 * 1024; // 1MB chunks
+            var totalSize = audioBlob.size;
+            var offset = 0;
+            var uuid = this.generateUUID();
+
+            return new Promise(function(resolve, reject) {
+                function uploadChunk() {
+                    var chunk = audioBlob.slice(offset, offset + chunkSize);
+                    var formData = new FormData();
+                    
+                    formData.append('audio_file', chunk);
+                    formData.append('audio_uuid', uuid);
+                    formData.append('chunk_offset', offset);
+                    formData.append('total_size', totalSize);
+                    formData.append('fileName', 'recording.webm');
+
+                    var form = document.getElementById(instanceId);
+                    if (form) {
+                        var formDataEntries = new FormData(form);
+                        for (var pair of formDataEntries.entries()) {
+                            formData.append(pair[0], pair[1]);
+                        }
+                    }
+
+                    fetch(starmusFormData.rest_url, {
+                        method: 'POST',
+                        headers: { 'X-WP-Nonce': starmusFormData.rest_nonce },
+                        body: formData
+                    })
+                    .then(function(response) {
+                        if (!response.ok) throw new Error('Upload failed: ' + response.status);
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        offset += chunk.size;
+                        if (offset >= totalSize) resolve(data);
+                        else uploadChunk();
+                    })
+                    .catch(reject);
+                }
+                uploadChunk();
+            });
+        },
+        
+        /**
+         * Generates a robust, cryptographically secure UUID with fallbacks for older browsers.
+         * @returns {string} The generated UUID.
+         */
+        generateUUID: function() {
+            if (hasCrypto && window.crypto.randomUUID) {
+                try { return window.crypto.randomUUID(); } catch (e) {}
+            }
+            if (hasCrypto && window.crypto.getRandomValues) {
+                try {
+                    var buffer = new Uint8Array(16);
+                    window.crypto.getRandomValues(buffer);
+                    buffer[6] = (buffer[6] & 0x0f) | 0x40; // Version 4
+                    buffer[8] = (buffer[8] & 0x3f) | 0x80; // Variant
+                    var hex = [];
+                    for (var i = 0; i < buffer.length; i++) {
+                        hex.push(('0' + buffer[i].toString(16)).slice(-2));
+                    }
+                    return [
+                        hex.slice(0, 4).join(''), hex.slice(4, 6).join(''),
+                        hex.slice(6, 8).join(''), hex.slice(8, 10).join(''),
+                        hex.slice(10).join('')
+                    ].join('-');
+                } catch (e) {}
+            }
+            var d = new Date().getTime();
+            if (window.performance && window.performance.now) d += window.performance.now();
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = (d + Math.random() * 16) % 16 | 0;
+                d = Math.floor(d / 16);
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+        },
+
+        /**
+         * Stops media streams and removes an instance from memory to free up resources.
+         * @param {string} instanceId The ID of the instance to clean up.
+         * @returns {void}
+         */
+        cleanup: function(instanceId) {
+            var instance = this.instances[instanceId];
+            if (instance) {
+                if (instance.stream) {
+                    instance.stream.getTracks().forEach(function(track) { track.stop(); });
+                }
+                this.stopTimer(instanceId);
+                delete this.instances[instanceId];
+            }
+        }
     };
 
-    return publicMethods;
-})();
+})(window);

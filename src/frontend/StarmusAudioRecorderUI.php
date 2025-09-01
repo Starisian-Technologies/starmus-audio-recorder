@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Starmus Audio Recorder UI
  *
@@ -19,6 +20,7 @@ use WP_Query;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
+use Throwable;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -31,12 +33,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class StarmusAudioRecorderUI {
 
 
+
 	/**
 	 * REST API namespace.
 	 *
 	 * @var string
 	 */
-	const REST_NAMESPACE = 'starmus/v1';
+	const STAR_REST_NAMESPACE = 'starmus/v1';
 
 	/**
 	 * Constructor. Registers hooks and shortcodes.
@@ -163,7 +166,7 @@ class StarmusAudioRecorderUI {
 		// Use a single, consistent handle for each script.
 		wp_enqueue_script(
 			'starmus-recorder-module',
-			STARMUS_URL . 'assets/js/starmus-audio-recorder-module.min.js',
+			STARMUS_URL . 'assets/js/starmus-audio-recorder-module.js',
 			array(),
 			STARMUS_VERSION,
 			true
@@ -171,7 +174,7 @@ class StarmusAudioRecorderUI {
 
 		wp_enqueue_script(
 			'starmus-recorder-submissions',
-			STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.min.js',
+			STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.js',
 			array( 'starmus-recorder-module', 'wp-api-fetch' ),
 			STARMUS_VERSION,
 			true
@@ -181,7 +184,7 @@ class StarmusAudioRecorderUI {
 			'starmus-recorder-submissions',
 			'starmusFormData',
 			array(
-				'rest_url'   => esc_url_raw( rest_url( self::REST_NAMESPACE . '/upload-chunk' ) ),
+				'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
 				'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 				'max_mb'     => (int) $this->get_setting( 'max_file_size_mb', 25 ),
 			)
@@ -189,7 +192,7 @@ class StarmusAudioRecorderUI {
 
 		wp_enqueue_style(
 			'starmus-recorder-style',
-			STARMUS_URL . 'assets/css/starmus-audio-recorder-style.min.css',
+			STARMUS_URL . 'assets/css/starmus-audio-recorder-style.css',
 			array(),
 			STARMUS_VERSION
 		);
@@ -199,7 +202,7 @@ class StarmusAudioRecorderUI {
 	 */
 	public function register_rest_routes(): void {
 		register_rest_route(
-			self::REST_NAMESPACE,
+			self::STAR_REST_NAMESPACE,
 			'/upload-chunk',
 			array(
 				'methods'             => 'POST',
@@ -243,11 +246,15 @@ class StarmusAudioRecorderUI {
 	 */
 	public function handle_upload_chunk_rest( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		if ( $this->is_rate_limited() ) {
+			if((wp_debug_log === true) && (wp_debug === true)){
+
+			
 			return new WP_Error(
 				'rate_limit_exceeded',
 				__( 'You are uploading too frequently. Please wait a moment.', 'starmus_audio_recorder' ),
 				array( 'status' => 429 )
 			);
+		}
 		}
 
 		$params = $request->get_params();
@@ -255,7 +262,7 @@ class StarmusAudioRecorderUI {
 
 		$data = $this->validate_chunk_data( $params, $files );
 		if ( is_wp_error( $data ) ) {
-			return $data;
+			throw new WP_Error($data->get_error_message());
 		}
 
 		// Create draft post on first chunk (idempotent).
@@ -308,30 +315,38 @@ class StarmusAudioRecorderUI {
 		$file_chunk = $files['audio_file'] ?? null;
 
 		if ( ! $uuid || ! $file_chunk || UPLOAD_ERR_OK !== ( $file_chunk['error'] ?? 0 ) || ! $total_size ) {
+			if((wp_debug_log === true) && (wp_debug === true)){
+
 			return new WP_Error(
 				'invalid_request_data',
 				__( 'Invalid or missing request data.', 'starmus_audio_recorder' ),
 				array( 'status' => 400 )
 			);
+			}
 		}
 
 		$max_size = (int) $this->get_setting( 'max_file_size_mb', 25 ) * 1024 * 1024;
 		if ( $total_size > $max_size ) {
+			if ( (WP_DEBUG === true) && (WP_DEBUG_LOG === true) ){
 			return new WP_Error(
 				'file_too_large',
 				__( 'The uploaded file exceeds the maximum allowed size.', 'starmus_audio_recorder' ),
 				array( 'status' => 413 )
 			);
 		}
+		}
 
 		$allowed_exts = array_map( 'strtolower', (array) $this->get_setting( 'allowed_extensions', array( 'webm', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
 		$extension    = strtolower( pathinfo( $file_name, PATHINFO_EXTENSION ) );
 		if ( ! in_array( $extension, $allowed_exts, true ) ) {
+			if ( (wp_debug === true) && (wp_debug_log === true) ){
+
 			return new WP_Error(
 				'invalid_file_extension',
 				__( 'The file type is not permitted.', 'starmus_audio_recorder' ),
 				array( 'status' => 415 )
 			);
+		}
 		}
 
 		return compact( 'uuid', 'offset', 'total_size', 'file_chunk', 'file_name' );
@@ -346,56 +361,90 @@ class StarmusAudioRecorderUI {
 	 * @return string|WP_Error Path to the assembled temporary file or error.
 	 */
 	private function write_chunk_streamed( string $uuid, int $offset, string $tmp_name ): string|WP_Error {
-		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_exists
-		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_filesize
+		// Validate UUID to prevent path traversal.
+		$uuid = sanitize_key( $uuid );
+		if ( empty( $uuid ) || strlen( $uuid ) > 40 || ! preg_match( '/^[a-zA-Z0-9_-]+$/', $uuid ) ) {
+			if((wp_debug_log === true) && (wp_debug === true)){
+				return new WP_Error( 'invalid_uuid', __( 'Invalid upload identifier.', 'starmus_audio_recorder' ) );
+			}
+		}
+
+		// Validate tmp_name path.
+		if ( ! is_uploaded_file( $tmp_name ) ) {
+			if((wp_debug_log === true) && (wp_debug === true)){
+				return new WP_Error( 'invalid_temp_file', __( 'Invalid temporary file.', 'starmus_audio_recorder' ) );
+			}
+		}
+
+		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_exists.
+		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_filesize.
 		// Native functions are used here for performance and stream handling, which WP_Filesystem does not expose.
 		$temp_dir = $this->get_temp_dir();
 		if ( is_wp_error( $temp_dir ) ) {
-			return $temp_dir;
+			if((wp_debug_log === true) && (wp_debug === true)){
+				return new WP_Error($temp_dir->get_error_message());
+			}
 		}
 
 		$temp_file_path = trailingslashit( $temp_dir ) . $uuid . '.part';
 
+		// Validate final path is within temp directory.
+		$real_temp_dir  = realpath( $temp_dir );
+		$real_temp_file = realpath( dirname( $temp_file_path ) ) . '/' . basename( $temp_file_path );
+		if ( ! $real_temp_dir || strpos( $real_temp_file, $real_temp_dir ) !== 0 ) {
+			if((WP_DEBUG_LOG === true) && (WP_DEBUG === true)){
+				return new WP_Error( 'path_traversal_attempt', __( 'Invalid file path.', 'starmus_audio_recorder' ) );
+			}
+		}
+
 		$current_size = file_exists( $temp_file_path ) ? (int) filesize( $temp_file_path ) : 0;
 		if ( $offset !== $current_size ) {
-			return new WP_Error(
-				'bad_chunk_offset',
-				sprintf(
-					/* translators: 1: received offset, 2: expected offset */
-					__( 'Chunk offset mismatch. Received %1$d, expected %2$d.', 'starmus_audio_recorder' ),
-					(int) $offset,
-					(int) $current_size
-				),
-				array( 'status' => 409 )
-			);
+			if((wp_debug_log === true) && (wp_debug === true)){
+				return new WP_Error(
+					'bad_chunk_offset',
+					sprintf(
+						/* translators: 1: received offset, 2: expected offset */
+						__( 'Chunk offset mismatch. Received %1$d, expected %2$d.', 'starmus_audio_recorder' ),
+						(int) $offset,
+						(int) $current_size
+					),
+					array( 'status' => 409 )
+				);
+			}
 		}
-		// phpcs:enable
+		// phpcs:enable.
 
-		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen.
 		$in = fopen( $tmp_name, 'rb' );
 		if ( false === $in ) {
-			return new WP_Error(
-				'stream_open_failed_in',
-				__( 'Failed to open temporary chunk for reading.', 'starmus_audio_recorder' ),
-				array( 'status' => 500 )
-			);
+			if((wp_debug_log === true) && (wp_debug === true)){
+				return new WP_Error(
+					'stream_open_failed_in',
+					__( 'Failed to open temporary chunk for reading.', 'starmus_audio_recorder' ),
+					array( 'status' => 500 )
+				
+				);
+			}
 		}
 
 		$out = fopen( $temp_file_path, 0 === $current_size ? 'wb' : 'ab' );
 		if ( false === $out ) {
-			fclose( $in ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
-			return new WP_Error(
-				'stream_open_failed_out',
-				__( 'Failed to open temporary file for writing.', 'starmus_audio_recorder' ),
-				array( 'status' => 500 )
-			);
+			fclose( $in ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose.
+			if((wp_debug_log === true) && (wp_debug === true)){
+				return new WP_Error(
+					'stream_open_failed_out',
+					__( 'Failed to open temporary file for writing.', 'starmus_audio_recorder' ),
+					array( 'status' => 500 )
+				);
+			}
+
 		}
 
 		stream_copy_to_stream( $in, $out );
 		fflush( $out );
-		fclose( $in ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
-		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
-		// phpcs:enable
+		fclose( $in ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose.
+		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose.
+		// phpcs:enable.
 		return $temp_file_path;
 	}
 
@@ -462,6 +511,13 @@ class StarmusAudioRecorderUI {
 		}
 		if ( file_exists( $__inc_img ) && ! function_exists( 'wp_generate_attachment_metadata' ) ) {
 			require_once $__inc_img;
+		}
+
+		// Validate file name to prevent path traversal
+		$file_name = sanitize_file_name( basename( $file_name ) );
+		if ( empty( $file_name ) || strpos( $file_name, '..' ) !== false ) {
+			wp_delete_file( $temp_file_path );
+			return new WP_Error( 'invalid_filename', __( 'Invalid file name.', 'starmus_audio_recorder' ) );
 		}
 
 		$file_data = array(
@@ -721,17 +777,14 @@ class StarmusAudioRecorderUI {
 			return false;
 		}
 
-		if ( ! apply_filters( 'starmus_allow_shell_exec', false ) ) {
+		// Check if waveform generation is explicitly allowed and safe
+		if ( ! apply_filters( 'starmus_allow_waveform_generation', false ) ) {
 			return false;
 		}
 
-		if ( ! function_exists( 'shell_exec' ) ) {
-			return false;
-		}
-
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_shell_exec
-		$which = trim( (string) shell_exec( 'command -v audiowaveform' ) );
-		if ( '' === $which || ! is_executable( $which ) ) {
+		// Use a safer approach - check for pre-configured audiowaveform path
+		$audiowaveform_path = apply_filters( 'starmus_audiowaveform_path', '/usr/local/bin/audiowaveform' );
+		if ( ! is_executable( $audiowaveform_path ) ) {
 			return false;
 		}
 
@@ -740,16 +793,45 @@ class StarmusAudioRecorderUI {
 			return false;
 		}
 
+		// Validate file path to prevent command injection
+		$real_file_path = realpath( $file_path );
+		$uploads_dir    = realpath( wp_get_upload_dir()['basedir'] );
+		if ( ! $real_file_path || ! $uploads_dir || strpos( $real_file_path, $uploads_dir ) !== 0 ) {
+			return false;
+		}
+
 		$temp_json_path = $file_path . '.json';
-		$cmd            = sprintf(
-			'%s -i %s -o %s --pixels-per-second 20 --bits 8 --height 128',
-			escapeshellarg( $which ),
-			escapeshellarg( $file_path ),
-			escapeshellarg( $temp_json_path )
+
+		// Use proc_open for safer command execution
+		$descriptors = array(
+			0 => array( 'pipe', 'r' ),
+			1 => array( 'pipe', 'w' ),
+			2 => array( 'pipe', 'w' ),
 		);
 
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_shell_exec
-		shell_exec( $cmd );
+		$cmd = array(
+			$audiowaveform_path,
+			'-i',
+			$real_file_path,
+			'-o',
+			$temp_json_path,
+			'--pixels-per-second',
+			'20',
+			'--bits',
+			'8',
+			'--height',
+			'128',
+		);
+
+		$process = proc_open( $cmd, $descriptors, $pipes );
+		if ( ! is_resource( $process ) ) {
+			return false;
+		}
+
+		fclose( $pipes[0] );
+		fclose( $pipes[1] );
+		fclose( $pipes[2] );
+		proc_close( $process );
 
 		if ( ! file_exists( $temp_json_path ) ) {
 			return false;
@@ -798,15 +880,21 @@ class StarmusAudioRecorderUI {
 		} elseif ( file_exists( $plugin_template ) ) {
 			$template_path = $plugin_template;
 		}
-
-		if ( $template_path ) {
-			ob_start();
-			if ( function_exists( 'load_template' ) ) {
-				load_template( $template_path, false, $args );
-			} else {
-				include $template_path;
+		try {
+			if ( $template_path ) {
+				ob_start();
+				if ( function_exists( 'load_template' ) ) {
+					load_template( $template_path, false, $args );
+				} else {
+					include $template_path;
+				}
+				return (string) ob_get_clean();
 			}
-			return (string) ob_get_clean();
+		} catch ( Throwable $e ) {
+			error_log( sanitize_text_field( $e->getMessage() ) );
+		}
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'Template not found: ' . sanitize_text_field( $template_name ) );
 		}
 		return '';
 	}

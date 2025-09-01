@@ -45,7 +45,10 @@ define( 'STARMUS_URL', plugin_dir_url( __FILE__ ) );
 define( 'STARMUS_MAIN_FILE', __FILE__ );
 define( 'STARMUS_MAIN_DIR', plugin_dir_path( __FILE__ ) );
 
+
 // ... other constants ...
+define( 'STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder');
+define('STARMUS_TEXT_DOMAIN', 'starmus_audio_recorder');
 define( 'STARMUS_VERSION', '0.3.1' );
 
 // Load Composer autoloader if present.
@@ -59,16 +62,16 @@ register_deactivation_hook( STARMUS_MAIN_FILE, array( 'Starmus\includes\StarmusP
 
 // Initialize the plugin.
 add_action(
-	'plugins_loaded',
-	function () {
-		\Starmus\includes\StarmusPlugin::starmus_run();
-	}
+        'plugins_loaded',
+        function () {
+                \Starmus\includes\StarmusPlugin::run();
+        }
 );
 
 // Hook the init method to the WordPress init action.
 add_action(
-	'init',
-	function () {
-		\Starmus\includes\StarmusPlugin::get_instance()->starmus_init();
-	}
+        'init',
+        function () {
+                \Starmus\includes\StarmusPlugin::get_instance()->init();
+        }
 );

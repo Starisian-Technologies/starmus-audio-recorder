@@ -1,0 +1,20 @@
+# code_quality.yml
+
+stages: [lint, test, release]
+
+lint:
+  stage: lint
+  script:
+    - composer lint:php
+    - composer lint:custom # Add this line
+  allow_failure: false
+
+test:
+  stage: test
+  script:
+    - composer test:php
+
+release:
+  stage: release
+  script:
+    - echo "package"

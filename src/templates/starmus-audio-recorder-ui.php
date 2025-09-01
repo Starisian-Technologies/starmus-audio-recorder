@@ -1,95 +1,100 @@
 <?php
 /**
- * Starmus Audio Recorder UI Template (Complete Multi-Part & Dynamic Version)
- *
- * This template provides a two-step HTML structure for the audio recorder.
- * Step 1 collects details, with dropdowns built dynamically from taxonomies.
- * Step 2 shows the complete, original recorder UI with all feedback elements.
+ * Starmus Audio Recorder UI Template - Secure Version
  *
  * @package Starmus\templates
- * @since 0.1.0
- * @version 0.3.0
+ * @var string $form_id
+ * @var string $consent_message
+ * @var string $data_policy_url
+ * @var array $recording_types
+ * @var array $languages
  */
 
-// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	return;
 }
 
-// Variables passed from the render_recorder_shortcode() method in the main class.
-$starmus_form_id         = $form_id ?? 'starmus_default_form';
-$starmus_data_policy_url = $data_policy_url ?? '';
-$starmus_consent_message = $consent_message ?? 'I consent to the recording of my voice.';
+$nonce            = wp_create_nonce( 'starmus_audio_form' );
+$form_instance_id = sanitize_key( $form_id . '_' . wp_generate_uuid4() );
 ?>
 
-<form id="<?php echo esc_attr( $starmus_form_id ); ?>" class="starmus-recorder-form" novalidate>
-	<div id="starmus_audioWrapper_<?php echo esc_attr( $starmus_form_id ); ?>" class="sparxstar-audioWrapper" data-enabled-recorder>
-
-		<!-- =================================================================== -->
-		<!-- STEP 1: DETAILS SECTION (Visible by default)					  -->
-		<!-- =================================================================== -->
-		<div id="starmus_step_1_<?php echo esc_attr( $starmus_form_id ); ?>" class="starmus-form-step">
-			<h2 class="sparxstar-h2"><?php esc_html_e( 'Step 1: Tell Us About Your Recording', 'starmus_audio_recorder' ); ?></h2>
-
-			<div class="starmus-form-field">
-				<label for="audio_title_<?php echo esc_attr( $starmus_form_id ); ?>"><?php esc_html_e( 'Title of Recording', 'starmus_audio_recorder' ); ?></label>
-				<input type="text" id="audio_title_<?php echo esc_attr( $starmus_form_id ); ?>" name="audio_title" required>
-				<p class="sparxstar-description">Enter either the word you are going to add or a description of the audio you are recording.</p>
+<div id="starmus_audioWrapper_<?php echo esc_attr( $form_instance_id ); ?>" data-enabled-recorder="true" class="starmus-audio-wrapper">
+	<form id="<?php echo esc_attr( $form_instance_id ); ?>" class="starmus-audio-form" method="post" enctype="multipart/form-data">
+		
+		<?php wp_nonce_field( 'starmus_audio_form', 'starmus_nonce_' . $form_instance_id ); ?>
+		
+		<!-- Step 1: Form Details -->
+		<div id="starmus_step_1_<?php echo esc_attr( $form_instance_id ); ?>" class="starmus-step starmus-step-1">
+			<h2><?php esc_html_e( 'Recording Details', 'starmus_audio_recorder' ); ?></h2>
+			
+			<div id="starmus_step_1_error_<?php echo esc_attr( $form_instance_id ); ?>" class="starmus-error" style="display:none;" role="alert"></div>
+			
+			<div class="starmus-field-group">
+				<label for="audio_title_<?php echo esc_attr( $form_instance_id ); ?>"><?php esc_html_e( 'Title', 'starmus_audio_recorder' ); ?> *</label>
+				<input type="text" id="audio_title_<?php echo esc_attr( $form_instance_id ); ?>" name="audio_title" maxlength="200" required>
 			</div>
-
-			<div class="starmus-form-field">
-				<label for="language_<?php echo esc_attr( $starmus_form_id ); ?>"><?php esc_html_e( 'Language', 'starmus_audio_recorder' ); ?></label>
-				<select name="language" id="language_<?php echo esc_attr( $starmus_form_id ); ?>" required>
-					<option value="" disabled selected><?php esc_html_e( '-- Select a language --', 'starmus_audio_recorder' ); ?></option>
+			
+			<div class="starmus-field-group">
+				<label for="language_<?php echo esc_attr( $form_instance_id ); ?>"><?php esc_html_e( 'Language', 'starmus_audio_recorder' ); ?> *</label>
+				<select id="language_<?php echo esc_attr( $form_instance_id ); ?>" name="language" required>
+					<option value=""><?php esc_html_e( 'Select Language', 'starmus_audio_recorder' ); ?></option>
 					<?php if ( ! empty( $languages ) && ! is_wp_error( $languages ) ) : ?>
-						<?php foreach ( $languages as $term ) : ?>
-							<option value="<?php echo esc_attr( $term->slug ); ?>"><?php echo esc_html( $term->name ); ?></option>
+						<?php foreach ( $languages as $lang ) : ?>
+							<option value="<?php echo esc_attr( $lang->term_id ); ?>"><?php echo esc_html( $lang->name ); ?></option>
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</select>
 			</div>
-
-			<div class="starmus-form-field">
-				<label for="recording_type_<?php echo esc_attr( $starmus_form_id ); ?>"><?php esc_html_e( 'Type of Recording', 'starmus_audio_recorder' ); ?></label>
-				<select name="recording_type" id="recording_type_<?php echo esc_attr( $starmus_form_id ); ?>" required>
-					<option value="" disabled selected><?php esc_html_e( '-- Select a type --', 'starmus_audio_recorder' ); ?></option>
+			
+			<div class="starmus-field-group">
+				<label for="recording_type_<?php echo esc_attr( $form_instance_id ); ?>"><?php esc_html_e( 'Recording Type', 'starmus_audio_recorder' ); ?> *</label>
+				<select id="recording_type_<?php echo esc_attr( $form_instance_id ); ?>" name="recording_type" required>
+					<option value=""><?php esc_html_e( 'Select Type', 'starmus_audio_recorder' ); ?></option>
 					<?php if ( ! empty( $recording_types ) && ! is_wp_error( $recording_types ) ) : ?>
-						<?php foreach ( $recording_types as $term ) : ?>
-							<option value="<?php echo esc_attr( $term->slug ); ?>"><?php echo esc_html( $term->name ); ?></option>
+						<?php foreach ( $recording_types as $type ) : ?>
+							<option value="<?php echo esc_attr( $type->term_id ); ?>"><?php echo esc_html( $type->name ); ?></option>
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</select>
 			</div>
-
-			<div class="starmus-form-field starmus-consent-field">
-				<label for="audio_consent_<?php echo esc_attr( $starmus_form_id ); ?>">
-					<input type="checkbox" id="audio_consent_<?php echo esc_attr( $starmus_form_id ); ?>" name="audio_consent" required>
-					<?php echo wp_kses_post( $starmus_consent_message ); ?>
+			
+			<div class="starmus-field-group">
+				<label>
+					<input type="checkbox" id="audio_consent_<?php echo esc_attr( $form_instance_id ); ?>" name="audio_consent" value="1" required>
+					<?php echo wp_kses_post( $consent_message ); ?>
+					<?php if ( $data_policy_url ) : ?>
+						<a href="<?php echo esc_url( $data_policy_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Privacy Policy', 'starmus_audio_recorder' ); ?></a>
+					<?php endif; ?>
 				</label>
-				<?php if ( ! empty( $starmus_data_policy_url ) ) : ?>
-					<a href="<?php echo esc_url( $starmus_data_policy_url ); ?>" target="_blank" rel="noopener" class="starmus-data-policy-link"><?php esc_html_e( '(View data policy)', 'starmus_audio_recorder' ); ?></a>
-				<?php endif; ?>
 			</div>
-
-			<div id="starmus_step_1_error_<?php echo esc_attr( $starmus_form_id ); ?>" class="starmus-error-message" style="display: none;" role="alert"></div>
-
-			<button type="button" id="starmus_continue_btn_<?php echo esc_attr( $starmus_form_id ); ?>" class="sparxstar_button">
+			
+			<input type="hidden" id="gps_latitude_<?php echo esc_attr( $form_instance_id ); ?>" name="gps_latitude">
+			<input type="hidden" id="gps_longitude_<?php echo esc_attr( $form_instance_id ); ?>" name="gps_longitude">
+			
+			<div id="starmus_step_1_status_<?php echo esc_attr( $form_instance_id ); ?>" class="starmus-status" style="display:none;">
+				<?php esc_html_e( 'Capturing location...', 'starmus_audio_recorder' ); ?>
+			</div>
+			
+			<button type="button" id="starmus_continue_btn_<?php echo esc_attr( $form_instance_id ); ?>" class="starmus-btn starmus-btn-primary">
 				<?php esc_html_e( 'Continue to Recording', 'starmus_audio_recorder' ); ?>
 			</button>
+		</div>
+		
+		<!-- Step 2: Audio Recording -->
+		<div id="starmus_step_2_<?php echo esc_attr( $form_instance_id ); ?>" class="starmus-step starmus-step-2" style="display:none;">
+			<h2 id="starmus_audioRecorderHeading_<?php echo esc_attr( $form_instance_id ); ?>"><?php esc_html_e( 'Record Your Audio', 'starmus_audio_recorder' ); ?></h2>
 			
-			<!-- FIX: New status message for the transition between Step 1 and 2 -->
-			<div id="starmus_step_1_status_<?php echo esc_attr( $starmus_form_id ); ?>" class="starmus-status-message" style="display: none;" role="status">
-				<?php esc_html_e( 'Preparing recorder...', 'starmus_audio_recorder' ); ?>
+			<div id="starmus_recorder_container_<?php echo esc_attr( $form_instance_id ); ?>" class="starmus-recorder-container">
+				<!-- Audio recorder will be injected here by JavaScript -->
 			</div>
+			
+			<div id="starmus_loader_overlay_<?php echo esc_attr( $form_instance_id ); ?>" class="starmus_visually_hidden starmus-loader">
+				<?php esc_html_e( 'Uploading...', 'starmus_audio_recorder' ); ?>
+			</div>
+			
+			<button type="submit" id="submit_button_<?php echo esc_attr( $form_instance_id ); ?>" class="starmus-btn starmus-btn-success" disabled>
+				<?php esc_html_e( 'Submit Recording', 'starmus_audio_recorder' ); ?>
+			</button>
 		</div>
-
-		<!-- Step 2 and the rest of the form remains exactly the same... -->
-		<div id="starmus_step_2_<?php echo esc_attr( $starmus_form_id ); ?>" class="starmus-form-step" style="display: none;">
-			<!-- ... -->
-		</div>
-		<div id="sparxstar_loader_overlay_<?php echo esc_attr( $starmus_form_id ); ?>" class="sparxstar_loader_overlay sparxstar_visually_hidden" role="alert" aria-live="assertive">
-			<!-- ... -->
-		</div>
-
-	</div>
-</form>
+	</form>
+</div>
