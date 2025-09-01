@@ -62,16 +62,16 @@ register_deactivation_hook( STARMUS_MAIN_FILE, array( 'Starmus\includes\StarmusP
 
 // Initialize the plugin.
 add_action(
-	'plugins_loaded',
-	function () {
-		\Starmus\includes\StarmusPlugin::starmus_run();
-	}
+        'plugins_loaded',
+        function () {
+                \Starmus\includes\StarmusPlugin::run();
+        }
 );
 
 // Hook the init method to the WordPress init action.
 add_action(
-	'init',
-	function () {
-		\Starmus\includes\StarmusPlugin::get_instance()->starmus_init();
-	}
+        'init',
+        function () {
+                \Starmus\includes\StarmusPlugin::get_instance()->init();
+        }
 );
