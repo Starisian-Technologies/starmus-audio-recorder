@@ -23,5 +23,6 @@ Thumbs.db
 # env
 .env
 .env.*
+auth.json
 # artifacts you don’t want tracked
 *.zip
