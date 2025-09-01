@@ -168,7 +168,19 @@ add_action('starmus_after_audio_upload', function($audio_post_id, $attachment_id
 - **`starmus_after_annotations_save` (Action)** – Fires after annotations saved
 
 ---
+## Development Setup
 
+Composer-based tools require a GitHub token for certain dependencies. Copy `auth.json.example` to `auth.json` and replace `YOUR_GITHUB_TOKEN_HERE` with your personal access token. Alternatively, set the `COMPOSER_AUTH` environment variable.
+
+```json
+{
+  "github-oauth": {
+    "github.com": "YOUR_GITHUB_TOKEN_HERE"
+  }
+}
+```
+
+---
 ## License
 
 This plugin is released under a **proprietary license**.  
