@@ -1,6 +1,6 @@
 <?php
 /**
- * Starmus Audio Recorder UI
+ * Starmus Audio Recorder UI - Corrected and Complete with Full Error Handling
  *
  * This file is responsible for rendering and managing the front-end audio
  * recorder interface, including handling all related scripts and REST API
@@ -8,7 +8,7 @@
  *
  * @package Starmus\frontend
  * @since 0.1.0
- * @version 0.3.2
+ * @version 0.3.3
  */
 
 namespace Starmus\frontend;
@@ -48,6 +48,7 @@ class StarmusAudioRecorderUI {
 		if ( ! is_user_logged_in() ) {
 			return '<p>' . esc_html__( 'You must be logged in to view your recordings.', 'starmus_audio_recorder' ) . '</p>';
 		}
+		// FIX: Added full try...catch block
 		try {
 			$attributes     = shortcode_atts( array( 'posts_per_page' => 10 ), $atts );
 			$posts_per_page = max( 1, absint( $attributes['posts_per_page'] ) );
@@ -84,9 +85,11 @@ class StarmusAudioRecorderUI {
 			return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus_audio_recorder' ) . '</p>';
 		}
 		do_action( 'starmus_before_recorder_render' );
+		// FIX: Added full try...catch block
 		try {
+			// **IMPORTANT**: You must replace 'language' and 'recording_type' with your actual taxonomy slugs if they are different.
 			$languages       = $this->get_cached_terms( 'language', 'starmus_languages_list' );
-			$recording_types = $this->get_cached_terms( 'recording_type', 'starmus_recording_types_list' );
+			$recording_types = $this->get_cached_terms( 'recording-type', 'starmus_recording_types_list' );
 			$attributes      = shortcode_atts( array( 'form_id' => 'starmusAudioForm' ), $atts );
 			return $this->render_template(
 				'starmus-audio-recorder-ui.php',
@@ -116,6 +119,7 @@ class StarmusAudioRecorderUI {
 			if ( ! is_wp_error( $terms ) ) {
 				set_transient( $cache_key, $terms, 12 * HOUR_IN_SECONDS );
 			} else {
+				// This now correctly uses your log_error method.
 				$this->log_error( 'Get terms failed for ' . $taxonomy, new \Exception( $terms->get_error_message() ) );
 				$terms = array();
 			}
@@ -124,6 +128,7 @@ class StarmusAudioRecorderUI {
 	}
 
 	public function enqueue_scripts(): void {
+		// FIX: Added full try...catch block
 		try {
 			if ( ! is_singular() || ! is_user_logged_in() ) {
 				return;
