@@ -3,7 +3,7 @@
  * Starmus Audio Editor UI - Refactored for Security & Performance
  *
  * @package Starmus\frontend
- * @version 0.4.1
+ * @version 0.4.2
  * @since 0.3.1
  */
 
@@ -88,7 +88,7 @@ class StarmusAudioEditorUI {
 			)
 		);
 		foreach ( $allowed_dirs as $allowed_dir ) {
-			if ( str_starts_with( $real_path, $allowed_dir ) ) {
+			if ( $allowed_dir && str_starts_with( $real_path, $allowed_dir ) ) {
 				return true;
 			}
 		}
@@ -106,6 +106,7 @@ class StarmusAudioEditorUI {
 			}
 			$context = $this->get_editor_context();
 			if ( is_wp_error( $context ) ) {
+				// Don't enqueue scripts if there's an error loading the context.
 				return;
 			}
 			wp_enqueue_style( 'starmus-audio-editor-style', STARMUS_URL . 'assets/css/starmus-audio-editor-style.css', array(), STARMUS_VERSION );
@@ -142,8 +143,7 @@ class StarmusAudioEditorUI {
 			}
 			$data = json_decode( $json, true );
 			if ( json_last_error() !== JSON_ERROR_NONE ) {
-				$this->log_error( 'JSON decode error', new Exception( json_last_error_msg() ) );
-				return array();
+				throw new Exception( json_last_error_msg() );
 			}
 			return is_array( $data ) ? $data : array();
 		} catch ( Throwable $e ) {
@@ -285,15 +285,20 @@ class StarmusAudioEditorUI {
 	}
 
 	public function can_save_annotations( WP_REST_Request $request ): bool {
-		$nonce = $request->get_header( 'X-WP-Nonce' );
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+		try {
+			$nonce = $request->get_header( 'X-WP-Nonce' );
+			if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+				return false;
+			}
+			$post_id = absint( $request->get_param( 'postId' ) );
+			if ( ! $post_id || ! get_post( $post_id ) ) {
+				return false;
+			}
+			return current_user_can( 'edit_post', $post_id );
+		} catch ( Throwable $e ) {
+			$this->log_error( 'Permission check error', $e );
 			return false;
 		}
-		$post_id = absint( $request->get_param( 'postId' ) );
-		if ( ! $post_id || ! get_post( $post_id ) ) {
-			return false;
-		}
-		return current_user_can( 'edit_post', $post_id );
 	}
 
 	public function handle_save_annotations( WP_REST_Request $request ): WP_REST_Response {
@@ -312,12 +317,16 @@ class StarmusAudioEditorUI {
 				return new WP_REST_Response( array( 'success' => false, 'message' => __( 'Failed to encode annotations.', 'starmus_audio_recorder' ) ), 500 );
 			}
 			do_action( 'starmus_before_annotations_save', $post_id, $annotations );
-			$result = update_post_meta( $post_id, 'starmus_annotations_json', $json_data );
-			if ( ! $result ) {
-				return new WP_REST_Response( array( 'success' => false, 'message' => __( 'Failed to save annotations.', 'starmus_audio_recorder' ) ), 500 );
-			}
+			update_post_meta( $post_id, 'starmus_annotations_json', $json_data );
 			do_action( 'starmus_after_annotations_save', $post_id, $annotations );
-			return new WP_REST_Response( array( 'success' => true, 'message' => __( 'Annotations saved successfully.', 'starmus_audio_recorder' ), 'count' => count( $annotations ) ), 200 );
+			return new WP_REST_Response(
+				array(
+					'success' => true,
+					'message' => __( 'Annotations saved successfully.', 'starmus_audio_recorder' ),
+					'count'   => count( $annotations ),
+				),
+				200
+			);
 		} catch ( Throwable $e ) {
 			$this->log_error( 'Save annotations error', $e );
 			return new WP_REST_Response( array( 'success' => false, 'message' => __( 'Internal server error.', 'starmus_audio_recorder' ) ), 500 );
@@ -334,7 +343,7 @@ class StarmusAudioEditorUI {
 		return false;
 	}
 
-	private function validate_annotation_consistency( array $annotations ): bool|WP_Error {
+	private function validate_annotation_consistency( array $annotations ): true|WP_Error {
 		if ( empty( $annotations ) ) {
 			return true;
 		}
