@@ -92,7 +92,7 @@ class StarmusAdmin {
 	public function register_settings(): void {
 		register_setting(
 			self::STAR_SETTINGS_GROUP,
-			StarmusSettings::OPTION_KEY,
+			StarmusSettings::STAR_OPTION_KEY,
 			array(
 				'sanitize_callback' => array( $this, 'sanitize_settings' ),
 				'default'           => StarmusSettings::get_defaults(),
@@ -246,7 +246,7 @@ class StarmusAdmin {
 		$id    = esc_attr( $args['id'] );
 		$type  = $args['type'] ?? 'text';
 		$value = StarmusSettings::get( $id );
-		$name  = StarmusSettings::OPTION_KEY . "[$id]";
+		$name  = StarmusSettings::STAR_OPTION_KEY . "[$id]";
 
 		switch ( $type ) {
 			case 'textarea':
