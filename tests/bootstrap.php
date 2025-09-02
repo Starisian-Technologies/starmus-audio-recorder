@@ -2,9 +2,11 @@
 /**
  * Bootstrap file for PHPUnit tests.
  *
- * @package StarmusAudioRecorder
+ * @package Starmus\tests\unit
+ * @version 0.4.0
+ * @since 0.3.1
  */
-
+namespace Starmus\tests\unit;
 // Load Composer autoloader
 $autoload = dirname(__DIR__) . '/vendor/autoload.php';
 if ( file_exists( $autoload ) ) {

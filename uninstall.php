@@ -3,6 +3,8 @@
  * Fired when the plugin is uninstalled.
  *
  * @package Starmus
+ * @version 0.4.0
+ * @since 0.3.1
  */
 
 // If uninstall not called from WordPress, then exit.

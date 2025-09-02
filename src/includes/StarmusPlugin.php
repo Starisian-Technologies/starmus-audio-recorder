@@ -4,9 +4,9 @@
  * Main plugin class. Initializes hooks and manages plugin star_components.
  * This version uses a clean, linear loading sequence to avoid race conditions.
  *
- * @since 0.1.0
- * @version 0.3.0
  * @package Starmus\includes
+ * @version 0.4.0
+ * @since 0.1.0
  */
 
 namespace Starmus\includes;

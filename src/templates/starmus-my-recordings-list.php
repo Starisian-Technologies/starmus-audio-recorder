@@ -6,6 +6,8 @@
  * It features the most recent recording and shows others in a responsive grid.
  *
  * @package Starmus\templates
+ * @version 0.4.0
+ * @since 0.3.1
  *
  * @var WP_Query $query         The WordPress query object containing the user's posts.
  * @var string   $edit_page_url The base URL for the editor page.

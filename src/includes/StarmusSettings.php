@@ -3,6 +3,7 @@
  * Optimized and secure settings management for Starmus plugin.
  *
  * @package Starmus\includes
+ * @version 0.4.0
  * @since 0.3.1
  */
 
@@ -16,7 +17,7 @@ final class StarmusSettings {
 
 	public const STAR_OPTION_KEY = 'starmus_options';
 
-	private static ?array $starstar_cache          = null;
+	private static ?array $star_cache          = null;
 	private static ?array $star_default_cache = null;
 
 	/**
@@ -34,7 +35,7 @@ final class StarmusSettings {
 		if ( self::$star_cache === null ) {
 			$saved       = get_option( self::STAR_OPTION_KEY, array() );
 			$defaults    = self::get_defaults();
-			self::$cache = wp_parse_args( $saved, $defaults );
+			self::$star_cache = wp_parse_args( $saved, $defaults );
 		}
 		return self::$star_cache;
 	}
@@ -52,7 +53,7 @@ final class StarmusSettings {
 
 		$result = update_option( self::STAR_OPTION_KEY, $saved );
 		if ( $result ) {
-			self::clear(star_cache());
+			self::starmus_clear_cache();
 		}
 		return $result;
 	}
@@ -82,8 +83,8 @@ final class StarmusSettings {
 	 * Get defaults with caching.
 	 */
 	public static function get_defaults(): array {
-		if ( self::$star_default_cache  === null ) {
-			self::$star_default_cache  = array(
+		if ( self::$star_cache  === null ) {
+			self::$star_cache  = array(
 				'cpt_slug'             => 'audio-recording',
 				'file_size_limit'      => 10,
 				'recording_time_limit' => 300,
@@ -93,9 +94,9 @@ final class StarmusSettings {
 				'data_policy_url'      => '',
 				'edit_page_id'         => 0,
 			);
-			self::$star_default_cache = apply_filters( 'starmus_default_settings', self::$star_default_cache );
+			self::$star_cache = apply_filters( 'starmus_default_settings', self::$star_cache );
 		}
-		return self::$star_default_cache;
+		return self::$star_cache;
 	}
 
 	/**
@@ -148,7 +149,7 @@ final class StarmusSettings {
 	 * Clear internal cache.
 	 */
 	private static function starmus_clear_cache(): void {
-		self::$cache = null;
+		self::$star_cache = null;
 	}
 
 	/**

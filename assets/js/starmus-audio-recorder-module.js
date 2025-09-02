@@ -14,9 +14,9 @@
  *
  * @package Starmus\submissions
  * @since 0.1.0
- * @version 0.3.2
+ * @version 0.4.0
  * @file Starmus Audio Recorder Module - Secure, Feature-Complete Version
- * @version 0.3.2
+ * @version 0.4.0
  * @description Merges a secure, modular architecture with features from the original
  * recorder, including pause/resume, a live timer, robust UUID generation,
  * and legacy browser support. It is designed to work with the Starmus

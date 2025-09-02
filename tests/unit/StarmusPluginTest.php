@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * @package Starmus\tests\unit
+ * @version 0.4.0
+ * @since 0.3.1
+ */
 declare(strict_types=1);
 namespace Starmus\tests\unit;
 use PHPUnit\Framework\TestCase;

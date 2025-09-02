@@ -14,7 +14,7 @@
  *
  * @package Starmus\submissions
  * @since 0.1.0
- * @version 0.3.2
+ * @version 0.4.0
  * @file Manages the submission lifecycle of audio recordings - Optimized for legacy browsers
  * @description This script handles form submissions for the Starmus Audio Recorder,
  * including multi-step form logic and REST API uploads. Optimized for older smartphones.

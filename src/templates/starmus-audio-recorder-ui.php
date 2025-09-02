@@ -3,6 +3,8 @@
  * Starmus Audio Recorder UI Template - Secure Version
  *
  * @package Starmus\templates
+ * @version 0.4.0
+ * @since 0.2.0
  * @var string $form_id
  * @var string $consent_message
  * @var string $data_policy_url
