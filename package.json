@@ -70,7 +70,7 @@
     "stylelint-config-standard": "^39.0.0"
   },
   "dependencies": {
-    "peaks.js": "^3.4.2"
+    "peaks.js": "^4.0.0"
   },
   "bundlesize": [
     {
