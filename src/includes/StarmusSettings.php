@@ -17,7 +17,7 @@ final class StarmusSettings {
 
 	public const STAR_OPTION_KEY = 'starmus_options';
 
-	private static ?array $star_cache          = null;
+	private static ?array $star_cache         = null;
 	private static ?array $star_default_cache = null;
 
 	/**
@@ -33,8 +33,8 @@ final class StarmusSettings {
 	 */
 	public static function all(): array {
 		if ( self::$star_cache === null ) {
-			$saved       = get_option( self::STAR_OPTION_KEY, array() );
-			$defaults    = self::get_defaults();
+			$saved            = get_option( self::STAR_OPTION_KEY, array() );
+			$defaults         = self::get_defaults();
 			self::$star_cache = wp_parse_args( $saved, $defaults );
 		}
 		return self::$star_cache;
@@ -49,7 +49,7 @@ final class StarmusSettings {
 		}
 
 		$saved         = get_option( self::STAR_OPTION_KEY, array() );
-		$saved[ $key ] = self::sanitize_value( $key, $value );
+		$saved[ $key ] = self::starmus_sanitize_value( $key, $value );
 
 		$result = update_option( self::STAR_OPTION_KEY, $saved );
 		if ( $result ) {
@@ -65,7 +65,7 @@ final class StarmusSettings {
 		$sanitized = array();
 		foreach ( $settings as $key => $value ) {
 			if ( self::is_valid_key( $key ) ) {
-				$sanitized[ $key ] = self::sanitize_value( $key, $value );
+				$sanitized[ $key ] = self::starmus_sanitize_value( $key, $value );
 			}
 		}
 
@@ -83,8 +83,8 @@ final class StarmusSettings {
 	 * Get defaults with caching.
 	 */
 	public static function get_defaults(): array {
-		if ( self::$star_cache  === null ) {
-			self::$star_cache  = array(
+		if ( self::$star_default_cache === null ) {
+			self::$star_default_cache = array(
 				'cpt_slug'             => 'audio-recording',
 				'file_size_limit'      => 10,
 				'recording_time_limit' => 300,
@@ -94,9 +94,9 @@ final class StarmusSettings {
 				'data_policy_url'      => '',
 				'edit_page_id'         => 0,
 			);
-			self::$star_cache = apply_filters( 'starmus_default_settings', self::$star_cache );
+			self::$star_default_cache = apply_filters( 'starmus_default_settings', self::$star_default_cache );
 		}
-		return self::$star_cache;
+		return self::$star_default_cache;
 	}
 
 	/**

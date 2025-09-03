@@ -25,8 +25,12 @@ class StarmusAdmin {
 
 	private array $field_types = array();
 
+	/**
+	 * Constructor - initializes admin settings.
+	 *
+	 * @since 0.3.1
+	 */
 	public function __construct() {
-		// setup array of field types
 		$this->field_types = array(
 			'cpt_slug'           => 'text',
 			'file_size_limit'    => 'number',
@@ -39,6 +43,8 @@ class StarmusAdmin {
 
 	/**
 	 * Add admin menu with error handling.
+	 *
+	 * @since 0.3.1
 	 */
 	public function add_admin_menu(): void {
 		$cpt_slug = StarmusSettings::get( 'cpt_slug', 'audio-recording' );
@@ -67,9 +73,11 @@ class StarmusAdmin {
 
 	/**
 	 * Render settings page with CSRF protection.
+	 *
+	 * @since 0.3.1
 	 */
 	public function render_settings_page(): void {
-		if ( ! current_user_can( 'manage_options' ) && (! is_Admin ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( __( 'You do not have sufficient permissions.', 'starmus_audio_recorder' ) );
 		}
 		?>
@@ -88,6 +96,8 @@ class StarmusAdmin {
 
 	/**
 	 * Register settings with validation.
+	 *
+	 * @since 0.3.1
 	 */
 	public function register_settings(): void {
 		register_setting(
