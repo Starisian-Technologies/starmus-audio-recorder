@@ -25,16 +25,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class StarmusAudioEditorUI {
 
 	const STAR_REST_NAMESPACE     = 'starmus/v1';
-	const STAR_SHORTCODE          = 'starmus_audio_editor';
 	const STAR_MAX_ANNOTATIONS    = 1000;
 	const STAR_RATE_LIMIT_SECONDS = 2;
 
 	private ?array $cached_context = null;
 
 	public function __construct() {
-		add_shortcode( self::STAR_SHORTCODE, array( $this, 'render_audio_editor_shortcode' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_action( 'rest_api_init', array( $this, 'register_rest_endpoint' ) );
+		// Initialization if needed
 	}
 
 	public function render_audio_editor_shortcode(): string {

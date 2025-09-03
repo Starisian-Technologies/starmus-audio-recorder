@@ -93,9 +93,41 @@ final class StarmusPlugin
 
 		// Instantiate all class-based star_components.
 		$this->instantiateComponents();
+		// Register all necessary hooks.
+		$this->register_hooks();
 
 		// Hook the admin notice for any runtime errors that occurred.
 		add_action('admin_notices', array($this, 'displayRuntimeErrorNotice'));
+	}
+
+	public function getComponent(string $class_name): ?object
+	{
+		return $this->components[$class_name] ?? null;
+	}
+
+	public function register_hooks(): void
+	{
+		error_log('Starmus Plugin: Registering hooks.');
+		// Register admin menu and settings ($this->componentClasses[StarmusAdmin::class])
+		add_action( 'admin_menu', array( $this->componentClasses[StarmusAdmin::class], 'add_admin_menu' ) );
+		add_action( 'admin_init', array( $this->componentClasses[StarmusAdmin::class], 'register_settings' ) );
+
+		// Register shortcodes and hooks for the frontend audio editor UI ($this->componentClasses[StarmusAudioEditorUI::class])
+		add_shortcode( 'starmus_audio_editor', array( $this->componentClasses[StarmusAudioEditorUI::class], 'render_audio_editor_shortcode' ) );
+		add_action( 'wp_enqueue_scripts', array( $this->componentClasses[StarmusAudioEditorUI::class], 'enqueue_scripts' ) );
+		add_action( 'rest_api_init', array( $this->componentClasses[StarmusAudioEditorUI::class], 'register_rest_endpoint' ) );
+
+		// Register shortcodes and hooks for the frontend audio recorder UI ($this->componentClasses[StarmusAudioRecorderUI::class])
+		add_shortcode( 'starmus_my_recordings', array( $this->componentClasses[StarmusAudioRecorderUI::class], 'render_my_recordings_shortcode' ) );
+		add_shortcode( 'starmus_audio_recorder', array( $this->componentClasses[StarmusAudioRecorderUI::class], 'render_recorder_shortcode' ) );
+		add_action( 'wp_enqueue_scripts', array( $this->componentClasses[StarmusAudioRecorderUI::class], 'enqueue_scripts' ) );
+		add_action( 'rest_api_init', array( $this->componentClasses[StarmusAudioRecorderUI::class], 'register_rest_routes' ) );
+		add_action( 'starmus_after_audio_upload', array( $this->componentClasses[StarmusAudioRecorderUI::class], 'save_all_metadata' ), 10, 3 );
+		add_filter( 'starmus_audio_upload_success_response', array( $this->componentClasses[StarmusAudioRecorderUI::class], 'add_conditional_redirect' ), 10, 3 );
+		add_action( 'init', array( $this->componentClasses[StarmusAudioRecorderUI::class], 'maybe_schedule_cron' ) );
+		add_action( 'starmus_cleanup_temp_files', array( $this->componentClasses[StarmusAudioRecorderUI::class], 'cleanup_stale_temp_files' ) );
+		add_action( 'saved_term', array( $this->componentClasses[StarmusAudioRecorderUI::class], 'clear_taxonomy_transients' ) );
+		add_action( 'delete_term', array( $this->componentClasses[StarmusAudioRecorderUI::class], 'clear_taxonomy_transients' ) );
 	}
 
 	/**
@@ -228,7 +260,9 @@ final class StarmusPlugin
 	 */
 	private function instantiateComponent(string $class_name): void
 	{
-		if (isset($this->components[$class_name])) {
+		if ( (isset($this->components[$class_name])) && is_object($this->components[$class_name]) ) {
+			// Already instantiated
+			error_log('Starmus Plugin: Component already instantiated: ' . sanitize_text_field($class_name));
 			return;
 		}
 		try {

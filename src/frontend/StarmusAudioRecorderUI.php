@@ -35,16 +35,7 @@ class StarmusAudioRecorderUI {
 
 	public function __construct() {
 		$this->settings = new StarmusSettings();
-		add_shortcode( 'starmus_my_recordings', array( $this, 'render_my_recordings_shortcode' ) );
-		add_shortcode( 'starmus_audio_recorder', array( $this, 'render_recorder_shortcode' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-		add_action( 'starmus_after_audio_upload', array( $this, 'save_all_metadata' ), 10, 3 );
-		add_filter( 'starmus_audio_upload_success_response', array( $this, 'add_conditional_redirect' ), 10, 3 );
-		add_action( 'init', array( $this, 'maybe_schedule_cron' ) );
-		add_action( 'starmus_cleanup_temp_files', array( $this, 'cleanup_stale_temp_files' ) );
-		add_action( 'saved_term', array( $this, 'clear_taxonomy_transients' ) );
-		add_action( 'delete_term', array( $this, 'clear_taxonomy_transients' ) );
+		
 	}
 
 	public function render_my_recordings_shortcode( $atts = array() ): string {

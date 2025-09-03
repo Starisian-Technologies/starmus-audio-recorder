@@ -23,18 +23,18 @@ class StarmusAdmin {
 	const STAR_MENU_SLUG      = 'starmus-admin';
 	const STAR_SETTINGS_GROUP = 'starmus_settings_group';
 
-	private array $field_types = array(
-		'cpt_slug'           => 'text',
-		'file_size_limit'    => 'number',
-		'allowed_file_types' => 'textarea',
-		'consent_message'    => 'textarea',
-		'collect_ip_ua'      => 'checkbox',
-		'edit_page_id'       => 'pages_dropdown',
-	);
+	private array $field_types = array();
 
 	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
-		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		// setup array of field types
+		$this->field_types = array(
+			'cpt_slug'           => 'text',
+			'file_size_limit'    => 'number',
+			'allowed_file_types' => 'textarea',
+			'consent_message'    => 'textarea',
+			'collect_ip_ua'      => 'checkbox',
+			'edit_page_id'       => 'pages_dropdown',
+		);
 	}
 
 	/**
