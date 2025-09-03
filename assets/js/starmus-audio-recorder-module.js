@@ -221,10 +221,16 @@
 
         /**
          * Dynamically creates the recorder's HTML UI inside its designated container.
-         * @param {string} instanceId The ID of the instance whose UI should be created.
+         * @param {string} instanceId The ID of the instance whose UI should be created. Must be alphanumeric/underscore/dash.
          * @returns {void}
-         */
+         * @throws Will abort if the instanceId contains unsafe characters.
         setupUI: function(instanceId) {
+            // Only allow safe HTML ID characters: a-zA-Z0-9_- (no spaces, punctuation)
+            if (!/^[a-zA-Z0-9_-]+$/.test(instanceId)) {
+                secureLog('error', 'Unsafe instanceId value rejected by setupUI:', instanceId);
+                return;
+            }
+
             var container = document.getElementById('starmus_recorder_container_' + instanceId);
             if (!container) return;
 
