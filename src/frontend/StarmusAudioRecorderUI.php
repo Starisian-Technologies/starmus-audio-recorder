@@ -218,7 +218,7 @@ class StarmusAudioRecorderUI {
 			$core_dependencies = array( 'jquery', 'wp-api-fetch' );
 			wp_enqueue_script(
 				'starmus-recorder-module',
-				STARMUS_URL . 'assets/js/starmus-audio-recorder-module-secure.js',
+				STARMUS_URL . 'assets/js/starmus-audio-recorder-module.js',
 				$core_dependencies,
 				STARMUS_VERSION,
 				true
@@ -241,7 +241,7 @@ class StarmusAudioRecorderUI {
 			);
 			wp_enqueue_style(
 				'starmus-recorder-style',
-				STARMUS_URL . 'assets/css/starmus-audio-recorder-secure.css',
+				STARMUS_URL . 'assets/css/starmus-audio-recorder-style.css',
 				array(),
 				STARMUS_VERSION
 			);
