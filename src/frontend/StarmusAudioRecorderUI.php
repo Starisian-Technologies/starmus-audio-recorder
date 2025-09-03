@@ -73,6 +73,7 @@ class StarmusAudioRecorderUI {
 				)
 			);
 		} catch ( Throwable $e ) {
+            error_log($e->getMessage()); // Temporary logging for debugging
 			$this->log_error( 'My recordings shortcode error', $e );
 			return '<p>' . esc_html__( 'Unable to load recordings.', 'starmus_audio_recorder' ) . '</p>';
 		}
@@ -105,6 +106,7 @@ class StarmusAudioRecorderUI {
 				)
 			);
 		} catch ( Throwable $e ) {
+            error_log($e->getMessage()); // Temporary logging for debugging
 			$this->log_error( 'Recorder shortcode error', $e );
 			return '<p>' . esc_html__( 'Audio recorder temporarily unavailable.', 'starmus_audio_recorder' ) . '</p>';
 		}
@@ -123,6 +125,7 @@ class StarmusAudioRecorderUI {
 				set_transient( $cache_key, $terms, 12 * HOUR_IN_SECONDS );
 			} else {
 				// This now correctly uses your log_error method.
+                error_log($terms->get_error_message());
 				$this->log_error( 'Get terms failed for ' . $taxonomy, new \Exception( $terms->get_error_message() ) );
 				$terms = array();
 			}
@@ -171,6 +174,7 @@ class StarmusAudioRecorderUI {
 				STARMUS_VERSION
 			);
 		} catch ( Throwable $e ) {
+            error_log($e->getMessage()); // Temporary logging for debugging
 			$this->log_error( 'Script enqueue error', $e );
 		}
 	}
