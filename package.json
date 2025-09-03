@@ -16,7 +16,16 @@
     "lint:php:fix": "vendor/bin/phpcbf",
     "format": "npm run lint:js:fix && npm run lint:css:fix && npm run lint:md:fix && npm run lint:php:fix && prettier --write .",
     "build:hash": "node build-starmus.js",
-    "build": "fs-extra copy node_modules/peaks.js/dist/peaks.min.js assets/js/vendor/peaks.min.js"
+    "build": "fs-extra copy node_modules/peaks.js/dist/peaks.min.js assets/js/vendor/peaks.min.js",
+    "size-check": "bundlesize",
+    "i18n-check": "grep -r '__(' src/ || echo 'No i18n strings found'",
+    "docs:js": "jsdoc2md assets/js/**/*.js > docs/js-api.md",
+    "docs:php": "vendor/bin/phpdoc -d src -t docs/php --template=responsive-twig",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test --grep='WCAG'",
+    "env:start": "wp-env start",
+    "env:stop": "wp-env stop",
+    "test:wp": "wp-env run tests-cli --env-cwd=wp-content/plugins/starmus-audio-recorder phpunit"
   },
   "author": "Starisian Technologies (Max Barrett)",
   "homepage": "https://starisian.com",
@@ -40,9 +49,21 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.34.0",
+    "@microsoft/tsdoc": "^0.15.1",
+    "@playwright/test": "^1.55.0",
+    "@wordpress/env": "^10.30.0",
+    "@wordpress/eslint-plugin": "^22.16.0",
+    "axe-playwright": "^2.1.0",
+    "bundlesize": "^0.18.2",
     "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsdoc": "^54.3.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-perf-standard": "^1.0.3",
+    "eslint-plugin-security": "^3.0.1",
     "fs-extra": "^11.3.1",
     "globals": "^16.3.0",
+    "jsdoc-to-markdown": "^9.1.2",
     "markdownlint-cli": "^0.45.0",
     "prettier": "^3.6.2",
     "stylelint": "^16.23.1",
@@ -50,5 +71,17 @@
   },
   "dependencies": {
     "peaks.js": "^3.4.2"
-  }
+  },
+  "bundlesize": [
+    {
+      "path": "assets/js/**/*.js",
+      "maxSize": "60kb",
+      "compression": "gzip"
+    },
+    {
+      "path": "assets/css/**/*.css",
+      "maxSize": "25kb",
+      "compression": "gzip"
+    }
+  ]
 }

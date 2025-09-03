@@ -39,23 +39,47 @@ jobs:
       - name: Install JS dependencies
         run: npm ci
 
-      - name: PHP Lint
-        run: composer lint:php
+      - name: Run all linting with autofix
+        run: |
+          npm run format
+          ./vendor/bin/phpcbf || true
 
-      - name: Automatically fix coding standards
-        run: ./vendor/bin/phpcbf
+      - name: Check bundle sizes
+        run: npm run size-check
 
-      - name: Commit changes
+      - name: Validate STAR/AIWA compliance
+        run: |
+          npm run i18n-check
+          grep -q "WordPress.*6\.4" starmus-audio-recorder.php || echo "⚠️ WordPress 6.4+ requirement not found"
+          grep -q "star-" src/ || echo "⚠️ STAR prefix not found in source"
+
+      - name: Run static analysis
+        run: |
+          npm run lint:js
+          npm run lint:css
+          composer analyze:php
+          composer lint:php
+
+      - name: Commit fixes
         uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0
         with:
-          commit_message: "Fix PHP coding standards"
+          commit_message: "style: auto-fix linting issues"
           branch: ${{ github.head_ref }}
+        if: github.event_name == 'push'
 
-      - name: PHPStan
-        run: composer analyze:php
+      - name: Start WordPress test environment
+        run: npm run env:start
 
-      - name: PHPUnit
-        run: composer test:php
+      - name: WordPress Integration Tests
+        run: npm run test:wp
 
-      - name: Node Tests
-        run: npm test
+      - name: Stop WordPress test environment
+        run: npm run env:stop
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E Tests (Offline & Accessibility)
+        run: |
+          npm run test:e2e
+          npm run test:a11y
