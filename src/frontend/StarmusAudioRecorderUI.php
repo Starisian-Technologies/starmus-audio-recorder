@@ -262,6 +262,64 @@ class StarmusAudioRecorderUI {
 		return compact( 'uuid', 'offset', 'total_size', 'file_chunk', 'file_name' );
 	}
 
+	private function get_setting( string $key, $default = null ) {
+		$cache_key = 'starmus_settings_cache';
+		$settings  = get_transient( $cache_key );
+		if ( false === $settings ) {
+			$settings = (array) get_option( 'starmus_settings', array() );
+			$settings = (array) apply_filters( 'starmus_settings_array', $settings );
+			if ( class_exists( '\Starmus\includes\StarmusSettings' ) ) {
+				$obj      = new StarmusSettings();
+				$loaded   = method_exists( $obj, 'all' ) ? (array) $obj->all() : array();
+				$settings = array_merge( $settings, $loaded );
+			}
+			set_transient( $cache_key, $settings, HOUR_IN_SECONDS );
+		}
+		return $settings[ $key ] ?? $default;
+	}
+
+	private function render_template( string $template_name, array $args = array() ): string {
+		$template_name = basename( $template_name );
+		$locations     = array(
+			trailingslashit( get_stylesheet_directory() ) . 'starmus/' . $template_name,
+			trailingslashit( get_template_directory() ) . 'starmus/' . $template_name,
+			trailingslashit( STARMUS_PATH ) . 'templates/' . $template_name,
+		);
+		$template_path = '';
+		foreach ( $locations as $location ) {
+			if ( file_exists( $location ) ) {
+				$template_path = $location;
+				break;
+			}
+		}
+		try {
+			if ( $template_path ) {
+				ob_start();
+				load_template( $template_path, false, $args );
+				return (string) ob_get_clean();
+			}
+		} catch ( Throwable $e ) {
+			$this->log_error( 'Template render error', $e );
+		}
+		return '';
+	}
+}_file_name( $params['fileName'] ?? 'audio.webm' );
+		$file_chunk = $files['audio_file'] ?? null;
+		if ( ! $uuid || ! $file_chunk || UPLOAD_ERR_OK !== ( $file_chunk['error'] ?? 0 ) || ! $total_size ) {
+			return new WP_Error( 'invalid_request_data', __( 'Invalid or missing request data.', 'starmus_audio_recorder' ), array( 'status' => 400 ) );
+		}
+		$max_size = (int) $this->get_setting( 'max_file_size_mb', 25 ) * 1024 * 1024;
+		if ( $total_size > $max_size ) {
+			return new WP_Error( 'file_too_large', __( 'The uploaded file exceeds the maximum allowed size.', 'starmus_audio_recorder' ), array( 'status' => 413 ) );
+		}
+		$allowed_exts = array_map( 'strtolower', (array) $this->get_setting( 'allowed_extensions', array( 'webm', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
+		$extension    = strtolower( pathinfo( $file_name, PATHINFO_EXTENSION ) );
+		if ( ! in_array( $extension, $allowed_exts, true ) ) {
+			return new WP_Error( 'invalid_file_extension', __( 'The file type is not permitted.', 'starmus_audio_recorder' ), array( 'status' => 415 ) );
+		}
+		return compact( 'uuid', 'offset', 'total_size', 'file_chunk', 'file_name' );
+	}
+
 	private function write_chunk_streamed( string $uuid, int $offset, string $tmp_name ): string|WP_Error {
 		$uuid = sanitize_key( $uuid );
 		if ( empty( $uuid ) || strlen( $uuid ) > 40 || ! preg_match( '/^[a-zA-Z0-9_-]+$/', $uuid ) ) {
