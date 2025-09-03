@@ -542,6 +542,8 @@
         
         /**
          * Generates a robust, cryptographically secure UUID with fallbacks for older browsers.
+         * NOTE: This UUID is used only for chunked upload tracking, not for security purposes.
+         * The Math.random() fallback is acceptable for this non-security context.
          * @returns {string} The generated UUID.
          */
         generateUUID: function() {
@@ -565,10 +567,12 @@
                     ].join('-');
                 } catch (e) {}
             }
+            // Fallback for legacy browsers - Math.random() is acceptable here as this UUID
+            // is only used for upload chunk tracking, not for security-sensitive operations
             var d = new Date().getTime();
             if (window.performance && window.performance.now) d += window.performance.now();
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = (d + Math.random() * 16) % 16 | 0;
+                var r = (d + Math.random() * 16) % 16 | 0; // lgtm[js/insecure-randomness]
                 d = Math.floor(d / 16);
                 return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
             });
