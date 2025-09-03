@@ -71,16 +71,23 @@ final class StarmusPlugin {
 	 * @since 0.1.0
 	 */
 	public function init(): void {
+		error_log( 'Starmus Plugin: init() method called' );
+		
 		// Load translations first.
 		load_plugin_textdomain( STARMUS_TEXT_DOMAIN, false, dirname( plugin_basename( STARMUS_MAIN_FILE ) ) . '/languages/' );
+		error_log( 'Starmus Plugin: Text domain loaded' );
 
 		// Load Custom Post Type definitions.
 		$this->loadCPT();
+		error_log( 'Starmus Plugin: CPT loaded' );
 
 		// Instantiate components
 		$this->instantiateComponents();
+		error_log( 'Starmus Plugin: Components instantiated' );
+		
 		// Register hooks
 		$this->register_hooks();
+		error_log( 'Starmus Plugin: Hooks registered' );
 	}
 
 	/**
@@ -92,21 +99,33 @@ final class StarmusPlugin {
 	 * @since 0.4.0
 	 */
 	public function register_hooks(): void {
+		error_log( 'Starmus Plugin: register_hooks() called' );
+		
 		// Hook the admin notice for any runtime errors that occurred.
 		add_action( 'admin_notices', array( $this, 'displayRuntimeErrorNotice' ) );
+		
 		// Register admin menu and settings if admin component is available.
 		if ( $this->admin ) {
+			error_log( 'Starmus Plugin: Admin component available, registering admin hooks' );
 			add_action( 'admin_menu', array( $this->admin, 'add_admin_menu' ) );
 			add_action( 'admin_init', array( $this->admin, 'register_settings' ) );
+		} else {
+			error_log( 'Starmus Plugin: Admin component NOT available' );
 		}
+		
 		// Register front-end editor shortcodes and scripts if components are available.
 		if ( $this->editor ) {
+			error_log( 'Starmus Plugin: Editor component available, registering editor hooks' );
 			add_shortcode( 'starmus_audio_editor', array( $this->editor, 'render_audio_editor_shortcode' ) );
 			add_action( 'wp_enqueue_scripts', array( $this->editor, 'enqueue_scripts' ) );
 			add_action( 'rest_api_init', array( $this->editor, 'register_rest_endpoint' ) );
+		} else {
+			error_log( 'Starmus Plugin: Editor component NOT available' );
 		}
+		
 		// Register front-end recorder shortcodes, scripts, and hooks if component is available.
 		if ( $this->recorder ) {
+			error_log( 'Starmus Plugin: Recorder component available, registering recorder hooks' );
 			add_shortcode( 'starmus_my_recordings', array( $this->recorder, 'render_my_recordings_shortcode' ) );
 			add_shortcode( 'starmus_audio_recorder', array( $this->recorder, 'render_recorder_shortcode' ) );
 			add_action( 'wp_enqueue_scripts', array( $this->recorder, 'enqueue_scripts' ) );
@@ -117,7 +136,12 @@ final class StarmusPlugin {
 			add_action( 'starmus_cleanup_temp_files', array( $this->recorder, 'cleanup_stale_temp_files' ) );
 			add_action( 'saved_term', array( $this->recorder, 'clear_taxonomy_transients' ) );
 			add_action( 'delete_term', array( $this->recorder, 'clear_taxonomy_transients' ) );
+			error_log( 'Starmus Plugin: Shortcodes registered - starmus_my_recordings and starmus_audio_recorder' );
+		} else {
+			error_log( 'Starmus Plugin: Recorder component NOT available' );
 		}
+		
+		error_log( 'Starmus Plugin: All hooks registered successfully' );
 	}
 	/**
 	 * Loads the Custom Post Type definitions.
@@ -143,26 +167,36 @@ final class StarmusPlugin {
 	 * @since 0.1.0
 	 */
 	private function instantiateComponents(): void {
+		error_log( 'Starmus Plugin: Starting component instantiation' );
+		
 		try {
+			error_log( 'Starmus Plugin: Attempting to instantiate StarmusAdmin' );
 			$this->admin = new StarmusAdmin();
+			error_log( 'Starmus Plugin: StarmusAdmin instantiated successfully' );
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Failed to load admin component: ' . $e->getMessage() );
+			error_log( 'Starmus Plugin: Failed to load admin component: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
 			$this->runtimeErrors[] = 'Failed to load admin component: ' . $e->getMessage();
 		}
 
 		try {
+			error_log( 'Starmus Plugin: Attempting to instantiate StarmusAudioEditorUI' );
 			$this->editor = new StarmusAudioEditorUI();
+			error_log( 'Starmus Plugin: StarmusAudioEditorUI instantiated successfully' );
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Failed to load editor component: ' . $e->getMessage() );
+			error_log( 'Starmus Plugin: Failed to load editor component: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
 			$this->runtimeErrors[] = 'Failed to load editor component: ' . $e->getMessage();
 		}
 
 		try {
+			error_log( 'Starmus Plugin: Attempting to instantiate StarmusAudioRecorderUI' );
 			$this->recorder = new StarmusAudioRecorderUI();
+			error_log( 'Starmus Plugin: StarmusAudioRecorderUI instantiated successfully' );
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Failed to load recorder component: ' . $e->getMessage() );
+			error_log( 'Starmus Plugin: Failed to load recorder component: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
 			$this->runtimeErrors[] = 'Failed to load recorder component: ' . $e->getMessage();
 		}
+		
+		error_log( 'Starmus Plugin: Component instantiation complete' );
 	}
 
 	/**
