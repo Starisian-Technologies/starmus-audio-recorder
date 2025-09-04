@@ -24,8 +24,7 @@ Named after the iconic **Starmus Festival**, where rock legends and astrophysici
 [![CodeQL](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql) [![Dependabot Updates](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates) 
 [![Security Checks](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml) [![Proof HTML, Lint JS & CSS](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml)
 
-[![Proof HTML, Lint JS & CSS](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml)
-
+[![Release Code Quality Final Review](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml)
 ---
 
 ## ✨ Key Features
