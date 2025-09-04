@@ -64,7 +64,7 @@ class StarmusAudioRecorderUI {
 		
 		if ( ! is_user_logged_in() ) {
 			error_log( 'StarmusAudioRecorderUI: User not logged in for my_recordings shortcode' );
-			return '<p>' . esc_html__( 'You must be logged in to view your recordings.', 'starmus_audio_recorder' ) . '</p>';
+			return '<p>' . esc_html__( 'You must be logged in to view your recordings.', STARMUS_TEXT_DOMAIN ) . '</p>';
 		}
 		
 		error_log( 'StarmusAudioRecorderUI: User is logged in, proceeding with my_recordings shortcode' );
@@ -105,7 +105,7 @@ class StarmusAudioRecorderUI {
 			
 		} catch ( Throwable $e ) {
 			error_log( 'StarmusAudioRecorderUI: My recordings shortcode error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
-			return '<p>' . esc_html__( 'Unable to load recordings.', 'starmus_audio_recorder' ) . '</p>';
+			return '<p>' . esc_html__( 'Unable to load recordings.', STARMUS_TEXT_DOMAIN ) . '</p>';
 		}
 	}
 	/**
@@ -132,7 +132,7 @@ class StarmusAudioRecorderUI {
 		
 		if ( ! is_user_logged_in() ) {
 			error_log( 'StarmusAudioRecorderUI: User not logged in for recorder shortcode' );
-			return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus_audio_recorder' ) . '</p>';
+			return '<p>' . esc_html__( 'You must be logged in to record audio.', STARMUS_TEXT_DOMAIN ) . '</p>';
 		}
 		
 		error_log( 'StarmusAudioRecorderUI: User is logged in, proceeding with recorder shortcode' );
@@ -171,7 +171,7 @@ class StarmusAudioRecorderUI {
 			
 		} catch ( Throwable $e ) {
 			error_log( 'StarmusAudioRecorderUI: Recorder shortcode error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
-			return '<p>' . esc_html__( 'Audio recorder temporarily unavailable.', 'starmus_audio_recorder' ) . '</p>';
+			return '<p>' . esc_html__( 'Audio recorder temporarily unavailable.', STARMUS_TEXT_DOMAIN ) . '</p>';
 		}
 	}
 	/**
@@ -212,7 +212,7 @@ class StarmusAudioRecorderUI {
 				return;
 			}
 			$post = get_queried_object();
-			if ( ! isset( $post->post_content ) || ! has_shortcode( $post->post_content, 'starmus_audio_recorder' ) ) {
+			if ( ! isset( $post->post_content ) || ! has_shortcode( $post->post_content, STARMUS_TEXT_DOMAIN ) ) {
 				return;
 			}
 			$core_dependencies = array( 'jquery', 'wp-api-fetch' );
@@ -231,7 +231,7 @@ class StarmusAudioRecorderUI {
 				true
 			);
 			wp_localize_script(
-				'starmus-recorder-submissions',
+				'starmus-recorder-module',
 				'starmusFormData',
 				array(
 					'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
@@ -296,7 +296,7 @@ class StarmusAudioRecorderUI {
 	public function handle_upload_chunk_rest( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		try {
 			if ( $this->is_rate_limited() ) {
-				return new WP_Error( 'rate_limit_exceeded', __( 'You are uploading too frequently.', 'starmus_audio_recorder' ), array( 'status' => 429 ) );
+				return new WP_Error( 'rate_limit_exceeded', __( 'You are uploading too frequently.', STARMUS_TEXT_DOMAIN ), array( 'status' => 429 ) );
 			}
 			$params = $request->get_params();
 			$files  = $request->get_file_params();
@@ -309,7 +309,7 @@ class StarmusAudioRecorderUI {
 			}
 			$post = $this->find_post_by_uuid( $data['uuid'] );
 			if ( ! $post || (int) get_current_user_id() !== (int) $post->post_author ) {
-				return new WP_Error( 'forbidden_submission', __( 'You cannot modify this submission.', 'starmus_audio_recorder' ), array( 'status' => 403 ) );
+				return new WP_Error( 'forbidden_submission', __( 'You cannot modify this submission.', STARMUS_TEXT_DOMAIN ), array( 'status' => 403 ) );
 			}
 			$write_result = $this->write_chunk_streamed( $data['uuid'], $data['offset'], $files['audio_file']['tmp_name'] );
 			if ( is_wp_error( $write_result ) ) {
@@ -321,13 +321,13 @@ class StarmusAudioRecorderUI {
 			return new WP_REST_Response(
 				array(
 					'success' => true,
-					'message' => __( 'Chunk received.', 'starmus_audio_recorder' ),
+					'message' => __( 'Chunk received.', STARMUS_TEXT_DOMAIN ),
 				),
 				200
 			);
 		} catch ( Throwable $e ) {
 			$this->log_error( 'Chunk upload error', $e );
-			return new WP_Error( 'upload_error', __( 'Upload failed. Please try again.', 'starmus_audio_recorder' ), array( 'status' => 500 ) );
+			return new WP_Error( 'upload_error', __( 'Upload failed. Please try again.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
 		}
 	}
 	/**
@@ -364,16 +364,16 @@ class StarmusAudioRecorderUI {
 		$file_name  = sanitize_file_name( $params['fileName'] ?? 'audio.webm' );
 		$file_chunk = $files['audio_file'] ?? null;
 		if ( ! $uuid || ! $file_chunk || UPLOAD_ERR_OK !== ( $file_chunk['error'] ?? 0 ) || ! $total_size ) {
-			return new WP_Error( 'invalid_request_data', __( 'Invalid or missing request data.', 'starmus_audio_recorder' ), array( 'status' => 400 ) );
+			return new WP_Error( 'invalid_request_data', __( 'Invalid or missing request data.', STARMUS_TEXT_DOMAIN ), array( 'status' => 400 ) );
 		}
 		$max_size = (int) $this->settings->get( 'max_file_size_mb', 25 ) * 1024 * 1024;
 		if ( $total_size > $max_size ) {
-			return new WP_Error( 'file_too_large', __( 'The uploaded file exceeds the maximum allowed size.', 'starmus_audio_recorder' ), array( 'status' => 413 ) );
+			return new WP_Error( 'file_too_large', __( 'The uploaded file exceeds the maximum allowed size.', STARMUS_TEXT_DOMAIN ), array( 'status' => 413 ) );
 		}
 		$allowed_exts = array_map( 'strtolower', (array) $this->settings->get( 'allowed_extensions', array( 'webm', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
 		$extension    = strtolower( pathinfo( $file_name, PATHINFO_EXTENSION ) );
 		if ( ! in_array( $extension, $allowed_exts, true ) ) {
-			return new WP_Error( 'invalid_file_extension', __( 'The file type is not permitted.', 'starmus_audio_recorder' ), array( 'status' => 415 ) );
+			return new WP_Error( 'invalid_file_extension', __( 'The file type is not permitted.', STARMUS_TEXT_DOMAIN ), array( 'status' => 415 ) );
 		}
 		return compact( 'uuid', 'offset', 'total_size', 'file_chunk', 'file_name' );
 	}
@@ -390,10 +390,10 @@ class StarmusAudioRecorderUI {
 	private function write_chunk_streamed( string $uuid, int $offset, string $tmp_name ): string|WP_Error {
 		$uuid = sanitize_key( $uuid );
 		if ( empty( $uuid ) || strlen( $uuid ) > 40 || ! preg_match( '/^[a-zA-Z0-9_-]+$/', $uuid ) ) {
-			return new WP_Error( 'invalid_uuid', __( 'Invalid upload identifier.', 'starmus_audio_recorder' ) );
+			return new WP_Error( 'invalid_uuid', __( 'Invalid upload identifier.', STARMUS_TEXT_DOMAIN ) );
 		}
 		if ( ! is_uploaded_file( $tmp_name ) ) {
-			return new WP_Error( 'invalid_temp_file', __( 'Invalid temporary file.', 'starmus_audio_recorder' ) );
+			return new WP_Error( 'invalid_temp_file', __( 'Invalid temporary file.', STARMUS_TEXT_DOMAIN ) );
 		}
 		
 		$temp_dir = $this->get_temp_dir();
@@ -412,18 +412,18 @@ class StarmusAudioRecorderUI {
 		$real_temp_dir  = realpath( $temp_dir );
 		$real_temp_file = realpath( dirname( $temp_file_path ) ) . '/' . basename( $temp_file_path );
 		if ( ! $real_temp_dir || strpos( $real_temp_file, $real_temp_dir ) !== 0 ) {
-			return new WP_Error( 'path_traversal_attempt', __( 'Invalid file path.', 'starmus_audio_recorder' ) );
+			return new WP_Error( 'path_traversal_attempt', __( 'Invalid file path.', STARMUS_TEXT_DOMAIN ) );
 		}
 		
 		$current_size = $wp_filesystem->exists( $temp_file_path ) ? $wp_filesystem->size( $temp_file_path ) : 0;
 		if ( $offset !== $current_size ) {
-			return new WP_Error( 'bad_chunk_offset', sprintf( __( 'Chunk offset mismatch. Received %1$d, expected %2$d.', 'starmus_audio_recorder' ), $offset, $current_size ), array( 'status' => 409 ) );
+			return new WP_Error( 'bad_chunk_offset', sprintf( __( 'Chunk offset mismatch. Received %1$d, expected %2$d.', STARMUS_TEXT_DOMAIN ), $offset, $current_size ), array( 'status' => 409 ) );
 		}
 		
 		// Read chunk data
 		$chunk_data = $wp_filesystem->get_contents( $tmp_name );
 		if ( false === $chunk_data ) {
-			return new WP_Error( 'chunk_read_failed', __( 'Failed to read chunk data.', 'starmus_audio_recorder' ), array( 'status' => 500 ) );
+			return new WP_Error( 'chunk_read_failed', __( 'Failed to read chunk data.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
 		}
 		
 		// Append or create file
@@ -432,13 +432,13 @@ class StarmusAudioRecorderUI {
 		} else {
 			$existing_data = $wp_filesystem->get_contents( $temp_file_path );
 			if ( false === $existing_data ) {
-				return new WP_Error( 'existing_read_failed', __( 'Failed to read existing file.', 'starmus_audio_recorder' ), array( 'status' => 500 ) );
+				return new WP_Error( 'existing_read_failed', __( 'Failed to read existing file.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
 			}
 			$result = $wp_filesystem->put_contents( $temp_file_path, $existing_data . $chunk_data );
 		}
 		
 		if ( false === $result ) {
-			return new WP_Error( 'chunk_write_failed', __( 'Failed to write chunk data.', 'starmus_audio_recorder' ), array( 'status' => 500 ) );
+			return new WP_Error( 'chunk_write_failed', __( 'Failed to write chunk data.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
 		}
 		
 		return $temp_file_path;
@@ -460,7 +460,7 @@ class StarmusAudioRecorderUI {
 			if ( file_exists( $temp_file_path ) ) {
 				wp_delete_file( $temp_file_path );
 			}
-			return new WP_Error( 'submission_not_found', __( 'Draft submission post could not be found.', 'starmus_audio_recorder' ), array( 'status' => 404 ) );
+			return new WP_Error( 'submission_not_found', __( 'Draft submission post could not be found.', STARMUS_TEXT_DOMAIN ), array( 'status' => 404 ) );
 		}
 		$finfo     = finfo_open( FILEINFO_MIME_TYPE );
 		$real_mime = $finfo ? (string) finfo_file( $finfo, $temp_file_path ) : '';
@@ -469,7 +469,7 @@ class StarmusAudioRecorderUI {
 		}
 		if ( '' === $real_mime || 0 !== strpos( $real_mime, 'audio/' ) ) {
 			wp_delete_file( $temp_file_path );
-			return new WP_Error( 'invalid_mime_type', __( 'File content is not a valid audio type.', 'starmus_audio_recorder' ), array( 'status' => 415 ) );
+			return new WP_Error( 'invalid_mime_type', __( 'File content is not a valid audio type.', STARMUS_TEXT_DOMAIN ), array( 'status' => 415 ) );
 		}
 		$allowed_exts  = array_map( 'strtolower', (array) $this->settings->get( 'allowed_extensions', array( 'webm', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
 		$core_mime_map = wp_get_mime_types();
@@ -488,7 +488,7 @@ class StarmusAudioRecorderUI {
 		$file_name = sanitize_file_name( basename( $file_name ) );
 		if ( empty( $file_name ) || strpos( $file_name, '..' ) !== false ) {
 			wp_delete_file( $temp_file_path );
-			return new WP_Error( 'invalid_filename', __( 'Invalid file name.', 'starmus_audio_recorder' ) );
+			return new WP_Error( 'invalid_filename', __( 'Invalid file name.', STARMUS_TEXT_DOMAIN ) );
 		}
 		$file_data     = array(
 			'name'     => wp_unique_filename( wp_get_upload_dir()['path'], $file_name ),
@@ -538,7 +538,7 @@ class StarmusAudioRecorderUI {
 			'starmus_audio_upload_success_response',
 			array(
 				array(
-					'message'            => esc_html__( 'Submission complete!', 'starmus_audio_recorder' ),
+					'message'            => esc_html__( 'Submission complete!', STARMUS_TEXT_DOMAIN ),
 					'post_id'            => (int) $post->ID,
 					'attachment_id'      => $attachment_id,
 					'waveform_generated' => (bool) $waveform_generated,
@@ -604,7 +604,7 @@ class StarmusAudioRecorderUI {
 		}
 		$consent_post_data = array(
 			'post_title'     => sprintf( 'Consent for Recording #%d', $audio_post_id ),
-			'post_content'   => __( 'Consent granted for this recording.', 'starmus_audio_recorder' ),
+			'post_content'   => __( 'Consent granted for this recording.', STARMUS_TEXT_DOMAIN ),
 			'post_status'    => 'private',
 			'comment_status' => 'closed',
 			'post_author'    => get_current_user_id(),
@@ -869,7 +869,7 @@ class StarmusAudioRecorderUI {
 		$default_temp_dir = trailingslashit( $upload_dir['basedir'] ) . 'starmus-temp';
 		$temp_dir         = apply_filters( 'starmus_temp_upload_dir', $default_temp_dir );
 		if ( ! wp_mkdir_p( $temp_dir ) ) {
-			return new WP_Error( 'temp_dir_error', __( 'Cannot create temporary directory.', 'starmus_audio_recorder' ), array( 'status' => 500 ) );
+			return new WP_Error( 'temp_dir_error', __( 'Cannot create temporary directory.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
 		}
 		global $wp_filesystem;
 		if ( empty( $wp_filesystem ) ) {
@@ -936,7 +936,7 @@ class StarmusAudioRecorderUI {
 	private function find_post_by_uuid( string $uuid ): ?\WP_Post {
 		$uuid      = sanitize_key( $uuid );
 		$cache_key = 'starmus_post_id_for_uuid_' . $uuid;
-		$post_id   = wp_cache_get( $cache_key, 'starmus_audio_recorder' );
+		$post_id   = wp_cache_get( $cache_key, STARMUS_TEXT_DOMAIN );
 		if ( false === $post_id ) {
 			$q       = new WP_Query(
 				array(
@@ -953,7 +953,7 @@ class StarmusAudioRecorderUI {
 				)
 			);
 			$post_id = $q->have_posts() ? (int) $q->posts[0] : 0;
-			wp_cache_set( $cache_key, $post_id, 'starmus_audio_recorder', 5 * MINUTE_IN_SECONDS );
+			wp_cache_set( $cache_key, $post_id, STARMUS_TEXT_DOMAIN, 5 * MINUTE_IN_SECONDS );
 		}
 		return $post_id ? get_post( (int) $post_id ) : null;
 	}

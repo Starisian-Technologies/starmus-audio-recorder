@@ -89,7 +89,7 @@ final class StarmusSettings {
 				'file_size_limit'      => 10,
 				'recording_time_limit' => 300,
 				'allowed_file_types'   => 'mp3,wav,webm,m4a,ogg,opus',
-				'consent_message'      => __( 'I consent to having this audio recording stored and used.', 'starmus_audio_recorder' ),
+				'consent_message'      => __( 'I consent to having this audio recording stored and used.', STARMUS_TEXT_DOMAIN ),
 				'collect_ip_ua'        => 0,
 				'data_policy_url'      => '',
 				'edit_page_id'         => 0,

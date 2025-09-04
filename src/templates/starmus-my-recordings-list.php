@@ -58,7 +58,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								$edit_link = add_query_arg( 'post_id', $current_post_id, $edit_page_url );
 								?>
 								<a href="<?php echo esc_url( $edit_link ); ?>" class="starmus-recording__edit-button">
-									<?php esc_html_e( 'Edit Audio', 'starmus_audio_recorder' ); ?>
+									<?php esc_html_e( 'Edit Audio', STARMUS_TEXT_DOMAIN ); ?>
 								</a>
 							<?php endif; ?>
 						</footer>
@@ -83,7 +83,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								$edit_link = add_query_arg( 'post_id', $current_post_id, $edit_page_url );
 								?>
 								<a href="<?php echo esc_url( $edit_link ); ?>" class="starmus-recording__edit-button">
-									<?php esc_html_e( 'Edit Audio', 'starmus_audio_recorder' ); ?>
+									<?php esc_html_e( 'Edit Audio', STARMUS_TEXT_DOMAIN ); ?>
 								</a>
 							<?php endif; ?>
 						</footer>
@@ -99,8 +99,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		the_posts_pagination(
 			array(
 				'mid_size'  => 2,
-				'prev_text' => esc_html__( 'Previous', 'starmus_audio_recorder' ),
-				'next_text' => esc_html__( 'Next', 'starmus_audio_recorder' ),
+				'prev_text' => esc_html__( 'Previous', STARMUS_TEXT_DOMAIN ),
+				'next_text' => esc_html__( 'Next', STARMUS_TEXT_DOMAIN ),
 			)
 		);
 		?>
@@ -109,7 +109,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<!-- Message to display if the user has no recordings. -->
 		<div class="starmus-no-recordings">
-			<p><?php esc_html_e( 'You have not submitted any recordings yet.', 'starmus_audio_recorder' ); ?></p>
+			<p><?php esc_html_e( 'You have not submitted any recordings yet.', STARMUS_TEXT_DOMAIN ); ?></p>
 		</div>
 
 	<?php endif; ?>
