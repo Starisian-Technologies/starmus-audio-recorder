@@ -4,6 +4,17 @@
 
 **A mobile-first audio recording and annotation plugin for WordPress, designed for low-bandwidth environments.**
 
+=== Starms Audio Recorder ===
+Contributors: Starisian Technologies, Max Barrett
+Tags: WordPress, Audio, Web Audio API
+Requires at least: 6.4
+Tested up to: 8.3
+Requires PHP: 8.0
+Stable tag: v0.4.0
+License: Proprietary
+
+The Starmus Audio Recorder is a lightweight, front-end WordPress plugin that allows users to record audio directly in the browser using the MediaRecorder API.
+
 The **Starmus Audio Recorder** provides a comprehensive solution for capturing, managing, and annotating user-submitted audio content. Its core feature is a chunked uploader with an offline queue, ensuring recordings are never lost—even with intermittent internet connections.
 
 The plugin is built to be **highly extensible**, offering developers a rich set of WordPress hooks for custom metadata handling, conditional logic, and pre/post-processing.
