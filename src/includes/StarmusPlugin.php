@@ -280,7 +280,7 @@ final class StarmusPlugin {
 			}
 		} catch ( Throwable $e ) {
 			if ( ( WP_DEBUG === true ) && ( WP_DEBUG_LOG === true ) ) {
-				trigger_error( 'Starmus Plugin: Error adding capabilities - ' . esc_html(sanitize_text_field( $e->getMessage() )), esc_html(sanitize_text_field(E_USER_WARNING ) ));
+				trigger_error( 'Starmus Plugin: Error adding capabilities - ' . esc_html(sanitize_text_field( $e->getMessage() )), ers_attr(_USER_WARNING ));
 			}
 		}
 	}
@@ -296,7 +296,6 @@ final class StarmusPlugin {
 	public static function run(): void {
 		self::get_instance();
 	}
-
 
 	/**
 	 * Displays a dismissible admin notice for any runtime errors.
@@ -335,6 +334,6 @@ final class StarmusPlugin {
 	 * @throws LogicException If someone tries to unserialize the object.
 	 */
 	public function __wakeup() {
-		throw new LogicException( 'Unserializing of ' . esc_html(__CLASS__} . ' is not allowed.' );
+		throw new LogicException( 'Unserializing of ' . esc_html(__CLASS__) . ' is not allowed.' );
 	}
 }
