@@ -37,20 +37,25 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class StarmusAudioRecorderUI {
 
-	const STAR_REST_NAMESPACE = 'starmus/v1';
+        /** REST namespace for front-end endpoints. */
+        public const STAR_REST_NAMESPACE = 'starmus/v1';
 
-	private StarmusSettings $settings;
+        /** Settings handler instance. */
+        private StarmusSettings $settings;
 
-	public function __construct() {
-		error_log( 'StarmusAudioRecorderUI: Constructor called' );
-		try {
-			$this->settings = new StarmusSettings();
-			error_log( 'StarmusAudioRecorderUI: Settings instantiated successfully' );
-		} catch ( Throwable $e ) {
-			error_log( 'StarmusAudioRecorderUI: Failed to instantiate settings: ' . $e->getMessage() );
-			throw $e;
-		}
-	}
+        /**
+         * Initialize the recorder UI and load settings.
+         */
+        public function __construct() {
+                error_log( 'StarmusAudioRecorderUI: Constructor called' );
+                try {
+                        $this->settings = new StarmusSettings();
+                        error_log( 'StarmusAudioRecorderUI: Settings instantiated successfully' );
+                } catch ( Throwable $e ) {
+                        error_log( 'StarmusAudioRecorderUI: Failed to instantiate settings: ' . $e->getMessage() );
+                        throw $e;
+                }
+        }
 	/**
 	 * Render the "My Recordings" shortcode.
 	 *
@@ -205,51 +210,73 @@ class StarmusAudioRecorderUI {
 		return is_array( $terms ) ? $terms : array();
 	}
 
-	public function enqueue_scripts(): void {
-		// FIX: Added full try...catch block
-		try {
-			if ( ! is_singular() || ! is_user_logged_in() ) {
-				return;
-			}
-			$post = get_queried_object();
-			if ( ! isset( $post->post_content ) || ! has_shortcode( $post->post_content, STARMUS_TEXT_DOMAIN ) ) {
-				return;
-			}
-			$core_dependencies = array( 'jquery', 'wp-api-fetch' );
-			wp_enqueue_script(
-				'starmus-recorder-module',
-				STARMUS_URL . 'assets/js/starmus-audio-recorder-module.js',
-				$core_dependencies,
-				STARMUS_VERSION,
-				true
-			);
-			wp_enqueue_script(
-				'starmus-recorder-submissions',
-				STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.js',
-				array( 'starmus-recorder-module', 'wp-api-fetch' ),
-				STARMUS_VERSION,
-				true
-			);
-			wp_localize_script(
-				'starmus-recorder-module',
-				'starmusFormData',
-				array(
-					'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
-					'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-					'max_mb'     => (int) $this->settings->get( 'max_file_size_mb', 25 ),
-				)
-			);
-			wp_enqueue_style(
-				'starmus-recorder-style',
-				STARMUS_URL . 'assets/css/starmus-audio-recorder-style.css',
-				array(),
-				STARMUS_VERSION
-			);
-		} catch ( Throwable $e ) {
-			error_log( $e->getMessage() ); // Temporary logging for debugging
-			$this->log_error( 'Script enqueue error', $e );
-		}
-	}
+        /**
+         * Enqueue front-end assets for recorder and listings.
+         *
+         * Assets load on configured pages; fall back to deferred loading
+         * when page settings are missing.
+         */
+        public function enqueue_scripts(): void {
+                try {
+                        if ( is_admin() || ! is_user_logged_in() ) {
+                                return;
+                        }
+
+                        $recorder_page      = absint( $this->settings->get( 'recorder_page_id', 0 ) );
+                        $my_recordings_page = absint( $this->settings->get( 'my_recordings_page_id', 0 ) );
+
+                        $lazy = true;
+                        if ( $recorder_page && $my_recordings_page ) {
+                                if ( ! is_page( array( $recorder_page, $my_recordings_page ) ) ) {
+                                        return;
+                                }
+                                $lazy = false;
+                        }
+
+                        $args = array( 'in_footer' => true );
+                        if ( $lazy ) {
+                                $args['strategy'] = 'defer';
+                        }
+
+                        $core_dependencies = array( 'jquery', 'wp-api-fetch' );
+
+                        wp_enqueue_script(
+                                'starmus-recorder-module',
+                                STARMUS_URL . 'assets/js/starmus-audio-recorder-module.js',
+                                $core_dependencies,
+                                STARMUS_VERSION,
+                                $args
+                        );
+
+                        wp_enqueue_script(
+                                'starmus-recorder-submissions',
+                                STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.js',
+                                array( 'starmus-recorder-module', 'wp-api-fetch' ),
+                                STARMUS_VERSION,
+                                $args
+                        );
+
+                        wp_localize_script(
+                                'starmus-recorder-module',
+                                'starmusFormData',
+                                array(
+                                        'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
+                                        'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+                                        'max_mb'     => (int) $this->settings->get( 'max_file_size_mb', 25 ),
+                                )
+                        );
+
+                        wp_enqueue_style(
+                                'starmus-recorder-style',
+                                STARMUS_URL . 'assets/css/starmus-audio-recorder-style.css',
+                                array(),
+                                STARMUS_VERSION
+                        );
+                } catch ( Throwable $e ) {
+                        error_log( $e->getMessage() );
+                        $this->log_error( 'Script enqueue error', $e );
+                }
+        }
 	/**
 	 * Register REST API routes for chunked audio uploads.
 	 *
@@ -549,15 +576,15 @@ class StarmusAudioRecorderUI {
 		);
 		return new WP_REST_Response( $response_data, 200 );
 	}
-	/**
-	 * Generate waveform data for the uploaded audio file.
-	 *
-	 * @param int $attachment_id The attachment ID of the audio file.
-	 * @return void
-	 * @since 0.3.0
-	 * @version 0.3.3
-	 */
-	private function create_draft_post( string $uuid, int $total_size, string $file_name, array $form_data ): void {
+        /**
+         * Create a draft post to hold upload metadata.
+         *
+         * @param string $uuid       Unique upload identifier.
+         * @param int    $total_size Expected total upload size.
+         * @param string $file_name  Original filename.
+         * @param array  $form_data  Submitted form data.
+         */
+        private function create_draft_post( string $uuid, int $total_size, string $file_name, array $form_data ): void {
 		$meta_input = array(
 			'audio_uuid'        => $uuid,
 			'upload_total_size' => $total_size,
@@ -576,15 +603,14 @@ class StarmusAudioRecorderUI {
 			)
 		);
 	}
-	/**
-	 * Find a draft post by its UUID.
-	 *
-	 * @param string $uuid The unique upload identifier.
-	 * @return WP_Post|null The found post or null if not found.
-	 * @since 0.2.0
-	 * @version 0.3.3
-	 */
-	public function save_all_metadata( int $audio_post_id, int $attachment_id, array $form_data ): void {
+        /**
+         * Save all metadata and taxonomy terms for the recording.
+         *
+         * @param int   $audio_post_id The audio post ID.
+         * @param int   $attachment_id The attachment ID for the audio file.
+         * @param array $form_data     Submitted form data.
+         */
+        public function save_all_metadata( int $audio_post_id, int $attachment_id, array $form_data ): void {
 		$consent_post_id = $this->create_consent_post( $audio_post_id, $form_data );
 		$this->update_audio_recording_metadata( $audio_post_id, $attachment_id, $consent_post_id, $form_data );
 		$this->assign_audio_recording_taxonomies( $audio_post_id, $form_data );
