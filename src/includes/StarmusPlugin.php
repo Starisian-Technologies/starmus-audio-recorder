@@ -6,7 +6,7 @@
  * @package Starmus\includes
  * @version 0.4.0
  * @since 0.1.0
- * 
+ *
  */
 
 namespace Starmus\includes;
@@ -41,8 +41,8 @@ final class StarmusPlugin {
 
 	/**
 	 * Private constructor for singleton pattern.
-   * 
-   * 
+   *
+   *
 	 */
 	private function __construct() {
 		// Components will be instantiated in init()
@@ -176,7 +176,7 @@ final class StarmusPlugin {
 			$this->admin = new StarmusAdmin();
 			error_log( 'Starmus Plugin: StarmusAdmin instantiated successfully' );
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Failed to load admin component: ' . esc_html($e->getMessage() ) . ' in ' . esc_html($e->getFile() ) . ':' . esc_htnl(  $e->getLine() );
+			error_log( 'Starmus Plugin: Failed to load admin component: ' . esc_html($e->getMessage() ) . ' in ' . esc_html($e->getFile() ) . ':' . esc_htnl(  $e->getLine() ) );
 			$this->runtimeErrors[] = 'Failed to load admin component: ' . esc_html($e->getMessage());
 		}
 
@@ -185,10 +185,10 @@ final class StarmusPlugin {
 			$this->editor = new StarmusAudioEditorUI();
 			error_log( 'Starmus Plugin: StarmusAudioEditorUI instantiated successfully' );
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Failed to load editor component: ' . esc_html($e->getMessage() ) . ' in ' . esc_html($e->getFile() ) . ':' . esc_htnl(  $e->getLine() );
+			error_log( 'Starmus Plugin: Failed to load editor component: ' . esc_html($e->getMessage() ) . ' in ' . esc_html($e->getFile() ) . ':' . esc_htnl(  $e->getLine() ) );
 			$this->runtimeErrors[] = 'Failed to load editor component: ' . esc_html($e->getMessage());
 		}
-		}
+		
 
 		try {
 			error_log( 'Starmus Plugin: Attempting to instantiate StarmusAudioRecorderUI' );
@@ -266,7 +266,7 @@ final class StarmusPlugin {
 	 * Adds custom capabilities to user roles.
    *
    * This method assigns specific capabilities to predefined user roles.
-   * 
+   *
    * @since 0.2.0
 	 */
 	private static function add_custom_capabilities(): void {
