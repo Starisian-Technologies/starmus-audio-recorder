@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Main plugin class. Initializes hooks and manages plugin star_components.
  * This version uses a clean, linear loading sequence to avoid race conditions.
@@ -7,6 +6,7 @@
  * @package Starmus\includes
  * @version 0.4.0
  * @since 0.1.0
+ * 
  */
 
 namespace Starmus\includes;
@@ -41,6 +41,8 @@ final class StarmusPlugin {
 
 	/**
 	 * Private constructor for singleton pattern.
+   * 
+   * 
 	 */
 	private function __construct() {
 		// Components will be instantiated in init()
@@ -174,8 +176,8 @@ final class StarmusPlugin {
 			$this->admin = new StarmusAdmin();
 			error_log( 'Starmus Plugin: StarmusAdmin instantiated successfully' );
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Failed to load admin component: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
-			$this->runtimeErrors[] = 'Failed to load admin component: ' . $e->getMessage();
+			error_log( 'Starmus Plugin: Failed to load admin component: ' . esc_html($e->getMessage() ) . ' in ' . esc_html($e->getFile() ) . ':' . esc_htnl(  $e->getLine() );
+			$this->runtimeErrors[] = 'Failed to load admin component: ' . esc_html($e->getMessage());
 		}
 
 		try {
@@ -183,8 +185,9 @@ final class StarmusPlugin {
 			$this->editor = new StarmusAudioEditorUI();
 			error_log( 'Starmus Plugin: StarmusAudioEditorUI instantiated successfully' );
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Failed to load editor component: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
-			$this->runtimeErrors[] = 'Failed to load editor component: ' . $e->getMessage();
+			error_log( 'Starmus Plugin: Failed to load editor component: ' . esc_html($e->getMessage() ) . ' in ' . esc_html($e->getFile() ) . ':' . esc_htnl(  $e->getLine() );
+			$this->runtimeErrors[] = 'Failed to load editor component: ' . esc_html($e->getMessage());
+		}
 		}
 
 		try {
@@ -192,11 +195,13 @@ final class StarmusPlugin {
 			$this->recorder = new StarmusAudioRecorderUI();
 			error_log( 'Starmus Plugin: StarmusAudioRecorderUI instantiated successfully' );
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Failed to load recorder component: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
-			$this->runtimeErrors[] = 'Failed to load recorder component: ' . $e->getMessage();
+			error_log( 'Starmus Plugin: Failed to load recorder component: ' . esc_html($e->getMessage() ) . ' in ' . esc_html($e->getFile() ) . ':' . esc_htnl(  $e->getLine() );
+			$this->runtimeErrors[] = 'Failed to load recorder component: ' . esc_html($e->getMessage());
+		}
 		}
 
 		error_log( 'Starmus Plugin: Component instantiation complete' );
+    return;
 	}
 
 	/**
@@ -217,7 +222,7 @@ final class StarmusPlugin {
 			}
 
 			self::add_custom_capabilities();
-			// Schedule cron here instead of on every init
+			// Schedule cron here instead of on every init.
 			if ( ! wp_next_scheduled( 'starmus_cleanup_temp_files' ) ) {
 				wp_schedule_event( time(), 'hourly', 'starmus_cleanup_temp_files' );
 			}
@@ -259,6 +264,10 @@ final class StarmusPlugin {
 
 	/**
 	 * Adds custom capabilities to user roles.
+   *
+   * This method assigns specific capabilities to predefined user roles.
+   * 
+   * @since 0.2.0
 	 */
 	private static function add_custom_capabilities(): void {
 		$roles_to_modify = array(
@@ -314,7 +323,7 @@ final class StarmusPlugin {
 				echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus Audio Recorder Plugin Error:</strong><br>' . esc_html( $message ) . '</p></div>';
 			}
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Error in displayRuntimeErrorNotice - ' . esc_html($e->getMessage() ));
+			error_log( 'Starmus Plugin: Error in displayRuntimeErrorNotice - ' . esc_html( $e->getMessage() ));
 		}
 	}
 	/**
