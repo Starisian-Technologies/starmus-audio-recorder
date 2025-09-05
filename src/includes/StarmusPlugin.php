@@ -188,17 +188,17 @@ final class StarmusPlugin {
 			error_log( 'Starmus Plugin: Failed to load editor component: ' . esc_html($e->getMessage() ) . ' in ' . esc_html($e->getFile() ) . ':' . esc_htnl(  $e->getLine() ) );
 			$this->runtimeErrors[] = 'Failed to load editor component: ' . esc_html($e->getMessage());
 		}
-		
+
 
 		try {
 			error_log( 'Starmus Plugin: Attempting to instantiate StarmusAudioRecorderUI' );
 			$this->recorder = new StarmusAudioRecorderUI();
 			error_log( 'Starmus Plugin: StarmusAudioRecorderUI instantiated successfully' );
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Failed to load recorder component: ' . esc_html($e->getMessage() ) . ' in ' . esc_html($e->getFile() ) . ':' . esc_htnl(  $e->getLine() );
+			error_log( 'Starmus Plugin: Failed to load recorder component: ' . esc_html( $e->getMessage() ) . ' in ' . esc_html( $e->getFile() ) . ':' . esc_html( $e->getLine() ) );
 			$this->runtimeErrors[] = 'Failed to load recorder component: ' . esc_html($e->getMessage());
 		}
-		}
+
 
 		error_log( 'Starmus Plugin: Component instantiation complete' );
     return;
@@ -228,7 +228,7 @@ final class StarmusPlugin {
 			}
 			flush_rewrite_rules();
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Activation error - ' . sanitize_text_field( $e->getMessage() ) );
+			error_log( 'Starmus Plugin: Activation error - ' . esc_html( $e->getMessage() ) );
 			throw $e;
 		}
 	}
@@ -289,9 +289,10 @@ final class StarmusPlugin {
 			}
 		} catch ( Throwable $e ) {
 			if ( ( WP_DEBUG === true ) && ( WP_DEBUG_LOG === true ) ) {
-				trigger_error( 'Starmus Plugin: Error adding capabilities - ' . esc_html(sanitize_text_field( $e->getMessage() )), ers_attr(_USER_WARNING ));
+				trigger_error( 'Starmus Plugin: Error adding capabilities - ' . esc_html( $e->getMessage() ), esc_attr( _USER_WARNING ) );
 			}
 		}
+    return;
 	}
 
 	/**
