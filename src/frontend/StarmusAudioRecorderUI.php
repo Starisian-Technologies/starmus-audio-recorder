@@ -824,6 +824,7 @@ class StarmusAudioRecorderUI {
 		$template_name = basename( $template_name );
 		error_log( 'StarmusAudioRecorderUI: Template basename: ' . $template_name );
 
+		// CORRECTED: Added 'src/' to the plugin's template path.
 		$locations = array(
 			trailingslashit( get_stylesheet_directory() ) . 'starmus/' . $template_name,
 			trailingslashit( get_template_directory() ) . 'starmus/' . $template_name,
@@ -848,14 +849,14 @@ class StarmusAudioRecorderUI {
 			if ( $template_path ) {
 				error_log( 'StarmusAudioRecorderUI: Loading template: ' . $template_path );
 
-				// Make variables from the $args array (like 'query') available to the template.
+				// CORRECTED: This makes variables like $query available to the template file.
 				if ( is_array( $args ) ) {
 					extract( $args, EXTR_SKIP );
 				}
 
 				ob_start();
 
-				// Include the template file directly.
+				// CORRECTED: Include the template file directly.
 				include $template_path;
 
 				$output = (string) ob_get_clean();
