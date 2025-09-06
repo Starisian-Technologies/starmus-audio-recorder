@@ -2,7 +2,7 @@
   "core": "WordPress/WordPress#6.4",
   "phpVersion": "8.2",
   "plugins": ["."],
-  "themes": ["twentytwentyfour"],
+  "themes": ["https://downloads.wordpress.org/theme/twentytwentyfour.1.0.zip"],
   "port": 8080,
   "testsPort": 8081,
   "config": {

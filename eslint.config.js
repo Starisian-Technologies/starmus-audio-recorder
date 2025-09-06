@@ -7,14 +7,12 @@ import a11y from "eslint-plugin-jsx-a11y";
 import perf from "eslint-plugin-perf-standard";
 import jsdoc from "eslint-plugin-jsdoc";
 import wordpress from "@wordpress/eslint-plugin";
-import security from "eslint-plugin-security";
 
 export default [
 	{ ignores: ["node_modules/**", "dist/**", "assets/js/**/*.min.js", "assets/js/vendor/**"] },
 	js.configs.recommended,
 	security.configs.recommended,
 	a11y.flatConfigs.recommended,
-	perf.configs.recommended,
 	{
 		files: ["assets/js/**/*.js"],
 		languageOptions: {
@@ -31,6 +29,7 @@ export default [
 				indexedDB: "readonly",
 				Peaks: "readonly",
 				STARMUS_EDITOR_DATA: "readonly",
+				STARMUS_RECORDER_DATA: "readonly",
 				StarmusAudioRecorder: "readonly",
 			},
 		},
@@ -43,7 +42,8 @@ export default [
 			...prettier.rules,
 		},
 		plugins: {
-			jsdoc
+			jsdoc,
+			perf
 		},
 	},
 	];

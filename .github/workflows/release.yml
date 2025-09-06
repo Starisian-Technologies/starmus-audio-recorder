@@ -1,3 +1,5 @@
+# .github/workflows/release.yml
+
 name: Release Code Quality Final Review
 
 on:
@@ -8,73 +10,102 @@ permissions:
   contents: write
 
 jobs:
-  publish:
+  build-and-release:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Check out the repository's code.
+      # We use the new WORKFLOW_PAT secret to get permission to push changes back.
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.WORKFLOW_PAT }}
+
+      # Step 2: Configure Git with a user name and email for the commit.
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # Step 3: Get the version number from the tag (e.g., "v0.4.0" becomes "0.4.0").
+      - name: Get the version from the tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      # Step 4: Update the version in the main plugin file header.
+      - name: Update plugin header version
+        run: |
+          sed -i -E "s/^(\s*\* Version:\s*).*/\1${{ env.VERSION }}/" starmus-audio-recorder.php
+
+      # Step 5: Update all @version docblock tags.
+      - name: Update @version tags in PHP files
+        run: |
+          find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 sed -i "s/@version\s+[0-9.]\+/@version ${{ env.VERSION }}/g"
+
+      # Step 6: Add @since tag where it's missing in docblocks that have an @version tag.
+      - name: Add @since tags where missing
+        run: |
+          find . -type f -name "*.php" -not -path "./vendor/*" -print0 | while IFS= read -r -d $'\0' file; do
+            if grep -q "@version" "$file" && ! grep -q "@since" "$file"; then
+              sed -i "/@version/a \ * @since   ${{ env.VERSION }}" "$file"
+            fi
+          done
+
+      # Step 7: Update the global version constant.
+      # !!! IMPORTANT: Change 'something_VERSION' to your actual variable name !!!
+      - name: Update global version variable
+        run: |
+          sed -i "s/something_VERSION\s*=\s*'.*'/something_VERSION = '${{ env.VERSION }}'/" starmus-audio-recorder.php
+
+      # Step 8: Commit the version changes back to the repository.
+      - name: Commit version bump
+        run: |
+          git add -A
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(release): Bump version to ${{ env.VERSION }}"
+            git push
+          else
+            echo "No version changes to commit."
+          fi
+
+      # --- Your original build process starts here ---
 
       - name: Verify plugin entrypoint
         run: |
           test -f starmus-audio-recorder.php || { echo "Missing starmus-audio-recorder.php"; exit 1; }
           grep -q "Plugin Name:" starmus-audio-recorder.php || { echo "No plugin header found"; exit 1; }
 
-      - name: Read version from header
-        id: vers
-        run: |
-          VER=$(grep -E "^\s*\*\s*Version:\s*" starmus-audio-recorder.php | sed -E 's/.*Version:\s*//')
-          echo "version=${VER:-${GITHUB_REF_NAME#v}}" >> $GITHUB_OUTPUT
-
       - name: Set up PHP
-        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           tools: composer:v2
           coverage: none
 
       - name: Install PHP dependencies (no-dev)
-        run: |
-          composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
-          test -f vendor/autoload.php || { echo "vendor/autoload.php missing (did .distignore exclude vendor/?)"; exit 1; }
-
-        # Optional: build frontend if you rely on a build step
-     # - name: Build assets
-      #  run: |
-      #    npm ci
-      #    npm run build
+        run: composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
 
       - name: Ensure .distignore exists
         run: test -f .distignore || { echo ".distignore is missing"; exit 1; }
 
-      - name: Build plugin ZIP (uses .distignore; DO NOT exclude vendor/)
+      - name: Build plugin ZIP
         run: |
           SLUG="starmus-audio-recorder"
           mkdir -p build
           rsync -a --delete --exclude-from=.distignore ./ build/${SLUG}/
-          (cd build && zip -r "../${SLUG}-${{ steps.vers.outputs.version }}.zip" "${SLUG}")
+          (cd build && zip -r "../${SLUG}-${{ env.VERSION }}.zip" "${SLUG}")
 
       - name: Generate checksums
         run: |
-          sha256sum "starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip" > "starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip.sha256"
-          sha1sum   "starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip" > "starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip.sha1"
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: plugin-zip
-          path: |
-            starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip
-            starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip.sha256
-            starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip.sha1
+          sha256sum "starmus-audio-recorder-${{ env.VERSION }}.zip" > "starmus-audio-recorder-${{ env.VERSION }}.zip.sha256"
+          sha1sum   "starmus-audio-recorder-${{ env.VERSION }}.zip" > "starmus-audio-recorder-${{ env.VERSION }}.zip.sha1"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8
+        uses: softprops/action-gh-release@v1
         with:
           files: |
-            starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip
-            starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip.sha256
-            starmus-audio-recorder-${{ steps.vers.outputs.version }}.zip.sha1
-          body: 'Automated release.'
+            starmus-audio-recorder-${{ env.VERSION }}.zip
+            starmus-audio-recorder-${{ env.VERSION }}.zip.sha256
+            starmus-audio-recorder-${{ env.VERSION }}.zip.sha1
+          body: 'Automated release for version ${{ env.VERSION }}.'

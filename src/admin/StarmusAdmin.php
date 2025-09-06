@@ -20,14 +20,14 @@ use Starmus\includes\StarmusSettings;
  */
 class StarmusAdmin {
 
-        /** Menu slug for the plugin settings page. */
-        const STAR_MENU_SLUG = 'starmus-admin';
+		/** Menu slug for the plugin settings page. */
+		const STAR_MENU_SLUG = 'starmus-admin';
 
-        /** Settings group identifier for WordPress options API. */
-        const STAR_SETTINGS_GROUP = 'starmus_settings_group';
+		/** Settings group identifier for WordPress options API. */
+		const STAR_SETTINGS_GROUP = 'starmus_settings_group';
 
-        /** Mapping of option keys to field types. */
-        private array $field_types = array();
+		/** Mapping of option keys to field types. */
+	private array $field_types = array();
 
 	/**
 	 * Constructor - initializes admin settings.
@@ -35,17 +35,17 @@ class StarmusAdmin {
 	 * @since 0.3.1
 	 */
 	public function __construct() {
-                $this->field_types = array(
-                        'cpt_slug'              => 'text',
-                        'file_size_limit'       => 'number',
-                        'allowed_file_types'    => 'textarea',
-                        'consent_message'       => 'textarea',
-                        'collect_ip_ua'         => 'checkbox',
-                        'edit_page_id'          => 'pages_dropdown',
-                        'recorder_page_id'      => 'pages_dropdown',
-                        'my_recordings_page_id' => 'pages_dropdown',
-                );
-        }
+				$this->field_types = array(
+					'cpt_slug'              => 'text',
+					'file_size_limit'       => 'number',
+					'allowed_file_types'    => 'textarea',
+					'consent_message'       => 'textarea',
+					'collect_ip_ua'         => 'checkbox',
+					'edit_page_id'          => 'pages_dropdown',
+					'recorder_page_id'      => 'pages_dropdown',
+					'my_recordings_page_id' => 'pages_dropdown',
+				);
+	}
 
 	/**
 	 * Add admin menu with error handling.
@@ -137,68 +137,68 @@ class StarmusAdmin {
 			self::STAR_MENU_SLUG
 		);
 
-                add_settings_section(
-                        'starmus_privacy_section',
-                        __( 'Privacy & Form Settings', STARMUS_TEXT_DOMAIN ),
-                        null,
-                        self::STAR_MENU_SLUG
-                );
+				add_settings_section(
+					'starmus_privacy_section',
+					__( 'Privacy & Form Settings', STARMUS_TEXT_DOMAIN ),
+					null,
+					self::STAR_MENU_SLUG
+				);
 
-                add_settings_section(
-                        'starmus_page_section',
-                        __( 'Frontend Page Settings', STARMUS_TEXT_DOMAIN ),
-                        null,
-                        self::STAR_MENU_SLUG
-                );
-        }
+				add_settings_section(
+					'starmus_page_section',
+					__( 'Frontend Page Settings', STARMUS_TEXT_DOMAIN ),
+					null,
+					self::STAR_MENU_SLUG
+				);
+	}
 
 	/**
 	 * Add settings fields.
 	 */
 	private function add_settings_fields(): void {
 		$fields = array(
-			'cpt_slug'           => array(
+			'cpt_slug'              => array(
 				'title'       => __( 'Post Type Slug', STARMUS_TEXT_DOMAIN ),
 				'section'     => 'starmus_cpt_section',
 				'description' => __( 'Use lowercase letters, numbers, and underscores only.', STARMUS_TEXT_DOMAIN ),
 			),
-			'file_size_limit'    => array(
+			'file_size_limit'       => array(
 				'title'       => __( 'Max File Size (MB)', STARMUS_TEXT_DOMAIN ),
 				'section'     => 'starmus_rules_section',
 				'description' => __( 'Maximum allowed file size for uploads.', STARMUS_TEXT_DOMAIN ),
 			),
-			'allowed_file_types' => array(
+			'allowed_file_types'    => array(
 				'title'       => __( 'Allowed File Extensions', STARMUS_TEXT_DOMAIN ),
 				'section'     => 'starmus_rules_section',
 				'description' => __( 'Comma-separated list of allowed extensions.', STARMUS_TEXT_DOMAIN ),
 			),
-                        'consent_message'    => array(
-                                'title'       => __( 'Consent Checkbox Message', STARMUS_TEXT_DOMAIN ),
-                                'section'     => 'starmus_privacy_section',
-                                'description' => __( 'Text displayed next to consent checkbox.', STARMUS_TEXT_DOMAIN ),
-                        ),
-                        'collect_ip_ua'      => array(
-                                'title'       => __( 'Store IP & User Agent', STARMUS_TEXT_DOMAIN ),
-                                'section'     => 'starmus_privacy_section',
-                                'label'       => __( 'Save submitter IP and user agent.', STARMUS_TEXT_DOMAIN ),
-                                'description' => __( 'Requires user consent.', STARMUS_TEXT_DOMAIN ),
-                        ),
-                        'edit_page_id'       => array(
-                                'title'       => __( 'Edit Page', STARMUS_TEXT_DOMAIN ),
-                                'section'     => 'starmus_page_section',
-                                'description' => __( 'Page containing the audio editor shortcode.', STARMUS_TEXT_DOMAIN ),
-                        ),
-                        'recorder_page_id'   => array(
-                                'title'       => __( 'Recorder Page', STARMUS_TEXT_DOMAIN ),
-                                'section'     => 'starmus_page_section',
-                                'description' => __( 'Page containing the [starmus-audio-recorder] shortcode.', STARMUS_TEXT_DOMAIN ),
-                        ),
-                        'my_recordings_page_id' => array(
-                                'title'       => __( 'My Recordings Page', STARMUS_TEXT_DOMAIN ),
-                                'section'     => 'starmus_page_section',
-                                'description' => __( 'Page containing the [starmus-my-recordings] shortcode.', STARMUS_TEXT_DOMAIN ),
-                        ),
-                );
+			'consent_message'       => array(
+				'title'       => __( 'Consent Checkbox Message', STARMUS_TEXT_DOMAIN ),
+				'section'     => 'starmus_privacy_section',
+				'description' => __( 'Text displayed next to consent checkbox.', STARMUS_TEXT_DOMAIN ),
+			),
+			'collect_ip_ua'         => array(
+				'title'       => __( 'Store IP & User Agent', STARMUS_TEXT_DOMAIN ),
+				'section'     => 'starmus_privacy_section',
+				'label'       => __( 'Save submitter IP and user agent.', STARMUS_TEXT_DOMAIN ),
+				'description' => __( 'Requires user consent.', STARMUS_TEXT_DOMAIN ),
+			),
+			'edit_page_id'          => array(
+				'title'       => __( 'Edit Page', STARMUS_TEXT_DOMAIN ),
+				'section'     => 'starmus_page_section',
+				'description' => __( 'Page containing the audio editor shortcode.', STARMUS_TEXT_DOMAIN ),
+			),
+			'recorder_page_id'      => array(
+				'title'       => __( 'Recorder Page', STARMUS_TEXT_DOMAIN ),
+				'section'     => 'starmus_page_section',
+				'description' => __( 'Page containing the [starmus-audio-recorder] shortcode.', STARMUS_TEXT_DOMAIN ),
+			),
+			'my_recordings_page_id' => array(
+				'title'       => __( 'My Recordings Page', STARMUS_TEXT_DOMAIN ),
+				'section'     => 'starmus_page_section',
+				'description' => __( 'Page containing the [starmus-my-recordings] shortcode.', STARMUS_TEXT_DOMAIN ),
+			),
+		);
 
 		foreach ( $fields as $id => $field ) {
 			add_settings_field(
@@ -253,20 +253,20 @@ class StarmusAdmin {
 		// Collect IP/UA
 		$sanitized['collect_ip_ua'] = ! empty( $input['collect_ip_ua'] ) ? 1 : 0;
 
-                // Edit page ID
-                $page_id                   = absint( $input['edit_page_id'] ?? 0 );
-                $sanitized['edit_page_id'] = ( $page_id > 0 && get_post( $page_id ) ) ? $page_id : 0;
+				// Edit page ID
+				$page_id                   = absint( $input['edit_page_id'] ?? 0 );
+				$sanitized['edit_page_id'] = ( $page_id > 0 && get_post( $page_id ) ) ? $page_id : 0;
 
-                // Recorder page ID
-                $page_id                        = absint( $input['recorder_page_id'] ?? 0 );
-                $sanitized['recorder_page_id']  = ( $page_id > 0 && get_post( $page_id ) ) ? $page_id : 0;
+				// Recorder page ID
+				$page_id                       = absint( $input['recorder_page_id'] ?? 0 );
+				$sanitized['recorder_page_id'] = ( $page_id > 0 && get_post( $page_id ) ) ? $page_id : 0;
 
-                // My Recordings page ID
-                $page_id                            = absint( $input['my_recordings_page_id'] ?? 0 );
-                $sanitized['my_recordings_page_id'] = ( $page_id > 0 && get_post( $page_id ) ) ? $page_id : 0;
+				// My Recordings page ID
+				$page_id                            = absint( $input['my_recordings_page_id'] ?? 0 );
+				$sanitized['my_recordings_page_id'] = ( $page_id > 0 && get_post( $page_id ) ) ? $page_id : 0;
 
-                return $sanitized;
-        }
+				return $sanitized;
+	}
 
 	/**
 	 * Validate file extension.

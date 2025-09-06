@@ -48,8 +48,7 @@
 .starmus-recorder-form .starmus-form-field textarea:focus {
 	outline: none;
 	border-color: var(--starmus-primary-color);
-	box-shadow: 0 0 0 3px
-		color-mix(in srgb, var(--starmus-primary-color) 35%, transparent);
+	box-shadow: 0 0 0 3px rgb(0, 123, 191, 35%);
 	background-color: #fff;
 }
 
@@ -100,7 +99,7 @@
 	cursor: pointer;
 	transition: transform 0.02s ease, background-color 0.15s ease,
 		border-color 0.15s ease, box-shadow 0.15s ease;
-	box-shadow: 0 1px 2px rgb(16 24 40 / 6%);
+	box-shadow: 0 1px 2px rgb(16, 24, 40, 6%);
 }
 
 /* Pseudo-classes in correct order: :hover, :focus-visible, :active, :disabled */
@@ -110,8 +109,7 @@
 
 .sparxstar_button:focus-visible {
 	outline: none;
-	box-shadow: 0 0 0 3px
-		color-mix(in srgb, var(--starmus-primary-color) 35%, transparent);
+	box-shadow: 0 0 0 3px rgb(0, 123, 191, 35%);
 }
 
 .sparxstar_button:active:not(:disabled) {

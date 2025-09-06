@@ -15,26 +15,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class StarmusSettings {
 
-        /**
-         * Option key used to store plugin settings.
-         *
-         * @var string
-         */
-        public const STAR_OPTION_KEY = 'starmus_options';
+		/**
+		 * Option key used to store plugin settings.
+		 *
+		 * @var string
+		 */
+	public const STAR_OPTION_KEY = 'starmus_options';
 
-        /**
-         * Cached plugin settings for the current request.
-         *
-         * @var array|null
-         */
-        private static ?array $star_cache = null;
+		/**
+		 * Cached plugin settings for the current request.
+		 *
+		 * @var array|null
+		 */
+	private static ?array $star_cache = null;
 
-        /**
-         * Cached default settings to avoid repeated computation.
-         *
-         * @var array|null
-         */
-        private static ?array $star_default_cache = null;
+		/**
+		 * Cached default settings to avoid repeated computation.
+		 *
+		 * @var array|null
+		 */
+	private static ?array $star_default_cache = null;
 
 	/**
 	 * Get a single setting with caching.
@@ -101,16 +101,16 @@ final class StarmusSettings {
 	public static function get_defaults(): array {
 		if ( self::$star_default_cache === null ) {
 			self::$star_default_cache = array(
-				'cpt_slug'             => 'audio-recording',
-				'file_size_limit'      => 10,
-				'recording_time_limit' => 300,
-				'allowed_file_types'   => 'mp3,wav,webm,m4a,ogg,opus',
-				'consent_message'      => __( 'I consent to having this audio recording stored and used.', STARMUS_TEXT_DOMAIN ),
-                                'collect_ip_ua'        => 0,
-                                'data_policy_url'      => '',
-                                'edit_page_id'         => 0,
-                                'recorder_page_id'     => 0,
-                                'my_recordings_page_id'=> 0,
+				'cpt_slug'              => 'audio-recording',
+				'file_size_limit'       => 10,
+				'recording_time_limit'  => 300,
+				'allowed_file_types'    => 'mp3,wav,webm,m4a,ogg,opus',
+				'consent_message'       => __( 'I consent to having this audio recording stored and used.', STARMUS_TEXT_DOMAIN ),
+				'collect_ip_ua'         => 0,
+				'data_policy_url'       => '',
+				'edit_page_id'          => 0,
+				'recorder_page_id'      => 0,
+				'my_recordings_page_id' => 0,
 			);
 			self::$star_default_cache = apply_filters( 'starmus_default_settings', self::$star_default_cache );
 		}
@@ -147,13 +147,13 @@ final class StarmusSettings {
 		switch ( $key ) {
 			case 'cpt_slug':
 				return sanitize_key( $value );
-                        case 'file_size_limit':
-                        case 'recording_time_limit':
-                        case 'collect_ip_ua':
-                        case 'edit_page_id':
-                        case 'recorder_page_id':
-                        case 'my_recordings_page_id':
-                                return absint( $value );
+			case 'file_size_limit':
+			case 'recording_time_limit':
+			case 'collect_ip_ua':
+			case 'edit_page_id':
+			case 'recorder_page_id':
+			case 'my_recordings_page_id':
+				return absint( $value );
 			case 'allowed_file_types':
 				return sanitize_text_field( $value );
 			case 'consent_message':

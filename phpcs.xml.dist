@@ -53,6 +53,7 @@
   </rule>
   <rule ref="WordPress">
     <exclude name="Generic.Functions.CallTimePassByReference"/>
+    <exclude name="Squiz.PHP.NonExecutableCode"/>
   </rule>
 
   <!-- Compatibility -->

@@ -12,7 +12,7 @@
  * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
  * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
  *
- * @package Starmus\submissions
+ * @module starmus-audio-recorder
  * @since 0.1.0
  * @version 0.4.0
  * @file Manages the submission lifecycle of audio recordings - Optimized for legacy browsers

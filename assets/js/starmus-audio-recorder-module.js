@@ -12,7 +12,7 @@
  * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
  * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
  *
- * @package Starmus\submissions
+ * @module starmus-audio-recorder
  * @since 0.1.0
  * @version 0.4.0
  * @file Starmus Audio Recorder Module - Secure, Feature-Complete Version
@@ -223,7 +223,7 @@
          * Dynamically creates the recorder's HTML UI inside its designated container.
          * @param {string} instanceId The ID of the instance whose UI should be created. Must be alphanumeric/underscore/dash.
          * @returns {void}
-         * @throws Will abort if the instanceId contains unsafe characters.
+         */
         setupUI: function(instanceId) {
             // Only allow safe HTML ID characters: a-zA-Z0-9_- (no spaces, punctuation)
             if (!/^[a-zA-Z0-9_-]+$/.test(instanceId)) {
@@ -495,7 +495,6 @@
          * @returns {Promise<object>} A promise that resolves with the server's final JSON response or rejects with an error.
          */
         uploadAudio: function(instanceId, audioBlob) {
-            var self = this;
             var chunkSize = 1024 * 1024; // 1MB chunks
             var totalSize = audioBlob.size;
             var offset = 0;
@@ -520,9 +519,13 @@
                         }
                     }
 
-                    fetch(starmusFormData.rest_url, {
+                    // Use global STARMUS_RECORDER_DATA if available, otherwise fallback
+                    var restUrl = (typeof STARMUS_RECORDER_DATA !== 'undefined' && STARMUS_RECORDER_DATA.rest_url) || '/wp-json/starmus/v1/upload';
+                    var restNonce = (typeof STARMUS_RECORDER_DATA !== 'undefined' && STARMUS_RECORDER_DATA.rest_nonce) || '';
+
+                    fetch(restUrl, {
                         method: 'POST',
-                        headers: { 'X-WP-Nonce': starmusFormData.rest_nonce },
+                        headers: { 'X-WP-Nonce': restNonce },
                         body: formData
                     })
                     .then(function(response) {
@@ -534,7 +537,10 @@
                         if (offset >= totalSize) resolve(data);
                         else uploadChunk();
                     })
-                    .catch(reject);
+                    .catch(function(error) {
+                        secureLog('error', 'Chunk upload failed', error.message);
+                        reject(error);
+                    });
                 }
                 uploadChunk();
             });
@@ -548,7 +554,9 @@
          */
         generateUUID: function() {
             if (hasCrypto && window.crypto.randomUUID) {
-                try { return window.crypto.randomUUID(); } catch (e) {}
+                try { return window.crypto.randomUUID(); } catch (e) {
+                    secureLog('warn', 'crypto.randomUUID failed, falling back');
+                }
             }
             if (hasCrypto && window.crypto.getRandomValues) {
                 try {
@@ -565,7 +573,9 @@
                         hex.slice(6, 8).join(''), hex.slice(8, 10).join(''),
                         hex.slice(10).join('')
                     ].join('-');
-                } catch (e) {}
+                } catch (e) {
+                    secureLog('warn', 'crypto.getRandomValues failed, using fallback');
+                }
             }
             // Fallback for legacy browsers - Math.random() is acceptable here as this UUID
             // is only used for upload chunk tracking, not for security-sensitive operations

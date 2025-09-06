@@ -37,25 +37,25 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class StarmusAudioRecorderUI {
 
-        /** REST namespace for front-end endpoints. */
-        public const STAR_REST_NAMESPACE = 'starmus/v1';
+		/** REST namespace for front-end endpoints. */
+	public const STAR_REST_NAMESPACE = 'starmus/v1';
 
-        /** Settings handler instance. */
-        private StarmusSettings $settings;
+		/** Settings handler instance. */
+	private StarmusSettings $settings;
 
-        /**
-         * Initialize the recorder UI and load settings.
-         */
-        public function __construct() {
-                error_log( 'StarmusAudioRecorderUI: Constructor called' );
-                try {
-                        $this->settings = new StarmusSettings();
-                        error_log( 'StarmusAudioRecorderUI: Settings instantiated successfully' );
-                } catch ( Throwable $e ) {
-                        error_log( 'StarmusAudioRecorderUI: Failed to instantiate settings: ' . $e->getMessage() );
-                        throw $e;
-                }
-        }
+		/**
+		 * Initialize the recorder UI and load settings.
+		 */
+	public function __construct() {
+			error_log( 'StarmusAudioRecorderUI: Constructor called' );
+		try {
+				$this->settings = new StarmusSettings();
+				error_log( 'StarmusAudioRecorderUI: Settings instantiated successfully' );
+		} catch ( Throwable $e ) {
+				error_log( 'StarmusAudioRecorderUI: Failed to instantiate settings: ' . $e->getMessage() );
+				throw $e;
+		}
+	}
 	/**
 	 * Render the "My Recordings" shortcode.
 	 *
@@ -66,26 +66,26 @@ class StarmusAudioRecorderUI {
 	 */
 	public function render_my_recordings_shortcode( $atts = array() ): string {
 		error_log( 'StarmusAudioRecorderUI: render_my_recordings_shortcode called with atts: ' . print_r( $atts, true ) );
-		
+
 		if ( ! is_user_logged_in() ) {
 			error_log( 'StarmusAudioRecorderUI: User not logged in for my_recordings shortcode' );
 			return '<p>' . esc_html__( 'You must be logged in to view your recordings.', STARMUS_TEXT_DOMAIN ) . '</p>';
 		}
-		
+
 		error_log( 'StarmusAudioRecorderUI: User is logged in, proceeding with my_recordings shortcode' );
-		
+
 		// FIX: Added full try...catch block
 		try {
-			$attributes     = shortcode_atts( array( 'posts_per_page' => 10 ), $atts );
+			$attributes = shortcode_atts( array( 'posts_per_page' => 10 ), $atts );
 			error_log( 'StarmusAudioRecorderUI: Shortcode attributes processed: ' . print_r( $attributes, true ) );
-			
+
 			$posts_per_page = max( 1, absint( $attributes['posts_per_page'] ) );
 			$paged          = get_query_var( 'paged' ) ? (int) get_query_var( 'paged' ) : 1;
-			
+
 			$cpt_slug = $this->settings->get( 'cpt_slug', 'audio-recording' );
 			error_log( 'StarmusAudioRecorderUI: Using CPT slug: ' . $cpt_slug );
-			
-			$query          = new WP_Query(
+
+			$query = new WP_Query(
 				array(
 					'post_type'      => $cpt_slug,
 					'author'         => get_current_user_id(),
@@ -94,9 +94,9 @@ class StarmusAudioRecorderUI {
 					'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
 				)
 			);
-			
+
 			error_log( 'StarmusAudioRecorderUI: Query executed, found posts: ' . $query->found_posts );
-			
+
 			$template_result = $this->render_template(
 				'starmus-my-recordings-list.php',
 				array(
@@ -104,10 +104,10 @@ class StarmusAudioRecorderUI {
 					'edit_page_url' => $this->get_edit_page_url(),
 				)
 			);
-			
+
 			error_log( 'StarmusAudioRecorderUI: Template rendered, length: ' . strlen( $template_result ) );
 			return $template_result;
-			
+
 		} catch ( Throwable $e ) {
 			error_log( 'StarmusAudioRecorderUI: My recordings shortcode error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
 			return '<p>' . esc_html__( 'Unable to load recordings.', STARMUS_TEXT_DOMAIN ) . '</p>';
@@ -134,31 +134,31 @@ class StarmusAudioRecorderUI {
 	 */
 	public function render_recorder_shortcode( $atts = array() ): string {
 		error_log( 'StarmusAudioRecorderUI: render_recorder_shortcode called with atts: ' . print_r( $atts, true ) );
-		
+
 		if ( ! is_user_logged_in() ) {
 			error_log( 'StarmusAudioRecorderUI: User not logged in for recorder shortcode' );
 			return '<p>' . esc_html__( 'You must be logged in to record audio.', STARMUS_TEXT_DOMAIN ) . '</p>';
 		}
-		
+
 		error_log( 'StarmusAudioRecorderUI: User is logged in, proceeding with recorder shortcode' );
-		
+
 		do_action( 'starmus_before_recorder_render' );
 		error_log( 'StarmusAudioRecorderUI: starmus_before_recorder_render action fired' );
-		
+
 		// FIX: Added full try...catch block
 		try {
 			// **IMPORTANT**: You must replace 'language' and 'recording_type' with your actual taxonomy slugs if they are different.
 			error_log( 'StarmusAudioRecorderUI: Getting cached terms for taxonomies' );
-			
-			$languages       = $this->get_cached_terms( 'language', 'starmus_languages_list' );
+
+			$languages = $this->get_cached_terms( 'language', 'starmus_languages_list' );
 			error_log( 'StarmusAudioRecorderUI: Languages found: ' . count( $languages ) );
-			
+
 			$recording_types = $this->get_cached_terms( 'recording-type', 'starmus_recording_types_list' );
 			error_log( 'StarmusAudioRecorderUI: Recording types found: ' . count( $recording_types ) );
-			
-			$attributes      = shortcode_atts( array( 'form_id' => 'starmusAudioForm' ), $atts );
+
+			$attributes = shortcode_atts( array( 'form_id' => 'starmusAudioForm' ), $atts );
 			error_log( 'StarmusAudioRecorderUI: Final attributes: ' . print_r( $attributes, true ) );
-			
+
 			$template_args = array(
 				'form_id'         => esc_attr( $attributes['form_id'] ),
 				'consent_message' => wp_kses_post( $this->settings->get( 'consent_message' ) ),
@@ -166,14 +166,14 @@ class StarmusAudioRecorderUI {
 				'recording_types' => $recording_types,
 				'languages'       => $languages,
 			);
-			
+
 			error_log( 'StarmusAudioRecorderUI: Template args prepared, rendering template' );
-			
+
 			$template_result = $this->render_template( 'starmus-audio-recorder-ui.php', $template_args );
-			
+
 			error_log( 'StarmusAudioRecorderUI: Template rendered, length: ' . strlen( $template_result ) );
 			return $template_result;
-			
+
 		} catch ( Throwable $e ) {
 			error_log( 'StarmusAudioRecorderUI: Recorder shortcode error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
 			return '<p>' . esc_html__( 'Audio recorder temporarily unavailable.', STARMUS_TEXT_DOMAIN ) . '</p>';
@@ -210,73 +210,73 @@ class StarmusAudioRecorderUI {
 		return is_array( $terms ) ? $terms : array();
 	}
 
-        /**
-         * Enqueue front-end assets for recorder and listings.
-         *
-         * Assets load on configured pages; fall back to deferred loading
-         * when page settings are missing.
-         */
-        public function enqueue_scripts(): void {
-                try {
-                        if ( is_admin() || ! is_user_logged_in() ) {
-                                return;
-                        }
+		/**
+		 * Enqueue front-end assets for recorder and listings.
+		 *
+		 * Assets load on configured pages; fall back to deferred loading
+		 * when page settings are missing.
+		 */
+	public function enqueue_scripts(): void {
+		try {
+			if ( is_admin() || ! is_user_logged_in() ) {
+				return;
+			}
 
-                        $recorder_page      = absint( $this->settings->get( 'recorder_page_id', 0 ) );
-                        $my_recordings_page = absint( $this->settings->get( 'my_recordings_page_id', 0 ) );
+				$recorder_page      = absint( $this->settings->get( 'recorder_page_id', 0 ) );
+				$my_recordings_page = absint( $this->settings->get( 'my_recordings_page_id', 0 ) );
 
-                        $lazy = true;
-                        if ( $recorder_page && $my_recordings_page ) {
-                                if ( ! is_page( array( $recorder_page, $my_recordings_page ) ) ) {
-                                        return;
-                                }
-                                $lazy = false;
-                        }
+				$lazy = true;
+			if ( $recorder_page && $my_recordings_page ) {
+				if ( ! is_page( array( $recorder_page, $my_recordings_page ) ) ) {
+					return;
+				}
+					$lazy = false;
+			}
 
-                        $args = array( 'in_footer' => true );
-                        if ( $lazy ) {
-                                $args['strategy'] = 'defer';
-                        }
+				$args = array( 'in_footer' => true );
+			if ( $lazy ) {
+					$args['strategy'] = 'defer';
+			}
 
-                        $core_dependencies = array( 'jquery', 'wp-api-fetch' );
+				$core_dependencies = array( 'jquery', 'wp-api-fetch' );
 
-                        wp_enqueue_script(
-                                'starmus-recorder-module',
-                                STARMUS_URL . 'assets/js/starmus-audio-recorder-module.js',
-                                $core_dependencies,
-                                STARMUS_VERSION,
-                                $args
-                        );
+				wp_enqueue_script(
+					'starmus-recorder-module',
+					STARMUS_URL . 'assets/js/starmus-audio-recorder-module.js',
+					$core_dependencies,
+					STARMUS_VERSION,
+					$args
+				);
 
-                        wp_enqueue_script(
-                                'starmus-recorder-submissions',
-                                STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.js',
-                                array( 'starmus-recorder-module', 'wp-api-fetch' ),
-                                STARMUS_VERSION,
-                                $args
-                        );
+				wp_enqueue_script(
+					'starmus-recorder-submissions',
+					STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.js',
+					array( 'starmus-recorder-module', 'wp-api-fetch' ),
+					STARMUS_VERSION,
+					$args
+				);
 
-                        wp_localize_script(
-                                'starmus-recorder-module',
-                                'starmusFormData',
-                                array(
-                                        'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
-                                        'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-                                        'max_mb'     => (int) $this->settings->get( 'max_file_size_mb', 25 ),
-                                )
-                        );
+				wp_localize_script(
+					'starmus-recorder-module',
+					'starmusFormData',
+					array(
+						'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
+						'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+						'max_mb'     => (int) $this->settings->get( 'max_file_size_mb', 25 ),
+					)
+				);
 
-                        wp_enqueue_style(
-                                'starmus-recorder-style',
-                                STARMUS_URL . 'assets/css/starmus-audio-recorder-style.css',
-                                array(),
-                                STARMUS_VERSION
-                        );
-                } catch ( Throwable $e ) {
-                        error_log( $e->getMessage() );
-                        $this->log_error( 'Script enqueue error', $e );
-                }
-        }
+				wp_enqueue_style(
+					'starmus-recorder-style',
+					STARMUS_URL . 'assets/css/starmus-audio-recorder-style.css',
+					array(),
+					STARMUS_VERSION
+				);
+		} catch ( Throwable $e ) {
+				error_log( $e->getMessage() );
+				$this->log_error( 'Script enqueue error', $e );
+		}
+	}
 	/**
 	 * Register REST API routes for chunked audio uploads.
 	 *
@@ -422,37 +422,37 @@ class StarmusAudioRecorderUI {
 		if ( ! is_uploaded_file( $tmp_name ) ) {
 			return new WP_Error( 'invalid_temp_file', __( 'Invalid temporary file.', STARMUS_TEXT_DOMAIN ) );
 		}
-		
+
 		$temp_dir = $this->get_temp_dir();
 		if ( is_wp_error( $temp_dir ) ) {
 			return $temp_dir;
 		}
-		
+
 		// Initialize WP_Filesystem
 		global $wp_filesystem;
 		if ( empty( $wp_filesystem ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 			WP_Filesystem();
 		}
-		
+
 		$temp_file_path = trailingslashit( $temp_dir ) . $uuid . '.part';
 		$real_temp_dir  = realpath( $temp_dir );
 		$real_temp_file = realpath( dirname( $temp_file_path ) ) . '/' . basename( $temp_file_path );
 		if ( ! $real_temp_dir || strpos( $real_temp_file, $real_temp_dir ) !== 0 ) {
 			return new WP_Error( 'path_traversal_attempt', __( 'Invalid file path.', STARMUS_TEXT_DOMAIN ) );
 		}
-		
+
 		$current_size = $wp_filesystem->exists( $temp_file_path ) ? $wp_filesystem->size( $temp_file_path ) : 0;
 		if ( $offset !== $current_size ) {
 			return new WP_Error( 'bad_chunk_offset', sprintf( __( 'Chunk offset mismatch. Received %1$d, expected %2$d.', STARMUS_TEXT_DOMAIN ), $offset, $current_size ), array( 'status' => 409 ) );
 		}
-		
+
 		// Read chunk data
 		$chunk_data = $wp_filesystem->get_contents( $tmp_name );
 		if ( false === $chunk_data ) {
 			return new WP_Error( 'chunk_read_failed', __( 'Failed to read chunk data.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
 		}
-		
+
 		// Append or create file
 		if ( 0 === $current_size ) {
 			$result = $wp_filesystem->put_contents( $temp_file_path, $chunk_data );
@@ -463,11 +463,11 @@ class StarmusAudioRecorderUI {
 			}
 			$result = $wp_filesystem->put_contents( $temp_file_path, $existing_data . $chunk_data );
 		}
-		
+
 		if ( false === $result ) {
 			return new WP_Error( 'chunk_write_failed', __( 'Failed to write chunk data.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
 		}
-		
+
 		return $temp_file_path;
 	}
 	/**
@@ -576,15 +576,15 @@ class StarmusAudioRecorderUI {
 		);
 		return new WP_REST_Response( $response_data, 200 );
 	}
-        /**
-         * Create a draft post to hold upload metadata.
-         *
-         * @param string $uuid       Unique upload identifier.
-         * @param int    $total_size Expected total upload size.
-         * @param string $file_name  Original filename.
-         * @param array  $form_data  Submitted form data.
-         */
-        private function create_draft_post( string $uuid, int $total_size, string $file_name, array $form_data ): void {
+		/**
+		 * Create a draft post to hold upload metadata.
+		 *
+		 * @param string $uuid       Unique upload identifier.
+		 * @param int    $total_size Expected total upload size.
+		 * @param string $file_name  Original filename.
+		 * @param array  $form_data  Submitted form data.
+		 */
+	private function create_draft_post( string $uuid, int $total_size, string $file_name, array $form_data ): void {
 		$meta_input = array(
 			'audio_uuid'        => $uuid,
 			'upload_total_size' => $total_size,
@@ -603,14 +603,14 @@ class StarmusAudioRecorderUI {
 			)
 		);
 	}
-        /**
-         * Save all metadata and taxonomy terms for the recording.
-         *
-         * @param int   $audio_post_id The audio post ID.
-         * @param int   $attachment_id The attachment ID for the audio file.
-         * @param array $form_data     Submitted form data.
-         */
-        public function save_all_metadata( int $audio_post_id, int $attachment_id, array $form_data ): void {
+		/**
+		 * Save all metadata and taxonomy terms for the recording.
+		 *
+		 * @param int   $audio_post_id The audio post ID.
+		 * @param int   $attachment_id The attachment ID for the audio file.
+		 * @param array $form_data     Submitted form data.
+		 */
+	public function save_all_metadata( int $audio_post_id, int $attachment_id, array $form_data ): void {
 		$consent_post_id = $this->create_consent_post( $audio_post_id, $form_data );
 		$this->update_audio_recording_metadata( $audio_post_id, $attachment_id, $consent_post_id, $form_data );
 		$this->assign_audio_recording_taxonomies( $audio_post_id, $form_data );
@@ -742,44 +742,44 @@ class StarmusAudioRecorderUI {
 		if ( ! $this->settings->get( 'enable_waveform_generation' ) || ! apply_filters( 'starmus_allow_waveform_generation', false ) ) {
 			return false;
 		}
-		
+
 		// Validate audiowaveform binary path
 		$audiowaveform_path = apply_filters( 'starmus_audiowaveform_path', '/usr/local/bin/audiowaveform' );
-		$real_binary_path = realpath( $audiowaveform_path );
+		$real_binary_path   = realpath( $audiowaveform_path );
 		if ( ! $real_binary_path || ! is_executable( $real_binary_path ) ) {
 			return false;
 		}
-		
+
 		// Validate input file
 		$file_path = get_attached_file( $attachment_id );
 		if ( ! $file_path ) {
 			return false;
 		}
-		
+
 		// Initialize WP_Filesystem
 		global $wp_filesystem;
 		if ( empty( $wp_filesystem ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 			WP_Filesystem();
 		}
-		
+
 		if ( ! $wp_filesystem->exists( $file_path ) ) {
 			return false;
 		}
-		
+
 		$real_file_path = realpath( $file_path );
 		$uploads_dir    = realpath( wp_get_upload_dir()['basedir'] );
 		if ( ! $real_file_path || ! $uploads_dir || strpos( $real_file_path, $uploads_dir ) !== 0 ) {
 			return false;
 		}
-		
+
 		// Create secure temp file path
 		$temp_json_path = $file_path . '.json';
 		$real_temp_path = realpath( dirname( $temp_json_path ) ) . '/' . basename( $temp_json_path );
 		if ( strpos( $real_temp_path, $uploads_dir ) !== 0 ) {
 			return false;
 		}
-		
+
 		// Build secure command with escaped arguments
 		$cmd = sprintf(
 			'%s -i %s -o %s --pixels-per-second 20 --bits 8 --height 128 2>/dev/null',
@@ -787,28 +787,28 @@ class StarmusAudioRecorderUI {
 			escapeshellarg( $real_file_path ),
 			escapeshellarg( $temp_json_path )
 		);
-		
+
 		// Execute with timeout
-		$output = array();
+		$output      = array();
 		$return_code = 0;
 		exec( $cmd, $output, $return_code );
-		
+
 		if ( $return_code !== 0 || ! $wp_filesystem->exists( $temp_json_path ) ) {
 			return false;
 		}
-		
+
 		$json = $wp_filesystem->get_contents( $temp_json_path );
 		$wp_filesystem->delete( $temp_json_path );
-		
+
 		if ( false === $json ) {
 			return false;
 		}
-		
+
 		$waveform_data = json_decode( $json, true );
 		if ( JSON_ERROR_NONE !== json_last_error() || empty( $waveform_data['data'] ) ) {
 			return false;
 		}
-		
+
 		update_post_meta( $attachment_id, '_waveform_data', $waveform_data['data'] );
 		return true;
 	}
@@ -823,18 +823,18 @@ class StarmusAudioRecorderUI {
 	 */
 	private function render_template( string $template_name, array $args = array() ): string {
 		error_log( 'StarmusAudioRecorderUI: render_template called for: ' . $template_name );
-		
+
 		$template_name = basename( $template_name );
 		error_log( 'StarmusAudioRecorderUI: Template basename: ' . $template_name );
-		
-		$locations     = array(
+
+		$locations = array(
 			trailingslashit( get_stylesheet_directory() ) . 'starmus/' . $template_name,
 			trailingslashit( get_template_directory() ) . 'starmus/' . $template_name,
 			trailingslashit( STARMUS_PATH ) . 'templates/' . $template_name,
 		);
-		
+
 		error_log( 'StarmusAudioRecorderUI: Template search locations: ' . print_r( $locations, true ) );
-		
+
 		$template_path = '';
 		foreach ( $locations as $location ) {
 			error_log( 'StarmusAudioRecorderUI: Checking template location: ' . $location );
@@ -846,7 +846,7 @@ class StarmusAudioRecorderUI {
 				error_log( 'StarmusAudioRecorderUI: Template not found at: ' . $location );
 			}
 		}
-		
+
 		try {
 			if ( $template_path ) {
 				error_log( 'StarmusAudioRecorderUI: Loading template: ' . $template_path );
@@ -1011,14 +1011,14 @@ class StarmusAudioRecorderUI {
 			'HTTP_X_FORWARDED_FOR',
 			'HTTP_X_REAL_IP',
 			'HTTP_CLIENT_IP',
-			'REMOTE_ADDR'
+			'REMOTE_ADDR',
 		);
-		
+
 		foreach ( $headers as $header ) {
 			if ( empty( $_SERVER[ $header ] ) ) {
 				continue;
 			}
-			
+
 			$ips = explode( ',', sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ) );
 			foreach ( $ips as $ip ) {
 				$ip = trim( $ip );
@@ -1027,13 +1027,13 @@ class StarmusAudioRecorderUI {
 				}
 			}
 		}
-		
+
 		// Fallback to any valid IP
 		foreach ( $headers as $header ) {
 			if ( empty( $_SERVER[ $header ] ) ) {
 				continue;
 			}
-			
+
 			$ips = explode( ',', sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ) );
 			foreach ( $ips as $ip ) {
 				$ip = trim( $ip );
@@ -1042,7 +1042,7 @@ class StarmusAudioRecorderUI {
 				}
 			}
 		}
-		
+
 		return '';
 	}
 	/**

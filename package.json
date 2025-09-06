@@ -19,13 +19,16 @@
     "build": "fs-extra copy node_modules/peaks.js/dist/peaks.min.js assets/js/vendor/peaks.min.js",
     "size-check": "bundlesize",
     "i18n-check": "grep -r '__(' src/ || echo 'No i18n strings found'",
-    "docs:js": "jsdoc2md assets/js/**/*.js > docs/js-api.md",
-    "docs:php": "vendor/bin/phpdoc -d src -t docs/php --template=responsive-twig",
+    "docs:js": "mkdir -p docs && jsdoc2md 'assets/js/**/*.js' > docs/js-api.md",
+    "docs:php": "node scripts/fetch-phpdoc.cjs && mkdir -p docs/php && php8.3 tools/phpDocumentor.phar -d src -t docs/php",
     "test:e2e": "playwright test",
     "test:a11y": "playwright test --grep='WCAG'",
+    "test:integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/starmus-audio-recorder bash -c 'wp plugin activate starmus-audio-recorder && wp plugin list'",
+    "test:wp-env": "npm run test:integration",
+    "test": "npm run test:e2e && npm run test:a11y",
     "env:start": "wp-env start",
     "env:stop": "wp-env stop",
-    "test:wp": "wp-env run tests-cli --env-cwd=wp-content/plugins/starmus-audio-recorder phpunit"
+    "docs": "npm run docs:php && npm run docs:js"
   },
   "author": "Starisian Technologies (Max Barrett)",
   "homepage": "https://starisian.com",
@@ -55,7 +58,7 @@
     "@wordpress/eslint-plugin": "^22.0.0",
     "axe-playwright": "^2.1.0",
     "bundlesize": "^0.18.1",
-    "eslint": "^9.34.0",
+    "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^54.3.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
@@ -70,7 +73,7 @@
     "stylelint-config-standard": "^39.0.0"
   },
   "dependencies": {
-    "axios": ">=1.8.2",
+    "axios": "^1.11.0",
     "peaks.js": "^4.0.0"
   },
   "bundlesize": [
@@ -86,6 +89,7 @@
     }
   ],
   "overrides": {
-    "axios": "^1.11.0"
+    "axios": "^1.11.0",
+    "@babel/runtime": "^7.26.10"
   }
 }

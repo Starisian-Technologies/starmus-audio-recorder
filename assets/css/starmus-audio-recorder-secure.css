@@ -17,7 +17,7 @@
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgb(0,0,0,10%);
 }
 
 /* Step styles */
@@ -26,7 +26,7 @@
 }
 
 .starmus-step h2 {
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 1.5rem;
     color: #333;
     font-size: 1.5rem;
 }
@@ -59,7 +59,7 @@
 .starmus-field-group textarea:focus {
     outline: none;
     border-color: #0073aa;
-    box-shadow: 0 0 0 2px rgba(0,115,170,0.2);
+    box-shadow: 0 0 0 2px rgb(0,115,170,20%);
 }
 
 /* Checkbox styles */
@@ -204,11 +204,8 @@
 /* Loader */
 .starmus-loader {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.8);
+    inset: 0;
+    background: rgb(0,0,0,80%);
     color: white;
     display: flex;
     align-items: center;
@@ -234,7 +231,7 @@ audio {
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
+@media (width <= 768px) {
     .starmus-audio-wrapper {
         padding: 0.5rem;
     }

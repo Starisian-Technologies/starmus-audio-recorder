@@ -60,19 +60,19 @@
 	const editorRoot = document.querySelector('.starmus-editor');
 	if (!editorRoot) return; // No editor on this page, exit gracefully.
 
-	/** @type {HTMLElement} */
+	/** @type {HTMLElement}
 	const overviewEl = document.getElementById('overview');
-	/** @type {HTMLElement} */
+	/** @type {HTMLElement}
 	const zoomviewEl = document.getElementById('zoomview');
-	/** @type {HTMLButtonElement} */
+	/** @type {HTMLButtonElement}
 	const btnPlay = document.getElementById('play');
-	/** @type {HTMLButtonElement} */
+	/** @type {HTMLButtonElement}
 	const btnAdd = document.getElementById('add-region');
-	/** @type {HTMLButtonElement} */
+	/** @type {HTMLButtonElement}
 	const btnSave = document.getElementById('save');
-	/** @type {HTMLTableSectionElement} */
+	/** @type {HTMLTableSectionElement}
 	const list = document.getElementById('regions-list');
-	/** @type {HTMLElement} */
+	/** @type {HTMLElement}
 	const peaksContainer = document.getElementById('peaks-container');
 
 	if (
@@ -92,7 +92,7 @@
 	// --- State Management ---
 
 	/**
-	 * @type {boolean} - Tracks if there are unsaved changes in the editor.
+	 * @type {boolean}
 	 */
 	let dirty = false;
 

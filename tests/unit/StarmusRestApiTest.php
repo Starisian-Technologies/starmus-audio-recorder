@@ -17,14 +17,6 @@ final class StarmusRestApiTest extends TestCase
     protected function setUp(): void
     {
         $this->ui = new StarmusAudioRecorderUI();
-        
-        // Mock WordPress functions
-        if (!function_exists('current_user_can')) {
-            function current_user_can($capability) { return true; }
-        }
-        if (!function_exists('wp_verify_nonce')) {
-            function wp_verify_nonce($nonce, $action) { return true; }
-        }
     }
 
     public function testUploadPermissionsRequireCapability(): void

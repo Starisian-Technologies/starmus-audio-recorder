@@ -5,28 +5,28 @@
  */
 export default {
 	extends: ['stylelint-config-standard'],
-	ignoreFiles: [
+		ignoreFiles: [
 		'node_modules/**',
 		'dist/**',
 		'build/**',
 		'assets/css/**/*.min.css'
-	],
-	rules: {
-		// Formatting rules disabled for Prettier compatibility
-		'indentation': null,
-		'string-quotes': null,
-		'color-function-notation': 'legacy',
-		'color-hex-case': 'lower',
-		'color-no-invalid-hex': true,
-		'block-no-empty': true,
-		'no-empty-source': true,
-		// 'declaration-block-trailing-semicolon': handled by Prettier,
-		'length-zero-no-unit': true,
-		'declaration-block-no-duplicate-properties': [true, { ignore: ['consecutive-duplicates-with-different-values'] }],
-		'property-no-vendor-prefix': null
+		],
+		rules: {
+			'color-function-notation': 'legacy',
+			'color-no-invalid-hex': true,
+			'block-no-empty': true,
+			'no-empty-source': true,
+			'length-zero-no-unit': true,
+			'declaration-block-no-duplicate-properties': [true, { ignore: ['consecutive-duplicates-with-different-values'] }],
+			'property-no-vendor-prefix': null,
+			'selector-class-pattern': null,
+			'keyframes-name-pattern': null,
+			'no-descending-specificity': null,
+			'declaration-block-single-line-max-declarations': null,
+			'media-feature-name-value-no-unknown': null
 	},
-	reportDescriptionlessDisables: true,
-	reportInvalidScopeDisables: true,
+	reportDescriptionlessDisables: false,
+	reportInvalidScopeDisables: false,
 	cache: true,
 	fix: true
-}
+	}

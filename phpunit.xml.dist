@@ -25,12 +25,9 @@
     </testsuite>
   </testsuites>
 
-  <coverage>
-    <include>
+  <filter>
+    <whitelist>
       <directory suffix=".php">src</directory>
-    </include>
-    <report>
-      <clover outputFile="build/coverage.xml"/>
-    </report>
-  </coverage>
+    </whitelist>
+  </filter>
 </phpunit>

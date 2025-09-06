@@ -6,7 +6,6 @@
  * @package Starmus\includes
  * @version 0.4.0
  * @since 0.1.0
- * 
  */
 
 namespace Starmus\includes;
@@ -41,8 +40,6 @@ final class StarmusPlugin {
 
 	/**
 	 * Private constructor for singleton pattern.
-   * 
-   * 
 	 */
 	private function __construct() {
 		// Components will be instantiated in init()
@@ -107,7 +104,7 @@ final class StarmusPlugin {
 		add_action( 'admin_notices', array( $this, 'displayRuntimeErrorNotice' ) );
 
 		// Register admin menu and settings if admin component is available.
-		if ( is_object($this->admin) ) {
+		if ( is_object( $this->admin ) ) {
 			error_log( 'Starmus Plugin: Admin component available, registering admin hooks' );
 			add_action( 'admin_menu', array( $this->admin, 'add_admin_menu' ) );
 			add_action( 'admin_init', array( $this->admin, 'register_settings' ) );
@@ -116,7 +113,7 @@ final class StarmusPlugin {
 		}
 
 		// Register front-end editor shortcodes and scripts if components are available.
-		if ( is_object($this->editor)) {
+		if ( is_object( $this->editor ) ) {
 			error_log( 'Starmus Plugin: Editor component available, registering editor hooks' );
 			add_shortcode( 'starmus_audio_editor', array( $this->editor, 'render_audio_editor_shortcode' ) );
 			add_action( 'wp_enqueue_scripts', array( $this->editor, 'enqueue_scripts' ) );
@@ -126,7 +123,7 @@ final class StarmusPlugin {
 		}
 
 		// Register front-end recorder shortcodes, scripts, and hooks if component is available.
-		if ( is_object($this->recorder) ) {
+		if ( is_object( $this->recorder ) ) {
 			error_log( 'Starmus Plugin: Recorder component available, registering recorder hooks' );
 			add_shortcode( 'starmus_my_recordings', array( $this->recorder, 'render_my_recordings_shortcode' ) );
 			add_shortcode( STARMUS_TEXT_DOMAIN, array( $this->recorder, 'render_recorder_shortcode' ) );
@@ -176,8 +173,8 @@ final class StarmusPlugin {
 			$this->admin = new StarmusAdmin();
 			error_log( 'Starmus Plugin: StarmusAdmin instantiated successfully' );
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Failed to load admin component: ' . esc_html($e->getMessage() ) . ' in ' . esc_html($e->getFile() ) . ':' . esc_htnl(  $e->getLine() );
-			$this->runtimeErrors[] = 'Failed to load admin component: ' . esc_html($e->getMessage());
+			error_log( 'Starmus Plugin: Failed to load admin component: ' . esc_html( $e->getMessage() ) . ' in ' . esc_html( $e->getFile() ) . ':' . esc_html( $e->getLine() ) );
+			$this->runtimeErrors[] = 'Failed to load admin component: ' . esc_html( $e->getMessage() );
 		}
 
 		try {
@@ -185,9 +182,8 @@ final class StarmusPlugin {
 			$this->editor = new StarmusAudioEditorUI();
 			error_log( 'Starmus Plugin: StarmusAudioEditorUI instantiated successfully' );
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Failed to load editor component: ' . esc_html($e->getMessage() ) . ' in ' . esc_html($e->getFile() ) . ':' . esc_htnl(  $e->getLine() );
-			$this->runtimeErrors[] = 'Failed to load editor component: ' . esc_html($e->getMessage());
-		}
+			error_log( 'Starmus Plugin: Failed to load editor component: ' . esc_html( $e->getMessage() ) . ' in ' . esc_html( $e->getFile() ) . ':' . esc_html( $e->getLine() ) );
+			$this->runtimeErrors[] = 'Failed to load editor component: ' . esc_html( $e->getMessage() );
 		}
 
 		try {
@@ -195,13 +191,11 @@ final class StarmusPlugin {
 			$this->recorder = new StarmusAudioRecorderUI();
 			error_log( 'Starmus Plugin: StarmusAudioRecorderUI instantiated successfully' );
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Failed to load recorder component: ' . esc_html($e->getMessage() ) . ' in ' . esc_html($e->getFile() ) . ':' . esc_htnl(  $e->getLine() );
-			$this->runtimeErrors[] = 'Failed to load recorder component: ' . esc_html($e->getMessage());
-		}
+			error_log( 'Starmus Plugin: Failed to load recorder component: ' . esc_html( $e->getMessage() ) . ' in ' . esc_html( $e->getFile() ) . ':' . esc_html( $e->getLine() ) );
+			$this->runtimeErrors[] = 'Failed to load recorder component: ' . esc_html( $e->getMessage() );
 		}
 
 		error_log( 'Starmus Plugin: Component instantiation complete' );
-    return;
 	}
 
 	/**
@@ -211,27 +205,27 @@ final class StarmusPlugin {
 	 *
 	 * @since 0.1.0
 	 */
-	public static function activate(): void {
-		try {
-			$cpt_file = realpath( STARMUS_PATH . 'src/includes/StarmusCustomPostType.php' );
-			if ( $cpt_file && str_starts_with( $cpt_file, realpath( STARMUS_PATH ) ) && file_exists( $cpt_file ) ) {
-				require_once $cpt_file;
-			} else {
-				error_log( 'Starmus Plugin: Critical - CPT file missing during activation' );
-				throw new \Exception( 'Critical dependency missing: CPT file' );
-			}
-
-			self::add_custom_capabilities();
-			// Schedule cron here instead of on every init.
-			if ( ! wp_next_scheduled( 'starmus_cleanup_temp_files' ) ) {
-				wp_schedule_event( time(), 'hourly', 'starmus_cleanup_temp_files' );
-			}
-			flush_rewrite_rules();
-		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Activation error - ' . sanitize_text_field( $e->getMessage() ) );
-			throw $e;
+public static function activate(): void {
+	try {
+		$cpt_file = realpath( STARMUS_PATH . 'src/includes/StarmusCustomPostType.php' );
+		if ( $cpt_file && str_starts_with( $cpt_file, realpath( STARMUS_PATH ) ) && file_exists( $cpt_file ) ) {
+			require_once $cpt_file;
+		} else {
+			error_log( 'Starmus Plugin: Critical - CPT file missing during activation' );
+			throw new \Exception( 'Critical dependency missing: CPT file' );
 		}
+
+		self::add_custom_capabilities();
+		// Schedule cron here instead of on every init.
+		if ( ! wp_next_scheduled( 'starmus_cleanup_temp_files' ) ) {
+			wp_schedule_event( time(), 'hourly', 'starmus_cleanup_temp_files' );
+		}
+		flush_rewrite_rules();
+	} catch ( Throwable $e ) {
+		error_log( 'Starmus Plugin: Activation error - ' . sanitize_text_field( $e->getMessage() ) );
+		throw $e;
 	}
+}
 
 	/**
 	 * Plugin Deactivation Hook.
@@ -240,9 +234,9 @@ final class StarmusPlugin {
 	 *
 	 * @since 0.1.0
 	 */
-	public static function deactivate(): void {
-		flush_rewrite_rules();
-	}
+public static function deactivate(): void {
+	flush_rewrite_rules();
+}
 
 	/**
 	 * Plugin Uninstall Hook.
@@ -251,48 +245,48 @@ final class StarmusPlugin {
 	 *
 	 * @since 0.1.0
 	 */
-	public static function uninstall(): void {
-		$file = realpath( STARMUS_PATH . 'uninstall.php' );
-		if ( $file && str_starts_with( $file, realpath( STARMUS_PATH ) ) && file_exists( $file ) ) {
-			require_once $file;
-		} else {
-			error_log( 'Starmus Plugin: Uninstall file not found' );
-		}
-		wp_clear_scheduled_hook( 'starmus_cleanup_temp_files' );
-		flush_rewrite_rules();
+public static function uninstall(): void {
+	$file = realpath( STARMUS_PATH . 'uninstall.php' );
+	if ( $file && str_starts_with( $file, realpath( STARMUS_PATH ) ) && file_exists( $file ) ) {
+		require_once $file;
+	} else {
+		error_log( 'Starmus Plugin: Uninstall file not found' );
 	}
+	wp_clear_scheduled_hook( 'starmus_cleanup_temp_files' );
+	flush_rewrite_rules();
+}
 
 	/**
 	 * Adds custom capabilities to user roles.
-   *
-   * This method assigns specific capabilities to predefined user roles.
-   * 
-   * @since 0.2.0
+	 *
+	 * This method assigns specific capabilities to predefined user roles.
+	 *
+	 * @since 0.2.0
 	 */
-	private static function add_custom_capabilities(): void {
-		$roles_to_modify = array(
-			'editor'                => array( self::STAR_CAP_EDIT_AUDIO, self::STAR_CAP_RECORD_AUDIO ),
-			'administrator'         => array( self::STAR_CAP_EDIT_AUDIO, self::STAR_CAP_RECORD_AUDIO ),
-			'contributor'           => array( self::STAR_CAP_RECORD_AUDIO ),
-			'community_contributor' => array( self::STAR_CAP_RECORD_AUDIO ),
-		);
-		try {
-			foreach ( $roles_to_modify as $role_name => $caps ) {
-				$role = get_role( $role_name );
-				if ( $role ) {
-					foreach ( $caps as $cap ) {
-						$role->add_cap( $cap );
-					}
-				} else {
-					error_log( "Starmus Plugin: Role '" . esc_html( $role_name ) . "' not found" );
+private static function add_custom_capabilities(): void {
+	$roles_to_modify = array(
+		'editor'                => array( self::STAR_CAP_EDIT_AUDIO, self::STAR_CAP_RECORD_AUDIO ),
+		'administrator'         => array( self::STAR_CAP_EDIT_AUDIO, self::STAR_CAP_RECORD_AUDIO ),
+		'contributor'           => array( self::STAR_CAP_RECORD_AUDIO ),
+		'community_contributor' => array( self::STAR_CAP_RECORD_AUDIO ),
+	);
+	try {
+		foreach ( $roles_to_modify as $role_name => $caps ) {
+			$role = get_role( $role_name );
+			if ( $role ) {
+				foreach ( $caps as $cap ) {
+					$role->add_cap( $cap );
 				}
-			}
-		} catch ( Throwable $e ) {
-			if ( ( WP_DEBUG === true ) && ( WP_DEBUG_LOG === true ) ) {
-				trigger_error( 'Starmus Plugin: Error adding capabilities - ' . esc_html(sanitize_text_field( $e->getMessage() )), ers_attr(_USER_WARNING ));
+			} else {
+				error_log( "Starmus Plugin: Role '" . esc_html( $role_name ) . "' not found" );
 			}
 		}
+	} catch ( Throwable $e ) {
+		if ( ( WP_DEBUG === true ) && ( WP_DEBUG_LOG === true ) ) {
+			trigger_error( 'Starmus Plugin: Error adding capabilities - ' . esc_html( sanitize_text_field( $e->getMessage() ) ), E_USER_WARNING );
+		}
 	}
+}
 
 	/**
 	 * Public static method to run the plugin.
@@ -302,9 +296,9 @@ final class StarmusPlugin {
 	 *
 	 * @since 0.1.0
 	 */
-	public static function run(): void {
-		self::get_instance();
-	}
+public static function run(): void {
+	self::get_instance();
+}
 
 	/**
 	 * Displays a dismissible admin notice for any runtime errors.
@@ -313,28 +307,28 @@ final class StarmusPlugin {
 	 *
 	 * @since 0.1.0
 	 */
-	public function displayRuntimeErrorNotice(): void {
-		try {
-			if ( empty( $this->runtimeErrors ) || ! current_user_can( 'manage_options' ) ) {
-				return;
-			}
-			$unique_errors = array_unique( $this->runtimeErrors );
-			foreach ( $unique_errors as $message ) {
-				echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus Audio Recorder Plugin Error:</strong><br>' . esc_html( $message ) . '</p></div>';
-			}
-		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Error in displayRuntimeErrorNotice - ' . esc_html( $e->getMessage() ));
+public function displayRuntimeErrorNotice(): void {
+	try {
+		if ( empty( $this->runtimeErrors ) || ! current_user_can( 'manage_options' ) ) {
+			return;
 		}
+		$unique_errors = array_unique( $this->runtimeErrors );
+		foreach ( $unique_errors as $message ) {
+			echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus Audio Recorder Plugin Error:</strong><br>' . esc_html( $message ) . '</p></div>';
+		}
+	} catch ( Throwable $e ) {
+		error_log( 'Starmus Plugin: Error in displayRuntimeErrorNotice - ' . esc_html( $e->getMessage() ) );
 	}
+}
 	/**
 	 * Prevents cloning of the singleton instance.
 	 *
 	 * @since 0.1.0
 	 * @throws LogicException If someone tries to clone the object.
 	 */
-	public function __clone() {
-		throw new LogicException( 'Cloning of ' . esc_html(__CLASS__) . ' is not allowed.' );
-	}
+public function __clone() {
+	throw new LogicException( 'Cloning of ' . esc_html( __CLASS__ ) . ' is not allowed.' );
+}
 
 	/**
 	 * Prevents unserializing of the singleton instance.
@@ -342,7 +336,7 @@ final class StarmusPlugin {
 	 * @since 0.1.0
 	 * @throws LogicException If someone tries to unserialize the object.
 	 */
-	public function __wakeup() {
-		throw new LogicException( 'Unserializing of ' . esc_html(__CLASS__) . ' is not allowed.' );
-	}
+public function __wakeup() {
+	throw new LogicException( 'Unserializing of ' . esc_html( __CLASS__ ) . ' is not allowed.' );
+}
 }
