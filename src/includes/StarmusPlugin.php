@@ -126,7 +126,7 @@ final class StarmusPlugin {
 		if ( is_object( $this->recorder ) ) {
 			error_log( 'Starmus Plugin: Recorder component available, registering recorder hooks' );
 			add_shortcode( 'starmus_my_recordings', array( $this->recorder, 'render_my_recordings_shortcode' ) );
-			add_shortcode( STARMUS_TEXT_DOMAIN, array( $this->recorder, 'render_recorder_shortcode' ) );
+			add_shortcode( 'starmus_audio_recorder_form', array( $this->recorder, 'render_recorder_shortcode' ) );
 			add_action( 'wp_enqueue_scripts', array( $this->recorder, 'enqueue_scripts' ) );
 			add_action( 'rest_api_init', array( $this->recorder, 'register_rest_routes' ) );
 			add_action( 'starmus_after_audio_upload', array( $this->recorder, 'save_all_metadata' ), 10, 3 );
