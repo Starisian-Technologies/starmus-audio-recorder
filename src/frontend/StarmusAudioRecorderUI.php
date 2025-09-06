@@ -827,7 +827,7 @@ class StarmusAudioRecorderUI {
 		$locations = array(
 			trailingslashit( get_stylesheet_directory() ) . 'starmus/' . $template_name,
 			trailingslashit( get_template_directory() ) . 'starmus/' . $template_name,
-			trailingslashit( STARMUS_PATH ) . 'templates/' . $template_name,
+			trailingslashit( STARMUS_PATH ) . 'src/templates/' . $template_name,
 		);
 
 		error_log( 'StarmusAudioRecorderUI: Template search locations: ' . print_r( $locations, true ) );
