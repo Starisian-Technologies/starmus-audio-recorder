@@ -133,8 +133,15 @@ final class StarmusPlugin {
 			add_filter( 'starmus_audio_upload_success_response', array( $this->recorder, 'add_conditional_redirect' ), 10, 3 );
 			// Cron scheduling moved to activation to avoid performance issues
 			add_action( 'starmus_cleanup_temp_files', array( $this->recorder, 'cleanup_stale_temp_files' ) );
-			add_action( 'saved_term', array( $this->recorder, 'clear_taxonomy_transients' ) );
-			add_action( 'delete_term', array( $this->recorder, 'clear_taxonomy_transients' ) );
+			// Clear cache when a Language is added, edited, or deleted.
+      add_action( 'create_language', array( $this->recorder, 'clear_taxonomy_transients' ) );
+      add_action( 'edit_language', array( $this->recorder, 'clear_taxonomy_transients' ) );
+      add_action( 'delete_language', array( $this->recorder, 'clear_taxonomy_transients' ) );
+      // Clear cache when a Recording Type is added, edited, or deleted.
+      add_action( 'create_recording-type', array( $this->recorder, 'clear_taxonomy_transients' ) );
+      add_action( 'edit_recording-type', array( $this->recorder, 'clear_taxonomy_transients' ) );
+      add_action( 'delete_recording-type', array( $this->recorder, 'clear_taxonomy_transients' ) );
+
 			error_log( 'Starmus Plugin: Shortcodes registered - starmus_my_recordings and starmus_audio_recorder' );
 		} else {
 			error_log( 'Starmus Plugin: Recorder component NOT available' );
