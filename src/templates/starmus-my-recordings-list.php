@@ -1,16 +1,14 @@
 <?php
 /**
- * Starmus "My Recordings" List Template
+ * Starmus My Recordings List Template
  *
- * This template displays a grid of the current user's audio recordings.
- * It features the most recent recording and shows others in a responsive grid.
+ * This template is responsible for displaying the list of a user's audio recordings.
  *
  * @package Starmus\templates
  * @version 0.4.0
- * @since 0.3.1
  *
- * @var WP_Query $query         The WordPress query object containing the user's posts.
- * @var string   $edit_page_url The base URL for the editor page.
+ * @var WP_Query $query         The WordPress query object for the recordings.
+ * @var string   $edit_page_url The base URL for the audio editor page.
  */
 
 // Exit if accessed directly.
@@ -53,11 +51,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<footer class="starmus-recording__footer">
 							<?php
 							// Only show the "Edit Audio" button if the user has permission to edit this specific post.
-							// This is a secure way to check for roles and authorship.
 							if ( ! empty( $edit_page_url ) && current_user_can( 'edit_post', $current_post_id ) ) :
+								// Create the base link to the editor page.
 								$edit_link = add_query_arg( 'post_id', $current_post_id, $edit_page_url );
+
+								// *** THIS IS THE FIX ***
+								// Add the security nonce to the URL. This prevents CSRF attacks.
+								// The action 'starmus_edit_audio' MUST match what your Editor class is checking for.
+								$secure_edit_link = wp_nonce_url( $edit_link, 'starmus_edit_audio', 'nonce' );
 								?>
-								<a href="<?php echo esc_url( $edit_link ); ?>" class="starmus-recording__edit-button">
+								<a href="<?php echo esc_url( $secure_edit_link ); ?>" class="starmus-recording__edit-button">
 									<?php esc_html_e( 'Edit Audio', STARMUS_TEXT_DOMAIN ); ?>
 								</a>
 							<?php endif; ?>
@@ -80,9 +83,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<footer class="starmus-recording__footer">
 							<?php
 							if ( ! empty( $edit_page_url ) && current_user_can( 'edit_post', $current_post_id ) ) :
+								// Create the base link to the editor page.
 								$edit_link = add_query_arg( 'post_id', $current_post_id, $edit_page_url );
+
+								// *** THIS IS THE FIX ***
+								// Add the security nonce to the URL. This prevents CSRF attacks.
+								// The action 'starmus_edit_audio' MUST match what your Editor class is checking for.
+								$secure_edit_link = wp_nonce_url( $edit_link, 'starmus_edit_audio', 'nonce' );
 								?>
-								<a href="<?php echo esc_url( $edit_link ); ?>" class="starmus-recording__edit-button">
+								<a href="<?php echo esc_url( $secure_edit_link ); ?>" class="starmus-recording__edit-button">
 									<?php esc_html_e( 'Edit Audio', STARMUS_TEXT_DOMAIN ); ?>
 								</a>
 							<?php endif; ?>
