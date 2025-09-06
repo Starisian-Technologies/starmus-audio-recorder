@@ -15,7 +15,6 @@ jobs:
 
     steps:
       # Step 1: Check out the repository's code.
-      # We use the WORKFLOW_PAT secret to get permission to push changes back.
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -28,7 +27,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # Step 3: Get the version number from the tag (e.g., "v0.4.0" becomes "0.4.0").
+      # Step 3: Get the version number from the tag.
       - name: Get the version from the tag
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
@@ -43,7 +42,7 @@ jobs:
         run: |
           find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 sed -i "s/@version\s+[0-9.]\+/@version ${{ env.VERSION }}/g"
 
-      # Step 6: Add @since tag where it's missing in docblocks that have an @version tag.
+      # Step 6: Add @since tag where it's missing.
       - name: Add @since tags where missing
         run: |
           find . -type f -name "*.php" -not -path "./vendor/*" -print0 | while IFS= read -r -d $'\0' file; do
@@ -58,26 +57,25 @@ jobs:
         run: |
           sed -i "s/something_VERSION\s*=\s*'.*'/something_VERSION = '${{ env.VERSION }}'/" starmus-audio-recorder.php
 
-      # Step 8: Commit version bump, push to branch, and update tag [CORRECTED]
+      # Step 8: Commit version bump, push to branch, and update tag
       - name: Commit version bump and update tag
         run: |
           git add -A
-          # Check if there are any changes to commit
           if ! git diff --staged --quiet; then
             # Commit the changes.
             git commit -m "chore(release): Bump version to ${{ env.VERSION }}"
             
-            # Get the name of your repository's default branch (e.g., 'main' or 'master')
+            # Get the name of the default branch.
             DEFAULT_BRANCH=${{ github.event.repository.default_branch }}
             
             # Push the new commit to the default branch.
             git push origin HEAD:"refs/heads/$DEFAULT_BRANCH"
             
             # Move the tag to point to this new commit.
-            git tag -f ${{ env.GITHUB_REF_NAME }}
+            git tag -f $GITHUB_REF_NAME
             
             # Push the updated tag.
-            git push origin ${{ env.GITHUB_REF_NAME }} --force
+            git push origin $GITHUB_REF_NAME --force
           else
             echo "No version changes to commit."
           fi
