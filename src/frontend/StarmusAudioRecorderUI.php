@@ -809,14 +809,14 @@ class StarmusAudioRecorderUI {
 		update_post_meta( $attachment_id, '_waveform_data', $waveform_data['data'] );
 		return true;
 	}
-	/**
+		/**
 	 * Render a template file with provided arguments.
 	 *
 	 * @param string $template_name The name of the template file.
 	 * @param array  $args The arguments to pass to the template.
 	 * @return string The rendered template content.
 	 * @since 0.2.0
-	 * @version 0.3.3
+	 * @version 0.3.4
 	 */
 	private function render_template( string $template_name, array $args = array() ): string {
 		error_log( 'StarmusAudioRecorderUI: render_template called for: ' . $template_name );
@@ -847,8 +847,17 @@ class StarmusAudioRecorderUI {
 		try {
 			if ( $template_path ) {
 				error_log( 'StarmusAudioRecorderUI: Loading template: ' . $template_path );
+
+				// Make variables from the $args array (like 'query') available to the template.
+				if ( is_array( $args ) ) {
+					extract( $args, EXTR_SKIP );
+				}
+
 				ob_start();
-				load_template( $template_path, false, $args );
+
+				// Include the template file directly.
+				include $template_path;
+
 				$output = (string) ob_get_clean();
 				error_log( 'StarmusAudioRecorderUI: Template loaded successfully, output length: ' . strlen( $output ) );
 				return $output;
