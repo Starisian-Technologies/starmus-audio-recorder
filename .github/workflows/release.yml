@@ -15,7 +15,7 @@ jobs:
 
     steps:
       # Step 1: Check out the repository's code.
-      # We use the new WORKFLOW_PAT secret to get permission to push changes back.
+      # We use the WORKFLOW_PAT secret to get permission to push changes back.
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -58,13 +58,26 @@ jobs:
         run: |
           sed -i "s/something_VERSION\s*=\s*'.*'/something_VERSION = '${{ env.VERSION }}'/" starmus-audio-recorder.php
 
-      # Step 8: Commit the version changes back to the repository.
-      - name: Commit version bump
+      # Step 8: Commit version bump, push to branch, and update tag [CORRECTED]
+      - name: Commit version bump and update tag
         run: |
           git add -A
+          # Check if there are any changes to commit
           if ! git diff --staged --quiet; then
+            # Commit the changes.
             git commit -m "chore(release): Bump version to ${{ env.VERSION }}"
-            git push
+            
+            # Get the name of your repository's default branch (e.g., 'main' or 'master')
+            DEFAULT_BRANCH=${{ github.event.repository.default_branch }}
+            
+            # Push the new commit to the default branch.
+            git push origin HEAD:"refs/heads/$DEFAULT_BRANCH"
+            
+            # Move the tag to point to this new commit.
+            git tag -f ${{ env.GITHUB_REF_NAME }}
+            
+            # Push the updated tag.
+            git push origin ${{ env.GITHUB_REF_NAME }} --force
           else
             echo "No version changes to commit."
           fi
