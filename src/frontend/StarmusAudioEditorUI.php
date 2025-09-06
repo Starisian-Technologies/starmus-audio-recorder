@@ -59,7 +59,7 @@ class StarmusAudioEditorUI {
 	}
 
 	private function render_template_secure( array $context ): string {
-		$default_template = STARMUS_PATH . 'templates/starmus-audio-editor-ui.php';
+		$default_template = STARMUS_PATH . 'src/templates/starmus-audio-editor-ui.php';
 		$template_path    = apply_filters( 'starmus_editor_template', $default_template, $context );
 		if ( ! $this->is_valid_template_path( $template_path ) ) {
 			return '<div class="notice notice-error"><p>' . esc_html__( 'Invalid template path.', STARMUS_TEXT_DOMAIN ) . '</p></div>';
