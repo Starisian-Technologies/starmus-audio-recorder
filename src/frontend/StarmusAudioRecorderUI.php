@@ -169,10 +169,7 @@ class StarmusAudioRecorderUI {
 
 			error_log( 'StarmusAudioRecorderUI: Template args prepared, rendering template' );
 
-			$template_result = $this->render_template( 'starmus-audio-recorder-ui.php', $template_args );
-
-			error_log( 'StarmusAudioRecorderUI: Template rendered, length: ' . strlen( $template_result ) );
-			return $template_result;
+			return $this->render_template( 'starmus-audio-recorder-ui.php', $template_args );
 
 		} catch ( Throwable $e ) {
 			error_log( 'StarmusAudioRecorderUI: Recorder shortcode error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
