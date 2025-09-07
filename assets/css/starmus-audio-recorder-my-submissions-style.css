@@ -1,0 +1,200 @@
+/**
+ * STARISIAN TECHNOLOGIES CONFIDENTIAL
+ * © 2023–2025 Starisian Technologies. All Rights Reserved.
+ *
+ * @file Starmus Audio Stylesheet - v0.5.0
+ * @description Styles for the audio submission form and the "My Recordings" list.
+ */
+
+/* --- CSS Variables for theming --- */
+:root {
+	--starmus-primary-color: #007bbf;
+	--starmus-primary-hover: #0056b3;
+	--starmus-text-color: #374151;
+	--starmus-text-muted: #6b7280;
+	--starmus-border-color: #d1d5db;
+	--starmus-bg-light: #f9fafb;
+	--starmus-bg-card: #ffffff;
+}
+
+/* --- My Recordings List --- */
+
+.starmus-my-recordings-container {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	color: var(--starmus-text-color);
+}
+
+/* The Flex Grid */
+.starmus-recordings-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem; /* Space between cards */
+	margin-bottom: 2rem;
+}
+
+/* Individual Recording Card */
+.starmus-recording {
+	background-color: var(--starmus-bg-card);
+	border: 1px solid var(--starmus-border-color);
+	border-radius: 0.75rem; /* Rounded corners */
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden; /* Ensures child elements respect the border radius */
+	transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+	flex-basis: 100%; /* Default to full width on mobile */
+}
+
+.starmus-recording:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Grid layout for larger screens */
+@media (min-width: 768px) {
+	.starmus-recording {
+		/* Two cards per row on tablets */
+		flex-basis: calc(50% - 0.75rem);
+	}
+}
+
+@media (min-width: 1024px) {
+	.starmus-recording {
+		/* Three cards per row on desktops */
+		flex-basis: calc(33.333% - 1rem);
+	}
+}
+
+
+/* Special Featured Card */
+.starmus-recording--featured {
+	/* The featured card takes up the full width, regardless of screen size */
+	flex-basis: 100%;
+}
+
+/* Card Header */
+.starmus-recording__header {
+	padding: 1.25rem 1.5rem;
+	border-bottom: 1px solid var(--starmus-border-color);
+}
+
+.starmus-recording__title {
+	margin: 0 0 0.25rem 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+}
+
+.starmus-recording--featured .starmus-recording__title {
+	font-size: 1.5rem;
+}
+
+.starmus-recording__title a {
+	text-decoration: none;
+	color: inherit;
+	transition: color 0.2s ease;
+}
+
+.starmus-recording__title a:hover {
+	color: var(--starmus-primary-color);
+}
+
+.starmus-recording__meta {
+	font-size: 0.875rem;
+	color: var(--starmus-text-muted);
+}
+
+/* Card Content (where the audio player goes) */
+.starmus-recording__content {
+	padding: 1.5rem;
+	flex-grow: 1; /* Makes sure the footer is always at the bottom */
+}
+
+/* Modern Audio Player Styling */
+.starmus-recording__content audio {
+	width: 100%;
+	border-radius: 9999px; /* Pill-shaped player */
+	border: 1px solid var(--starmus-border-color);
+}
+
+/* Card Footer */
+.starmus-recording__footer {
+	padding: 1rem 1.5rem;
+	background-color: var(--starmus-bg-light);
+	border-top: 1px solid var(--starmus-border-color);
+	display: flex;
+	justify-content: flex-end; /* Aligns button to the right */
+}
+
+/* Edit Button Styling */
+.starmus-recording__edit-button {
+	display: inline-block;
+	padding: 0.6rem 1.2rem;
+	background-color: var(--starmus-primary-color);
+	color: #fff;
+	font-weight: 600;
+	text-decoration: none;
+	border-radius: 0.5rem;
+	transition: background-color 0.2s ease;
+}
+
+.starmus-recording__edit-button:hover {
+	background-color: var(--starmus-primary-hover);
+}
+
+/* --- Pagination & "No Recordings" Message --- */
+
+.starmus-no-recordings {
+	padding: 2rem;
+	text-align: center;
+	background-color: var(--starmus-bg-light);
+	border: 1px dashed var(--starmus-border-color);
+	border-radius: 0.75rem;
+}
+
+.navigation.pagination {
+	margin-top: 2rem;
+	display: flex;
+	justify-content: center;
+}
+
+.nav-links {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.nav-links .page-numbers {
+	display: inline-block;
+	padding: 0.5rem 1rem;
+	border: 1px solid var(--starmus-border-color);
+	border-radius: 0.5rem;
+	text-decoration: none;
+	color: var(--starmus-text-color);
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-links .page-numbers:hover {
+	background-color: var(--starmus-bg-light);
+	border-color: var(--starmus-text-muted);
+}
+
+.nav-links .page-numbers.current {
+	background-color: var(--starmus-primary-color);
+	border-color: var(--starmus-primary-color);
+	color: #fff;
+	font-weight: 600;
+}
+
+/* --- Dark Mode --- */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--starmus-text-color: #e5e7eb;
+		--starmus-text-muted: #9ca3af;
+		--starmus-border-color: #374151;
+		--starmus-bg-light: #1f2937;
+		--starmus-bg-card: #111827;
+	}
+
+	.starmus-recording__content audio {
+		filter: invert(1) hue-rotate(180deg);
+	}
+}
