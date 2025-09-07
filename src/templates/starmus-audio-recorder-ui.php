@@ -1,26 +1,31 @@
 <?php
 /**
- * Starmus Audio Recorder UI Template - Secure Version
+ * Starmus Audio Recorder UI Template - Secure, Styled, and Synced
  *
  * @package Starmus\templates
- * @version 0.4.0
- * @since 0.2.0
- * @var string $form_id
- * @var string $consent_message
- * @var string $data_policy_url
- * @var array $recording_types
- * @var array $languages
+ * @version 0.4.2
+ * @var string $form_id         Base ID for the form, passed from the shortcode.
+ * @var string $consent_message The user consent message.
+ * @var string $data_policy_url The URL to the data policy.
+ * @var array $recording_types An array of recording type terms.
+ * @var array $languages       An array of language terms.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-$nonce            = wp_create_nonce( 'starmus_audio_form' );
-$form_instance_id = sanitize_key( $form_id . '_' . wp_generate_uuid4() );
+// ** CRITICAL **
+// We create a unique instance ID here. This ensures that if you have multiple
+// recorder forms on the same page, their buttons and fields won't conflict.
+// All JS and CSS will use this unique ID.
+$form_instance_id = 'starmus_form_' . sanitize_key( $form_id . '_' . wp_generate_uuid4() );
 ?>
 
-<div id="starmus_audioWrapper_<?php echo esc_attr( $form_instance_id ); ?>" data-enabled-recorder="true" class="starmus-audio-wrapper starmus-recorder-form">
+<!-- Main wrapper with the class the CSS is looking for -->
+<div class="starmus-recorder-form">
+
+	<!-- The form ID is the UNIQUE instance ID that all JS will use -->
 	<form id="<?php echo esc_attr( $form_instance_id ); ?>" class="starmus-audio-form" method="post" enctype="multipart/form-data">
 		
 		<?php wp_nonce_field( 'starmus_audio_form', 'starmus_nonce_' . $form_instance_id ); ?>
@@ -60,21 +65,22 @@ $form_instance_id = sanitize_key( $form_id . '_' . wp_generate_uuid4() );
 				</select>
 			</div>
 			
-			<div class="starmus-field-group">
+			<div class="starmus-field-group starmus-consent-field">
 				<label>
 					<input type="checkbox" id="audio_consent_<?php echo esc_attr( $form_instance_id ); ?>" name="audio_consent" value="1" required>
-					<?php echo wp_kses_post( $consent_message ); ?>
-					<?php if ( $data_policy_url ) : ?>
-						<a href="<?php echo esc_url( $data_policy_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Privacy Policy', STARMUS_TEXT_DOMAIN ); ?></a>
-					<?php endif; ?>
+					<span>
+						<?php echo wp_kses_post( $consent_message ); ?>
+						<?php if ( $data_policy_url ) : ?>
+							<a href="<?php echo esc_url( $data_policy_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Privacy Policy', STARMUS_TEXT_DOMAIN ); ?></a>
+						<?php endif; ?>
+					</span>
 				</label>
 			</div>
 			
-			<!-- Hidden fields for Geolocation data -->
-			<input type="hidden" name="gps_latitude" value="">
-			<input type="hidden" name="gps_longitude" value="">
+			<input type="hidden" name="gps_latitude" id="gps_latitude_<?php echo esc_attr( $form_instance_id ); ?>" value="">
+			<input type="hidden" name="gps_longitude" id="gps_longitude_<?php echo esc_attr( $form_instance_id ); ?>" value="">
 			
-			<button type="button" id="starmus_continue_btn_<?php echo esc_attr( $form_instance_id ); ?>" class="starmus-btn starmus-btn-primary">
+			<button type="button" id="starmus_continue_btn_<?php echo esc_attr( $form_instance_id ); ?>" class="sparxstar_button sparxstar_button--primary">
 				<?php esc_html_e( 'Continue to Recording', STARMUS_TEXT_DOMAIN ); ?>
 			</button>
 		</div>
@@ -84,14 +90,14 @@ $form_instance_id = sanitize_key( $form_id . '_' . wp_generate_uuid4() );
 			<h2 id="starmus_audioRecorderHeading_<?php echo esc_attr( $form_instance_id ); ?>"><?php esc_html_e( 'Record Your Audio', STARMUS_TEXT_DOMAIN ); ?></h2>
 			
 			<div id="starmus_recorder_container_<?php echo esc_attr( $form_instance_id ); ?>" class="starmus-recorder-container">
-				<!-- Audio recorder will be injected here by JavaScript -->
+				<!-- JS will build the recorder UI here -->
 			</div>
 			
 			<div id="starmus_loader_overlay_<?php echo esc_attr( $form_instance_id ); ?>" class="starmus_visually_hidden starmus-loader">
 				<?php esc_html_e( 'Uploading...', STARMUS_TEXT_DOMAIN ); ?>
 			</div>
 			
-			<button type="submit" id="submit_button_<?php echo esc_attr( $form_instance_id ); ?>" class="starmus-btn starmus-btn-success" disabled>
+			<button type="submit" id="submit_button_<?php echo esc_attr( $form_instance_id ); ?>" class="sparxstar_submitButton" disabled>
 				<?php esc_html_e( 'Submit Recording', STARMUS_TEXT_DOMAIN ); ?>
 			</button>
 		</div>
