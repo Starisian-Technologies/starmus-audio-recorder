@@ -223,7 +223,7 @@ class StarmusAudioRecorderUI {
 			}
 
 			global $post;
-			if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( $post->post_content, 'starmus_audio_recorder' ) ) {
+			if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( $post->post_content, 'starmus_audio_recorder_form' ) ) {
 				return;
 			}
 
