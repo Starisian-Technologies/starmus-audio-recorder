@@ -208,70 +208,106 @@ class StarmusAudioRecorderUI {
 	}
 
 		/**
-		 * Enqueue front-end assets for recorder and listings.
-		 *
-		 * Assets load on configured pages; fall back to deferred loading
-		 * when page settings are missing.
-		 */
+	 * Enqueues all necessary scripts for the Starmus Audio Recorder.
+	 *
+	 * This function loads the four-part modular JavaScript architecture.
+	 * Modern browsers will load the Engine, Handler, and UI Controller.
+	 * Legacy browsers will ignore those and run the dedicated Legacy Fallback script.
+	 *
+	 * @since 1.0.0
+	 */
 	public function enqueue_scripts(): void {
 		try {
-			if ( is_admin() || ! is_user_logged_in() ) {
+			if ( is_admin() ) {
 				return;
 			}
 
-				$recorder_page      = absint( $this->settings->get( 'recorder_page_id', 0 ) );
-				$my_recordings_page = absint( $this->settings->get( 'my_recordings_page_id', 0 ) );
+			global $post;
+			if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( $post->post_content, 'starmus_audio_recorder' ) ) {
+				return;
+			}
 
-				$lazy = true;
-			if ( $recorder_page && $my_recordings_page ) {
-				if ( ! is_page( array( $recorder_page, $my_recordings_page ) ) ) {
-					return;
+			// --- Load Stylesheet ---
+			wp_enqueue_style(
+				'starmus-recorder-style',
+				STARMUS_URL . 'assets/css/starmus-audio-recorder-styles.css', // Correct filename
+				array(),
+				STARMUS_VERSION
+			);
+
+			// --- Load the Three Modern Scripts ---
+
+			// 1. The Engine (No dependencies)
+			wp_enqueue_script(
+				'starmus-recorder-engine',
+				STARMUS_URL . 'assets/js/starmus-audio-recorder-module.js',
+				array(),
+				STARMUS_VERSION,
+				true
+			);
+
+			// 2. The Uploader/Handler (Depends on the Engine)
+			wp_enqueue_script(
+				'starmus-submission-handler',
+				STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions-handler.js',
+				array( 'starmus-recorder-engine' ),
+				STARMUS_VERSION,
+				true
+			);
+
+			// 3. The UI Controller (Depends on both Engine and Handler)
+			wp_enqueue_script(
+				'starmus-ui-controller',
+				STARMUS_URL . 'assets/js/starmus-audio-recorder-ui-controller.js',
+				array( 'starmus-recorder-engine', 'starmus-submission-handler' ),
+				STARMUS_VERSION,
+				true
+			);
+
+			// --- Load the Legacy Fallback Script ---
+
+			// 4. The self-contained Legacy Fallback
+			wp_enqueue_script(
+				'starmus-legacy-support',
+				STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.js',
+				array(),
+				STARMUS_VERSION,
+				true
+			);
+			
+			// This filter adds 'nomodule' to the legacy script tag.
+			// Modern browsers will NOT run it. Old browsers WILL run it.
+			add_filter( 'script_loader_tag', function ( $tag, $handle ) {
+				if ( 'starmus-legacy-support' === $handle ) {
+					// Add the nomodule attribute to the script tag.
+					return str_replace( ' src', ' nomodule src', $tag );
 				}
-					$lazy = false;
-			}
+				return $tag;
+			}, 10, 2 );
 
-				$args = array( 'in_footer' => true );
-			if ( $lazy ) {
-					$args['strategy'] = 'defer';
-			}
 
-				$core_dependencies = array( 'jquery', 'wp-api-fetch' );
+			// --- Pass Data from PHP to the Correct Script ---
 
-				wp_enqueue_script(
-					'starmus-recorder-module',
-					STARMUS_URL . 'assets/js/starmus-audio-recorder-module.js',
-					$core_dependencies,
-					STARMUS_VERSION,
-					$args
-				);
+			// The Submission Handler is the only script that needs this data.
+			wp_localize_script(
+				'starmus-submission-handler',
+				'starmusFormData',
+				array(
+					'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
+					'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+				)
+			);
+			
+			// The Submission Handler also needs the tus endpoint.
+			$tus_endpoint = 'https://your-tus-server.com/files/'; // IMPORTANT: Set your real endpoint here
+			wp_add_inline_script(
+				'starmus-submission-handler',
+				'window.starmusTus = { endpoint: "' . esc_url_raw( $tus_endpoint ) . '" };',
+				'before'
+			);
 
-				wp_enqueue_script(
-					'starmus-recorder-submissions',
-					STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions.js',
-					array( 'starmus-recorder-module', 'wp-api-fetch' ),
-					STARMUS_VERSION,
-					$args
-				);
-
-				wp_localize_script(
-					'starmus-recorder-module',
-					'starmusFormData',
-					array(
-						'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
-						'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-						'max_mb'     => (int) $this->settings->get( 'max_file_size_mb', 25 ),
-					)
-				);
-
-				wp_enqueue_style(
-					'starmus-recorder-style',
-					STARMUS_URL . 'assets/css/starmus-audio-recorder-style.css',
-					array(),
-					STARMUS_VERSION
-				);
 		} catch ( Throwable $e ) {
-				error_log( $e->getMessage() );
-				$this->log_error( 'Script enqueue error', $e );
+			error_log( 'Starmus: Script enqueue error - ' . $e->getMessage() );
 		}
 	}
 	/**
