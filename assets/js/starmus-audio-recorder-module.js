@@ -2,122 +2,60 @@
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * NOTICE: All information contained herein is, and remains, the property of Starisian Technologies and its suppliers, if any.
- * The intellectual and technical concepts contained herein are proprietary to Starisian Technologies and its suppliers and may
- * be covered by U.S. and foreign patents, patents in process, and are protected by trade secret or copyright law.
- *
- * Dissemination of this information or reproduction of this material is strictly forbidden unless
- * prior written permission is obtained from Starisian Technologies.
- *
- * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
- * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
- *
  * @module starmus-audio-recorder
- * @since 0.1.0
- * @version 0.4.0
- * @file Starmus Audio Recorder Module - Secure, Feature-Complete Version
- * @version 0.4.0
- * @description Merges a secure, modular architecture with features from the original
- * recorder, including pause/resume, a live timer, robust UUID generation,
- * and legacy browser support. It is designed to work with the Starmus
- * submission handler and PHP backend.
+ * @version 0.5.1
+ * @file Starmus Audio Recorder Module - Secure, Hardened & Compatible
+ * @description Secure, standalone audio recording engine with robust validation and improved legacy browser compatibility.
  */
-
 (function(window) {
     'use strict';
 
-    // --- Feature detection and Polyfills ---
+    // --- Feature Detection ---
     var hasMediaRecorder = !!(window.MediaRecorder && window.navigator.mediaDevices);
-    var hasCrypto = !!(window.crypto && (window.crypto.randomUUID || window.crypto.getRandomValues));
-    var hasPromise = typeof Promise !== 'undefined';
-    
-    /**
-     * Simple Promise polyfill for older browsers if not natively supported.
-     */
-    if (!hasPromise) {
-        window.Promise = function(executor) {
-            var self = this;
-            self.state = 'pending';
-            self.value = undefined;
-            self.handlers = [];
-            
-            function resolve(result) {
-                if (self.state === 'pending') {
-                    self.state = 'fulfilled';
-                    self.value = result;
-                    self.handlers.forEach(handle);
-                    self.handlers = null;
-                }
-            }
-            
-            function reject(error) {
-                if (self.state === 'pending') {
-                    self.state = 'rejected';
-                    self.value = error;
-                    self.handlers.forEach(handle);
-                    self.handlers = null;
-                }
-            }
-            
-            function handle(handler) {
-                if (self.state === 'pending') {
-                    self.handlers.push(handler);
-                } else {
-                    if (self.state === 'fulfilled' && handler.onFulfilled) {
-                        handler.onFulfilled(self.value);
-                    }
-                    if (self.state === 'rejected' && handler.onRejected) {
-                        handler.onRejected(self.value);
-                    }
-                }
-            }
-            
-            this.then = function(onFulfilled, onRejected) {
-                return new Promise(function(resolve, reject) {
-                    handle({
-                        onFulfilled: function(result) {
-                            try {
-                                resolve(onFulfilled ? onFulfilled(result) : result);
-                            } catch (ex) {
-                                reject(ex);
-                            }
-                        },
-                        onRejected: function(error) {
-                            try {
-                                resolve(onRejected ? onRejected(error) : error);
-                            } catch (ex) {
-                                reject(ex);
-                            }
-                        }
-                    });
-                });
-            };
-            
-            try {
-                executor(resolve, reject);
-            } catch (ex) {
-                reject(ex);
-            }
-        };
+
+    // --- Constants ---
+    var ALLOWED_TYPES = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/ogg;codecs=opus', 
+        'audio/ogg',
+        'audio/mpeg',
+        'audio/wav'
+    ];
+
+    function canUseMime(mime){
+        try {
+            return !!(window.MediaRecorder && typeof MediaRecorder.isTypeSupported==='function' && MediaRecorder.isTypeSupported(mime));
+        } catch(_) { return false; }
     }
 
-    /**
-     * Sanitizes a string for logging by removing special characters and truncating.
-     * @param {string|*} input The input to sanitize.
-     * @returns {string} The sanitized string.
-     */
+    function pickBestMime(){
+        var order = [
+            'audio/webm;codecs=opus',
+            'audio/ogg;codecs=opus',
+            'audio/webm',
+            'audio/ogg'
+        ];
+        for (var i=0;i<order.length;i++){
+            if (canUseMime(order[i])) return order[i];
+        }
+        return '';
+    }
+
+    // --- Secure Utilities ---
+
+    function isSafeId(id) {
+        if (typeof id !== 'string' || id.length === 0 || id.length > 100) {
+            return false;
+        }
+        return /^[a-zA-Z0-9_-]+$/.test(id);
+    }
+
     function sanitizeForLog(input) {
         if (typeof input !== 'string') return String(input);
-        return input.replace(/[\r\n\t<>]/g, ' ').substring(0, 100);
+        return input.replace(/[\u0020-\u007E]/g, function(match) { return /[<>"'&]/.test(match) ? ' ' : match; }).substring(0, 200);
     }
 
-    /**
-     * Logs a message to the console securely after sanitizing inputs.
-     * @param {string} level The console log level (e.g., 'log', 'warn', 'error').
-     * @param {string} message The main message to log.
-     * @param {*} [data] Optional data to include in the log.
-     * @returns {void}
-     */
     function secureLog(level, message, data) {
         if (typeof console === 'undefined' || !console[level]) return;
         var sanitizedMessage = sanitizeForLog(message);
@@ -125,234 +63,429 @@
         console[level]('[Starmus Recorder]', sanitizedMessage, sanitizedData);
     }
 
-    /**
-     * Validates that a form instance ID is a safe, non-empty string.
-     * @param {string} id The ID to validate.
-     * @returns {boolean} True if the ID is valid, false otherwise.
-     */
-    function validateFormInstanceId(id) {
-        return typeof id === 'string' && /^[a-zA-Z0-9_-]+$/.test(id) && id.length < 100;
-    }
-
-    /**
-     * Validates that a blob is a non-empty audio file within size limits.
-     * @param {Blob} blob The Blob object to validate.
-     * @returns {boolean} True if the blob is valid, false otherwise.
-     */
     function validateAudioBlob(blob) {
-        return blob instanceof Blob && blob.type.startsWith('audio/') && blob.size > 0 && blob.size < 50 * 1024 * 1024;
+        var MAX_BLOB_SIZE = 50 * 1024 * 1024;
+        var MIN_BLOB_SIZE = 100;
+
+        if (!(blob instanceof Blob)) return false;
+
+        var isTypeAllowed = false;
+        for (var i = 0; i < ALLOWED_TYPES.length; i++) {
+            if (blob.type.startsWith(ALLOWED_TYPES[i].split(';')[0])) {
+                isTypeAllowed = true;
+                break;
+            }
+        }
+
+        return isTypeAllowed && blob.size >= MIN_BLOB_SIZE && blob.size <= MAX_BLOB_SIZE;
     }
 
-    /**
-     * The main public module for the Starmus Audio Recorder. This object is attached
-     * to the window and serves as the public API for other scripts. It manages
-     * multiple recorder instances, handles UI creation, and orchestrates uploads.
-     * @namespace StarmusAudioRecorder
-     */
+    // --- Main Public Module ---
+
     window.StarmusAudioRecorder = {
-        /**
-         * A map of active recorder instances, keyed by their formInstanceId.
-         * @property {Object.<string, object>} instances
-         */
         instances: {},
-        
-        /**
-         * Initializes a recorder instance for a given form. This is the main public entry point.
-         * @param {object} options - The initialization options.
-         * @param {string} options.formInstanceId - The unique ID of the form instance to manage.
-         * @returns {Promise<boolean>} A promise that resolves to true on successful initialization or rejects with an error.
-         */
+
         init: function(options) {
-            if (!hasMediaRecorder) {
-                secureLog('error', 'MediaRecorder not supported in this browser.');
-                return Promise.reject(new Error('MediaRecorder not supported'));
-            }
-
-            if (!options || !validateFormInstanceId(options.formInstanceId)) {
-                secureLog('error', 'Invalid form instance ID');
-                return Promise.reject(new Error('Invalid form instance ID'));
-            }
-
-            var instanceId = options.formInstanceId;
-            
-            if (this.instances[instanceId]) {
-                secureLog('warn', 'Instance already exists', instanceId);
-                return Promise.resolve(true);
-            }
-
-            return this.initializeInstance(instanceId);
-        },
-
-        /**
-         * Internal helper to set up a new recorder instance state and acquire microphone permissions.
-         * @private
-         * @param {string} instanceId The unique ID for the new instance.
-         * @returns {Promise<boolean>} A promise that resolves to true on success or rejects on error.
-         */
-        initializeInstance: function(instanceId) {
             var self = this;
-            
             return new Promise(function(resolve, reject) {
-                try {
-                    navigator.mediaDevices.getUserMedia({ audio: true })
-                        .then(function(stream) {
-                            self.instances[instanceId] = {
-                                stream: stream,
-                                recorder: null,
-                                chunks: [],
-                                isRecording: false,
-                                isPaused: false,
-                                startTime: 0,
-                                timerInterval: null
-                            };
-                            
-                            self.setupUI(instanceId);
-                            resolve(true);
-                        })
-                        .catch(function(error) {
-                            secureLog('error', 'Media access denied', error.message);
-                            reject(error);
-                        });
-                } catch (error) {
-                    reject(error);
+                if (!hasMediaRecorder) {
+                    var err = new Error('MediaRecorder API is not supported in this browser.');
+                    secureLog('error', err.message);
+                    return reject(err);
                 }
+
+                if (!options || !isSafeId(options.formInstanceId)) {
+                    var validationError = new Error('Invalid or unsafe form instance ID provided.');
+                    secureLog('error', validationError.message);
+                    return reject(validationError);
+                }
+
+                var instanceId = options.formInstanceId;
+
+                if (self.instances[instanceId]) {
+                    secureLog('warn', 'Instance already exists, skipping re-initialization.', instanceId);
+                    return resolve(true);
+                }
+
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(function(stream) {
+                        // Create audio context and analyser for calibration
+                        var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        var source = audioContext.createMediaStreamSource(stream);
+                        var analyser = audioContext.createAnalyser();
+                        var gainNode = audioContext.createGain();
+                        
+                        analyser.fftSize = 2048;
+                        source.connect(analyser);
+                        analyser.connect(gainNode);
+
+                        self.instances[instanceId] = {
+                            stream: stream,
+                            recorder: null,
+                            chunks: [],
+                            audioBlob: null,
+                            isRecording: false,
+                            isPaused: false,
+                            startTime: 0,
+                            timerInterval: null,
+                            ctx: audioContext,
+                            analyser: analyser,
+                            gain: gainNode,
+                            isCalibrated: false,
+                            tier: 'A'
+                        };
+
+                        self.setupUI(instanceId);
+                        resolve({ ok: true, tier: 'A' });
+                    })
+                    .catch(function(error) {
+                        secureLog('error', 'Microphone access was denied.', error.message);
+                        var userError = new Error('Microphone permission is required to record audio.');
+                        var status = document.getElementById('starmus_recorder_status_' + instanceId);
+                        if(status) status.textContent = userError.message;
+                        reject(userError);
+                    });
             });
         },
 
-        /**
-         * Dynamically creates the recorder's HTML UI inside its designated container.
-         * @param {string} instanceId The ID of the instance whose UI should be created. Must be alphanumeric/underscore/dash.
-         * @returns {void}
-         */
         setupUI: function(instanceId) {
-            // Only allow safe HTML ID characters: a-zA-Z0-9_- (no spaces, punctuation)
-            if (!/^[a-zA-Z0-9_-]+$/.test(instanceId)) {
-                secureLog('error', 'Unsafe instanceId value rejected by setupUI:', instanceId);
+            if (!isSafeId(instanceId)) return;
+
+            var container = document.getElementById('starmus_recorder_container_' + instanceId);
+            if (!container) {
+                secureLog('error', 'UI container not found for instanceId:', instanceId);
                 return;
             }
 
-            var container = document.getElementById('starmus_recorder_container_' + instanceId);
-            if (!container) return;
+            container.textContent = ''; // Clear container safely
 
-            container.innerHTML = [
-                '<div class="starmus-recorder-status" id="starmus_recorder_status_' + instanceId + '">Ready to record</div>',
-                '<div class="starmus-recorder-timer" id="starmus_timer_' + instanceId + '">00:00</div>',
-                '<div class="starmus-recorder-controls">',
-                '<button type="button" id="starmus_record_btn_' + instanceId + '" class="starmus-btn starmus-record-btn">Record</button>',
-                '<button type="button" id="starmus_pause_btn_' + instanceId + '" class="starmus-btn starmus-pause-btn" style="display:none;">Pause</button>',
-                '<button type="button" id="starmus_stop_btn_' + instanceId + '" class="starmus-btn starmus-stop-btn" disabled>Stop</button>',
-                '<button type="button" id="starmus_play_btn_' + instanceId + '" class="starmus-btn starmus-play-btn" disabled>Play</button>',
-                '</div>',
-                '<audio id="starmus_audio_preview_' + instanceId + '" controls style="display:none;"></audio>'
-            ].join('');
+            var statusDiv = document.createElement('div');
+            statusDiv.className = 'starmus-recorder-status';
+            statusDiv.id = 'starmus_recorder_status_' + instanceId;
+            statusDiv.textContent = 'Ready to record';
+
+            var timerDiv = document.createElement('div');
+            timerDiv.className = 'starmus-recorder-timer';
+            timerDiv.id = 'starmus_timer_' + instanceId;
+            timerDiv.textContent = '00:00';
+
+            var controlsDiv = document.createElement('div');
+            controlsDiv.className = 'starmus-recorder-controls';
+
+            var calibrateBtn = document.createElement('button');
+            calibrateBtn.type = 'button';
+            calibrateBtn.id = 'starmus_calibrate_btn_' + instanceId;
+            calibrateBtn.className = 'starmus-btn starmus-calibrate-btn';
+            calibrateBtn.textContent = 'Test Microphone';
+
+            var calibrationStatus = document.createElement('div');
+            calibrationStatus.id = 'starmus_calibration_status_' + instanceId;
+            calibrationStatus.className = 'starmus-calibration-status';
+            calibrationStatus.textContent = 'Click "Test Microphone" to calibrate audio levels';
+
+            var volumeMeter = document.createElement('div');
+            volumeMeter.className = 'starmus-volume-meter';
+            volumeMeter.style.cssText = 'width:100%;height:20px;background:#f0f0f0;border:1px solid #ccc;margin:10px 0;position:relative;display:none';
+            
+            var volumeBar = document.createElement('div');
+            volumeBar.id = 'starmus_volume_bar_' + instanceId;
+            volumeBar.style.cssText = 'height:100%;background:linear-gradient(to right,#4CAF50 0%,#FFEB3B 70%,#F44336 100%);width:0%;transition:width 0.1s';
+            
+            var volumeLabel = document.createElement('div');
+            volumeLabel.style.cssText = 'position:absolute;top:2px;left:5px;font-size:12px;color:#333';
+            volumeLabel.textContent = 'Volume Level';
+            
+            volumeMeter.appendChild(volumeBar);
+            volumeMeter.appendChild(volumeLabel);
+
+            var recordBtn = document.createElement('button');
+            recordBtn.type = 'button';
+            recordBtn.id = 'starmus_record_btn_' + instanceId;
+            recordBtn.className = 'starmus-btn starmus-record-btn';
+            recordBtn.textContent = 'Record';
+            recordBtn.disabled = true;
+
+            var pauseBtn = document.createElement('button');
+            pauseBtn.type = 'button';
+            pauseBtn.id = 'starmus_pause_btn_' + instanceId;
+            pauseBtn.className = 'starmus-btn starmus-pause-btn';
+            pauseBtn.style.display = 'none';
+            pauseBtn.textContent = 'Pause';
+
+            var stopBtn = document.createElement('button');
+            stopBtn.type = 'button';
+            stopBtn.id = 'starmus_stop_btn_' + instanceId;
+            stopBtn.className = 'starmus-btn starmus-stop-btn';
+            stopBtn.disabled = true;
+            stopBtn.textContent = 'Stop';
+
+            var playBtn = document.createElement('button');
+            playBtn.type = 'button';
+            playBtn.id = 'starmus_play_btn_' + instanceId;
+            playBtn.className = 'starmus-btn starmus-play-btn';
+            playBtn.disabled = true;
+            playBtn.textContent = 'Play';
+
+            var audioPreview = document.createElement('audio');
+            audioPreview.id = 'starmus_audio_preview_' + instanceId;
+            audioPreview.controls = true;
+            audioPreview.style.display = 'none';
+            audioPreview.style.width = '100%';
+            audioPreview.style.marginTop = '10px';
+
+            controlsDiv.appendChild(calibrateBtn);
+            controlsDiv.appendChild(recordBtn);
+            controlsDiv.appendChild(pauseBtn);
+            controlsDiv.appendChild(stopBtn);
+            controlsDiv.appendChild(playBtn);
+
+            container.appendChild(statusDiv);
+            container.appendChild(calibrationStatus);
+            container.appendChild(volumeMeter);
+            container.appendChild(timerDiv);
+            container.appendChild(controlsDiv);
+            container.appendChild(audioPreview);
 
             this.bindEvents(instanceId);
         },
 
-        /**
-         * Attaches event listeners to the newly created UI elements for an instance.
-         * @param {string} instanceId The ID of the instance whose events should be bound.
-         * @returns {void}
-         */
         bindEvents: function(instanceId) {
-            var self = this;
+            if (!isSafeId(instanceId)) return;
+            var self = this; // Maintain reference to the main object
+
+            var calibrateBtn = document.getElementById('starmus_calibrate_btn_' + instanceId);
             var recordBtn = document.getElementById('starmus_record_btn_' + instanceId);
             var stopBtn = document.getElementById('starmus_stop_btn_' + instanceId);
             var playBtn = document.getElementById('starmus_play_btn_' + instanceId);
             var pauseBtn = document.getElementById('starmus_pause_btn_' + instanceId);
 
+            if (calibrateBtn) calibrateBtn.addEventListener('click', function() { self.calibrate(instanceId); });
             if (recordBtn) recordBtn.addEventListener('click', function() { self.startRecording(instanceId); });
             if (stopBtn) stopBtn.addEventListener('click', function() { self.stopRecording(instanceId); });
             if (playBtn) playBtn.addEventListener('click', function() { self.playRecording(instanceId); });
             if (pauseBtn) pauseBtn.addEventListener('click', function() { self.togglePause(instanceId); });
         },
 
-        /**
-         * Begins the recording process for a specific instance.
-         * @param {string} instanceId The ID of the instance to start recording.
-         * @returns {void}
-         */
-        startRecording: function(instanceId) {
+        calibrate: function(instanceId) {
+            if (!isSafeId(instanceId) || !this.instances[instanceId]) return;
             var instance = this.instances[instanceId];
-            if (!instance || instance.isRecording) return;
+            if (instance.tier !== 'A') return;
+            
+            var label = document.getElementById('starmus_calibration_status_' + instanceId);
+            var volumeMeter = document.querySelector('#' + instanceId + ' .starmus-volume-meter');
+            var volumeBar = document.getElementById('starmus_volume_bar_' + instanceId);
+            var analyser = instance.analyser;
+            var buffer = new Float32Array(analyser.fftSize);
+            
+            if (volumeMeter) volumeMeter.style.display = 'block';
+            
+            var samples = [];
+            var startTime = performance.now();
+            var DUR = 10000; // 10 seconds
+            // Calibration phases: quiet -> speak -> quiet
+            
+            function updateInstructions(elapsed) {
+                var remaining = Math.ceil((DUR - elapsed) / 1000);
+                if (elapsed < 3000) {
+                    if (label) label.textContent = 'Be quiet for background noise (' + remaining + 's)';
+                } else if (elapsed < 7000) {
+                    if (label) label.textContent = 'Now speak normally (' + remaining + 's)';
+                } else {
+                    if (label) label.textContent = 'Be quiet again (' + remaining + 's)';
+                }
+            }
+            
+            function tick() {
+                var elapsed = performance.now() - startTime;
+                updateInstructions(elapsed);
+                
+                analyser.getFloatTimeDomainData(buffer);
+                var sum = 0;
+                for (var i = 0; i < buffer.length; i++) {
+                    sum += buffer[i] * buffer[i];
+                }
+                var rms = Math.sqrt(sum / buffer.length);
+                samples.push(rms);
+                
+                // Update volume bar (0-100%)
+                var volumePercent = Math.min(100, rms * 2000);
+                if (volumeBar) volumeBar.style.width = volumePercent + '%';
+                
+                if (elapsed < DUR) {
+                    requestAnimationFrame(tick);
+                } else {
+                    done();
+                }
+            }
+            
+            function done() {
+                var avg = samples.reduce(function(a, b) { return a + b; }, 0) / Math.max(1, samples.length);
+                var target = 0.05;
+                var gain = Math.max(0.5, Math.min(8.0, target / Math.max(1e-6, avg)));
+                
+                instance.gain.gain.setTargetAtTime(gain, instance.ctx.currentTime, 0.01);
+                instance.isCalibrated = true;
+                
+                if (label) label.textContent = 'Mic calibrated (gain×' + gain.toFixed(2) + '). Ready to record.';
+                if (volumeMeter) volumeMeter.style.display = 'none';
+                
+                var recordBtn = document.getElementById('starmus_record_btn_' + instanceId);
+                if (recordBtn) recordBtn.disabled = false;
+                
+                secureLog('log', 'Calibration complete: avgRMS=' + avg.toFixed(4) + ' gain=' + gain.toFixed(2));
+            }
+            
+            tick();
+        },
+
+        startRecording: function(instanceId) {
+            if (!isSafeId(instanceId) || !this.instances[instanceId]) return;
+            var instance = this.instances[instanceId];
+            if (instance.isRecording || !instance.isCalibrated) return;
+            
+            // Show volume meter during recording
+            var volumeMeter = document.querySelector('#' + instanceId + ' .starmus-volume-meter');
+            if (volumeMeter) volumeMeter.style.display = 'block';
+            
+            // Start volume monitoring
+            this.startVolumeMonitoring(instanceId);
 
             try {
-                instance.recorder = new MediaRecorder(instance.stream);
+                var mimeType = pickBestMime();
+                var cfg = mimeType ? { mimeType: mimeType } : {};
+                try {
+                    instance.recorder = new MediaRecorder(instance.stream, cfg);
+                } catch (e) {
+                    instance.recorder = new MediaRecorder(instance.stream);
+                }
                 instance.chunks = [];
+                instance.audioBlob = null;
                 instance.isRecording = true;
                 instance.isPaused = false;
                 instance.startTime = Date.now();
 
                 instance.recorder.ondataavailable = function(event) {
-                    if (event.data.size > 0) instance.chunks.push(event.data);
-                };
-
-                instance.recorder.onstop = function() {
-                    var blob = new Blob(instance.chunks, { type: 'audio/webm' });
-                    if (validateAudioBlob(blob)) {
-                        instance.audioBlob = blob;
-                        var audio = document.getElementById('starmus_audio_preview_' + instanceId);
-                        if (audio) {
-                            audio.src = URL.createObjectURL(blob);
-                            audio.style.display = 'block';
-                        }
+                    if (event.data && event.data.size > 0) {
+                        instance.chunks.push(event.data);
                     }
                 };
 
-                instance.recorder.start();
+                var self = this;
+                instance.recorder.onerror = function(event) {
+                    secureLog('error', 'MediaRecorder error', event.error ? event.error.message : 'Unknown error');
+                    instance.isRecording = false;
+                    self.updateUI(instanceId, 'error');
+                };
+
+                var self = this;
+                instance.recorder.onstop = function() {
+                    try {
+                        var type = (instance.recorder && instance.recorder.mimeType) || mimeType || 'audio/webm';
+                        var blob = new Blob(instance.chunks, { type: type });
+
+                        if (validateAudioBlob(blob)) {
+                            instance.audioBlob = blob;
+                            var audio = document.getElementById('starmus_audio_preview_' + instanceId);
+                            if (audio) {
+                                if (audio.src && audio.src.indexOf('blob:') === 0) { 
+                                    try { 
+                                        URL.revokeObjectURL(audio.src); 
+                                    } catch(revokeError) {
+                                        secureLog('warn', 'Failed to revoke blob URL', revokeError.message);
+                                    } 
+                                }
+                                audio.src = URL.createObjectURL(blob);
+                            }
+                        } else {
+                            secureLog('error', 'Generated audio blob invalid/too large');
+                            self.updateUI(instanceId, 'error');
+                        }
+                    } catch (error) {
+                        secureLog('error', 'Error processing recorded audio', error.message);
+                        self.updateUI(instanceId, 'error');
+                    }
+                };
+
+                instance.recorder.start(1000); // 1 second chunks
                 this.startTimer(instanceId);
                 this.updateUI(instanceId, 'recording');
-                
+
             } catch (error) {
-                secureLog('error', 'Recording start failed', error.message);
+                secureLog('error', 'Failed to start recording.', error.message);
                 instance.isRecording = false;
+                this.updateUI(instanceId, 'error');
             }
         },
 
-        /**
-         * Stops the recording process for a specific instance.
-         * @param {string} instanceId The ID of the instance to stop recording.
-         * @returns {void}
-         */
         stopRecording: function(instanceId) {
+            if (!isSafeId(instanceId) || !this.instances[instanceId]) return;
             var instance = this.instances[instanceId];
-            if (!instance || !instance.isRecording) return;
-
+            if (!instance.isRecording || !instance.recorder) return;
             try {
-                instance.recorder.stop();
+                if (instance.recorder && instance.recorder.state !== 'inactive') {
+                    instance.recorder.stop();
+                }
                 instance.isRecording = false;
                 instance.isPaused = false;
                 this.stopTimer(instanceId);
+                this.stopVolumeMonitoring(instanceId);
+                
+                // Hide volume meter
+                var volumeMeter = document.querySelector('#' + instanceId + ' .starmus-volume-meter');
+                if (volumeMeter) volumeMeter.style.display = 'none';
+                
                 this.updateUI(instanceId, 'stopped');
-                
-                var submitBtn = document.getElementById('submit_button_' + instanceId);
-                if (submitBtn) submitBtn.disabled = false;
-                
             } catch (error) {
-                secureLog('error', 'Recording stop failed', error.message);
+                secureLog('error', 'Failed to stop recording.', error.message);
             }
         },
-        
-        /**
-         * Toggles the pause/resume state of a recording.
-         * @param {string} instanceId The ID of the instance to pause/resume.
-         * @returns {void}
-         */
-        togglePause: function(instanceId) {
+
+        startVolumeMonitoring: function(instanceId) {
+            if (!isSafeId(instanceId) || !this.instances[instanceId]) return;
             var instance = this.instances[instanceId];
-            if (!instance || !instance.isRecording) return;
-            if (instance.isPaused) this.resumeRecording(instanceId);
-            else this.pauseRecording(instanceId);
+            var volumeBar = document.getElementById('starmus_volume_bar_' + instanceId);
+            
+            if (!volumeBar || !instance.analyser) return;
+            
+            var buffer = new Float32Array(instance.analyser.fftSize);
+            function updateVolume() {
+                if (!instance.isRecording) return;
+                
+                instance.analyser.getFloatTimeDomainData(buffer);
+                var sum = 0;
+                for (var i = 0; i < buffer.length; i++) {
+                    sum += buffer[i] * buffer[i];
+                }
+                var rms = Math.sqrt(sum / buffer.length);
+                var volumePercent = Math.min(100, rms * 2000);
+                volumeBar.style.width = volumePercent + '%';
+                
+                requestAnimationFrame(updateVolume);
+            }
+            
+            updateVolume();
         },
 
-        /**
-         * Pauses an active recording.
-         * @param {string} instanceId The ID of the instance to pause.
-         * @returns {void}
-         */
-        pauseRecording: function(instanceId) {
+        stopVolumeMonitoring: function(_instanceId) {
+            // Volume monitoring stops automatically when isRecording becomes false
+            return true;
+        },
+
+        togglePause: function(instanceId) {
+            if (!isSafeId(instanceId) || !this.instances[instanceId]) return;
             var instance = this.instances[instanceId];
-            if (instance && instance.recorder && instance.recorder.state === 'recording') {
+            if (!instance.isRecording) return;
+            if (instance.isPaused) {
+                this.resumeRecording(instanceId);
+            } else {
+                this.pauseRecording(instanceId);
+            }
+        },
+
+        pauseRecording: function(instanceId) {
+            if (!isSafeId(instanceId) || !this.instances[instanceId]) return;
+            var instance = this.instances[instanceId];
+            if (instance.recorder && instance.recorder.state === 'recording') {
                 instance.recorder.pause();
                 instance.isPaused = true;
                 this.stopTimer(instanceId);
@@ -360,14 +493,10 @@
             }
         },
 
-        /**
-         * Resumes a paused recording.
-         * @param {string} instanceId The ID of the instance to resume.
-         * @returns {void}
-         */
         resumeRecording: function(instanceId) {
+            if (!isSafeId(instanceId) || !this.instances[instanceId]) return;
             var instance = this.instances[instanceId];
-            if (instance && instance.recorder && instance.recorder.state === 'paused') {
+            if (instance.recorder && instance.recorder.state === 'paused') {
                 instance.recorder.resume();
                 instance.isPaused = false;
                 this.startTimer(instanceId);
@@ -375,233 +504,171 @@
             }
         },
 
-        /**
-         * Plays the recorded audio preview for an instance.
-         * @param {string} instanceId The ID of the instance whose audio should be played.
-         * @returns {void}
-         */
         playRecording: function(instanceId) {
+            if (!isSafeId(instanceId)) return;
             var audio = document.getElementById('starmus_audio_preview_' + instanceId);
             if (audio && audio.src) {
+                if (audio.ended) {
+                    audio.currentTime = 0;
+                }
                 audio.play().catch(function(error) {
-                    secureLog('error', 'Playback failed', error.message);
+                    secureLog('error', 'Audio playback failed.', error.message);
+                    var status = document.getElementById('starmus_recorder_status_' + instanceId);
+                    if (status) {
+                        status.textContent = sanitizeForLog('Playback failed. Please try again.');
+                    }
                 });
             }
         },
 
-        /**
-         * Starts the visual timer for a recording instance.
-         * @param {string} instanceId The ID of the instance.
-         * @returns {void}
-         */
         startTimer: function(instanceId) {
-            var self = this;
+            if (!isSafeId(instanceId) || !this.instances[instanceId]) return;
             var instance = this.instances[instanceId];
-            if (!instance) return;
-            
+            var self = this;
             this.stopTimer(instanceId);
             instance.timerInterval = setInterval(function() { self.updateTimer(instanceId); }, 1000);
         },
 
-        /**
-         * Stops the visual timer for a recording instance.
-         * @param {string} instanceId The ID of the instance.
-         * @returns {void}
-         */
         stopTimer: function(instanceId) {
+            if (!isSafeId(instanceId) || !this.instances[instanceId]) return;
             var instance = this.instances[instanceId];
-            if (instance && instance.timerInterval) {
+            if (instance.timerInterval) {
                 clearInterval(instance.timerInterval);
                 instance.timerInterval = null;
             }
         },
 
-        /**
-         * Updates the timer display with the elapsed recording time.
-         * @param {string} instanceId The ID of the instance.
-         * @returns {void}
-         */
         updateTimer: function(instanceId) {
+            if (!isSafeId(instanceId) || !this.instances[instanceId]) return;
             var instance = this.instances[instanceId];
             var timerEl = document.getElementById('starmus_timer_' + instanceId);
-            if (!instance || !timerEl) return;
-            
-            var elapsed = Date.now() - instance.startTime;
+            if (!timerEl) return;
+
+            var elapsed = Math.max(0, Date.now() - instance.startTime);
             var minutes = Math.floor(elapsed / 60000);
             var seconds = Math.floor((elapsed % 60000) / 1000);
-            
-            timerEl.textContent = 
-                (minutes < 10 ? '0' : '') + minutes + ':' +
-                (seconds < 10 ? '0' : '') + seconds;
+
+            timerEl.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
         },
 
-        /**
-         * Updates the UI buttons and status messages based on the recorder's state.
-         * @param {string} instanceId The ID of the instance to update.
-         * @param {string} state The new state ('recording', 'paused', 'stopped', or default 'ready').
-         * @returns {void}
-         */
         updateUI: function(instanceId, state) {
-            var recordBtn = document.getElementById('starmus_record_btn_' + instanceId);
-            var stopBtn = document.getElementById('starmus_stop_btn_' + instanceId);
-            var playBtn = document.getElementById('starmus_play_btn_' + instanceId);
-            var pauseBtn = document.getElementById('starmus_pause_btn_' + instanceId);
-            var status = document.getElementById('starmus_recorder_status_' + instanceId);
-            var timer = document.getElementById('starmus_timer_' + instanceId);
+            if (!isSafeId(instanceId)) return;
 
-            if (!recordBtn || !stopBtn || !playBtn || !status || !pauseBtn || !timer) return;
+            var elements = {
+                recordBtn: document.getElementById('starmus_record_btn_' + instanceId),
+                stopBtn: document.getElementById('starmus_stop_btn_' + instanceId),
+                playBtn: document.getElementById('starmus_play_btn_' + instanceId),
+                pauseBtn: document.getElementById('starmus_pause_btn_' + instanceId),
+                status: document.getElementById('starmus_recorder_status_' + instanceId),
+                timer: document.getElementById('starmus_timer_' + instanceId),
+                audioPreview: document.getElementById('starmus_audio_preview_' + instanceId)
+            };
+
+            var allElementsExist = true;
+            for (var key in elements) {
+                if (!elements[key]) {
+                    allElementsExist = false;
+                    break;
+                }
+            }
+            if (!allElementsExist) return;
+
+            var statusMessages = {
+                recording: 'Recording...',
+                paused: 'Paused',
+                stopped: 'Recording complete. Ready for submission.',
+                error: 'An error occurred. Please refresh and try again.',
+                ready: 'Ready to record'
+            };
+
+            elements.recordBtn.disabled = false;
+            elements.stopBtn.disabled = true;
+            elements.playBtn.disabled = true;
+            elements.pauseBtn.style.display = 'none';
+            elements.audioPreview.style.display = 'none';
 
             switch (state) {
                 case 'recording':
-                    recordBtn.disabled = true; stopBtn.disabled = false; playBtn.disabled = true;
-                    pauseBtn.disabled = false; pauseBtn.textContent = 'Pause'; pauseBtn.style.display = 'inline-block';
-                    status.textContent = 'Recording...';
+                    elements.recordBtn.disabled = true;
+                    elements.stopBtn.disabled = false;
+                    elements.pauseBtn.disabled = false;
+                    elements.pauseBtn.textContent = 'Pause';
+                    elements.pauseBtn.style.display = 'inline-block';
                     break;
                 case 'paused':
-                    recordBtn.disabled = true; stopBtn.disabled = false; playBtn.disabled = true;
-                    pauseBtn.disabled = false; pauseBtn.textContent = 'Resume';
-                    status.textContent = 'Paused';
+                    elements.recordBtn.disabled = true;
+                    elements.stopBtn.disabled = false;
+                    elements.pauseBtn.disabled = false;
+                    elements.pauseBtn.textContent = 'Resume';
+                    elements.pauseBtn.style.display = 'inline-block';
                     break;
                 case 'stopped':
-                    recordBtn.disabled = false; stopBtn.disabled = true; playBtn.disabled = false;
-                    pauseBtn.style.display = 'none';
-                    status.textContent = 'Recording complete';
+                    elements.playBtn.disabled = false;
+                    elements.audioPreview.style.display = 'block';
                     break;
-                default:
-                    recordBtn.disabled = false; stopBtn.disabled = true; playBtn.disabled = true;
-                    pauseBtn.style.display = 'none';
-                    status.textContent = 'Ready to record';
-                    timer.textContent = '00:00';
+                case 'error':
+                    elements.recordBtn.disabled = true;
+                    break;
+                default: // 'ready'
+                    elements.timer.textContent = '00:00';
+                    break;
             }
+            elements.status.textContent = statusMessages[state] || statusMessages.ready;
         },
 
-        /**
-         * Initiates the upload process for a completed recording. Called by the submission handler.
-         * @param {string} instanceId The ID of the instance to submit.
-         * @returns {Promise<object>} A promise that resolves with the server's JSON response or rejects with an error.
-         */
-        submit: function(instanceId) {
+        getSubmissionData: function(instanceId) {
+            if (!isSafeId(instanceId) || !this.instances[instanceId]) return null;
             var instance = this.instances[instanceId];
-            if (!instance || !instance.audioBlob) return Promise.reject(new Error('No audio recording available'));
-            if (!validateAudioBlob(instance.audioBlob)) return Promise.reject(new Error('Invalid audio data'));
-            return this.uploadAudio(instanceId, instance.audioBlob);
-        },
+            
+            if (instance.audioBlob && validateAudioBlob(instance.audioBlob)) {
+                var t = instance.audioBlob.type || '';
+                var ext = 'webm';
+                if (t.indexOf('ogg')>=0) ext='ogg';
+                else if (t.indexOf('mpeg')>=0) ext='mp3';
+                else if (t.indexOf('wav')>=0) ext='wav';
+                else if (t.indexOf('webm')>=0) ext='webm';
+                
+                var startedAt = instance.startTime ? new Date(instance.startTime).toISOString() : null;
+                var durationMs = instance.startTime ? Math.max(0, Date.now()-instance.startTime) : null;
 
-        /**
-         * Handles the chunked file upload to the REST API.
-         * @private
-         * @param {string} instanceId The ID of the instance being uploaded.
-         * @param {Blob} audioBlob The complete audio data to upload.
-         * @returns {Promise<object>} A promise that resolves with the server's final JSON response or rejects with an error.
-         */
-        uploadAudio: function(instanceId, audioBlob) {
-            var chunkSize = 1024 * 1024; // 1MB chunks
-            var totalSize = audioBlob.size;
-            var offset = 0;
-            var uuid = this.generateUUID();
-
-            return new Promise(function(resolve, reject) {
-                function uploadChunk() {
-                    var chunk = audioBlob.slice(offset, offset + chunkSize);
-                    var formData = new FormData();
-                    
-                    formData.append('audio_file', chunk);
-                    formData.append('audio_uuid', uuid);
-                    formData.append('chunk_offset', offset);
-                    formData.append('total_size', totalSize);
-                    formData.append('fileName', 'recording.webm');
-
-                    var form = document.getElementById(instanceId);
-                    if (form) {
-                        var formDataEntries = new FormData(form);
-                        for (var pair of formDataEntries.entries()) {
-                            formData.append(pair[0], pair[1]);
-                        }
-                    }
-
-                    // Use global STARMUS_RECORDER_DATA if available, otherwise fallback
-                    var restUrl = (typeof STARMUS_RECORDER_DATA !== 'undefined' && STARMUS_RECORDER_DATA.rest_url) || '/wp-json/starmus/v1/upload';
-                    var restNonce = (typeof STARMUS_RECORDER_DATA !== 'undefined' && STARMUS_RECORDER_DATA.rest_nonce) || '';
-
-                    fetch(restUrl, {
-                        method: 'POST',
-                        headers: { 'X-WP-Nonce': restNonce },
-                        body: formData
-                    })
-                    .then(function(response) {
-                        if (!response.ok) throw new Error('Upload failed: ' + response.status);
-                        return response.json();
-                    })
-                    .then(function(data) {
-                        offset += chunk.size;
-                        if (offset >= totalSize) resolve(data);
-                        else uploadChunk();
-                    })
-                    .catch(function(error) {
-                        secureLog('error', 'Chunk upload failed', error.message);
-                        reject(error);
-                    });
-                }
-                uploadChunk();
-            });
-        },
-        
-        /**
-         * Generates a robust, cryptographically secure UUID with fallbacks for older browsers.
-         * NOTE: This UUID is used only for chunked upload tracking, not for security purposes.
-         * The Math.random() fallback is acceptable for this non-security context.
-         * @returns {string} The generated UUID.
-         */
-        generateUUID: function() {
-            if (hasCrypto && window.crypto.randomUUID) {
-                try { return window.crypto.randomUUID(); } catch (e) {
-                    secureLog('warn', 'crypto.randomUUID failed, falling back');
-                }
+                return {
+                    blob: instance.audioBlob,
+                    fileName: 'starmus-recording.' + ext,
+                    mimeType: t || 'audio/webm',
+                    size: instance.audioBlob.size,
+                    metadata: { startedAt: startedAt, durationMs: durationMs }
+                };
             }
-            if (hasCrypto && window.crypto.getRandomValues) {
-                try {
-                    var buffer = new Uint8Array(16);
-                    window.crypto.getRandomValues(buffer);
-                    buffer[6] = (buffer[6] & 0x0f) | 0x40; // Version 4
-                    buffer[8] = (buffer[8] & 0x3f) | 0x80; // Variant
-                    var hex = [];
-                    for (var i = 0; i < buffer.length; i++) {
-                        hex.push(('0' + buffer[i].toString(16)).slice(-2));
-                    }
-                    return [
-                        hex.slice(0, 4).join(''), hex.slice(4, 6).join(''),
-                        hex.slice(6, 8).join(''), hex.slice(8, 10).join(''),
-                        hex.slice(10).join('')
-                    ].join('-');
-                } catch (e) {
-                    secureLog('warn', 'crypto.getRandomValues failed, using fallback');
-                }
-            }
-            // Fallback for legacy browsers - Math.random() is acceptable here as this UUID
-            // is only used for upload chunk tracking, not for security-sensitive operations
-            var d = new Date().getTime();
-            if (window.performance && window.performance.now) d += window.performance.now();
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = (d + Math.random() * 16) % 16 | 0; // lgtm[js/insecure-randomness]
-                d = Math.floor(d / 16);
-                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-            });
+            return null;
         },
 
-        /**
-         * Stops media streams and removes an instance from memory to free up resources.
-         * @param {string} instanceId The ID of the instance to clean up.
-         * @returns {void}
-         */
         cleanup: function(instanceId) {
+            if (!isSafeId(instanceId) || !this.instances[instanceId]) return;
             var instance = this.instances[instanceId];
-            if (instance) {
-                if (instance.stream) {
-                    instance.stream.getTracks().forEach(function(track) { track.stop(); });
-                }
-                this.stopTimer(instanceId);
-                delete this.instances[instanceId];
+
+            if (instance.stream) {
+                instance.stream.getTracks().forEach(function(track) { track.stop(); });
             }
+
+            if (instance.recorder) {
+                try {
+                    if (instance.recorder.state !== 'inactive') {
+                        instance.recorder.stop();
+                    }
+                } catch (e) {
+                    secureLog('warn', 'Error stopping recorder during cleanup', e.message);
+                }
+            }
+
+            var audio = document.getElementById('starmus_audio_preview_' + instanceId);
+            if (audio && audio.src && audio.src.startsWith('blob:')) {
+                URL.revokeObjectURL(audio.src);
+            }
+
+            this.stopTimer(instanceId);
+            this.stopVolumeMonitoring(instanceId);
+            this.instances[instanceId] = null;
+            delete this.instances[instanceId];
         }
     };
 

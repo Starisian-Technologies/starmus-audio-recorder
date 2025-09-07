@@ -23,11 +23,19 @@
 (function() {
 	'use strict';
 
-	// Feature detection and polyfills
+	// Only run in legacy environments
+	if (window.MediaRecorder && window.Promise && window.fetch) {
+		return; // Modern environment handled by other modules
+	}
+
+	// Feature detection and polyfills with safety checks
 	if (!Array.prototype.forEach) {
 		Array.prototype.forEach = function(callback, thisArg) {
 			for (var i = 0; i < this.length; i++) {
-				callback.call(thisArg, this[i], i, this);
+				// Handle sparse arrays correctly
+				if (this.hasOwnProperty(i)) {
+					callback.call(thisArg, this[i], i, this);
+				}
 			}
 		};
 	}
@@ -38,16 +46,37 @@
 		};
 	}
 
-	// Secure logging with sanitization
+	// Secure logging with enhanced sanitization
 	function sanitizeForLog(input) {
-		if (typeof input !== 'string') return String(input);
-		return input.replace(/[\r\n\t]/g, ' ').substring(0, 100);
+		if (typeof input !== 'string') {
+			try {
+				return JSON.stringify(input).substring(0, 100);
+			} catch (e) {
+				return String(input).substring(0, 100);
+			}
+		}
+		return input.replace(/[\u0000-\u001F\u007F<>"'&]/g, ' ').substring(0, 100);
+	}
+
+	// Validate redirect URLs to prevent open redirect attacks
+	function isValidRedirectUrl(url) {
+		if (typeof url !== 'string' || url.length === 0) return false;
+		
+		// Only allow relative URLs or same-origin URLs
+		if (url.startsWith('/')) return true;
+		
+		try {
+			var urlObj = new URL(url, window.location.origin);
+			return urlObj.origin === window.location.origin;
+		} catch (e) {
+			return false;
+		}
 	}
 
 	function secureLog(level, prefix, message, data) {
 		if (typeof console === 'undefined' || !console[level]) return;
 		var sanitizedMessage = sanitizeForLog(message);
-		var sanitizedData = data ? sanitizeForLog(String(data)) : '';
+		var sanitizedData = data ? sanitizeForLog(data) : '';
 		console[level](prefix, sanitizedMessage, sanitizedData);
 	}
 
@@ -55,8 +84,6 @@
 	var CONFIG = {
 		LOG_PREFIX: '[Starmus Submissions]',
 		DEBUG_MODE: typeof window.STARMUS_DEBUG !== 'undefined' ? window.STARMUS_DEBUG : false,
-		GEOLOCATION_TIMEOUT: 8000,
-		GEOLOCATION_MAX_AGE: 300000,
 		RETRY_DELAY: 2000
 	};
 
@@ -64,8 +91,9 @@
 	var elementCache = {};
 
 	function getCachedElement(id) {
-		if (!elementCache[id]) {
-			elementCache[id] = document.getElementById(id);
+		if (!elementCache.hasOwnProperty(id)) {
+			var element = document.getElementById(id);
+			elementCache[id] = element || null;
 		}
 		return elementCache[id];
 	}
@@ -83,15 +111,25 @@
 			if (form) form.insertBefore(messageDiv, form.firstChild);
 		}
 		
-		messageDiv.textContent = message;
+		messageDiv.textContent = sanitizeForLog(message);
 		messageDiv.className = 'starmus-user-message starmus-message-' + (type || 'info');
 		messageDiv.style.display = 'block';
 		
+		// Clear existing timeout to prevent memory leaks (legacy browser compatible)
+		var existingTimeoutId = messageDiv.getAttribute('data-timeout-id');
+		if (existingTimeoutId) {
+			clearTimeout(parseInt(existingTimeoutId, 10));
+		}
+		
 		// Auto-hide after 5 seconds for non-error messages
 		if (type !== 'error') {
-			setTimeout(function() {
-				if (messageDiv) messageDiv.style.display = 'none';
+			var timeoutId = setTimeout(function() {
+				if (messageDiv) {
+					messageDiv.style.display = 'none';
+					messageDiv.removeAttribute('data-timeout-id');
+				}
 			}, 5000);
+			messageDiv.setAttribute('data-timeout-id', String(timeoutId));
 		}
 	}
 
@@ -101,6 +139,7 @@
 			if (document.addEventListener) {
 				document.addEventListener('DOMContentLoaded', initialize);
 			} else if (document.attachEvent) {
+				// Legacy IE support - deprecated, consider removing when IE support is dropped
 				document.attachEvent('onreadystatechange', function() {
 					if (document.readyState === 'complete') initialize();
 				});
@@ -134,8 +173,12 @@
 	}
 
 	function setupFormInstance(formElement, formInstanceId) {
-		var step1 = formElement.querySelector('#starmus_step_1_' + formInstanceId);
-		var step2 = formElement.querySelector('#starmus_step_2_' + formInstanceId);
+		// Bind once guard
+		if (formElement.getAttribute('data-starmus-bound') === '1') return;
+		formElement.setAttribute('data-starmus-bound', '1');
+		
+		var step1 = formElement.querySelector('#starmus_step1_' + formInstanceId);
+		var step2 = formElement.querySelector('#starmus_step2_' + formInstanceId);
 		var continueBtn = formElement.querySelector('#starmus_continue_btn_' + formInstanceId);
 
 		// Cache form elements for performance
@@ -143,8 +186,8 @@
 			step1: step1,
 			step2: step2,
 			continueBtn: continueBtn,
-			errorDiv: formElement.querySelector('#starmus_step_1_error_' + formInstanceId),
-			statusDiv: formElement.querySelector('#starmus_step_1_status_' + formInstanceId),
+			errorDiv: formElement.querySelector('#starmus_step1_error_' + formInstanceId),
+			statusDiv: formElement.querySelector('#starmus_step1_status_' + formInstanceId),
 			submitBtn: formElement.querySelector('#submit_button_' + formInstanceId),
 			loaderDiv: formElement.querySelector('#starmus_loader_overlay_' + formInstanceId)
 		};
@@ -191,14 +234,15 @@
 		}
 
 		// Clear previous aria-describedby attributes
-		validationFields.forEach(function(field) {
-			var element = fieldElements[field.id];
-			if (element && element.removeAttribute) {
-				element.removeAttribute('aria-describedby');
+		for (var j = 0; j < validationFields.length; j++) {
+			var fieldForClearing = validationFields[j];
+			var elementForClearing = fieldElements[fieldForClearing.id];
+			if (elementForClearing && elementForClearing.removeAttribute) {
+				elementForClearing.removeAttribute('aria-describedby');
 			}
-		});
+		}
 
-		// Validate fields
+		// Validate fields with early exit
 		for (var i = 0; i < validationFields.length; i++) {
 			var field = validationFields[i];
 			var input = fieldElements[field.id];
@@ -211,89 +255,59 @@
 			}
 		}
 
-		if (formElements.statusDiv) formElements.statusDiv.style.display = 'block';
-		if (formElements.continueBtn) formElements.continueBtn.disabled = true;
-
-		captureGeolocationAndProceed(formElements, formInstanceId);
+		// Transition directly to step 2 (geolocation handled by modern UI controller)
+		transitionToStep2(formElements, formInstanceId);
 	}
 
 	function validateField(input, type) {
-		switch (type) {
-			case 'text':
-				return input.value && input.value.trim() !== '';
-			case 'select':
-				return input.value !== '';
-			case 'checkbox':
-				return input.checked;
-			default:
-				return true;
+		if (!input) return false;
+		try {
+			// Use checkValidity when available
+			if (typeof input.checkValidity === 'function' && !input.checkValidity()) {
+				return false;
+			}
+			switch (type) {
+				case 'text':
+					return input.value && input.value.trim() !== '';
+				case 'select':
+					return input.value !== '';
+				case 'checkbox':
+					return input.checked;
+				default:
+					return true;
+			}
+		} catch (e) {
+			secureLog('error', CONFIG.LOG_PREFIX, 'Validation error', input.id || 'unknown');
+			return false;
 		}
+	}
 	}
 
 	function showValidationError(errorDiv, fieldName, input, formInstanceId) {
 		if (errorDiv) {
-			errorDiv.textContent = 'Please complete the "' + fieldName + '" field.';
+			// Sanitize field name to prevent XSS
+			var safeFieldName = sanitizeForLog(fieldName);
+			errorDiv.textContent = 'Please complete the "' + safeFieldName + '" field.';
 			errorDiv.style.display = 'block';
-			errorDiv.id = 'starmus_step_1_error_' + formInstanceId;
+			// Don't set ID here - should be set during initialization
 		}
 		
 		if (input && input.focus) {
 			input.focus();
-			if (input.setAttribute && errorDiv) {
+			if (input.setAttribute && errorDiv && errorDiv.id) {
 				input.setAttribute('aria-describedby', errorDiv.id);
 			}
 		}
 	}
 
-	function captureGeolocationAndProceed(formElements, formInstanceId) {
-		if (typeof navigator !== 'undefined' && navigator.geolocation) {
-			var options = {
-				timeout: CONFIG.GEOLOCATION_TIMEOUT,
-				maximumAge: CONFIG.GEOLOCATION_MAX_AGE,
-				enableHighAccuracy: false // Better for older devices
-			};
 
-			navigator.geolocation.getCurrentPosition(
-				function(position) {
-					saveGeolocation(position, formInstanceId);
-					if (CONFIG.DEBUG_MODE) {
-						secureLog('log', CONFIG.LOG_PREFIX, 'GPS Location captured');
-					}
-					transitionToStep2(formElements, formInstanceId);
-				},
-				function(error) {
-					secureLog('warn', CONFIG.LOG_PREFIX, 'Geolocation error', error.code + ': ' + error.message);
-					transitionToStep2(formElements, formInstanceId);
-				},
-				options
-			);
-		} else {
-			secureLog('log', CONFIG.LOG_PREFIX, 'Geolocation not available');
-			transitionToStep2(formElements, formInstanceId);
-		}
-	}
-
-	function saveGeolocation(position, formInstanceId) {
-		var latField = getCachedElement('gps_latitude_' + formInstanceId);
-		var lonField = getCachedElement('gps_longitude_' + formInstanceId);
-		
-		if (latField && position.coords.latitude) {
-			latField.value = position.coords.latitude;
-		}
-		if (lonField && position.coords.longitude) {
-			lonField.value = position.coords.longitude;
-		}
-	}
 
 	function transitionToStep2(formElements, formInstanceId) {
-		if (formElements.statusDiv) formElements.statusDiv.style.display = 'none';
-		if (formElements.continueBtn) formElements.continueBtn.disabled = false;
-
 		formElements.step1.style.display = 'none';
 		formElements.step2.style.display = 'block';
 
-		// Fixed naming consistency issue
-		var step2Heading = document.querySelector('#starmus_audioRecorderHeading_' + formInstanceId);
+		// Safe heading focus
+		var step2Heading = document.getElementById('starmus_audioRecorderHeading_' + formInstanceId);
 		if (step2Heading) {
 			step2Heading.setAttribute('tabindex', '-1');
 			if (step2Heading.focus) step2Heading.focus();
@@ -318,6 +332,12 @@
 					secureLog('error', CONFIG.LOG_PREFIX, 'Recorder initialization failed', error.message || error);
 					showUserMessage(instanceId, 'Audio recorder failed to initialize. Please refresh the page.', 'error');
 				});
+			} else {
+				// Handle non-Promise return with error checking
+				if (!initPromise) {
+					secureLog('error', CONFIG.LOG_PREFIX, 'Recorder initialization returned falsy value');
+					showUserMessage(instanceId, 'Audio recorder failed to initialize. Please refresh the page.', 'error');
+				}
 			}
 		} else {
 			secureLog('error', CONFIG.LOG_PREFIX, 'StarmusAudioRecorder module not available');
@@ -342,13 +362,13 @@
 					handleSubmitResult(result, formElements, formInstanceId);
 				}).catch(function(error) {
 					secureLog('error', CONFIG.LOG_PREFIX, 'Submit failed', error.message || error);
-					handleSubmitError(formElements, formInstanceId);
+					handleSubmitError(formElements, formInstanceId, error);
 				});
 			} else {
-				// Fallback for non-Promise return
+				// Fallback for non-Promise return with longer timeout
 				setTimeout(function() {
 					handleSubmitResult(submitPromise, formElements, formInstanceId);
-				}, 100);
+				}, 500);
 			}
 		} else {
 			showUserMessage(formInstanceId, 'Submission handler is not available. Please contact support.', 'error');
@@ -362,7 +382,13 @@
 
 		if (result && result.success) {
 			if (result.redirectUrl) {
-				window.location.href = result.redirectUrl;
+				// Validate redirect URL to prevent open redirect attacks
+				if (isValidRedirectUrl(result.redirectUrl)) {
+					window.location.href = result.redirectUrl;
+				} else {
+					secureLog('warn', CONFIG.LOG_PREFIX, 'Invalid redirect URL blocked', result.redirectUrl);
+					showUserMessage(formInstanceId, 'Successfully submitted!', 'success');
+				}
 			} else {
 				showUserMessage(formInstanceId, 'Successfully submitted!', 'success');
 				var form = getCachedElement(formInstanceId);
@@ -374,16 +400,24 @@
 				}
 			}
 		} else {
-			handleSubmitError(formElements, formInstanceId);
+			handleSubmitError(formElements, formInstanceId, new Error('Invalid result'));
 		}
 	}
 
-	function handleSubmitError(formElements, formInstanceId) {
+	function handleSubmitError(formElements, formInstanceId, error) {
 		if (formElements.submitBtn) formElements.submitBtn.disabled = false;
 		if (formElements.loaderDiv) {
 			formElements.loaderDiv.classList.add('starmus_visually_hidden');
 		}
-		showUserMessage(formInstanceId, 'Submission failed. Please try again.', 'error');
+		
+		// Provide more specific error messages when possible
+		var errorMessage = 'Submission failed. Please try again.';
+		if (error && error.message) {
+			secureLog('error', CONFIG.LOG_PREFIX, 'Submit error details', error.message);
+			// Don't expose technical details to users for security
+		}
+		
+		showUserMessage(formInstanceId, errorMessage, 'error');
 	}
 
 	// Initialize the module
