@@ -29,6 +29,23 @@
     "env:start": "wp-env start",
     "env:stop": "wp-env stop",
     "docs": "npm run docs:php && npm run docs:js"
+    {
+  "name": "starmus-audio-recorder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cp node_modules/peaks.js/dist/peaks.js assets/js/vendor/peaks.js && cp node_modules/tus-js-client/dist/tus.min.js assets/js/vendor/tus.min.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "peaks.js": "^0.23.0",
+    "tus-js-client": "^3.1.0"
+  }
+}
   },
   "author": "Starisian Technologies (Max Barrett)",
   "homepage": "https://starisian.com",
@@ -74,7 +91,8 @@
   },
   "dependencies": {
     "axios": "^1.11.0",
-    "peaks.js": "^4.0.0"
+    "peaks.js": "^4.0.0",
+    "tus-js-client": "^4.3.1"
   },
   "bundlesize": [
     {
