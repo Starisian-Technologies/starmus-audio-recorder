@@ -230,7 +230,7 @@ class StarmusAudioRecorderUI {
 			// --- Load Stylesheet ---
 			wp_enqueue_style(
 				'starmus-recorder-style',
-				STARMUS_URL . 'assets/css/starmus-audio-recorder-styles.css', // Correct filename
+				STARMUS_URL . 'assets/css/starmus-audio-recorder-style.css', // Correct filename
 				array(),
 				STARMUS_VERSION
 			);
