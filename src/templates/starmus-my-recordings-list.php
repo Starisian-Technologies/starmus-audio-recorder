@@ -4,6 +4,7 @@
  *
  * @package Starmus\templates
  * @version 0.4.6
+ * @since   0.4.5
  *
  * @var WP_Query $query         The WordPress query object for the recordings.
  * @var string   $edit_page_url The base URL for the audio editor page.
