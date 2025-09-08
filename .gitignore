@@ -12,6 +12,7 @@ coverage/
 .phpstan-cache/
 .phpdoc/
 .phpdoc/cache/
+docs/
 
 # ---- Logs & maps ----
 *.log
@@ -50,6 +51,9 @@ wp-content/wp-cache-config.php
 playwright-report/
 test-results/
 .playwright-cache/
+tools/
+tests/
+test-results/
 
 # ---- Release / packaging ----
 *.zip
