@@ -2,117 +2,89 @@
 
 # Starmus Audio Recorder
 
-**A mobile-first audio recording and annotation plugin for WordPress, designed for low-bandwidth environments.**
+A mobile-first audio recording and annotation plugin for WordPress, designed for low-bandwidth environments and legacy device compatibility.
 
-=== Starms Audio Recorder ===
-Contributors: Starisian Technologies, Max Barrett
-Tags: WordPress, Audio, Web Audio API
-Requires at least: 6.4
-Tested up to: 8.3
-Requires PHP: 8.0
-Stable tag: v0.4.0
-License: Proprietary
+---
 
-The Starmus Audio Recorder is a lightweight, front-end WordPress plugin that allows users to record audio directly in the browser using the MediaRecorder API.
-
-The **Starmus Audio Recorder** provides a comprehensive solution for capturing, managing, and annotating user-submitted audio content. Its core feature is a chunked uploader with an offline queue, ensuring recordings are never lost—even with intermittent internet connections.
-
-The plugin is built to be **highly extensible**, offering developers a rich set of WordPress hooks for custom metadata handling, conditional logic, and pre/post-processing.
-
-Named after the iconic **Starmus Festival**, where rock legends and astrophysicists share the stage, this tool is built for creators and communities who believe **voice has gravity**.
+**=== Starmus Audio Recorder ===**
+**Contributors:** Starisian Technologies, Max Barrett
+**Tags:** WordPress, Audio, Web Audio API, recorder, offline, tus, resumable
+**Requires at least:** 6.4
+**Tested up to:** 6.5
+**Requires PHP:** 8.0
+**Stable tag:** v0.5.0
+**License:** See LICENSE.md
 
 [![CodeQL](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql) [![Dependabot Updates](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates) 
 [![Security Checks](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml) 
 
 [![Release Code Quality Final Review](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml)
+
+The Starmus Audio Recorder is a comprehensive WordPress solution for capturing, managing, and annotating user-submitted audio. Its standout feature is a resilient, offline-first submission system, ensuring recordings are never lost, even on unstable networks.
+
+The plugin is built with a modern, modular architecture that intelligently provides advanced features like microphone calibration and speech-to-text to capable browsers, while offering a robust fallback experience for older devices.
+
+Named after the iconic Starmus Festival, where rock legends and astrophysicists share the stage, this tool is built for creators and communities who believe voice has gravity.
+
 ---
 
 ## ✨ Key Features
 
-- **Mobile-Friendly Recorder UI**  
-  Clean, accessible, two-step interface: users provide details first, then record their audio.
-- **Resilient Chunked Uploads**  
-  Audio uploads in small chunks, ensuring reliability on slow or unstable networks.
-- **Offline Submission Queue**  
-  Failed uploads are saved to the user’s browser (via IndexedDB) and re-attempted once online.
-- **Dynamic Form Generation**  
-  Dropdowns (e.g. *Language*, *Recording Type*) are populated automatically from your site’s taxonomies.
-- **Rich Metadata Capture**  
-  Saves extensive session metadata, including a linked `consent-agreement` post capturing User ID, IP, User Agent, and timestamp.
-- **Geolocation Capture**  
-  Optionally saves GPS coordinates with each recording—ideal for dialect and linguistic mapping.
-- **Audio Annotation Editor**  
-  Powered by Peaks.js, the `[starmus_audio_editor]` shortcode allows users to segment and label their recordings.  
-  Annotations are stored securely via REST API.
-- **Developer Extensibility**  
-  Object-oriented architecture + numerous WordPress hooks = deep customization without hacking core files.
-
----
+- **Mobile-First, Two-Step UI:** A clean, accessible interface that separates metadata entry from the recording process for a focused user experience.
+- **Resumable Uploads:** Powered by the `tus.io` protocol, audio uploads in small chunks and automatically resumes after network interruptions.
+- **Offline Submission Queue:** Failed or offline submissions are saved securely in the user’s browser (via IndexedDB) and are automatically uploaded when connectivity is restored.
+- **Progressive Enhancement:**
+    - **Tier A (Modern Browsers):** Offers microphone calibration (gain control), noise suppression, and real-time speech-to-text transcription via the Speech Recognition API.
+    - **Tier B/C (Legacy Browsers):** Gracefully degrades, providing a simpler recording experience or a file upload fallback to ensure 100% user compatibility.
+- **Rich Metadata & Consent Capture:** Saves extensive session data, including a linked consent-agreement post, User ID, IP, and User Agent.
+- **Geolocation Capture:** The legacy fallback script captures GPS coordinates, ideal for dialect and linguistic mapping projects.
+- **Audio Annotation Editor:** A separate `[starmus_audio_editor]` shortcode powered by Peaks.js allows for detailed audio segmentation and labeling.
+- **Developer Extensibility:** A rich set of WordPress hooks allows for deep customization without altering core plugin files.
 
 ## 📦 Requirements
 
-- **WordPress:** 6.4 or higher  
-- **PHP:** 8.2 or higher  
-- **Server Dependency:** [`audiowaveform`](https://github.com/bbc/audiowaveform) binary available on server PATH for waveform generation  
-- **Browser:** Modern browser supporting MediaRecorder + Geolocation APIs (Chrome, Firefox, Safari, Edge)
-
----
+- **WordPress:** 6.4 or higher
+- **PHP:** 8.0 or higher
+- **Server:**
+    - A `tus.io` compatible server endpoint is **highly recommended** for resumable uploads. The plugin includes a fallback to the standard WordPress REST API.
+    - The `audiowaveform` binary is required on the server's PATH for waveform generation in the editor.
+- **Browser:** A modern browser supporting the MediaRecorder API is recommended for the best experience. A fallback is provided for older browsers.
 
 ## 🚀 Installation
 
-1. Download the latest release ZIP file from this repository.  
-2. In WordPress Admin, go to **Plugins → Add New → Upload Plugin**.  
-3. Upload the ZIP, then click **Install Now**.  
-4. Activate the plugin.
-
----
+1.  Download the latest release `.zip` file from this repository.
+2.  In your WordPress Admin, go to **Plugins → Add New → Upload Plugin**.
+3.  Upload the `.zip` file and click **Install Now**.
+4.  Activate the plugin.
+5.  (Optional but Recommended) Set up a `tusd` server endpoint and configure the URL in `StarmusAudioRecorderUI.php`.
 
 ## 🖥 Usage
 
 The plugin provides three primary shortcodes:
 
-### 1. Audio Recorder
-
-Displays the two-step recording form.  
-
+#### 1. Audio Recorder
+Displays the two-step recording form.
 ```php
-[starmus_audio_recorder]
+[starmus_audio_recorder_form]
 ```
-
-### 2. User’s Recordings List
-
-Displays a paginated list of logged-in user submissions.  
-
+#### 2. User’s Recordings List
+Displays a paginated, accessible list of the logged-in user's submissions.
 ```php
 [starmus_my_recordings]
 ```
-
-### 3. Audio Editor
-
-Displays the Peaks.js annotation editor. Requires a `post_id` in the URL.  
-
+#### 3. Audio Editor
+Displays the Peaks.js annotation editor. This page must be accessed via a secure link containing a `post_id` and a nonce, typically generated from the "My Recordings" list.
 ```php
 [starmus_audio_editor]
 ```
 
-**Example URL:**  
-
-```php
-https://yoursite.com/edit-recording/?post_id=123
-```
-
----
+Example URL: `https://yoursite.com/edit-recording/?post_id=123&nonce=...`
 
 ## For Developers: Architecture & Extensibility
 
-### Core Architecture
-
 - **StarmusPlugin** – main plugin controller  
 - **StarmusAudioRecorderUI** – manages recording form, chunked uploads, metadata, and redirects  
-- **StarmusAudioEditorUI** – manages the annotation editor and REST API  
-- **JavaScript Modules:**  
-  - `starmus-audio-recorder-module.js` (recorder engine)  
-  - `starmus-audio-recorder-submissions.js` (form UI, offline queue, AJAX)
+- **StarmusAudioEditorUI** – manages the annotation editor and REST API
 
 ### Custom Post Types & Taxonomies
 
@@ -121,13 +93,24 @@ https://yoursite.com/edit-recording/?post_id=123
   - `consent-agreement`  
 - **Taxonomies:**  
   - `language`  
-  - `recording_type`
+  - `recording_type` 
 
----
+### Core JavaScript Architecture
+The plugin uses a four-part modular architecture for its front-end application:
 
-## Hooks
+1.  **`starmus-audio-recorder-module.js` (The Engine):** A secure, modern recording engine using `MediaRecorder`. It handles mic access, calibration, and speech recognition. It has no knowledge of the UI or uploads.
+2.  **`starmus-audio-recorder-submissions-handler.js` (The Uploader):** The submission specialist. It manages the `tus.io` resumable uploads, the offline IndexedDB queue, and the fallback to the WordPress REST API.
+3.  **`starmus-audio-recorder-ui-controller.js` (The UI Controller):** The "glue" for modern browsers. It manages the two-step UI, validates form fields, and delegates tasks to the Engine and Uploader modules.
+4.  **`starmus-audio-recorder-submissions.js` (The Legacy Fallback):** A self-contained script loaded by older browsers (`nomodule`). It provides polyfills and a simpler submission process, including geolocation capture.
 
-### Audio Recorder Hooks
+### Third-Party Libraries
+This plugin relies on the following excellent open-source libraries, which should be installed via `npm` and included in the `/assets/js/vendor/` directory:
+-   **tus-js-client:** For resumable file uploads.
+-   **Peaks.js:** For the audio annotation editor.
+-   **Recorder.js:** Used as a fallback for browsers that lack `MediaRecorder`.
+
+### Core Hooks
+The Starmus Audio Recorder is a lightweight, front-end WordPress plugin that allows users to record audio directly in the browser using the MediaRecorder API.
 
 - **`starmus_before_recorder_render` (Action)**  
   Fires before recorder form displays.
@@ -193,42 +176,8 @@ Composer-based tools require a GitHub token for certain dependencies. Copy `auth
 ```
 
 ---
-## License
 
-This plugin is released under a **proprietary license**.  
-See [LICENSE.md](LICENSE.md) for details.
-
----
-
-## **🚀 Why "Starmus"?**
-
-Starmus honors the **Starmus Festival** founded by Dr. Garik Israelian and **Dr. Brian May** (guitarist of Queen \+ astrophysicist). Where **science meets sound**, this plugin captures that same cosmic energy — whether it’s a voice memo beneath the stars or an oral history from a rural village.
-
-**Starmus Audio Recorder** is a small tool with a **big mission**: to preserve stories, songs, and spirit in their purest form.
-
----
-
-## **🤝 Cultural & Creative Projects Welcome**
-
-While this plugin is released under a restricted proprietary license, we actively **support nonprofit, educational, and cultural storytelling** projects.
-
-If you're working in **underserved communities** or preserving oral traditions, reach out. We’re happy to explore **free or discounted licensing**.
-
-**📧 Contact: <support@aiwestafrica.com>**
-
----
-
-## **🔮 Future Directions**
-
-- Offline saving & encryption (PWA)
-
-- Metadata tagging
-
-- Optional MP3 conversion via WebAssembly
-
----
-
-## **📄 License**
+## ** License**
 
 **LicenseRef-Starisian-Technologies-Proprietary**
 
@@ -253,6 +202,22 @@ You must adhere to these standards:
 - Exemptions may be granted for verified educational/cultural programs
 
 Full details in `ETHICS.md` or by request.
+
+---
+
+## **🚀 Why "Starmus"?**
+
+Starmus honors the **Starmus Festival** founded by Dr. Garik Israelian and **Dr. Brian May** (guitarist of Queen \+ astrophysicist). Where **science meets sound**, this plugin captures that same cosmic energy — whether it’s a voice memo beneath the stars or an oral history from a rural village.
+
+**Starmus Audio Recorder** is a small tool with a **big mission**: to preserve stories, songs, and spirit in their purest form.
+
+---
+
+## **🤝 Cultural & Creative Projects Welcome**
+
+While this plugin is released under a restricted proprietary license, we actively **support nonprofit, educational, and cultural storytelling** projects.
+
+If you're working in **underserved communities** or preserving oral traditions, reach out. We’re happy to explore **free or discounted licensing**.
 
 ---
 
