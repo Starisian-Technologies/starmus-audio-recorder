@@ -20,6 +20,13 @@ stylelint.config.js
 *.map
 package-lock.json
 yarn.lock
+stylelint.config.js
+phpstan.neon
+phpstan.neon.dist
+phpcs.xml.dist
+commitlint.js
+markdownlint.js
+bootstrap.js
 
 # Composer (KEEP vendor in release!)
 composer.phar
@@ -30,6 +37,7 @@ composer.phar
 # Tests & coverage
 tests/
 coverage/
+test-results/
 
 # IDE & misc
 .vscode/
