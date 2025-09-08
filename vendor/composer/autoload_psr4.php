@@ -7,11 +7,12 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'SzepeViktor\\PHPStan\\WordPress\\' => array($vendorDir . '/szepeviktor/phpstan-wordpress/src'),
-    'Starmus\\tests\\' => array($baseDir . '/tests'),
-    'Starmus\\includes\\' => array($baseDir . '/src/includes'),
-    'Starmus\\frontend\\' => array($baseDir . '/src/frontend'),
-    'Starmus\\admin\\' => array($baseDir . '/src/admin'),
+    'Starmus\\Tests\\' => array($baseDir . '/tests'),
+    'Starmus\\Includes\\' => array($baseDir . '/src/includes'),
+    'Starmus\\Frontend\\' => array($baseDir . '/src/frontend'),
+    'Starmus\\Admin\\' => array($baseDir . '/src/admin'),
     'Starmus\\' => array($baseDir . '/src'),
+    'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'PHPStan\\ExtensionInstaller\\' => array($vendorDir . '/phpstan/extension-installer/src'),
     'PHPCSStandards\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\' => array($vendorDir . '/dealerdirect/phpcodesniffer-composer-installer/src'),
     'Doctrine\\Instantiator\\' => array($vendorDir . '/doctrine/instantiator/src/Doctrine/Instantiator'),

@@ -14,7 +14,7 @@
 	--starmus-text-muted: #6b7280;
 	--starmus-border-color: #d1d5db;
 	--starmus-bg-light: #f9fafb;
-	--starmus-bg-card: #ffffff;
+	--starmus-bg-card: #fff;
 }
 
 /* --- My Recordings List --- */
@@ -37,7 +37,7 @@
 	background-color: var(--starmus-bg-card);
 	border: 1px solid var(--starmus-border-color);
 	border-radius: 0.75rem; /* Rounded corners */
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 4px 6px -1px rgb(0, 0, 0, 5%), 0 2px 4px -2px rgb(0, 0, 0, 5%);
 	display: flex;
 	flex-direction: column;
 	overflow: hidden; /* Ensures child elements respect the border radius */
@@ -47,18 +47,18 @@
 
 .starmus-recording:hover {
 	transform: translateY(-4px);
-	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 10px 15px -3px rgb(0, 0, 0, 7%), 0 4px 6px -2px rgb(0, 0, 0, 5%);
 }
 
 /* Grid layout for larger screens */
-@media (min-width: 768px) {
+@media (width >= 768px) {
 	.starmus-recording {
 		/* Two cards per row on tablets */
 		flex-basis: calc(50% - 0.75rem);
 	}
 }
 
-@media (min-width: 1024px) {
+@media (width >= 1024px) {
 	.starmus-recording {
 		/* Three cards per row on desktops */
 		flex-basis: calc(33.333% - 1rem);
@@ -79,7 +79,7 @@
 }
 
 .starmus-recording__title {
-	margin: 0 0 0.25rem 0;
+	margin: 0 0 0.25rem;
 	font-size: 1.25rem;
 	font-weight: 600;
 }
