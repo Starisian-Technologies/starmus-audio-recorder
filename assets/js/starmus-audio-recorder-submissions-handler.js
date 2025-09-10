@@ -1,29 +1,36 @@
+// FILE: starmus-audio-recorder-submissions-handler.js (HOOKS-INTEGRATED)
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * @package Starmus\submissions
- * @since 0.1.0
- * @version 0.8.0
- * @file Submission Controller — Hardened, Two-Step UI, Offline-First, Tier C fallback, tus.io uploads.
+ * @module  StarmusSubmissionsHandler
+ * @version 1.2.0
+ * @file    The Submission Engine - Pure data handling with hooks integration
  */
-(function(window, document){
-  'use strict';
+(function(window, document) {
+    'use strict';
 
-  // --- Config / Utils ---
-  const CONFIG = {
-    LOG_PREFIX: '[Starmus Controller]',
-    SPEECH_CONFIG: {
-      continuous: true,
-      language: 'en-US'
+    const CONFIG = { LOG_PREFIX: '[Starmus Submissions]' };
+    function log(level, msg, data) { 
+        if (console && console[level]) { 
+            console[level](CONFIG.LOG_PREFIX, msg, data || ''); 
+        } 
     }
-  };
+    function el(id) { return document.getElementById(id); }
+    function safeId(id) { 
+        return typeof id === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(id); 
+    }
+    
+    function doAction(hook, ...args) {
+        if (window.StarmusHooks) {
+            window.StarmusHooks.doAction(hook, ...args);
+        }
+    }
 
-  /* global tus:readonly */
-  function s(v){ try{return String(v).replace(/[\u0020-\u007E]/g, function(match) { return /[<>"'&]/.test(match) ? ' ' : match; }).slice(0,500);}catch(_){return'';} }
-  function log(level,msg,data){ if(!console||!console[level]) return; console[level](CONFIG.LOG_PREFIX, s(msg), data? s(data):''); }
-  function el(id){ return document.getElementById(id); }
-  function safeId(id){ return typeof id==='string' && /^[A-Za-z0-9_-]{1,100}$/.test(id); }
+    function applyFilters(hook, value, ...args) {
+        return window.StarmusHooks ? 
+            window.StarmusHooks.applyFilters(hook, value, ...args) : value;
+    }
 
   function showUserMessage(instanceId, text, type){
     if (!safeId(instanceId)) return;
@@ -138,14 +145,14 @@
       .catch(function(err){ log('error','Engine init failed', err && err.message); revealTierC(instanceId); });
   }
 
-  function revealTierC(instanceId){
-    if(!safeId(instanceId)) return;
-    const recWrap=el('starmus_recorder_container_'+instanceId);
-    const fb=el('starmus_fallback_container_'+instanceId);
-    if(recWrap) recWrap.style.display='none';
-    if(fb) fb.style.display='block';
-    showUserMessage(instanceId,'Live recording not supported. Use file upload below.','warn');
-  }
+    function revealTierC(instanceId) {
+        if (!safeId(instanceId)) return;
+        const recWrap = el('starmus_recorder_container_' + instanceId);
+        const fb = el('starmus_fallback_container_' + instanceId);
+        if (recWrap) recWrap.style.display = 'none';
+        if (fb) fb.style.display = 'block';
+        doAction('starmus_tier_c_revealed', instanceId);
+    }
 
   // --- Form submit glue ---
   function bindForm(formId){
@@ -196,79 +203,121 @@
     return meta;
   }
 
-  function handleSubmit(instanceId, form){
-    if(!safeId(instanceId)) return;
-    const engine = window.StarmusAudioRecorder && window.StarmusAudioRecorder.getSubmissionData;
-    const recordingData = engine ? engine(instanceId) : null;
-    const fb=el('starmus_fallback_input_'+instanceId);
-    let blob=null, fileName='recording.webm';
+    function handleSubmit(instanceId, form) {
+        if (!safeId(instanceId)) return;
 
-    if(recordingData && recordingData.blob){
-      blob = recordingData.blob;
-      fileName = recordingData.fileName;
-    } else if (fb && fb.files && fb.files.length){
-      blob=fb.files[0]; fileName=blob.name;
+        const recordingData = window.StarmusAudioRecorder?.getSubmissionData?.(instanceId);
+        const fb = el('starmus_fallback_input_' + instanceId);
+        let blob = null, fileName = 'recording.webm';
+
+        if (recordingData?.blob) {
+            blob = recordingData.blob;
+            fileName = recordingData.fileName;
+        } else if (fb?.files?.length) {
+            blob = fb.files[0];
+            fileName = fb.files[0].name;
+        }
+
+        if (!blob) {
+            doAction('starmus_submission_failed', instanceId, 'No audio');
+            return;
+        }
+
+        const formFields = collectFormFields(form);
+        const metadata = recordingData?.metadata || {};
+        
+        const submissionPackage = { instanceId, blob, fileName, formFields, metadata };
+
+        // Hook: Allow filters to handle submission (e.g., offline mode)
+        const shouldProceed = applyFilters('starmus_before_submit', true, submissionPackage);
+        if (!shouldProceed) {
+            log('log', 'Submission handled by filter hook');
+            return;
+        }
+        
+        doAction('starmus_submission_started', instanceId, submissionPackage);
+
+        resumableTusUpload(blob, fileName, formFields, metadata, instanceId)
+            .then(url => {
+                doAction('starmus_upload_success', instanceId, url);
+                return notifyServer(url, formFields, metadata);
+            })
+            .then(() => {
+                doAction('starmus_submission_complete', instanceId);
+            })
+            .catch(err => {
+                log('error', 'Upload failed', err?.message);
+                doAction('starmus_submission_failed', instanceId, err);
+                Offline.add(instanceId, blob, fileName, formFields, metadata);
+            });
     }
-    if(!blob){ showUserMessage(instanceId,'No audio recorded or selected.','error'); return; }
 
-    const formFields = collectFormFields(form);
-    const metadata = buildMetadata(instanceId);
-
-    if(!navigator.onLine){
-      log('log','Offline; queueing');
-      Offline.add(instanceId, blob, fileName, formFields, metadata);
-      return;
-    }
-
-    resumableTusUpload(blob, fileName, formFields, metadata, instanceId)
-      .then(function(url){
+    function notifyServer(tusUrl, formFields, metadata) {
         const wpData = window.starmusFormData || {};
-        if (wpData.rest_url && wpData.rest_nonce){
-          const fd=new FormData();
-          Object.keys(formFields||{}).forEach(function(k){ fd.append(s(k), formFields[k]); });
-          fd.append('tus_url', url || '');
-          fd.append('metadata', JSON.stringify(metadata));
-          return fetch(wpData.rest_url, { method:'POST', headers:{'X-WP-Nonce': wpData.rest_nonce}, body: fd });
-        }
-        return Promise.resolve();
-      })
-      .then(function(){ showUserMessage(instanceId,'Submission saved.','success'); })
-      .catch(function(err){
-        log('error','Upload failed; saving locally', err && (err.message||err));
-        showUserMessage(instanceId,'Upload failed; saved locally for later.','warn');
-        Offline.add(instanceId, blob, fileName, formFields, metadata);
-      });
-  }
-
-  // --- Init ---
-  function start(){
-    Offline.init();
-    window.addEventListener('online', function(){ log('log','Back online; processing queue'); Offline.processQueue(); });
-    try {
-      const forms = document.querySelectorAll('form.starmus-audio-form');
-      if (forms && forms.length > 0) {
-        for (let i = 0; i < forms.length; i++) {
-          const form = forms[i];
-          const id = form ? form.id : null;
-          if (id && safeId(id) && form.getAttribute('data-starmus-bound')!=='1') {
-            form.setAttribute('data-starmus-bound','1');
-            bindContinueButton(id);
-            bindForm(id);
-          }
-        }
-      }
-    } catch (err) {
-      log('error', 'Failed to initialize forms', err.message);
+        if (!wpData.rest_url || !wpData.rest_nonce) return Promise.resolve();
+        
+        const fd = new FormData();
+        Object.keys(formFields || {}).forEach(k => fd.append(k, formFields[k]));
+        fd.append('tus_url', tusUrl || '');
+        fd.append('metadata', JSON.stringify(metadata));
+        
+        return fetch(wpData.rest_url, {
+            method: 'POST',
+            headers: { 'X-WP-Nonce': wpData.rest_nonce },
+            body: fd
+        });
     }
-  }
 
-  // --- Global Submission Handler Interface ---
-  window.StarmusSubmissionsHandler = {
-    handleSubmit: handleSubmit,
-    initRecorder: initRecorder,
-    revealTierC: revealTierC
-  };
+    function collectFormFields(form) {
+        const fd = new FormData(form);
+        const obj = {};
+        fd.forEach((v, k) => { if (k !== 'audio_file') obj[k] = v; });
+        return applyFilters('starmus_form_fields', obj, form);
+    }
 
-  if (document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', start); } else { start(); }
+    function initRecorder(instanceId) {
+        return new Promise((resolve, reject) => {
+            if (!window.StarmusAudioRecorder?.init) {
+                revealTierC(instanceId);
+                return reject(new Error('Recorder module missing.'));
+            }
+
+            window.StarmusAudioRecorder.init({ formInstanceId: instanceId })
+                .then(resolve)
+                .catch(err => {
+                    log('error', 'Engine init failed', err?.message);
+                    revealTierC(instanceId);
+                    reject(err);
+                });
+        });
+    }
+
+    // --- Init ---
+    function init() {
+        Offline.init();
+        window.addEventListener('online', () => Offline.processQueue());
+        
+        // Hook into recording events
+        doAction('starmus_submissions_handler_ready');
+    }
+    
+    // Initialize when hooks are ready
+    if (window.StarmusHooks) {
+        window.StarmusHooks.addAction('starmus_hooks_ready', init, 5);
+    } else {
+        // Fallback if hooks not available
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    }
+
+    // --- Global Interface ---
+    window.StarmusSubmissionsHandler = {
+        handleSubmit,
+        initRecorder,
+        Offline
+    };
 
 })(window, document);

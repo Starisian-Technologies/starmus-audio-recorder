@@ -1,15 +1,15 @@
 <h1 align="center">PHPStan - PHP Static Analysis Tool</h1>
 
 <p align="center">
- <img src="https://i.imgur.com/WaRKPlC.png" alt="PHPStan" width="300" height="300">
+	<img src="https://i.imgur.com/WaRKPlC.png" alt="PHPStan" width="300" height="300">
 </p>
 
 <p align="center">
- <a href="https://github.com/phpstan/phpstan/actions"><img src="https://github.com/phpstan/phpstan/workflows/Tests/badge.svg" alt="Build Status"></a>
- <a href="https://packagist.org/packages/phpstan/phpstan"><img src="https://poser.pugx.org/phpstan/phpstan/v/stable" alt="Latest Stable Version"></a>
- <a href="https://packagist.org/packages/phpstan/phpstan/stats"><img src="https://poser.pugx.org/phpstan/phpstan/downloads" alt="Total Downloads"></a>
- <a href="https://choosealicense.com/licenses/mit/"><img src="https://poser.pugx.org/phpstan/phpstan/license" alt="License"></a>
- <a href="https://phpstan.org/"><img src="https://img.shields.io/badge/PHPStan-enabled-brightgreen.svg?style=flat" alt="PHPStan Enabled"></a>
+	<a href="https://github.com/phpstan/phpstan/actions"><img src="https://github.com/phpstan/phpstan/workflows/Tests/badge.svg" alt="Build Status"></a>
+	<a href="https://packagist.org/packages/phpstan/phpstan"><img src="https://poser.pugx.org/phpstan/phpstan/v/stable" alt="Latest Stable Version"></a>
+	<a href="https://packagist.org/packages/phpstan/phpstan/stats"><img src="https://poser.pugx.org/phpstan/phpstan/downloads" alt="Total Downloads"></a>
+	<a href="https://choosealicense.com/licenses/mit/"><img src="https://poser.pugx.org/phpstan/phpstan/license" alt="License"></a>
+	<a href="https://phpstan.org/"><img src="https://img.shields.io/badge/PHPStan-enabled-brightgreen.svg?style=flat" alt="PHPStan Enabled"></a>
 </p>
 
 ------
@@ -60,7 +60,7 @@ Want your logo here? [Learn more »](https://phpstan.org/sponsor)
 <br>
 <a href="https://join.rightcapital.com/?utm_source=phpstan&utm_medium=github&utm_campaign=sponsorship"><img src="website/src/images/sponsor/rightcapital.png" alt="RightCapital" width="283" height="64"></a>
 &nbsp;&nbsp;&nbsp;
-<a href="https://www.contentkingapp.com/?ref=php-developer&utm_source=phpstan&utm_medium=referral&utm_campaign=sponsorship"><img src="website/src/images/sponsor/contentking.png" alt="ContentKing" width="283" height="64"></a>
+<a href="https://www.shoptet.cz/"><img src="website/src/images/sponsor/shoptet.png" alt="Shoptet" width="283" height="64"></a>
 <br>
 <a href="https://zol.fr?utm_source=phpstan"><img src="website/src/images/sponsor/zol.png" alt="ZOL" width="283" height="64"></a>
 &nbsp;&nbsp;&nbsp;
@@ -78,8 +78,8 @@ Want your logo here? [Learn more »](https://phpstan.org/sponsor)
 &nbsp;&nbsp;&nbsp;
 <a href="https://inviqa.com/"><img src="website/src/images/sponsor/inviqa.png" alt="Inviqa" width="254" height="65"></a>
 <br>
-<a href="https://www.shoptet.cz/"><img src="website/src/images/sponsor/shoptet.png" alt="Shoptet" width="283" height="64"></a>
-&nbsp;&nbsp;&nbsp;
+
+
 
 [**You can sponsor my open-source work on PHPStan through GitHub Sponsors and also directly.**](https://phpstan.org/sponsor)
 

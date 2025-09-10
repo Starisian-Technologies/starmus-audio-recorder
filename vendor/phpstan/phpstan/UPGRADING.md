@@ -49,9 +49,9 @@ If you want to continue ignoring missing typehints from arrays, add `missingType
 
 ```neon
 parameters:
- ignoreErrors:
-  -
-   identifier: missingType.iterableValue
+	ignoreErrors:
+		-
+			identifier: missingType.iterableValue
 ```
 
 ### Removed option `checkGenericClassInNonGenericObjectType`
@@ -62,9 +62,9 @@ If you want to continue ignoring missing typehints from generics, add `missingTy
 
 ```neon
 parameters:
- ignoreErrors:
-  -
-   identifier: missingType.generics
+	ignoreErrors:
+		-
+			identifier: missingType.generics
 ```
 
 ### Removed `checkAlwaysTrue*` options
@@ -86,17 +86,17 @@ If you are excluding a file path that might not exist but you still want to have
 
 ```neon
 parameters:
- excludePaths:
-  - tests/*/data/*
-  - src/broken
-  - node_modules (?) # optional path, might not exist
+	excludePaths:
+		- tests/*/data/*
+		- src/broken
+		- node_modules (?) # optional path, might not exist
 ```
 
 If you have the same situation in `ignoreErrors` (ignoring an error in a path that might not exist), use `reportUnmatchedIgnoredErrors: false`.
 
 ```neon
 parameters:
- reportUnmatchedIgnoredErrors: false
+	reportUnmatchedIgnoredErrors: false
 ```
 
 Appending `(?)` in `ignoreErrors` is not supported.
@@ -239,7 +239,7 @@ This method no longer accepts `Expr $rootExpr`. If you want to change it, call `
 
 ### Node attributes `parent`, `previous`, `next` are no longer available
 
-Learn more: <https://phpstan.org/blog/preprocessing-ast-for-custom-rules>
+Learn more: https://phpstan.org/blog/preprocessing-ast-for-custom-rules
 
 ### Removed config parameter `scopeClass`
 

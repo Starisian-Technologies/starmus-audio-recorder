@@ -128,9 +128,9 @@
             'dev_requirement' => true,
         ),
         'phpstan/phpstan' => array(
-            'pretty_version' => '2.1.22',
-            'version' => '2.1.22.0',
-            'reference' => '41600c8379eb5aee63e9413fe9e97273e25d57e4',
+            'pretty_version' => '2.1.23',
+            'version' => '2.1.23.0',
+            'reference' => 'a34502adbbd5c2366b5a97679848a5ace4f6f2f5',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpstan/phpstan',
             'aliases' => array(),

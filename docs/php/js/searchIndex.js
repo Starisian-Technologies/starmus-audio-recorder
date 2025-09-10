@@ -203,7 +203,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Arender_recorder_shortcode\u0028\u0029",
             "name": "render_recorder_shortcode",
-            "summary": "Get\u0020the\u0020URL\u0020of\u0020the\u0020edit\u0020page\u0020for\u0020audio\u0020recordings.",
+            "summary": "Renders\u0020the\u0020audio\u0020recorder\u0020shortcode\u0020by\u0020loading\u0020the\u0020refactored\u0020template.",
             "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_recorder_shortcode"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Aget_cached_terms\u0028\u0029",
@@ -213,7 +213,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Aenqueue_scripts\u0028\u0029",
             "name": "enqueue_scripts",
-            "summary": "Conditionally\u0020enqueues\u0020scripts\u0020and\u0020styles\u0020based\u0020on\u0020the\u0020shortcode\u0020present\u0020on\u0020the\u0020page.",
+            "summary": "Registers\u0020and\u0020conditionally\u0020enqueues\u0020all\u0020frontend\u0020scripts\u0020and\u0020styles.",
             "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_enqueue_scripts"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Aregister_rest_routes\u0028\u0029",
