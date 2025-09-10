@@ -1,94 +1,204 @@
-// build-starmus.js
-import { readFileSync, writeFileSync } from 'fs';
+#!/usr/bin/env node
+// build-starmus.js - Enhanced build script for Starmus Audio Recorder
+
+import { readFileSync, writeFileSync, existsSync, statSync } from 'fs';
 import { createHash } from 'crypto';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { resolve, extname, basename } from 'path';
 
-const __filename = fileURLToPath( import.meta.url );
-const __dirname  = path.dirname( __filename );
+// --- Configuration ---
 
-const SRC        = process.argv[2] || path.join( __dirname, 'assets/js/starmus-audio-recorder-module.js' );
-const MIN        = SRC.replace( /\.js$/, '.min.js' );
 const HEADER_TAG = '// ==== starmus-audio-recorder-module.js ====';
+const SUPPORTED_EXTENSIONS = ['.js', '.mjs', '.ts', '.css', '.scss', '.sass'];
+const HASH_REGEX = /\/\/ Build Hash \(SHA-1\):[^\n]*\n\/\/ Build Hash \(SHA-256\):[^\n]*/g;
 
-function stableHashBytes(s) {
-	return Buffer.from( s.replace( /^\/\/.*(\r?\n)?/gm, '' ), 'utf8' ); }
+
+function stableHashBytes(content) {
+	// Normalize line endings and remove comments for stable hashing
+	return Buffer.from(
+		content
+			.replace(/\r\n/g, '\n')
+			.replace(/^\/\/.*$/gm, '')
+			.replace(/\/\*[\s\S]*?\*\//g, '')
+			.replace(/\n\s*\n/g, '\n')
+			.trim(),
+		'utf8'
+	);
+}
 
 function hash(content) {
-	const b = stableHashBytes( content );
+	const b = stableHashBytes(content);
 	return {
-		sha1:   createHash( 'sha1' ).update( b ).digest( 'hex' ),
-		sha256: createHash( 'sha256' ).update( b ).digest( 'hex' ),
+		sha1:   createHash('sha1').update(b).digest('hex'),
+		sha256: createHash('sha256').update(b).digest('hex'),
 	};
 }
 
-function applyHeaderAndProp(content, sha1, sha256) {
-	const header = `${HEADER_TAG}\n// Build Hash (SHA-1):   ${sha1}\n// Build Hash (SHA-256): ${sha256}\n\n`;
-	let out      = content.replace( /buildHash:\s*['"][a-f0-9]*['"]/, `buildHash: '${sha1}'` );
-	if (out === content) {
-		out = out.replace(
-			/(\{)([^]*?)(\})/,
-			(m, a, mid, c) =>
-			`${a}\n  buildHash: '${sha1}',
-			${mid}\n${c}`
-		);
-	}
-	if (out.startsWith( HEADER_TAG )) {
-		out = out
-		.replace(/\/\/ Build Hash \(SHA-1\):[^\n]*/i, `// Build Hash (SHA-1):   ${sha1}`)
-		.replace(/\/\/ Build Hash \(SHA-256\):[^\n]*/i, `// Build Hash (SHA-256): ${sha256}`);
+function applyHeaderAndProp(content, sha1, sha256, filePath) {
+	const timestamp = new Date().toISOString();
+	const ext = extname(filePath).toLowerCase();
+	const isCSS = ['.css', '.scss', '.sass'].includes(ext);
+	
+	const header = isCSS 
+		? `/* Build Hash (SHA-1): ${sha1} */\n/* Build Hash (SHA-256): ${sha256} */\n/* Build Time: ${timestamp} */\n\n`
+		: `${HEADER_TAG}\n// Build Hash (SHA-1):   ${sha1}\n// Build Hash (SHA-256): ${sha256}\n// Build Time: ${timestamp}\n\n`;
+	
+	let out = content;
+	
+	if (isCSS) {
+		// For CSS files, just update/add header comment
+		if (out.includes('/* Build Hash')) {
+			out = out.replace(
+				/\/\* Build Hash[\s\S]*?\*\//,
+				header.trim()
+			);
+		} else {
+			out = header + out;
+		}
 	} else {
-		out = header + out;
+		// For JS files, update buildHash property and header
+		out = content.replace(/buildHash:\s*['"][a-f0-9]*['"]/, `buildHash: '${sha1}'`);
+		
+		if (out === content) {
+			out = out.replace(
+				/(\{)(\s*)/,
+				`$1$2buildHash: '${sha1}',\n  `
+			);
+		}
+		
+		if (out.includes(HEADER_TAG)) {
+			out = out.replace(
+				new RegExp(`${HEADER_TAG}[\\s\\S]*?(?=\\n\\n|$)`),
+				header.trim()
+			);
+		} else {
+			out = header + out;
+		}
 	}
+	
 	return out;
 }
 
-/**
- * Reads, hashes, updates, and writes a file.
- * This function is now resilient to race conditions.
- *
- * @param {string} fp The file path to process.
- * @returns {object|null} An object with file info on success, or null on failure.
- */
-function processFile(fp) {
-	try {
-		// We REMOVED the `existsSync` check.
-		// Instead, we immediately TRY to read the file.
-		const original         = readFileSync( fp, 'utf8' );
-		const { sha1, sha256 } = hash( original );
-		const updated          = applyHeaderAndProp( original, sha1, sha256 );
-		writeFileSync( fp, updated );
+function validateFile(filePath) {
+	const resolvedPath = resolve(filePath);
+	
+	if (!existsSync(resolvedPath)) {
+		throw new Error(`File not found: ${resolvedPath}`);
+	}
+	
+	const ext = extname(resolvedPath).toLowerCase();
+	if (!SUPPORTED_EXTENSIONS.includes(ext)) {
+		throw new Error(`Unsupported file type: ${ext}. Supported: ${SUPPORTED_EXTENSIONS.join(', ')}`);
+	}
+	
+	const stats = statSync(resolvedPath);
+	if (stats.size > 10 * 1024 * 1024) { // 10MB limit
+		throw new Error(`File too large: ${(stats.size / 1024 / 1024).toFixed(1)}MB (max 10MB)`);
+	}
+	
+	return resolvedPath;
+}
 
-		// This code only runs if the above lines succeed.
-		return { fp, sha1, sha256 };
-	} catch (error) {
-		// If readFileSync or writeFileSync fails (e.g., file not found, no permissions),
-		// we CATCH the error here and handle it gracefully.
-		if (error.code === 'ENOENT') {
-			// ENOENT is the error code for "File Not Found".
-			// We can return null to indicate the file was skipped, which is cleaner than throwing.
-			console.warn( `Skipping: File not found at ${fp}` );
-			return null;
+/**
+ * Processes a single file: reads, hashes, updates, and writes back.
+ * @param {string} filePath - Path to the file to process
+ * @returns {boolean} Success status
+ */
+function updateChangelog(processedFiles) {
+	const changelogPath = 'CHANGELOG.md';
+	if (!existsSync(changelogPath)) return;
+	
+	try {
+		const changelog = readFileSync(changelogPath, 'utf8');
+		const timestamp = new Date().toISOString().split('T')[0];
+		const buildEntry = `\n### Build ${timestamp}\n- Updated build hashes for: ${processedFiles.map(f => basename(f)).join(', ')}\n`;
+		
+		// Insert after first heading
+		const updated = changelog.replace(
+			/(# .+\n)/,
+			`$1${buildEntry}`
+		);
+		
+		if (updated !== changelog) {
+			writeFileSync(changelogPath, updated, 'utf8');
+			console.log('📝 Updated CHANGELOG.md');
 		}
-		// For other errors (like permissions), we should re-throw to fail the build.
-		console.error( `An error occurred while processing ${fp}:`, error );
-		throw error;
+	} catch (error) {
+		console.warn('⚠️  Could not update changelog:', error.message);
+	}
+}
+
+function processFile(filePath) {
+	try {
+		const resolvedPath = validateFile(filePath);
+		console.log(`📦 Processing: ${basename(resolvedPath)}`);
+		
+		const original = readFileSync(resolvedPath, 'utf8');
+		const { sha1, sha256 } = hash(original);
+		const updated = applyHeaderAndProp(original, sha1, sha256, resolvedPath);
+		
+		// Only write if content changed
+		if (original !== updated) {
+			writeFileSync(resolvedPath, updated, 'utf8');
+			console.log(`✅ Updated with SHA-1: ${sha1.substring(0, 8)}...`);
+			return { path: resolvedPath, updated: true };
+		} else {
+			console.log(`⏭️  No changes needed (SHA-1: ${sha1.substring(0, 8)}...)`);
+			return { path: resolvedPath, updated: false };
+		}
+	} catch (error) {
+		console.error(`❌ Error processing ${filePath}:`, error.message);
+		return null;
 	}
 }
 
 // --- Main Execution ---
-console.log( `Processing main file: ${SRC}` );
-const res1 = processFile( SRC );
-// If res1 is null (because the main file was missing), we should probably stop.
-if ( ! res1) {
-	console.error( "Main source file could not be processed. Aborting." );
-	process.exit( 1 ); // Exit with an error code.
-}
-console.log( `Updated: ${res1.fp}\n  sha1 = ${res1.sha1}\n  sha256 = ${res1.sha256}` );
 
-// Process the minified file, which is optional.
-console.log( `Processing minified file: ${MIN}` );
-const res2 = processFile( MIN );
-if (res2) {
-	console.log( `Updated: ${res2.fp}` );
+function main() {
+	const args = process.argv.slice(2);
+	
+	if (args.length === 0) {
+		console.error('❌ No file path provided');
+		console.error('Usage: node build-starmus.js <file-path> [file-path2] ...');
+		console.error('Example: node build-starmus.js assets/js/starmus-audio-recorder-module.js');
+		process.exit(1);
+	}
+	
+	console.log(`🚀 Starmus Build Script - Processing ${args.length} file(s)`);
+	
+	const results = [];
+	let allSucceeded = true;
+	
+	for (const filePath of args) {
+		const result = processFile(filePath);
+		if (result) {
+			results.push(result);
+		} else {
+			allSucceeded = false;
+		}
+	}
+	
+	if (allSucceeded) {
+		const updatedFiles = results.filter(r => r.updated).map(r => r.path);
+		if (updatedFiles.length > 0) {
+			updateChangelog(updatedFiles);
+		}
+		console.log('🎉 All files processed successfully!');
+		process.exit(0);
+	} else {
+		console.error('💥 Some files failed to process');
+		process.exit(1);
+	}
 }
+
+// Handle uncaught errors gracefully
+process.on('uncaughtException', (error) => {
+	console.error('💥 Uncaught exception:', error.message);
+	process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+	console.error('💥 Unhandled rejection:', reason);
+	process.exit(1);
+});
+
+main();

@@ -213,7 +213,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Aenqueue_scripts\u0028\u0029",
             "name": "enqueue_scripts",
-            "summary": "Enqueue\u0020front\u002Dend\u0020assets\u0020for\u0020recorder\u0020and\u0020listings.",
+            "summary": "Conditionally\u0020enqueues\u0020scripts\u0020and\u0020styles\u0020based\u0020on\u0020the\u0020shortcode\u0020present\u0020on\u0020the\u0020page.",
             "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_enqueue_scripts"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Aregister_rest_routes\u0028\u0029",
