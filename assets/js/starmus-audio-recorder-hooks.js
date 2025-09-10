@@ -14,23 +14,24 @@
         return typeof tag === 'string' && tag.length > 0 && !/[.__proto__constructor]/.test(tag);
     }
 
-    const hasOwnProp = Object.prototype.hasOwnProperty;
-
     function addHook(type, tag, callback, priority = 10) {
         if (!isValidTag(tag) || typeof callback !== 'function') return false;
-        if (!(tag in hooks[type])) {
-            hooks[type][tag] = [];
+        const hookType = type === 'actions' ? hooks.actions : hooks.filters;
+        if (!(tag in hookType)) {
+            hookType[tag] = [];
         }
-        hooks[type][tag].push({ callback, priority });
-        hooks[type][tag].sort((a, b) => a.priority - b.priority);
+        hookType[tag].push({ callback, priority });
+        hookType[tag].sort((a, b) => a.priority - b.priority);
         return true;
     }
 
     function removeHook(type, tag, callback) {
-        if (!isValidTag(tag) || !(tag in hooks[type])) return false;
-        const index = hooks[type][tag].findIndex(hook => hook.callback === callback);
+        if (!isValidTag(tag)) return false;
+        const hookType = type === 'actions' ? hooks.actions : hooks.filters;
+        if (!(tag in hookType)) return false;
+        const index = hookType[tag].findIndex(hook => hook.callback === callback);
         if (index > -1) {
-            hooks[type][tag].splice(index, 1);
+            hookType[tag].splice(index, 1);
             return true;
         }
         return false;
@@ -45,7 +46,8 @@
         },
         doAction: function(tag, ...args) {
             if (isValidTag(tag) && tag in hooks.actions) {
-                hooks.actions[tag].forEach(hook => {
+                const actionHooks = hooks.actions[tag];
+                actionHooks.forEach(hook => {
                     try {
                         hook.callback(...args);
                     } catch (error) {
@@ -63,7 +65,8 @@
         applyFilters: function(tag, value, ...args) {
             let filteredValue = value;
             if (isValidTag(tag) && tag in hooks.filters) {
-                hooks.filters[tag].forEach(hook => {
+                const filterHooks = hooks.filters[tag];
+                filterHooks.forEach(hook => {
                     try {
                         filteredValue = hook.callback(filteredValue, ...args);
                     } catch (error) {

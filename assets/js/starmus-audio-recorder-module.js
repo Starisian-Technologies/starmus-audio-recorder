@@ -41,7 +41,8 @@
                 
                 const instanceId = options.formInstanceId;
                 if (!isSafeId(instanceId)) return reject(new Error('Invalid instance ID.'));
-                if (instanceId in instances) return resolve(true);
+                const hasInstance = Object.prototype.hasOwnProperty.call(instances, instanceId);
+                if (hasInstance) return resolve(true);
 
                 doAction('starmus_before_recorder_init', instanceId, options);
 
@@ -74,7 +75,9 @@
         },
 
         calibrate: function(instanceId, onUpdateCallback) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return;
+            if (!isSafeId(instanceId)) return;
+            const hasInstance = Object.prototype.hasOwnProperty.call(instances, instanceId);
+            if (!hasInstance) return;
             const instance = instances[instanceId];
             const analyser = instance.analyser;
             const buffer = new Float32Array(analyser.fftSize);
@@ -124,7 +127,9 @@
         },
         
         startVolumeMonitoring: function(instanceId, onVolumeChange) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return;
+            if (!isSafeId(instanceId)) return;
+            const hasInstance = Object.prototype.hasOwnProperty.call(instances, instanceId);
+            if (!hasInstance) return;
             const instance = instances[instanceId];
             const analyser = instance.analyser;
             const buffer = new Float32Array(analyser.fftSize);
@@ -145,7 +150,9 @@
         },
         
         startRecording: function(instanceId) {
-            if (!isSafeId(instanceId) || !(instanceId in instances) || instances[instanceId].isRecording) return;
+            if (!isSafeId(instanceId)) return;
+            const hasInstance = Object.prototype.hasOwnProperty.call(instances, instanceId);
+            if (!hasInstance || instances[instanceId].isRecording) return;
             const instance = instances[instanceId];
 
             try {
@@ -180,7 +187,9 @@
         },
 
         stopRecording: function(instanceId) {
-            if (!isSafeId(instanceId) || !(instanceId in instances) || !instances[instanceId].isRecording) return;
+            if (!isSafeId(instanceId)) return;
+            const hasInstance = Object.prototype.hasOwnProperty.call(instances, instanceId);
+            if (!hasInstance || !instances[instanceId].isRecording) return;
             const instance = instances[instanceId];
             if (instance.recorder && instance.recorder.state !== 'inactive') {
                 instance.recorder.stop();
@@ -190,7 +199,9 @@
         },
 
         togglePause: function(instanceId) {
-            if (!isSafeId(instanceId) || !(instanceId in instances) || !instances[instanceId].isRecording) return;
+            if (!isSafeId(instanceId)) return;
+            const hasInstance = Object.prototype.hasOwnProperty.call(instances, instanceId);
+            if (!hasInstance || !instances[instanceId].isRecording) return;
             const instance = instances[instanceId];
 
             if (instance.isPaused) {
@@ -205,7 +216,9 @@
         },
 
         getSubmissionData: function(instanceId) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return null;
+            if (!isSafeId(instanceId)) return null;
+            const hasInstance = Object.prototype.hasOwnProperty.call(instances, instanceId);
+            if (!hasInstance) return null;
             const instance = instances[instanceId];
             if (instance.audioBlob) {
                 const data = {
@@ -221,7 +234,9 @@
         },
 
         cleanup: function(instanceId) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return;
+            if (!isSafeId(instanceId)) return;
+            const hasInstance = Object.prototype.hasOwnProperty.call(instances, instanceId);
+            if (!hasInstance) return;
             const instance = instances[instanceId];
             
             if (instance.stream) {

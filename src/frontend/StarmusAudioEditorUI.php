@@ -376,7 +376,12 @@ class StarmusAudioEditorUI {
 		if ( empty( $annotations ) ) {
 			return true;
 		}
-		usort( $annotations, function( $a, $b ) { return $a['startTime'] <=> $b['startTime']; } );
+		usort(
+			$annotations,
+			function ( $a, $b ) {
+				return $a['startTime'] <=> $b['startTime'];
+			}
+		);
 		for ( $i = 0; $i < count( $annotations ) - 1; $i++ ) {
 			$current = $annotations[ $i ];
 			$next    = $annotations[ $i + 1 ];

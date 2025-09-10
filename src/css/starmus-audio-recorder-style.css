@@ -118,20 +118,22 @@
 }
 
 /* --- Unified Button System --- */
-
-/* NOTE: You may need to update your HTML to use these classes consistently. */
 .starmus-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	gap: 0.5rem;
-	padding: 0.7rem 1.1rem;
+	min-height: 44px; /* Better touch target */
+	padding: 0.75rem 1.25rem;
 	border-radius: 0.75rem;
 	border: 1px solid transparent;
 	font-weight: 600;
+	font-size: 1rem;
 	line-height: 1.2;
 	text-decoration: none;
 	cursor: pointer;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
 	transition: transform 0.02s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -209,12 +211,25 @@
 }
 
 .starmus-volume-meter {
-	height: 24px;
+	height: 28px; /* Slightly taller for mobile */
 	background-color: color-mix(in srgb, var(--starmus-border-color) 50%, transparent);
 	border: 1px solid var(--starmus-border-color);
-	border-radius: 12px;
+	border-radius: 14px;
 	margin: 1rem 0;
 	overflow: hidden;
+	position: relative;
+}
+
+.starmus-volume-meter::after {
+	content: 'Volume Level';
+	position: absolute;
+	top: 50%;
+	left: 8px;
+	transform: translateY(-50%);
+	font-size: 0.75rem;
+	color: var(--starmus-text-muted);
+	pointer-events: none;
+	z-index: 1;
 }
 
 .starmus-volume-meter div[id*="volume_bar"] {
@@ -238,7 +253,21 @@
 	gap: 0.75rem;
 	justify-content: center;
 	flex-wrap: wrap;
-	margin: 1rem 0;
+	margin: 1.5rem 0;
+}
+
+/* Mobile: Stack buttons vertically for better touch */
+@media (max-width: 480px) {
+	.starmus-recorder-controls {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 1rem;
+	}
+	
+	.starmus-btn {
+		min-height: 48px; /* Larger touch targets on mobile */
+		padding: 1rem 1.5rem;
+	}
 }
 
 .starmus-user-message {
@@ -258,6 +287,18 @@
 	background-color: color-mix(in srgb, var(--starmus-danger-color) 15%, transparent);
 	color: var(--starmus-danger-color);
 	border: 1px solid color-mix(in srgb, var(--starmus-danger-color) 35%, transparent);
+}
+
+.starmus-user-message[data-status="success"] {
+	background-color: color-mix(in srgb, var(--starmus-success-color) 15%, transparent);
+	color: var(--starmus-success-color);
+	border: 1px solid color-mix(in srgb, var(--starmus-success-color) 35%, transparent);
+}
+
+.starmus-user-message[data-status="warn"] {
+	background-color: color-mix(in srgb, var(--starmus-warning-color) 15%, transparent);
+	color: #b45309; /* Darker for better contrast */
+	border: 1px solid color-mix(in srgb, var(--starmus-warning-color) 35%, transparent);
 }
 
 /*
@@ -500,4 +541,48 @@
 	.starmus-recording {
 		flex-basis: calc(33.333% - 1rem); /* Three cards per row */
 	}
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--starmus-text-color: var(--wp--preset--color--foreground, #f3f4f6);
+		--starmus-text-muted: var(--wp--preset--color--secondary, #9ca3af);
+		--starmus-border-color: var(--wp--preset--color--contrast, #374151);
+		--starmus-bg-light: var(--wp--preset--color--base-2, #1f2937);
+		--starmus-bg-card: var(--wp--preset--color--background, #111827);
+	}
+}
+
+/* Focus improvements for keyboard navigation */
+.starmus-btn:focus,
+.starmus-recorder-form input:focus,
+.starmus-recorder-form select:focus,
+.starmus-recorder-form textarea:focus {
+	outline: 2px solid var(--starmus-primary-color);
+	outline-offset: 2px;
+}
+
+/* Loading states */
+.starmus-btn[aria-busy="true"] {
+	position: relative;
+	color: transparent;
+}
+
+.starmus-btn[aria-busy="true"]::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 16px;
+	height: 16px;
+	margin: -8px 0 0 -8px;
+	border: 2px solid currentColor;
+	border-radius: 50%;
+	border-top-color: transparent;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	to { transform: rotate(360deg); }
 }

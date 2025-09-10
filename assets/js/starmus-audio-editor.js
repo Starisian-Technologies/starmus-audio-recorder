@@ -60,9 +60,9 @@
 	const editorRoot = document.querySelector('.starmus-editor');
 	if (!editorRoot) return; // No editor on this page, exit gracefully.
 
-	/** @type {HTMLElement}
+	/** @type {HTMLElement} */
 	const overviewEl = document.getElementById('overview');
-	/** @type {HTMLElement}
+	/** @type {HTMLElement} */
 	const zoomviewEl = document.getElementById('zoomview');
 	/** @type {HTMLButtonElement}
 	const btnPlay = document.getElementById('play');

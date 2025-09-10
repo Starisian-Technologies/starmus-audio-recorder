@@ -55,8 +55,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 								$secure_edit_link = wp_nonce_url( $edit_link, 'starmus_edit_audio', 'nonce' );
 								?>
 								<a href="<?php echo esc_url( $secure_edit_link ); ?>" 
-								   class="starmus-recording__edit-button" 
-								   aria-label="<?php echo esc_attr( sprintf( __( 'Edit audio for %s', STARMUS_TEXT_DOMAIN ), $post_title ) ); ?>">
+									class="starmus-recording__edit-button" 
+									aria-label="<?php echo esc_attr( sprintf( __( 'Edit audio for %s', STARMUS_TEXT_DOMAIN ), $post_title ) ); ?>">
 									<?php esc_html_e( 'Edit Audio', STARMUS_TEXT_DOMAIN ); ?>
 								</a>
 							<?php endif; ?>
@@ -71,11 +71,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 		// Pagination with accessibility improvements
 		the_posts_pagination(
 			array(
-				'mid_size'     => 2,
-				'prev_text'    => esc_html__( 'Previous', STARMUS_TEXT_DOMAIN ),
-				'next_text'    => esc_html__( 'Next', STARMUS_TEXT_DOMAIN ),
+				'mid_size'           => 2,
+				'prev_text'          => esc_html__( 'Previous', STARMUS_TEXT_DOMAIN ),
+				'next_text'          => esc_html__( 'Next', STARMUS_TEXT_DOMAIN ),
 				'screen_reader_text' => esc_html__( 'Recordings navigation', STARMUS_TEXT_DOMAIN ),
-				'aria_label'   => esc_html__( 'Recordings', STARMUS_TEXT_DOMAIN ),
+				'aria_label'         => esc_html__( 'Recordings', STARMUS_TEXT_DOMAIN ),
 			)
 		);
 		?>

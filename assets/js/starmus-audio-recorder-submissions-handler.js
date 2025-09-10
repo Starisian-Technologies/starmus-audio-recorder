@@ -99,8 +99,8 @@
       const wpData = window.starmusFormData || {};
       if (wpData.rest_url && wpData.rest_nonce){
         const fd=new FormData();
-        Object.keys(formFields||{}).forEach(function(k){ fd.append(s(k), formFields[k]); });
-        fd.append('audio_file', blob, s(fileName) || 'recording');
+        Object.keys(formFields||{}).forEach(function(k){ fd.append(k, formFields[k]); });
+        fd.append('audio_file', blob, fileName || 'recording');
         if (metadata) fd.append('metadata', JSON.stringify(metadata));
         return fetch(wpData.rest_url,{ method:'POST', headers:{'X-WP-Nonce': wpData.rest_nonce}, body: fd })
           .then(function(res){ if(!res.ok) throw new Error('Direct upload failed: '+res.status); return res; });
@@ -109,7 +109,7 @@
     }
     return new Promise(function(resolve, reject){
       const meta = Object.assign({}, formFields||{});
-      meta.filename = s(fileName) || 'recording';
+      meta.filename = fileName || 'recording';
       if (metadata) meta.starmus_meta = JSON.stringify(metadata);
       const uploader = new tus.Upload(blob, {
         endpoint: tusCfg.endpoint,
@@ -203,17 +203,22 @@
     return meta;
   }
 
+  function s(text) {
+    if (typeof text !== 'string') return String(text);
+    return text.replace(/[\x00-\x1F\x7F<>"'&]/g, ' ').substring(0, 200);
+  }
+
     function handleSubmit(instanceId, form) {
         if (!safeId(instanceId)) return;
 
-        const recordingData = window.StarmusAudioRecorder?.getSubmissionData?.(instanceId);
+        const recordingData = window.StarmusAudioRecorder && window.StarmusAudioRecorder.getSubmissionData ? window.StarmusAudioRecorder.getSubmissionData(instanceId) : null;
         const fb = el('starmus_fallback_input_' + instanceId);
         let blob = null, fileName = 'recording.webm';
 
         if (recordingData?.blob) {
             blob = recordingData.blob;
             fileName = recordingData.fileName;
-        } else if (fb?.files?.length) {
+        } else if (fb && fb.files && fb.files.length) {
             blob = fb.files[0];
             fileName = fb.files[0].name;
         }
@@ -224,7 +229,7 @@
         }
 
         const formFields = collectFormFields(form);
-        const metadata = recordingData?.metadata || {};
+        const metadata = (recordingData && recordingData.metadata) || {};
         
         const submissionPackage = { instanceId, blob, fileName, formFields, metadata };
 
@@ -246,7 +251,7 @@
                 doAction('starmus_submission_complete', instanceId);
             })
             .catch(err => {
-                log('error', 'Upload failed', err?.message);
+                log('error', 'Upload failed', err && err.message);
                 doAction('starmus_submission_failed', instanceId, err);
                 Offline.add(instanceId, blob, fileName, formFields, metadata);
             });
@@ -277,7 +282,7 @@
 
     function initRecorder(instanceId) {
         return new Promise((resolve, reject) => {
-            if (!window.StarmusAudioRecorder?.init) {
+            if (!window.StarmusAudioRecorder || !window.StarmusAudioRecorder.init) {
                 revealTierC(instanceId);
                 return reject(new Error('Recorder module missing.'));
             }
@@ -285,7 +290,7 @@
             window.StarmusAudioRecorder.init({ formInstanceId: instanceId })
                 .then(resolve)
                 .catch(err => {
-                    log('error', 'Engine init failed', err?.message);
+                    log('error', 'Engine init failed', err && err.message);
                     revealTierC(instanceId);
                     reject(err);
                 });
