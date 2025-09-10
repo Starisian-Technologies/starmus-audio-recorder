@@ -2,15 +2,17 @@
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
- * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
- *
- * REFACTORED TO USE WORDPRESS BLOCK THEME CSS VARIABLES FOR SEAMLESS INTEGRATION.
+ * @file Starmus Audio - Unified Stylesheet
+ * @description A single, mobile-first, accessible, and theme-aware stylesheet for
+ *              the Recorder, Editor, and "My Recordings" components.
+ * @version 1.0.0
  */
 
 /*
- * --- WordPress Block Theme Palette Integration ---
- * These variables map the plugin's UI to the active theme's colors.
+ * ========================================================================
+ *   1. FOUNDATION: WordPress Theme Palette Integration & Global Variables
+ * ========================================================================
+ * These variables map the plugin's UI to the active block theme's colors.
  * Fallback values are provided to ensure functionality on all themes.
  */
 :root {
@@ -24,96 +26,94 @@
 	--starmus-text-muted: var(--wp--preset--color--secondary, #6b7280);
 	/* Uses a contrasting color for borders, often a light gray. */
 	--starmus-border-color: var(--wp--preset--color--contrast, #d1d5db);
-	/* Uses a subtle background color, often an off-white. */
+	/* Uses a subtle background color, often an off-white for containers. */
 	--starmus-bg-light: var(--wp--preset--color--base-2, #f9fafb);
-	/* Maps to the theme's primary background color. */
-	--starmus-bg-white: var(--wp--preset--color--background, #fff);
+	/* Maps to the theme's primary background color, used for cards. */
+	--starmus-bg-card: var(--wp--preset--color--background, #fff);
 
 	/* --- Semantic Colors --- */
-	/* These are less common in themes, so strong fallbacks are essential. */
 	--starmus-danger-color: var(--wp--preset--color--danger, #dc3545);
 	--starmus-danger-hover: color-mix(in srgb, var(--wp--preset--color--danger, #dc3545) 85%, #000);
 	--starmus-success-color: var(--wp--preset--color--success, #28a745);
 	--starmus-warning-color: var(--wp--preset--color--warning, #ffc107);
 }
 
-/* --- Form Controls: uniform sizing & Material-ish focus --- */
-.starmus-recorder-form .starmus-form-field input[type="text"],
-.starmus-recorder-form .starmus-form-field input[type="email"],
-.starmus-recorder-form .starmus-form-field input[type="url"],
-.starmus-recorder-form .starmus-form-field input[type="search"],
-.starmus-recorder-form .starmus-form-field input[type="number"],
-.starmus-recorder-form .starmus-form-field select,
-.starmus-recorder-form .starmus-form-field textarea {
+
+/*
+ * ========================================================================
+ *   2. SHARED ELEMENTS: Unified Forms & Buttons
+ * ========================================================================
+ * A single set of styles for all forms and buttons across the plugin.
+ */
+
+/* --- Unified Form Controls --- */
+.starmus-recorder-form input[type="text"],
+.starmus-recorder-form select,
+.starmus-recorder-form textarea,
+.starmus-editor input[type="text"],
+.starmus-editor input[type="number"],
+.starmus-editor select,
+.starmus-editor textarea {
 	width: 100%;
-	min-height: 44px; /* consistent height with selects */
+	min-height: 44px;
 	padding: 0.625rem 0.75rem;
 	border: 1px solid var(--starmus-border-color);
-	border-radius: 0.5rem; /* Tailwind rounded-lg feel */
-	background-color: var(--starmus-bg-white);
+	border-radius: 0.5rem;
+	background-color: var(--starmus-bg-card);
 	color: var(--starmus-text-color);
 	font: inherit;
 	line-height: 1.4;
-	transition: border-color 0.15s ease, box-shadow 0.15s ease,
-		background-color 0.15s ease;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
-.starmus-recorder-form .starmus-form-field textarea {
+.starmus-recorder-form textarea,
+.starmus-editor textarea {
 	min-height: 120px;
 	resize: vertical;
 }
 
-/* Select: remove native chrome + add chevron */
-.starmus-recorder-form .starmus-form-field select {
+/* Select Chevron */
+.starmus-recorder-form select,
+.starmus-editor select {
 	appearance: none;
-	padding-right: 2.25rem; /* space for chevron */
-	/* Chevron color now uses the text color variable to adapt to themes */
+	padding-right: 2.25rem;
 	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23374151' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 	background-repeat: no-repeat;
 	background-position: right 0.6rem center;
 	background-size: 1.1rem 1.1rem;
 }
 
-.starmus-recorder-form .starmus-form-field input:focus,
-.starmus-recorder-form .starmus-form-field select:focus,
-.starmus-recorder-form .starmus-form-field textarea:focus {
+.starmus-recorder-form input:focus,
+.starmus-recorder-form select:focus,
+.starmus-recorder-form textarea:focus,
+.starmus-editor input:focus,
+.starmus-editor select:focus,
+.starmus-editor textarea:focus {
 	outline: none;
 	border-color: var(--starmus-primary-color);
 	box-shadow: 0 0 0 3px color-mix(in srgb, var(--starmus-primary-color) 25%, transparent);
-	background-color: var(--starmus-bg-white);
+	background-color: var(--starmus-bg-card);
 }
 
-/* Labels & help text */
-.starmus-recorder-form .starmus-form-field label {
+/* --- Unified Labels & Help Text --- */
+.starmus-recorder-form label,
+.starmus-editor label {
 	display: block;
 	margin-bottom: 0.375rem;
 	font-weight: 600;
 	color: var(--starmus-text-color);
 }
 
-/* Consent row alignment (Lower specificity, placed before the more specific rule) */
-.starmus-consent-field input[type="checkbox"] {
-	margin-top: 0.2em;
-	width: 1.1rem;
-	height: 1.1rem;
-}
-
-.starmus-consent-field label {
-	display: flex;
-	align-items: flex-start;
-	gap: 0.6rem;
-	cursor: pointer;
-}
-
-.starmus-recorder-form .starmus-form-field .field-help {
+.starmus-recorder-form .field-help,
+.starmus-editor .field-help {
 	margin-top: 0.375rem;
 	font-size: 0.875rem;
 	color: var(--starmus-text-muted);
 }
 
-/* --- Buttons: primary, neutral, danger --- */
-.sparxstar_button,
-.sparxstar_submitButton {
+/* --- Unified Button System --- */
+/* NOTE: You may need to update your HTML to use these classes consistently. */
+.starmus-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -123,29 +123,21 @@
 	border: 1px solid transparent;
 	font-weight: 600;
 	line-height: 1.2;
-	background-color: var(--starmus-border-color); /* Using border as a neutral bg */
-	color: var(--starmus-text-color);
+	text-decoration: none;
 	cursor: pointer;
-	transition: transform 0.02s ease, background-color 0.15s ease,
-		border-color 0.15s ease, box-shadow 0.15s ease;
-	box-shadow: 0 1px 2px rgb(16 24 40 / 6%);
+	transition: transform 0.02s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.sparxstar_button:hover:not(:disabled) {
-	background-color: color-mix(in srgb, var(--starmus-border-color) 85%, #000);
+.starmus-btn:active:not(:disabled) {
+	transform: translateY(1px);
 }
 
-.sparxstar_button:focus-visible {
+.starmus-btn:focus-visible {
 	outline: none;
 	box-shadow: 0 0 0 3px color-mix(in srgb, var(--starmus-primary-color) 35%, transparent);
 }
 
-.sparxstar_button:active:not(:disabled) {
-	transform: translateY(1px);
-}
-
-.sparxstar_button:disabled,
-.sparxstar_submitButton:disabled {
+.starmus-btn:disabled {
 	background-color: var(--starmus-border-color);
 	border-color: var(--starmus-border-color);
 	color: var(--starmus-text-muted);
@@ -154,46 +146,40 @@
 	opacity: 0.7;
 }
 
-/* Primary button styles */
-.sparxstar_button--primary,
-.sparxstar_submitButton {
+/* Primary Button */
+.starmus-btn--primary {
 	background-color: var(--starmus-primary-color);
-	color: var(--wp--preset--color--background, #fff); /* Text should contrast with primary */
+	color: var(--starmus-bg-card);
 	border-color: var(--starmus-primary-color);
 }
-
-.sparxstar_button--primary:hover:not(:disabled),
-.sparxstar_submitButton:hover:not(:disabled) {
+.starmus-btn--primary:hover:not(:disabled) {
 	background-color: var(--starmus-primary-hover);
 	border-color: var(--starmus-primary-hover);
 }
 
-/* Danger button styles */
-.sparxstar_button--danger {
+/* Danger Button */
+.starmus-btn--danger {
 	background-color: var(--starmus-danger-color);
-	color: var(--wp--preset--color--background, #fff); /* Text should contrast with danger */
+	color: var(--starmus-bg-card);
 	border-color: var(--starmus-danger-color);
 }
-
-.sparxstar_button--danger:hover:not(:disabled) {
+.starmus-btn--danger:hover:not(:disabled) {
 	background-color: var(--starmus-danger-hover);
 	border-color: var(--starmus-danger-hover);
 }
 
-/* --- Layout niceties --- */
-.starmus-recorder-form .starmus-field-grid {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: 1rem;
+/* Success Button */
+.starmus-btn--success {
+	background-color: var(--starmus-success-color);
+	color: var(--starmus-bg-card);
+	border-color: var(--starmus-success-color);
 }
 
-@media (width >= 640px) {
-	.starmus-recorder-form .starmus-field-grid--two {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-}
-
-/* --- Audio Recorder Components --- */
+/*
+ * ========================================================================
+ *   3. COMPONENT: Audio Recorder
+ * ========================================================================
+ */
 .starmus-recorder-container {
 	padding: 1.5rem;
 	border: 1px solid var(--starmus-border-color);
@@ -214,8 +200,6 @@
 }
 
 .starmus-volume-meter {
-	position: relative;
-	width: 100%;
 	height: 24px;
 	background-color: color-mix(in srgb, var(--starmus-border-color) 50%, transparent);
 	border: 1px solid var(--starmus-border-color);
@@ -235,7 +219,6 @@
 .starmus-recorder-timer {
 	font-size: 1.5rem;
 	font-weight: 700;
-	letter-spacing: 0.2px;
 	text-align: center;
 	margin: 1rem 0;
 	color: var(--starmus-primary-color);
@@ -249,52 +232,257 @@
 	margin: 1rem 0;
 }
 
-.starmus-btn {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0.75rem 1.25rem;
+.starmus-user-message {
+	padding: 0.75rem 1rem;
 	border-radius: 0.5rem;
-	border: 1px solid transparent;
+	margin-bottom: 1rem;
+	font-weight: 500;
+}
+
+.starmus-user-message[data-status="info"] {
+	background-color: color-mix(in srgb, var(--starmus-primary-color) 15%, transparent);
+	color: var(--starmus-primary-color);
+	border: 1px solid color-mix(in srgb, var(--starmus-primary-color) 35%, transparent);
+}
+
+.starmus-user-message[data-status="error"] {
+	background-color: color-mix(in srgb, var(--starmus-danger-color) 15%, transparent);
+	color: var(--starmus-danger-color);
+	border: 1px solid color-mix(in srgb, var(--starmus-danger-color) 35%, transparent);
+}
+
+/*
+ * ========================================================================
+ *   4. COMPONENT: My Recordings List
+ * ========================================================================
+ */
+.starmus-my-recordings-container {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	color: var(--starmus-text-color);
+}
+
+.starmus-recordings-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+}
+
+.starmus-recording {
+	background-color: var(--starmus-bg-card);
+	border: 1px solid var(--starmus-border-color);
+	border-radius: 0.75rem;
+	box-shadow: 0 4px 6px -1px rgb(0 0 0 / 5%), 0 2px 4px -2px rgb(0 0 0 / 5%);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+	flex-basis: 100%; /* Mobile first: full width */
+}
+
+.starmus-recording:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 10px 15px -3px rgb(0 0 0 / 7%), 0 4px 6px -2px rgb(0 0 0 / 5%);
+}
+
+.starmus-recording__header {
+	padding: 1.25rem 1.5rem;
+	border-bottom: 1px solid var(--starmus-border-color);
+}
+
+.starmus-recording__title {
+	margin: 0 0 0.25rem;
+	font-size: 1.25rem;
 	font-weight: 600;
-	line-height: 1.2;
-	cursor: pointer;
-	transition: all 0.15s ease;
-	min-width: 120px;
 }
 
-.starmus-btn:disabled {
-	opacity: 0.6;
-	cursor: not-allowed;
+.starmus-recording__title a {
+	text-decoration: none;
+	color: inherit;
+	transition: color 0.2s ease;
+}
+.starmus-recording__title a:hover { color: var(--starmus-primary-color); }
+
+.starmus-recording__meta {
+	font-size: 0.875rem;
+	color: var(--starmus-text-muted);
 }
 
-.starmus-btn-primary {
-	background-color: var(--starmus-primary-color);
-	color: var(--starmus-bg-white);
-	border-color: var(--starmus-primary-color);
+.starmus-recording__content {
+	padding: 1.5rem;
+	flex-grow: 1;
 }
 
-.starmus-btn-primary:hover:not(:disabled) {
-	background-color: var(--starmus-primary-hover);
+.starmus-recording__content audio {
+	width: 100%;
+	border-radius: 9999px;
+	border: 1px solid var(--starmus-border-color);
 }
 
-.starmus-record-btn {
-	background-color: var(--starmus-danger-color);
-	color: var(--starmus-bg-white);
-	border-color: var(--starmus-danger-color);
+.starmus-recording__footer {
+	padding: 1rem 1.5rem;
+	background-color: var(--starmus-bg-light);
+	border-top: 1px solid var(--starmus-border-color);
+	display: flex;
+	justify-content: flex-end;
 }
 
-.starmus-stop-btn {
-	background-color: var(--starmus-text-muted);
-	color: var(--starmus-bg-white);
-	border-color: var(--starmus-text-muted);
+/* Pagination & "No Recordings" Message */
+.starmus-no-recordings {
+	padding: 2rem;
+	text-align: center;
+	background-color: var(--starmus-bg-light);
+	border: 1px dashed var(--starmus-border-color);
+	border-radius: 0.75rem;
 }
 
-.starmus-play-btn,
-.starmus-btn-success {
-	background-color: var(--starmus-success-color);
-	color: var(--starmus-bg-white);
-	border-color: var(--starmus-success-color);
+/*
+ * ========================================================================
+ *   5. COMPONENT: Audio Editor
+ * ========================================================================
+ */
+.starmus-editor__head {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
 }
 
-/
+.starmus-editor__title {
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 700;
+}
+
+.starmus-editor__time {
+	font-variant-numeric: tabular-nums;
+	opacity: 0.8;
+}
+
+.starmus-editor__wave {
+	border: 1px solid var(--starmus-border-color);
+	border-radius: 0.75rem;
+	padding: 0.5rem;
+	background: var(--starmus-bg-card);
+	margin-bottom: 1rem;
+}
+
+.starmus-editor__zoom { height: 180px; }
+.starmus-editor__overview { height: 64px; margin-top: 0.5rem; }
+
+.starmus-editor__controls {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.starmus-editor__spacer { display: none; }
+
+.starmus-editor__list { overflow-x: auto; }
+.starmus-editor__list table {
+	width: 100%;
+	min-width: 640px;
+	border-collapse: separate;
+	border-spacing: 0;
+	background: var(--starmus-bg-card);
+	border: 1px solid var(--starmus-border-color);
+	border-radius: 0.75rem;
+	overflow: hidden;
+}
+
+.starmus-editor__list th,
+.starmus-editor__list td {
+	padding: 0.65rem 0.8rem;
+	border-bottom: 1px solid var(--starmus-border-color);
+	text-align: left;
+	vertical-align: middle;
+}
+
+.starmus-editor__list thead th {
+	background: var(--starmus-bg-light);
+	font-weight: 700;
+	color: var(--starmus-text-color);
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
+
+.starmus-editor__list tr:last-child td { border-bottom: none; }
+
+.starmus-editor__list .row-actions a {
+	text-decoration: none;
+	color: var(--starmus-primary-color);
+}
+.starmus-editor__list .row-actions a:hover { color: var(--starmus-primary-hover); }
+
+/*
+ * ========================================================================
+ *   6. ACCESSIBILITY OVERRIDES
+ * ========================================================================
+ */
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+	.starmus-recording,
+	.starmus-editor__list table {
+		border: 2px solid;
+	}
+	.starmus-btn {
+		border: 2px solid;
+	}
+}
+
+/*
+ * ========================================================================
+ *   7. RESPONSIVE LAYOUT
+ * ========================================================================
+ */
+.starmus_visually_hidden {
+	display: none !important;
+}
+
+/* Tablet and larger */
+@media (width >= 768px) {
+	/* Recordings List */
+	.starmus-recording {
+		flex-basis: calc(50% - 0.75rem); /* Two cards per row */
+	}
+
+	/* Editor */
+	.starmus-editor__head {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.starmus-editor__controls {
+		flex-flow: row wrap;
+		align-items: center;
+	}
+	.starmus-editor__controls .starmus-btn {
+		width: auto;
+	}
+	.starmus-editor__spacer {
+		display: block;
+		flex: 1 1 auto;
+	}
+}
+
+/* Desktop and larger */
+@media (width >= 1024px) {
+	/* Recordings List */
+	.starmus-recording {
+		flex-basis: calc(33.333% - 1rem); /* Three cards per row */
+	}
+}
