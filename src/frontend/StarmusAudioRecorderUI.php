@@ -234,7 +234,7 @@ class StarmusAudioRecorderUI {
 			if ( has_shortcode( $post->post_content, 'starmus_audio_recorder_form' ) || has_shortcode( $post->post_content, 'starmus_my_recordings' ) ) {
 				wp_enqueue_style(
 					'starmus-recorder-style',
-					STARMUS_URL . 'assets/css/starmus-audio-recorder-styles.css', // Using your exact CSS filename
+					STARMUS_URL . 'assets/css/starmus-audio-recorder-style.css', // Using your exact CSS filename
 					array(),
 					STARMUS_VERSION
 				);
