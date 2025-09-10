@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.WORKFLOW_PAT }}
 
-      # Step 2: Configure Git with a user name and email for the commit.
+      # Step 2: Configure Git for commits.
       - name: Set up Git
         run: |
           git config --global user.name "github-actions[bot]"
@@ -32,17 +32,13 @@ jobs:
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-      # Step 4: Update the version in the main plugin file header.
+      # Steps 4-7: Update version numbers in PHP files.
       - name: Update plugin header version
         run: |
           sed -i -E "s/^(\s*\* Version:\s*).*/\1${{ env.VERSION }}/" starmus-audio-recorder.php
-
-      # Step 5: Update all @version docblock tags.
       - name: Update @version tags in PHP files
         run: |
           find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 sed -i "s/@version\s+[0-9.]\+/@version ${{ env.VERSION }}/g"
-
-      # Step 6: Add @since tag where it's missing.
       - name: Add @since tags where missing
         run: |
           find . -type f -name "*.php" -not -path "./vendor/*" -print0 | while IFS= read -r -d $'\0' file; do
@@ -50,56 +46,54 @@ jobs:
               sed -i "/@version/a \ * @since   ${{ env.VERSION }}" "$file"
             fi
           done
-
-      # Step 7: Update the global version constant.
-      # !!! IMPORTANT: Change 'something_VERSION' to your actual variable name !!!
       - name: Update global version variable
         run: |
           sed -i "s/something_VERSION\s*=\s*'.*'/something_VERSION = '${{ env.VERSION }}'/" starmus-audio-recorder.php
 
-      # Step 8: Commit version bump, push to branch, and update tag
+      # Step 8: Commit version changes and update the tag.
       - name: Commit version bump and update tag
         run: |
           git add -A
           if ! git diff --staged --quiet; then
-            # Commit the changes.
             git commit -m "chore(release): Bump version to ${{ env.VERSION }}"
-            
-            # Get the name of the default branch.
             DEFAULT_BRANCH=${{ github.event.repository.default_branch }}
-            
-            # Push the new commit to the default branch.
             git push origin HEAD:"refs/heads/$DEFAULT_BRANCH"
-            
-            # Move the tag to point to this new commit.
             git tag -f $GITHUB_REF_NAME
-            
-            # Push the updated tag.
             git push origin $GITHUB_REF_NAME --force
           else
             echo "No version changes to commit."
           fi
 
-      # --- Your original build process starts here ---
-
+      # Step 9: Verify plugin entrypoint exists.
       - name: Verify plugin entrypoint
         run: |
           test -f starmus-audio-recorder.php || { echo "Missing starmus-audio-recorder.php"; exit 1; }
           grep -q "Plugin Name:" starmus-audio-recorder.php || { echo "No plugin header found"; exit 1; }
 
+      # Step 10: Set up PHP and install Composer dependencies.
       - name: Set up PHP
         uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4
         with:
           php-version: '8.2'
           tools: composer:v2
           coverage: none
-
       - name: Install PHP dependencies (no-dev)
         run: composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
 
+      # Step 11: Set up Node.js and build frontend assets.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - name: Install JS dependencies
+        run: npm install
+      - name: Build Assets
+        run: npm run build
+
+      # Step 12: Build the distributable plugin ZIP file.
       - name: Ensure .distignore exists
         run: test -f .distignore || { echo ".distignore is missing"; exit 1; }
-
       - name: Build plugin ZIP
         run: |
           SLUG="starmus-audio-recorder"
@@ -107,13 +101,15 @@ jobs:
           rsync -a --delete --exclude-from=.distignore ./ build/${SLUG}/
           (cd build && zip -r "../${SLUG}-${{ env.VERSION }}.zip" "${SLUG}")
 
+      # Step 13: Generate checksums for the ZIP file.
       - name: Generate checksums
         run: |
           sha256sum "starmus-audio-recorder-${{ env.VERSION }}.zip" > "starmus-audio-recorder-${{ env.VERSION }}.zip.sha256"
           sha1sum   "starmus-audio-recorder-${{ env.VERSION }}.zip" > "starmus-audio-recorder-${{ env.VERSION }}.zip.sha1"
 
+      # Step 14: Create the GitHub Release.
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8
+        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836
         with:
           files: |
             starmus-audio-recorder-${{ env.VERSION }}.zip
