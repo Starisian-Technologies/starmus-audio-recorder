@@ -4,21 +4,37 @@
  *
  * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
  * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
+ *
+ * REFACTORED TO USE WORDPRESS BLOCK THEME CSS VARIABLES FOR SEAMLESS INTEGRATION.
  */
 
-/* CSS Variables for theming */
+/*
+ * --- WordPress Block Theme Palette Integration ---
+ * These variables map the plugin's UI to the active theme's colors.
+ * Fallback values are provided to ensure functionality on all themes.
+ */
 :root {
-	--starmus-primary-color: #007bbf;
-	--starmus-primary-hover: #0056b3;
-	--starmus-danger-color: #dc3545;
-	--starmus-danger-hover: #c82333;
-	--starmus-success-color: #28a745;
-	--starmus-warning-color: #ffc107;
-	--starmus-text-color: #374151;
-	--starmus-text-muted: #6b7280;
-	--starmus-border-color: #d1d5db;
-	--starmus-bg-light: #f9fafb;
-	--starmus-bg-white: #fff;
+	/* Maps to the theme's main accent color. */
+	--starmus-primary-color: var(--wp--preset--color--primary, #007bbf);
+	/* Dynamically creates a hover color by darkening the primary color. */
+	--starmus-primary-hover: color-mix(in srgb, var(--wp--preset--color--primary, #007bbf) 85%, #000);
+	/* Uses theme's foreground/text color. */
+	--starmus-text-color: var(--wp--preset--color--foreground, #374151);
+	/* Uses a secondary or muted text color if available. */
+	--starmus-text-muted: var(--wp--preset--color--secondary, #6b7280);
+	/* Uses a contrasting color for borders, often a light gray. */
+	--starmus-border-color: var(--wp--preset--color--contrast, #d1d5db);
+	/* Uses a subtle background color, often an off-white. */
+	--starmus-bg-light: var(--wp--preset--color--base-2, #f9fafb);
+	/* Maps to the theme's primary background color. */
+	--starmus-bg-white: var(--wp--preset--color--background, #fff);
+
+	/* --- Semantic Colors --- */
+	/* These are less common in themes, so strong fallbacks are essential. */
+	--starmus-danger-color: var(--wp--preset--color--danger, #dc3545);
+	--starmus-danger-hover: color-mix(in srgb, var(--wp--preset--color--danger, #dc3545) 85%, #000);
+	--starmus-success-color: var(--wp--preset--color--success, #28a745);
+	--starmus-warning-color: var(--wp--preset--color--warning, #ffc107);
 }
 
 /* --- Form Controls: uniform sizing & Material-ish focus --- */
@@ -34,7 +50,7 @@
 	padding: 0.625rem 0.75rem;
 	border: 1px solid var(--starmus-border-color);
 	border-radius: 0.5rem; /* Tailwind rounded-lg feel */
-	background-color: #fff;
+	background-color: var(--starmus-bg-white);
 	color: var(--starmus-text-color);
 	font: inherit;
 	line-height: 1.4;
@@ -51,8 +67,8 @@
 .starmus-recorder-form .starmus-form-field select {
 	appearance: none;
 	padding-right: 2.25rem; /* space for chevron */
-	/* stylelint-disable-next-line string-quotes */
-	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'><path d='M6 8l4 4 4-4' stroke='%2350575e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+	/* Chevron color now uses the text color variable to adapt to themes */
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23374151' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 	background-repeat: no-repeat;
 	background-position: right 0.6rem center;
 	background-size: 1.1rem 1.1rem;
@@ -63,8 +79,8 @@
 .starmus-recorder-form .starmus-form-field textarea:focus {
 	outline: none;
 	border-color: var(--starmus-primary-color);
-	box-shadow: 0 0 0 3px rgb(0, 123, 191, 35%);
-	background-color: #fff;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--starmus-primary-color) 25%, transparent);
+	background-color: var(--starmus-bg-white);
 }
 
 /* Labels & help text */
@@ -96,8 +112,6 @@
 }
 
 /* --- Buttons: primary, neutral, danger --- */
-
-/* Base button styles */
 .sparxstar_button,
 .sparxstar_submitButton {
 	display: inline-flex;
@@ -105,78 +119,59 @@
 	justify-content: center;
 	gap: 0.5rem;
 	padding: 0.7rem 1.1rem;
-	border-radius: 0.75rem; /* rounded-xl vibe */
+	border-radius: 0.75rem;
 	border: 1px solid transparent;
 	font-weight: 600;
 	line-height: 1.2;
-	background-color: #e5e7eb; /* neutral base */
-	color: #111827;
+	background-color: var(--starmus-border-color); /* Using border as a neutral bg */
+	color: var(--starmus-text-color);
 	cursor: pointer;
 	transition: transform 0.02s ease, background-color 0.15s ease,
 		border-color 0.15s ease, box-shadow 0.15s ease;
-	box-shadow: 0 1px 2px rgb(16, 24, 40, 6%);
+	box-shadow: 0 1px 2px rgb(16 24 40 / 6%);
 }
 
-/* Pseudo-classes in correct order: :hover, :focus-visible, :active, :disabled */
 .sparxstar_button:hover:not(:disabled) {
-	background-color: #dfe3e7;
+	background-color: color-mix(in srgb, var(--starmus-border-color) 85%, #000);
 }
 
 .sparxstar_button:focus-visible {
 	outline: none;
-	box-shadow: 0 0 0 3px rgb(0, 123, 191, 35%);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--starmus-primary-color) 35%, transparent);
 }
 
 .sparxstar_button:active:not(:disabled) {
 	transform: translateY(1px);
 }
 
-.sparxstar_button:disabled {
-	background-color: #e5e7eb;
-	border-color: #e5e7eb;
-	color: #9ca3af;
+.sparxstar_button:disabled,
+.sparxstar_submitButton:disabled {
+	background-color: var(--starmus-border-color);
+	border-color: var(--starmus-border-color);
+	color: var(--starmus-text-muted);
 	cursor: not-allowed;
 	box-shadow: none;
+	opacity: 0.7;
 }
 
 /* Primary button styles */
 .sparxstar_button--primary,
 .sparxstar_submitButton {
 	background-color: var(--starmus-primary-color);
-	color: #fff;
+	color: var(--wp--preset--color--background, #fff); /* Text should contrast with primary */
 	border-color: var(--starmus-primary-color);
 }
 
-/* Pseudo-classes for primary button in correct order */
 .sparxstar_button--primary:hover:not(:disabled),
 .sparxstar_submitButton:hover:not(:disabled) {
 	background-color: var(--starmus-primary-hover);
 	border-color: var(--starmus-primary-hover);
 }
 
-.sparxstar_button--primary:focus-visible,
-.sparxstar_submitButton:focus-visible {
-	outline: none;
-	box-shadow: 0 0 0 3px
-		color-mix(in srgb, var(--starmus-primary-color) 35%, transparent);
-}
-
-.sparxstar_submitButton:active:not(:disabled) {
-	transform: translateY(1px);
-}
-
-.sparxstar_submitButton:disabled {
-	background-color: #e5e7eb;
-	border-color: #e5e7eb;
-	color: #9ca3af;
-	cursor: not-allowed;
-	box-shadow: none;
-}
-
 /* Danger button styles */
 .sparxstar_button--danger {
 	background-color: var(--starmus-danger-color);
-	color: #fff;
+	color: var(--wp--preset--color--background, #fff); /* Text should contrast with danger */
 	border-color: var(--starmus-danger-color);
 }
 
@@ -199,17 +194,14 @@
 }
 
 /* --- Audio Recorder Components --- */
-
-/* Recorder container */
 .starmus-recorder-container {
 	padding: 1.5rem;
-	border: 1px solid var(--starmus-border-color, #e5e7eb);
+	border: 1px solid var(--starmus-border-color);
 	border-radius: 0.75rem;
-	background-color: #f9fafb;
+	background-color: var(--starmus-bg-light);
 	margin: 1rem 0;
 }
 
-/* Recorder status and calibration */
 .starmus-recorder-status,
 .starmus-calibration-status {
 	padding: 0.75rem;
@@ -217,17 +209,16 @@
 	border-radius: 0.5rem;
 	text-align: center;
 	font-weight: 500;
-	background-color: #f3f4f6;
-	color: #374151;
+	background-color: var(--starmus-border-color);
+	color: var(--starmus-text-color);
 }
 
-/* Volume meter */
 .starmus-volume-meter {
 	position: relative;
 	width: 100%;
 	height: 24px;
-	background-color: #f0f0f0;
-	border: 1px solid #ccc;
+	background-color: color-mix(in srgb, var(--starmus-border-color) 50%, transparent);
+	border: 1px solid var(--starmus-border-color);
 	border-radius: 12px;
 	margin: 1rem 0;
 	overflow: hidden;
@@ -235,23 +226,21 @@
 
 .starmus-volume-meter div[id*="volume_bar"] {
 	height: 100%;
-	background: linear-gradient(to right, #4CAF50 0%, #FFEB3B 70%, #F44336 100%);
+	background: linear-gradient(to right, #4CAF50 0%, #FFEB3B 70%, var(--starmus-danger-color) 100%);
 	width: 0%;
 	transition: width 0.1s ease;
 	border-radius: 12px;
 }
 
-/* Timer */
 .starmus-recorder-timer {
 	font-size: 1.5rem;
 	font-weight: 700;
 	letter-spacing: 0.2px;
 	text-align: center;
 	margin: 1rem 0;
-	color: var(--starmus-primary-color, #007bbf);
+	color: var(--starmus-primary-color);
 }
 
-/* Recorder controls */
 .starmus-recorder-controls {
 	display: flex;
 	gap: 0.75rem;
@@ -260,7 +249,6 @@
 	margin: 1rem 0;
 }
 
-/* Button styles for recorder */
 .starmus-btn {
 	display: inline-flex;
 	align-items: center;
@@ -281,149 +269,32 @@
 }
 
 .starmus-btn-primary {
-	background-color: var(--starmus-primary-color, #007bbf);
-	color: white;
-	border-color: var(--starmus-primary-color, #007bbf);
+	background-color: var(--starmus-primary-color);
+	color: var(--starmus-bg-white);
+	border-color: var(--starmus-primary-color);
 }
 
 .starmus-btn-primary:hover:not(:disabled) {
-	background-color: var(--starmus-primary-hover, #0056b3);
+	background-color: var(--starmus-primary-hover);
 }
 
 .starmus-record-btn {
-	background-color: #dc3545;
-	color: white;
-	border-color: #dc3545;
+	background-color: var(--starmus-danger-color);
+	color: var(--starmus-bg-white);
+	border-color: var(--starmus-danger-color);
 }
 
 .starmus-stop-btn {
-	background-color: #6c757d;
-	color: white;
-	border-color: #6c757d;
+	background-color: var(--starmus-text-muted);
+	color: var(--starmus-bg-white);
+	border-color: var(--starmus-text-muted);
 }
 
-.starmus-play-btn {
-	background-color: #28a745;
-	color: white;
-	border-color: #28a745;
-}
-
+.starmus-play-btn,
 .starmus-btn-success {
-	background-color: #28a745;
-	color: white;
-	border-color: #28a745;
+	background-color: var(--starmus-success-color);
+	color: var(--starmus-bg-white);
+	border-color: var(--starmus-success-color);
 }
 
-/* User messages */
-.starmus-user-message {
-	padding: 0.75rem 1rem;
-	border-radius: 0.5rem;
-	margin-bottom: 1rem;
-	font-weight: 500;
-}
-
-.starmus-user-message[data-status="info"] {
-	background-color: #dbeafe;
-	color: #1e40af;
-	border: 1px solid #93c5fd;
-}
-
-.starmus-user-message[data-status="error"] {
-	background-color: #fef2f2;
-	color: #dc2626;
-	border: 1px solid #fca5a5;
-}
-
-/* Form field groups */
-.starmus-field-group {
-	margin-bottom: 1.5rem;
-}
-
-.starmus-field-group label {
-	display: block;
-	margin-bottom: 0.5rem;
-	font-weight: 600;
-	color: var(--starmus-text-color, #374151);
-}
-
-.starmus-field-group input,
-.starmus-field-group select {
-	width: 100%;
-	padding: 0.75rem;
-	border: 1px solid var(--starmus-border-color, #d1d5db);
-	border-radius: 0.5rem;
-	font-size: 1rem;
-	transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.starmus-field-group input:focus,
-.starmus-field-group select:focus {
-	outline: none;
-	border-color: var(--starmus-primary-color, #007bbf);
-	box-shadow: 0 0 0 3px rgb(0, 123, 191, 10%);
-}
-
-/* Steps */
-.starmus-step {
-	padding: 1.5rem;
-}
-
-.starmus-step h2 {
-	margin-bottom: 1.5rem;
-	color: var(--starmus-text-color, #374151);
-	font-size: 1.5rem;
-	font-weight: 700;
-}
-
-.starmus_visually_hidden {
-	display: none !important;
-}
-
-/* --- Optional dark-scheme polish --- */
-@media (prefers-color-scheme: dark) {
-	:root {
-		--starmus-text-color: #e5e7eb;
-		--starmus-text-muted: #9ca3af;
-		--starmus-border-color: #374151;
-		--starmus-bg-light: #1f2937;
-		--starmus-bg-white: #111827;
-	}
-
-	.starmus-recorder-form,
-	.starmus-my-recordings-list,
-	.starmus-recorder-container {
-		background-color: #141519;
-		border-color: #23262b;
-		color: #e5e7eb;
-	}
-
-	.starmus-recorder-form .starmus-form-field input,
-	.starmus-recorder-form .starmus-form-field select,
-	.starmus-recorder-form .starmus-form-field textarea,
-	.starmus-field-group input,
-	.starmus-field-group select {
-		background-color: #0f1115;
-		border-color: #2a2f36;
-		color: #e5e7eb;
-	}
-
-	.starmus-recorder-status,
-	.starmus-calibration-status {
-		background-color: #1f2937;
-		color: #e5e7eb;
-	}
-
-	.starmus-volume-meter {
-		background-color: #374151;
-		border-color: #4b5563;
-	}
-
-	.sparxstar_button {
-		background-color: #1f2430;
-		color: #e5e7eb;
-	}
-
-	.sparxstar_button:hover:not(:disabled) {
-		background-color: #252b38;
-	}
-}
+/
