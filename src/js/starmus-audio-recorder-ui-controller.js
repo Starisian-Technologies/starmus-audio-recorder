@@ -99,18 +99,32 @@
         });
     }
 
-    function init() {
-        const forms = document.querySelectorAll('form.starmus-audio-form');
-        forms.forEach(initializeForm);
-        Hooks.doAction('starmus_ui_ready');
+function init() {
+    // --- THIS IS THE FIX ---
+    // The UI Controller is the entry point, so it must initialize its dependencies first.
+    
+    // Step 1: Initialize the core services that don't depend on the DOM.
+    if (window.StarmusSubmissionsHandler && typeof window.StarmusSubmissionsHandler.init === 'function') {
+        window.StarmusSubmissionsHandler.init();
     }
+    
+    // Step 2: Now that the other modules are ready, initialize the UI by finding
+    // all forms and attaching their event listeners.
+    const forms = document.querySelectorAll('form.starmus-audio-form');
+    forms.forEach(initializeForm);
 
-    Hooks.addAction('starmus_hooks_ready', init);
+    // Step 3: Announce that the UI is fully ready for other JS to hook into.
+    Hooks.doAction('starmus_ui_ready');
+}
 
-    window.StarmusUIController = {
-        updateRecorderUI,
-        showUserMessage,
-        buildRecorderUI
-    };
+// This line is correct and should remain. It makes sure our init() runs at the right time.
+Hooks.addAction('starmus_hooks_ready', init);
+
+// Your global interface also remains the same.
+window.StarmusUIController = {
+    updateRecorderUI,
+    showUserMessage,
+    buildRecorderUI
+};
 
 })(window, document);
