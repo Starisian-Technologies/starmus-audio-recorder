@@ -191,91 +191,101 @@ class StarmusAudioRecorderUI {
 		}
 		return is_array( $terms ) ? $terms : array();
 	}
-		/**
-		 * Conditionally enqueues scripts and styles based on the shortcode present on the page.
-		 *
-		 * This function ensures that only the necessary assets are loaded, improving performance.
-		 * - The recorder shortcode loads the full modular JavaScript application.
-		 * - The recordings list shortcode only loads the necessary CSS for styling.
-		 *
-		 * @since 1.1.0
-		 */
 	/**
-	 * Registers and conditionally enqueues all frontend scripts and styles.
-	 * This method is now the single source of truth for asset loading.
-	 *
-	 * @since 1.2.0
-	 */
-	public function enqueue_scripts(): void {
-		try {
-			if ( is_admin() ) {
-				return;
-			}
+ * Registers and conditionally enqueues all frontend scripts and styles.
+ *
+ * This is the final, definitive method, architected to work with the modern
+ * build process which produces a single, bundled JavaScript application file.
+ * It ensures optimal performance by only loading assets when a corresponding
+ * shortcode is present on the page.
+ *
+ * @since 1.2.1
+ */
+public function enqueue_scripts(): void {
+    try {
+        // Do not load any frontend assets in the admin area.
+        if ( is_admin() ) {
+            return;
+        }
 
-			global $post;
-			if ( ! is_a( $post, 'WP_Post' ) ) {
-				return;
-			}
+        // We need the global $post object to check its content for shortcodes.
+        // Exit early if it's not a valid post object, to prevent errors.
+        global $post;
+        if ( ! is_a( $post, 'WP_Post' ) || empty( $post->post_content ) ) {
+            return;
+        }
 
-			// We only proceed if one of our shortcodes is on the page.
-			// NOTE: Replace 'starmus_audio_recorder' with your actual shortcode name if different.
-			if ( ! has_shortcode( $post->post_content, 'starmus_audio_recorder' ) && ! has_shortcode( $post->post_content, 'starmus_my_recordings' ) ) {
-				return;
-			}
+        // --- Asset loading logic ---
 
-			// --- 1. Enqueue the single, unified stylesheet ---
-			// This is used by both the recorder and the recordings list.
-			wp_enqueue_style(
-				'starmus-unified-styles',
-				STARMUS_URL . 'assets/css/starmus-styles.min.css', // Points to the new minified file.
-				array(),
-				STARMUS_VERSION
-			);
+        // Define our shortcode names for clarity and easy maintenance.
+        // **IMPORTANT**: Make sure these match the names you use in `add_shortcode`.
+        $recorder_shortcode = 'starmus_audio_recorder';
+        $list_shortcode     = 'starmus_my_recordings';
 
-			// --- 2. Enqueue the JavaScript application ONLY for the recorder shortcode ---
-			if ( has_shortcode( $post->post_content, 'starmus_audio_recorder' ) ) {
+        // Check if our shortcodes exist on the current page.
+        $has_recorder = has_shortcode( $post->post_content, $recorder_shortcode );
+        $has_list     = has_shortcode( $post->post_content, $list_shortcode );
 
-				// Define the handles for our scripts for clarity.
-				$hooks_handle      = 'starmus-hooks';
-				$module_handle     = 'starmus-recorder-module';
-				$handler_handle    = 'starmus-submissions-handler';
-				$controller_handle = 'starmus-ui-controller';
+        // If neither shortcode is found, there is nothing to do. Exit immediately.
+        if ( ! $has_recorder && ! $has_list ) {
+            return;
+        }
 
-				// Enqueue scripts with proper dependencies. WordPress will load them in the correct order.
-				// NOTE: We now load the minified versions produced by our build script.
+        // --- 1. Enqueue the Stylesheet ---
+        // This single, unified stylesheet contains styles for both the recorder and
+        // the recordings list, so we load it if either shortcode is present.
+        wp_enqueue_style(
+            'starmus-unified-styles',
+            STARMUS_URL . 'assets/css/starmus-styles.min.css', // Points to the single minified CSS file.
+            [], // No other stylesheet dependencies.
+            STARMUS_VERSION // For cache busting.
+        );
 
-				wp_enqueue_script( $hooks_handle, STARMUS_URL . 'assets/js/starmus-hooks.js', array(), STARMUS_VERSION, true );
+        // --- 2. Enqueue the JavaScript Application ---
+        // The full JavaScript application is only needed for the interactive recorder.
+        if ( $has_recorder ) {
 
-				wp_enqueue_script( $module_handle, STARMUS_URL . 'assets/js/starmus-audio-recorder-module.js', array( $hooks_handle ), STARMUS_VERSION, true );
+            // ** THE CRITICAL CHANGE IS HERE **
+            // We now enqueue the ONE single, bundled application file that our
+            // `npm run build` process creates. This is much more performant.
+            wp_enqueue_script(
+                'starmus-app', // The handle for our entire JavaScript application.
+                STARMUS_URL . 'assets/js/starmus-app.min.js',
+                [], // No script dependencies here, as they are all bundled together.
+                STARMUS_VERSION, // For cache busting.
+                true // Load in the footer for better page load performance.
+            );
 
-				wp_enqueue_script( $handler_handle, STARMUS_URL . 'assets/js/starmus-audio-recorder-submissions-handler.js', array( $module_handle ), STARMUS_VERSION, true );
+            // Pass critical data from PHP to our JavaScript application.
+            // This data will be available on the `window.starmusFormData` object.
+            wp_localize_script(
+                'starmus-app', // Attach the data to our main 'starmus-app' handle.
+                'starmusFormData',
+                [
+                    // Use the class constant for your REST namespace for consistency.
+                    'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
+                    'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+                ]
+            );
 
-				wp_enqueue_script( $controller_handle, STARMUS_URL . 'assets/js/starmus-audio-recorder-ui-controller.js', array( $handler_handle ), STARMUS_VERSION, true );
+            // Provide the tus.io endpoint to our JavaScript application if it is configured.
+            // This correctly uses your existing settings handler.
+            $tus_endpoint = $this->settings->get( 'tus_endpoint', '' );
+            if ( ! empty( $tus_endpoint ) ) {
+                wp_add_inline_script(
+                    'starmus-app', // Attach the inline script to our main 'starmus-app' handle.
+                    'window.starmusTus = { endpoint: "' . esc_url_raw( $tus_endpoint ) . '" };',
+                    'before'
+                );
+            }
+        }
 
-				// Pass data from PHP to the Submission Handler.
-				wp_localize_script(
-					$handler_handle, // Attach the data to the submission handler script.
-					'starmusFormData',
-					array(
-						'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/submit' ) ), // Use your actual endpoint
-						'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-					)
-				);
-
-				// Provide the tus.io endpoint if available.
-				$tus_endpoint = $this->settings->get( 'tus_endpoint', '' ); // Get endpoint from your settings.
-				if ( ! empty( $tus_endpoint ) ) {
-						wp_add_inline_script(
-							$handler_handle,
-							'window.starmusTus = { endpoint: "' . esc_url_raw( $tus_endpoint ) . '" };',
-							'before'
-						);
-				}
-			}
-		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Script enqueue error - ' . $e->getMessage() );
-		}
-	}
+    } catch ( Throwable $e ) {
+        // If anything goes wrong during this process, log it securely
+        // using your existing class method for consistency.
+        $this->log_error( 'Script enqueue error', $e );
+    }
+}
 	/**
 	 * Register REST API routes for chunked audio uploads.
 	 *
