@@ -5,7 +5,7 @@
  * This template provides the HTML structure for the audio recorder. It is designed
  * to be controlled by the JavaScript modules, with containers for the dynamic UI
  * and the Tier C fallback for legacy browsers.
- *
+ * 
  * @package Starmus\templates
  * @version 1.2.1
  * @since   0.4.5

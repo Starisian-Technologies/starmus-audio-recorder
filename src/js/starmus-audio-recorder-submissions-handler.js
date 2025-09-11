@@ -2,7 +2,7 @@
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
- *
+ * 
  * @module  StarmusSubmissionsHandler
  * @version 1.2.0
  * @file    The Submission Engine - Pure data handling with hooks integration
@@ -11,7 +11,7 @@
     'use strict';
 
     const CONFIG = { LOG_PREFIX: '[Starmus Submissions]' };
-    function log(level, msg, data) { 
+    function log(level, msg, data) {  
         if (console && console[level]) { 
             console[level](CONFIG.LOG_PREFIX, msg, data || ''); 
         } 

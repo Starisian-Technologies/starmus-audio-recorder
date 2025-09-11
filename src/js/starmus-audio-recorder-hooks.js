@@ -2,8 +2,8 @@
 /**
  * Starmus Extensibility Hooks
  * A simple, WordPress-like action and filter system for client-side code.
- */
-// FILE: src/js/starmus-hooks.js (Load this file FIRST)
+ */ 
+// FILE: starmus-hooks.js (PATCHED to be retroactive)
 /**
  * Starmus Extensibility Hooks
  * A simple, WordPress-like action and filter system for client-side code.
@@ -14,6 +14,9 @@
         actions: Object.create(null),
         filters: Object.create(null)
     };
+    
+    // NEW: A set to track which action hooks have already been fired.
+    const firedHooks = new Set();
 
     function isValidTag(tag) {
         return typeof tag === 'string' && tag.length > 0 && !/[.__proto__constructor]/.test(tag);
@@ -47,15 +50,23 @@
             return removeHook('actions', tag, callback);
         },
         doAction: function(tag, ...args) {
-            if (isValidTag(tag) && tag in hooks.actions) {
-                hooks.actions[tag].forEach(hook => {
-                    try {
-                        hook.callback(...args);
-                    } catch (error) {
-                        console.error(`Error in action '${tag}':`, error);
-                    }
-                });
+            if (isValidTag(tag)) {
+                // MODIFIED: Mark this hook as fired before executing callbacks.
+                firedHooks.add(tag);
+                if (tag in hooks.actions) {
+                    hooks.actions[tag].forEach(hook => {
+                        try {
+                            hook.callback(...args);
+                        } catch (error) {
+                            console.error(`Error in action '${tag}':`, error);
+                        }
+                    });
+                }
             }
+        },
+        // NEW: The hasFired() method you designed.
+        hasFired: function(tag) {
+            return isValidTag(tag) && firedHooks.has(tag);
         },
         addFilter: function(tag, callback, priority = 10) {
             addHook('filters', tag, callback, priority);
