@@ -3,41 +3,11 @@
 .github/
 .gitattributes
 .gitignore
+gl-codequality.yml
 
-# Dev & analysis configs
-phpcs.xml.dist
-phpstan.neon
-phpstan.neon.dist
-phpunit.xml*
-*.test.*
-
-# Node dev
-node_modules/
-.eslintrc*
-eslint.config.js
-stylelint.config.js
-.prettier*
-*.map
-package-lock.json
-yarn.lock
-stylelint.config.js
-phpstan.neon
-phpstan.neon.dist
-phpcs.xml.dist
-commitlint.js
-markdownlint.js
-bootstrap.js
-
-# Composer (KEEP vendor in release!)
-composer.phar
-# Optional (either include or exclude; not required at runtime):
-# composer.json
-# composer.lock
-
-# Tests & coverage
-tests/
-coverage/
-test-results/
+# Documentation (excluding plugin's readme.txt if you have one)
+*.md
+docs/
 
 # IDE & misc
 .vscode/
@@ -45,3 +15,40 @@ test-results/
 .DS_Store
 .env
 *.log
+
+# Node dev & build tools
+node_modules/
+.eslintrc*
+eslint.config.js
+stylelint.config.js
+.prettier*
+*.map
+package.json
+package-lock.json
+yarn.lock
+commitlint.js
+markdownlint.json
+postcss.config.js
+build-starmus.js
+bootstrap.js
+
+# PHP Dev & analysis configs
+phpcs.xml.dist
+phpstan.neon
+phpstan.neon.dist
+phpunit.xml*
+phpunit-*.xml.dist
+*.test.*
+
+# Composer (KEEP vendor in release!)
+composer.phar
+# Optional: uncomment to exclude composer files from release
+# composer.json
+# composer.lock
+
+# Tests & coverage
+tests/
+coverage/
+test-results/
+playwright.config.js
+playwright-report/
