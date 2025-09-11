@@ -222,7 +222,7 @@ public function enqueue_scripts(): void {
 
         // Define our shortcode names for clarity and easy maintenance.
         // **IMPORTANT**: Make sure these match the names you use in `add_shortcode`.
-        $recorder_shortcode = 'starmus_audio_recorder-form';
+        $recorder_shortcode = 'starmus_audio_recorder_form';
         $list_shortcode     = 'starmus_my_recordings';
 
         // Check if our shortcodes exist on the current page.
