@@ -26,6 +26,7 @@
     "docs:js": "mkdir -p docs && jsdoc2md 'assets/js/**/*.js' > docs/js-api.md",
     "docs:php": "node scripts/fetch-phpdoc.cjs && mkdir -p docs/php && php8.3 tools/phpDocumentor.phar -d src -t docs/php",
     "docs": "npm run docs:php && npm run docs:js",
+    "test:e2e-setup": "./tests/e2e/setup-test-pages.sh",
     "test:e2e": "playwright test",
     "test:a11y": "playwright test --grep='WCAG'",
     "test:integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/starmus-audio-recorder bash -c 'wp plugin activate starmus-audio-recorder && wp plugin list'",

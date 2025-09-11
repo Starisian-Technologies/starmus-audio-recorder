@@ -126,41 +126,44 @@ class StarmusAudioRecorderUI {
 	}
 
 	/**
-	 * Renders the audio recorder shortcode by loading the refactored template.
-	 *
-	 * @since 1.2.0
-	 * @param array $atts Shortcode attributes.
-	 * @return string The HTML output of the recorder form.
-	 */
-	public function render_recorder_shortcode( $atts = array() ): string {
-		if ( ! is_user_logged_in() ) {
-			return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus-audio-recorder' ) . '</p>';
-		}
+ * Renders the audio recorder shortcode by loading the refactored template.
+ *
+ * @since 1.2.0
+ * @param array $atts Shortcode attributes.
+ * @return string The HTML output of the recorder form.
+ */
+public function render_recorder_shortcode( $atts = array() ): string {
+    if ( ! is_user_logged_in() ) {
+        return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus-audio-recorder' ) . '</p>';
+    }
 
-		// This action allows other plugins to hook in before we render.
-		do_action( 'starmus_before_recorder_render' );
+    // This action allows other plugins to hook in before we render.
+    do_action( 'starmus_before_recorder_render' );
 
-		try {
-			// Prepare the data that the template file will need.
-			$template_args = array(
-				'form_id'         => 'starmus_recorder_form', // Base ID for the form instance.
-				'consent_message' => $this->settings->get( 'consent_message', 'I consent to the terms and conditions.' ),
-				'data_policy_url' => $this->settings->get( 'data_policy_url', '' ),
-				'recording_types' => $this->get_cached_terms( 'recording-type' ), // Use your actual taxonomy slug.
-				'languages'       => $this->get_cached_terms( 'language' ),       // Use your actual taxonomy slug.
-			);
+    try {
+        // Prepare the data that the template file will need.
+        $template_args = array(
+            'form_id'         => 'starmus_recorder_form', // Base ID for the form instance.
+            'consent_message' => $this->settings->get( 'consent_message', 'I consent to the terms and conditions.' ),
+            'data_policy_url' => $this->settings->get( 'data_policy_url', '' ),
 
-			// Use an output buffer to capture the HTML from our new, clean template file.
-			ob_start();
-			// IMPORTANT: Ensure this path points to your new, refactored template file.
-			include plugin_dir_path( __FILE__ ) . '../templates/starmus-audio-recorder-ui.php';
-			return ob_get_clean();
+            // --- THIS IS THE FIX ---
+            // We now provide the second argument, the cache key, to the function call.
+            'recording_types' => $this->get_cached_terms( 'recording-type', 'starmus_recording_types_list' ),
+            'languages'       => $this->get_cached_terms( 'language', 'starmus_languages_list' ),
+        );
 
-		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Recorder shortcode render error - ' . $e->getMessage() );
-			return '<p>' . esc_html__( 'The audio recorder is temporarily unavailable.', 'starmus-audio-recorder' ) . '</p>';
-		}
-	}
+        // Use an output buffer to capture the HTML from our new, clean template file.
+        ob_start();
+        // IMPORTANT: Ensure this path points to your new, refactored template file.
+        include plugin_dir_path( __FILE__ ) . '../templates/starmus-audio-recorder-ui.php';
+        return ob_get_clean();
+
+    } catch ( Throwable $e ) {
+        error_log( 'Starmus Plugin: Recorder shortcode render error - ' . $e->getMessage() );
+        return '<p>' . esc_html__( 'The audio recorder is temporarily unavailable.', 'starmus-audio-recorder' ) . '</p>';
+    }
+}
 	/**
 	 *
 	 * Get cached terms for a given taxonomy, with transient caching.
