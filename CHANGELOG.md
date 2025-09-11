@@ -1,5 +1,8 @@
 # Changelog
 
+### Build 2025-09-11
+- Updated build hashes for: starmus-styles.min.css, starmus-app.min.js
+
 ### Build 2025-09-10
 - Updated build hashes for: starmus-audio-recorder-style.min.css, starmus-audio-recorder-module.min.js, starmus-audio-recorder-ui-controller.min.js, starmus-audio-recorder-submissions-handler.min.js, starmus-audio-recorder-submissions.min.js
 
