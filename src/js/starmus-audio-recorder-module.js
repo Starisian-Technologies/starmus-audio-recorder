@@ -7,7 +7,7 @@
  * @version 1.2.1
  * @file    The Core Recording Engine - Pure audio functionality with hooks integration
  */
-(function(window) {
+(function(window) { 
     'use strict';
 
     const hasMediaRecorder = !!(window.MediaRecorder && window.navigator.mediaDevices);

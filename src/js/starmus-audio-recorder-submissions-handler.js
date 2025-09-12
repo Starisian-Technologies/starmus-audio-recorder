@@ -8,7 +8,7 @@
  * @file    The Submission Engine - Pure data handling with hooks integration
  */
 (function(window, document) {
-    'use strict';
+    'use strict'; 
 
     const CONFIG = { LOG_PREFIX: '[Starmus Submissions]' };
     function log(level, msg, data) {  

@@ -1321,17 +1321,17 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.6.25",
-            "version_normalized": "9.6.25.0",
+            "version": "9.6.26",
+            "version_normalized": "9.6.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "049c011e01be805202d8eebedef49f769a8ec7b7"
+                "reference": "a0139ea157533454f611038326f3020b3051f129"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/049c011e01be805202d8eebedef49f769a8ec7b7",
-                "reference": "049c011e01be805202d8eebedef49f769a8ec7b7",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a0139ea157533454f611038326f3020b3051f129",
+                "reference": "a0139ea157533454f611038326f3020b3051f129",
                 "shasum": ""
             },
             "require": {
@@ -1367,7 +1367,7 @@
                 "ext-soap": "To be able to generate mocks based on WSDL files",
                 "ext-xdebug": "PHP extension that provides line coverage as well as branch and path coverage"
             },
-            "time": "2025-08-20T14:38:31+00:00",
+            "time": "2025-09-11T06:17:45+00:00",
             "bin": [
                 "phpunit"
             ],
@@ -1407,7 +1407,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.25"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.26"
             },
             "funding": [
                 {
@@ -2756,29 +2756,29 @@
         },
         {
             "name": "yoast/phpunit-polyfills",
-            "version": "2.0.5",
-            "version_normalized": "2.0.5.0",
+            "version": "4.0.0",
+            "version_normalized": "4.0.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Yoast/PHPUnit-Polyfills.git",
-                "reference": "1a6aecc9ebe4a9cea4e1047d0e6c496e52314c27"
+                "reference": "134921bfca9b02d8f374c48381451da1d98402f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/1a6aecc9ebe4a9cea4e1047d0e6c496e52314c27",
-                "reference": "1a6aecc9ebe4a9cea4e1047d0e6c496e52314c27",
+                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/134921bfca9b02d8f374c48381451da1d98402f9",
+                "reference": "134921bfca9b02d8f374c48381451da1d98402f9",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.6",
-                "phpunit/phpunit": "^5.7.21 || ^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0"
+                "php": ">=7.1",
+                "phpunit/phpunit": "^7.5 || ^8.0 || ^9.0 || ^11.0 || ^12.0"
             },
             "require-dev": {
                 "php-parallel-lint/php-console-highlighter": "^1.0.0",
                 "php-parallel-lint/php-parallel-lint": "^1.4.0",
-                "yoast/yoastcs": "^3.2.0"
+                "yoast/yoastcs": "^3.1.0"
             },
-            "time": "2025-08-10T05:13:49+00:00",
+            "time": "2025-02-09T18:58:54+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {

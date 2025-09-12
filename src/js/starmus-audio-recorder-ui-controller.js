@@ -7,7 +7,7 @@
  * @version 1.2.2
  * @file    The UI Manager - Linter-clean, secure, and resilient.
  */
-(function(window, document) {
+(function(window, document) { 
     'use strict';
 
     const CONFIG = { LOG_PREFIX: '[Starmus UI Controller]' };
