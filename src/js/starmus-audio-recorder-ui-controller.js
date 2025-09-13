@@ -7,6 +7,7 @@
  * @version 1.2.2
  * @file    The UI Manager - Linter-clean, secure, and resilient.
  */
+// FILE: starmus-audio-recorder-ui-controller.js (FINAL, PATCHED)
 (function(window, document) {
     'use strict';
 
