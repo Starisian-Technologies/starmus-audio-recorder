@@ -7,7 +7,7 @@
  * @version 1.2.2
  * @file    The UI Manager - Linter-clean, secure, and resilient.
  */
-(function(window, document) { 
+(function(window, document) {
     'use strict';
 
     const CONFIG = { LOG_PREFIX: '[Starmus UI Controller]' };
@@ -31,13 +31,8 @@
         }
     }
 
-    function updateRecorderUI(instanceId, state) {
-        // (Your update logic here)
-    }
-
-    function buildRecorderUI(instanceId) {
-        // (Your UI building logic here)
-    }
+    function updateRecorderUI(instanceId, state) { /* ... update logic ... */ }
+    function buildRecorderUI(instanceId) { /* ... build logic ... */ }
 
     function handleContinueClick(formId) {
         if (!safeId(formId)) return;
@@ -60,9 +55,7 @@
         showUserMessage(formId, '', 'info');
 
         window.StarmusSubmissionsHandler.initRecorder(formId)
-            .then(() => {
-                buildRecorderUI(formId);
-            })
+            .then(() => { buildRecorderUI(formId); })
             .catch(err => {
                 log('error', 'Recorder init failed, reverting to step 1.', err?.message);
                 step1.style.display = 'block';
@@ -72,14 +65,17 @@
 
     function initializeForm(form) {
         const formId = form.id;
-        if (!safeId(formId) || form.getAttribute('data-starmus-bound')) return;
+        if (!safeId(formId) || form.getAttribute('data-starmus-bound')) {
+            return;
+        }
         form.setAttribute('data-starmus-bound', '1');
 
+        // FIX 1: Use robust, contextual selector and add a guard.
         const continueBtn = form.querySelector(`#starmus_continue_btn_${formId}`);
         if (continueBtn) {
             continueBtn.addEventListener('click', () => handleContinueClick(formId));
         } else {
-            log('error', 'Could not find the continue button for form:', formId);
+            log('error', 'CRITICAL: Could not find the continue button for form:', formId);
         }
 
         form.addEventListener('submit', event => {
@@ -89,39 +85,28 @@
     }
 
     // --- FINAL, PATCHED INITIALIZATION LOGIC ---
-
     let uiInitialized = false;
 
     function init() {
         if (uiInitialized) return;
         uiInitialized = true;
-
         log('info', 'UI Controller Initializing...');
 
         if (window.StarmusSubmissionsHandler && typeof window.StarmusSubmissionsHandler.init === 'function') {
             window.StarmusSubmissionsHandler.init();
         }
-
+        
         const forms = document.querySelectorAll('form.starmus-audio-form');
         forms.forEach(initializeForm);
-
         Hooks.doAction('starmus_ui_ready');
     }
 
-    Hooks.addAction('starmus_hooks_ready', () => {
-        log('info', '✅ Hook "starmus_hooks_ready" was received.');
-        init();
-    });
-
+    // FIX 2: Add retroactive "catch-up" logic.
+    Hooks.addAction('starmus_hooks_ready', init);
     if (Hooks.hasFired && Hooks.hasFired('starmus_hooks_ready')) {
-        log('info', '🟡 Hook "starmus_hooks_ready" had already fired. Manually initializing now.');
         init();
     }
 
-    window.StarmusUIController = {
-        updateRecorderUI,
-        showUserMessage,
-        buildRecorderUI
-    };
+    window.StarmusUIController = { updateRecorderUI, showUserMessage, buildRecorderUI };
 
 })(window, document);
