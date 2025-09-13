@@ -3,11 +3,6 @@
  * Starmus Extensibility Hooks
  * A simple, WordPress-like action and filter system for client-side code.
  */ 
-// FILE: starmus-hooks.js (PATCHED to be retroactive)
-/**
- * Starmus Extensibility Hooks
- * A simple, WordPress-like action and filter system for client-side code.
- */
 (function(window) {
     'use strict';
     const hooks = {
@@ -15,8 +10,7 @@
         filters: Object.create(null)
     };
     
-    // NEW: A set to track which action hooks have already been fired.
-    const firedHooks = new Set();
+    const firedHooks = new Set(); // Tracks fired hooks
 
     function isValidTag(tag) {
         return typeof tag === 'string' && tag.length > 0 && !/[.__proto__constructor]/.test(tag);
@@ -51,8 +45,7 @@
         },
         doAction: function(tag, ...args) {
             if (isValidTag(tag)) {
-                // MODIFIED: Mark this hook as fired before executing callbacks.
-                firedHooks.add(tag);
+                firedHooks.add(tag); // Mark hook as fired
                 if (tag in hooks.actions) {
                     hooks.actions[tag].forEach(hook => {
                         try {
@@ -64,7 +57,6 @@
                 }
             }
         },
-        // NEW: The hasFired() method you designed.
         hasFired: function(tag) {
             return isValidTag(tag) && firedHooks.has(tag);
         },
@@ -89,7 +81,6 @@
         }
     };
     
-    // Announce that the hook system is ready for other scripts to use.
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => window.StarmusHooks.doAction('starmus_hooks_ready'));
     } else {
