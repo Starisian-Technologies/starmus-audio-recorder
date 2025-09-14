@@ -50,12 +50,19 @@ define( 'STARMUS_MAIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder' );
 define( 'STARMUS_PLUGIN_PREFIX', 'starmus' );
 define( 'STARMUS_TEXT_DOMAIN', 'starmus-audio-recorder' );
-define( 'STARMUS_VERSION', '0.4.0' );
+define( 'STARMUS_VERSION', '0.4.5' );
 
 // Load Composer autoloader if present.
 if ( file_exists( STARMUS_MAIN_DIR . '/vendor/autoload.php' ) ) {
 	require STARMUS_MAIN_DIR . '/vendor/autoload.php';
 }
+
+// Ensure all required classes are loaded
+require_once STARMUS_PATH . 'src/includes/StarmusSettings.php';
+require_once STARMUS_PATH . 'src/includes/StarmusPlugin.php';
+require_once STARMUS_PATH . 'src/admin/StarmusAdmin.php';
+require_once STARMUS_PATH . 'src/frontend/StarmusAudioRecorderUI.php';
+require_once STARMUS_PATH . 'src/frontend/StarmusAudioEditorUI.php';
 
 // Register Plugin Lifecycle Hooks.
 register_activation_hook( STARMUS_MAIN_FILE, array( 'Starmus\includes\StarmusPlugin', 'activate' ) );

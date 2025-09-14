@@ -1,54 +1,55 @@
-# Repo / CI
-.git/
-.github/
-.gitattributes
-.gitignore
-gl-codequality.yml
-
-# Documentation (excluding plugin's readme.txt if you have one)
-*.md
+# Development files
+src/
+tests/
 docs/
+scripts/
+tools/
+.github/
+.phpdoc/
+playwright-report/
+test-results/
+vendor/
 
-# IDE & misc
-.vscode/
-.idea/
-.DS_Store
-.env
-*.log
-
-# Node dev & build tools
+# Build files
 node_modules/
-.eslintrc*
+package*.json
+build-starmus.js
+sync-version.js
+validate-build.js
+postcss.config.cjs
 eslint.config.js
 stylelint.config.js
-.prettier*
-*.map
-package.json
-package-lock.json
-yarn.lock
-commitlint.js
-markdownlint.json
-postcss.config.js
-build-starmus.js
-bootstrap.js
-
-# PHP Dev & analysis configs
-phpcs.xml.dist
-phpstan.neon
-phpstan.neon.dist
-phpunit.xml*
-phpunit-*.xml.dist
-*.test.*
-
-# Composer (KEEP vendor in release!)
-composer.phar
-# Optional: uncomment to exclude composer files from release
-# composer.json
-# composer.lock
-
-# Tests & coverage
-tests/
-coverage/
-test-results/
 playwright.config.js
-playwright-report/
+phpunit*.xml*
+phpcs.xml*
+phpstan.neon*
+
+# Config files
+.editorconfig
+.gitignore
+.gitattributes
+.distignore
+.prettierignore
+.stylelintcache
+.wp-env.json
+.markdownlint.js
+.commitlintrc.js
+markdownlint.json
+prettierrc.json
+gl-codequality.yml
+
+# Documentation
+README.md
+CHANGELOG.md
+ARCHITECTURE.md
+INSTRUCTIONS.md
+TESTING.md
+WORKSPACE.md
+AGENTS.md
+SECURITY*.md
+TERMS.md
+ETHICS.md
+
+# Composer dev dependencies
+composer.lock
+auth.json*

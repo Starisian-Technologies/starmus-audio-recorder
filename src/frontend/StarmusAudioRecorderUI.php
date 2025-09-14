@@ -125,42 +125,42 @@ class StarmusAudioRecorderUI {
 		delete_transient( 'starmus_recording_types_list' );
 	}
 
-/**
- * Renders the audio recorder shortcode by correctly passing data to the template.
- *
- * @since 1.2.2
- * @param array $atts Shortcode attributes.
- * @return string The HTML output of the recorder form.
- */
-public function render_recorder_shortcode( $atts = array() ): string {
-    if ( ! is_user_logged_in() ) {
-        return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus-audio-recorder' ) . '</p>';
-    }
+	/**
+	 * Renders the audio recorder shortcode by correctly passing data to the template.
+	 *
+	 * @since 1.2.2
+	 * @param array $atts Shortcode attributes.
+	 * @return string The HTML output of the recorder form.
+	 */
+	public function render_recorder_shortcode( $atts = array() ): string {
+		if ( ! is_user_logged_in() ) {
+			return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus-audio-recorder' ) . '</p>';
+		}
 
-    // This action allows other plugins to hook in before we render.
-    do_action( 'starmus_before_recorder_render' );
+		// This action allows other plugins to hook in before we render.
+		do_action( 'starmus_before_recorder_render' );
 
-    try {
-        // Prepare the data that the template file will need.
-        $template_args = array(
-            'form_id'         => 'starmus_recorder_form', // Base ID for the form instance.
-            'consent_message' => $this->settings->get( 'consent_message', 'I consent to the terms and conditions.' ),
-            'data_policy_url' => $this->settings->get( 'data_policy_url', '' ),
-            'recording_types' => $this->get_cached_terms( 'recording-type', 'starmus_recording_types_list' ),
-            'languages'       => $this->get_cached_terms( 'language', 'starmus_languages_list' ),
-        );
+		try {
+			// Prepare the data that the template file will need.
+			$template_args = array(
+				'form_id'         => 'starmus_recorder_form', // Base ID for the form instance.
+				'consent_message' => $this->settings->get( 'consent_message', 'I consent to the terms and conditions.' ),
+				'data_policy_url' => $this->settings->get( 'data_policy_url', '' ),
+				'recording_types' => $this->get_cached_terms( 'recording-type', 'starmus_recording_types_list' ),
+				'languages'       => $this->get_cached_terms( 'language', 'starmus_languages_list' ),
+			);
 
-        // --- THIS IS THE FIX ---
-        // Instead of including the template directly, we now call your working
-        // render_template() helper function. It will handle the output buffering,
-        // the extract() logic, and including the file.
-        return $this->render_template( 'starmus-audio-recorder-ui.php', $template_args );
+			// --- THIS IS THE FIX ---
+			// Instead of including the template directly, we now call your working
+			// render_template() helper function. It will handle the output buffering,
+			// the extract() logic, and including the file.
+			return $this->render_template( 'starmus-audio-recorder-ui.php', $template_args );
 
-    } catch ( Throwable $e ) {
-        error_log( 'Starmus Plugin: Recorder shortcode render error - ' . $e->getMessage() );
-        return '<p>' . esc_html__( 'The audio recorder is temporarily unavailable.', 'starmus-audio-recorder' ) . '</p>';
-    }
-}
+		} catch ( Throwable $e ) {
+			error_log( 'Starmus Plugin: Recorder shortcode render error - ' . $e->getMessage() );
+			return '<p>' . esc_html__( 'The audio recorder is temporarily unavailable.', 'starmus-audio-recorder' ) . '</p>';
+		}
+	}
 	/**
 	 *
 	 * Get cached terms for a given taxonomy, with transient caching.
@@ -192,100 +192,99 @@ public function render_recorder_shortcode( $atts = array() ): string {
 		return is_array( $terms ) ? $terms : array();
 	}
 	/**
- * Registers and conditionally enqueues all frontend scripts and styles.
- *
- * This is the final, definitive method, architected to work with the modern
- * build process which produces a single, bundled JavaScript application file.
- * It ensures optimal performance by only loading assets when a corresponding
- * shortcode is present on the page.
- *
- * @since 1.2.1
- */
-public function enqueue_scripts(): void {
-    try {
-        // Do not load any frontend assets in the admin area.
-        if ( is_admin() ) {
-            return;
-        }
+	 * Registers and conditionally enqueues all frontend scripts and styles.
+	 *
+	 * This is the final, definitive method, architected to work with the modern
+	 * build process which produces a single, bundled JavaScript application file.
+	 * It ensures optimal performance by only loading assets when a corresponding
+	 * shortcode is present on the page.
+	 *
+	 * @since 1.2.1
+	 */
+	public function enqueue_scripts(): void {
+		try {
+			// Do not load any frontend assets in the admin area.
+			if ( is_admin() ) {
+				return;
+			}
 
-        // We need the global $post object to check its content for shortcodes.
-        // Exit early if it's not a valid post object, to prevent errors.
-        global $post;
-        if ( ! is_a( $post, 'WP_Post' ) || empty( $post->post_content ) ) {
-            return;
-        }
+			// We need the global $post object to check its content for shortcodes.
+			// Exit early if it's not a valid post object, to prevent errors.
+			global $post;
+			if ( ! is_a( $post, 'WP_Post' ) || empty( $post->post_content ) ) {
+				return;
+			}
 
-        // --- Asset loading logic ---
+			// --- Asset loading logic ---
 
-        // Define our shortcode names for clarity and easy maintenance.
-        // **IMPORTANT**: Make sure these match the names you use in `add_shortcode`.
-        $recorder_shortcode = 'starmus_audio_recorder_form';
-        $list_shortcode     = 'starmus_my_recordings';
+			// Define our shortcode names for clarity and easy maintenance.
+			// **IMPORTANT**: Make sure these match the names you use in `add_shortcode`.
+			$recorder_shortcode = 'starmus_audio_recorder_form';
+			$list_shortcode     = 'starmus_my_recordings';
 
-        // Check if our shortcodes exist on the current page.
-        $has_recorder = has_shortcode( $post->post_content, $recorder_shortcode );
-        $has_list     = has_shortcode( $post->post_content, $list_shortcode );
+			// Check if our shortcodes exist on the current page.
+			$has_recorder = has_shortcode( $post->post_content, $recorder_shortcode );
+			$has_list     = has_shortcode( $post->post_content, $list_shortcode );
 
-        // If neither shortcode is found, there is nothing to do. Exit immediately.
-        if ( ! $has_recorder && ! $has_list ) {
-            return;
-        }
+			// If neither shortcode is found, there is nothing to do. Exit immediately.
+			if ( ! $has_recorder && ! $has_list ) {
+				return;
+			}
 
-        // --- 1. Enqueue the Stylesheet ---
-        // This single, unified stylesheet contains styles for both the recorder and
-        // the recordings list, so we load it if either shortcode is present.
-        wp_enqueue_style(
-            'starmus-unified-styles',
-            STARMUS_URL . 'assets/css/starmus-styles.min.css', // Points to the single minified CSS file.
-            [], // No other stylesheet dependencies.
-            STARMUS_VERSION // For cache busting.
-        );
+			// --- 1. Enqueue the Stylesheet ---
+			// This single, unified stylesheet contains styles for both the recorder and
+			// the recordings list, so we load it if either shortcode is present.
+			wp_enqueue_style(
+				'starmus-unified-styles',
+				STARMUS_URL . 'assets/css/starmus-styles.min.css', // Points to the single minified CSS file.
+				array(), // No other stylesheet dependencies.
+				STARMUS_VERSION // For cache busting.
+			);
 
-        // --- 2. Enqueue the JavaScript Application ---
-        // The full JavaScript application is only needed for the interactive recorder.
-        if ( $has_recorder ) {
+			// --- 2. Enqueue the JavaScript Application ---
+			// The full JavaScript application is only needed for the interactive recorder.
+			if ( $has_recorder ) {
 
-            // ** THE CRITICAL CHANGE IS HERE **
-            // We now enqueue the ONE single, bundled application file that our
-            // `npm run build` process creates. This is much more performant.
-            wp_enqueue_script(
-                'starmus-app', // The handle for our entire JavaScript application.
-                STARMUS_URL . 'assets/js/starmus-app.min.js',
-                [], // No script dependencies here, as they are all bundled together.
-                STARMUS_VERSION, // For cache busting.
-                true // Load in the footer for better page load performance.
-            );
+				// Load individual JS files for development, bundled for production
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					// Development: Load individual files
+					wp_enqueue_script( 'starmus-hooks', STARMUS_URL . 'src/js/starmus-audio-recorder-hooks.js', array(), STARMUS_VERSION, true );
+					wp_enqueue_script( 'starmus-recorder-module', STARMUS_URL . 'src/js/starmus-audio-recorder-module.js', array( 'starmus-hooks' ), STARMUS_VERSION, true );
+					wp_enqueue_script( 'starmus-submissions-handler', STARMUS_URL . 'src/js/starmus-audio-recorder-submissions-handler.js', array( 'starmus-hooks' ), STARMUS_VERSION, true );
+					wp_enqueue_script( 'starmus-ui-controller', STARMUS_URL . 'src/js/starmus-audio-recorder-ui-controller.js', array( 'starmus-hooks', 'starmus-recorder-module', 'starmus-submissions-handler' ), STARMUS_VERSION, true );
+					wp_enqueue_script( 'tus-js', STARMUS_URL . 'assets/js/vendor/tus.min.js', array(), '3.0.0', true );
+				} else {
+					// Production: Load bundled file
+					wp_enqueue_script( 'starmus-app', STARMUS_URL . 'assets/js/starmus-app.min.js', array(), STARMUS_VERSION, true );
+				}
 
-            // Pass critical data from PHP to our JavaScript application.
-            // This data will be available on the `window.starmusFormData` object.
-            wp_localize_script(
-                'starmus-app', // Attach the data to our main 'starmus-app' handle.
-                'starmusFormData',
-                [
-                    // Use the class constant for your REST namespace for consistency.
-                    'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
-                    'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-                ]
-            );
+				// Pass critical data from PHP to our JavaScript application.
+				$script_handle = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? 'starmus-ui-controller' : 'starmus-app';
+				wp_localize_script(
+					$script_handle,
+					'starmusFormData',
+					array(
+						'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
+						'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+					)
+				);
 
-            // Provide the tus.io endpoint to our JavaScript application if it is configured.
-            // This correctly uses your existing settings handler.
-            $tus_endpoint = $this->settings->get( 'tus_endpoint', '' );
-            if ( ! empty( $tus_endpoint ) ) {
-                wp_add_inline_script(
-                    'starmus-app', // Attach the inline script to our main 'starmus-app' handle.
-                    'window.starmusTus = { endpoint: "' . esc_url_raw( $tus_endpoint ) . '" };',
-                    'before'
-                );
-            }
-        }
-
-    } catch ( Throwable $e ) {
-        // If anything goes wrong during this process, log it securely
-        // using your existing class method for consistency.
-        $this->log_error( 'Script enqueue error', $e );
-    }
-}
+				// Provide the tus.io endpoint to our JavaScript application if it is configured.
+				$tus_endpoint = $this->settings->get( 'tus_endpoint', '' );
+				if ( ! empty( $tus_endpoint ) ) {
+						wp_add_inline_script(
+							$script_handle,
+							'window.starmusTus = { endpoint: "' . esc_url_raw( $tus_endpoint ) . '" };',
+							'before'
+						);
+				}
+			}
+		} catch ( Throwable $e ) {
+			// If anything goes wrong during this process, log it securely
+			// using your existing class method for consistency.
+			$this->log_error( 'Script enqueue error', $e );
+		}
+	}
 	/**
 	 * Register REST API routes for chunked audio uploads.
 	 *

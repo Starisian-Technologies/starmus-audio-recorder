@@ -14,7 +14,7 @@ export default [
 	security.configs.recommended,
 	a11y.flatConfigs.recommended,
 	{
-		files: ["assets/js/**/*.js"],
+		files: ["src/js/**/*.js", "assets/js/**/*.js"],
 		languageOptions: {
 			ecmaVersion: 2015,
 			sourceType: "script",
@@ -34,8 +34,14 @@ export default [
 			},
 		},
 		rules: {
-			"no-console": "off",
+			"no-console": "warn",
 			"no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+			"no-undef": "error",
+			"no-redeclare": "error",
+			"prefer-const": "error",
+			"no-var": "error",
+			"eqeqeq": ["error", "always"],
+			"curly": ["error", "all"],
 			"jsdoc/require-description": "warn",
 			"jsdoc/require-param-description": "warn",
 			"jsdoc/require-returns-description": "warn",

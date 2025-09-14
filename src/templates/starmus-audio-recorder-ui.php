@@ -88,9 +88,11 @@ $instance_id = 'starmus_form_' . sanitize_key( $form_id . '_' . wp_generate_uuid
 				</div>
 			</fieldset>
 
-			<!-- Hidden fields for optional geolocation data, populated by JS -->
+			<!-- Hidden fields for metadata capture, populated by JS -->
 			<input type="hidden" name="gps_latitude" value="">
 			<input type="hidden" name="gps_longitude" value="">
+			<input type="hidden" name="first-pass-transcription" value="">
+			<input type="hidden" name="recording_metadata" value="">
 
 			<button type="button" id="starmus_continue_btn_<?php echo esc_attr( $instance_id ); ?>" class="starmus-btn starmus-btn--primary">
 				<?php esc_html_e( 'Continue to Recording', 'starmus-audio-recorder' ); ?>

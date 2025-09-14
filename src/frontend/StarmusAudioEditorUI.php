@@ -113,12 +113,12 @@ class StarmusAudioEditorUI {
 				// Don't enqueue scripts if there's an error loading the context.
 				return;
 			}
-			wp_enqueue_style( 'starmus-audio-editor-style', STARMUS_URL . 'assets/css/starmus-audio-editor-style.css', array(), STARMUS_VERSION );
+			wp_enqueue_style( 'starmus-unified-styles', STARMUS_URL . 'assets/css/starmus-styles.min.css', array(), STARMUS_VERSION );
 			wp_enqueue_script( 'peaks-js', STARMUS_URL . 'assets/js/vendor/peaks.min.js', array(), '2.0.0', true );
 			wp_enqueue_script(
 				'starmus-audio-editor',
-				STARMUS_URL . 'assets/js/starmus-audio-editor.js',
-				array( 'jquery', 'peaks-js', 'wp-api-fetch' ),
+				STARMUS_URL . 'src/js/starmus-audio-editor.js',
+				array( 'jquery', 'peaks-js' ),
 				STARMUS_VERSION,
 				true
 			);

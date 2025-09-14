@@ -39,39 +39,32 @@ function applyHeaderAndProp(content, sha1, sha256, filePath) {
 	const isCSS = ['.css', '.scss', '.sass'].includes(ext);
 	
 	const header = isCSS 
-		? `/* Build Hash (SHA-1): ${sha1} */\n/* Build Hash (SHA-256): ${sha256} */\n/* Build Time: ${timestamp} */\n\n`
-		: `${HEADER_TAG}\n// Build Hash (SHA-1):   ${sha1}\n// Build Hash (SHA-256): ${sha256}\n// Build Time: ${timestamp}\n\n`;
+		? `/* Build Hash (SHA-1): ${sha1} */\n/* Build Hash (SHA-256): ${sha256} */\n/* Build Time: ${timestamp} */\n`
+		: `${HEADER_TAG}\n// Build Hash (SHA-1):   ${sha1}\n// Build Hash (SHA-256): ${sha256}\n// Build Time: ${timestamp}\n`;
 	
 	let out = content;
 	
 	if (isCSS) {
-		// For CSS files, just update/add header comment
-		if (out.includes('/* Build Hash')) {
-			out = out.replace(
-				/\/\* Build Hash[\s\S]*?\*\//,
-				header.trim()
-			);
+		// For CSS files, replace existing header or add new one
+		const existingHeaderRegex = /\/\* Build Hash[\s\S]*?\*\//;
+		if (existingHeaderRegex.test(out)) {
+			out = out.replace(existingHeaderRegex, header.trim());
 		} else {
-			out = header + out;
+			out = header + '\n' + out;
 		}
 	} else {
 		// For JS files, update buildHash property and header
-		out = content.replace(/buildHash:\s*['"][a-f0-9]*['"]/, `buildHash: '${sha1}'`);
-		
-		if (out === content) {
-			out = out.replace(
-				/(\{)(\s*)/,
-				`$1$2buildHash: '${sha1}',\n  `
-			);
+		const buildHashRegex = /buildHash:\s*['"][a-f0-9]*['"]/;
+		if (buildHashRegex.test(out)) {
+			out = out.replace(buildHashRegex, `buildHash: '${sha1}'`);
 		}
 		
+		// Update or add header
+		const existingHeaderRegex = new RegExp(`${HEADER_TAG}[\\s\\S]*?(?=\\n(?!\\s*\/\/))`); 
 		if (out.includes(HEADER_TAG)) {
-			out = out.replace(
-				new RegExp(`${HEADER_TAG}[\\s\\S]*?(?=\\n\\n|$)`),
-				header.trim()
-			);
+			out = out.replace(existingHeaderRegex, header.trim());
 		} else {
-			out = header + out;
+			out = header + '\n' + out;
 		}
 	}
 	
@@ -136,14 +129,15 @@ function processFile(filePath) {
 		const { sha1, sha256 } = hash(original);
 		const updated = applyHeaderAndProp(original, sha1, sha256, resolvedPath);
 		
-		// Only write if content changed
+		// Always write to ensure headers are current
+		writeFileSync(resolvedPath, updated, 'utf8');
+		
 		if (original !== updated) {
-			writeFileSync(resolvedPath, updated, 'utf8');
 			console.log(`✅ Updated with SHA-1: ${sha1.substring(0, 8)}...`);
-			return { path: resolvedPath, updated: true };
+			return { path: resolvedPath, updated: true, hash: sha1 };
 		} else {
-			console.log(`⏭️  No changes needed (SHA-1: ${sha1.substring(0, 8)}...)`);
-			return { path: resolvedPath, updated: false };
+			console.log(`✅ Verified SHA-1: ${sha1.substring(0, 8)}...`);
+			return { path: resolvedPath, updated: false, hash: sha1 };
 		}
 	} catch (error) {
 		console.error(`❌ Error processing ${filePath}:`, error.message);

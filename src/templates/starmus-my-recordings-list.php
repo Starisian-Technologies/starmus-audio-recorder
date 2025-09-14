@@ -32,36 +32,63 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$query->the_post();
 					$current_post_id = get_the_ID();
 					$post_title      = get_the_title();
+					$audio_url       = get_post_meta( $current_post_id, 'audio_file_url', true );
+					$recording_type  = get_the_terms( $current_post_id, 'recording_type' );
+					$language        = get_the_terms( $current_post_id, 'language' );
+					$duration        = get_post_meta( $current_post_id, 'audio_duration', true );
 					?>
 
-					<article id="post-<?php echo esc_attr( strval( $current_post_id ) ); ?>" class="starmus-recording <?php echo ( 0 === $query->current_post ) ? 'starmus-recording--featured' : ''; ?>">
-						<header class="starmus-recording__header">
-							<<?php echo ( 0 === $query->current_post ) ? 'h2' : 'h3'; ?> class="starmus-recording__title">
-								<a href="<?php the_permalink(); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'View details for %s', STARMUS_TEXT_DOMAIN ), $post_title ) ); ?>"><?php echo esc_html( $post_title ); ?></a>
-							</<?php echo ( 0 === $query->current_post ) ? 'h2' : 'h3'; ?>>
-							<p class="starmus-recording__meta">
-								<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
-							</p>
-						</header>
-
-						<div class="starmus-recording__content">
-							<?php the_content(); ?>
+					<div class="starmus-card">
+						<div class="starmus-card__header">
+							<h3 class="starmus-card__title">
+								<a href="<?php the_permalink(); ?>" class="starmus-card__link">
+									<?php echo esc_html( $post_title ); ?>
+								</a>
+							</h3>
+							<div class="starmus-card__meta">
+								<span class="starmus-card__date">
+									<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>">
+										<?php echo esc_html( get_the_date( 'M j, Y' ) ); ?>
+									</time>
+								</span>
+								<?php if ( $recording_type && ! is_wp_error( $recording_type ) ) : ?>
+									<span class="starmus-card__type"><?php echo esc_html( $recording_type[0]->name ); ?></span>
+								<?php endif; ?>
+								<?php if ( $language && ! is_wp_error( $language ) ) : ?>
+									<span class="starmus-card__language"><?php echo esc_html( $language[0]->name ); ?></span>
+								<?php endif; ?>
+							</div>
 						</div>
 
-						<footer class="starmus-recording__footer">
-							<?php
-							if ( ! empty( $edit_page_url ) && current_user_can( 'edit_post', $current_post_id ) ) :
+						<?php if ( $audio_url ) : ?>
+							<div class="starmus-card__audio">
+								<audio controls preload="metadata" class="starmus-audio-player">
+									<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/webm">
+									<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/mp4">
+									<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/mpeg">
+									<?php esc_html_e( 'Your browser does not support the audio element.', STARMUS_TEXT_DOMAIN ); ?>
+								</audio>
+								<?php if ( $duration ) : ?>
+									<span class="starmus-card__duration"><?php echo esc_html( gmdate( 'i:s', $duration ) ); ?></span>
+								<?php endif; ?>
+							</div>
+						<?php endif; ?>
+
+						<div class="starmus-card__actions">
+							<a href="<?php the_permalink(); ?>" class="starmus-btn starmus-btn--outline">
+								<?php esc_html_e( 'View Details', STARMUS_TEXT_DOMAIN ); ?>
+							</a>
+							<?php if ( ! empty( $edit_page_url ) && current_user_can( 'edit_post', $current_post_id ) ) : ?>
+								<?php
 								$edit_link        = add_query_arg( 'post_id', $current_post_id, $edit_page_url );
 								$secure_edit_link = wp_nonce_url( $edit_link, 'starmus_edit_audio', 'nonce' );
 								?>
-								<a href="<?php echo esc_url( $secure_edit_link ); ?>" 
-									class="starmus-recording__edit-button" 
-									aria-label="<?php echo esc_attr( sprintf( __( 'Edit audio for %s', STARMUS_TEXT_DOMAIN ), $post_title ) ); ?>">
+								<a href="<?php echo esc_url( $secure_edit_link ); ?>" class="starmus-btn starmus-btn--primary">
 									<?php esc_html_e( 'Edit Audio', STARMUS_TEXT_DOMAIN ); ?>
 								</a>
 							<?php endif; ?>
-						</footer>
-					</article>
+						</div>
+					</div>
 
 				<?php endwhile; ?>
 			</div><!-- .starmus-recordings-grid -->

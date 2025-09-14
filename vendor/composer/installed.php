@@ -1,8 +1,8 @@
 <?php return array(
     'root' => array(
         'name' => 'starisian/starmus-audio-recorder',
-        'pretty_version' => '0.3.1',
-        'version' => '0.3.1.0',
+        'pretty_version' => '0.4.5',
+        'version' => '0.4.5.0',
         'reference' => null,
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
@@ -128,9 +128,9 @@
             'dev_requirement' => true,
         ),
         'phpstan/phpstan' => array(
-            'pretty_version' => '2.1.23',
-            'version' => '2.1.23.0',
-            'reference' => 'a34502adbbd5c2366b5a97679848a5ace4f6f2f5',
+            'pretty_version' => '2.1.25',
+            'version' => '2.1.25.0',
+            'reference' => '4087d28bd252895874e174d65e26b2c202ed893a',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpstan/phpstan',
             'aliases' => array(),
@@ -182,9 +182,9 @@
             'dev_requirement' => true,
         ),
         'phpunit/phpunit' => array(
-            'pretty_version' => '9.6.26',
-            'version' => '9.6.26.0',
-            'reference' => 'a0139ea157533454f611038326f3020b3051f129',
+            'pretty_version' => '9.6.27',
+            'version' => '9.6.27.0',
+            'reference' => '0a9aa4440b6a9528cf360071502628d717af3e0a',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpunit/phpunit',
             'aliases' => array(),
@@ -344,8 +344,8 @@
             'dev_requirement' => true,
         ),
         'starisian/starmus-audio-recorder' => array(
-            'pretty_version' => '0.3.1',
-            'version' => '0.3.1.0',
+            'pretty_version' => '0.4.5',
+            'version' => '0.4.5.0',
             'reference' => null,
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',

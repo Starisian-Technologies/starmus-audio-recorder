@@ -60,19 +60,19 @@
 	const editorRoot = document.querySelector('.starmus-editor');
 	if (!editorRoot) return; // No editor on this page, exit gracefully.
 
-	/** @type {HTMLElement}
+	/** @type {HTMLElement} */
 	const overviewEl = document.getElementById('overview');
-	/** @type {HTMLElement}
+	/** @type {HTMLElement} */
 	const zoomviewEl = document.getElementById('zoomview');
-	/** @type {HTMLButtonElement}
+	/** @type {HTMLButtonElement} */
 	const btnPlay = document.getElementById('play');
-	/** @type {HTMLButtonElement}
+	/** @type {HTMLButtonElement} */
 	const btnAdd = document.getElementById('add-region');
-	/** @type {HTMLButtonElement}
+	/** @type {HTMLButtonElement} */
 	const btnSave = document.getElementById('save');
-	/** @type {HTMLTableSectionElement}
+	/** @type {HTMLTableSectionElement} */
 	const list = document.getElementById('regions-list');
-	/** @type {HTMLElement}
+	/** @type {HTMLElement} */
 	const peaksContainer = document.getElementById('peaks-container');
 
 	if (
@@ -203,15 +203,26 @@
 			label: (a.label || '').trim().slice(0, 200),
 		}));
 
+		// Check if Peaks.js is loaded
+		if (typeof Peaks === 'undefined') {
+			showInlineNotice('Peaks.js library not loaded. Please ensure it is included.');
+			return;
+		}
+
 		// --- Peaks.js Initialization ---
 		const peaksOptions = {
 			containers: { overview: overviewEl, zoomview: zoomviewEl },
 			mediaElement: audio,
+			webAudio: {
+				audioContext: new (window.AudioContext || window.webkitAudioContext)(),
+				multiChannel: false
+			},
 			height: 180,
-			zoomLevels: [64, 128, 256, 512, 1024],
-			keyboard: false, // Disable default keyboard to use our custom one.
+			zoomLevels: [64, 128, 256, 512, 1024, 2048],
+			keyboard: false,
 			segments: initialSegments,
-			allowSeeking: true,
+			pointMarkerColor: '#ff0000',
+			showPlayheadTime: true
 		};
 
 		Peaks.init(peaksOptions, function (err, peaks) {
@@ -408,14 +419,16 @@
 
 			// --- Event Listeners for Main Controls ---
 			btnAdd.onclick = () => {
-				const currentTime = peaks.player.getCurrentTime();
-				const start = Math.max(0, currentTime - 5);
+				const currentTime = audio.currentTime || 0;
+				const start = Math.max(0, currentTime - 2);
+				const end = Math.min(audio.duration, currentTime + 2);
 				peaks.segments.add({
 					id: getUUID(),
 					startTime: start,
-					endTime: currentTime,
+					endTime: end,
 					labelText: '',
 					editable: true,
+					color: '#ff6b6b'
 				});
 				setDirty(true);
 				renderRegions();

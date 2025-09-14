@@ -37,6 +37,7 @@
 
     function handleContinueClick(formId) {
         if (!safeId(formId)) return;
+        const form = el(formId);
         const step1 = el(`starmus_step1_${formId}`);
         const step2 = el(`starmus_step2_${formId}`);
 
@@ -59,6 +60,7 @@
             .then(() => { buildRecorderUI(formId); })
             .catch(err => {
                 log('error', 'Recorder init failed, reverting to step 1.', err?.message);
+                showUserMessage(formId, 'Unable to initialize recorder. Please try again.', 'error');
                 step1.style.display = 'block';
                 step2.style.display = 'none';
             });
@@ -96,16 +98,25 @@
         if (window.StarmusSubmissionsHandler && typeof window.StarmusSubmissionsHandler.init === 'function') {
             window.StarmusSubmissionsHandler.init();
         }
-
+        
         const forms = document.querySelectorAll('form.starmus-audio-form');
         forms.forEach(initializeForm);
-        Hooks.doAction('starmus_ui_ready');
+        Hooks?.doAction('starmus_ui_ready');
     }
 
     // FIX 2: Add retroactive "catch-up" logic.
-    Hooks.addAction('starmus_hooks_ready', init);
-    if (Hooks.hasFired && Hooks.hasFired('starmus_hooks_ready')) {
-        init();
+    if (Hooks) {
+        Hooks.addAction('starmus_hooks_ready', init);
+        if (Hooks.hasFired && Hooks.hasFired('starmus_hooks_ready')) {
+            init();
+        }
+    } else {
+        // Fallback if hooks not available
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     }
 
     window.StarmusUIController = { updateRecorderUI, showUserMessage, buildRecorderUI };

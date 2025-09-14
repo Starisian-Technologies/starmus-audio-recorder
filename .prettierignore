@@ -1,2 +1,35 @@
+# Dependencies
 node_modules/
+vendor/
+
+# Build outputs
+assets/
 dist/
+build/
+
+# Generated files
+*.min.js
+*.min.css
+*.map
+
+# Logs
+*.log
+
+# Documentation
+docs/
+
+# Test outputs
+test-results/
+playwright-report/
+
+# WordPress
+wp-admin/
+wp-includes/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

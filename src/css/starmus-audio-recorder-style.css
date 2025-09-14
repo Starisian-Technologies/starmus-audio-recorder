@@ -257,7 +257,7 @@
 }
 
 /* Mobile: Stack buttons vertically for better touch */
-@media (max-width: 480px) {
+@media (width <= 480px) {
 	.starmus-recorder-controls {
 		flex-direction: column;
 		align-items: stretch;
@@ -577,7 +577,7 @@
 	width: 16px;
 	height: 16px;
 	margin: -8px 0 0 -8px;
-	border: 2px solid currentColor;
+	border: 2px solid currentcolor;
 	border-radius: 50%;
 	border-top-color: transparent;
 	animation: spin 1s linear infinite;

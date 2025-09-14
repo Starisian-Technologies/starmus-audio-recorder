@@ -1,6 +1,6 @@
 {
   "name": "starmus-audio-recorder",
-  "version": "0.3.1",
+  "version": "0.4.5",
   "description": "Mobile-first, offline-friendly audio recorder for WordPress.",
   "private": true,
   "type": "module",
@@ -13,15 +13,16 @@
     "lint:css:fix": "stylelint \"src/css/**/*.css\" --fix",
     "lint:md": "markdownlint \"**/*.md\"",
     "lint:md:fix": "markdownlint \"**/*.md\" --fix",
-    "lint:php": "vendor/bin/phpcs",
-    "lint:php:fix": "vendor/bin/phpcbf",
-    "format": "npm run lint:js:fix && npm run lint:css:fix && npm run lint:md:fix && npm run lint:php:fix && prettier --write .",
+    "lint:php": "vendor/bin/phpcs --standard=phpcs.xml.dist",
+    "lint:php:fix": "vendor/bin/phpcbf --standard=phpcs.xml.dist",
+    "format": "npm run lint:js:fix && npm run lint:css:fix && npm run lint:md:fix && npm run lint:php:fix && prettier --write . --ignore-path .prettierignore",
     "clean": "node -e \"require('fs').rmSync('assets', { recursive: true, force: true });\"",
     "build:vendor": "node -e \"const fs=require('fs'),p=require('path');fs.mkdirSync('assets/js/vendor',{recursive:true});fs.copyFileSync(p.join('node_modules','peaks.js','dist','peaks.min.js'),p.join('assets','js','vendor','peaks.min.js'));fs.copyFileSync(p.join('node_modules','tus-js-client','dist','tus.min.js'),p.join('assets','js','vendor','tus.min.js'));\"",
     "build:css": "postcss src/css/starmus-audio-recorder-style.css -o assets/css/starmus-styles.min.css",
     "build:js": "terser src/js/starmus-audio-recorder-hooks.js src/js/starmus-audio-recorder-module.js src/js/starmus-audio-recorder-submissions-handler.js src/js/starmus-audio-recorder-ui-controller.js -o assets/js/starmus-app.min.js --compress drop_console=true --mangle",
     "build:hash": "node build-starmus.js assets/css/starmus-styles.min.css assets/js/starmus-app.min.js",
-    "build": "npm run clean && npm run build:vendor && npm run build:css && npm run build:js && npm run build:hash",
+    "version:sync": "node sync-version.js",
+    "build": "npm run clean && npm run build:vendor && npm run build:css && npm run build:js && npm run build:hash && npm run version:sync",
     "i18n-check": "grep -r \"__('\" src/ || echo 'No i18n strings found'",
     "docs:js": "mkdir -p docs && jsdoc2md 'src/js/**/*.js' > docs/js-api.md",
     "docs:php": "node scripts/fetch-phpdoc.cjs && mkdir -p docs/php && php8.3 tools/phpDocumentor.phar -d src -t docs/php",
@@ -34,7 +35,9 @@
     "test": "npm run test:e2e && npm run test:a11y",
     "env:start": "wp-env start",
     "env:stop": "wp-env stop",
-    "size-check": "size-limit"
+    "size-check": "size-limit",
+    "validate": "node validate-build.js",
+    "prebuild": "npm run validate"
   },
   "size-limit": [
     {

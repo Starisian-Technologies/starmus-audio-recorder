@@ -1,7 +1,7 @@
 {
   "name": "starisian/starmus-audio-recorder",
   "description": "Mobile-first, offline-friendly audio recorder for WordPress.",
-  "version": "0.3.1",
+  "version": "0.4.5",
   "type": "wordpress-plugin",
   "license": "proprietary",
   "require": {
@@ -57,11 +57,11 @@
     }
   },
   "scripts": {
-    "lint:php": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full src",
-    "fix:php": "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php src",
-    "analyze:php": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist",
+    "lint": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full .",
+    "lint:fix": "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php .",
+    "analyze": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=1G",
     "test:unit": "vendor/bin/phpunit --configuration=phpunit-unit.xml.dist --colors=always",
-    "test:php": "composer run lint:php && composer run analyze:php && composer run test:unit",
-    "test": "composer run test:php"
+    "test": "composer run lint && composer run analyze && composer run test:unit",
+    "fix": "composer run lint:fix"
   }
 }

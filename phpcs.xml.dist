@@ -22,6 +22,10 @@
   <exclude-pattern>*.html</exclude-pattern>
 
   <arg name="basepath" value="."/>
+  <arg name="colors"/>
+  <arg name="extensions" value="php"/>
+  <arg name="parallel" value="8"/>
+  <arg value="p"/>
 
   <!-- Rules -->
   <rule ref="WordPress-Extra"/>
@@ -31,14 +35,16 @@
   <rule ref="WordPress.WP.I18n">
     <properties>
       <property name="text_domain" type="array">
-        <element value="starmus_audio_recorder"/>
+        <element value="starmus-audio-recorder"/>
       </property>
     </properties>
   </rule>
   <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
     <properties>
       <property name="prefixes" type="array">
-        <element value="star"/>
+        <element value="starmus"/>
+        <element value="STARMUS"/>
+        <element value="Starmus"/>
       </property>
     </properties>
   </rule>
