@@ -8,7 +8,7 @@
  * @file    The Core Recording Engine - Pure audio functionality with hooks integration
  */
 (function(window) { 
-    'use strict';
+    'use strict'; 
 
     const hasMediaRecorder = !!(window.MediaRecorder && window.navigator.mediaDevices);
     const instances = Object.create(null);

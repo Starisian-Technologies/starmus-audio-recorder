@@ -2,7 +2,7 @@
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
- * 
+ *
  * @module  StarmusSubmissionsHandler
  * @version 1.2.0
  * @file    The Submission Engine - Pure data handling with hooks integration
@@ -11,16 +11,16 @@
     'use strict'; 
 
     const CONFIG = { LOG_PREFIX: '[Starmus Submissions]' };
-    function log(level, msg, data) {  
-        if (console && console[level]) { 
-            console[level](CONFIG.LOG_PREFIX, msg, data || ''); 
-        } 
+    function log(level, msg, data) {
+        if (console && console[level]) {
+            console[level](CONFIG.LOG_PREFIX, msg, data || '');
+        }
     }
     function el(id) { return document.getElementById(id); }
-    function safeId(id) { 
-        return typeof id === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(id); 
+    function safeId(id) {
+        return typeof id === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(id);
     }
-    
+
     function doAction(hook, ...args) {
         if (window.StarmusHooks) {
             window.StarmusHooks.doAction(hook, ...args);
@@ -28,7 +28,7 @@
     }
 
     function applyFilters(hook, value, ...args) {
-        return window.StarmusHooks ? 
+        return window.StarmusHooks ?
             window.StarmusHooks.applyFilters(hook, value, ...args) : value;
     }
 
@@ -225,7 +225,7 @@
 
         const formFields = collectFormFields(form);
         const metadata = recordingData?.metadata || {};
-        
+
         const submissionPackage = { instanceId, blob, fileName, formFields, metadata };
 
         // Hook: Allow filters to handle submission (e.g., offline mode)
@@ -234,7 +234,7 @@
             log('log', 'Submission handled by filter hook');
             return;
         }
-        
+
         doAction('starmus_submission_started', instanceId, submissionPackage);
 
         resumableTusUpload(blob, fileName, formFields, metadata, instanceId)
@@ -255,12 +255,12 @@
     function notifyServer(tusUrl, formFields, metadata) {
         const wpData = window.starmusFormData || {};
         if (!wpData.rest_url || !wpData.rest_nonce) return Promise.resolve();
-        
+
         const fd = new FormData();
         Object.keys(formFields || {}).forEach(k => fd.append(k, formFields[k]));
         fd.append('tus_url', tusUrl || '');
         fd.append('metadata', JSON.stringify(metadata));
-        
+
         return fetch(wpData.rest_url, {
             method: 'POST',
             headers: { 'X-WP-Nonce': wpData.rest_nonce },
@@ -296,11 +296,11 @@
     function init() {
         Offline.init();
         window.addEventListener('online', () => Offline.processQueue());
-        
+
         // Hook into recording events
         doAction('starmus_submissions_handler_ready');
     }
-    
+
     // Initialize when hooks are ready
     if (window.StarmusHooks) {
         window.StarmusHooks.addAction('starmus_hooks_ready', init, 5);

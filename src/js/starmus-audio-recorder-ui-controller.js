@@ -3,11 +3,11 @@
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * @module  StarmusUIController
- * @version 1.2.2
- * @file    The UI Manager - Linter-clean, secure, and resilient.
+ * @module        StarmusUIController
+ * @version       0.4.5
+ * @since         0.1.0
+ * @file          The UI Controller - starmus-audio-recorder-ui-controller.js (FINAL, PATCHED)
  */
-// FILE: starmus-audio-recorder-ui-controller.js (FINAL, PATCHED)
 (function(window, document) {
     'use strict';
 
@@ -96,7 +96,7 @@
         if (window.StarmusSubmissionsHandler && typeof window.StarmusSubmissionsHandler.init === 'function') {
             window.StarmusSubmissionsHandler.init();
         }
-        
+
         const forms = document.querySelectorAll('form.starmus-audio-form');
         forms.forEach(initializeForm);
         Hooks.doAction('starmus_ui_ready');
