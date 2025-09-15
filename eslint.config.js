@@ -9,7 +9,7 @@ import jsdoc from "eslint-plugin-jsdoc";
 import wordpress from "@wordpress/eslint-plugin";
 
 export default [
-	{ ignores: ["node_modules/**", "dist/**", "assets/js/**/*.min.js", "vendor/**"] },
+	{ ignores: ["node_modules/**", "dist/**", "assets/js/**/*.min.js", "vendor/**", "docs/**", "tests/**", "*.config.js", ".*rc.js", "build-*.js", "sync-*.js", "validate-*.js", "test.js", "sync-version.js", "validate-build.js", "playwright.config.js", "stylelint.config.js", ".markdownlint.js", ".commitlintrc.js"] },
 	js.configs.recommended,
 	security.configs.recommended,
 	a11y.flatConfigs.recommended,
