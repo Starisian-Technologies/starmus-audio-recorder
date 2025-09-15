@@ -34,7 +34,7 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 			</span>
 			<?php if ( $recording_type && ! is_wp_error( $recording_type ) ) : ?>
 				<span class="starmus-meta__type">
-					<?php esc_html_e( 'Type:', STARMUS_TEXT_DOMAIN ); ?>
+					<?php esc_html_e( 'Type:', 'starmus-audio-recorder' ); ?>
 					<strong><?php echo esc_html( $recording_type[0]->name ); ?></strong>
 				</span>
 			<?php endif; ?>
@@ -49,7 +49,7 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 
 	<?php if ( $audio_url ) : ?>
 		<div class="starmus-detail__audio">
-			<h2><?php esc_html_e( 'Your Recording', STARMUS_TEXT_DOMAIN ); ?></h2>
+			<h2><?php esc_html_e( 'Your Recording', 'starmus-audio-recorder' ); ?></h2>
 			<audio controls preload="metadata" class="starmus-audio-player--large">
 				<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/webm">
 				<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/mp4">

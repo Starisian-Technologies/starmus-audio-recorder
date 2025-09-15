@@ -23,7 +23,8 @@ export default {
 			'keyframes-name-pattern': null,
 			'no-descending-specificity': null,
 			'declaration-block-single-line-max-declarations': null,
-			'media-feature-name-value-no-unknown': null
+			'media-feature-name-value-no-unknown': null,
+			'custom-property-pattern': null
 	},
 	reportDescriptionlessDisables: false,
 	reportInvalidScopeDisables: false,

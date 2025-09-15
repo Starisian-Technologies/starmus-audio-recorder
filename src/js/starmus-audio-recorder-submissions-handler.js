@@ -20,6 +20,16 @@
     function safeId(id) {
         return typeof id === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(id);
     }
+    
+    function s(str) {
+        return typeof str === 'string' ? str.replace(/[<>"'&]/g, '') : '';
+    }
+    
+    function collectFormFields(form) {
+        const fields = {};
+        new FormData(form).forEach((value, key) => fields[key] = value);
+        return fields;
+    }
 
     function doAction(hook, ...args) {
         if (window.StarmusHooks) {
@@ -154,20 +164,20 @@
     }
 
   // --- Form submit glue ---
-  function bindForm(formId){
-    if(!safeId(formId)) return;
-    const form=el(formId); if(!form) return;
+  function _bindForm(_formId){
+    if(!safeId(_formId)) return;
+    const form=el(_formId); if(!form) return;
     form.addEventListener('submit', function(ev){
       ev.preventDefault();
-      handleSubmit(formId, form);
+      handleSubmit(_formId, form);
     });
   }
 
-  function bindContinueButton(formId) {
-    if(!safeId(formId)) return;
-    const continueBtn = el('starmus_continue_btn_' + formId);
-    const step1 = el('starmus_step1_' + formId);
-    const step2 = el('starmus_step2_' + formId);
+  function _bindContinueButton(_formId) {
+    if(!safeId(_formId)) return;
+    const continueBtn = el('starmus_continue_btn_' + _formId);
+    const step1 = el('starmus_step1_' + _formId);
+    const step2 = el('starmus_step2_' + _formId);
     if (!continueBtn || !step1 || !step2) return;
     continueBtn.addEventListener('click', function() {
         let allValid = true;
@@ -182,18 +192,18 @@
         if (allValid) {
             step1.style.display = 'none';
             step2.style.display = 'block';
-            initRecorder(formId);
+            initRecorder(_formId);
         }
     });
   }
 
 
 
-  function buildMetadata(instanceId){
-    if(!safeId(instanceId)) return {};
+  function _buildMetadata(_instanceId){
+    if(!safeId(_instanceId)) return {};
     const engine = window.StarmusAudioRecorder && window.StarmusAudioRecorder.getSubmissionData;
-    const data = engine ? engine(instanceId) : null;
-    const meta = { instanceId: instanceId, recordedAt: new Date().toISOString() };
+    const data = engine ? engine(_instanceId) : null;
+    const meta = { instanceId: _instanceId, recordedAt: new Date().toISOString() };
     if (data && data.metadata) { Object.assign(meta, data.metadata); }
     return meta;
   }

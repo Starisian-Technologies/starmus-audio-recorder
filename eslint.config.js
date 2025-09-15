@@ -28,6 +28,7 @@ export default [
 				CustomEvent: "readonly",
 				indexedDB: "readonly",
 				Peaks: "readonly",
+				tus: "readonly",
 				STARMUS_EDITOR_DATA: "readonly",
 				STARMUS_RECORDER_DATA: "readonly",
 				StarmusAudioRecorder: "readonly",

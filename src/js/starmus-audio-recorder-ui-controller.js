@@ -19,6 +19,7 @@
 
     function sanitizeText(text) {
         if (typeof text !== 'string') return '';
+        // eslint-disable-next-line no-control-regex
         return text.replace(/[\x00-\x1F\x7F<>"'&]/g, ' ').substring(0, 500);
     }
 
@@ -32,12 +33,12 @@
         }
     }
 
-    function updateRecorderUI(instanceId, state) { /* ... update logic ... */ }
-    function buildRecorderUI(instanceId) { /* ... build logic ... */ }
+    function updateRecorderUI(_instanceId, _state) { /* ... update logic ... */ }
+    function buildRecorderUI(_instanceId) { /* ... build logic ... */ }
 
     function handleContinueClick(formId) {
         if (!safeId(formId)) return;
-        const form = el(formId);
+        const _form = el(formId);
         const step1 = el(`starmus_step1_${formId}`);
         const step2 = el(`starmus_step2_${formId}`);
 

@@ -161,7 +161,7 @@
 		 */
 		function normalizeAnnotations(arr) {
 			// 1. Filter out any invalid or out-of-bounds segments.
-			let sorted = arr
+			const sorted = arr
 				.slice()
 				.filter(
 					(a) =>
