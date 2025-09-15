@@ -11,8 +11,6 @@ This doc has two code elements, one only has a title, one has actual code. Unbal
    <tr>
 <td>
 
-    
-
 </td>
 <td>
 

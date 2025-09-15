@@ -14,42 +14,89 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository's code.
+      # Step 1: Check out the repository's code. (No change)
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.WORKFLOW_PAT }}
 
-      # Step 2: Configure Git for commits.
+      # Step 2: Configure Git for commits. (No change)
       - name: Set up Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # Step 3: Get the version number from the tag.
+      # Step 3: Set up PHP and install ALL Composer dependencies (including dev). (MODIFIED)
+      - name: Set up PHP
+        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+      - name: Install All PHP Dependencies
+        run: composer install --prefer-dist --no-progress
+
+      # Step 4: Set up Node.js and install JS dependencies. (MODIFIED)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - name: Install JS Dependencies
+        run: npm ci
+
+      # Step 5: Run linting and auto-fix BEFORE versioning. (MOVED & MODIFIED)
+      - name: Run Linting and Auto-Fix
+        run: |
+          npm run format
+          composer run fix
+
+      # Step 6: Get the version number from the tag. (No change)
       - name: Get the version from the tag
-        id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-      # Steps 4-6: Update version numbers in all files.
-      - name: Update package.json version
+      # Step 7: Update all version numbers in project files. (MODIFIED)
+      - name: Update Version Numbers
         run: |
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          if [ "$CURRENT_VERSION" != "${{ env.VERSION }}" ]; then
-            npm version ${{ env.VERSION }} --no-git-tag-version
-          else
-            echo "Version ${{ env.VERSION }} already set in package.json"
-          fi
-      - name: Update plugin header version
-        run: |
+          # FIX: Use reliable 'sed' for package.json to avoid 'npm version' errors.
+          sed -i -E 's/("version":\s*").*(")/\1${{ env.VERSION }}\2/' package.json
+
+          # Your original, correct sed commands
           sed -i -E "s/^(\s*\* Version:\s*).*/\1${{ env.VERSION }}/" starmus-audio-recorder.php
           sed -i "s/define( 'STARMUS_VERSION', '[^']*' );/define( 'STARMUS_VERSION', '${{ env.VERSION }}' );/" starmus-audio-recorder.php
-      - name: Update @version tags in PHP files
-        run: |
           find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 sed -i "s/@version\s\+[0-9.]\+/@version ${{ env.VERSION }}/g"
 
-      # Step 8: Commit version changes and update the tag.
+      # Step 8: Commit ALL changes (linting + version) and update the tag. (MODIFIED)
+      - name: Commit Release Changes and Update Tag
+        run: |
+          git add -A
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(release): Prepare release ${{ env.VERSION }}"
+            DEFAULT_BRANCH=${{ github.event.repository.default_branch }}
+            git push origin HEAD:"refs/heads/$DEFAULT_BRANCH"
+            git tag -f $GITHUB_REF_NAME
+            git push origin $GITHUB_REF_NAME --force
+          else
+            echo "No changes to commit for release."
+          fi
+
+      # --- THIS IS THE FIX ---
+      # Step 4: Update version numbers in all files using the reliable `sed` command.
+      # The problematic `npm version` step has been removed.
+      - name: Update version numbers in project files
+        run: |
+          # Update package.json
+          sed -i -E 's/("version":\s*").*(")/\1${{ env.VERSION }}\2/' package.json
+
+          # Update main plugin file header and constant
+          sed -i -E "s/^(\s*\* Version:\s*).*/\1${{ env.VERSION }}/" starmus-audio-recorder.php
+          sed -i "s/define( 'STARMUS_VERSION', '[^']*' );/define( 'STARMUS_VERSION', '${{ env.VERSION }}' );/" starmus-audio-recorder.php
+
+          # Update all other @version tags
+          find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 sed -i "s/@version\s\+[0-9.]\+/@version ${{ env.VERSION }}/g"
+
+      # Step 5: Commit version changes and update the tag. (Your existing step is correct)
       - name: Commit version bump and update tag
         run: |
           git add -A
@@ -62,6 +109,7 @@ jobs:
           else
             echo "No version changes to commit."
           fi
+
 
       # Step 9: Verify plugin entrypoint exists.
       - name: Verify plugin entrypoint

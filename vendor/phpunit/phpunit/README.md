@@ -11,9 +11,9 @@ PHPUnit is a programmer-oriented testing framework for PHP. It is an instance of
 We distribute a [PHP Archive (PHAR)](https://php.net/phar) that has all required (as well as some optional) dependencies of PHPUnit bundled in a single file:
 
 ```bash
-$ wget https://phar.phpunit.de/phpunit-X.Y.phar
+wget https://phar.phpunit.de/phpunit-X.Y.phar
 
-$ php phpunit-X.Y.phar --version
+php phpunit-X.Y.phar --version
 ```
 
 Please replace `X.Y` with the version of PHPUnit you are interested in.
@@ -32,4 +32,3 @@ Thanks to everyone who has contributed to PHPUnit! You can find a detailed list 
 * [php-code-coverage](https://github.com/sebastianbergmann/php-code-coverage/graphs/contributors)
 
 A very special thanks to everyone who has contributed to the [documentation](https://github.com/sebastianbergmann/phpunit-documentation-english/graphs/contributors).
-

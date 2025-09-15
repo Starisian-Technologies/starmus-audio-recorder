@@ -497,6 +497,7 @@ Composer users are advised to update their `composer.json`. The dependency is no
 Within this new organization, hosting will be offered for framework/CMS specific PHPCompatibility rulesets.
 
 The first two such repositories have been created and are now available for use:
+
 - PHPCompatibilityJoomla [GitHub](https://github.com/PHPCompatibility/PHPCompatibilityJoomla)|[Packagist](https://packagist.org/packages/phpcompatibility/phpcompatibility-joomla)
 - PHPCompatibilityWP [GitHub](https://github.com/PHPCompatibility/PHPCompatibilityWP)|[Packagist](https://packagist.org/packages/phpcompatibility/phpcompatibility-wp)
 
@@ -688,6 +689,7 @@ This means that the PHPCompatibility standard no longer extends from the root di
 This release also bring compatibility with PHPCS 3.x to the PHPCompatibility standard.
 
 There are two things you will need to be aware of:
+
 - The path to the PHPCompatibility standard has changed.
 - If you intend to upgrade to PHPCS 3.x, the path to the `phpcs` script has changed (upstream change).
 
@@ -776,6 +778,7 @@ So, for Composer users, nothing changes. For everyone else, you may want to add 
 ### Upgrading a Travis build script
 
 If you run PHPCompatibility against your code as part of your Travis build:
+
 - If you use Composer to install PHP CodeSniffer and PHPCompatibility on the travis image and you've made the above mentioned changes, your build should pass again.
 - If you use `git clone` to install PHP CodeSniffer and PHPCompatibility on the travis image, your build will fail until you make the following changes:
     1. Check which branch of PHPCS is being checked out. If you previously fixed this to a pre-PHPCS 3.x branch or tag, you can now change this (back) to `master` or a PHPCS 3 tag.

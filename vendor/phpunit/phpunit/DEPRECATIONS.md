@@ -11,7 +11,7 @@ This functionality is currently [soft-deprecated](https://phpunit.de/backward-co
 | Issue                                                             | Description                       | Since | Replacement |
 |-------------------------------------------------------------------|-----------------------------------|-------|-------------|
 | [#3687](https://github.com/sebastianbergmann/phpunit/issues/3687) | `MockBuilder::setMethods()`       | 8.3.0 |             |
-| [#3687](https://github.com/sebastianbergmann/phpunit/issues/3687) | `MockBuilder::setMethodsExcept()` | 9.6.0 |             | 
+| [#3687](https://github.com/sebastianbergmann/phpunit/issues/3687) | `MockBuilder::setMethodsExcept()` | 9.6.0 |             |
 
 ## Hard Deprecations
 

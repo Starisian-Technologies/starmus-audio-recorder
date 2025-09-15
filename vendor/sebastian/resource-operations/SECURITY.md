@@ -27,4 +27,3 @@ The library is developed with a focus on development environments and the comman
 If the library is used in a web application, the application developer is responsible for filtering inputs or escaping outputs as necessary and for verifying that the used functionality is safe for use within the intended context.
 
 Vulnerabilities specific to the use outside a development context will be fixed as applicable, provided that the fix does not have an averse effect on the primary use case for development purposes.
-

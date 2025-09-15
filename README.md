@@ -15,8 +15,8 @@ A mobile-first audio recording and annotation plugin for WordPress, designed for
 **Stable tag:** v0.5.0
 **License:** See LICENSE.md
 
-[![CodeQL](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql) [![Dependabot Updates](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates) 
-[![Security Checks](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml) 
+[![CodeQL](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql) [![Dependabot Updates](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates)
+[![Security Checks](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml)
 
 [![Release Code Quality Final Review](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml)
 
@@ -34,8 +34,8 @@ Named after the iconic Starmus Festival, where rock legends and astrophysicists 
 - **Resumable Uploads:** Powered by the `tus.io` protocol, audio uploads in small chunks and automatically resumes after network interruptions.
 - **Offline Submission Queue:** Failed or offline submissions are saved securely in the user’s browser (via IndexedDB) and are automatically uploaded when connectivity is restored.
 - **Progressive Enhancement:**
-    - **Tier A (Modern Browsers):** Offers microphone calibration (gain control), noise suppression, and real-time speech-to-text transcription via the Speech Recognition API.
-    - **Tier B/C (Legacy Browsers):** Gracefully degrades, providing a simpler recording experience or a file upload fallback to ensure 100% user compatibility.
+  - **Tier A (Modern Browsers):** Offers microphone calibration (gain control), noise suppression, and real-time speech-to-text transcription via the Speech Recognition API.
+  - **Tier B/C (Legacy Browsers):** Gracefully degrades, providing a simpler recording experience or a file upload fallback to ensure 100% user compatibility.
 - **Rich Metadata & Consent Capture:** Saves extensive session data, including a linked consent-agreement post, User ID, IP, and User Agent.
 - **Geolocation Capture:** The legacy fallback script captures GPS coordinates, ideal for dialect and linguistic mapping projects.
 - **Audio Annotation Editor:** A separate `[starmus_audio_editor]` shortcode powered by Peaks.js allows for detailed audio segmentation and labeling.
@@ -46,34 +46,42 @@ Named after the iconic Starmus Festival, where rock legends and astrophysicists 
 - **WordPress:** 6.4 or higher
 - **PHP:** 8.0 or higher
 - **Server:**
-    - A `tus.io` compatible server endpoint is **highly recommended** for resumable uploads. The plugin includes a fallback to the standard WordPress REST API.
-    - The `audiowaveform` binary is required on the server's PATH for waveform generation in the editor.
+  - A `tus.io` compatible server endpoint is **highly recommended** for resumable uploads. The plugin includes a fallback to the standard WordPress REST API.
+  - The `audiowaveform` binary is required on the server's PATH for waveform generation in the editor.
 - **Browser:** A modern browser supporting the MediaRecorder API is recommended for the best experience. A fallback is provided for older browsers.
 
 ## 🚀 Installation
 
-1.  Download the latest release `.zip` file from this repository.
-2.  In your WordPress Admin, go to **Plugins → Add New → Upload Plugin**.
-3.  Upload the `.zip` file and click **Install Now**.
-4.  Activate the plugin.
-5.  (Optional but Recommended) Set up a `tusd` server endpoint and configure the URL in `StarmusAudioRecorderUI.php`.
+1. Download the latest release `.zip` file from this repository.
+2. In your WordPress Admin, go to **Plugins → Add New → Upload Plugin**.
+3. Upload the `.zip` file and click **Install Now**.
+4. Activate the plugin.
+5. (Optional but Recommended) Set up a `tusd` server endpoint and configure the URL in `StarmusAudioRecorderUI.php`.
 
 ## 🖥 Usage
 
 The plugin provides three primary shortcodes:
 
 #### 1. Audio Recorder
+
 Displays the two-step recording form.
+
 ```php
 [starmus_audio_recorder_form]
 ```
+
 #### 2. User’s Recordings List
+
 Displays a paginated, accessible list of the logged-in user's submissions.
+
 ```php
 [starmus_my_recordings]
 ```
+
 #### 3. Audio Editor
+
 Displays the Peaks.js annotation editor. This page must be accessed via a secure link containing a `post_id` and a nonce, typically generated from the "My Recordings" list.
+
 ```php
 [starmus_audio_editor]
 ```
@@ -93,23 +101,27 @@ Example URL: `https://yoursite.com/edit-recording/?post_id=123&nonce=...`
   - `consent-agreement`  
 - **Taxonomies:**  
   - `language`  
-  - `recording_type` 
+  - `recording_type`
 
 ### Core JavaScript Architecture
+
 The plugin uses a four-part modular architecture for its front-end application:
 
-1.  **`starmus-audio-recorder-module.js` (The Engine):** A secure, modern recording engine using `MediaRecorder`. It handles mic access, calibration, and speech recognition. It has no knowledge of the UI or uploads.
-2.  **`starmus-audio-recorder-submissions-handler.js` (The Uploader):** The submission specialist. It manages the `tus.io` resumable uploads, the offline IndexedDB queue, and the fallback to the WordPress REST API.
-3.  **`starmus-audio-recorder-ui-controller.js` (The UI Controller):** The "glue" for modern browsers. It manages the two-step UI, validates form fields, and delegates tasks to the Engine and Uploader modules.
-4.  **`starmus-audio-recorder-submissions.js` (The Legacy Fallback):** A self-contained script loaded by older browsers (`nomodule`). It provides polyfills and a simpler submission process, including geolocation capture.
+1. **`starmus-audio-recorder-module.js` (The Engine):** A secure, modern recording engine using `MediaRecorder`. It handles mic access, calibration, and speech recognition. It has no knowledge of the UI or uploads.
+2. **`starmus-audio-recorder-submissions-handler.js` (The Uploader):** The submission specialist. It manages the `tus.io` resumable uploads, the offline IndexedDB queue, and the fallback to the WordPress REST API.
+3. **`starmus-audio-recorder-ui-controller.js` (The UI Controller):** The "glue" for modern browsers. It manages the two-step UI, validates form fields, and delegates tasks to the Engine and Uploader modules.
+4. **`starmus-audio-recorder-submissions.js` (The Legacy Fallback):** A self-contained script loaded by older browsers (`nomodule`). It provides polyfills and a simpler submission process, including geolocation capture.
 
 ### Third-Party Libraries
+
 This plugin relies on the following excellent open-source libraries, which should be installed via `npm` and included in the `/assets/js/vendor/` directory:
--   **tus-js-client:** For resumable file uploads.
--   **Peaks.js:** For the audio annotation editor.
--   **Recorder.js:** Used as a fallback for browsers that lack `MediaRecorder`.
+
+- **tus-js-client:** For resumable file uploads.
+- **Peaks.js:** For the audio annotation editor.
+- **Recorder.js:** Used as a fallback for browsers that lack `MediaRecorder`.
 
 ### Core Hooks
+
 The Starmus Audio Recorder is a lightweight, front-end WordPress plugin that allows users to record audio directly in the browser using the MediaRecorder API.
 
 - **`starmus_before_recorder_render` (Action)**  
@@ -163,6 +175,7 @@ add_action('starmus_after_audio_upload', function($audio_post_id, $attachment_id
 - **`starmus_after_annotations_save` (Action)** – Fires after annotations saved
 
 ---
+
 ## Development Setup
 
 Composer-based tools require a GitHub token for certain dependencies. Copy `auth.json.example` to `auth.json` and replace `YOUR_GITHUB_TOKEN_HERE` with your personal access token. Alternatively, set the `COMPOSER_AUTH` environment variable.
@@ -177,7 +190,7 @@ Composer-based tools require a GitHub token for certain dependencies. Copy `auth
 
 ---
 
-## ** License**
+## **License**
 
 **LicenseRef-Starisian-Technologies-Proprietary**
 

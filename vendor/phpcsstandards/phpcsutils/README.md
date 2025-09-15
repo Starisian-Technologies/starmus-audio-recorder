@@ -24,13 +24,12 @@
 * [Features](#features)
 * [Minimum Requirements](#minimum-requirements)
 * [Integrating PHPCSUtils in your external PHPCS standard](#integrating-phpcsutils-in-your-external-phpcs-standard)
-    - [Composer-based](#composer-based)
-    - [Non-Composer based integration](#non-composer-based-integration)
+  * [Composer-based](#composer-based)
+  * [Non-Composer based integration](#non-composer-based-integration)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Potential Support Questions from your End-Users](#potential-support-questions-from-your-end-users)
 * [Contributing](#contributing)
 * [License](#license)
-
 
 ## Features
 
@@ -74,14 +73,12 @@ To see detailed information about all the available abstract sniffs, utility fun
 
 </div>
 
-
 ## Minimum Requirements
 
 * PHP 5.4 or higher.
 * [PHP_CodeSniffer] 3.13.3+/4.0.0+.
 * Recommended PHP extensions for optimal functionality:
-    - PCRE with Unicode support (normally enabled by default)
-
+  * PCRE with Unicode support (normally enabled by default)
 
 ## Integrating PHPCSUtils in your external PHPCS standard
 
@@ -118,7 +115,6 @@ If your unit tests use the PHP_CodeSniffer native unit test suite, all is good.
 If you have your own unit test suite to test your sniffs, make sure to load the Composer `vendor/autoload.php` file in your PHPUnit bootstrap file or _as_ the PHPUnit bootstrap file.
 
 If you intend to use the test utilities provided in the `PHPCSUtils/TestUtils` directory, make sure you also load the `vendor/phpcsstandards/phpcsutils/phpcsutils-autoload.php` file in your PHPUnit bootstrap file.
-
 
 ### Non-Composer based integration
 
@@ -213,7 +209,6 @@ Once that's done, you will need to make a small tweak to your own dev environmen
     </php>
     ```
 
-
 ## Frequently Asked Questions
 
 <div class="faq">
@@ -243,7 +238,6 @@ Note: `PHP_CodeSniffer` 3.x defaults to UTF-8 as the expected file encoding.
 
 </div>
 
-
 ## Potential Support Questions from your End-Users
 
 <div class="faq">
@@ -252,8 +246,8 @@ Note: `PHP_CodeSniffer` 3.x defaults to UTF-8 as the expected file encoding.
 
 1. Check that the version of PHPCSUtils the user has installed complies with the minimum version of PHPCSUtils your standard requires. If not, they will need to upgrade.
 2. If the version is correct, this indicates that the end-user does not have PHPCSUtils installed and/or registered with PHP_CodeSniffer.
-    - Please review your standard's installation instructions to make sure that PHPCSUtils will be installed when those are followed.
-    - Inform the user to install PHPCSUtils and register it with PHP_CodeSniffer.
+    * Please review your standard's installation instructions to make sure that PHPCSUtils will be installed when those are followed.
+    * Inform the user to install PHPCSUtils and register it with PHP_CodeSniffer.
 
 ---
 
@@ -275,18 +269,15 @@ Note: `PHP_CodeSniffer` 3.x defaults to UTF-8 as the expected file encoding.
 
 </div>
 
-
 ## Contributing
 
 Contributions to this project are welcome. Clone the repo, branch off from `develop`, make your changes, commit them and send in a pull request.
 
 If you are unsure whether the changes you are proposing would be welcome, please open an issue first to discuss your proposal.
 
-
 ## License
 
 This code is released under the [GNU Lesser General Public License (LGPLv3)](LICENSE).
-
 
 [PHP_CodeSniffer]:       https://github.com/PHPCSStandards/PHP_CodeSniffer
 [Composer PHPCS plugin]: https://github.com/PHPCSStandards/composer-installer

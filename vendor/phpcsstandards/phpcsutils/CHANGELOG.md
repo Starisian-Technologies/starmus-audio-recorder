@@ -4,11 +4,9 @@ All notable changes to this project will be documented in this file.
 
 This projects adheres to [Keep a CHANGELOG](https://keepachangelog.com/) and uses [Semantic Versioning](https://semver.org/).
 
-
 ## [Unreleased]
 
 _Nothing yet._
-
 
 ## [1.1.2] - 2025-09-05
 
@@ -46,7 +44,6 @@ _Note: using fully qualified `true`, `false` or `null` in a typestring is not al
 [#698]: https://github.com/PHPCSStandards/PHPCSUtils/pull/698
 [#702]: https://github.com/PHPCSStandards/PHPCSUtils/pull/702
 
-
 ## [1.1.1] - 2025-08-10
 
 ### Changed
@@ -64,7 +61,6 @@ _Note: using fully qualified `true`, `false` or `null` in a typestring is not al
 [#692]: https://github.com/PHPCSStandards/PHPCSUtils/pull/692
 [#695]: https://github.com/PHPCSStandards/PHPCSUtils/pull/695
 
-
 ## [1.1.0] - 2025-06-12
 
 ### Added
@@ -79,8 +75,8 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 * `BCFile::getMemberProperties()`: sync with PHPCS 3.12.0 - support for PHP 8.4 final properties. Thanks [@DanielEScherzer]! [#646]
 * `BCFile::getMemberProperties()`: sync with PHPCS 3.13.1 - support for PHP 8.4 asymmetric visibility. [#677]
 * `BCFile::getMemberProperties()`: sync with PHPCS 4.0.0. [#674]
-    - Add support for PHP 8.4 properties in interfaces.
-    - Removed parse error warning.
+  * Add support for PHP 8.4 properties in interfaces.
+  * Removed parse error warning.
 * `BCFile::getMethodParameters()`: sync with PHPCS 3.13.1 - support for PHP 8.4 asymmetric visibility. [#677]
 * `BCFile::findStartOfStatement()`: sync with PHPCS 3.12.1 - support for `goto` as a `switch` - `case` terminating statement. [#661]
 * `BCTokens::nameTokens()` as introduced in PHPCS 4.0.0. [#674]
@@ -133,17 +129,17 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 ### Changed
 
 * The exceptions thrown by PHPCSUtils native utilities have been made more modular and more specific. [#598], [#599], [#600]
-    - Passing a parameter of the wrong type will now result in a `PHPCSUtils\Exceptions\TypeError` being thrown.
-    - Passing a parameter of the correct type, but with an invalid value, like an empty string when only non-empty strings are expected/accepted, will now result in a `PHPCSUtils\Exceptions\ValueError` being thrown.
-    - Passing a (positive) integer stack pointer, which doesn't exist in the token stack of the current file, will now result in a `PHPCSUtils\Exceptions\OutOfBoundsStackPtr` being thrown.
-    - Passing a stack pointer to a token which is not within the range of token types which is accepted by the method, will now result in a `PHPCSUtils\Exceptions\UnexpectedTokenType` being thrown.
-    - Logic errors will now result in a `PHPCSUtils\Exceptions\LogicException` being thrown.
+  * Passing a parameter of the wrong type will now result in a `PHPCSUtils\Exceptions\TypeError` being thrown.
+  * Passing a parameter of the correct type, but with an invalid value, like an empty string when only non-empty strings are expected/accepted, will now result in a `PHPCSUtils\Exceptions\ValueError` being thrown.
+  * Passing a (positive) integer stack pointer, which doesn't exist in the token stack of the current file, will now result in a `PHPCSUtils\Exceptions\OutOfBoundsStackPtr` being thrown.
+  * Passing a stack pointer to a token which is not within the range of token types which is accepted by the method, will now result in a `PHPCSUtils\Exceptions\UnexpectedTokenType` being thrown.
+  * Logic errors will now result in a `PHPCSUtils\Exceptions\LogicException` being thrown.
         This can occur, for instance, when a method takes a `$start` and `$end` parameter and the `$end` pointer is before the `$start` pointer.
-    - Missing, conditionally required, parameters, will now result in a `PHPCSUtils\Exceptions\MissingArgumentError` being thrown.
-    - Generic errors will now result in a `PHPCSUtils\Exceptions\RuntimeException` being thrown.
-    - Previously the PHPCS native `PHP_CodeSniffer\Exceptions\RuntimeException` was used for all these exceptions.
+  * Missing, conditionally required, parameters, will now result in a `PHPCSUtils\Exceptions\MissingArgumentError` being thrown.
+  * Generic errors will now result in a `PHPCSUtils\Exceptions\RuntimeException` being thrown.
+  * Previously the PHPCS native `PHP_CodeSniffer\Exceptions\RuntimeException` was used for all these exceptions.
         Catching the PHPCS native `RuntimeException` will still catch the new exceptions, but it is strongly recommended to be more selective when catching exceptions to prevent accidentally hiding errors in sniffs.
-    - Also note that the PHPCSUtils native utilities now include more and stricter type checking to help surface bugs in sniffs.
+  * Also note that the PHPCSUtils native utilities now include more and stricter type checking to help surface bugs in sniffs.
 
 #### Abstract Sniffs
 
@@ -168,7 +164,7 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
     Note: PHPCS natively does not recognize closure `use` as a parentheses owners until PHP_CodeSniffer 4.0.
 * All methods in the [`PassedParameters`] class will now be able to analyze exit/die when used as a function call. [#618]
 * The `Scopes::isOOProperty()` method now allows for PHP 8.4 properties in interfaces. [#674]
-    - This also adds support for properties in interfaces to the `Variables::getMemberProperties()` method.
+  * This also adds support for properties in interfaces to the `Variables::getMemberProperties()` method.
 * The `UseStatements::splitAndMergeImportUseStatement()` method will no longer hide exceptions about a non-integer, non-existent or non-`T_USE` stack pointer being passed. [#600]
 
 #### Other
@@ -233,7 +229,6 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 [#677]: https://github.com/PHPCSStandards/PHPCSUtils/pull/677
 [#679]: https://github.com/PHPCSStandards/PHPCSUtils/pull/679
 
-
 ## [1.0.12] - 2024-05-20
 
 ### Added
@@ -279,7 +274,6 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 [#603]: https://github.com/PHPCSStandards/PHPCSUtils/pull/603
 [#604]: https://github.com/PHPCSStandards/PHPCSUtils/pull/604
 
-
 ## [1.0.11] - 2024-04-24
 
 ### Changed
@@ -299,7 +293,6 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 * `FunctionDeclarations::getProperties()`: small performance improvement & more defensive coding, in line with same fix in PHPCS 3.9.2. [#573]
 
 [#573]: https://github.com/PHPCSStandards/PHPCSUtils/pull/573
-
 
 ## [1.0.10] - 2024-03-18
 
@@ -329,7 +322,6 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 [#563]: https://github.com/PHPCSStandards/PHPCSUtils/pull/563
 [#568]: https://github.com/PHPCSStandards/PHPCSUtils/pull/568
 
-
 ## [1.0.9] - 2023-12-08
 
 ### Added
@@ -357,7 +349,6 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 [#524]: https://github.com/PHPCSStandards/PHPCSUtils/pull/524
 [#525]: https://github.com/PHPCSStandards/PHPCSUtils/pull/525
 
-
 ## [1.0.8] - 2023-07-17
 
 ### Changed
@@ -379,7 +370,6 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 [#493]: https://github.com/PHPCSStandards/PHPCSUtils/pull/493
 [#494]: https://github.com/PHPCSStandards/PHPCSUtils/pull/494
 
-
 ## [1.0.7] - 2023-07-10
 
 ### Changed
@@ -396,7 +386,6 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 
 [#485]: https://github.com/PHPCSStandards/PHPCSUtils/pull/485
 
-
 ## [1.0.6] - 2023-05-27
 
 ### Changed
@@ -409,8 +398,8 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 #### Utils
 
 * The results of the following methods will now (also) be cached for improved performance when multiple sniffs call these functions for the same token during a PHPCS run. [#464], [#466]
-    - `FunctionDeclarations::getProperties()`
-    - `Variables::getMemberProperties()`
+  * `FunctionDeclarations::getProperties()`
+  * `Variables::getMemberProperties()`
 * Additionally, the results of the `UseStatements::splitImportUseStatement()` method will be cached more often and the cache checked earlier. [#467]
 * The return value of the `ControlStructures::getCaughtExceptions()` method will no longer contain "empty" entries for catch statements without a named exception. It will return an empty array instead. [#474]
 
@@ -434,7 +423,6 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 [#476]: https://github.com/PHPCSStandards/PHPCSUtils/pull/476
 [#477]: https://github.com/PHPCSStandards/PHPCSUtils/pull/477
 
-
 ## [1.0.5] - 2023-04-17
 
 ### Fixed
@@ -444,7 +432,6 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 * The `Lists::getAssignments()` method could previously get confused over exotic list keys. Fixed now. [#459]
 
 [#459]: https://github.com/PHPCSStandards/PHPCSUtils/pull/459
-
 
 ## [1.0.4] - 2023-04-15
 
@@ -462,7 +449,6 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 
 [#456]: https://github.com/PHPCSStandards/PHPCSUtils/pull/456
 
-
 ## [1.0.3] - 2023-04-13
 
 ### Changed
@@ -478,7 +464,6 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 * The `PassedParameters` class now allows for function calls to global functions called `self()`, `parent()` or `static()`. [#452]
 
 [#452]: https://github.com/PHPCSStandards/PHPCSUtils/pull/452
-
 
 ## [1.0.2] - 2023-03-28
 
@@ -505,7 +490,6 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 [#444]: https://github.com/PHPCSStandards/PHPCSUtils/pull/444
 [#446]: https://github.com/PHPCSStandards/PHPCSUtils/pull/446
 
-
 ## [1.0.1] - 2023-01-05
 
 ### Changed
@@ -520,10 +504,10 @@ PHPCSUtils should now be fully compatible with PHP_CodeSniffer 4.0 (again). If y
 [#425]: https://github.com/PHPCSStandards/PHPCSUtils/pull/425
 [#428]: https://github.com/PHPCSStandards/PHPCSUtils/pull/428
 
-
 ## [1.0.0] - 2023-01-04
 
 For the full list of features, please see the changelogs of the alpha/rc releases:
+
 * [1.0.0-rc1](https://github.com/PHPCSStandards/PHPCSUtils/releases/tag/1.0.0-rc1)
 * [1.0.0-alpha4](https://github.com/PHPCSStandards/PHPCSUtils/releases/tag/1.0.0-alpha4)
 * [1.0.0-alpha3](https://github.com/PHPCSStandards/PHPCSUtils/releases/tag/1.0.0-alpha3)
@@ -536,7 +520,6 @@ For the full list of features, please see the changelogs of the alpha/rc release
 
 * Minor documentation improvements.
 * Maintainability improvements.
-
 
 ## [1.0.0-rc1] - 2022-12-27
 
@@ -562,6 +545,7 @@ For the full list of features, please see the changelogs of the alpha/rc release
 Everything which was previously deprecated in the [1.0.0-alpha4 release], has now been removed. [#410]
 
 This includes:
+
 * The `PHPCS23Utils` standard.
 * [`Collections`] class: direct access to the properties in the class.
 * [`Collections`] class: the `Collections::arrowFunctionTokensBC()`, `Collections::functionDeclarationTokensBC()`, `Collections::parameterTypeTokensBC()`, `Collections::propertyTypeTokensBC()` and `Collections::returnTypeTokensBC()` methods.
@@ -589,10 +573,10 @@ See the changelog for the [1.0.0-alpha4 release] for details about replacements 
 [#407]: https://github.com/PHPCSStandards/PHPCSUtils/pull/407
 [#410]: https://github.com/PHPCSStandards/PHPCSUtils/pull/410
 
-
 ## [1.0.0-alpha4] - 2022-10-25
 
 Notes:
+
 * While still in alpha, some BC-breaks may be introduced. These are clearly indicated in the changelog with the :warning: symbol.
 * Until PHPCS 4.x has been released, PHPCSUtils does not formally support it, though an effort is made to keep up with the changes and anticipate potential compatibility issues.
     For testing purposes only, the composer configuration allows for PHPCSUtils to be installed with PHPCS 4.x.
@@ -608,34 +592,35 @@ This was unfortunately necessary as the incessant additions of new syntaxes sinc
 Now support for PHPCS < 3.7.1 has been dropped, this edition adds support to all functionality in PHPCSUtils for new syntaxes and features from PHP 8.0 and 8.1 and preliminary support for PHP 8.2.
 
 This means that support for the following syntaxes/features has been added (or existing support verified/improved):
+
 * PHP 7.4
-    - Array unpacking in array expressions.
+  * Array unpacking in array expressions.
 * PHP 8.0
-    - The `mixed` type. [#163]
-    - Union types, including supporting the `false` and `null` types. [#168], [#225]
-    - Constructor property promotion. [#169], [#226]
-    - Nullsafe object operators. [#176], [#183]
-    - Namespaced names as single token (cross-version PHPCS 3.x vs 4.x). [#205], [#206], [#207], [#208], [#209], [#210], [#211], [#212], [#213], [#217], [#241]
-    - Dereferencing of interpolated text strings.
-    - Named arguments in function calls. [#235], [#243], [#383]
-    - Match expressions. [#247], [#335], [#356]
-    - Trailing commas in parameter lists and closure `use` lists.
-    - Attributes. [#357]
+  * The `mixed` type. [#163]
+  * Union types, including supporting the `false` and `null` types. [#168], [#225]
+  * Constructor property promotion. [#169], [#226]
+  * Nullsafe object operators. [#176], [#183]
+  * Namespaced names as single token (cross-version PHPCS 3.x vs 4.x). [#205], [#206], [#207], [#208], [#209], [#210], [#211], [#212], [#213], [#217], [#241]
+  * Dereferencing of interpolated text strings.
+  * Named arguments in function calls. [#235], [#243], [#383]
+  * Match expressions. [#247], [#335], [#356]
+  * Trailing commas in parameter lists and closure `use` lists.
+  * Attributes. [#357]
 * PHP 8.1
-    - Enumerations. [#285], [#358]
-    - Explicit octal notation. [#293]
-    - Array unpacking with string keys.
-    - `never` type.
-    - Named parameters after argument unpacking. [#383]
-    - First class callables. [#362]
-    - Readonly properties. [#363]
-    - `new` in initializers.
-    - Intersection types. [#365]
+  * Enumerations. [#285], [#358]
+  * Explicit octal notation. [#293]
+  * Array unpacking with string keys.
+  * `never` type.
+  * Named parameters after argument unpacking. [#383]
+  * First class callables. [#362]
+  * Readonly properties. [#363]
+  * `new` in initializers.
+  * Intersection types. [#365]
 * PHP 8.2
-    - Constants in traits. [#366]
-    - Readonly classes. [#367]
-    - `true` type. [#368]
-    - `null` and `false` as stand-alone types.
+  * Constants in traits. [#366]
+  * Readonly classes. [#367]
+  * `true` type. [#368]
+  * `null` and `false` as stand-alone types.
 
 Please report any bugs/oversights you encounter!
 
@@ -682,16 +667,16 @@ Please report any bugs/oversights you encounter!
 * PHPCSUtils will now cache the results of (potentially) token walking intensive or processing intensive function calls during a run. [#332], [#377]
     This should significantly improve performance when multiple sniffs call these functions for the same token during a PHPCS run.
     The results of the following functions will now be cached:
-    - `Arrays::getDoubleArrowPtr()`
-    - `Arrays::isShortArray()`
-    - `FunctionDeclarations::getParameters()`
-    - `Lists::getAssignments()`
-    - `Lists::isShortList()`
-    - `Namespaces::findNamespacePtr()`
-    - `PassedParameters::getParameters()`
-    - `TextStrings::getEndOfCompleteTextString()`
-    - `TextStrings::getStripEmbeds()`
-    - `UseStatements::splitImportUseStatement()`
+  * `Arrays::getDoubleArrowPtr()`
+  * `Arrays::isShortArray()`
+  * `FunctionDeclarations::getParameters()`
+  * `Lists::getAssignments()`
+  * `Lists::isShortList()`
+  * `Namespaces::findNamespacePtr()`
+  * `PassedParameters::getParameters()`
+  * `TextStrings::getEndOfCompleteTextString()`
+  * `TextStrings::getStripEmbeds()`
+  * `UseStatements::splitImportUseStatement()`
 
 ### Changed
 
@@ -826,9 +811,9 @@ Additionally, the following methods in the `Collections` class have been depreca
 #### Utils
 
 * The following constants, which were only intended for internal use, have been removed: [#347]
-    - `PHPCSUtils\Utils\Numbers::REGEX_NUMLIT_STRING`
-    - `PHPCSUtils\Utils\Numbers::REGEX_HEX_NUMLIT_STRING`
-    - `PHPCSUtils\Utils\Numbers::UNSUPPORTED_PHPCS_VERSION`
+  * `PHPCSUtils\Utils\Numbers::REGEX_NUMLIT_STRING`
+  * `PHPCSUtils\Utils\Numbers::REGEX_HEX_NUMLIT_STRING`
+  * `PHPCSUtils\Utils\Numbers::UNSUPPORTED_PHPCS_VERSION`
 
 ### Fixed
 
@@ -975,7 +960,6 @@ Additionally, the following methods in the `Collections` class have been depreca
 [PHPCS#3118]: https://github.com/squizlabs/PHP_CodeSniffer/issues/3118
 [PHPUnit Polyfills]: https://github.com/Yoast/PHPUnit-Polyfills
 
-
 ## [1.0.0-alpha3] - 2020-06-29
 
 Notes:
@@ -1055,7 +1039,7 @@ Notes:
 * `FunctionDeclarations::getArrowFunctionOpenClose()`: has been made compatible with PHPCS 4.x. [#109]
 * `FunctionDeclarations::getProperties()`: has been made compatible with PHPCS 4.x. [#109]
 * :warning: `Lists::getAssignments()`: the return value of the method has been consolidated to be less fiddly to work with. [#129]
-    - :warning: The `nested_list` index key in the return value has been renamed to `is_nested_list`.
+  * :warning: The `nested_list` index key in the return value has been renamed to `is_nested_list`.
 * `ObjectDeclarations::getName()`: has been made compatible with PHPCS 4.x. [#110]
 * `Variables::getMemberProperties()`: has been made compatible with PHPCS 4.x. [#109]
 
@@ -1141,7 +1125,6 @@ Notes:
 [PHPCS#2952]: https://github.com/squizlabs/PHP_CodeSniffer/pull/2952
 [PHPCS#2977]: https://github.com/squizlabs/PHP_CodeSniffer/pull/2977
 
-
 ## [1.0.0-alpha2] - 2020-02-16
 
 Note:
@@ -1215,7 +1198,6 @@ Note:
 [#88]: https://github.com/PHPCSStandards/PHPCSUtils/pull/88
 [#89]: https://github.com/PHPCSStandards/PHPCSUtils/pull/89
 
-
 ## 1.0.0-alpha1 - 2020-01-23
 
 Initial alpha release containing:
@@ -1273,7 +1255,6 @@ This initial alpha release contains the following utility classes:
 * [`TextStrings`]: Utility functions for working with text string tokens.
 * [`UseStatements`]: Utility functions for examining use statements.
 * [`Variables`]: Utility functions for use when examining variables.
-
 
 [Unreleased]:   https://github.com/PHPCSStandards/PHPCSUtils/compare/stable...HEAD
 [1.1.2]:        https://github.com/PHPCSStandards/PHPCSUtils/compare/1.1.1...1.1.2

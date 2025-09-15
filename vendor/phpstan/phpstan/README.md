@@ -1,15 +1,15 @@
 <h1 align="center">PHPStan - PHP Static Analysis Tool</h1>
 
 <p align="center">
-	<img src="https://i.imgur.com/WaRKPlC.png" alt="PHPStan" width="300" height="300">
+ <img src="https://i.imgur.com/WaRKPlC.png" alt="PHPStan" width="300" height="300">
 </p>
 
 <p align="center">
-	<a href="https://github.com/phpstan/phpstan/actions"><img src="https://github.com/phpstan/phpstan/workflows/Tests/badge.svg" alt="Build Status"></a>
-	<a href="https://packagist.org/packages/phpstan/phpstan"><img src="https://poser.pugx.org/phpstan/phpstan/v/stable" alt="Latest Stable Version"></a>
-	<a href="https://packagist.org/packages/phpstan/phpstan/stats"><img src="https://poser.pugx.org/phpstan/phpstan/downloads" alt="Total Downloads"></a>
-	<a href="https://choosealicense.com/licenses/mit/"><img src="https://poser.pugx.org/phpstan/phpstan/license" alt="License"></a>
-	<a href="https://phpstan.org/"><img src="https://img.shields.io/badge/PHPStan-enabled-brightgreen.svg?style=flat" alt="PHPStan Enabled"></a>
+ <a href="https://github.com/phpstan/phpstan/actions"><img src="https://github.com/phpstan/phpstan/workflows/Tests/badge.svg" alt="Build Status"></a>
+ <a href="https://packagist.org/packages/phpstan/phpstan"><img src="https://poser.pugx.org/phpstan/phpstan/v/stable" alt="Latest Stable Version"></a>
+ <a href="https://packagist.org/packages/phpstan/phpstan/stats"><img src="https://poser.pugx.org/phpstan/phpstan/downloads" alt="Total Downloads"></a>
+ <a href="https://choosealicense.com/licenses/mit/"><img src="https://poser.pugx.org/phpstan/phpstan/license" alt="License"></a>
+ <a href="https://phpstan.org/"><img src="https://img.shields.io/badge/PHPStan-enabled-brightgreen.svg?style=flat" alt="PHPStan Enabled"></a>
 </p>
 
 ------
@@ -78,8 +78,6 @@ Want your logo here? [Learn more »](https://phpstan.org/sponsor)
 &nbsp;&nbsp;&nbsp;
 <a href="https://inviqa.com/"><img src="website/src/images/sponsor/inviqa.png" alt="Inviqa" width="254" height="65"></a>
 <br>
-
-
 
 [**You can sponsor my open-source work on PHPStan through GitHub Sponsors and also directly.**](https://phpstan.org/sponsor)
 

@@ -16,19 +16,18 @@ Set of polyfills for changed PHPUnit functionality to allow for creating PHPUnit
 
 * [Requirements](#requirements)
 * [Installation](#installation)
-    - [Autoloading](#autoloading)
+  * [Autoloading](#autoloading)
 * [Why use the PHPUnit Polyfills?](#why-use-the-phpunit-polyfills)
-    - [PHPUnit support](#phpunit-support)
+  * [PHPUnit support](#phpunit-support)
 * [Using this library](#using-this-library)
-    - [Supported ways of calling the assertions](#supported-ways-of-calling-the-assertions)
+  * [Supported ways of calling the assertions](#supported-ways-of-calling-the-assertions)
 * [Features](#features)
-    - [Polyfill traits](#polyfill-traits)
-    - [TestCases](#testcases)
-    - [TestListener](#testlistener)
+  * [Polyfill traits](#polyfill-traits)
+  * [TestCases](#testcases)
+  * [TestListener](#testlistener)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Contributing](#contributing)
 * [License](#license)
-
 
 Requirements
 ------------
@@ -38,16 +37,17 @@ Requirements
 
 [PHPUnit]: https://packagist.org/packages/phpunit/phpunit
 
-
 Installation
 ------------
 
 To install this package, run:
+
 ```bash
 composer require --dev yoast/phpunit-polyfills:"^4.0"
 ```
 
 To update this package, run:
+
 ```bash
 composer update --dev yoast/phpunit-polyfills --with-dependencies
 ```
@@ -55,9 +55,9 @@ composer update --dev yoast/phpunit-polyfills --with-dependencies
 ### Autoloading
 
 Make sure to:
+
 * Either use the Composer `vendor/autoload.php` file _as_ your test bootstrap file;
 * Or require the `vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php` file _in_ your test bootstrap.
-
 
 Why use the PHPUnit Polyfills?
 ------------------------------
@@ -89,7 +89,6 @@ Please refer to the [PHPUnit 10 release notification]/[PHPUnit 10 changelog], [P
 [PHPUnit 11 changelog]:            https://github.com/sebastianbergmann/phpunit/blob/11.0.10/ChangeLog-11.0.md
 [PHPUnit 12 release notification]: https://phpunit.de/announcements/phpunit-12.html
 [PHPUnit 12 changelog]:            https://github.com/sebastianbergmann/phpunit/blob/12.0.2/ChangeLog-12.0.md
-
 
 Using this library
 ------------------
@@ -144,6 +143,7 @@ class FooTest extends TestCase
 ### Supported ways of calling the assertions
 
 By default, PHPUnit supports [four ways of calling assertions]:
+
 1. **As a method in the `TestCase` class - `$this->assertSomething()`.**
 2. **Statically as a method in the `TestCase` class - `self/static/parent::assertSomething()`.**
 3. Statically as a method of the `Assert` class - `Assert::assertSomething()`.
@@ -205,6 +205,7 @@ These methods, which are typically used to verify parameters passed to Mock Obje
 #### PHPUnit < 9.1.0: `Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames`
 
 Polyfills the following renamed methods:
+
 * [`Assert::assertIsNotReadable()`], introduced as alternative for `Assert::assertNotIsReadable()`.
 * [`Assert::assertIsNotWritable()`], introduced as alternative for `Assert::assertNotIsWritable()`.
 * [`Assert::assertDirectoryDoesNotExist()`], introduced as alternative for `Assert::assertDirectoryNotExists()`.
@@ -253,6 +254,7 @@ This helper function can determine whether or not the current "value under test"
 The `shouldClosedResourceAssertionBeSkipped()` helper method is therefore available cross-version.
 
 Usage examples:
+
 ```php
 // Example: skipping the test completely.
 if ( $this->shouldClosedResourceAssertionBeSkipped( $actual ) === true ) {
@@ -403,7 +405,6 @@ Polyfills the following methods:
 | [`Assert::assertContainsOnlyString()`]           | [`Assert::assertContainsNotOnlyString()`]           |
 |                                                  | [`Assert::assertContainsNotOnlyInstancesOf()`]      |
 
-
 These methods were introduced in PHPUnit 11.5.0 as alternatives to the `Assert::assertContainsOnly()` and `Assert::assertNotContainsOnly()` methods, which were soft deprecated in PHPUnit 11.5.0, hard deprecated (warning) in PHPUnit 12.0.0 and will be removed in PHPUnit 13.0.0.
 
 * The `assertContains[Not]OnlyClosedResource()` methods are affected by issues in older PHP versions. Please read the [warning about checking for closed resources and how to optional skip such tests](https://github.com/Yoast/PHPUnit-Polyfills/tree/1.x?tab=readme-ov-file#phpunit--930-yoastphpunitpolyfillspolyfillsassertclosedresource).
@@ -435,7 +436,6 @@ These methods were introduced in PHPUnit 11.5.0 as alternatives to the `Assert::
 [`Assert::assertContainsOnlyString()`]:            https://docs.phpunit.de/en/11.5/assertions.html#assertcontainsonlystring
 [`Assert::assertContainsNotOnlyString()`]:         https://docs.phpunit.de/en/11.5/assertions.html#assertcontainsonlystring
 [`Assert::assertContainsNotOnlyInstancesOf()`]:    https://docs.phpunit.de/en/11.5/assertions.html#assertcontainsonlyinstancesof
-
 
 ### TestCases
 
@@ -592,6 +592,7 @@ Similar to the `TestCase` implementation, snake_case methods without type declar
 | `endTest()`                | `end_test($test, $time)`                |
 
 Implementations of the `TestListener` interface may be using any of the following patterns:
+
 ```php
 class MyTestListener implements \PHPUnit\Framework\TestListener {
     use \PHPUnit\Framework\TestListenerDefaultImplementation;
@@ -599,6 +600,7 @@ class MyTestListener implements \PHPUnit\Framework\TestListener {
 ```
 
 Replace these with:
+
 ```php
 use PHPUnit\Framework\TestListener;
 use Yoast\PHPUnitPolyfills\TestListeners\TestListenerDefaultImplementation;
@@ -612,7 +614,6 @@ class MyTestListener implements TestListener {
     }
 }
 ```
-
 
 Frequently Asked Questions
 --------------------------
@@ -638,7 +639,6 @@ Yes, this package can also be used when running tests via a PHPUnit Phar file.
 In that case, make sure that the `phpunitpolyfills-autoload.php` file is explicitly `require`d in the test bootstrap file.
 (Not necessary when the Composer `vendor/autoload.php` file is used as, or `require`d in, the test bootstrap.)
 
-
 ### Q: How do I run my tests when the library is installed via the GitHub Actions `setup-php` action ?
 
 As of [shivammathur/setup-php](https://github.com/shivammathur/setup-php) version [2.15.0](https://github.com/shivammathur/setup-php/releases/tag/2.15.0), the PHPUnit Polyfills are available as one of the tools which can be installed directly by the Setup-PHP GitHub action runner.
@@ -654,6 +654,7 @@ As of [shivammathur/setup-php](https://github.com/shivammathur/setup-php) versio
 The above step will install both the PHPUnit Polyfills, as well as PHPUnit, as Composer global packages.
 
 After this step has run, you can run PHPUnit, like you would normally, by using `phpunit`.
+
 ```yaml
 - name: Run tests
   run: phpunit
@@ -669,7 +670,6 @@ Now you may wonder, _"what about if I explicitly request both `phpunit` as well 
 
 In that case, when you run `phpunit`, the PHPUnit PHAR will not know how to locate the PHPUnit Polyfills, so you will need to do some wizardry in your test bootstrap to get things working.
 
-
 ### Q: How can I verify the version used of the PHPUnit Polyfills library ?
 
 For complex test setups, like when the Polyfills are provided via a test suite dependency, or may already be loaded via an overarching project, it can be useful to be able to check that a version of the package is used which complies with the requirements for your test suite.
@@ -677,6 +677,7 @@ For complex test setups, like when the Polyfills are provided via a test suite d
 As of version 1.0.1, the PHPUnit Polyfills `Autoload` class contains a version number which can be used for this purpose.
 
 Typically such a check would be done in the test suite bootstrap file and could look something like this:
+
 ```php
 if ( class_exists( '\Yoast\PHPUnitPolyfills\Autoload' ) === false ) {
     require_once 'vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php';
@@ -708,14 +709,14 @@ The impact of this compromise is minimal, as, in the most common case of running
 
 Keep in mind that functionality _added_ in PHPUnit 10, is still polyfilled and available in PHPUnit Polyfills 3.x/4.x.
 
-
 Contributing
 ------------
+
 Contributions to this project are welcome. Clone the repo, branch off from the oldest #.x branch the patch applies to, make your changes, commit them and send in a pull request against the correct #.x branch.
 
 If you are unsure whether the changes you are proposing would be welcome, please open an issue first to discuss your proposal.
 
-
 License
 -------
+
 This code is released under the [BSD-3-Clause License](LICENSE).

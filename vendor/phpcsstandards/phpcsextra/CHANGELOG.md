@@ -9,7 +9,6 @@ This projects adheres to [Keep a CHANGELOG](https://keepachangelog.com/) and use
 :bar_chart: = Includes metrics.
 :books: = Includes CLI documentation.
 
-
 ## [Unreleased]
 
 _Nothing yet._
@@ -22,7 +21,6 @@ _Nothing yet._
 
 * Various housekeeping.
 
-
 ### Fixed
 
 #### Universal
@@ -30,7 +28,6 @@ _Nothing yet._
 * `Universal.PHP.NoFQNTrueFalseNull`: fix breakage due to upstream change in tokenization. [#375]
 
 [#375]: https://github.com/PHPCSStandards/PHPCSExtra/pull/375
-
 
 ## [1.4.0] - 2025-06-14
 
@@ -66,7 +63,6 @@ _Nothing yet._
 [#363]: https://github.com/PHPCSStandards/PHPCSExtra/pull/363
 [#367]: https://github.com/PHPCSStandards/PHPCSExtra/pull/367
 
-
 ## [1.3.1] - 2025-06-08
 
 ### Changed
@@ -84,7 +80,6 @@ _Nothing yet._
 
 [#346]: https://github.com/PHPCSStandards/PHPCSExtra/pull/346
 [#350]: https://github.com/PHPCSStandards/PHPCSExtra/pull/350
-
 
 ## [1.3.0] - 2025-04-21
 
@@ -113,7 +108,6 @@ _Nothing yet._
 [#329]: https://github.com/PHPCSStandards/PHPCSExtra/pull/329
 [#330]: https://github.com/PHPCSStandards/PHPCSExtra/pull/330
 
-
 ## [1.2.1] - 2023-12-08
 
 ### Changed
@@ -126,7 +120,6 @@ _Nothing yet._
 Please ensure you run `composer update phpcsstandards/phpcsextra --with-dependencies` to benefit from this.
 
 [#298]: https://github.com/PHPCSStandards/PHPCSExtra/pull/298
-
 
 ## [1.2.0] - 2023-12-02
 
@@ -157,7 +150,6 @@ Please ensure you run `composer update phpcsstandards/phpcsextra --with-dependen
 [#284]: https://github.com/PHPCSStandards/PHPCSExtra/pull/284
 [#294]: https://github.com/PHPCSStandards/PHPCSExtra/pull/294
 
-
 ## [1.1.2] - 2023-09-21
 
 ### Changed
@@ -173,7 +165,6 @@ Please ensure you run `composer update phpcsstandards/phpcsextra --with-dependen
 * `Universal.CodeAnalysis.ConstructorDestructorReturn`: the sniff will now correctly ignore methods mirroring the class name (PHP-4 style constructors) in namespaced code. [#207], [#272]
 
 [#272]: https://github.com/PHPCSStandards/PHPCSExtra/pull/272
-
 
 ## [1.1.1] - 2023-08-26
 
@@ -191,7 +182,6 @@ Please ensure you run `composer update phpcsstandards/phpcsextra --with-dependen
 * Various housekeeping.
 
 [#261]: https://github.com/PHPCSStandards/PHPCSExtra/pull/261
-
 
 ## [1.1.0] - 2023-07-19
 
@@ -239,7 +229,6 @@ Please ensure you run `composer update phpcsstandards/phpcsextra --with-dependen
 [#252]: https://github.com/PHPCSStandards/PHPCSExtra/pull/252
 [#254]: https://github.com/PHPCSStandards/PHPCSExtra/pull/254
 
-
 ## [1.0.4] - 2023-06-18
 
 ### Changed
@@ -257,7 +246,6 @@ Please ensure you run `composer update phpcsstandards/phpcsextra --with-dependen
 
 [#226]: https://github.com/PHPCSStandards/PHPCSExtra/pull/226
 [#237]: https://github.com/PHPCSStandards/PHPCSExtra/pull/237
-
 
 ## [1.0.3] - 2023-03-28
 
@@ -282,7 +270,6 @@ Please ensure you run `composer update phpcsstandards/phpcsextra --with-dependen
 [#216]: https://github.com/PHPCSStandards/PHPCSExtra/pull/216
 [#217]: https://github.com/PHPCSStandards/PHPCSExtra/pull/217
 
-
 ## [1.0.2] - 2023-01-10
 
 ### Changed
@@ -293,7 +280,6 @@ Please ensure you run `composer update phpcsstandards/phpcsextra --with-dependen
 
 [#207]: https://github.com/PHPCSStandards/PHPCSExtra/issues/207
 [#208]: https://github.com/PHPCSStandards/PHPCSExtra/pull/208
-
 
 ## [1.0.1] - 2023-01-05
 
@@ -306,12 +292,12 @@ Please ensure you run `composer update phpcsstandards/phpcsextra --with-dependen
 [#201]: https://github.com/PHPCSStandards/PHPCSExtra/issues/201
 [#202]: https://github.com/PHPCSStandards/PHPCSExtra/pull/202
 
-
 ## [1.0.0] - 2023-01-04
 
 :warning: Important: this package now requires [PHPCSUtils 1.0.0]. Please make sure you use `--with-[all-]dependencies` when running `composer update`. :exclamation:
 
 For the full list of features, please see the changelogs of the alpha/rc releases:
+
 * [1.0.0-rc1](https://github.com/PHPCSStandards/PHPCSExtra/releases/tag/1.0.0-rc1)
 * [1.0.0-alpha3](https://github.com/PHPCSStandards/PHPCSExtra/releases/tag/1.0.0-alpha3)
 * [1.0.0-alpha2](https://github.com/PHPCSStandards/PHPCSExtra/releases/tag/1.0.0-alpha2)
@@ -337,7 +323,6 @@ For the full list of features, please see the changelogs of the alpha/rc release
 [#193]: https://github.com/PHPCSStandards/PHPCSExtra/pull/193
 [#194]: https://github.com/PHPCSStandards/PHPCSExtra/pull/194
 [#195]: https://github.com/PHPCSStandards/PHPCSExtra/pull/195
-
 
 ## [1.0.0-RC1] - 2022-12-07
 
@@ -381,14 +366,14 @@ For the full list of features, please see the changelogs of the alpha/rc release
     The sniff offers a `spacing` property to set the amount of spaces the sniff should check for.
 * :wrench: :books: New `Universal.WhiteSpace.PrecisionAlignment` sniff to enforce indentation to always be a multiple of a tabstop, i.e. disallow precision alignment. [#119], [#122], [#123], [#124]
     Note:
-    - This sniff does not concern itself with tabs versus spaces.
+  * This sniff does not concern itself with tabs versus spaces.
         It is recommended to use the sniff in combination with the PHPCS native `Generic.WhiteSpace.DisallowTabIndent` or the `Generic.WhiteSpace.DisallowSpaceIndent` sniff.
-    - When using this sniff with tab-based standards, please ensure that the `tab-width` is set and either don't set the `$indent` property or set it to the tab-width (or a multiple thereof).
-    - The fixer works based on "best guess" and may not always result in the desired indentation. Combine this sniff with the `Generic.WhiteSpace.ScopeIndent` sniff for more precise indentation fixes.
-    - The behaviour of the sniff is customizable via the following properties:
-        + `indent`: the indent used for the codebase.
-        + `ignoreAlignmentBefore`: allows for providing a list of token names for which (preceding) precision alignment should be ignored.
-        + `ignoreBlankLines`: whether or not potential trailing whitespace on otherwise blank lines should be examined or ignored.
+  * When using this sniff with tab-based standards, please ensure that the `tab-width` is set and either don't set the `$indent` property or set it to the tab-width (or a multiple thereof).
+  * The fixer works based on "best guess" and may not always result in the desired indentation. Combine this sniff with the `Generic.WhiteSpace.ScopeIndent` sniff for more precise indentation fixes.
+  * The behaviour of the sniff is customizable via the following properties:
+    * `indent`: the indent used for the codebase.
+    * `ignoreAlignmentBefore`: allows for providing a list of token names for which (preceding) precision alignment should be ignored.
+    * `ignoreBlankLines`: whether or not potential trailing whitespace on otherwise blank lines should be examined or ignored.
 
 ### Changed
 
@@ -508,7 +493,6 @@ The upgrade to PHPCSUtils 1.0.0-alpha4 took care of a number of bugs, which pote
 [ESLint "no lonely if"]:        https://eslint.org/docs/latest/rules/no-lonely-if
 [PHPCSUtils 1.0.0-alpha4]:      https://github.com/PHPCSStandards/PHPCSUtils/releases/tag/1.0.0-alpha4
 
-
 ## [1.0.0-alpha3] - 2020-06-29
 
 ### Added
@@ -527,19 +511,19 @@ The upgrade to PHPCSUtils 1.0.0-alpha4 took care of a number of bugs, which pote
 * :wrench: :bar_chart: :books: New `Universal.Operators.StrictComparisons` sniff to enforce the use of strict comparisons. [#48]
     Warning: the auto-fixer for this sniff _may_ cause bugs in applications and should be used with care! This is considered a _risky_ fixer.
 * :wrench: :bar_chart: :books: New `Universal.OOStructures.AlphabeticExtendsImplements` sniff to verify that the names used in a class "implements" statement or an interface "extends" statement are listed in alphabetic order. [#55]
-    - This sniff contains a public `orderby` property to determine the sort order to use for the statement.
+  * This sniff contains a public `orderby` property to determine the sort order to use for the statement.
         If all names used are unqualified, the sort order won't make a difference.
         However, if one or more of the names are partially or fully qualified, the chosen sort order will determine how the sorting between unqualified, partially and fully qualified names is handled.
         The sniff supports two sort order options:
-        + _'name'_ : sort by the interface name only (default);
-        + _'full'_ : sort by the full name as used in the statement (without leading backslash).
+    * _'name'_ : sort by the interface name only (default);
+    * _'full'_ : sort by the full name as used in the statement (without leading backslash).
         In both cases, the sorting will be done using natural sort, case-insensitive.
-    - The sniff has modular error codes to allow for selective inclusion/exclusion:
-        + `ImplementsWrongOrder` - for "class implements" statements.
-        + `ImplementsWrongOrderWithComments` - for "class implements" statements interlaced with comments. These will not be auto-fixed.
-        + `ExtendsWrongOrder` - for "interface extends" statements.
-        + `ExtendsWrongOrderWithComments` - for "interface extends" statements interlaced with comments. These will not be auto-fixed.
-    - When fixing, the existing spacing between the names in an `implements`/`extends` statement will not be maintained.
+  * The sniff has modular error codes to allow for selective inclusion/exclusion:
+    * `ImplementsWrongOrder` - for "class implements" statements.
+    * `ImplementsWrongOrderWithComments` - for "class implements" statements interlaced with comments. These will not be auto-fixed.
+    * `ExtendsWrongOrder` - for "interface extends" statements.
+    * `ExtendsWrongOrderWithComments` - for "interface extends" statements interlaced with comments. These will not be auto-fixed.
+  * When fixing, the existing spacing between the names in an `implements`/`extends` statement will not be maintained.
         The fixer will separate each name with a comma and one space.
         If alternative formatting is desired, a sniff which will check and fix the formatting should be added to the ruleset.
 * :wrench: :bar_chart: :books: New `Universal.UseStatements.LowercaseFunctionConst` sniff to enforce that `function` and `const` keywords when used in an import `use` statement are always lowercase. [#58]
@@ -571,7 +555,6 @@ The upgrade to PHPCSUtils 1.0.0-alpha4 took care of a number of bugs, which pote
 
 [operator precedence]: https://www.php.net/language.operators.precedence
 
-
 ## [1.0.0-alpha2] - 2020-02-18
 
 ### Added
@@ -579,8 +562,8 @@ The upgrade to PHPCSUtils 1.0.0-alpha4 took care of a number of bugs, which pote
 #### Universal
 
 * :wrench: :bar_chart: :books: New `Universal.ControlStructures.DisallowAlternativeSyntax` sniff to disallow using the alternative syntax for control structures. [#23]
-    - This sniff contains a `allowWithInlineHTML` property to allow alternative syntax when inline HTML is used within the control structure. In all other cases, the use of the alternative syntax will still be disallowed.
-    - The sniff has modular error codes to allow for making exceptions based on specific control structures and/or specific control structures in combination with inline HTML.
+  * This sniff contains a `allowWithInlineHTML` property to allow alternative syntax when inline HTML is used within the control structure. In all other cases, the use of the alternative syntax will still be disallowed.
+  * The sniff has modular error codes to allow for making exceptions based on specific control structures and/or specific control structures in combination with inline HTML.
 * :bar_chart: `Universal.UseStatements.DisallowUseClass/Function/Const`: new, additional metrics about the import source will be shown in the `info` report. [#25]
 
 #### Other
@@ -623,10 +606,10 @@ The upgrade to PHPCSUtils 1.0.0-alpha4 took care of a number of bugs, which pote
 [#26]: https://github.com/PHPCSStandards/PHPCSExtra/pull/26
 [#34]: https://github.com/PHPCSStandards/PHPCSExtra/pull/34
 
-
 ## 1.0.0-alpha1 - 2020-01-23
 
 Initial alpha release containing:
+
 * A `NormalizedArrays` standard which will contain a full set of sniffs to check the formatting of array declarations.
 * A `Universal` standard which will contain a collection of universally applicable sniffs.
     DO NOT INCLUDE THIS AS A STANDARD.
@@ -639,13 +622,13 @@ This initial alpha release contains the following sniffs:
 
 * :wrench: :bar_chart: :books: `NormalizedArrays.Arrays.ArrayBraceSpacing`: enforce consistent spacing for the open/close braces of array declarations.
     The sniff allows for having different settings for:
-    - Space between the array keyword and the open parenthesis for long arrays via the `keywordSpacing` property.
+  * Space between the array keyword and the open parenthesis for long arrays via the `keywordSpacing` property.
         Accepted values: (int) number of spaces or `false` to turn this check off. Defaults to `0` spaces.
-    - Spaces on the inside of the braces for empty arrays via the `spacesWhenEmpty` property.
+  * Spaces on the inside of the braces for empty arrays via the `spacesWhenEmpty` property.
         Accepted values: (string) `newline`, (int) number of spaces or `false` to turn this check off. Defaults to `0` spaces.
-    - Spaces on the inside of the braces for single-line arrays via the `spacesSingleLine` property;
+  * Spaces on the inside of the braces for single-line arrays via the `spacesSingleLine` property;
         Accepted values: (int) number of spaces or `false` to turn this check off. Defaults to `0` spaces.
-    - Spaces on the inside of the braces for multi-line arrays via the `spacesMultiLine` property.
+  * Spaces on the inside of the braces for multi-line arrays via the `spacesMultiLine` property.
         Accepted values: (string) `newline`, (int) number of spaces or `false` to turn this check off. Defaults to `newline`.
     Note: if any of the above properties are set to `newline`, it is recommended to also include an array indentation sniff. This sniff will not handle the indentation.
 * :wrench: :bar_chart: :books: `NormalizedArrays.Arrays.CommaAfterLast`: enforce/forbid a comma after the last item in an array declaration.

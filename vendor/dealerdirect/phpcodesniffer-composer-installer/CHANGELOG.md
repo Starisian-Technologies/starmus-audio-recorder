@@ -578,7 +578,6 @@ First useable release.
 [v0.2.0]: https://github.com/PHPCSStandards/composer-installer/compare/v0.1.1...v0.2.0
 [v0.1.1]: https://github.com/PHPCSStandards/composer-installer/compare/v0.1.0...v0.1.1
 
-
 [@bastianschwarz]:     https://github.com/bastianschwarz
 [@BrianHenryIE]:       https://github.com/BrianHenryIE
 [@christopher-hopper]: https://github.com/christopher-hopper

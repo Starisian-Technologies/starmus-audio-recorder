@@ -16,8 +16,6 @@ This doc has two code elements, but only one of them has a title and actual code
 </td>
 <td>
 
-    
-
 </td>
    </tr>
   </table>

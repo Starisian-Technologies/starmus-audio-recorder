@@ -23,29 +23,26 @@
 * [Introduction](#introduction)
 * [Minimum Requirements](#minimum-requirements)
 * [Installation](#installation)
-    - [Composer Project-based Installation](#composer-project-based-installation)
-    - [Composer Global Installation](#composer-global-installation)
-    - [Updating to a newer version](#updating-to-a-newer-version)
+  * [Composer Project-based Installation](#composer-project-based-installation)
+  * [Composer Global Installation](#composer-global-installation)
+  * [Updating to a newer version](#updating-to-a-newer-version)
 * [Features](#features)
 * [Sniffs](#sniffs)
-    - [Modernize](#modernize)
-    - [NormalizedArrays](#normalizedarrays)
-    - [Universal](#universal)
+  * [Modernize](#modernize)
+  * [NormalizedArrays](#normalizedarrays)
+  * [Universal](#universal)
 * [Contributing](#contributing)
 * [License](#license)
-
 
 ## Introduction
 
 PHPCSExtra is a collection of sniffs and standards for use with [PHP_CodeSniffer][phpcs-gh].
-
 
 ## Minimum Requirements
 
 * PHP 5.4 or higher.
 * [PHP_CodeSniffer][phpcs-gh] version **3.13.4** or higher.
 * [PHPCSUtils][phpcsutils-gh] version **1.1.2** or higher.
-
 
 ## Installation
 
@@ -56,6 +53,7 @@ Installing via Composer is highly recommended.
 ### Composer Project-based Installation
 
 Run the following from the root of your project:
+
 ```bash
 composer config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
 composer require --dev phpcsstandards/phpcsextra:"^1.3.0"
@@ -64,6 +62,7 @@ composer require --dev phpcsstandards/phpcsextra:"^1.3.0"
 ### Composer Global Installation
 
 Alternatively, you may want to install this standard globally:
+
 ```bash
 composer global config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
 composer global require --dev phpcsstandards/phpcsextra:"^1.3.0"
@@ -72,6 +71,7 @@ composer global require --dev phpcsstandards/phpcsextra:"^1.3.0"
 ### Updating to a newer version
 
 If you installed PHPCSExtra using either of the above commands, you can update to a newer version as follows:
+
 ```bash
 # Project local install
 composer update phpcsstandards/phpcsextra --with-dependencies
@@ -88,7 +88,6 @@ composer global update phpcsstandards/phpcsextra --with-dependencies
 > it is recommended to remove these packages from your own `composer.json` file, in favour of letting PHPCSExtra
 > (and potential other external PHPCS standards you use), manage the version requirements for these packages.
 
-
 ## Features
 
 Once this project is installed, you will see three new rulesets in the list of installed standards when you run `vendor/bin/phpcs -i`: `Modernize`, `NormalizedArrays` and `Universal`.
@@ -99,10 +98,10 @@ Once this project is installed, you will see three new rulesets in the list of i
     It should **NOT** be included in custom rulesets as a standard as it contains contradictory rules.
     Instead include individual sniffs from this standard in a custom project/company ruleset to use them.
 
-
 ## Sniffs
 
 **Legend**:
+
 * :wrench: = Includes auto-fixer.
     _Use the `phpcbf` command to run the fixers._
 * :bar_chart: = Includes metrics.
@@ -110,12 +109,12 @@ Once this project is installed, you will see three new rulesets in the list of i
 * :books: = Includes CLI documentation.
     _Use `phpcs` with `--generator=Text` to see the documentation._
 
-
 ### Modernize
 
 #### `Modernize.FunctionCalls.Dirname` :wrench: :books:
 
 This sniff will detect and auto-fix two typical code modernizations which can be made related to the `dirname()` function:
+
 1. Since PHP 5.3, calls to `dirname(__FILE__)` can be replaced by `__DIR__`.
     Errorcode: `Modernize.FunctionCalls.Dirname.FileConstant`.
 2. Since PHP 7.0, nested function calls to `dirname()` can be changed to use the `$levels` parameter.
@@ -124,7 +123,6 @@ This sniff will detect and auto-fix two typical code modernizations which can be
 If a [`php_version` configuration option][php_version-config] has been passed to PHPCS using either `--config-set` or `--runtime-set`, it will be respected by the sniff.
 In effect, this means that the sniff will only report on modernizations which can be applied for the PHP version as configured.
 
-
 ### NormalizedArrays
 
 #### `NormalizedArrays.Arrays.ArrayBraceSpacing` :wrench: :bar_chart: :books:
@@ -132,6 +130,7 @@ In effect, this means that the sniff will only report on modernizations which ca
 Enforce consistent spacing for the open/close braces of array declarations.
 
 The sniff allows for having different settings for:
+
 * Space between the array keyword and the open parenthesis for long arrays via the `keywordSpacing` property.
     Accepted values: (int) number of spaces or `false` to turn this check off. Defaults to `0` spaces.
 * Spaces on the inside of the braces for empty arrays via the `spacesWhenEmpty` property.
@@ -148,6 +147,7 @@ Note: if any of the above properties are set to `newline`, it is recommended to 
 Enforce/forbid a comma after the last item in an array declaration.
 
 By default, this sniff will:
+
 * Forbid a comma after the last array item for single-line arrays.
 * Enforce a comma after the last array item for multi-line arrays.
 
@@ -156,7 +156,6 @@ This can be changed for each type or array individually by setting the `singleLi
 Use any of the following values to change the properties: `enforce`, `forbid` or `skip` to not check the comma after the last array item for a particular type of array.
 
 The default for the `singleLine` property is `forbid`. The default for the `multiLine` property is `enforce`.
-
 
 ### Universal
 
@@ -292,6 +291,7 @@ Enforce for a file to either declare (global/namespaced) functions or declare OO
 Detects "long" closures and recommends using a named function instead.
 
 The sniff is configurable by setting any of the following properties in a custom ruleset:
+
 * `recommendedLines` (int): determines when a warning will be thrown.
     Defaults to `5`, meaning a warning with the errorcode `ExceedsRecommended` will be thrown if the closure is more than 5 lines long.
 * `maxLines` (int): determines when an error will be thrown.
@@ -350,14 +350,14 @@ Enforce that the names used in a class/enum "implements" statement or an interfa
     If all names used are unqualified, the sort order won't make a difference.
     However, if one or more of the names are partially or fully qualified, the chosen sort order will determine how the sorting between unqualified, partially and fully qualified names is handled.
     The sniff supports two sort order options:
-    - _'name'_ : sort by the interface name only (default);
-    - _'full'_ : sort by the full name as used in the statement (without leading backslash).
+  * _'name'_ : sort by the interface name only (default);
+  * _'full'_ : sort by the full name as used in the statement (without leading backslash).
     In both cases, the sorting will be done using natural sort, case-insensitive.
 * The sniff has modular error codes to allow for selective inclusion/exclusion:
-    - `ImplementsWrongOrder` - for "class implements" statements.
-    - `ImplementsWrongOrderWithComments` - for "class implements" statements interlaced with comments. These will not be auto-fixed.
-    - `ExtendsWrongOrder` - for "interface extends" statements.
-    - `ExtendsWrongOrderWithComments` - for "interface extends" statements interlaced with comments. These will not be auto-fixed.
+  * `ImplementsWrongOrder` - for "class implements" statements.
+  * `ImplementsWrongOrderWithComments` - for "class implements" statements interlaced with comments. These will not be auto-fixed.
+  * `ExtendsWrongOrder` - for "interface extends" statements.
+  * `ExtendsWrongOrderWithComments` - for "interface extends" statements interlaced with comments. These will not be auto-fixed.
 * When fixing, the existing spacing between the names in an `implements`/`extends` statement will not be maintained.
     The fixer will separate each name with a comma and one space.
     If alternative formatting is desired, a sniff which will check and fix the formatting should be added to the ruleset.
@@ -398,6 +398,7 @@ This is considered a **_risky_ fixer**.
 #### `Universal.Operators.TypeSeparatorSpacing` :wrench: :bar_chart: :books:
 
 Enforce spacing rules around the union, intersection and DNF type operators.
+
 * No space on either side of a union or intersection type operator.
 * No space on the inside of DNF type parenthesis or before/after if the previous/next "thing" is part of the type.
 * One space before a DNF open parenthesis when it is at the start of a type.
@@ -487,6 +488,7 @@ Enforce that there is no space before a comma and exactly one space, or a new li
 Additionally, the sniff also enforces that the comma should follow the code and not be placed after a trailing comment.
 
 For the spacing part, the sniff makes the following exceptions:
+
 1. A comma preceded or followed by a parenthesis, curly or square bracket.
     These will not be flagged to prevent conflicts with sniffs handling spacing around braces.
 2. A comma preceded or followed by another comma, like for skipping items in a list assignment.
@@ -509,6 +511,7 @@ While tab versus space based indentation is a question of preference, for mid-li
 > _This sniff is especially useful for tab-indentation based standards which use the `Generic.Whitespace.DisallowSpaceIndent` sniff to enforce this._
 >
 > **DO** make sure to set the PHPCS native `tab-width` configuration for the best results.
+>
 > ```xml
 >    <arg name="tab-width" value="4"/>
 > ```
@@ -522,12 +525,14 @@ While tab versus space based indentation is a question of preference, for mid-li
 Enforce code indentation to always be a multiple of a tabstop, i.e. disallow precision alignment.
 
 Note:
+
 * This sniff does not concern itself with tabs versus spaces.
     It is recommended to use the sniff in combination with the PHPCS native `Generic.WhiteSpace.DisallowTabIndent` or the `Generic.WhiteSpace.DisallowSpaceIndent` sniff.
 * When using this sniff with tab-based standards, please ensure that the `tab-width` is set and either don't set the `$indent` property or set it to the tab-width (or a multiple thereof).
 * The fixer works based on "best guess" and may not always result in the desired indentation. Combine this sniff with the `Generic.WhiteSpace.ScopeIndent` sniff for more precise indentation fixes.
 
 The behaviour of the sniff is customizable via the following properties:
+
 * `indent`: the indent used for the codebase.
     Accepted values: (int|null) number of spaces. Defaults to `null`.
     If this property is not set, the sniff will look to the `--tab-width` CLI value.
@@ -535,6 +540,7 @@ The behaviour of the sniff is customizable via the following properties:
 * `ignoreAlignmentBefore`: allows for providing a list of token names for which (preceding) precision alignment should be ignored.
     Accepted values: (`array<string>`) token constant names. Defaults to an empty array.
     Usage example:
+
     ```xml
     <rule ref="Universal.WhiteSpace.PrecisionAlignment">
        <properties>
@@ -548,10 +554,10 @@ The behaviour of the sniff is customizable via the following properties:
        </properties>
     </rule>
    ```
+
 * `ignoreBlankLines`: whether or not potential trailing whitespace on otherwise blank lines should be examined or ignored.
     It is recommended to only set this to `false` if the standard including this sniff does not include the `Squiz.WhiteSpace.SuperfluousWhitespace` sniff (which is included in most standards).
     Accepted values: (bool)`true`|`false`. Defaults to `true`.
-
 
 ## Contributing
 
@@ -559,11 +565,9 @@ Contributions to this project are welcome. Clone the repo, branch off from `deve
 
 If unsure whether the changes you are proposing would be welcome, open an issue first to discuss your proposal.
 
-
 ## License
 
 This code is released under the [GNU Lesser General Public License (LGPLv3)](LICENSE).
-
 
 [phpcsextra-packagist]:  https://packagist.org/packages/phpcsstandards/phpcsextra
 [gha-qa-results]:        https://github.com/PHPCSStandards/PHPCSExtra/actions/workflows/basics.yml

@@ -710,6 +710,7 @@ If you are a maintainer of an external standard based on WordPressCS and any of 
 ### Changes since 1.2.1
 
 For a full list of changes from the 1.2.1 version, please review the following changelog:
+
 - <https://github.com/WordPress/WordPress-Coding-Standards/releases/tag/2.0.0-RC1>
 
 ## [2.0.0-RC1] - 2018-12-31
@@ -1349,6 +1350,7 @@ If you use the WordPress Coding Standards with a custom ruleset, please be aware
 If you exclude some sniffs or error codes, you may have to update your custom ruleset to be compatible with WPCS 0.11.0.
 
 Additionally, to make it easier for you to customize your ruleset, two new wiki pages have been published with information on the properties you can adjust from your ruleset:
+
 - [WPCS customizable sniff properties](https://github.com/WordPress/WordPress-Coding-Standards/wiki/Customizable-sniff-properties)
 - [PHPCS customizable sniff properties](https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki/Customisable-Sniff-Properties)
 

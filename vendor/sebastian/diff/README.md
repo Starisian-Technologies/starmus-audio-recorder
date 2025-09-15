@@ -34,6 +34,7 @@ print $differ->diff('foo', 'bar');
 ```
 
 The code above yields the output below:
+
 ```diff
 --- Original
 +++ New

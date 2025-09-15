@@ -5,9 +5,11 @@ This project uses a divided testing approach to maximize coverage while minimizi
 ## Test Division
 
 ### NPM Tests (Frontend/Integration/E2E)
+
 **Purpose:** Test user-facing functionality, browser behavior, and WordPress integration
 
 **Commands:**
+
 ```bash
 npm test                    # Run all frontend tests
 npm run test:e2e           # End-to-end tests with Playwright
@@ -17,6 +19,7 @@ npm run test:wp-env        # Alias for integration tests
 ```
 
 **What's tested:**
+
 - Audio recording functionality in browsers
 - User interface interactions
 - Accessibility compliance
@@ -25,9 +28,11 @@ npm run test:wp-env        # Alias for integration tests
 - Offline queue functionality
 
 ### Composer Tests (Backend/Unit/Quality)
+
 **Purpose:** Test PHP code quality, logic, and WordPress backend functionality
 
 **Commands:**
+
 ```bash
 composer test              # Run all PHP tests and quality checks
 composer run test:unit     # PHP unit tests only
@@ -37,6 +42,7 @@ composer run fix:php       # Auto-fix code style issues
 ```
 
 **What's tested:**
+
 - PHP class instantiation and methods
 - WordPress hooks and filters
 - Custom post type registration
@@ -47,12 +53,14 @@ composer run fix:php       # Auto-fix code style issues
 ## Test Environment Setup
 
 ### For NPM Tests
+
 ```bash
 npm run env:start          # Start WordPress test environment
 npm run env:stop           # Stop WordPress test environment
 ```
 
 ### For Composer Tests
+
 ```bash
 composer install           # Install PHP dependencies
 ```
@@ -78,6 +86,7 @@ tests/
 ## CI/CD Integration
 
 **GitHub Actions should run:**
+
 1. `npm test` - Frontend/E2E tests
 2. `composer test` - Backend/Quality tests
 3. Both environments provide complementary coverage

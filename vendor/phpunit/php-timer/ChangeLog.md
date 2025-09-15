@@ -24,7 +24,7 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 ### Changed
 
-* Parameter type for `SebastianBergmann\Timer\Duration::fromMicroseconds()` was changed from `int` to `float` 
+* Parameter type for `SebastianBergmann\Timer\Duration::fromMicroseconds()` was changed from `int` to `float`
 * Parameter type for `SebastianBergmann\Timer\Duration::fromNanoseconds()` was changed from `int` to `float`
 * Return type for `SebastianBergmann\Timer\Duration::asNanoseconds()` was changed from `int` to `float`
 

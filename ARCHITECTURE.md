@@ -3,7 +3,9 @@
 ## File Responsibilities
 
 ### 1. `starmus-audio-recorder-module.js` - Core Recording Engine
+
 **Responsibility**: Pure audio recording functionality
+
 - MediaRecorder API management
 - Audio stream handling
 - Recording state management (start/stop/pause/resume)
@@ -13,12 +15,15 @@
 - Resource cleanup
 
 **Public API**:
+
 - `init(options)` - Initialize recorder instance
 - `getSubmissionData(instanceId)` - Get recorded audio data
 - `cleanup(instanceId)` - Clean up resources
 
 ### 2. `starmus-audio-recorder-ui-controller.js` - Form UI Management
+
 **Responsibility**: Form interaction and validation coordination
+
 - Two-step form flow management
 - Field validation (Step 1)
 - Event binding for continue/submit buttons
@@ -26,11 +31,14 @@
 - User message display
 
 **Public API**:
+
 - Auto-initializes all `.starmus-audio-form` forms
 - Delegates to `StarmusSubmissionsHandler.handleSubmit()`
 
 ### 3. `starmus-audio-recorder-submissions-handler.js` - Submission Logic
+
 **Responsibility**: Audio upload and submission processing
+
 - TUS resumable uploads
 - Offline queue management (IndexedDB)
 - Form data collection
@@ -39,12 +47,15 @@
 - Fallback file upload handling
 
 **Public API**:
+
 - `StarmusSubmissionsHandler.handleSubmit(instanceId, form)`
 - `StarmusSubmissionsHandler.initRecorder(instanceId)`
 - `StarmusSubmissionsHandler.revealTierC(instanceId)`
 
 ### 4. `starmus-audio-recorder-submissions.js` - Legacy Browser Support
+
 **Responsibility**: Backward compatibility and polyfills
+
 - Legacy browser polyfills (forEach, trim)
 - IE compatibility layer
 - Geolocation handling

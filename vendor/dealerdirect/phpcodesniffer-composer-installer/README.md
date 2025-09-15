@@ -173,6 +173,7 @@ Create a composer package of your coding standard by adding a `composer.json` fi
 ```
 
 Requirements:
+
 - The repository may contain one or more standards.
 - Each standard can have a separate directory no deeper than 3 levels from the repository root.
 - The package `type` must be `phpcodesniffer-standard`. Without this, the plugin will not trigger.
