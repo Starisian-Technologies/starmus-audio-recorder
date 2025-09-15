@@ -114,7 +114,7 @@ The plugin uses a four-part modular architecture for its front-end application:
 
 ### Third-Party Libraries
 
-This plugin relies on the following excellent open-source libraries, which should be installed via `npm` and included in the `/assets/js/vendor/` directory:
+This plugin relies on the following excellent open-source libraries, which should be installed via `npm` and included in the `/vendor/js/` directory:
 
 - **tus-js-client:** For resumable file uploads.
 - **Peaks.js:** For the audio annotation editor.

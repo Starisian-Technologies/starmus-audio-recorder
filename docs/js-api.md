@@ -19,7 +19,6 @@ WordPress REST API to save annotation data.</p>
 <a name="STARMUS_EDITOR_DATA"></a>
 
 ## STARMUS\_EDITOR\_DATA : <code>object</code>
-
 Data localized from PHP.
 
 **Kind**: global constant  
@@ -36,7 +35,6 @@ Data localized from PHP.
 <a name="Annotation"></a>
 
 ## Annotation : <code>object</code>
-
 This script initializes the audio waveform editor, handles user interactions
 (playback, zoom, annotations), manages unsaved changes, and communicates with the
 WordPress REST API to save annotation data.
@@ -50,3 +48,4 @@ WordPress REST API to save annotation data.
 | startTime | <code>number</code> | The start time of the annotation in seconds. |
 | endTime | <code>number</code> | The end time of the annotation in seconds. |
 | [label] | <code>string</code> | The user-defined text for the annotation. |
+

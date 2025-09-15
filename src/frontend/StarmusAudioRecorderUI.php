@@ -252,7 +252,7 @@ class StarmusAudioRecorderUI {
 					wp_enqueue_script( 'starmus-recorder-module', STARMUS_URL . 'src/js/starmus-audio-recorder-module.js', array( 'starmus-hooks' ), STARMUS_VERSION, true );
 					wp_enqueue_script( 'starmus-submissions-handler', STARMUS_URL . 'src/js/starmus-audio-recorder-submissions-handler.js', array( 'starmus-hooks' ), STARMUS_VERSION, true );
 					wp_enqueue_script( 'starmus-ui-controller', STARMUS_URL . 'src/js/starmus-audio-recorder-ui-controller.js', array( 'starmus-hooks', 'starmus-recorder-module', 'starmus-submissions-handler' ), STARMUS_VERSION, true );
-					wp_enqueue_script( 'tus-js', STARMUS_URL . 'vendor/js/tus.min.js', array(), '3.0.0', true );
+					wp_enqueue_script( 'tus-js', STARMUS_URL . 'vendor/js/tus.min.js', array(), '4.3.1', true );
 				} else {
 					// Production: Load bundled file
 					wp_enqueue_script( 'starmus-app', STARMUS_URL . 'assets/js/starmus-app.min.js', array(), STARMUS_VERSION, true );
