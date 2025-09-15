@@ -14,7 +14,7 @@
  * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
  *
  * @since 0.1.0
- * @version 0.4.0
+ * @version 0.4.5
  * @package Starmus
  */
 

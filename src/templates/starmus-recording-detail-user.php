@@ -4,7 +4,7 @@
  * Shows basic information to the user who submitted the recording
  *
  * @package Starmus\templates
- * @version 1.0.0
+ * @version 0.4.5
  * @var int $post_id The recording post ID
  */
 
