@@ -1,6 +1,7 @@
-# .prettierrc or .prettierrc.yaml
-trailingComma: "es5"
-tabWidth: 4
-semi: false
-singleQuote: true
-insert-pragma: true
+{
+  "trailingComma": "es5",
+  "tabWidth": 4,
+  "semi": false,
+  "singleQuote": true,
+  "insertPragma": true
+}

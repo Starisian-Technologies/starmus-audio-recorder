@@ -1,6 +1,9 @@
 # Changelog
 
 ### Build 2025-09-15
+- Updated build hashes for: starmus-styles.min.css, starmus-app.min.js
+
+### Build 2025-09-15
 
 - Updated build hashes for: starmus-styles.min.css, starmus-app.min.js
 
