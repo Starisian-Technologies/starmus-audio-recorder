@@ -14,89 +14,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository's code. (No change)
+      # Step 1: Check out the repository's code.
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.WORKFLOW_PAT }}
 
-      # Step 2: Configure Git for commits. (No change)
+      # Step 2: Configure Git for commits.
       - name: Set up Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # Step 3: Set up PHP and install ALL Composer dependencies (including dev). (MODIFIED)
-      - name: Set up PHP
-        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4
-        with:
-          php-version: '8.2'
-          tools: composer:v2
-          coverage: none
-      - name: Install All PHP Dependencies
-        run: composer install --prefer-dist --no-progress
-
-      # Step 4: Set up Node.js and install JS dependencies. (MODIFIED)
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-      - name: Install JS Dependencies
-        run: npm ci
-
-      # Step 5: Run linting and auto-fix BEFORE versioning. (MOVED & MODIFIED)
-      - name: Run Linting and Auto-Fix
-        run: |
-          npm run format
-          composer run fix
-
-      # Step 6: Get the version number from the tag. (No change)
+      # Step 3: Get the version number from the tag.
       - name: Get the version from the tag
+        id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-      # Step 7: Update all version numbers in project files. (MODIFIED)
-      - name: Update Version Numbers
-        run: |
-          # FIX: Use reliable 'sed' for package.json to avoid 'npm version' errors.
-          sed -i -E 's/("version":\s*").*(")/\1${{ env.VERSION }}\2/' package.json
-
-          # Your original, correct sed commands
-          sed -i -E "s/^(\s*\* Version:\s*).*/\1${{ env.VERSION }}/" starmus-audio-recorder.php
-          sed -i "s/define( 'STARMUS_VERSION', '[^']*' );/define( 'STARMUS_VERSION', '${{ env.VERSION }}' );/" starmus-audio-recorder.php
-          find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 sed -i "s/@version\s\+[0-9.]\+/@version ${{ env.VERSION }}/g"
-
-      # Step 8: Commit ALL changes (linting + version) and update the tag. (MODIFIED)
-      - name: Commit Release Changes and Update Tag
-        run: |
-          git add -A
-          if ! git diff --staged --quiet; then
-            git commit -m "chore(release): Prepare release ${{ env.VERSION }}"
-            DEFAULT_BRANCH=${{ github.event.repository.default_branch }}
-            git push origin HEAD:"refs/heads/$DEFAULT_BRANCH"
-            git tag -f $GITHUB_REF_NAME
-            git push origin $GITHUB_REF_NAME --force
-          else
-            echo "No changes to commit for release."
-          fi
-
-      # --- THIS IS THE FIX ---
-      # Step 4: Update version numbers in all files using the reliable `sed` command.
-      # The problematic `npm version` step has been removed.
-      - name: Update version numbers in project files
+      # Step 4: Update version numbers in all files.
+      - name: Update version numbers
         run: |
           # Update package.json
-          sed -i -E 's/("version":\s*").*(")/\1${{ env.VERSION }}\2/' package.json
-
-          # Update main plugin file header and constant
-          sed -i -E "s/^(\s*\* Version:\s*).*/\1${{ env.VERSION }}/" starmus-audio-recorder.php
+          sed -i -E 's/("version":\s*").*(")/'\\1'${{ env.VERSION }}'\\2'/' package.json
+          # Update plugin header version
+          sed -i -E "s/^(\\s*\\* Version:\\s*).*/\\1${{ env.VERSION }}/" starmus-audio-recorder.php
           sed -i "s/define( 'STARMUS_VERSION', '[^']*' );/define( 'STARMUS_VERSION', '${{ env.VERSION }}' );/" starmus-audio-recorder.php
+          # Update @version tags in PHP files
+          find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 sed -i "s/@version\\s\\+[0-9.]\\+/@version ${{ env.VERSION }}/g"
 
-          # Update all other @version tags
-          find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 sed -i "s/@version\s\+[0-9.]\+/@version ${{ env.VERSION }}/g"
-
-      # Step 5: Commit version changes and update the tag. (Your existing step is correct)
+      # Step 5: Commit version changes and update the tag.
       - name: Commit version bump and update tag
         run: |
           git add -A
@@ -110,14 +57,13 @@ jobs:
             echo "No version changes to commit."
           fi
 
-
-      # Step 9: Verify plugin entrypoint exists.
+      # Step 6: Verify plugin entrypoint exists.
       - name: Verify plugin entrypoint
         run: |
           test -f starmus-audio-recorder.php || { echo "Missing starmus-audio-recorder.php"; exit 1; }
           grep -q "Plugin Name:" starmus-audio-recorder.php || { echo "No plugin header found"; exit 1; }
 
-      # Step 10: Set up PHP and install Composer dependencies.
+      # Step 7: Set up PHP and install Composer dependencies.
       - name: Set up PHP
         uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4
         with:
@@ -127,7 +73,7 @@ jobs:
       - name: Install PHP dependencies (no-dev)
         run: composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
 
-      # Step 11: Set up Node.js and build frontend assets.
+      # Step 8: Set up Node.js and build frontend assets.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -150,7 +96,7 @@ jobs:
           test -f assets/js/vendor/peaks.min.js || { echo "Missing Peaks.js"; exit 1; }
           test -f assets/js/vendor/tus.min.js || { echo "Missing tus.js"; exit 1; }
 
-      # Step 12: Build the distributable plugin ZIP file.
+      # Step 9: Build the distributable plugin ZIP file.
       - name: Ensure .distignore exists
         run: test -f .distignore || { echo ".distignore is missing"; exit 1; }
       - name: Build plugin ZIP
@@ -160,13 +106,13 @@ jobs:
           rsync -a --delete --exclude-from=.distignore ./ build/${SLUG}/
           (cd build && zip -r "../${SLUG}-${{ env.VERSION }}.zip" "${SLUG}")
 
-      # Step 13: Generate checksums for the ZIP file.
+      # Step 10: Generate checksums for the ZIP file.
       - name: Generate checksums
         run: |
           sha256sum "starmus-audio-recorder-${{ env.VERSION }}.zip" > "starmus-audio-recorder-${{ env.VERSION }}.zip.sha256"
           sha1sum   "starmus-audio-recorder-${{ env.VERSION }}.zip" > "starmus-audio-recorder-${{ env.VERSION }}.zip.sha1"
 
-      # Step 14: Create the GitHub Release.
+      # Step 11: Create the GitHub Release.
       - name: Create GitHub Release
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836
         with:
