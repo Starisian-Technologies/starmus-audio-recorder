@@ -14,7 +14,7 @@
     "lint:md": "markdownlint \"**/*.md\" --ignore node_modules --ignore vendor --ignore .git",
     "lint:md:fix": "markdownlint \"**/*.md\" --fix --ignore node_modules --ignore vendor --ignore .git",
     "lint:php": "vendor/bin/phpcs --standard=phpcs.xml.dist",
-    "lint:php:fix": "vendor/bin/phpcbf --standard=phpcs.xml.dist",
+    "lint:php:fix": "test -f vendor/bin/phpcbf && vendor/bin/phpcbf --standard=phpcs.xml.dist || echo 'phpcbf not available (no-dev install)'",
     "format": "npm run lint:js:fix && npm run lint:css:fix && npm run lint:md:fix && npm run lint:php:fix && prettier --write . --ignore-path .prettierignore",
     "clean": "node -e \"require('fs').rmSync('assets', { recursive: true, force: true }); require('fs').rmSync('vendor', { recursive: true, force: true });\"",
     "build:vendor": "node -e \"const fs=require('fs'),p=require('path');fs.mkdirSync('vendor/js',{recursive:true});fs.copyFileSync(p.join('node_modules','peaks.js','dist','peaks.min.js'),p.join('vendor','js','peaks.min.js'));fs.copyFileSync(p.join('node_modules','tus-js-client','dist','tus.min.js'),p.join('vendor','js','tus.min.js'));\"",
