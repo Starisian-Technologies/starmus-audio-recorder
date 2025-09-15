@@ -81,12 +81,7 @@ jobs:
           cache: 'npm'
       - name: Install JS dependencies
         run: npm ci
-      - name: Run linting and auto-fix
-        run: |
-          npm run format
-          composer run fix
-          git add -A
-          git diff --staged --quiet || git commit -m "style: Auto-fix linting issues for release ${{ env.VERSION }}" || true
+
       - name: Build Assets
         run: npm run build
       - name: Verify build output
