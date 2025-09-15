@@ -45,12 +45,12 @@ jobs:
             
       - name: Lint JavaScript (Check only)
         # We run WITHOUT --fix here. The goal is to report errors, not hide them.
-        run: npx eslint assets/js/**/*.js
+        run: npx eslint "src/js/**/*.js"
         
 
       - name: Lint CSS (Check only)
         # We run WITHOUT --fix here.
-        run: npx stylelint assets/css/**/*.css
+        run: npx stylelint "src/css/**/*.css"
       
       - name: Proof HTML files
         # This action checks for issues like broken links, invalid tags, etc.
@@ -95,8 +95,8 @@ jobs:
       - name: Fix JavaScript and CSS issues
         # Run WITH --fix. The goal is to apply changes.
         run: |
-          npx eslint assets/js/**/*.js --fix
-          npx stylelint assets/css/**/*.css --fix
+          npx eslint "src/js/**/*.js" --fix
+          npx stylelint "src/css/**/*.css" --fix
 
       - name: Commit and push fixes
         # This dedicated action is the most reliable way to commit changes.
@@ -105,4 +105,4 @@ jobs:
         with:
           commit_message: "chore: auto-fix JS/CSS lint issues"
           branch: ${{ github.head_ref }}
-          file_pattern: "assets/js/**/*.js assets/css/**/*.css"
+          file_pattern: "src/js/**/*.js src/css/**/*.css"

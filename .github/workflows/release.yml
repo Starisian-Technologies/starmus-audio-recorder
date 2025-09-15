@@ -93,8 +93,8 @@ jobs:
         run: |
           test -f assets/js/starmus-app.min.js || { echo "Missing bundled JS"; exit 1; }
           test -f assets/css/starmus-styles.min.css || { echo "Missing bundled CSS"; exit 1; }
-          test -f assets/js/vendor/peaks.min.js || { echo "Missing Peaks.js"; exit 1; }
-          test -f assets/js/vendor/tus.min.js || { echo "Missing tus.js"; exit 1; }
+          test -f vendor/js/peaks.min.js || { echo "Missing Peaks.js"; exit 1; }
+          test -f vendor/js/tus.min.js || { echo "Missing tus.js"; exit 1; }
 
       # Step 9: Build the distributable plugin ZIP file.
       - name: Ensure .distignore exists

@@ -9,15 +9,15 @@ import jsdoc from "eslint-plugin-jsdoc";
 import wordpress from "@wordpress/eslint-plugin";
 
 export default [
-	{ ignores: ["node_modules/**", "dist/**", "assets/js/**/*.min.js", "assets/js/vendor/**"] },
+	{ ignores: ["node_modules/**", "dist/**", "assets/js/**/*.min.js", "vendor/**"] },
 	js.configs.recommended,
 	security.configs.recommended,
 	a11y.flatConfigs.recommended,
 	{
 		files: ["src/js/**/*.js", "assets/js/**/*.js"],
 		languageOptions: {
-			ecmaVersion: 2018,
-			sourceType: "script",
+			ecmaVersion: 2020,
+			sourceType: "module",
 			globals: {
 				...globals.browser,
 				...globals.jquery,
