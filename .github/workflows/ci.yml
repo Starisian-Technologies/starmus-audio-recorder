@@ -57,8 +57,8 @@ jobs:
         run: |
           npm run lint:js
           npm run lint:css
-          composer analyze:php
-          composer lint:php
+          composer analyze
+          composer lint
 
       - name: Commit fixes
         uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0
