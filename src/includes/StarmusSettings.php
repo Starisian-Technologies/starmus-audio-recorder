@@ -3,7 +3,7 @@
  * Optimized and secure settings management for Starmus plugin.
  *
  * @package Starmus\includes
- * @version 0.4.7
+ * @version 0.4.8
  * @since 0.3.1
  */
 
