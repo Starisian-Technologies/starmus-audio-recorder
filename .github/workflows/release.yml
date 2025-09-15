@@ -35,7 +35,12 @@ jobs:
       # Steps 4-6: Update version numbers in all files.
       - name: Update package.json version
         run: |
-          npm version ${{ env.VERSION }} --no-git-tag-version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          if [ "$CURRENT_VERSION" != "${{ env.VERSION }}" ]; then
+            npm version ${{ env.VERSION }} --no-git-tag-version
+          else
+            echo "Version ${{ env.VERSION }} already set in package.json"
+          fi
       - name: Update plugin header version
         run: |
           sed -i -E "s/^(\s*\* Version:\s*).*/\1${{ env.VERSION }}/" starmus-audio-recorder.php
