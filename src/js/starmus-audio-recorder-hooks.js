@@ -68,7 +68,7 @@
     const firedHooks = new Set();
 
     function isValidTag(tag) {
-        return typeof tag === 'string' && tag.length > 0 && !/[.__proto__constructor]/.test(tag);
+        return typeof tag === 'string' && tag.length > 0 && !/[\.\__proto__constructor]/.test(tag);
     }
 
     function addHook(type, tag, callback, priority = 10) {
