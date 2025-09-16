@@ -100,9 +100,9 @@ jobs:
           VERSION=${{ env.VERSION }}
           mkdir -p build
           rsync -a --delete --exclude-from=.distignore ./ build/${SLUG}/
-          (cd build && zip -r "../${SLUG}-${VERSION}.zip" . )
+          (cd build && zip -r "../${SLUG}-${VERSION}.
 
-      # Step 10: Generate checksums for the ZIP file.
+   # Step 10: Generate checksums for the ZIP file.
       - name: Generate checksums
         run: |
           ZIP_FILE="starmus-audio-recorder-${{ env.VERSION }}.zip"
