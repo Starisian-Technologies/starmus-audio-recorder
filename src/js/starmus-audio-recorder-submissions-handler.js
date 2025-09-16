@@ -8,23 +8,43 @@
  * @file    The Submission Engine - Pure data handling with hooks integration
  */
 (function(window, document) {
-    'use strict'; 
+    'use strict';
 
     const CONFIG = { LOG_PREFIX: '[Starmus Submissions]' };
-    function log(level, msg, data) {
-        if (console && console[level]) {
-            console[level](CONFIG.LOG_PREFIX, msg, data || '');
-        }
+  function log(level, msg, data) {
+    if (console && console[level]) {
+      console[level](CONFIG.LOG_PREFIX, msg, data || '');
     }
+  }
+
+  // DEBUG PATCH: Add a visible log and alert to confirm initialization
+  function debugInitBanner() {
+    if (!window.isStarmusAdmin) return;
+    const banner = document.createElement('div');
+    banner.textContent = '[Starmus Submissions Handler] JS Initialized';
+    banner.style.position = 'fixed';
+    banner.style.top = '24px';
+    banner.style.left = '0';
+    banner.style.zIndex = '99999';
+    banner.style.background = '#2a2';
+    banner.style.color = '#fff';
+    banner.style.padding = '4px 12px';
+    banner.style.fontSize = '14px';
+    banner.style.fontFamily = 'monospace';
+    banner.style.opacity = '0.95';
+    document.body.appendChild(banner);
+    setTimeout(() => banner.remove(), 4000);
+    log('info', 'DEBUG: Submissions Handler banner shown');
+  }
     function el(id) { return document.getElementById(id); }
     function safeId(id) {
         return typeof id === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(id);
     }
-    
+
     function s(str) {
         return typeof str === 'string' ? str.replace(/[<>"'&]/g, '') : '';
     }
-    
+
     function collectFormFields(form) {
         const fields = {};
         new FormData(form).forEach((value, key) => fields[key] = value);
@@ -43,11 +63,18 @@
     }
 
   function showUserMessage(instanceId, text, type){
-    if (!safeId(instanceId)) return;
+    log('debug', 'showUserMessage called', { instanceId, text, type });
+    if (!safeId(instanceId)) {
+      log('warn', 'showUserMessage: unsafe instanceId', instanceId);
+      return;
+    }
     const area = el('starmus_recorder_status_'+instanceId) || el('starmus_calibration_status_'+instanceId) || el('starmus_step1_usermsg_'+instanceId);
     if (area) {
       area.textContent = String(text || '');
       area.setAttribute('data-status', type||'info');
+      log('debug', 'showUserMessage: updated area', area.id);
+    } else {
+      log('warn', 'showUserMessage: area not found for', instanceId);
     }
   }
 
@@ -102,9 +129,14 @@
 
   // --- tus uploader ---
   function resumableTusUpload(blob, fileName, formFields, metadata, instanceId){
-    if (!safeId(instanceId)) return Promise.reject(new Error('Invalid instanceId for upload'));
+    log('info', 'resumableTusUpload called', { instanceId, fileName, formFields, metadata });
+    if (!safeId(instanceId)) {
+      log('error', 'Invalid instanceId for upload', instanceId);
+      return Promise.reject(new Error('Invalid instanceId for upload'));
+    }
     const tusCfg = window.starmusTus || {};
     if (!window.tus || !tusCfg.endpoint) {
+      log('warn', 'tus missing or endpoint not set, falling back to REST');
       const wpData = window.starmusFormData || {};
       if (wpData.rest_url && wpData.rest_nonce){
         const fd=new FormData();
@@ -112,26 +144,28 @@
         fd.append('audio_file', blob, s(fileName) || 'recording');
         if (metadata) fd.append('metadata', JSON.stringify(metadata));
         return fetch(wpData.rest_url,{ method:'POST', headers:{'X-WP-Nonce': wpData.rest_nonce}, body: fd })
-          .then(function(res){ if(!res.ok) throw new Error('Direct upload failed: '+res.status); return res; });
+          .then(function(res){ if(!res.ok) throw new Error('Direct upload failed: '+res.status); log('info', 'Direct upload success', res); return res; });
       }
+      log('error', 'tus missing and no fallback endpoint configured');
       return Promise.reject(new Error('tus missing and no fallback endpoint configured'));
     }
     return new Promise(function(resolve, reject){
       const meta = Object.assign({}, formFields||{});
       meta.filename = s(fileName) || 'recording';
       if (metadata) meta.starmus_meta = JSON.stringify(metadata);
+      log('info', 'Starting tus upload', meta);
       const uploader = new tus.Upload(blob, {
         endpoint: tusCfg.endpoint,
         chunkSize: tusCfg.chunkSize || 5*1024*1024,
         retryDelays: tusCfg.retryDelays || [0, 3000, 5000, 10000, 20000],
         headers: tusCfg.headers || {},
         metadata: meta,
-        onError: function(error){ reject(error); },
-        onProgress: function(bytesUploaded, bytesTotal){ const pct = Math.round((bytesUploaded/bytesTotal)*100); showUserMessage(instanceId, 'Uploading… '+pct+'%', 'info'); },
-        onSuccess: function(){ showUserMessage(instanceId, 'Upload complete.', 'success'); resolve(uploader.url); }
+        onError: function(error){ log('error', 'tus upload error', error); reject(error); },
+        onProgress: function(bytesUploaded, bytesTotal){ const pct = Math.round((bytesUploaded/bytesTotal)*100); log('debug', 'tus upload progress', { pct, bytesUploaded, bytesTotal }); showUserMessage(instanceId, 'Uploading… '+pct+'%', 'info'); },
+        onSuccess: function(){ log('info', 'tus upload complete'); showUserMessage(instanceId, 'Upload complete.', 'success'); resolve(uploader.url); }
       });
       uploader.findPreviousUploads().then(function (previousUploads) {
-        if (previousUploads.length) { uploader.resumeFromPreviousUpload(previousUploads[0]); }
+        if (previousUploads.length) { log('info', 'Resuming previous tus upload'); uploader.resumeFromPreviousUpload(previousUploads[0]); }
         uploader.start();
       }).catch(function(err) {
         log('warn', 'Could not resume previous upload, starting new', err.message);
@@ -142,12 +176,20 @@
 
   // --- Recorder bootstrap / Tier C reveal ---
   function initRecorder(instanceId){
-    if(!safeId(instanceId)) return;
+    log('info', 'initRecorder called', instanceId);
+    if(!safeId(instanceId)) {
+      log('warn', 'initRecorder: unsafe instanceId', instanceId);
+      return;
+    }
     const recorderModule = window.StarmusAudioRecorder;
-    if(!recorderModule || typeof recorderModule.init!=='function'){ revealTierC(instanceId); return; }
+    if(!recorderModule || typeof recorderModule.init!=='function'){
+      log('warn', 'initRecorder: recorder module missing or invalid');
+      revealTierC(instanceId); return;
+    }
     showUserMessage(instanceId, 'Initializing microphone...', 'info');
     recorderModule.init({ formInstanceId: instanceId })
       .then(function(r){
+        log('info', 'Recorder module initialized', r);
         if(r && r.tier==='A'){ showUserMessage(instanceId,'Recorder ready. Use “Setup Mic” for best results.','info'); }
         else { showUserMessage(instanceId,'Recorder ready.','info'); }
       })
@@ -209,133 +251,133 @@
   }
 
     function handleSubmit(instanceId, form) {
-        if (!safeId(instanceId)) return;
-
-        const recordingData = window.StarmusAudioRecorder?.getSubmissionData?.(instanceId);
-        const fb = el('starmus_fallback_input_' + instanceId);
-        let blob = null, fileName = 'recording.webm';
-
-        if (recordingData?.blob) {
-            blob = recordingData.blob;
-            fileName = recordingData.fileName;
-        } else if (fb?.files?.length) {
-            blob = fb.files[0];
-            fileName = fb.files[0].name;
-        }
-
-        if (!blob) {
-            doAction('starmus_submission_failed', instanceId, 'No audio');
-            return;
-        }
-        
-        // Validate minimum recording length - allow single words (1 second minimum)
-        const duration = metadata.duration || 0;
-        if (duration < 1000) {
-            showUserMessage(instanceId, 'Recording too short. Please record at least 1 second.', 'error');
-            doAction('starmus_submission_failed', instanceId, 'Recording too short');
-            return;
-        }
-        
-        // Check recording quality if available
-        const quality = window.StarmusAudioRecorder?.getRecordingQuality?.(instanceId);
-        if (quality?.quality === 'poor') {
-            const warnings = quality.warnings.join(', ');
-            showUserMessage(instanceId, `Recording quality may be poor: ${warnings}. Continue anyway?`, 'warning');
-            doAction('starmus_quality_warning', instanceId, quality);
-        }
-        
-        // Get recording type from form for context-aware validation
-        const recordingTypeSelect = form.querySelector(`select[name="recording_type"]`);
-        const recordingTypeText = recordingTypeSelect?.selectedOptions[0]?.text || 'unknown';
-        
-        // Validate this is a West African language (not recognized by Speech API)
-        const languageValidation = window.StarmusAudioRecorder?.validateWestAfricanLanguage?.(instanceId, recordingTypeText);
-        if (languageValidation && !languageValidation.isValid) {
-            showUserMessage(instanceId, `Warning: ${languageValidation.reason}. This corpus is for West African languages only.`, 'error');
-            doAction('starmus_language_validation_failed', instanceId, languageValidation);
-            return;
-        }
-        
-        if (languageValidation?.isValid) {
-            doAction('starmus_west_african_language_confirmed', instanceId, languageValidation);
-        }
-
-        const formFields = collectFormFields(form);
-        const metadata = recordingData?.metadata || {};
-        
-        // Add transcript data to form fields (UTC normalized)
-        if (metadata.transcript && metadata.transcript.length > 0) {
-            formFields['first-pass-transcription'] = JSON.stringify({
-                transcript: metadata.transcript, // Already has UTC timestamps
-                detectedLanguage: metadata.detectedLanguage,
-                hasTranscription: metadata.hasTranscription,
-                recordedAt: metadata.recordedAt, // UTC ISO string
-                timezone: metadata.timezone // For local display conversion
-            });
-        }
-        
-        // Add comprehensive recording metadata for linguistic corpus
-        formFields['recording_metadata'] = JSON.stringify({
-            identifiers: {
-                sessionUUID: metadata.sessionUUID,
-                submissionUUID: metadata.submissionUUID,
-                formInstanceId: instanceId
-            },
-            technical: {
-                duration: metadata.duration,
-                sampleRate: metadata.sampleRate,
-                codec: metadata.codec,
-                fileSize: metadata.fileSize,
-                audioProcessing: metadata.audioProcessing
-            },
-            device: {
-                userAgent: metadata.userAgent,
-                platform: metadata.platform,
-                screenResolution: metadata.screenResolution,
-                deviceMemory: metadata.deviceMemory,
-                hardwareConcurrency: metadata.hardwareConcurrency,
-                connection: metadata.connection
-            },
-            linguistic: {
-                browserLanguage: metadata.language,
-                browserLanguages: metadata.languages,
-                detectedLanguage: metadata.detectedLanguage,
-                speechRecognitionAvailable: metadata.speechRecognitionAvailable,
-                westAfricanValidation: languageValidation
-            },
-            temporal: {
-                recordedAt: metadata.recordedAt, // UTC ISO string
-                recordedAtLocal: metadata.recordedAtLocal, // Local reference
-                timezone: metadata.timezone, // For display conversion
-                submittedAt: new Date().toISOString() // UTC submission time
-            }
-        });
-
-        const submissionPackage = { instanceId, blob, fileName, formFields, metadata };
-
-        // Hook: Allow filters to handle submission (e.g., offline mode)
-        const shouldProceed = applyFilters('starmus_before_submit', true, submissionPackage);
-        if (!shouldProceed) {
-            log('log', 'Submission handled by filter hook');
-            doAction('starmus_submission_queued', instanceId, submissionPackage);
-            return;
-        }
-
-        doAction('starmus_submission_started', instanceId, submissionPackage);
-
-        resumableTusUpload(blob, fileName, formFields, metadata, instanceId)
-            .then(url => {
-                doAction('starmus_upload_success', instanceId, url);
-                return notifyServer(url, formFields, metadata);
-            })
-            .then(() => {
-                doAction('starmus_submission_complete', instanceId, submissionPackage);
-            })
-            .catch(err => {
-                log('error', 'Upload failed', err?.message);
-                doAction('starmus_submission_failed', instanceId, err);
-                Offline.add(instanceId, blob, fileName, formFields, metadata);
-            });
+    log('info', 'handleSubmit called', { instanceId, form });
+    if (!safeId(instanceId)) {
+      log('warn', 'handleSubmit: unsafe instanceId', instanceId);
+      return;
+    }
+    const recordingData = window.StarmusAudioRecorder?.getSubmissionData?.(instanceId);
+    const fb = el('starmus_fallback_input_' + instanceId);
+    let blob = null, fileName = 'recording.webm';
+    if (recordingData?.blob) {
+      log('info', 'handleSubmit: got blob from recorder', recordingData);
+      blob = recordingData.blob;
+      fileName = recordingData.fileName;
+    } else if (fb?.files?.length) {
+      log('info', 'handleSubmit: got blob from fallback input', fb.files[0]);
+      blob = fb.files[0];
+      fileName = fb.files[0].name;
+    }
+    if (!blob) {
+      log('error', 'handleSubmit: no audio blob found');
+      doAction('starmus_submission_failed', instanceId, 'No audio');
+      return;
+    }
+    // Validate minimum recording length - allow single words (1 second minimum)
+    const metadata = recordingData?.metadata || {};
+    const duration = metadata.duration || 0;
+    if (duration < 1000) {
+      log('warn', 'handleSubmit: recording too short', duration);
+      showUserMessage(instanceId, 'Recording too short. Please record at least 1 second.', 'error');
+      doAction('starmus_submission_failed', instanceId, 'Recording too short');
+      return;
+    }
+    // Check recording quality if available
+    const quality = window.StarmusAudioRecorder?.getRecordingQuality?.(instanceId);
+    if (quality?.quality === 'poor') {
+      const warnings = quality.warnings.join(', ');
+      log('warn', 'handleSubmit: poor recording quality', warnings);
+      showUserMessage(instanceId, `Recording quality may be poor: ${warnings}. Continue anyway?`, 'warning');
+      doAction('starmus_quality_warning', instanceId, quality);
+    }
+    // Get recording type from form for context-aware validation
+    const recordingTypeSelect = form.querySelector(`select[name="recording_type"]`);
+    const recordingTypeText = recordingTypeSelect?.selectedOptions[0]?.text || 'unknown';
+    // Validate this is a West African language (not recognized by Speech API)
+    const languageValidation = window.StarmusAudioRecorder?.validateWestAfricanLanguage?.(instanceId, recordingTypeText);
+    if (languageValidation && !languageValidation.isValid) {
+      log('warn', 'handleSubmit: language validation failed', languageValidation);
+      showUserMessage(instanceId, `Warning: ${languageValidation.reason}. This corpus is for West African languages only.`, 'error');
+      doAction('starmus_language_validation_failed', instanceId, languageValidation);
+      return;
+    }
+    if (languageValidation?.isValid) {
+      log('info', 'handleSubmit: language validation passed', languageValidation);
+      doAction('starmus_west_african_language_confirmed', instanceId, languageValidation);
+    }
+    const formFields = collectFormFields(form);
+    // Add transcript data to form fields (UTC normalized)
+    if (metadata.transcript && metadata.transcript.length > 0) {
+      log('info', 'handleSubmit: adding transcript to formFields');
+      formFields['first-pass-transcription'] = JSON.stringify({
+        transcript: metadata.transcript, // Already has UTC timestamps
+        detectedLanguage: metadata.detectedLanguage,
+        hasTranscription: metadata.hasTranscription,
+        recordedAt: metadata.recordedAt, // UTC ISO string
+        timezone: metadata.timezone // For local display conversion
+      });
+    }
+    // Add comprehensive recording metadata for linguistic corpus
+    formFields['recording_metadata'] = JSON.stringify({
+      identifiers: {
+        sessionUUID: metadata.sessionUUID,
+        submissionUUID: metadata.submissionUUID,
+        formInstanceId: instanceId
+      },
+      technical: {
+        duration: metadata.duration,
+        sampleRate: metadata.sampleRate,
+        codec: metadata.codec,
+        fileSize: metadata.fileSize,
+        audioProcessing: metadata.audioProcessing
+      },
+      device: {
+        userAgent: metadata.userAgent,
+        platform: metadata.platform,
+        screenResolution: metadata.screenResolution,
+        deviceMemory: metadata.deviceMemory,
+        hardwareConcurrency: metadata.hardwareConcurrency,
+        connection: metadata.connection
+      },
+      linguistic: {
+        browserLanguage: metadata.language,
+        browserLanguages: metadata.languages,
+        detectedLanguage: metadata.detectedLanguage,
+        speechRecognitionAvailable: metadata.speechRecognitionAvailable,
+        westAfricanValidation: languageValidation
+      },
+      temporal: {
+        recordedAt: metadata.recordedAt, // UTC ISO string
+        recordedAtLocal: metadata.recordedAtLocal, // Local reference
+        timezone: metadata.timezone, // For display conversion
+        submittedAt: new Date().toISOString() // UTC submission time
+      }
+    });
+    const submissionPackage = { instanceId, blob, fileName, formFields, metadata };
+    // Hook: Allow filters to handle submission (e.g., offline mode)
+    const shouldProceed = applyFilters('starmus_before_submit', true, submissionPackage);
+    if (!shouldProceed) {
+      log('info', 'handleSubmit: submission handled by filter hook');
+      doAction('starmus_submission_queued', instanceId, submissionPackage);
+      return;
+    }
+    log('info', 'handleSubmit: starting upload', submissionPackage);
+    doAction('starmus_submission_started', instanceId, submissionPackage);
+    resumableTusUpload(blob, fileName, formFields, metadata, instanceId)
+      .then(url => {
+        log('info', 'handleSubmit: upload success', url);
+        doAction('starmus_upload_success', instanceId, url);
+        return notifyServer(url, formFields, metadata);
+      })
+      .then(() => {
+        log('info', 'handleSubmit: submission complete');
+        doAction('starmus_submission_complete', instanceId, submissionPackage);
+      })
+      .catch(err => {
+        log('error', 'handleSubmit: upload failed', err?.message);
+        doAction('starmus_submission_failed', instanceId, err);
+        Offline.add(instanceId, blob, fileName, formFields, metadata);
+      });
     }
 
     function notifyServer(tusUrl, formFields, metadata) {
@@ -346,7 +388,7 @@
         Object.keys(formFields || {}).forEach(k => fd.append(k, formFields[k]));
         fd.append('tus_url', tusUrl || '');
         fd.append('metadata', JSON.stringify(metadata));
-        
+
         // Ensure transcript is included in server notification
         if (formFields['first-pass-transcription']) {
             fd.append('first-pass-transcription', formFields['first-pass-transcription']);
@@ -363,15 +405,21 @@
 
     // --- Init ---
     function init() {
-        Offline.init();
-        window.addEventListener('online', () => {
-            doAction('starmus_network_online');
-            Offline.processQueue();
-        });
-        window.addEventListener('offline', () => doAction('starmus_network_offline'));
-
-        // Hook into recording events
-        doAction('starmus_submissions_handler_ready');
+    log('info', 'SubmissionsHandler init called');
+    debugInitBanner();
+    Offline.init();
+    window.addEventListener('online', () => {
+      log('info', 'Network online event');
+      doAction('starmus_network_online');
+      Offline.processQueue();
+    });
+    window.addEventListener('offline', () => {
+      log('info', 'Network offline event');
+      doAction('starmus_network_offline');
+    });
+    // Hook into recording events
+    log('info', 'Firing starmus_submissions_handler_ready');
+    doAction('starmus_submissions_handler_ready');
     }
 
     // Initialize directly when DOM is ready

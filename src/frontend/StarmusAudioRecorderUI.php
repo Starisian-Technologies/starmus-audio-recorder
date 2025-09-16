@@ -154,7 +154,11 @@ class StarmusAudioRecorderUI {
 			// Instead of including the template directly, we now call your working
 			// render_template() helper function. It will handle the output buffering,
 			// the extract() logic, and including the file.
-			return $this->render_template( 'starmus-audio-recorder-ui.php', $template_args );
+
+			// Output admin flag for JS debug banners (only for admins/superadmins)
+			$is_admin   = current_user_can( 'administrator' ) || current_user_can( 'manage_options' ) || current_user_can( 'super_admin' );
+			$admin_flag = '<script>window.isStarmusAdmin = ' . ( $is_admin ? 'true' : 'false' ) . ';</script>';
+			return $admin_flag . $this->render_template( 'starmus-audio-recorder-ui.php', $template_args );
 
 		} catch ( Throwable $e ) {
 			error_log( 'Starmus Plugin: Recorder shortcode render error - ' . $e->getMessage() );
@@ -256,6 +260,7 @@ class StarmusAudioRecorderUI {
 				} else {
 					// Production: Load bundled file
 					wp_enqueue_script( 'starmus-app', STARMUS_URL . 'assets/js/starmus-app.min.js', array(), STARMUS_VERSION, true );
+					wp_enqueue_script( 'tus-js', STARMUS_URL . 'vendor/js/tus.min.js', array(), '4.3.1', true );
 				}
 
 				// Pass critical data from PHP to our JavaScript application.

@@ -7,8 +7,27 @@
  * @version 1.2.1
  * @file    The Core Recording Engine - Pure audio functionality with hooks integration
  */
-(function(window) { 
-    'use strict'; 
+(function(window) {
+    // DEBUG PATCH: Add a visible log and alert to confirm initialization
+    function debugInitBanner() {
+        if (!window.isStarmusAdmin) return;
+        const banner = document.createElement('div');
+        banner.textContent = '[Starmus Recorder Module] JS Initialized';
+        banner.style.position = 'fixed';
+        banner.style.top = '48px';
+        banner.style.left = '0';
+        banner.style.zIndex = '99999';
+        banner.style.background = '#22a';
+        banner.style.color = '#fff';
+        banner.style.padding = '4px 12px';
+        banner.style.fontSize = '14px';
+        banner.style.fontFamily = 'monospace';
+        banner.style.opacity = '0.95';
+        document.body.appendChild(banner);
+        setTimeout(() => banner.remove(), 4000);
+        secureLog('info', 'DEBUG: Recorder Module banner shown');
+    }
+    'use strict';
 
     const hasMediaRecorder = !!(window.MediaRecorder && window.navigator.mediaDevices);
     const instances = Object.create(null);
@@ -36,16 +55,24 @@
 
     window.StarmusAudioRecorder = {
         init: function(options) {
+            secureLog('info', 'RecorderModule.init called', options);
+            debugInitBanner();
             return new Promise((resolve, reject) => {
-                if (!hasMediaRecorder) return reject(new Error('MediaRecorder API not supported.'));
-
+                if (!hasMediaRecorder) {
+                    secureLog('error', 'MediaRecorder API not supported.');
+                    return reject(new Error('MediaRecorder API not supported.'));
+                }
                 const instanceId = options.formInstanceId;
-                if (!isSafeId(instanceId)) return reject(new Error('Invalid instance ID.'));
-                if (instanceId in instances) return resolve(true);
-
+                if (!isSafeId(instanceId)) {
+                    secureLog('error', 'Invalid instance ID.', instanceId);
+                    return reject(new Error('Invalid instance ID.'));
+                }
+                if (instanceId in instances) {
+                    secureLog('info', 'Instance already exists', instanceId);
+                    return resolve(true);
+                }
                 doAction('starmus_before_recorder_init', instanceId, options);
-
-                navigator.mediaDevices.getUserMedia({ 
+                navigator.mediaDevices.getUserMedia({
                     audio: {
                         echoCancellation: true,
                         noiseSuppression: true,
@@ -55,13 +82,13 @@
                     }
                 })
                     .then(stream => {
+                        secureLog('info', 'getUserMedia success', stream);
                         const audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
                         const source = audioContext.createMediaStreamSource(stream);
                         const analyser = audioContext.createAnalyser();
                         const gainNode = audioContext.createGain();
                         const compressor = audioContext.createDynamicsCompressor();
                         const filter = audioContext.createBiquadFilter();
-                        
                         // Optimize for speech
                         analyser.fftSize = 1024;  // Smaller for performance
                         filter.type = 'highpass';
@@ -71,12 +98,10 @@
                         compressor.ratio.value = 12;
                         compressor.attack.value = 0.003;
                         compressor.release.value = 0.25;
-
                         source.connect(filter);
                         filter.connect(compressor);
                         compressor.connect(analyser);
                         compressor.connect(gainNode);
-
                         instances[instanceId] = {
                             stream, recorder: null, chunks: [], audioBlob: null,
                             isRecording: false, isPaused: false, startTime: 0,
@@ -86,7 +111,7 @@
                             silenceStart: null, totalSilence: 0, peakVolume: 0, avgVolume: 0, volumeSamples: [],
                             sessionUUID: crypto.randomUUID ? crypto.randomUUID() : 'uuid-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9)
                         };
-
+                        secureLog('info', 'Recorder instance created', instances[instanceId]);
                         doAction('starmus_after_recorder_init', instanceId);
                         resolve(true);
                     })
@@ -137,15 +162,15 @@
                 // Separate quiet and speech samples
                 const quietSamples = samples.slice(0, Math.floor(samples.length * 0.33));
                 const speechSamples = samples.slice(Math.floor(samples.length * 0.33), Math.floor(samples.length * 0.67));
-                
+
                 const noiseFloor = quietSamples.reduce((a, b) => a + b, 0) / quietSamples.length;
                 const speechLevel = speechSamples.reduce((a, b) => a + b, 0) / speechSamples.length;
                 const snr = speechLevel / Math.max(noiseFloor, 1e-6);
-                
+
                 // Adaptive gain based on SNR
                 let gain = snr < 3 ? 6.0 : Math.max(1.0, Math.min(4.0, 0.1 / Math.max(speechLevel, 1e-6)));
                 gain = applyFilters('starmus_calibration_gain', gain, instanceId, { speechLevel, noiseFloor, snr });
-                
+
                 instance.gain.gain.setTargetAtTime(gain, instance.ctx.currentTime, 0.01);
                 instance.isCalibrated = true;
 
@@ -172,12 +197,12 @@
                 const rms = Math.sqrt(sum / buffer.length);
                 const VOLUME_SCALE_FACTOR = 2000;
                 const volume = Math.min(100, rms * VOLUME_SCALE_FACTOR);
-                
+
                 // Track audio quality metrics
                 instance.volumeSamples.push(volume);
                 instance.peakVolume = Math.max(instance.peakVolume, volume);
                 instance.avgVolume = instance.volumeSamples.reduce((a, b) => a + b, 0) / instance.volumeSamples.length;
-                
+
                 // Silence detection (< 5% volume for corpus quality)
                 const now = Date.now();
                 if (volume < 5) {
@@ -198,7 +223,7 @@
         startRecording: function(instanceId, language = 'en-US') {
             if (!isSafeId(instanceId) || !(instanceId in instances) || instances[instanceId].isRecording) return;
             const instance = instances[instanceId];
-            
+
             // Initialize speech recognition if available
             if (window.SpeechRecognition || window.webkitSpeechRecognition) {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -207,7 +232,7 @@
                 instance.speechRecognition.interimResults = true;
                 instance.speechRecognition.lang = language;
                 instance.currentLanguage = language;
-                
+
                 instance.speechRecognition.onresult = (event) => {
                     const timestamp = Date.now() - instance.startTime;
                     for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -219,14 +244,14 @@
                             isFinal: result.isFinal,
                             language: instance.currentLanguage
                         };
-                        
+
                         if (result.isFinal) {
                             instance.transcript.push(transcript);
                             doAction('starmus_speech_recognized', instanceId, transcript);
                         }
                     }
                 };
-                
+
                 instance.speechRecognition.onerror = (event) => {
                     if (event.error === 'no-speech' || event.error === 'language-not-supported') {
                         // Mark as non-English/French
@@ -252,7 +277,7 @@
                 } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
                     options.mimeType = 'audio/mp4';
                 }
-                
+
                 instance.recorder = new MediaRecorder(destination.stream, options);
                 instance.chunks = [];
                 instance.audioBlob = null;
@@ -292,22 +317,22 @@
             if (instance.speechRecognition) {
                 instance.speechRecognition.stop();
             }
-            
+
             // Final silence calculation
             if (instance.silenceStart) {
                 instance.totalSilence += Date.now() - instance.silenceStart;
             }
-            
+
             instance.isRecording = false;
             instance.isPaused = false;
         },
-        
+
         getRecordingQuality: function(instanceId) {
             if (!isSafeId(instanceId) || !(instanceId in instances)) return null;
             const instance = instances[instanceId];
             const duration = Date.now() - instance.startTime;
             const silenceRatio = instance.totalSilence / duration;
-            
+
             return {
                 peakVolume: instance.peakVolume,
                 avgVolume: instance.avgVolume,
@@ -348,24 +373,24 @@
                     fileName,
                     mimeType: instance.audioBlob.type || 'audio/webm',
                     size: instance.audioBlob.size,
-                    metadata: { 
+                    metadata: {
                         // Unique identifiers
                         sessionUUID: instance.sessionUUID,
                         submissionUUID: crypto.randomUUID ? crypto.randomUUID() : 'sub-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-                        
+
                         // Temporal data (all UTC normalized)
                         recordedAt: new Date(instance.startTime).toISOString(), // Already UTC
                         recordedAtLocal: new Date(instance.startTime).toString(), // Local for reference
                         duration: recordingDuration,
                         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                        
+
                         // Audio technical specs
                         sampleRate: instance.ctx.sampleRate,
                         channelCount: 1,
                         bitDepth: 16,
                         codec: instance.audioBlob.type,
                         fileSize: instance.audioBlob.size,
-                        
+
                         // Device/browser fingerprint
                         userAgent: navigator.userAgent,
                         platform: navigator.platform,
@@ -379,7 +404,7 @@
                             downlink: navigator.connection.downlink,
                             rtt: navigator.connection.rtt
                         } : 'unknown',
-                        
+
                         // Audio processing chain
                         audioProcessing: {
                             echoCancellation: true,
@@ -390,16 +415,16 @@
                             compressionUsed: true,
                             highpassFilter: '80Hz'
                         },
-                        
+
                         // Recording quality metrics for corpus
                         quality: {
                             peakVolume: instance.peakVolume,
                             avgVolume: instance.avgVolume,
                             silenceRatio: instance.totalSilence / recordingDuration,
-                            volumeConsistency: instance.volumeSamples.length > 0 ? 
+                            volumeConsistency: instance.volumeSamples.length > 0 ?
                                 (instance.volumeSamples.reduce((acc, v) => acc + Math.abs(v - instance.avgVolume), 0) / instance.volumeSamples.length) : 0
                         },
-                        
+
                         // Speech recognition data (timestamps normalized to UTC)
                         transcript: instance.transcript.map(t => ({
                             ...t,
@@ -434,60 +459,60 @@
             if (!isSafeId(instanceId) || !(instanceId in instances)) return { isValid: false, reason: 'Invalid instance' };
             const instance = instances[instanceId];
             const duration = Date.now() - instance.startTime;
-            
+
             const allText = instance.transcript.map(t => t.text).join(' ').toLowerCase().trim();
             const totalWords = allText ? allText.split(/\s+/).length : 0;
-            const avgConfidence = instance.transcript.length > 0 ? 
+            const avgConfidence = instance.transcript.length > 0 ?
                 instance.transcript.reduce((sum, t) => sum + t.confidence, 0) / instance.transcript.length : 0;
-            
+
             const typeContext = recordingType.toLowerCase();
-            
+
             // Single words - very lenient
             if (typeContext.includes('word') || (duration < 3000 && totalWords <= 2)) {
                 const obviousEnglish = /^(hello|yes|no|the|and|is|are|you|me|my|your|good|bad|big|small|one|two|three)$/i.test(allText);
                 const obviousFrench = /^(bonjour|oui|non|le|la|les|et|est|vous|moi|mon|votre|bon|mauvais|grand|petit|un|deux|trois)$/i.test(allText);
-                
+
                 if (avgConfidence > 0.95 && (obviousEnglish || obviousFrench)) {
                     return { isValid: false, reason: `Obvious ${obviousEnglish ? 'English' : 'French'} word detected`, recordingType: 'word' };
                 }
                 return { isValid: true, reason: 'Single word - likely West African', recordingType: 'word', avgConfidence };
             }
-            
+
             // Phrases/proverbs - moderate validation
             if (typeContext.includes('phrase') || typeContext.includes('proverb') || typeContext.includes('saying') || (duration < 15000 && totalWords <= 15)) {
                 const englishPattern = /\b(the|and|is|in|to|of|a|that|it|with|for|as|was|on|are|you|this|have|they|we|said|do|will|about|then|would|make|what|know|also|your|can|now|when|where|good|come|get|see|way|who|say)\b/g;
                 const frenchPattern = /\b(le|la|les|de|des|du|et|est|dans|pour|avec|sur|sont|vous|que|qui|une|un|ce|ne|pas|tout|être|avoir|faire|dire|aller|voir|savoir|venir|vouloir|donner|parler)\b/g;
-                
+
                 const englishMatches = (allText.match(englishPattern) || []).length;
                 const frenchMatches = (allText.match(frenchPattern) || []).length;
                 const recognizedRatio = Math.max(englishMatches, frenchMatches) / Math.max(totalWords, 1);
-                
+
                 if (recognizedRatio > 0.6 && avgConfidence > 0.8) {
                     return { isValid: false, reason: `${Math.round(recognizedRatio * 100)}% ${englishMatches > frenchMatches ? 'English' : 'French'} phrase patterns`, recordingType: 'phrase' };
                 }
                 return { isValid: true, reason: 'Phrase/proverb - likely West African', recordingType: 'phrase', avgConfidence };
             }
-            
+
             // Default validation for longer content
             const englishPattern = /\b(the|and|is|in|to|of|a|that|it|with|for|as|was|on|are|you|this|have|from|they|we|been|their|said|which|do|how|will|about|many|then|some|would|make|like|has|more|what|know|first|also|your|work|only|can|should|now|here|when|where|good|come|could|get|new|see|way|who|did|say|too|any)\b/g;
             const frenchPattern = /\b(le|la|les|de|des|du|et|est|dans|pour|avec|sur|sont|vous|que|qui|une|un|ce|se|ne|pas|tout|être|avoir|faire|dire|aller|voir|savoir|prendre|venir|vouloir|pouvoir|croire|donner|parler|porter|finir|partir|sentir|sortir|conduire)\b/g;
-            
+
             const englishMatches = (allText.match(englishPattern) || []).length;
             const frenchMatches = (allText.match(frenchPattern) || []).length;
             const recognizedRatio = Math.max(englishMatches, frenchMatches) / Math.max(totalWords, 1);
-            
+
             if (recognizedRatio > 0.4 && avgConfidence > 0.7) {
                 return { isValid: false, reason: `${Math.round(recognizedRatio * 100)}% ${englishMatches > frenchMatches ? 'English' : 'French'} patterns detected`, recordingType: 'story' };
             }
-            
+
             return { isValid: true, reason: 'Recording validated - likely West African language', recordingType: 'unknown', avgConfidence };
         },
-        
+
         getTranscript: function(instanceId) {
             if (!isSafeId(instanceId) || !(instanceId in instances)) return [];
             return instances[instanceId].transcript || [];
         },
-        
+
         // Debug only
         _instances: instances
     };

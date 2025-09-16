@@ -13,7 +13,30 @@
 
     const CONFIG = { LOG_PREFIX: '[Starmus UI Controller]' };
     function log(level, msg, data) { if (console && console[level]) { console[level](CONFIG.LOG_PREFIX, msg, data || ''); } }
-    function el(id) { return document.getElementById(id); }
+
+    // DEBUG PATCH: Add a visible log and alert to confirm initialization
+    function debugInitBanner() {
+        if (!window.isStarmusAdmin) return;
+        const banner = document.createElement('div');
+        banner.textContent = '[Starmus UI Controller] JS Initialized';
+        banner.style.position = 'fixed';
+        banner.style.top = '0';
+        banner.style.left = '0';
+        banner.style.zIndex = '99999';
+        banner.style.background = '#222';
+        banner.style.color = '#fff';
+        banner.style.padding = '4px 12px';
+        banner.style.fontSize = '14px';
+        banner.style.fontFamily = 'monospace';
+        banner.style.opacity = '0.95';
+        document.body.appendChild(banner);
+        setTimeout(() => banner.remove(), 4000);
+        log('info', 'DEBUG: UI Controller banner shown');
+    }
+    function el(id) {
+        log('debug', 'el() called for id:', id);
+        return document.getElementById(id);
+    }
     function safeId(id) { return typeof id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(id); }
     const Hooks = window.StarmusHooks;
 
@@ -24,12 +47,19 @@
     }
 
     function showUserMessage(instanceId, message, type = 'info') {
-        if (!safeId(instanceId)) return;
+        log('debug', 'showUserMessage called', { instanceId, message, type });
+        if (!safeId(instanceId)) {
+            log('warn', 'showUserMessage: unsafe instanceId', instanceId);
+            return;
+        }
         const area = el(`starmus_recorder_status_${instanceId}`) || el(`starmus_step1_usermsg_${instanceId}`);
         if (area) {
             area.textContent = sanitizeText(message);
             area.setAttribute('data-status', type);
             area.style.display = message ? 'block' : 'none';
+            log('debug', 'showUserMessage: updated area', area.id);
+        } else {
+            log('warn', 'showUserMessage: area not found for', instanceId);
         }
     }
 
@@ -37,13 +67,21 @@
     function buildRecorderUI(_instanceId) { /* ... build logic ... */ }
 
     function handleContinueClick(formId) {
-        if (!safeId(formId)) return;
+        log('info', 'handleContinueClick called for formId:', formId);
+        if (!safeId(formId)) {
+            log('warn', 'handleContinueClick: unsafe formId', formId);
+            return;
+        }
         const _form = el(formId);
         const step1 = el(`starmus_step1_${formId}`);
         const step2 = el(`starmus_step2_${formId}`);
-
+        if (!_form || !step1 || !step2) {
+            log('error', 'handleContinueClick: missing form or step elements', { _form, step1, step2 });
+            return;
+        }
         let allValid = true;
         for (const input of step1.querySelectorAll('[required]')) {
+            log('debug', 'Checking required input', input.name, input.value);
             if (!input.checkValidity()) {
                 showUserMessage(formId, `Please complete all required fields.`, 'error');
                 if (typeof input.reportValidity === 'function') input.reportValidity();
@@ -51,14 +89,19 @@
                 break;
             }
         }
-        if (!allValid) return;
-
+        if (!allValid) {
+            log('info', 'handleContinueClick: not all fields valid');
+            return;
+        }
+        log('info', 'handleContinueClick: all fields valid, switching to step 2');
         step1.style.display = 'none';
         step2.style.display = 'block';
         showUserMessage(formId, '', 'info');
-
         window.StarmusSubmissionsHandler.initRecorder(formId)
-            .then(() => { buildRecorderUI(formId); })
+            .then(() => {
+                log('info', 'Recorder initialized, building UI for', formId);
+                buildRecorderUI(formId);
+            })
             .catch(err => {
                 log('error', 'Recorder init failed, reverting to step 1.', err?.message);
                 showUserMessage(formId, 'Unable to initialize recorder. Please try again.', 'error');
@@ -69,20 +112,25 @@
 
     function initializeForm(form) {
         const formId = form.id;
-        if (!safeId(formId) || form.getAttribute('data-starmus-bound')) {
+        log('info', 'initializeForm called for', formId);
+        if (!safeId(formId)) {
+            log('warn', 'initializeForm: unsafe formId', formId);
+            return;
+        }
+        if (form.getAttribute('data-starmus-bound')) {
+            log('info', 'initializeForm: already bound', formId);
             return;
         }
         form.setAttribute('data-starmus-bound', '1');
-
-        // FIX 1: Use robust, contextual selector and add a guard.
         const continueBtn = form.querySelector(`#starmus_continue_btn_${formId}`);
         if (continueBtn) {
+            log('info', 'initializeForm: found continue button', continueBtn.id);
             continueBtn.addEventListener('click', () => handleContinueClick(formId));
         } else {
             log('error', 'CRITICAL: Could not find the continue button for form:', formId);
         }
-
         form.addEventListener('submit', event => {
+            log('info', 'Form submit event for', formId);
             event.preventDefault();
             window.StarmusSubmissionsHandler.handleSubmit(formId, form);
         });
@@ -92,17 +140,30 @@
     let uiInitialized = false;
 
     function init() {
-        if (uiInitialized) return;
+        if (uiInitialized) {
+            log('info', 'init: already initialized');
+            return;
+        }
         uiInitialized = true;
         log('info', 'UI Controller Initializing...');
+        debugInitBanner();
 
         if (window.StarmusSubmissionsHandler && typeof window.StarmusSubmissionsHandler.init === 'function') {
+            log('info', 'Calling StarmusSubmissionsHandler.init()');
             window.StarmusSubmissionsHandler.init();
+        } else {
+            log('warn', 'StarmusSubmissionsHandler not found or missing init');
         }
-        
         const forms = document.querySelectorAll('form.starmus-audio-form');
-        forms.forEach(initializeForm);
-        Hooks?.doAction('starmus_ui_ready');
+        log('info', 'Found forms:', Array.from(forms).map(f => f.id));
+        forms.forEach(form => {
+            log('info', 'Initializing form:', form.id);
+            initializeForm(form);
+        });
+        if (Hooks) {
+            log('info', 'Calling Hooks.doAction(starmus_ui_ready)');
+            Hooks.doAction('starmus_ui_ready');
+        }
     }
 
     // FIX 2: Add retroactive "catch-up" logic.
