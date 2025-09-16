@@ -1,0 +1,26 @@
+# Include everything except for node_modules and build artifacts
+dist/
+build/
+coverage/
+assets/
+vendor/
+
+node_modules/
+dist/
+build/
+coverage/
+assets/
+vendor/
+
+# Exclude documentation, tools, and test artifacts
+docs/
+tools/
+.phpdoc/
+playwright-report/
+test-results/
+tests/
+
+# Do NOT exclude src/
+
+# Prevent recursive packaging
+*.tgz
