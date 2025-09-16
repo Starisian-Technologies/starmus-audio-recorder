@@ -8,7 +8,6 @@ tools/
 .phpdoc/
 playwright-report/
 test-results/
-test-results/
 test.js
 
 # Build files
