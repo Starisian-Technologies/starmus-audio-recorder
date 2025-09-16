@@ -1,4 +1,5 @@
 # Development files
+wp-admin/
 src/
 tests/
 docs/
@@ -8,6 +9,7 @@ tools/
 .phpdoc/
 playwright-report/
 test-results/
+test.js
 
 # Build files
 node_modules/
@@ -38,16 +40,13 @@ prettierrc.json
 gl-codequality.yml
 
 # Documentation
-README.md
 CHANGELOG.md
 ARCHITECTURE.md
 INSTRUCTIONS.md
 TESTING.md
 WORKSPACE.md
 AGENTS.md
-SECURITY*.md
-TERMS.md
-ETHICS.md
+
 
 # Composer dev dependencies
 composer.lock
