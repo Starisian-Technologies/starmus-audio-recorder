@@ -92,14 +92,13 @@ jobs:
           test -f vendor/js/tus.min.js || { echo "Missing tus.js"; exit 1; }
 
       # Step 9: Build the distributable plugin ZIP file.
-      - name: Ensure .distignore exists
-        run: test -f .distignore || { echo ".distignore is missing"; exit 1; }
       - name: Build plugin ZIP
         run: |
           SLUG="starmus-audio-recorder"
+          VERSION=${{ env.VERSION }}
           mkdir -p build
           rsync -a --delete --exclude-from=.distignore ./ build/${SLUG}/
-          (cd build && zip -r "../${SLUG}-${{ env.VERSION }}.zip" "${SLUG}")
+          (cd build && zip -r "../${SLUG}-${VERSION}.zip" . )
 
       # Step 10: Generate checksums for the ZIP file.
       - name: Generate checksums
