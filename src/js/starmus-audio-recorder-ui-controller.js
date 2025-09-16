@@ -16,6 +16,7 @@
 
     // DEBUG PATCH: Add a visible log and alert to confirm initialization
     function debugInitBanner() {
+        log('info', '[Starmus UI Controller] debugInitBanner called. window.isStarmusAdmin:', window.isStarmusAdmin);
         if (!window.isStarmusAdmin) return;
         const banner = document.createElement('div');
         banner.textContent = '[Starmus UI Controller] JS Initialized';
@@ -112,7 +113,7 @@
 
     function initializeForm(form) {
         const formId = form.id;
-        log('info', 'initializeForm called for', formId);
+        log('info', 'initializeForm called for', formId, 'form:', form);
         if (!safeId(formId)) {
             log('warn', 'initializeForm: unsafe formId', formId);
             return;
@@ -124,8 +125,20 @@
         form.setAttribute('data-starmus-bound', '1');
         const continueBtn = form.querySelector(`#starmus_continue_btn_${formId}`);
         if (continueBtn) {
-            log('info', 'initializeForm: found continue button', continueBtn.id);
-            continueBtn.addEventListener('click', () => handleContinueClick(formId));
+            log('info', 'initializeForm: found continue button', continueBtn.id, continueBtn);
+            continueBtn.addEventListener('click', () => {
+                log('info', 'Continue button clicked, system snapshot:', {
+                    formId,
+                    form,
+                    location: window.location.href,
+                    isStarmusAdmin: window.isStarmusAdmin,
+                    documentReady: document.readyState,
+                    scripts: Array.from(document.scripts).map(s => s.src),
+                    forms: Array.from(document.querySelectorAll('form.starmus-audio-form')).map(f => f.id),
+                    time: new Date().toISOString()
+                });
+                handleContinueClick(formId);
+            });
         } else {
             log('error', 'CRITICAL: Could not find the continue button for form:', formId);
         }
@@ -166,19 +179,17 @@
         }
     }
 
-    // FIX 2: Add retroactive "catch-up" logic.
-    if (Hooks) {
-        Hooks.addAction('starmus_hooks_ready', init);
-        if (Hooks.hasFired && Hooks.hasFired('starmus_hooks_ready')) {
+
+    // SIMPLIFIED: Always initialize on DOMContentLoaded or immediately if DOM is ready
+    log('info', '[Starmus UI Controller] Top-level script loaded. document.readyState:', document.readyState);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            log('info', '[Starmus UI Controller] DOMContentLoaded fired, calling init()');
             init();
-        }
+        });
     } else {
-        // Fallback if hooks not available
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+        log('info', '[Starmus UI Controller] DOM already ready, calling init()');
+        init();
     }
 
     window.StarmusUIController = { updateRecorderUI, showUserMessage, buildRecorderUI };
