@@ -91,18 +91,19 @@ jobs:
           test -f vendor/js/peaks.min.js || { echo "Missing Peaks.js"; exit 1; }
           test -f vendor/js/tus.min.js || { echo "Missing tus.js"; exit 1; }
 
-     # Step 9: Build the distributable plugin ZIP file.
+      # Step 9: Build the distributable plugin ZIP file.
       - name: Ensure .distignore exists
         run: test -f .distignore || { echo ".distignore is missing"; exit 1; }
       - name: Build plugin ZIP
         run: |
           SLUG="starmus-audio-recorder"
           VERSION=${{ env.VERSION }}
+          rm -rf build
           mkdir -p build
-          rsync -a --delete --exclude-from=.distignore ./ build/${SLUG}/
-          (cd build && zip -r "../${SLUG}-${VERSION}.
+          rsync -a --exclude-from=.distignore ./ build/${SLUG}/
+          (cd build && zip -r "../${SLUG}-${VERSION}.zip" "${SLUG}")
 
-   # Step 10: Generate checksums for the ZIP file.
+      # Step 10: Generate checksums for the ZIP file.
       - name: Generate checksums
         run: |
           ZIP_FILE="starmus-audio-recorder-${{ env.VERSION }}.zip"
