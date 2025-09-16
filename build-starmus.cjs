@@ -1,8 +1,7 @@
-
 // SPDX-FileCopyrightText: 2023-2025 Starisian Technologies
 // SPDX-License-Identifier: MIT
 
-// Patch: Use child_process.execSync for git commands
+// Patch: Use child_process.execSync for git commands (CommonJS)
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -10,9 +9,9 @@ const path = require('path');
 // Get git hash safely
 let gitHash = '';
 try {
-	gitHash = execSync('git rev-parse --short HEAD').toString().trim();
+  gitHash = execSync('git rev-parse --short HEAD').toString().trim();
 } catch (e) {
-	gitHash = 'nogit';
+  gitHash = 'nogit';
 }
 
 // Example: write hash to a file (customize as needed)

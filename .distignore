@@ -10,6 +10,7 @@ playwright-report/
 test-results/
 test.js
 
+
 # Build files
 build/
 node_modules/
@@ -24,6 +25,7 @@ playwright.config.js
 phpunit*.xml*
 phpcs.xml*
 phpstan.neon*
+*.tgz
 
 # Config files
 .git/
