@@ -65,7 +65,91 @@
     }
 
     function updateRecorderUI(_instanceId, _state) { /* ... update logic ... */ }
-    function buildRecorderUI(_instanceId) { /* ... build logic ... */ }
+    // --- THIS IS THE FINAL PIECE OF THE PUZZLE ---
+    function startTimer(instanceId) {
+        setInterval(() => {
+            if (!safeId(instanceId)) return;
+            const instance = window.StarmusAudioRecorder?._instances?.[instanceId];
+            const timerEl = el(`starmus_timer_${instanceId}`);
+            if (instance?.isRecording && !instance.isPaused && timerEl) {
+                const elapsed = Date.now() - instance.startTime;
+                const minutes = Math.floor(elapsed / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+                timerEl.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+            }
+        }, 1000);
+    }
+
+    function buildRecorderUI(instanceId) {
+        log('info', 'buildRecorderUI called for', instanceId);
+        if (!safeId(instanceId)) return;
+        const container = el(`starmus_recorder_container_${instanceId}`);
+        if (!container) {
+            log('error', 'Recorder container not found for instance:', instanceId);
+            return;
+        }
+
+        const recorderHTML = `
+            <div class="starmus-recorder-controls">
+                <button type="button" id="starmus_record_btn_${instanceId}" class="starmus-btn starmus-btn--record">Record</button>
+                <button type="button" id="starmus_stop_btn_${instanceId}" class="starmus-btn starmus-btn--stop" style="display:none;">Stop</button>
+                <button type="button" id="starmus_pause_btn_${instanceId}" class="starmus-btn starmus-btn--pause" style="display:none;">Pause</button>
+                <div id="starmus_timer_${instanceId}" class="starmus-recorder-timer">00:00</div>
+            </div>
+            <div class="starmus-recorder-status" id="starmus_recorder_status_${instanceId}">Ready to record.</div>
+            <div class="starmus-volume-meter">
+                <div id="starmus_volume_level_${instanceId}" class="starmus-volume-level"></div>
+            </div>
+        `;
+
+        container.innerHTML = recorderHTML;
+        log('debug', 'Recorder HTML inserted for', instanceId);
+
+        const recordBtn = el(`starmus_record_btn_${instanceId}`);
+        const stopBtn = el(`starmus_stop_btn_${instanceId}`);
+        const pauseBtn = el(`starmus_pause_btn_${instanceId}`);
+        const submitBtn = document.querySelector(`#${instanceId} #starmus_submit_btn_${instanceId}`);
+        const statusArea = el(`starmus_recorder_status_${instanceId}`);
+
+        if (!recordBtn || !stopBtn || !pauseBtn || !submitBtn || !statusArea) {
+            log('error', 'One or more recorder UI elements could not be found after creation.');
+            return;
+        }
+
+        recordBtn.addEventListener('click', () => {
+            log('info', 'Record button clicked');
+            window.StarmusAudioRecorder.startRecording(instanceId);
+            window.StarmusAudioRecorder.startVolumeMonitoring(instanceId, (volume) => {
+                const volumeEl = el(`starmus_volume_level_${instanceId}`);
+                if (volumeEl) volumeEl.style.width = `${volume}%`;
+            });
+            recordBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-block';
+            pauseBtn.style.display = 'inline-block';
+            submitBtn.disabled = true;
+            statusArea.textContent = 'Recording...';
+            startTimer(instanceId);
+        });
+
+        stopBtn.addEventListener('click', () => {
+            log('info', 'Stop button clicked');
+            window.StarmusAudioRecorder.stopRecording(instanceId);
+            stopBtn.style.display = 'none';
+            pauseBtn.style.display = 'none';
+            recordBtn.textContent = 'Record Again';
+            recordBtn.style.display = 'inline-block';
+            submitBtn.disabled = false;
+            statusArea.textContent = 'Recording finished. Ready to submit.';
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            log('info', 'Pause/Resume button clicked');
+            window.StarmusAudioRecorder.togglePause(instanceId);
+            const isPaused = window.StarmusAudioRecorder?._instances?.[instanceId]?.isPaused || false;
+            pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+            statusArea.textContent = isPaused ? 'Paused.' : 'Recording...';
+        });
+    }
 
     function handleContinueClick(formId) {
         log('info', 'handleContinueClick called for formId:', formId);
