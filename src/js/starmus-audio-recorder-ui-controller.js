@@ -182,8 +182,10 @@
         step1.style.display = 'none';
         step2.style.display = 'block';
         showUserMessage(formId, '', 'info');
-        window.StarmusSubmissionsHandler.initRecorder(formId)
-            .then(() => {
+        const recorderInit = window.StarmusSubmissionsHandler.initRecorder(formId);
+        log('debug', '[handleContinueClick] initRecorder returned:', recorderInit);
+        if (recorderInit && typeof recorderInit.then === 'function') {
+            recorderInit.then(() => {
                 log('info', 'Recorder initialized, building UI for', formId);
                 buildRecorderUI(formId);
             })
@@ -193,6 +195,12 @@
                 step1.style.display = 'block';
                 step2.style.display = 'none';
             });
+        } else {
+            log('error', '[handleContinueClick] initRecorder did not return a Promise. Value:', recorderInit);
+            showUserMessage(formId, 'Unable to initialize recorder. Please reload the page or contact support.', 'error');
+            step1.style.display = 'block';
+            step2.style.display = 'none';
+        }
     }
 
     function initializeForm(form) {
