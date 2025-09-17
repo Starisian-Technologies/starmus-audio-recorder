@@ -177,23 +177,40 @@
   // --- Recorder bootstrap / Tier C reveal ---
   function initRecorder(instanceId){
     log('info', 'initRecorder called', instanceId);
-    if(!safeId(instanceId)) {
-      log('warn', 'initRecorder: unsafe instanceId', instanceId);
-      return;
-    }
-    const recorderModule = window.StarmusAudioRecorder;
-    if(!recorderModule || typeof recorderModule.init!=='function'){
-      log('warn', 'initRecorder: recorder module missing or invalid');
-      revealTierC(instanceId); return;
-    }
-    showUserMessage(instanceId, 'Initializing microphone...', 'info');
-    recorderModule.init({ formInstanceId: instanceId })
-      .then(function(r){
-        log('info', 'Recorder module initialized', r);
-        if(r && r.tier==='A'){ showUserMessage(instanceId,'Recorder ready. Use “Setup Mic” for best results.','info'); }
-        else { showUserMessage(instanceId,'Recorder ready.','info'); }
-      })
-      .catch(function(err){ log('error','Engine init failed', err && err.message); revealTierC(instanceId); });
+    return new Promise((resolve, reject) => {
+      if(!safeId(instanceId)) {
+        log('warn', 'initRecorder: unsafe instanceId', instanceId);
+        reject(new Error('Unsafe instanceId'));
+        return;
+      }
+      const recorderModule = window.StarmusAudioRecorder;
+      if(!recorderModule || typeof recorderModule.init!=='function'){
+        log('warn', 'initRecorder: recorder module missing or invalid');
+        revealTierC(instanceId);
+        reject(new Error('Recorder module missing or invalid'));
+        return;
+      }
+      // If already initialized, resolve immediately
+      if (recorderModule.instances && recorderModule.instances[instanceId]) {
+        log('info', 'initRecorder: recorder already initialized for', instanceId);
+        showUserMessage(instanceId, 'Recorder already initialized.', 'info');
+        resolve(true);
+        return;
+      }
+      showUserMessage(instanceId, 'Initializing microphone...', 'info');
+      recorderModule.init({ formInstanceId: instanceId })
+        .then(function(r){
+          log('info', 'Recorder module initialized', r);
+          if(r && r.tier==='A'){ showUserMessage(instanceId,'Recorder ready. Use “Setup Mic” for best results.','info'); }
+          else { showUserMessage(instanceId,'Recorder ready.','info'); }
+          resolve(r);
+        })
+        .catch(function(err){
+          log('error','Engine init failed', err && err.message);
+          revealTierC(instanceId);
+          reject(err);
+        });
+    });
   }
 
     function revealTierC(instanceId) {
