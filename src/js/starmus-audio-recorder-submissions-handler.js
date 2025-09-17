@@ -4,63 +4,30 @@
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
  * @module  StarmusSubmissionsHandler
- * @version 1.2.0
+ * @version 1.2.1
  * @file    The Submission Engine - Pure data handling with hooks integration
  */
 (function(window, document) {
     'use strict';
 
     const CONFIG = { LOG_PREFIX: '[Starmus Submissions]' };
-  function log(level, msg, data) {
-    if (console && console[level]) {
-      console[level](CONFIG.LOG_PREFIX, msg, data || '');
-    }
-  }
+    function log(level, msg, data) { if (console && console[level]) { console[level](CONFIG.LOG_PREFIX, msg, data || ''); } }
 
-  // DEBUG PATCH: Add a visible log and alert to confirm initialization
-  function debugInitBanner() {
-    if (!window.isStarmusAdmin) return;
-    const banner = document.createElement('div');
-    banner.textContent = '[Starmus Submissions Handler] JS Initialized';
-    banner.style.position = 'fixed';
-    banner.style.top = '24px';
-    banner.style.left = '0';
-    banner.style.zIndex = '99999';
-    banner.style.background = '#2a2';
-    banner.style.color = '#fff';
-    banner.style.padding = '4px 12px';
-    banner.style.fontSize = '14px';
-    banner.style.fontFamily = 'monospace';
-    banner.style.opacity = '0.95';
-    document.body.appendChild(banner);
-    setTimeout(() => banner.remove(), 4000);
-    log('info', 'DEBUG: Submissions Handler banner shown');
-  }
+    function debugInitBanner() {
+        if (!window.isStarmusAdmin) return;
+        const banner = document.createElement('div');
+        banner.textContent = '[Starmus Submissions Handler] JS Initialized';
+        banner.style.cssText = 'position:fixed;top:24px;left:0;z-index:99999;background:#2a2;color:#fff;padding:4px 12px;font:14px monospace;opacity:0.95';
+        document.body.appendChild(banner);
+        setTimeout(() => banner.remove(), 4000);
+        log('info', 'DEBUG: Submissions Handler banner shown');
+    }
     function el(id) { return document.getElementById(id); }
-    function safeId(id) {
-        return typeof id === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(id);
-    }
-
-    function s(str) {
-        return typeof str === 'string' ? str.replace(/[<>"'&]/g, '') : '';
-    }
-
-    function collectFormFields(form) {
-        const fields = {};
-        new FormData(form).forEach((value, key) => fields[key] = value);
-        return fields;
-    }
-
-    function doAction(hook, ...args) {
-        if (window.StarmusHooks) {
-            window.StarmusHooks.doAction(hook, ...args);
-        }
-    }
-
-    function applyFilters(hook, value, ...args) {
-        return window.StarmusHooks ?
-            window.StarmusHooks.applyFilters(hook, value, ...args) : value;
-    }
+    function safeId(id) { return typeof id === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(id); }
+    function s(str) { return typeof str === 'string' ? str.replace(/[<>"'&]/g, '') : ''; }
+    function collectFormFields(form) { const fields = {}; new FormData(form).forEach((value, key) => fields[key] = value); return fields; }
+    function doAction(hook, ...args) { if (window.StarmusHooks?.doAction) { window.StarmusHooks.doAction(hook, ...args); } }
+    function applyFilters(hook, value, ...args) { return window.StarmusHooks?.applyFilters ? window.StarmusHooks.applyFilters(hook, value, ...args) : value; }
 
   function showUserMessage(instanceId, text, type){
     log('debug', 'showUserMessage called', { instanceId, text, type });
@@ -138,13 +105,43 @@
     if (!window.tus || !tusCfg.endpoint) {
       log('warn', 'tus missing or endpoint not set, falling back to REST');
       const wpData = window.starmusFormData || {};
+      log('debug', 'WordPress config:', { hasRestUrl: !!wpData.rest_url, hasNonce: !!wpData.rest_nonce, userId: wpData.user_id });
       if (wpData.rest_url && wpData.rest_nonce){
         const fd=new FormData();
-        Object.keys(formFields||{}).forEach(function(k){ fd.append(s(k), formFields[k]); });
+        
+        // Add user ID if available (often required by WordPress)
+        if (wpData.user_id) fd.append('user_id', wpData.user_id);
+        
+        // Add all form fields with validation
+        Object.keys(formFields||{}).forEach(function(k){ 
+          const value = formFields[k];
+          if (value !== null && value !== undefined && value !== '') {
+            fd.append(s(k), value); 
+          }
+        });
+        
         fd.append('audio_file', blob, s(fileName) || 'recording');
         if (metadata) fd.append('metadata', JSON.stringify(metadata));
+        
+        // Log what we're sending for debugging
+        log('debug', 'Sending form data:', {
+          fields: Object.keys(formFields||{}),
+          hasAudio: !!blob,
+          audioSize: blob?.size,
+          hasMetadata: !!metadata,
+          hasUserId: !!wpData.user_id
+        });
         return fetch(wpData.rest_url,{ method:'POST', headers:{'X-WP-Nonce': wpData.rest_nonce}, body: fd })
-          .then(function(res){ if(!res.ok) throw new Error('Direct upload failed: '+res.status); log('info', 'Direct upload success', res); return res; });
+          .then(function(res){ 
+            if(!res.ok) {
+              return res.text().then(errorText => {
+                log('error', 'Server response:', { status: res.status, statusText: res.statusText, body: errorText });
+                throw new Error(`Upload failed: ${res.status} - ${errorText}`);
+              });
+            }
+            log('info', 'Direct upload success', res); 
+            return res; 
+          });
       }
       log('error', 'tus missing and no fallback endpoint configured');
       return Promise.reject(new Error('tus missing and no fallback endpoint configured'));
@@ -190,12 +187,10 @@
         reject(new Error('Recorder module missing or invalid'));
         return;
       }
-      // If already initialized, resolve immediately
-      if (recorderModule.instances && recorderModule.instances[instanceId]) {
+      // FIX: Correctly check the debug _instances object for an existing instance.
+      if (recorderModule._instances && recorderModule._instances[instanceId]) {
         log('info', 'initRecorder: recorder already initialized for', instanceId);
-        showUserMessage(instanceId, 'Recorder already initialized.', 'info');
-        resolve(true);
-        return;
+        return resolve(true);
       }
       showUserMessage(instanceId, 'Initializing microphone...', 'info');
       recorderModule.init({ formInstanceId: instanceId })
@@ -222,39 +217,8 @@
         doAction('starmus_tier_c_revealed', instanceId);
     }
 
-  // --- Form submit glue ---
-  function _bindForm(_formId){
-    if(!safeId(_formId)) return;
-    const form=el(_formId); if(!form) return;
-    form.addEventListener('submit', function(ev){
-      ev.preventDefault();
-      handleSubmit(_formId, form);
-    });
-  }
-
-  function _bindContinueButton(_formId) {
-    if(!safeId(_formId)) return;
-    const continueBtn = el('starmus_continue_btn_' + _formId);
-    const step1 = el('starmus_step1_' + _formId);
-    const step2 = el('starmus_step2_' + _formId);
-    if (!continueBtn || !step1 || !step2) return;
-    continueBtn.addEventListener('click', function() {
-        let allValid = true;
-        const inputs = step1.querySelectorAll('[required]');
-        for (const input of inputs) {
-            if (!input.checkValidity()) {
-                if (typeof input.reportValidity === 'function') { input.reportValidity(); }
-                allValid = false;
-                break;
-            }
-        }
-        if (allValid) {
-            step1.style.display = 'none';
-            step2.style.display = 'block';
-            initRecorder(_formId);
-        }
-    });
-  }
+    // REMOVED: Redundant _bindForm and _bindContinueButton functions.
+    // This responsibility lies solely with the UI Controller.
 
 
 
@@ -268,11 +232,19 @@
   }
 
     function handleSubmit(instanceId, form) {
-    log('info', 'handleSubmit called', { instanceId, form });
-    if (!safeId(instanceId)) {
-      log('warn', 'handleSubmit: unsafe instanceId', instanceId);
-      return;
-    }
+        log('info', 'handleSubmit called', { instanceId, form });
+        if (!safeId(instanceId)) {
+            log('warn', 'handleSubmit: unsafe instanceId', instanceId);
+            return Promise.reject(new Error('Unsafe instanceId'));
+        }
+        
+        // Disable submit button to prevent multiple clicks
+        const submitBtn = el(`starmus_submit_btn_${instanceId}`);
+        const originalText = submitBtn?.textContent;
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+        }
     const recordingData = window.StarmusAudioRecorder?.getSubmissionData?.(instanceId);
     const fb = el('starmus_fallback_input_' + instanceId);
     let blob = null, fileName = 'recording.webm';
@@ -288,7 +260,11 @@
     if (!blob) {
       log('error', 'handleSubmit: no audio blob found');
       doAction('starmus_submission_failed', instanceId, 'No audio');
-      return;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText || 'Submit';
+      }
+      return Promise.reject(new Error('No audio blob found'));
     }
     // Validate minimum recording length - allow single words (1 second minimum)
     const metadata = recordingData?.metadata || {};
@@ -297,7 +273,11 @@
       log('warn', 'handleSubmit: recording too short', duration);
       showUserMessage(instanceId, 'Recording too short. Please record at least 1 second.', 'error');
       doAction('starmus_submission_failed', instanceId, 'Recording too short');
-      return;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText || 'Submit';
+      }
+      return Promise.reject(new Error('Recording too short'));
     }
     // Check recording quality if available
     const quality = window.StarmusAudioRecorder?.getRecordingQuality?.(instanceId);
@@ -316,7 +296,11 @@
       log('warn', 'handleSubmit: language validation failed', languageValidation);
       showUserMessage(instanceId, `Warning: ${languageValidation.reason}. This corpus is for West African languages only.`, 'error');
       doAction('starmus_language_validation_failed', instanceId, languageValidation);
-      return;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText || 'Submit';
+      }
+      return Promise.reject(new Error('Language validation failed'));
     }
     if (languageValidation?.isValid) {
       log('info', 'handleSubmit: language validation passed', languageValidation);
@@ -376,11 +360,11 @@
     if (!shouldProceed) {
       log('info', 'handleSubmit: submission handled by filter hook');
       doAction('starmus_submission_queued', instanceId, submissionPackage);
-      return;
+      return Promise.resolve('Handled by filter');
     }
     log('info', 'handleSubmit: starting upload', submissionPackage);
     doAction('starmus_submission_started', instanceId, submissionPackage);
-    resumableTusUpload(blob, fileName, formFields, metadata, instanceId)
+    return resumableTusUpload(blob, fileName, formFields, metadata, instanceId)
       .then(url => {
         log('info', 'handleSubmit: upload success', url);
         doAction('starmus_upload_success', instanceId, url);
@@ -389,11 +373,23 @@
       .then(() => {
         log('info', 'handleSubmit: submission complete');
         doAction('starmus_submission_complete', instanceId, submissionPackage);
+        if (submitBtn) {
+          submitBtn.textContent = 'Submitted!';
+          setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText || 'Submit';
+          }, 2000);
+        }
       })
       .catch(err => {
         log('error', 'handleSubmit: upload failed', err?.message);
         doAction('starmus_submission_failed', instanceId, err);
         Offline.add(instanceId, blob, fileName, formFields, metadata);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText || 'Submit';
+        }
+        throw err;
       });
     }
 

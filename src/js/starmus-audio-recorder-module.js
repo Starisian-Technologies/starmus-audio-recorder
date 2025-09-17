@@ -1,57 +1,32 @@
-// FILE: starmus-audio-recorder-module.js (REFACTORED WITH HOOKS + PATCHES)
+// FILE: starmus-audio-recorder-module.js (HOOKS-INTEGRATED)
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
  * @module  StarmusAudioRecorder
- * @version 1.2.1
+ * @version 1.2.2
  * @file    The Core Recording Engine - Pure audio functionality with hooks integration
  */
 (function(window) {
-    // DEBUG PATCH: Add a visible log and alert to confirm initialization
+    'use strict';
+
     function debugInitBanner() {
         if (!window.isStarmusAdmin) return;
         const banner = document.createElement('div');
         banner.textContent = '[Starmus Recorder Module] JS Initialized';
-        banner.style.position = 'fixed';
-        banner.style.top = '48px';
-        banner.style.left = '0';
-        banner.style.zIndex = '99999';
-        banner.style.background = '#22a';
-        banner.style.color = '#fff';
-        banner.style.padding = '4px 12px';
-        banner.style.fontSize = '14px';
-        banner.style.fontFamily = 'monospace';
-        banner.style.opacity = '0.95';
+        banner.style.cssText = 'position:fixed;top:48px;left:0;z-index:99999;background:#22a;color:#fff;padding:4px 12px;font:14px monospace;opacity:0.95';
         document.body.appendChild(banner);
         setTimeout(() => banner.remove(), 4000);
         secureLog('info', 'DEBUG: Recorder Module banner shown');
     }
-    'use strict';
 
     const hasMediaRecorder = !!(window.MediaRecorder && window.navigator.mediaDevices);
     const instances = Object.create(null);
 
-    function isSafeId(id) {
-        return typeof id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(id);
-    }
-
-    function secureLog(level, message, data) {
-        if (console && console[level]) {
-            console[level]('[Starmus Recorder]', message, data || '');
-        }
-    }
-
-    function doAction(hook, ...args) {
-        if (window.StarmusHooks) {
-            window.StarmusHooks.doAction(hook, ...args);
-        }
-    }
-
-    function applyFilters(hook, value, ...args) {
-        return window.StarmusHooks ?
-            window.StarmusHooks.applyFilters(hook, value, ...args) : value;
-    }
+    function isSafeId(id) { return typeof id === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(id); }
+    function secureLog(level, msg, data) { if (console && console[level]) { console[level]('[Starmus Recorder]', msg, data || ''); } }
+    function doAction(hook, ...args) { if (window.StarmusHooks?.doAction) { window.StarmusHooks.doAction(hook, ...args); } }
+    function applyFilters(hook, value, ...args) { return window.StarmusHooks?.applyFilters ? window.StarmusHooks.applyFilters(hook, value, ...args) : value; }
 
     window.StarmusAudioRecorder = {
         init: function(options) {
@@ -360,6 +335,14 @@
                 instance.isPaused = true;
                 doAction('starmus_recording_paused', instanceId);
             }
+        },
+
+        // NEW: Public method to safely get the paused state.
+        isPaused: function(instanceId) {
+            if (!isSafeId(instanceId) || !(instanceId in instances)) {
+                return false;
+            }
+            return instances[instanceId].isPaused;
         },
 
         getSubmissionData: function(instanceId) {

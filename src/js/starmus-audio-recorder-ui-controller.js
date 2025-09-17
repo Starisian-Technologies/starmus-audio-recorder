@@ -1,12 +1,11 @@
-// FILE: starmus-audio-recorder-ui-controller.js (FINAL, PATCHED, WITH LOGGING)
+// FILE: starmus-audio-recorder-ui-controller.js (HOOKS-INTEGRATED)
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * @module        StarmusUIController
- * @version       0.4.5
- * @since         0.1.0
- * @file          The UI Controller - starmus-audio-recorder-ui-controller.js (FINAL, PATCHED)
+ * @module  StarmusUIController
+ * @version 1.2.1
+ * @file    The UI Controller - Pure UI handling with hooks integration
  */
 (function(window, document) {
     'use strict';
@@ -14,86 +13,38 @@
     const CONFIG = { LOG_PREFIX: '[Starmus UI Controller]' };
     function log(level, msg, data) { if (console && console[level]) { console[level](CONFIG.LOG_PREFIX, msg, data || ''); } }
 
-    // DEBUG PATCH: Add a visible log and alert to confirm initialization
     function debugInitBanner() {
-        log('info', '[Starmus UI Controller] debugInitBanner called. window.isStarmusAdmin:', window.isStarmusAdmin);
         if (!window.isStarmusAdmin) return;
         const banner = document.createElement('div');
         banner.textContent = '[Starmus UI Controller] JS Initialized';
-        banner.style.position = 'fixed';
-        banner.style.top = '0';
-        banner.style.left = '0';
-        banner.style.zIndex = '99999';
-        banner.style.background = '#222';
-        banner.style.color = '#fff';
-        banner.style.padding = '4px 12px';
-        banner.style.fontSize = '14px';
-        banner.style.fontFamily = 'monospace';
-        banner.style.opacity = '0.95';
+        banner.style.cssText = 'position:fixed;top:0;left:0;z-index:99999;background:#222;color:#fff;padding:4px 12px;font:14px monospace;opacity:0.95';
         document.body.appendChild(banner);
         setTimeout(() => banner.remove(), 4000);
         log('info', 'DEBUG: UI Controller banner shown');
     }
-    /**
-     * Get element by ID, log error if not found.
-     */
-    function el(id) {
-        log('debug', 'el() called for id:', id);
-        const node = document.getElementById(id);
-        if (!node) {
-            console.error('[Starmus UI Controller] el() could not find element with id:', id);
-        }
-        return node;
-    }
 
-    /**
-     * Validate a DOM id string. Log error if invalid.
-     */
-    function safeId(id) {
-        const valid = typeof id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(id);
-        if (!valid) {
-            console.error('[Starmus UI Controller] safeId() invalid id:', id);
-        }
-        return valid;
-    }
-    const Hooks = window.StarmusHooks;
+    function el(id) { return document.getElementById(id); }
+    function safeId(id) { return typeof id === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(id); }
+    function s(str) { return typeof str === 'string' ? str.replace(/[<>"'&]/g, '').substring(0, 500) : ''; }
+    function doAction(hook, ...args) { if (window.StarmusHooks?.doAction) { window.StarmusHooks.doAction(hook, ...args); } }
+    function applyFilters(hook, value, ...args) { return window.StarmusHooks?.applyFilters ? window.StarmusHooks.applyFilters(hook, value, ...args) : value; }
 
-    function sanitizeText(text) {
-        if (typeof text !== 'string') return '';
-        // eslint-disable-next-line no-control-regex
-        return text.replace(/[\x00-\x1F\x7F<>"'&]/g, ' ').substring(0, 500);
-    }
-
-    /**
-     * Show a user message in the UI, log error if area not found or unsafe id.
-     */
-    function showUserMessage(instanceId, message, type = 'info') {
-        log('debug', 'showUserMessage called', { instanceId, message, type });
-        if (!safeId(instanceId)) {
-            log('warn', 'showUserMessage: unsafe instanceId', instanceId);
-            console.error('[Starmus UI Controller] showUserMessage: unsafe instanceId', instanceId);
-            return;
-        }
-        const area = el(`starmus_recorder_status_${instanceId}`) || el(`starmus_step1_usermsg_${instanceId}`);
+    function showUserMessage(instanceId, text, type = 'info') {
+        if (!safeId(instanceId)) return;
+        const area = el(`starmus_recorder_status_${instanceId}`) || 
+                     el(`starmus_step1_usermsg_${instanceId}`) ||
+                     el(`starmus_calibration_status_${instanceId}`);
         if (area) {
-            area.textContent = sanitizeText(message);
+            area.textContent = s(text);
             area.setAttribute('data-status', type);
-            area.style.display = message ? 'block' : 'none';
-            log('debug', 'showUserMessage: updated area', area.id);
-            if (type === 'error') {
-                console.error('[Starmus UI Controller] showUserMessage error:', message, 'instanceId:', instanceId);
-            }
-        } else {
-            log('warn', 'showUserMessage: area not found for', instanceId);
-            console.error('[Starmus UI Controller] showUserMessage: area not found for', instanceId);
+            area.style.display = text ? 'block' : 'none';
         }
     }
 
-    function updateRecorderUI(_instanceId, _state) { /* ... update logic ... */ }
-    // --- THIS IS THE FINAL PIECE OF THE PUZZLE ---
+    const timers = {};
     function startTimer(instanceId) {
-        setInterval(() => {
-            if (!safeId(instanceId)) return;
+        if (!safeId(instanceId) || timers[instanceId]) return;
+        timers[instanceId] = setInterval(() => {
             const instance = window.StarmusAudioRecorder?._instances?.[instanceId];
             const timerEl = el(`starmus_timer_${instanceId}`);
             if (instance?.isRecording && !instance.isPaused && timerEl) {
@@ -105,23 +56,19 @@
         }, 1000);
     }
 
-    /**
-     * Build the recorder UI for a given instance. Log errors for missing/invalid elements.
-     */
-    function buildRecorderUI(instanceId) {
-        log('info', 'buildRecorderUI called for', instanceId);
-        if (!safeId(instanceId)) {
-            console.error('[Starmus UI Controller] buildRecorderUI called with invalid instanceId:', instanceId);
-            return;
+    function stopTimer(instanceId) {
+        if (timers[instanceId]) {
+            clearInterval(timers[instanceId]);
+            delete timers[instanceId];
         }
-        const container = el(`starmus_recorder_container_${instanceId}`);
-        if (!container) {
-            log('error', 'Recorder container not found for instance:', instanceId);
-            console.error('[Starmus UI Controller] Recorder container not found for instance:', instanceId);
-            return;
-        }
+    }
 
-        const recorderHTML = `
+    function buildRecorderUI(instanceId) {
+        if (!safeId(instanceId)) return;
+        const container = el(`starmus_recorder_container_${instanceId}`);
+        if (!container) return;
+
+        container.innerHTML = `
             <div class="starmus-recorder-controls">
                 <button type="button" id="starmus_record_btn_${instanceId}" class="starmus-btn starmus-btn--record">Record</button>
                 <button type="button" id="starmus_stop_btn_${instanceId}" class="starmus-btn starmus-btn--stop" style="display:none;">Stop</button>
@@ -134,23 +81,16 @@
             </div>
         `;
 
-        container.innerHTML = recorderHTML;
-        log('debug', 'Recorder HTML inserted for', instanceId);
-
         const recordBtn = el(`starmus_record_btn_${instanceId}`);
         const stopBtn = el(`starmus_stop_btn_${instanceId}`);
         const pauseBtn = el(`starmus_pause_btn_${instanceId}`);
         const submitBtn = document.querySelector(`#${instanceId} #starmus_submit_btn_${instanceId}`);
         const statusArea = el(`starmus_recorder_status_${instanceId}`);
 
-        if (!recordBtn || !stopBtn || !pauseBtn || !submitBtn || !statusArea) {
-            log('error', 'One or more recorder UI elements could not be found after creation.');
-            console.error('[Starmus UI Controller] One or more recorder UI elements could not be found after creation.', { recordBtn, stopBtn, pauseBtn, submitBtn, statusArea });
-            return;
-        }
+        if (!recordBtn || !stopBtn || !pauseBtn || !submitBtn || !statusArea) return;
 
         recordBtn.addEventListener('click', () => {
-            log('info', 'Record button clicked');
+            doAction('starmus_record_start', instanceId);
             window.StarmusAudioRecorder.startRecording(instanceId);
             window.StarmusAudioRecorder.startVolumeMonitoring(instanceId, (volume) => {
                 const volumeEl = el(`starmus_volume_level_${instanceId}`);
@@ -165,8 +105,9 @@
         });
 
         stopBtn.addEventListener('click', () => {
-            log('info', 'Stop button clicked');
+            doAction('starmus_record_stop', instanceId);
             window.StarmusAudioRecorder.stopRecording(instanceId);
+            stopTimer(instanceId);
             stopBtn.style.display = 'none';
             pauseBtn.style.display = 'none';
             recordBtn.textContent = 'Record Again';
@@ -176,161 +117,107 @@
         });
 
         pauseBtn.addEventListener('click', () => {
-            log('info', 'Pause/Resume button clicked');
             window.StarmusAudioRecorder.togglePause(instanceId);
             const isPaused = window.StarmusAudioRecorder?._instances?.[instanceId]?.isPaused || false;
             pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
             statusArea.textContent = isPaused ? 'Paused.' : 'Recording...';
+            doAction('starmus_record_pause', instanceId, isPaused);
         });
     }
 
-    /**
-     * Handle the continue button click for a form. Log errors for missing/invalid elements.
-     */
     function handleContinueClick(formId) {
-        log('info', 'handleContinueClick called for formId:', formId);
-        if (!safeId(formId)) {
-            log('warn', 'handleContinueClick: unsafe formId', formId);
-            console.error('[Starmus UI Controller] Invalid formId in handleContinueClick:', formId);
-            return;
-        }
-        const _form = el(formId);
+        if (!safeId(formId)) return;
+        const form = el(formId);
         const step1 = el(`starmus_step1_${formId}`);
         const step2 = el(`starmus_step2_${formId}`);
-        if (!_form || !step1 || !step2) {
-            log('error', 'handleContinueClick: missing form or step elements', { _form, step1, step2 });
-            console.error('[Starmus UI Controller] Missing form or step elements in handleContinueClick:', { _form, step1, step2 });
-            return;
-        }
+        if (!form || !step1 || !step2) return;
+
         let allValid = true;
         for (const input of step1.querySelectorAll('[required]')) {
-            log('debug', 'Checking required input', input.name, input.value);
             if (!input.checkValidity()) {
-                showUserMessage(formId, `Please complete all required fields.`, 'error');
+                showUserMessage(formId, 'Please complete all required fields.', 'error');
                 if (typeof input.reportValidity === 'function') input.reportValidity();
                 allValid = false;
                 break;
             }
         }
-        if (!allValid) {
-            log('info', 'handleContinueClick: not all fields valid');
-            console.error('[Starmus UI Controller] Not all required fields are valid in handleContinueClick for formId:', formId);
-            return;
-        }
-        log('info', 'handleContinueClick: all fields valid, switching to step 2');
+        if (!allValid) return;
+
+        doAction('starmus_step_continue', formId, form);
         step1.style.display = 'none';
         step2.style.display = 'block';
         showUserMessage(formId, '', 'info');
-        const recorderInit = window.StarmusSubmissionsHandler.initRecorder(formId);
-        log('debug', '[handleContinueClick] initRecorder returned:', recorderInit);
-        if (recorderInit && typeof recorderInit.then === 'function') {
-            recorderInit.then(() => {
-                log('info', 'Recorder initialized, building UI for', formId);
-                buildRecorderUI(formId);
-            })
-            .catch(err => {
-                log('error', 'Recorder init failed, reverting to step 1.', err?.message);
-                console.error('[Starmus UI Controller] Recorder init failed in handleContinueClick:', err);
-                showUserMessage(formId, 'Unable to initialize recorder. Please try again.', 'error');
-                step1.style.display = 'block';
-                step2.style.display = 'none';
-            });
-        } else {
-            log('error', '[handleContinueClick] initRecorder did not return a Promise. Value:', recorderInit);
-            console.error('[Starmus UI Controller] initRecorder did not return a Promise. Value:', recorderInit);
-            showUserMessage(formId, 'Unable to initialize recorder. Please reload the page or contact support.', 'error');
+
+        if (!window.StarmusSubmissionsHandler?.initRecorder) {
+            showUserMessage(formId, 'A critical component is missing. Please reload.', 'error');
             step1.style.display = 'block';
             step2.style.display = 'none';
+            return;
         }
+        
+        window.StarmusSubmissionsHandler.initRecorder(formId)
+            .then(() => {
+                buildRecorderUI(formId);
+                doAction('starmus_recorder_ui_built', formId);
+            })
+            .catch(err => {
+                showUserMessage(formId, 'Could not initialize microphone. Please check permissions and try again.', 'error');
+                step1.style.display = 'block';
+                step2.style.display = 'none';
+                doAction('starmus_recorder_init_failed', formId, err);
+            });
     }
 
-    /**
-     * Initialize a form: bind events, log errors for missing/invalid elements.
-     */
     function initializeForm(form) {
         const formId = form.id;
-        log('info', 'initializeForm called for', formId, 'form:', form);
-        if (!safeId(formId)) {
-            log('warn', 'initializeForm: unsafe formId', formId);
-            console.error('[Starmus UI Controller] initializeForm: unsafe formId', formId);
-            return;
-        }
-        if (form.getAttribute('data-starmus-bound')) {
-            log('info', 'initializeForm: already bound', formId);
-            console.warn('[Starmus UI Controller] initializeForm: already bound', formId);
-            return;
-        }
+        if (!safeId(formId) || form.getAttribute('data-starmus-bound')) return;
+        
         form.setAttribute('data-starmus-bound', '1');
+        doAction('starmus_form_init', formId, form);
+        
         const continueBtn = form.querySelector(`#starmus_continue_btn_${formId}`);
         if (continueBtn) {
-            log('info', 'initializeForm: found continue button', continueBtn.id, continueBtn);
-            continueBtn.addEventListener('click', () => {
-                log('info', 'Continue button clicked, system snapshot:', {
-                    formId,
-                    form,
-                    location: window.location.href,
-                    isStarmusAdmin: window.isStarmusAdmin,
-                    documentReady: document.readyState,
-                    scripts: Array.from(document.scripts).map(s => s.src),
-                    forms: Array.from(document.querySelectorAll('form.starmus-audio-form')).map(f => f.id),
-                    time: new Date().toISOString()
-                });
-                handleContinueClick(formId);
-            });
-        } else {
-            log('error', 'CRITICAL: Could not find the continue button for form:', formId);
-            console.error('[Starmus UI Controller] Could not find the continue button for form:', formId);
+            continueBtn.addEventListener('click', () => handleContinueClick(formId));
         }
+        
+        let isSubmitting = false;
         form.addEventListener('submit', event => {
-            log('info', 'Form submit event for', formId);
             event.preventDefault();
-            window.StarmusSubmissionsHandler.handleSubmit(formId, form);
+            if (isSubmitting) return;
+            if (!window.StarmusSubmissionsHandler?.handleSubmit) {
+                showUserMessage(formId, 'Cannot submit. A critical component is missing.', 'error');
+                return;
+            }
+            isSubmitting = true;
+            doAction('starmus_form_submit', formId, form);
+            window.StarmusSubmissionsHandler.handleSubmit(formId, form)
+                .finally(() => { isSubmitting = false; });
         });
     }
-
-    // --- FINAL, PATCHED INITIALIZATION LOGIC ---
-    let uiInitialized = false;
 
     function init() {
-        if (uiInitialized) {
-            log('info', 'init: already initialized');
-            return;
-        }
-        uiInitialized = true;
-        log('info', 'UI Controller Initializing...');
+        if (window.starmusUiInitialized) return;
+        window.starmusUiInitialized = true;
+        log('info', 'UI Controller init called');
         debugInitBanner();
-
-        if (window.StarmusSubmissionsHandler && typeof window.StarmusSubmissionsHandler.init === 'function') {
-            log('info', 'Calling StarmusSubmissionsHandler.init()');
-            window.StarmusSubmissionsHandler.init();
-        } else {
-            log('warn', 'StarmusSubmissionsHandler not found or missing init');
-        }
+        
         const forms = document.querySelectorAll('form.starmus-audio-form');
-        log('info', 'Found forms:', Array.from(forms).map(f => f.id));
-        forms.forEach(form => {
-            log('info', 'Initializing form:', form.id);
-            initializeForm(form);
-        });
-        if (Hooks) {
-            log('info', 'Calling Hooks.doAction(starmus_ui_ready)');
-            Hooks.doAction('starmus_ui_ready');
-        }
+        forms.forEach(initializeForm);
+        
+        doAction('starmus_ui_controller_ready');
     }
 
-
-    // SIMPLIFIED: Always initialize on DOMContentLoaded or immediately if DOM is ready
-    log('info', '[Starmus UI Controller] Top-level script loaded. document.readyState:', document.readyState);
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            log('info', '[Starmus UI Controller] DOMContentLoaded fired, calling init()');
-            init();
-        });
+        document.addEventListener('DOMContentLoaded', init);
     } else {
-        log('info', '[Starmus UI Controller] DOM already ready, calling init()');
         init();
     }
 
-    window.StarmusUIController = { updateRecorderUI, showUserMessage, buildRecorderUI };
+    window.StarmusUIController = {
+        init,
+        showUserMessage,
+        buildRecorderUI,
+        handleContinueClick
+    };
 
 })(window, document);
