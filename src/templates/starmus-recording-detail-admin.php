@@ -4,7 +4,7 @@
  * Shows comprehensive metadata and technical details for admins and editors
  *
  * @package Starmus\templates
- * @version 0.5.6
+ * @version 0.5.7
  * @var int $post_id The recording post ID
  */
 
