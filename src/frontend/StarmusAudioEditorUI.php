@@ -4,7 +4,7 @@
  * Starmus Audio Editor UI - Refactored for Security & Performance
  *
  * @package Starmus\frontend
- * @version 0.5.4
+ * @version 0.5.5
  * @since 0.3.1
  */
 
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Secure and optimized audio editor UI class.
  *
  * @since 0.3.1
- * @version 0.5.4
+ * @version 0.5.5
  * @package Starmus\frontend
  */
 class StarmusAudioEditorUI {
