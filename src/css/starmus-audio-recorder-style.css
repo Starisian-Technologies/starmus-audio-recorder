@@ -3,7 +3,7 @@
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
  * @file    starmus-audio-plugin.css
- * @version 1.1.0
+ * @version 1.2.0
  * @desc    A single, unified, mobile-first, and theme-aware stylesheet for all
  *          Starmus Audio components: Recorder, My Recordings, and Editor.
  */
@@ -14,28 +14,33 @@
  * ========================================================================
  */
 :root {
-	--starmus-primary-color: var(--wp--preset--color--primary, #007bbf);
-	--starmus-primary-hover: color-mix(in srgb, var(--wp--preset--color--primary, #007bbf) 85%, #000);
-	--starmus-text-color: var(--wp--preset--color--foreground, #374151);
+	--starmus-primary-color: var(--wp--preset--color--primary, #8a2be2); /* A more vibrant purple fallback */
+	--starmus-primary-hover: color-mix(in srgb, var(--starmus-primary-color) 85%, #000);
+	--starmus-text-color: var(--wp--preset--color--foreground, #111827); /* Default to dark text */
 	--starmus-text-muted: var(--wp--preset--color--secondary, #6b7280);
 	--starmus-border-color: var(--wp--preset--color--contrast, #d1d5db);
 	--starmus-bg-light: var(--wp--preset--color--base-2, #f9fafb);
 	--starmus-bg-card: var(--wp--preset--color--background, #fff);
-	--starmus-danger-color: var(--wp--preset--color--danger, #dc3545);
-	--starmus-danger-hover: color-mix(in srgb, var(--wp--preset--color--danger, #dc3545) 85%, #000);
-	--starmus-success-color: var(--wp--preset--color--success, #28a745);
-	--starmus-warning-color: var(--wp--preset--color--warning, #ffc107);
+	--starmus-danger-color: #dc3545;
+	--starmus-danger-hover: color-mix(in srgb, var(--starmus-danger-color) 85%, #000);
+	--starmus-success-color: #28a745;
+	--starmus-warning-color: #ffc107;
 }
 
-/* Dark theme override for specific dark backgrounds */
+/*
+ * FIX: A more specific and comprehensive override for your dark theme.
+ * This rule will force the variables to the correct values on your dark background.
+ */
 body[style*="background-color: rgb(55, 1, 44)"],
 body[style*="background-color: #37012c"],
 .has-background[style*="background-color: rgb(55, 1, 44)"] {
-	--starmus-text-color: var(--wp--preset--color--foreground, #f3f4f6);
-	--starmus-text-muted: var(--wp--preset--color--secondary, #9ca3af);
-	--starmus-border-color: var(--wp--preset--color--contrast, #4b5563);
-	--starmus-bg-light: var(--wp--preset--color--base-2, #374151);
-	--starmus-bg-card: var(--wp--preset--color--background, #1f2937);
+	--starmus-primary-color: var(--wp--preset--color--primary, #c4b5fd); /* Light lavender for buttons */
+	--starmus-primary-hover: color-mix(in srgb, var(--starmus-primary-color) 85%, #000); /* A darker hover color */
+	--starmus-text-color: #f9fafb; /* FIX: Force text to be nearly white */
+	--starmus-text-muted: #9ca3af;
+	--starmus-border-color: #4b5563;
+	--starmus-bg-light: #374151;
+	--starmus-bg-card: #1f2937;
 }
 
 
@@ -72,16 +77,17 @@ body[style*="background-color: #37012c"],
 	resize: vertical;
 }
 
+/* FIX: New, high-contrast focus style that REMOVES the blue glow */
 .starmus-recorder-form input:focus,
 .starmus-recorder-form select:focus,
 .starmus-recorder-form textarea:focus,
 .starmus-editor input:focus,
 .starmus-editor select:focus,
 .starmus-editor textarea:focus {
-	outline: 2px solid var(--starmus-primary-color);
+	outline: 2px solid var(--starmus-primary-color); /* Uses your theme's primary color */
 	outline-offset: 2px;
 	border-color: var(--starmus-primary-color);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--starmus-primary-color) 25%, transparent);
+	box-shadow: none; /* Explicitly remove the default browser glow */
 }
 
 /* --- Unified Labels & Help Text --- */
@@ -115,33 +121,42 @@ body[style*="background-color: #37012c"],
 	font-size: 1rem;
 	text-decoration: none;
 	cursor: pointer;
-	transition: transform 0.02s ease, background-color 0.15s ease;
+	transition: background-color 0.15s ease, transform 0.05s ease;
 }
+
 .starmus-btn:active:not(:disabled),
 .starmus-editor .button:active:not(:disabled) {
 	transform: translateY(1px);
 }
+
+/* FIX: Better disabled state for dark themes */
 .starmus-btn:disabled,
 .starmus-editor .button:disabled {
-	background-color: var(--starmus-border-color);
-	color: var(--starmus-text-muted);
+	background-color: var(--starmus-border-color) !important;
+	color: var(--starmus-text-muted) !important;
+	border-color: var(--starmus-border-color) !important;
 	cursor: not-allowed;
-	opacity: 0.7;
+	opacity: 0.5;
 }
 
 /* Primary Buttons */
+.starmus-btn--primary,
 .starmus-recorder-controls .starmus-btn,
 button[id*="starmus_submit_btn_"],
+button[id*="starmus_continue_btn_"],
 .starmus-editor .button-primary {
 	background-color: var(--starmus-primary-color);
-	color: var(--starmus-bg-card, #fff);
+	color: #1f2937; /* FIX: Set a dark, contrasting text color for light-colored buttons */
 	border-color: var(--starmus-primary-color);
 }
+
+.starmus-btn--primary:hover:not(:disabled),
 .starmus-recorder-controls .starmus-btn:hover:not(:disabled),
 button[id*="starmus_submit_btn_"]:hover:not(:disabled),
+button[id*="starmus_continue_btn_"]:hover:not(:disabled),
 .starmus-editor .button-primary:hover:not(:disabled) {
 	background-color: var(--starmus-primary-hover);
-	border-color: var(--starmus-primary-hover);
+	color: #f9fafb; /* FIX: Ensure text color becomes light on the darker hover for readability */
 }
 
 /* Secondary Buttons */
@@ -149,11 +164,13 @@ button[id*="starmus_calibrate_btn_"],
 .starmus-editor .button-secondary {
 	background-color: var(--starmus-bg-light);
 	color: var(--starmus-text-color);
-	border-color: var(--starmus-border-color);
+	border: 1px solid var(--starmus-border-color);
 }
+
 button[id*="starmus_calibrate_btn_"]:hover:not(:disabled),
 .starmus-editor .button-secondary:hover:not(:disabled) {
-	background-color: var(--starmus-border-color);
+	background-color: color-mix(in srgb, var(--starmus-bg-light) 85%, #000); /* FIX: Darken the background on hover */
+	border-color: var(--starmus-border-color);
 }
 
 /* Danger Buttons */
@@ -163,6 +180,7 @@ button[id*="starmus_calibrate_btn_"]:hover:not(:disabled),
 	color: var(--starmus-bg-card, #fff);
 	border-color: var(--starmus-danger-color);
 }
+
 .starmus-btn--danger:hover:not(:disabled),
 .starmus-editor .button-danger:hover:not(:disabled) {
 	background-color: var(--starmus-danger-hover);
@@ -427,6 +445,7 @@ button[id*="starmus_calibrate_btn_"]:hover:not(:disabled),
 	.starmus-editor__list table {
 		border-width: 2px;
 	}
+
 	.starmus-btn,
 	.starmus-editor .button {
 		border-width: 2px;
@@ -440,6 +459,7 @@ button[id*="starmus_calibrate_btn_"]:hover:not(:disabled),
 		align-items: stretch;
 		gap: 1rem;
 	}
+
 	.starmus-btn {
 		min-height: 48px;
 		padding: 1rem 1.5rem;
@@ -459,13 +479,16 @@ button[id*="starmus_calibrate_btn_"]:hover:not(:disabled),
 		align-items: center;
 		justify-content: space-between;
 	}
+
 	.starmus-editor__controls {
 		flex-flow: row wrap;
 		align-items: center;
 	}
+
 	.starmus-editor__controls .starmus-btn {
 		width: auto;
 	}
+
 	.starmus-editor__spacer {
 		display: block;
 		flex: 1 1 auto;
@@ -486,12 +509,14 @@ button[id*="starmus_calibrate_btn_"]:hover:not(:disabled),
  *   7. UTILITIES
  * ========================================================================
  */
+
 /* Loading states for buttons */
 .starmus-btn[aria-busy="true"],
 .starmus-editor .button[aria-busy="true"] {
 	position: relative;
 	color: transparent !important;
 }
+
 .starmus-btn[aria-busy="true"]::after,
 .starmus-editor .button[aria-busy="true"]::after {
 	content: '';

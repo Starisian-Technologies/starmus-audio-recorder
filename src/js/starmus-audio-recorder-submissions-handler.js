@@ -121,6 +121,10 @@
         // Add user ID if available (often required by WordPress)
         if (wpData.user_id) {fd.append('user_id', wpData.user_id);}
 
+        // Add the nonce to the form data body
+        fd.append('_wpnonce', wpData.rest_nonce);
+
+
         // Add all form fields with validation
         Object.keys(formFields||{}).forEach(function(k){
           const value = formFields[k];
