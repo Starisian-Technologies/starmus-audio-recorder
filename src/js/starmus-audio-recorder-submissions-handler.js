@@ -14,7 +14,7 @@
     function log(level, msg, data) { if (console && console[level]) { console[level](CONFIG.LOG_PREFIX, msg, data || ''); } }
 
     function debugInitBanner() {
-        if (!window.isStarmusAdmin) return;
+        if (!window.isStarmusAdmin) {return;}
         const banner = document.createElement('div');
         banner.textContent = '[Starmus Submissions Handler] JS Initialized';
         banner.style.cssText = 'position:fixed;top:24px;left:0;z-index:99999;background:#2a2;color:#fff;padding:4px 12px;font:14px monospace;opacity:0.95';
@@ -47,52 +47,61 @@
 
   // --- Offline Queue (IndexedDB) ---
   const Offline = {
-    db:null, name:'StarmusSubmissions', store:'pendingSubmissions',
-    init:function(){
-      if(!('indexedDB' in window)) { log('warn','IndexedDB missing'); return; }
-      try {
-        const req=indexedDB.open(this.name,1); const self=this;
-        req.onupgradeneeded=function(e){ const db=e.target.result; if(!db.objectStoreNames.contains(self.store)){ db.createObjectStore(self.store,{ keyPath:'id', autoIncrement:true }); } };
-        req.onsuccess=function(e){ self.db=e.target.result; log('log','Offline DB ready'); self.processQueue(); };
-        req.onerror=function(e){ log('error','IndexedDB error', e && e.target && e.target.errorCode); };
-      } catch (err) {
-        log('error', 'Could not initialize offline database', err.message);
-      }
+    db: null, name:'StarmusSubmissions', store:'pendingSubmissions',
+    init: function() {
+        if (!('indexedDB' in window)) { log('warn','IndexedDB missing'); return; }
+        try {
+            const req = indexedDB.open(this.name, 1);
+            const self = this;
+            req.onupgradeneeded = function(e){ const db=e.target.result; if(!db.objectStoreNames.contains(self.store)){ db.createObjectStore(self.store,{ keyPath:'id', autoIncrement:true }); } };
+            req.onsuccess = function(e){
+                self.db = e.target.result;
+                log('log','Offline DB ready');
+                // FIX: Do not process the queue immediately. Wait 60 seconds to avoid the rate-limit loop.
+                log('info', 'Queue processing for any old submissions will begin in 60 seconds.');
+                setTimeout(() => self.processQueue(), 60000);
+            };
+            req.onerror = function(e){ log('error','IndexedDB error', e?.target?.errorCode); };
+        } catch (err) {
+            log('error', 'Could not initialize offline database', err.message);
+        }
     },
-    add:function(formInstanceId, audioBlob, fileName, formFields, metadata){
-      if(!this.db || !safeId(formInstanceId)){ showUserMessage(formInstanceId,'Cannot save offline here.','error'); return; }
-      try {
-        const tx=this.db.transaction([this.store],'readwrite'); const store=tx.objectStore(this.store);
-        const req=store.add({ formInstanceId, fileName, when:Date.now(), audioBlob, formFields: formFields || {}, meta: metadata || {} });
-        req.onsuccess=function(){ showUserMessage(formInstanceId,'You are offline. Saved and will auto-send later.','success'); };
-        req.onerror=function(){ showUserMessage(formInstanceId,'Failed to save offline.','error'); };
-      } catch (err) {
-        log('error', 'Failed to add item to offline queue', err.message);
-      }
+    add: function(formInstanceId, audioBlob, fileName, formFields, metadata){
+        if(!this.db || !safeId(formInstanceId)){ showUserMessage(formInstanceId,'Cannot save offline here.','error'); return; }
+        try {
+            const tx = this.db.transaction([this.store],'readwrite'); const store=tx.objectStore(this.store);
+            const req = store.add({ formInstanceId, fileName, when:Date.now(), audioBlob, formFields: formFields || {}, meta: metadata || {} });
+            req.onsuccess = function(){ showUserMessage(formInstanceId,'You are offline. Saved and will auto-send later.','success'); };
+            req.onerror = function(){ showUserMessage(formInstanceId,'Failed to save offline.','error'); };
+        } catch (err) {
+            log('error', 'Failed to add item to offline queue', err.message);
+        }
     },
-    processQueue:function(){
-      if(!this.db || !navigator.onLine) return;
-      try {
-        const tx=this.db.transaction([this.store],'readwrite'); const store=tx.objectStore(this.store);
-        let processedCount = 0;
-        store.openCursor().onsuccess=function(e){
-          const cur=e.target.result;
-          if(cur){
-            const item=cur.value;
-            setTimeout(function() {
-              resumableTusUpload(item.audioBlob, item.fileName, item.formFields, item.meta, item.formInstanceId)
-                .then(function(){ showUserMessage(item.formInstanceId,'Queued submission sent.','success'); store.delete(cur.key); })
-                .catch(function(err){ log('error','Queued upload failed (will retry later)', err && (err.message || err)); });
-            }, processedCount * 1000);
-            processedCount++;
-            cur.continue();
-          }
-        };
-      } catch (err) {
-        log('error', 'Failed to process offline queue', err.message);
-      }
+    processQueue: function(){
+        if(!this.db || !navigator.onLine) {return;}
+        log('info', 'Processing offline queue...');
+        try {
+            const tx = this.db.transaction([this.store],'readwrite'); const store=tx.objectStore(this.store);
+            let processedCount = 0;
+            store.openCursor().onsuccess = function(e){
+                const cur = e.target.result;
+                if(cur){
+                    const item = cur.value;
+                    // FIX: Increase the delay between each retry to be kinder to the server.
+                    setTimeout(function() {
+                        resumableTusUpload(item.audioBlob, item.fileName, item.formFields, item.meta, item.formInstanceId)
+                            .then(function(){ showUserMessage(item.formInstanceId,'Queued submission sent.','success'); store.delete(cur.key); })
+                            .catch(function(err){ log('error','Queued upload failed (will retry later)', err?.message || err); });
+                    }, processedCount * 5000); // Stagger retries by 5 seconds
+                    processedCount++;
+                    cur.continue();
+                }
+            };
+        } catch (err) {
+            log('error', 'Failed to process offline queue', err.message);
+        }
     }
-  };
+};
 
   // --- tus uploader ---
   function resumableTusUpload(blob, fileName, formFields, metadata, instanceId){
@@ -108,21 +117,21 @@
       log('debug', 'WordPress config:', { hasRestUrl: !!wpData.rest_url, hasNonce: !!wpData.rest_nonce, userId: wpData.user_id });
       if (wpData.rest_url && wpData.rest_nonce){
         const fd=new FormData();
-        
+
         // Add user ID if available (often required by WordPress)
-        if (wpData.user_id) fd.append('user_id', wpData.user_id);
-        
+        if (wpData.user_id) {fd.append('user_id', wpData.user_id);}
+
         // Add all form fields with validation
-        Object.keys(formFields||{}).forEach(function(k){ 
+        Object.keys(formFields||{}).forEach(function(k){
           const value = formFields[k];
           if (value !== null && value !== undefined && value !== '') {
-            fd.append(s(k), value); 
+            fd.append(s(k), value);
           }
         });
-        
+
         fd.append('audio_file', blob, s(fileName) || 'recording');
-        if (metadata) fd.append('metadata', JSON.stringify(metadata));
-        
+        if (metadata) {fd.append('metadata', JSON.stringify(metadata));}
+
         // Log what we're sending for debugging
         log('debug', 'Sending form data:', {
           fields: Object.keys(formFields||{}),
@@ -132,15 +141,15 @@
           hasUserId: !!wpData.user_id
         });
         return fetch(wpData.rest_url,{ method:'POST', headers:{'X-WP-Nonce': wpData.rest_nonce}, body: fd })
-          .then(function(res){ 
+          .then(function(res){
             if(!res.ok) {
               return res.text().then(errorText => {
                 log('error', 'Server response:', { status: res.status, statusText: res.statusText, body: errorText });
                 throw new Error(`Upload failed: ${res.status} - ${errorText}`);
               });
             }
-            log('info', 'Direct upload success', res); 
-            return res; 
+            log('info', 'Direct upload success', res);
+            return res;
           });
       }
       log('error', 'tus missing and no fallback endpoint configured');
@@ -149,7 +158,7 @@
     return new Promise(function(resolve, reject){
       const meta = Object.assign({}, formFields||{});
       meta.filename = s(fileName) || 'recording';
-      if (metadata) meta.starmus_meta = JSON.stringify(metadata);
+      if (metadata) {meta.starmus_meta = JSON.stringify(metadata);}
       log('info', 'Starting tus upload', meta);
       const uploader = new tus.Upload(blob, {
         endpoint: tusCfg.endpoint,
@@ -209,11 +218,11 @@
   }
 
     function revealTierC(instanceId) {
-        if (!safeId(instanceId)) return;
+        if (!safeId(instanceId)) {return;}
         const recWrap = el('starmus_recorder_container_' + instanceId);
         const fb = el('starmus_fallback_container_' + instanceId);
-        if (recWrap) recWrap.style.display = 'none';
-        if (fb) fb.style.display = 'block';
+        if (recWrap) {recWrap.style.display = 'none';}
+        if (fb) {fb.style.display = 'block';}
         doAction('starmus_tier_c_revealed', instanceId);
     }
 
@@ -223,7 +232,7 @@
 
 
   function _buildMetadata(_instanceId){
-    if(!safeId(_instanceId)) return {};
+    if(!safeId(_instanceId)) {return {};}
     const engine = window.StarmusAudioRecorder && window.StarmusAudioRecorder.getSubmissionData;
     const data = engine ? engine(_instanceId) : null;
     const meta = { instanceId: _instanceId, recordedAt: new Date().toISOString() };
@@ -237,7 +246,7 @@
             log('warn', 'handleSubmit: unsafe instanceId', instanceId);
             return Promise.reject(new Error('Unsafe instanceId'));
         }
-        
+
         // Disable submit button to prevent multiple clicks
         const submitBtn = el(`starmus_submit_btn_${instanceId}`);
         const originalText = submitBtn?.textContent;
@@ -395,7 +404,7 @@
 
     function notifyServer(tusUrl, formFields, metadata) {
         const wpData = window.starmusFormData || {};
-        if (!wpData.rest_url || !wpData.rest_nonce) return Promise.resolve();
+        if (!wpData.rest_url || !wpData.rest_nonce) {return Promise.resolve();}
 
         const fd = new FormData();
         Object.keys(formFields || {}).forEach(k => fd.append(k, formFields[k]));

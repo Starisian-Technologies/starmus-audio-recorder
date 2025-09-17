@@ -72,7 +72,7 @@
     }
 
     function addHook(type, tag, callback, priority = 10) {
-        if (!isValidTag(tag) || typeof callback !== 'function') return false;
+        if (!isValidTag(tag) || typeof callback !== 'function') {return false;}
         if (!(tag in hooks[type])) {
             hooks[type][tag] = [];
         }
@@ -82,7 +82,7 @@
     }
 
     function removeHook(type, tag, callback) {
-        if (!isValidTag(tag) || !(tag in hooks[type])) return false;
+        if (!isValidTag(tag) || !(tag in hooks[type])) {return false;}
         const index = hooks[type][tag].findIndex(hook => hook.callback === callback);
         if (index > -1) {
             hooks[type][tag].splice(index, 1);

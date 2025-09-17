@@ -58,7 +58,7 @@
 
 	/** @type {HTMLElement} */
 	const editorRoot = document.querySelector('.starmus-editor');
-	if (!editorRoot) return; // No editor on this page, exit gracefully.
+	if (!editorRoot) {return;} // No editor on this page, exit gracefully.
 
 	/** @type {HTMLElement} */
 	const overviewEl = document.getElementById('overview');
@@ -122,7 +122,7 @@
 	 */
 	function showInlineNotice(msg, type = 'error') {
 		const notice = document.getElementById('starmus-editor-notice');
-		if (!notice) return;
+		if (!notice) {return;}
 		if (!msg) {
 			notice.hidden = true;
 			return;
@@ -238,7 +238,7 @@
 			const elCur = document.getElementById('starmus-time-cur');
 			const elDur = document.getElementById('starmus-time-dur');
 			const fmt = (s) => {
-				if (!Number.isFinite(s)) return '0:00';
+				if (!Number.isFinite(s)) {return '0:00';}
 				const m = Math.floor(s / 60);
 				const sec = Math.floor(s % 60);
 				return m + ':' + String(sec).padStart(2, '0');
@@ -286,21 +286,21 @@
 				loopOn = loopCb.checked;
 			});
 			audio.addEventListener('timeupdate', () => {
-				if (!loopOn) return;
+				if (!loopOn) {return;}
 				const t = audio.currentTime;
 				const regs = peaks.segments.getSegments();
-				if (!regs.length) return;
+				if (!regs.length) {return;}
 				loopRegion =
 					regs.find((r) => t >= r.startTime && t < r.endTime) ||
 					loopRegion ||
 					regs[0];
 				if (t >= loopRegion.endTime)
-					audio.currentTime = loopRegion.startTime;
+					{audio.currentTime = loopRegion.startTime;}
 			});
 
 			// --- Keyboard Shortcuts ---
 			document.addEventListener('keydown', (e) => {
-				if (e.target.matches('input,textarea')) return; // Ignore keypresses in input fields.
+				if (e.target.matches('input,textarea')) {return;} // Ignore keypresses in input fields.
 				if (e.code === 'Space') {
 					e.preventDefault();
 					btnPlay.click();
@@ -378,7 +378,7 @@
 			// --- Event Listeners for Annotation List (Delegated) ---
 			let inputTimeout;
 			list.addEventListener('input', (e) => {
-				if (!e.target.dataset.id) return;
+				if (!e.target.dataset.id) {return;}
 				clearTimeout(inputTimeout);
 				// Debounce input to avoid excessive updates while typing.
 				inputTimeout = setTimeout(() => {
@@ -399,7 +399,7 @@
 			list.addEventListener('click', (e) => {
 				const id = e.target.dataset.id;
 				const act = e.target.dataset.act;
-				if (!id || !act) return;
+				if (!id || !act) {return;}
 
 				if (act === 'jump') {
 					const seg = peaks.segments.getSegment(id);
@@ -436,7 +436,7 @@
 
 			let saveLock = false;
 			btnSave.onclick = async () => {
-				if (saveLock) return;
+				if (saveLock) {return;}
 				saveLock = true;
 				btnSave.textContent = 'Saving...';
 				btnSave.disabled = true;

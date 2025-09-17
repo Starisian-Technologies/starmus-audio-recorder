@@ -11,7 +11,7 @@
     'use strict';
 
     function debugInitBanner() {
-        if (!window.isStarmusAdmin) return;
+        if (!window.isStarmusAdmin) {return;}
         const banner = document.createElement('div');
         banner.textContent = '[Starmus Recorder Module] JS Initialized';
         banner.style.cssText = 'position:fixed;top:48px;left:0;z-index:99999;background:#22a;color:#fff;padding:4px 12px;font:14px monospace;opacity:0.95';
@@ -99,7 +99,7 @@
         },
 
         calibrate: function(instanceId, onUpdateCallback) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return;
+            if (!isSafeId(instanceId) || !(instanceId in instances)) {return;}
             const instance = instances[instanceId];
             const analyser = instance.analyser;
             const buffer = new Float32Array(analyser.fftSize);
@@ -113,13 +113,13 @@
                 const elapsed = performance.now() - startTime;
                 const remaining = Math.ceil((DURATION - elapsed) / 1000);
 
-                if (elapsed < 5000) onUpdateCallback('Be quiet for background noise (' + remaining + 's)');
-                else if (elapsed < 10000) onUpdateCallback('Now speak clearly and loudly (' + remaining + 's)');
-                else onUpdateCallback('Be quiet again (' + remaining + 's)');
+                if (elapsed < 5000) {onUpdateCallback('Be quiet for background noise (' + remaining + 's)');}
+                else if (elapsed < 10000) {onUpdateCallback('Now speak clearly and loudly (' + remaining + 's)');}
+                else {onUpdateCallback('Be quiet again (' + remaining + 's)');}
 
                 analyser.getFloatTimeDomainData(buffer);
                 let sum = 0;
-                for (let i = 0; i < buffer.length; i++) sum += buffer[i] * buffer[i];
+                for (let i = 0; i < buffer.length; i++) {sum += buffer[i] * buffer[i];}
                 const rms = Math.sqrt(sum / buffer.length);
                 samples.push(rms);
 
@@ -156,7 +156,7 @@
         },
 
         startVolumeMonitoring: function(instanceId, onVolumeChange) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return;
+            if (!isSafeId(instanceId) || !(instanceId in instances)) {return;}
             const instance = instances[instanceId];
             const analyser = instance.analyser;
             const buffer = new Float32Array(analyser.fftSize);
@@ -181,7 +181,7 @@
                 // Silence detection (< 5% volume for corpus quality)
                 const now = Date.now();
                 if (volume < 5) {
-                    if (!instance.silenceStart) instance.silenceStart = now;
+                    if (!instance.silenceStart) {instance.silenceStart = now;}
                 } else {
                     if (instance.silenceStart) {
                         instance.totalSilence += now - instance.silenceStart;
@@ -196,7 +196,7 @@
         },
 
         startRecording: function(instanceId, language = 'en-US') {
-            if (!isSafeId(instanceId) || !(instanceId in instances) || instances[instanceId].isRecording) return;
+            if (!isSafeId(instanceId) || !(instanceId in instances) || instances[instanceId].isRecording) {return;}
             const instance = instances[instanceId];
 
             // Initialize speech recognition if available
@@ -261,7 +261,7 @@
                 instance.startTime = Date.now();
 
                 instance.recorder.ondataavailable = event => {
-                    if (event.data.size > 0) instance.chunks.push(event.data);
+                    if (event.data.size > 0) {instance.chunks.push(event.data);}
                 };
 
                 instance.recorder.onstop = () => {
@@ -284,7 +284,7 @@
         },
 
         stopRecording: function(instanceId) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return;
+            if (!isSafeId(instanceId) || !(instanceId in instances)) {return;}
             const instance = instances[instanceId];
             if (instance.recorder && instance.recorder.state !== 'inactive') {
                 instance.recorder.stop();
@@ -303,7 +303,7 @@
         },
 
         getRecordingQuality: function(instanceId) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return null;
+            if (!isSafeId(instanceId) || !(instanceId in instances)) {return null;}
             const instance = instances[instanceId];
             const duration = Date.now() - instance.startTime;
             const silenceRatio = instance.totalSilence / duration;
@@ -322,9 +322,9 @@
         },
 
         togglePause: function(instanceId) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return;
+            if (!isSafeId(instanceId) || !(instanceId in instances)) {return;}
             const instance = instances[instanceId];
-            if (!instance.recorder) return;
+            if (!instance.recorder) {return;}
 
             if (instance.isPaused && instance.recorder.state === 'paused') {
                 instance.recorder.resume();
@@ -346,7 +346,7 @@
         },
 
         getSubmissionData: function(instanceId) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return null;
+            if (!isSafeId(instanceId) || !(instanceId in instances)) {return null;}
             const instance = instances[instanceId];
             if (instance.audioBlob) {
                 const fileName = applyFilters('starmus_recorder_filename', 'starmus-recording.webm', instanceId);
@@ -425,7 +425,7 @@
         },
 
         cleanup: function(instanceId) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return;
+            if (!isSafeId(instanceId) || !(instanceId in instances)) {return;}
             const instance = instances[instanceId];
             if (instance.volumeMonitorId) {
                 cancelAnimationFrame(instance.volumeMonitorId);
@@ -439,7 +439,7 @@
 
         // West African language validation - context-aware based on recording type
         validateWestAfricanLanguage: function(instanceId, recordingType = 'unknown') {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return { isValid: false, reason: 'Invalid instance' };
+            if (!isSafeId(instanceId) || !(instanceId in instances)) {return { isValid: false, reason: 'Invalid instance' };}
             const instance = instances[instanceId];
             const duration = Date.now() - instance.startTime;
 
@@ -492,7 +492,7 @@
         },
 
         getTranscript: function(instanceId) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) return [];
+            if (!isSafeId(instanceId) || !(instanceId in instances)) {return [];}
             return instances[instanceId].transcript || [];
         },
 
