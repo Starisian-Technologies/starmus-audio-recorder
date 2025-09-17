@@ -608,7 +608,7 @@ class StarmusAudioRecorderUI {
 		}
 		wp_insert_post(
 			array(
-				'post_title'  => sanitize_text_field( $form_data['audio_title'] ?? pathinfo( $file_name, PATHINFO_FILENAME ) ),
+				'post_title'  => sanitize_text_field( $form_data['starmus_title'] ?? pathinfo( $file_name, PATHINFO_FILENAME ) ),
 				'post_type'   => $this->settings->get( 'cpt_slug', 'audio-recording' ),
 				'post_status' => 'draft',
 				'post_author' => get_current_user_id(),

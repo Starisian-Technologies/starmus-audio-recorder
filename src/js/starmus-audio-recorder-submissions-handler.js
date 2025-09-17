@@ -390,16 +390,30 @@
           }, 2000);
         }
       })
-      .catch(err => {
-        log('error', 'handleSubmit: upload failed', err?.message);
-        doAction('starmus_submission_failed', instanceId, err);
+     .catch(err => {
+    log('error', 'handleSubmit: an error occurred during submission', { message: err?.message, instanceId });
+
+    // Check if the user is ACTUALLY offline.
+    if (!navigator.onLine) {
+        // The browser says we are offline, so save the submission.
+        showUserMessage(instanceId, 'You seem to be offline. Your submission has been saved and will be sent automatically when you reconnect.', 'info');
         Offline.add(instanceId, blob, fileName, formFields, metadata);
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = originalText || 'Submit';
-        }
-        throw err;
-      });
+    } else {
+        // The user is online, so the problem must be the server.
+        // Give a more accurate error message.
+        showUserMessage(instanceId, 'Submission failed. The server responded with an error. Please try again later.', 'error');
+    }
+
+    // Always re-enable the button on any failure.
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText || 'Submit Recording';
+    }
+
+    doAction('starmus_submission_failed', instanceId, err);
+    // We still throw the error for other parts of the system that might need to know about it.
+    throw err;
+});
     }
 
     function notifyServer(tusUrl, formFields, metadata) {
