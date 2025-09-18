@@ -307,7 +307,48 @@ class StarmusAudioRecorderUI {
 				'permission_callback' => array( $this, 'upload_permissions_check' ),
 			)
 		);
+    //
+        register_rest_route(
+        self::STAR_REST_NAMESPACE,
+        '/upload-fallback', // A new, different URL
+        array(
+            'methods'             => 'POST',
+            'callback'            => array( $this, 'handle_fallback_upload_rest' ),
+            'permission_callback' => array( $this, 'upload_permissions_check' ),
+        )
+    );
+
 	}
+  /**
+ * Handles simple, non-chunked audio file uploads from the REST fallback.
+ */
+public function handle_fallback_upload_rest( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+    try {
+        if ( $this->is_rate_limited() ) {
+            return new WP_Error( 'rate_limit_exceeded', __( 'You are uploading too frequently.', STARMUS_TEXT_DOMAIN ), array( 'status' => 429 ) );
+        }
+
+        $params = $request->get_params();
+        $files  = $request->get_file_params();
+
+        // Simple validation for the fallback
+        if ( empty( $files['audio_file'] ) || $files['audio_file']['error'] !== UPLOAD_ERR_OK ) {
+            return new WP_Error( 'invalid_request_data', __( 'Audio file is missing or invalid.', STARMUS_TEXT_DOMAIN ), array( 'status' => 400 ) );
+        }
+
+        // Create a fake UUID for compatibility with the existing functions
+        $uuid = wp_generate_uuid4();
+        $this->create_draft_post( $uuid, $files['audio_file']['size'], $files['audio_file']['name'], $params );
+
+        // Use the existing finalize_submission logic
+        return $this->finalize_submission( $uuid, $files['audio_file']['name'], $files['audio_file']['tmp_name'], $params );
+
+    } catch ( Throwable $e ) {
+        $this->log_error( 'Fallback upload error', $e );
+        return new WP_Error( 'upload_error', __( 'Upload failed. Please try again.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
+    }
+}
+
 	/**
 	 * Check if the current user has permission to upload files.
 	 *
@@ -317,14 +358,20 @@ class StarmusAudioRecorderUI {
 	 * @version 0.5.9
 	 */
 	public function upload_permissions_check( WP_REST_Request $request ): bool {
-		$allowed = current_user_can( 'upload_files' );
-		$allowed = (bool) apply_filters_ref_array( 'starmus_can_upload', array( $allowed, $request ) );
-		$nonce   = $request->get_header( 'X-WP-Nonce' );
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
-			return false;
-		}
-		return $allowed;
-	}
+    $allowed = current_user_can( 'upload_files' );
+    $allowed = (bool) apply_filters_ref_array( 'starmus_can_upload', array( $allowed, $request ) );
+
+    // Check for nonce in header OR body
+    $nonce = $request->get_header( 'X-WP-Nonce' );
+    if ( ! $nonce ) {
+        $nonce = $request->get_param('_wpnonce');
+    }
+
+    if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+        return false;
+    }
+    return $allowed;
+}
 	/**
 	 * Handle chunked audio file uploads via REST API.
 	 *
@@ -598,24 +645,25 @@ class StarmusAudioRecorderUI {
 		 * @param array  $form_data  Submitted form data.
 		 */
 	private function create_draft_post( string $uuid, int $total_size, string $file_name, array $form_data ): void {
-		$meta_input = array(
-			'audio_uuid'        => $uuid,
-			'upload_total_size' => $total_size,
-		);
-		if ( $this->settings->get( 'collect_ip_ua' ) && ! empty( $form_data['audio_consent'] ) ) {
-			$meta_input['submission_ip']         = $this->get_client_ip();
-			$meta_input['submission_user_agent'] = $this->get_user_agent();
-		}
-		wp_insert_post(
-			array(
-				'post_title'  => sanitize_text_field( $form_data['starmus_title'] ?? pathinfo( $file_name, PATHINFO_FILENAME ) ),
-				'post_type'   => $this->settings->get( 'cpt_slug', 'audio-recording' ),
-				'post_status' => 'draft',
-				'post_author' => get_current_user_id(),
-				'meta_input'  => $meta_input,
-			)
-		);
-	}
+    $meta_input = array(
+        'audio_uuid'        => $uuid,
+        'upload_total_size' => $total_size,
+    );
+    if ( $this->settings->get( 'collect_ip_ua' ) && ! empty( $form_data['audio_consent'] ) ) {
+        $meta_input['submission_ip']         = $this->get_client_ip();
+        $meta_input['submission_user_agent'] = $this->get_user_agent();
+    }
+    wp_insert_post(
+        array(
+            // *** THE FINAL FIX FOR THE TITLE ***
+            'post_title'  => sanitize_text_field( $form_data['audio_title'] ?? pathinfo( $file_name, PATHINFO_FILENAME ) ),
+            'post_type'   => $this->settings->get( 'cpt_slug', 'audio-recording' ),
+            'post_status' => 'draft',
+            'post_author' => get_current_user_id(),
+            'meta_input'  => $meta_input,
+        )
+    );
+  }
 		/**
 		 * Save all metadata and taxonomy terms for the recording.
 		 *

@@ -105,84 +105,75 @@
 
   // --- tus uploader ---
   function resumableTusUpload(blob, fileName, formFields, metadata, instanceId){
-    log('info', 'resumableTusUpload called', { instanceId, fileName, formFields, metadata });
-    if (!safeId(instanceId)) {
-      log('error', 'Invalid instanceId for upload', instanceId);
-      return Promise.reject(new Error('Invalid instanceId for upload'));
-    }
-    const tusCfg = window.starmusTus || {};
-    if (!window.tus || !tusCfg.endpoint) {
-      log('warn', 'tus missing or endpoint not set, falling back to REST');
-      const wpData = window.starmusFormData || {};
-      log('debug', 'WordPress config:', { hasRestUrl: !!wpData.rest_url, hasNonce: !!wpData.rest_nonce, userId: wpData.user_id });
-      if (wpData.rest_url && wpData.rest_nonce){
-        const fd=new FormData();
+        log('info', 'resumableTusUpload called', { instanceId, fileName });
+        if (!safeId(instanceId)) {
+          return Promise.reject(new Error('Invalid instanceId for upload'));
+        }
+        const tusCfg = window.starmusTus || {};
+        if (!window.tus || !tusCfg.endpoint) {
+          log('warn', 'TUS not configured, falling back to standard REST upload.');
+          const wpData = window.starmusFormData || {};
+          if (wpData.rest_url && wpData.rest_nonce){
+            const fd = new FormData();
 
-        // Add user ID if available (often required by WordPress)
-        if (wpData.user_id) {fd.append('user_id', wpData.user_id);}
+            // Add the nonce to the form data body, as expected by the PHP.
+            fd.append('_wpnonce', wpData.rest_nonce);
 
-        // Add the nonce to the form data body
-        fd.append('_wpnonce', wpData.rest_nonce);
+            if (wpData.user_id) { fd.append('user_id', wpData.user_id); }
+            Object.keys(formFields||{}).forEach(function(k){
+              const value = formFields[k];
+              if (value !== null && value !== undefined && value !== '') {
+                fd.append(s(k), value);
+              }
+            });
+            fd.append('audio_file', blob, s(fileName) || 'recording.webm');
+            if (metadata) { fd.append('metadata', JSON.stringify(metadata)); }
 
+            // *** THE FIX: Point to the new, simpler fallback URL ***
+            const fallbackUrl = wpData.rest_url.replace('/upload-chunk', '/upload-fallback');
+            log('debug', 'Using fallback URL:', fallbackUrl);
 
-        // Add all form fields with validation
-        Object.keys(formFields||{}).forEach(function(k){
-          const value = formFields[k];
-          if (value !== null && value !== undefined && value !== '') {
-            fd.append(s(k), value);
-          }
-        });
-
-        fd.append('audio_file', blob, s(fileName) || 'recording');
-        if (metadata) {fd.append('metadata', JSON.stringify(metadata));}
-
-        // Log what we're sending for debugging
-        log('debug', 'Sending form data:', {
-          fields: Object.keys(formFields||{}),
-          hasAudio: !!blob,
-          audioSize: blob?.size,
-          hasMetadata: !!metadata,
-          hasUserId: !!wpData.user_id
-        });
-        return fetch(wpData.rest_url,{ method:'POST', headers:{'X-WP-Nonce': wpData.rest_nonce}, body: fd })
-          .then(function(res){
-            if(!res.ok) {
-              return res.text().then(errorText => {
-                log('error', 'Server response:', { status: res.status, statusText: res.statusText, body: errorText });
-                throw new Error(`Upload failed: ${res.status} - ${errorText}`);
+            // Use the new URL and remove the unnecessary X-WP-Nonce header
+            return fetch(fallbackUrl, { method:'POST', body: fd })
+              .then(function(res){
+                if(!res.ok) {
+                  return res.text().then(errorText => {
+                    log('error', 'Server response:', { status: res.status, statusText: res.statusText, body: errorText });
+                    throw new Error(`Upload failed: ${res.status} - ${errorText}`);
+                  });
+                }
+                log('info', 'Direct upload success');
+                return res.json(); // Assume server sends back JSON on success
               });
-            }
-            log('info', 'Direct upload success', res);
-            return res;
+          }
+          return Promise.reject(new Error('Fallback REST endpoint not configured.'));
+        }
+
+        // The TUS upload logic (the second half of this function) remains completely unchanged.
+        return new Promise(function(resolve, reject){
+          const meta = Object.assign({}, formFields||{});
+          meta.filename = s(fileName) || 'recording';
+          if (metadata) {meta.starmus_meta = JSON.stringify(metadata);}
+          log('info', 'Starting tus upload', meta);
+          const uploader = new tus.Upload(blob, {
+            endpoint: tusCfg.endpoint,
+            chunkSize: tusCfg.chunkSize || 5*1024*1024,
+            retryDelays: tusCfg.retryDelays || [0, 3000, 5000, 10000, 20000],
+            headers: tusCfg.headers || {},
+            metadata: meta,
+            onError: function(error){ log('error', 'tus upload error', error); reject(error); },
+            onProgress: function(bytesUploaded, bytesTotal){ const pct = Math.round((bytesUploaded/bytesTotal)*100); log('debug', 'tus upload progress', { pct, bytesUploaded, bytesTotal }); showUserMessage(instanceId, 'Uploading… '+pct+'%', 'info'); },
+            onSuccess: function(){ log('info', 'tus upload complete'); showUserMessage(instanceId, 'Upload complete.', 'success'); resolve(uploader.url); }
           });
-      }
-      log('error', 'tus missing and no fallback endpoint configured');
-      return Promise.reject(new Error('tus missing and no fallback endpoint configured'));
+          uploader.findPreviousUploads().then(function (previousUploads) {
+            if (previousUploads.length) { log('info', 'Resuming previous tus upload'); uploader.resumeFromPreviousUpload(previousUploads[0]); }
+            uploader.start();
+          }).catch(function(err) {
+            log('warn', 'Could not resume previous upload, starting new', err.message);
+            uploader.start();
+          });
+        });
     }
-    return new Promise(function(resolve, reject){
-      const meta = Object.assign({}, formFields||{});
-      meta.filename = s(fileName) || 'recording';
-      if (metadata) {meta.starmus_meta = JSON.stringify(metadata);}
-      log('info', 'Starting tus upload', meta);
-      const uploader = new tus.Upload(blob, {
-        endpoint: tusCfg.endpoint,
-        chunkSize: tusCfg.chunkSize || 5*1024*1024,
-        retryDelays: tusCfg.retryDelays || [0, 3000, 5000, 10000, 20000],
-        headers: tusCfg.headers || {},
-        metadata: meta,
-        onError: function(error){ log('error', 'tus upload error', error); reject(error); },
-        onProgress: function(bytesUploaded, bytesTotal){ const pct = Math.round((bytesUploaded/bytesTotal)*100); log('debug', 'tus upload progress', { pct, bytesUploaded, bytesTotal }); showUserMessage(instanceId, 'Uploading… '+pct+'%', 'info'); },
-        onSuccess: function(){ log('info', 'tus upload complete'); showUserMessage(instanceId, 'Upload complete.', 'success'); resolve(uploader.url); }
-      });
-      uploader.findPreviousUploads().then(function (previousUploads) {
-        if (previousUploads.length) { log('info', 'Resuming previous tus upload'); uploader.resumeFromPreviousUpload(previousUploads[0]); }
-        uploader.start();
-      }).catch(function(err) {
-        log('warn', 'Could not resume previous upload, starting new', err.message);
-        uploader.start();
-      });
-    });
-  }
 
   // --- Recorder bootstrap / Tier C reveal ---
   function initRecorder(instanceId){
