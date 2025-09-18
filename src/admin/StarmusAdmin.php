@@ -3,7 +3,7 @@
  * Starmus Admin Handler - Refactored for Security & Performance
  *
  * @package Starmus\admin
- * @version 0.6.2
+ * @version 0.6.3
  * @since 0.3.1
  */
 
