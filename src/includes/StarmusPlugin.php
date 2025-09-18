@@ -147,7 +147,7 @@ final class StarmusPlugin {
 				function ( $mimes ) {
 					$mimes['webm'] = 'audio/webm';
 					$mimes['weba'] = 'audio/webm';
-          $mimes['opus'] = 'audio/ogg; codecs=opus';
+					$mimes['opus'] = 'audio/ogg; codecs=opus';
 					return $mimes;
 				}
 			);

@@ -181,6 +181,26 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#property_cached_context"
         },                {
+            "fqsen": "\\Starmus\\frontend\\absint\u0028\u0029",
+            "name": "absint",
+            "summary": "",
+            "url": "namespaces/starmus-frontend.html#function_absint"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\__\u0028\u0029",
+            "name": "__",
+            "summary": "",
+            "url": "namespaces/starmus-frontend.html#function___"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\is_wp_error\u0028\u0029",
+            "name": "is_wp_error",
+            "summary": "",
+            "url": "namespaces/starmus-frontend.html#function_is_wp_error"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\wp_generate_uuid4\u0028\u0029",
+            "name": "wp_generate_uuid4",
+            "summary": "",
+            "url": "namespaces/starmus-frontend.html#function_wp_generate_uuid4"
+        },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI",
             "name": "StarmusAudioRecorderUI",
             "summary": "Defines\u0020the\u0020user\u0020interface\u0020and\u0020submission\u0020handling\u0020for\u0020the\u0020audio\u0020recorder.",

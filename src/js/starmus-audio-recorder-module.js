@@ -282,7 +282,7 @@
 
             } catch (error) {
                 secureLog('error', 'Failed to start recording.', error.message);
-                doAction('starmus_recording_failed', instanceId, error);
+                    doAction('starmus_recording_failed', instanceId, error);
             }
         },
 
@@ -363,7 +363,7 @@
                             starmusTitle = titleInput.value.trim();
                         }
                     }
-                } catch (e) { starmusTitle = ''; }
+                } catch { starmusTitle = ''; }
                 // Sanitize for filename: remove non-alphanum, replace spaces with _
                 starmusTitle = starmusTitle ? starmusTitle.replace(/[^a-zA-Z0-9\-_]+/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '') : 'recording';
                 const submissionUUID = crypto.randomUUID ? crypto.randomUUID() : 'sub-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);

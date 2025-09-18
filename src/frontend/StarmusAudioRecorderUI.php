@@ -24,10 +24,18 @@ use WP_REST_Response;
 use WP_Error;
 use Throwable;
 // Add missing global functions and helpers
-if (!function_exists('absint')) { function absint($maybeint) { return (int) $maybeint; } }
-if (!function_exists('__')) { function __($text, $domain = null) { return $text; } }
-if (!function_exists('is_wp_error')) { function is_wp_error($thing) { return ($thing instanceof \WP_Error); } }
-if (!function_exists('wp_generate_uuid4')) { function wp_generate_uuid4() { return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x', mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0x0fff) | 0x4000, mt_rand(0, 0x3fff) | 0x8000, mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)); } }
+if ( ! function_exists( 'absint' ) ) {
+	function absint( $maybeint ) {
+		return (int) $maybeint; } }
+if ( ! function_exists( '__' ) ) {
+	function __( $text, $domain = null ) {
+		return $text; } }
+if ( ! function_exists( 'is_wp_error' ) ) {
+	function is_wp_error( $thing ) {
+		return ( $thing instanceof \WP_Error ); } }
+if ( ! function_exists( 'wp_generate_uuid4' ) ) {
+	function wp_generate_uuid4() {
+		return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x', mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0x0fff ) | 0x4000, mt_rand( 0, 0x3fff ) | 0x8000, mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ) ); } }
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -329,6 +337,40 @@ class StarmusAudioRecorderUI {
 	public function handle_fallback_upload_rest( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		// --- START OF NEW DEBUGGING ---
 		error_log( 'STARMUS DEBUG: Fallback handler initiated.' );
+		// Log all expected ACF/meta fields
+		$acf_fields = array(
+			'project_collection_id',
+			'accession_number',
+			'session_date',
+			'session_start_time',
+			'session_end_time',
+			'location',
+			'gps_coordinates',
+			'contributor_id',
+			'interviewers_recorders',
+			'recording_equipment',
+			'audio_files_originals',
+			'media_condition_notes',
+			'related_consent_agreement',
+			'usage_restrictions_rights',
+			'access_level',
+			'first_pass_transcription',
+			'audio_quality_score',
+			'audio_consent',
+			'language',
+			'recording_type',
+			'starmus_title',
+			'recording_metadata',
+			'metadata',
+			'audio_file',
+			'audio_file_url',
+			'audio_file_id',
+		);
+		$params     = $request->get_params();
+		foreach ( $acf_fields as $field ) {
+			$val = isset( $params[ $field ] ) ? $params[ $field ] : '[NOT SET]';
+			error_log( "STARMUS DEBUG: Field '$field': " . ( is_string( $val ) ? $val : print_r( $val, true ) ) );
+		}
 		// --- END OF NEW DEBUGGING ---
 
 		try {
@@ -359,7 +401,7 @@ class StarmusAudioRecorderUI {
 			$temp_file_size = filesize( $temp_file_path );
 			// Fallback: If filesize() fails, use the reported size from $_FILES
 			if ( $temp_file_size === false || $temp_file_size === 0 ) {
-				$temp_file_size = isset($files['audio_file']['size']) ? (int)$files['audio_file']['size'] : 0;
+				$temp_file_size = isset( $files['audio_file']['size'] ) ? (int) $files['audio_file']['size'] : 0;
 			}
 
 			error_log( 'STARMUS DEBUG: Temp file path: ' . $temp_file_path );
@@ -370,23 +412,22 @@ class StarmusAudioRecorderUI {
 				return new WP_Error( 'empty_file_upload', __( 'The uploaded audio file is empty.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
 			}
 
-
 			// Use a unique filename if provided in params or metadata (from JS)
 
 			$unique_file_name = $files['audio_file']['name'];
-			if (!empty($params['recording_metadata'])) {
-				$meta = json_decode($params['recording_metadata'], true);
-				if (!empty($meta['identifiers']['submissionUUID'])) {
+			if ( ! empty( $params['recording_metadata'] ) ) {
+				$meta = json_decode( $params['recording_metadata'], true );
+				if ( ! empty( $meta['identifiers']['submissionUUID'] ) ) {
 					// Try to use starmus_title from params for filename if available
-					$title = isset($params['starmus_title']) ? $params['starmus_title'] : 'recording';
-					$title = preg_replace('/[^a-zA-Z0-9\-_]+/', '_', $title);
-					$title = preg_replace('/_+/', '_', $title);
-					$title = trim($title, '_');
-					$ext = pathinfo($unique_file_name, PATHINFO_EXTENSION);
-					$unique_file_name = $title . '-' . $meta['identifiers']['submissionUUID'] . '.' . ($ext ?: 'webm');
+					$title            = isset( $params['starmus_title'] ) ? $params['starmus_title'] : 'recording';
+					$title            = preg_replace( '/[^a-zA-Z0-9\-_]+/', '_', $title );
+					$title            = preg_replace( '/_+/', '_', $title );
+					$title            = trim( $title, '_' );
+					$ext              = pathinfo( $unique_file_name, PATHINFO_EXTENSION );
+					$unique_file_name = $title . '-' . $meta['identifiers']['submissionUUID'] . '.' . ( $ext ?: 'webm' );
 				}
 			}
-			error_log('STARMUS DEBUG: Using unique file name: ' . $unique_file_name);
+			error_log( 'STARMUS DEBUG: Using unique file name: ' . $unique_file_name );
 
 			// Create a temporary UUID to work with the existing finalize function.
 			$uuid = wp_generate_uuid4();
@@ -396,7 +437,24 @@ class StarmusAudioRecorderUI {
 
 			// The finalize_submission function contains the finfo_file check that is likely failing.
 			// It will now be called AFTER we have confirmed the file is not empty.
-			return $this->finalize_submission( $uuid, $unique_file_name, $temp_file_path, $params );
+			$return = $this->finalize_submission( $uuid, $unique_file_name, $temp_file_path, $params );
+
+			// After meta save, log post meta for all ACF fields if post was created
+			if ( is_array( $return ) && isset( $return['post_id'] ) ) {
+				$post_id = $return['post_id'];
+			} elseif ( is_object( $return ) && isset( $return->data['post_id'] ) ) {
+				$post_id = $return->data['post_id'];
+			} else {
+				$post_id = null;
+			}
+			if ( $post_id ) {
+				$meta = array();
+				foreach ( $acf_fields as $field ) {
+					$meta[ $field ] = get_post_meta( $post_id, $field, true );
+				}
+				error_log( 'STARMUS DEBUG: Saved post meta: ' . print_r( $meta, true ) );
+			}
+			return $return;
 
 		} catch ( Throwable $e ) {
 			$this->log_error( 'Fallback upload error', $e );
@@ -597,135 +655,135 @@ class StarmusAudioRecorderUI {
 	 * @version 0.6.6
 	 */
 	private function finalize_submission( string $uuid, string $file_name, string $temp_file_path, array $form_data ): WP_REST_Response|WP_Error {
-    $post = $this->find_post_by_uuid( $uuid );
-    if ( ! $post || (int) get_current_user_id() !== (int) $post->post_author ) {
-        if ( file_exists( $temp_file_path ) ) {
-            wp_delete_file( $temp_file_path );
-        }
-        return new WP_Error( 'submission_not_found', __( 'Draft submission post could not be found.', STARMUS_TEXT_DOMAIN ), array( 'status' => 404 ) );
-    }
+		$post = $this->find_post_by_uuid( $uuid );
+		if ( ! $post || (int) get_current_user_id() !== (int) $post->post_author ) {
+			if ( file_exists( $temp_file_path ) ) {
+				wp_delete_file( $temp_file_path );
+			}
+			return new WP_Error( 'submission_not_found', __( 'Draft submission post could not be found.', STARMUS_TEXT_DOMAIN ), array( 'status' => 404 ) );
+		}
 
-    $finfo     = finfo_open( FILEINFO_MIME_TYPE );
-    $real_mime = $finfo ? (string) finfo_file( $finfo, $temp_file_path ) : '';
-    if ( $finfo ) {
-        finfo_close( $finfo );
-    }
+		$finfo     = finfo_open( FILEINFO_MIME_TYPE );
+		$real_mime = $finfo ? (string) finfo_file( $finfo, $temp_file_path ) : '';
+		if ( $finfo ) {
+			finfo_close( $finfo );
+		}
 
-    // Normalize WebM so both audio/webm and video/webm pass
-    if ( $real_mime === 'video/webm' ) {
-        $real_mime = 'audio/webm';
-    }
+		// Normalize WebM so both audio/webm and video/webm pass
+		if ( $real_mime === 'video/webm' ) {
+			$real_mime = 'audio/webm';
+		}
 
-    if ( '' === $real_mime || ( 0 !== strpos( $real_mime, 'audio/' ) && $real_mime !== 'audio/webm' ) ) {
-        wp_delete_file( $temp_file_path );
-        return new WP_Error(
-            'invalid_mime_type',
-            __( 'File content is not a valid audio type.', STARMUS_TEXT_DOMAIN ),
-            array( 'status' => 415 )
-        );
-    }
+		if ( '' === $real_mime || ( 0 !== strpos( $real_mime, 'audio/' ) && $real_mime !== 'audio/webm' ) ) {
+			wp_delete_file( $temp_file_path );
+			return new WP_Error(
+				'invalid_mime_type',
+				__( 'File content is not a valid audio type.', STARMUS_TEXT_DOMAIN ),
+				array( 'status' => 415 )
+			);
+		}
 
-    // Extend core mime map with webm
-    $core_mime_map = wp_get_mime_types();
-    $core_mime_map['webm'] = 'audio/webm';
-    $core_mime_map['weba'] = 'audio/webm';
-    $core_mime_map['opus'] = 'audio/ogg; codecs=opus';
+		// Extend core mime map with webm
+		$core_mime_map         = wp_get_mime_types();
+		$core_mime_map['webm'] = 'audio/webm';
+		$core_mime_map['weba'] = 'audio/webm';
+		$core_mime_map['opus'] = 'audio/ogg; codecs=opus';
 
-    $allowed_exts  = array_map( 'strtolower', (array) $this->settings->get( 'allowed_extensions', array( 'webm', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
-    $allowed_mimes = array();
-    foreach ( $core_mime_map as $exts => $mime ) {
-        $ext_arr = array_map( 'trim', explode( '|', $exts ) );
-        foreach ( $ext_arr as $ext ) {
-            if ( in_array( strtolower( $ext ), $allowed_exts, true ) && 0 === strpos( (string) $mime, 'audio/' ) ) {
-                $allowed_mimes[ $ext ] = $mime;
-            }
-        }
-    }
+		$allowed_exts  = array_map( 'strtolower', (array) $this->settings->get( 'allowed_extensions', array( 'webm', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
+		$allowed_mimes = array();
+		foreach ( $core_mime_map as $exts => $mime ) {
+			$ext_arr = array_map( 'trim', explode( '|', $exts ) );
+			foreach ( $ext_arr as $ext ) {
+				if ( in_array( strtolower( $ext ), $allowed_exts, true ) && 0 === strpos( (string) $mime, 'audio/' ) ) {
+					$allowed_mimes[ $ext ] = $mime;
+				}
+			}
+		}
 
-    require_once ABSPATH . 'wp-admin/includes/file.php';
-    require_once ABSPATH . 'wp-admin/includes/media.php';
-    require_once ABSPATH . 'wp-admin/includes/image.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-    $file_name = sanitize_file_name( basename( $file_name ) );
-    if ( empty( $file_name ) || strpos( $file_name, '..' ) !== false ) {
-        wp_delete_file( $temp_file_path );
-        return new WP_Error( 'invalid_filename', __( 'Invalid file name.', STARMUS_TEXT_DOMAIN ) );
-    }
+		$file_name = sanitize_file_name( basename( $file_name ) );
+		if ( empty( $file_name ) || strpos( $file_name, '..' ) !== false ) {
+			wp_delete_file( $temp_file_path );
+			return new WP_Error( 'invalid_filename', __( 'Invalid file name.', STARMUS_TEXT_DOMAIN ) );
+		}
 
-    $file_data = array(
-        'name'     => wp_unique_filename( wp_get_upload_dir()['path'], $file_name ),
-        'tmp_name' => $temp_file_path,
-    );
+		$file_data = array(
+			'name'     => wp_unique_filename( wp_get_upload_dir()['path'], $file_name ),
+			'tmp_name' => $temp_file_path,
+		);
 
-    $upload_result = wp_handle_sideload(
-        $file_data,
-        array(
-            'test_form' => false,
-            'mimes'     => $allowed_mimes,
-        )
-    );
+		$upload_result = wp_handle_sideload(
+			$file_data,
+			array(
+				'test_form' => false,
+				'mimes'     => $allowed_mimes,
+			)
+		);
 
-    if ( isset( $upload_result['error'] ) ) {
-        if ( file_exists( $temp_file_path ) ) {
-            wp_delete_file( $temp_file_path );
-        }
-        return new WP_Error( 'sideload_failed', $upload_result['error'], array( 'status' => 500 ) );
-    }
+		if ( isset( $upload_result['error'] ) ) {
+			if ( file_exists( $temp_file_path ) ) {
+				wp_delete_file( $temp_file_path );
+			}
+			return new WP_Error( 'sideload_failed', $upload_result['error'], array( 'status' => 500 ) );
+		}
 
-    $uploaded_path = $upload_result['file'];
-    $uploaded_type = $upload_result['type'];
-    $attachment_id = wp_insert_attachment(
-        array(
-            'post_mime_type' => $uploaded_type,
-            'post_title'     => sanitize_text_field( pathinfo( $uploaded_path, PATHINFO_FILENAME ) ),
-            'post_status'    => 'inherit',
-        ),
-        $uploaded_path,
-        $post->ID
-    );
+		$uploaded_path = $upload_result['file'];
+		$uploaded_type = $upload_result['type'];
+		$attachment_id = wp_insert_attachment(
+			array(
+				'post_mime_type' => $uploaded_type,
+				'post_title'     => sanitize_text_field( pathinfo( $uploaded_path, PATHINFO_FILENAME ) ),
+				'post_status'    => 'inherit',
+			),
+			$uploaded_path,
+			$post->ID
+		);
 
-    if ( is_wp_error( $attachment_id ) ) {
-        wp_delete_file( $uploaded_path );
-        return new WP_Error( 'attachment_error', $attachment_id->get_error_message(), array( 'status' => 500 ) );
-    }
+		if ( is_wp_error( $attachment_id ) ) {
+			wp_delete_file( $uploaded_path );
+			return new WP_Error( 'attachment_error', $attachment_id->get_error_message(), array( 'status' => 500 ) );
+		}
 
-    $attachment_id = (int) $attachment_id;
-    wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $uploaded_path ) );
-    update_post_meta( $post->ID, '_audio_attachment_id', $attachment_id );
-    update_post_meta( $attachment_id, '_starmus_audio_post_id', (int) $post->ID );
+		$attachment_id = (int) $attachment_id;
+		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $uploaded_path ) );
+		update_post_meta( $post->ID, '_audio_attachment_id', $attachment_id );
+		update_post_meta( $attachment_id, '_starmus_audio_post_id', (int) $post->ID );
 
-	// Set audio as featured image (post thumbnail) for the CPT post
-	if ( function_exists( '\set_post_thumbnail' ) ) {
-		\set_post_thumbnail( $post->ID, $attachment_id );
+		// Set audio as featured image (post thumbnail) for the CPT post
+		if ( function_exists( '\set_post_thumbnail' ) ) {
+			\set_post_thumbnail( $post->ID, $attachment_id );
+		}
+
+		$waveform_generated = $this->generate_waveform_data( $attachment_id );
+
+		wp_update_post(
+			array(
+				'ID'          => $post->ID,
+				'post_status' => 'publish',
+			)
+		);
+
+		do_action( 'starmus_after_audio_upload', (int) $post->ID, $attachment_id, $form_data );
+
+		$response_data = apply_filters_ref_array(
+			'starmus_audio_upload_success_response',
+			array(
+				array(
+					'message'            => esc_html__( 'Submission complete!', STARMUS_TEXT_DOMAIN ),
+					'post_id'            => (int) $post->ID,
+					'attachment_id'      => $attachment_id,
+					'waveform_generated' => (bool) $waveform_generated,
+				),
+				(int) $post->ID,
+				$form_data,
+			)
+		);
+
+		return new WP_REST_Response( $response_data, 200 );
 	}
-
-    $waveform_generated = $this->generate_waveform_data( $attachment_id );
-
-    wp_update_post(
-        array(
-            'ID'          => $post->ID,
-            'post_status' => 'publish',
-        )
-    );
-
-    do_action( 'starmus_after_audio_upload', (int) $post->ID, $attachment_id, $form_data );
-
-    $response_data = apply_filters_ref_array(
-        'starmus_audio_upload_success_response',
-        array(
-            array(
-                'message'            => esc_html__( 'Submission complete!', STARMUS_TEXT_DOMAIN ),
-                'post_id'            => (int) $post->ID,
-                'attachment_id'      => $attachment_id,
-                'waveform_generated' => (bool) $waveform_generated,
-            ),
-            (int) $post->ID,
-            $form_data,
-        )
-    );
-
-    return new WP_REST_Response( $response_data, 200 );
-}
 
 		/**
 		 * Create a draft post to hold upload metadata.
@@ -768,7 +826,7 @@ class StarmusAudioRecorderUI {
 		$this->assign_audio_recording_taxonomies( $audio_post_id, $form_data );
 
 		// Save all submitted ACF fields to the post
-		$acf_fields = [
+		$acf_fields = array(
 			'project_collection_id',
 			'accession_number',
 			'session_date',
@@ -786,13 +844,13 @@ class StarmusAudioRecorderUI {
 			'access_level',
 			'first_pass_transcription',
 			'audio_quality_score',
-		];
+		);
 		if ( function_exists( 'update_field' ) ) {
 			foreach ( $acf_fields as $acf_field ) {
 				if ( isset( $form_data[ $acf_field ] ) && $form_data[ $acf_field ] !== '' ) {
 					$value = $form_data[ $acf_field ];
 					// Decode JSON for gps_coordinates and first_pass_transcription
-					if ( in_array( $acf_field, [ 'gps_coordinates', 'first_pass_transcription' ], true ) ) {
+					if ( in_array( $acf_field, array( 'gps_coordinates', 'first_pass_transcription' ), true ) ) {
 						$decoded = json_decode( $value, true );
 						if ( is_array( $decoded ) ) {
 							$value = $decoded;
