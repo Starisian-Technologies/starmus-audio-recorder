@@ -14,6 +14,7 @@
  * Changelog:
  */
 
+
 namespace Starmus\frontend;
 
 use Starmus\includes\StarmusSettings;
@@ -22,6 +23,11 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
 use Throwable;
+// Add missing global functions and helpers
+if (!function_exists('absint')) { function absint($maybeint) { return (int) $maybeint; } }
+if (!function_exists('__')) { function __($text, $domain = null) { return $text; } }
+if (!function_exists('is_wp_error')) { function is_wp_error($thing) { return ($thing instanceof \WP_Error); } }
+if (!function_exists('wp_generate_uuid4')) { function wp_generate_uuid4() { return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x', mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0x0fff) | 0x4000, mt_rand(0, 0x3fff) | 0x8000, mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)); } }
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -364,15 +370,33 @@ class StarmusAudioRecorderUI {
 				return new WP_Error( 'empty_file_upload', __( 'The uploaded audio file is empty.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
 			}
 
+
+			// Use a unique filename if provided in params or metadata (from JS)
+
+			$unique_file_name = $files['audio_file']['name'];
+			if (!empty($params['recording_metadata'])) {
+				$meta = json_decode($params['recording_metadata'], true);
+				if (!empty($meta['identifiers']['submissionUUID'])) {
+					// Try to use starmus_title from params for filename if available
+					$title = isset($params['starmus_title']) ? $params['starmus_title'] : 'recording';
+					$title = preg_replace('/[^a-zA-Z0-9\-_]+/', '_', $title);
+					$title = preg_replace('/_+/', '_', $title);
+					$title = trim($title, '_');
+					$ext = pathinfo($unique_file_name, PATHINFO_EXTENSION);
+					$unique_file_name = $title . '-' . $meta['identifiers']['submissionUUID'] . '.' . ($ext ?: 'webm');
+				}
+			}
+			error_log('STARMUS DEBUG: Using unique file name: ' . $unique_file_name);
+
 			// Create a temporary UUID to work with the existing finalize function.
 			$uuid = wp_generate_uuid4();
 
 			// Use the existing create_draft_post and finalize_submission logic.
-			$this->create_draft_post( $uuid, $files['audio_file']['size'], $files['audio_file']['name'], $params );
+			$this->create_draft_post( $uuid, $files['audio_file']['size'], $unique_file_name, $params );
 
 			// The finalize_submission function contains the finfo_file check that is likely failing.
 			// It will now be called AFTER we have confirmed the file is not empty.
-			return $this->finalize_submission( $uuid, $files['audio_file']['name'], $temp_file_path, $params );
+			return $this->finalize_submission( $uuid, $unique_file_name, $temp_file_path, $params );
 
 		} catch ( Throwable $e ) {
 			$this->log_error( 'Fallback upload error', $e );
@@ -670,6 +694,11 @@ class StarmusAudioRecorderUI {
     update_post_meta( $post->ID, '_audio_attachment_id', $attachment_id );
     update_post_meta( $attachment_id, '_starmus_audio_post_id', (int) $post->ID );
 
+	// Set audio as featured image (post thumbnail) for the CPT post
+	if ( function_exists( '\set_post_thumbnail' ) ) {
+		\set_post_thumbnail( $post->ID, $attachment_id );
+	}
+
     $waveform_generated = $this->generate_waveform_data( $attachment_id );
 
     wp_update_post(
@@ -737,6 +766,42 @@ class StarmusAudioRecorderUI {
 		$consent_post_id = $this->create_consent_post( $audio_post_id, $form_data );
 		$this->update_audio_recording_metadata( $audio_post_id, $attachment_id, $consent_post_id, $form_data );
 		$this->assign_audio_recording_taxonomies( $audio_post_id, $form_data );
+
+		// Save all submitted ACF fields to the post
+		$acf_fields = [
+			'project_collection_id',
+			'accession_number',
+			'session_date',
+			'session_start_time',
+			'session_end_time',
+			'location',
+			'gps_coordinates',
+			'contributor_id',
+			'interviewers_recorders',
+			'recording_equipment',
+			'audio_files_originals',
+			'media_condition_notes',
+			'related_consent_agreement',
+			'usage_restrictions_rights',
+			'access_level',
+			'first_pass_transcription',
+			'audio_quality_score',
+		];
+		if ( function_exists( 'update_field' ) ) {
+			foreach ( $acf_fields as $acf_field ) {
+				if ( isset( $form_data[ $acf_field ] ) && $form_data[ $acf_field ] !== '' ) {
+					$value = $form_data[ $acf_field ];
+					// Decode JSON for gps_coordinates and first_pass_transcription
+					if ( in_array( $acf_field, [ 'gps_coordinates', 'first_pass_transcription' ], true ) ) {
+						$decoded = json_decode( $value, true );
+						if ( is_array( $decoded ) ) {
+							$value = $decoded;
+						}
+					}
+					update_field( $acf_field, $value, $audio_post_id );
+				}
+			}
+		}
 	}
 	/**
 	 * Create a consent post if the user has given consent.

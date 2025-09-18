@@ -20,7 +20,7 @@
         banner.style.cssText = 'position:fixed;top:24px;left:0;z-index:99999;background:#2a2;color:#fff;padding:4px 12px;font:14px monospace;opacity:0.95';
         document.body.appendChild(banner);
         setTimeout(() => banner.remove(), 4000);
-        log('info', 'DEBUG: Submissions Handler banner shown'); 
+        log('info', 'DEBUG: Submissions Handler banner shown');
     }
     function el(id) { return document.getElementById(id); }
     function safeId(id) { return typeof id === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(id); }
@@ -316,7 +316,7 @@
     // Add transcript data to form fields (UTC normalized)
     if (metadata.transcript && metadata.transcript.length > 0) {
       log('info', 'handleSubmit: adding transcript to formFields');
-      formFields['first-pass-transcription'] = JSON.stringify({
+  formFields['first_pass_transcription'] = JSON.stringify({
         transcript: metadata.transcript, // Already has UTC timestamps
         detectedLanguage: metadata.detectedLanguage,
         hasTranscription: metadata.hasTranscription,
@@ -424,8 +424,8 @@
   fd.append('tus_url', tusUrl || '');
   fd.append('metadata', JSON.stringify(metadata));
 
-  if (formFields['first-pass-transcription']) {
-    fd.append('first-pass-transcription', formFields['first-pass-transcription']);
+  if (formFields['first_pass_transcription']) {
+    fd.append('first_pass_transcription', formFields['first_pass_transcription']);
   }
 
   // force notify to fallback route

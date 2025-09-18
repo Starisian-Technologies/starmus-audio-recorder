@@ -45,7 +45,7 @@ $instance_id = 'starmus_form_' . sanitize_key( $form_id . '_' . wp_generate_uuid
 
 			<div class="starmus-field-group">
 				<label for="starmus_title_<?php echo esc_attr( $instance_id ); ?>"><?php esc_html_e( 'Title', 'starmus-audio-recorder' ); ?> <span class="starmus-required">*</span></label>
-				<input type="text" id="starmus_title_<?php echo esc_attr( $instance_id ); ?>" name="audio_title" maxlength="200" required>
+				<input type="text" id="starmus_title_<?php echo esc_attr( $instance_id ); ?>" name="starmus_title" maxlength="200" required>
 			</div>
 
 			<div class="starmus-field-group">
@@ -88,11 +88,26 @@ $instance_id = 'starmus_form_' . sanitize_key( $form_id . '_' . wp_generate_uuid
 				</div>
 			</fieldset>
 
-			<!-- Hidden fields for metadata capture, populated by JS -->
-			<input type="hidden" name="gps_latitude" value="">
-			<input type="hidden" name="gps_longitude" value="">
-			<input type="hidden" name="first-pass-transcription" value="">
-			<input type="hidden" name="recording_metadata" value="">
+
+			   <!-- Hidden fields for all ACF metadata (populated by JS or user) -->
+			   <input type="hidden" name="project_collection_id" value="">
+			   <input type="hidden" name="accession_number" value="">
+			   <input type="hidden" name="session_date" value="">
+			   <input type="hidden" name="session_start_time" value="">
+			   <input type="hidden" name="session_end_time" value="">
+			   <input type="hidden" name="location" value="">
+			   <input type="hidden" name="gps_coordinates" value="">
+			   <input type="hidden" name="contributor_id" value="">
+			   <input type="hidden" name="interviewers_recorders" value="">
+			   <input type="hidden" name="recording_equipment" value="">
+			   <input type="hidden" name="audio_files_originals" value="">
+			   <input type="hidden" name="media_condition_notes" value="">
+			   <input type="hidden" name="related_consent_agreement" value="">
+			   <input type="hidden" name="usage_restrictions_rights" value="">
+			   <input type="hidden" name="access_level" value="">
+			   <input type="hidden" name="first_pass_transcription" value="">
+			   <input type="hidden" name="audio_quality_score" value="">
+			   <input type="hidden" name="recording_metadata" value="">
 
 			<button type="button" id="starmus_continue_btn_<?php echo esc_attr( $instance_id ); ?>" class="starmus-btn starmus-btn--primary">
 				<?php esc_html_e( 'Continue to Recording', 'starmus-audio-recorder' ); ?>

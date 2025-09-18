@@ -149,7 +149,7 @@
                 instance.gain.gain.setTargetAtTime(gain, instance.ctx.currentTime, 0.01);
                 instance.isCalibrated = true;
 
-                onUpdateCallback('Mic calibrated (gain ×' + gain.toFixed(1) + ', SNR: ' + snr.toFixed(1) + '). Ready to record.', null, true);
+                onUpdateCallback('Ready to record. Mic calibrated (gain ×' + gain.toFixed(1) + ', SNR: ' + snr.toFixed(1) + ').', null, true);
                 doAction('starmus_calibration_complete', instanceId, { gain, snr, noiseFloor });
             }
             tick();
@@ -352,7 +352,26 @@
             if (!isSafeId(instanceId) || !(instanceId in instances)) {return null;}
             const instance = instances[instanceId];
             if (instance.audioBlob) {
-                const fileName = applyFilters('starmus_recorder_filename', 'starmus-recording.webm', instanceId);
+                // Use starmus_title from the form if available, else fallback to 'recording'
+                let starmusTitle = '';
+                try {
+                    // Try to find the starmus_title input for this instance
+                    const form = document.getElementById('starmus_recorder_form_' + instanceId) || document.querySelector('form[id^="starmus_recorder_form"]');
+                    if (form) {
+                        const titleInput = form.querySelector('input[name="starmus_title"]');
+                        if (titleInput && titleInput.value) {
+                            starmusTitle = titleInput.value.trim();
+                        }
+                    }
+                } catch (e) { starmusTitle = ''; }
+                // Sanitize for filename: remove non-alphanum, replace spaces with _
+                starmusTitle = starmusTitle ? starmusTitle.replace(/[^a-zA-Z0-9\-_]+/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '') : 'recording';
+                const submissionUUID = crypto.randomUUID ? crypto.randomUUID() : 'sub-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                const fileName = applyFilters(
+                    'starmus_recorder_filename',
+                    `${starmusTitle}-${submissionUUID}.webm`,
+                    instanceId
+                );
                 const recordingDuration = Date.now() - instance.startTime;
                 const data = {
                     blob: instance.audioBlob,
@@ -362,7 +381,7 @@
                     metadata: {
                         // Unique identifiers
                         sessionUUID: instance.sessionUUID,
-                        submissionUUID: crypto.randomUUID ? crypto.randomUUID() : 'sub-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                        submissionUUID,
 
                         // Temporal data (all UTC normalized)
                         recordedAt: new Date(instance.startTime).toISOString(), // Already UTC
