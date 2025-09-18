@@ -581,10 +581,21 @@ class StarmusAudioRecorderUI {
 		if ( $finfo ) {
 			finfo_close( $finfo );
 		}
-		if ( '' === $real_mime || 0 !== strpos( $real_mime, 'audio/' ) ) {
-			wp_delete_file( $temp_file_path );
-			return new WP_Error( 'invalid_mime_type', __( 'File content is not a valid audio type.', STARMUS_TEXT_DOMAIN ), array( 'status' => 415 ) );
+
+		// Normalize WebM so both audio/webm and video/webm pass
+		if ( $real_mime === 'video/webm' ) {
+			$real_mime = 'audio/webm';
 		}
+
+		if ( '' === $real_mime || ( 0 !== strpos( $real_mime, 'audio/' ) && $real_mime !== 'audio/webm' ) ) {
+			wp_delete_file( $temp_file_path );
+			return new WP_Error(
+				'invalid_mime_type',
+				__( 'File content is not a valid audio type.', STARMUS_TEXT_DOMAIN ),
+				array( 'status' => 415 )
+			);
+		}
+
 		$allowed_exts  = array_map( 'strtolower', (array) $this->settings->get( 'allowed_extensions', array( 'webm', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
 		$core_mime_map = wp_get_mime_types();
 		$allowed_mimes = array();
@@ -682,8 +693,8 @@ class StarmusAudioRecorderUI {
 		}
 		wp_insert_post(
 			array(
-				// *** THE FINAL FIX FOR THE TITLE ***
-				'post_title'  => sanitize_text_field( $form_data['audio_title'] ?? pathinfo( $file_name, PATHINFO_FILENAME ) ),
+				// THIS IS THE BUG
+				'post_title'  => sanitize_text_field( $form_data['starmus_title'] ?? pathinfo( $file_name, PATHINFO_FILENAME ) ),
 				'post_type'   => $this->settings->get( 'cpt_slug', 'audio-recording' ),
 				'post_status' => 'draft',
 				'post_author' => get_current_user_id(),

@@ -141,6 +141,15 @@ final class StarmusPlugin {
 			add_action( 'create_recording-type', array( $this->recorder, 'clear_taxonomy_transients' ) );
 			add_action( 'edit_recording-type', array( $this->recorder, 'clear_taxonomy_transients' ) );
 			add_action( 'delete_recording-type', array( $this->recorder, 'clear_taxonomy_transients' ) );
+			// Add filter so mime passes
+			add_filter(
+				'upload_mimes',
+				function ( $mimes ) {
+					$mimes['webm'] = 'audio/webm';
+					$mimes['weba'] = 'audio/webm';
+					return $mimes;
+				}
+			);
 
 			error_log( 'Starmus Plugin: Shortcodes registered - starmus_my_recordings and starmus_audio_recorder' );
 		} else {
