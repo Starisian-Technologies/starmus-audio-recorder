@@ -414,14 +414,29 @@
     }
 
     function notifyServer(tusUrl, formFields, metadata) {
-    const wpData = window.starmusFormData || {};
-    // This function is for TUS uploads, which are not being used in the fallback.
-    // The fallback logic is now self-contained in resumableTusUpload.
-    // We can simplify the main handleSubmit promise chain.
-    return Promise.resolve(); // This function is not needed for the fallback path.
+  const wpData = window.starmusFormData || {};
+  if (!wpData.rest_url || !wpData.rest_nonce) {
+    return Promise.resolve();
+  }
+
+  const fd = new FormData();
+  Object.keys(formFields || {}).forEach(k => fd.append(k, formFields[k]));
+  fd.append('tus_url', tusUrl || '');
+  fd.append('metadata', JSON.stringify(metadata));
+
+  if (formFields['first-pass-transcription']) {
+    fd.append('first-pass-transcription', formFields['first-pass-transcription']);
+  }
+
+  // force notify to fallback route
+  const notifyUrl = wpData.rest_url.replace('/upload-chunk', '/upload-fallback');
+
+  return fetch(notifyUrl, {
+    method: 'POST',
+    headers: { 'X-WP-Nonce': wpData.rest_nonce },
+    body: fd
+  });
 }
-
-
 
     // --- Init ---
     function init() {

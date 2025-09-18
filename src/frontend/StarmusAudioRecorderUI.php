@@ -598,6 +598,9 @@ class StarmusAudioRecorderUI {
 
 		$allowed_exts  = array_map( 'strtolower', (array) $this->settings->get( 'allowed_extensions', array( 'webm', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
 		$core_mime_map = wp_get_mime_types();
+    $core_mime_map['webm'] = 'audio/webm';
+$core_mime_map['weba'] = 'audio/webm';
+    // Build a filtered mime types array based on allowed extensions
 		$allowed_mimes = array();
 		foreach ( $core_mime_map as $exts => $mime ) {
 			$ext_arr = array_map( 'trim', explode( '|', $exts ) );
