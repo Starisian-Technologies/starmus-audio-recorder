@@ -4,7 +4,7 @@
  * This version uses a clean, linear loading sequence to avoid race conditions.
  *
  * @package Starmus\includes
- * @version 0.6.4
+ * @version 0.6.5
  * @since 0.1.0
  */
 
