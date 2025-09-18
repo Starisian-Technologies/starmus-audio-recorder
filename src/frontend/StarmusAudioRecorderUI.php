@@ -343,20 +343,24 @@ class StarmusAudioRecorderUI {
 				error_log( 'STARMUS DEBUG: Validation failed - audio_file is missing or has an upload error.' );
 				return new WP_Error( 'invalid_request_data', __( 'Audio file is missing or invalid.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
 			}
-			if ( empty( $params['audio_title'] ) ) {
-				error_log( 'STARMUS DEBUG: Validation failed - audio_title is missing.' );
+			if ( empty( $params['starmus_title'] ) ) {
+				error_log( 'STARMUS DEBUG: Validation failed - starmus_title is missing.' );
 				return new WP_Error( 'invalid_request_data', __( 'Recording title is required.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
 			}
 
 			// Check the uploaded file's temporary path and size.
 			$temp_file_path = $files['audio_file']['tmp_name'];
 			$temp_file_size = filesize( $temp_file_path );
+			// Fallback: If filesize() fails, use the reported size from $_FILES
+			if ( $temp_file_size === false || $temp_file_size === 0 ) {
+				$temp_file_size = isset($files['audio_file']['size']) ? (int)$files['audio_file']['size'] : 0;
+			}
 
 			error_log( 'STARMUS DEBUG: Temp file path: ' . $temp_file_path );
 			error_log( 'STARMUS DEBUG: Temp file size: ' . $temp_file_size . ' bytes.' );
 
 			if ( $temp_file_size === 0 ) {
-				error_log( 'STARMUS DEBUG: Validation failed - uploaded file is 0 bytes.' );
+				error_log( 'STARMUS DEBUG: Validation failed - uploaded file is 0 bytes (after fallback check).' );
 				return new WP_Error( 'empty_file_upload', __( 'The uploaded audio file is empty.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
 			}
 
@@ -601,6 +605,7 @@ class StarmusAudioRecorderUI {
     $core_mime_map = wp_get_mime_types();
     $core_mime_map['webm'] = 'audio/webm';
     $core_mime_map['weba'] = 'audio/webm';
+    $core_mime_map['opus'] = 'audio/ogg; codecs=opus';
 
     $allowed_exts  = array_map( 'strtolower', (array) $this->settings->get( 'allowed_extensions', array( 'webm', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
     $allowed_mimes = array();

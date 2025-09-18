@@ -265,9 +265,12 @@
                 };
 
                 instance.recorder.onstop = () => {
-                    instance.audioBlob = new Blob(instance.chunks, {
-                        type: instance.recorder.mimeType || 'audio/webm'
-                    });
+                    // Always set the MIME type explicitly to avoid server-side rejection
+                    let mimeType = 'audio/webm';
+                    if (instance.recorder && instance.recorder.mimeType && instance.recorder.mimeType.startsWith('audio/')) {
+                        mimeType = instance.recorder.mimeType;
+                    }
+                    instance.audioBlob = new Blob(instance.chunks, { type: mimeType });
                     doAction('starmus_recording_stopped', instanceId, instance.audioBlob);
                 };
 

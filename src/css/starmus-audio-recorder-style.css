@@ -13,14 +13,14 @@
    ======================================================================== */
 :root {
 	--starmus-primary-color: var(--wp--preset--color--primary, #8a2be2); /* A fallback purple */
-	--starmus-primary-hover: color-mix(in srgb, var(--starmus-primary-color) 85%, #000);
+	--starmus-primary-hover: #6e2491; /* fallback for color-mix(in srgb, var(--starmus-primary-color) 85%, #000) */
 	--starmus-text-color: var(--wp--preset--color--foreground, #111827);
 	--starmus-text-muted: var(--wp--preset--color--secondary, #6b7280);
 	--starmus-border-color: var(--wp--preset--color--contrast, #d1d5db);
 	--starmus-bg-light: var(--wp--preset--color--base-2, #f9fafb);
 	--starmus-bg-card: var(--wp--preset--color--background, #fff);
 	--starmus-danger-color: #dc3545;
-	--starmus-danger-hover: color-mix(in srgb, var(--starmus-danger-color) 85%, #000);
+	--starmus-danger-hover: #b02a37; /* fallback for color-mix(in srgb, var(--starmus-danger-color) 85%, #000) */
 	--starmus-success-color: #28a745;
 }
 
@@ -31,7 +31,7 @@
 .has-background[style*="background-color: rgb(55, 1, 44)"] .starmus-recorder-form,
 .has-background[style*="background-color: #37012c"] .starmus-recorder-form {
 	--starmus-primary-color: var(--wp--preset--color--primary, #c4b5fd); /* Light lavender */
-	--starmus-primary-hover: color-mix(in srgb, var(--starmus-primary-color) 90%, #fff); /* Lighter on hover */
+	--starmus-primary-hover: #bca8f7; /* fallback for color-mix(in srgb, var(--starmus-primary-color) 90%, #fff) */
 	--starmus-text-color: #f9fafb; /* White text */
 	--starmus-text-muted: #9ca3af;
 	--starmus-border-color: #4b5563;
@@ -469,6 +469,17 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 	border-radius: 50%;
 	border-top-color: transparent;
 	animation: spin 0.8s linear infinite;
+}
+
+.starmus-mic-banner {
+	padding: 0.75rem 1rem;
+	margin-bottom: 1.5rem;
+	border-radius: 0.5rem;
+	text-align: center;
+	font-weight: 500;
+	background-color: #f8d7da; /* fallback for color-mix(in srgb, var(--starmus-danger-color) 15%, transparent) */
+	color: var(--starmus-danger-color);
+	border: 1px solid #f1b0b7; /* fallback for color-mix(in srgb, var(--starmus-danger-color) 35%, transparent) */
 }
 
 @keyframes spin {

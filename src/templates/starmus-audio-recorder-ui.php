@@ -76,7 +76,7 @@ $instance_id = 'starmus_form_' . sanitize_key( $form_id . '_' . wp_generate_uuid
 			<!-- REFACTORED: Formal and Accessible Consent Section                    -->
 			<!-- ==================================================================== -->
 			<fieldset class="starmus-consent-fieldset">
-				<legend class="starmus-fieldset-legend"><?php esc_html_e( 'Data Usage Consent', 'starmus-audio-recorder' ); ?></legend>
+				<legend class="starmus-fieldset-legend"><?php esc_html_e( 'Consent Agreement', 'starmus-audio-recorder' ); ?></legend>
 				<div class="starmus-consent-field">
 					<input type="checkbox" id="starmus_consent_<?php echo esc_attr( $instance_id ); ?>" name="audio_consent" value="1" required>
 					<label for="starmus_consent_<?php echo esc_attr( $instance_id ); ?>">

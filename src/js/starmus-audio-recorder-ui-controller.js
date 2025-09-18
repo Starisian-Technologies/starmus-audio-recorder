@@ -40,6 +40,29 @@
         }
     }
 
+    function handleMicError(err, containerEl) {
+  let msg = '';
+  if (err && err.name === 'NotAllowedError') {
+    msg = window.starmusTranslations?.micBlocked ||
+      "Microphone blocked. Click the lock icon in your browser, allow microphone, then reload.";
+  } else if (err && err.name === 'NotFoundError') {
+    msg = window.starmusTranslations?.noMic ||
+      "No microphone found. Please use a phone or computer with a microphone.";
+  } else {
+    msg = window.starmusTranslations?.micUnavailable ||
+      "We couldn’t access your microphone. Please check if another app is using it or try again.";
+  }
+
+  // Create or update banner
+  let banner = containerEl.querySelector('.starmus-mic-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.className = 'starmus-mic-banner';
+    containerEl.prepend(banner);
+  }
+  banner.textContent = msg;
+}
+
     const timers = {};
     function startTimer(instanceId) {
         if (!safeId(instanceId) || timers[instanceId]) {return;}
@@ -246,7 +269,8 @@
         init,
         showUserMessage,
         buildRecorderUI,
-        handleContinueClick
+        handleContinueClick,
+        handleMicError // Expose for external use
     };
 
 })(window, document);
