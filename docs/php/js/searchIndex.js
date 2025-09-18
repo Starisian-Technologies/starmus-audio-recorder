@@ -221,6 +221,11 @@ Search.appendIndex(
             "summary": "Register\u0020REST\u0020API\u0020routes\u0020for\u0020chunked\u0020audio\u0020uploads.",
             "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_register_rest_routes"
         },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Ahandle_fallback_upload_rest\u0028\u0029",
+            "name": "handle_fallback_upload_rest",
+            "summary": "Handles\u0020simple,\u0020non\u002Dchunked\u0020audio\u0020file\u0020uploads\u0020from\u0020the\u0020REST\u0020fallback.",
+            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_fallback_upload_rest"
+        },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Aupload_permissions_check\u0028\u0029",
             "name": "upload_permissions_check",
             "summary": "Check\u0020if\u0020the\u0020current\u0020user\u0020has\u0020permission\u0020to\u0020upload\u0020files.",

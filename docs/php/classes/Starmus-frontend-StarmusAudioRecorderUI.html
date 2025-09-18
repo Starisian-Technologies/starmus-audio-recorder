@@ -172,7 +172,7 @@
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -273,6 +273,13 @@
                                 &nbsp;: void    </span>
 </dt>
 <dd>Registers and conditionally enqueues all frontend scripts and styles.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_fallback_upload_rest">handle_fallback_upload_rest()</a>
+    <span>
+                                &nbsp;: <abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr>    </span>
+</dt>
+<dd>Handles simple, non-chunked audio file uploads from the REST fallback.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_upload_chunk_rest">handle_upload_chunk_rest()</a>
@@ -590,7 +597,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">736</span>
+    <span class="phpdocumentor-element-found-in__line">811</span>
 
     </aside>
 
@@ -654,7 +661,7 @@
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -686,7 +693,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">955</span>
+    <span class="phpdocumentor-element-found-in__line">1030</span>
 
     </aside>
 
@@ -720,7 +727,7 @@
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -778,7 +785,7 @@
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -857,6 +864,55 @@ shortcode is present on the page.</p>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_handle_fallback_upload_rest">
+        handle_fallback_upload_rest()
+        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_fallback_upload_rest" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">323</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Handles simple, non-chunked audio file uploads from the REST fallback.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">handle_fallback_upload_rest</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$request</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$request</span>
+                : <span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_handle_upload_chunk_rest">
         handle_upload_chunk_rest()
         <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_upload_chunk_rest" class="headerlink"><i class="fas fa-link"></i></a>
@@ -865,7 +921,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">336</span>
+    <span class="phpdocumentor-element-found-in__line">410</span>
 
     </aside>
 
@@ -911,7 +967,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -943,7 +999,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">944</span>
+    <span class="phpdocumentor-element-found-in__line">1019</span>
 
     </aside>
 
@@ -977,7 +1033,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -1035,7 +1091,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -1105,7 +1161,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -1207,7 +1263,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">626</span>
+    <span class="phpdocumentor-element-found-in__line">701</span>
 
     </aside>
 
@@ -1272,7 +1328,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">319</span>
+    <span class="phpdocumentor-element-found-in__line">387</span>
 
     </aside>
 
@@ -1318,7 +1374,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -1350,7 +1406,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">696</span>
+    <span class="phpdocumentor-element-found-in__line">771</span>
 
     </aside>
 
@@ -1405,7 +1461,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -1429,7 +1485,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">640</span>
+    <span class="phpdocumentor-element-found-in__line">715</span>
 
     </aside>
 
@@ -1484,7 +1540,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -1516,7 +1572,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">600</span>
+    <span class="phpdocumentor-element-found-in__line">674</span>
 
     </aside>
 
@@ -1590,7 +1646,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">497</span>
+    <span class="phpdocumentor-element-found-in__line">571</span>
 
     </aside>
 
@@ -1663,7 +1719,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -1695,7 +1751,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">985</span>
+    <span class="phpdocumentor-element-found-in__line">1060</span>
 
     </aside>
 
@@ -1741,7 +1797,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -1773,7 +1829,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">754</span>
+    <span class="phpdocumentor-element-found-in__line">829</span>
 
     </aside>
 
@@ -1819,7 +1875,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -1906,7 +1962,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -1938,7 +1994,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1031</span>
+    <span class="phpdocumentor-element-found-in__line">1106</span>
 
     </aside>
 
@@ -1972,7 +2028,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -2004,7 +2060,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1016</span>
+    <span class="phpdocumentor-element-found-in__line">1091</span>
 
     </aside>
 
@@ -2038,7 +2094,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -2070,7 +2126,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">916</span>
+    <span class="phpdocumentor-element-found-in__line">991</span>
 
     </aside>
 
@@ -2104,7 +2160,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -2136,7 +2192,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1078</span>
+    <span class="phpdocumentor-element-found-in__line">1153</span>
 
     </aside>
 
@@ -2170,7 +2226,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -2202,7 +2258,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">897</span>
+    <span class="phpdocumentor-element-found-in__line">972</span>
 
     </aside>
 
@@ -2238,7 +2294,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -2270,7 +2326,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">379</span>
+    <span class="phpdocumentor-element-found-in__line">453</span>
 
     </aside>
 
@@ -2326,7 +2382,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">837</span>
+    <span class="phpdocumentor-element-found-in__line">912</span>
 
     </aside>
 
@@ -2381,7 +2437,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -2413,7 +2469,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">673</span>
+    <span class="phpdocumentor-element-found-in__line">748</span>
 
     </aside>
 
@@ -2486,7 +2542,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -2510,7 +2566,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">399</span>
+    <span class="phpdocumentor-element-found-in__line">473</span>
 
     </aside>
 
@@ -2574,7 +2630,7 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">430</span>
+    <span class="phpdocumentor-element-found-in__line">504</span>
 
     </aside>
 
@@ -2638,7 +2694,7 @@ shortcode is present on the page.</p>
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.5.5</span>
+                                            <span class="phpdocumentor-tag-link">0.5.9</span>
                                                                                 
                                              
                                     </dd>
@@ -2790,6 +2846,7 @@ shortcode is present on the page.</p>
                                             <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_cleanup_stale_temp_files">cleanup_stale_temp_files()</a></li>
                                             <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_clear_taxonomy_transients">clear_taxonomy_transients()</a></li>
                                             <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_enqueue_scripts">enqueue_scripts()</a></li>
+                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_fallback_upload_rest">handle_fallback_upload_rest()</a></li>
                                             <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_upload_chunk_rest">handle_upload_chunk_rest()</a></li>
                                             <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_maybe_schedule_cron">maybe_schedule_cron()</a></li>
                                             <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_register_rest_routes">register_rest_routes()</a></li>
