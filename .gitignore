@@ -56,3 +56,5 @@ test-results/
 *.zip
 *.tar.gz
 *.tgz
+vendor/
+node_modules/

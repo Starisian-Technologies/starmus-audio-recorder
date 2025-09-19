@@ -1,4 +1,11 @@
 <?php
+// Import WordPress core functions for static analysis and clarity
+use function is_admin;
+use function wp_next_scheduled;
+use function wp_schedule_event;
+use function flush_rewrite_rules;
+use function wp_clear_scheduled_hook;
+use function get_role;
 /**
  * Main plugin class. Initializes hooks and manages plugin star_components.
  * This version uses a clean, linear loading sequence to avoid race conditions.
@@ -100,8 +107,10 @@ final class StarmusPlugin {
 	public function register_hooks(): void {
 		error_log( 'Starmus Plugin: register_hooks() called' );
 
-		// Hook the admin notice for any runtime errors that occurred.
-		add_action( 'admin_notices', array( $this, 'displayRuntimeErrorNotice' ) );
+		// Only hook admin notices in the admin area.
+		if ( \is_admin() ) {
+			add_action( 'admin_notices', array( $this, 'displayRuntimeErrorNotice' ) );
+		}
 
 		// Register admin menu and settings if admin component is available.
 		if ( is_object( $this->admin ) ) {
@@ -234,10 +243,10 @@ final class StarmusPlugin {
 
 			self::add_custom_capabilities();
 			// Schedule cron here instead of on every init.
-			if ( ! wp_next_scheduled( 'starmus_cleanup_temp_files' ) ) {
-				wp_schedule_event( time(), 'hourly', 'starmus_cleanup_temp_files' );
+			if ( ! \wp_next_scheduled( 'starmus_cleanup_temp_files' ) ) {
+				\wp_schedule_event( time(), 'hourly', 'starmus_cleanup_temp_files' );
 			}
-			flush_rewrite_rules();
+			\flush_rewrite_rules();
 		} catch ( Throwable $e ) {
 			error_log( 'Starmus Plugin: Activation error - ' . sanitize_text_field( $e->getMessage() ) );
 			throw $e;
@@ -252,7 +261,7 @@ final class StarmusPlugin {
 	 * @since 0.1.0
 	 */
 	public static function deactivate(): void {
-		flush_rewrite_rules();
+	\flush_rewrite_rules();
 	}
 
 	/**
@@ -269,8 +278,8 @@ final class StarmusPlugin {
 		} else {
 			error_log( 'Starmus Plugin: Uninstall file not found' );
 		}
-		wp_clear_scheduled_hook( 'starmus_cleanup_temp_files' );
-		flush_rewrite_rules();
+	\wp_clear_scheduled_hook( 'starmus_cleanup_temp_files' );
+	\flush_rewrite_rules();
 	}
 
 	/**
@@ -289,7 +298,7 @@ final class StarmusPlugin {
 		);
 		try {
 			foreach ( $roles_to_modify as $role_name => $caps ) {
-				$role = get_role( $role_name );
+				$role = \get_role( $role_name );
 				if ( $role ) {
 					foreach ( $caps as $cap ) {
 						$role->add_cap( $cap );
