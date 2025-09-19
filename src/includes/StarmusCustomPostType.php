@@ -1,7 +1,4 @@
-// Enable featured image (thumbnail) support for audio-recording CPT
-add_action( 'after_setup_theme', function() {
-	add_post_type_support( 'audio-recording', 'thumbnail' );
-} );
+// (Removed stray add_post_type_support code that was outside PHP tags)
 <?php
 /**
  * Registers Custom Post Types, Taxonomies, and ACF fields.
