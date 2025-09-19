@@ -5,7 +5,7 @@
  * This template provides the HTML structure for the Peaks.js audio editor.
  *
  * @package Starmus\templates
- * @version 0.6.6
+ * @version 0.6.7
  * @since 0.3.0
  */
 
