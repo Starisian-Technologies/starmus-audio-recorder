@@ -3,7 +3,7 @@
  * Registers Custom Post Types, Taxonomies, and ACF fields.
  *
  * @package Starmus\includes
- * @version 0.6.7
+ * @version 0.6.8
  * @since 0.2.0
  */
 

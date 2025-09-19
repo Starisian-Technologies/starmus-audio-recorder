@@ -4,7 +4,7 @@
  * Shows comprehensive metadata and technical details for admins and editors
  *
  * @package Starmus\templates
- * @version 0.6.7
+ * @version 0.6.8
  * @var int $post_id The recording post ID
  */
 
@@ -25,7 +25,7 @@ $author          = get_userdata( get_post_field( 'post_author', $post_id ) );
 
 <div class="starmus-admin-detail">
 	<div class="starmus-admin-detail__grid">
-		
+
 		<!-- Main Content -->
 		<div class="starmus-admin-detail__main">
 			<header class="starmus-detail__header">
@@ -93,7 +93,7 @@ $author          = get_userdata( get_post_field( 'post_author', $post_id ) );
 
 		<!-- Sidebar with Technical Data -->
 		<div class="starmus-admin-detail__sidebar">
-			
+
 			<!-- Recording Info -->
 			<div class="starmus-info-card">
 				<h3><?php esc_html_e( 'Recording Information', STARMUS_TEXT_DOMAIN ); ?></h3>
