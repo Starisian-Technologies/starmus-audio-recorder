@@ -1,3 +1,25 @@
+// Add styles for the progress bar if not already present
+if (!document.getElementById('starmus-timer-progress-bar-style')) {
+    const style = document.createElement('style');
+    style.id = 'starmus-timer-progress-bar-style';
+    style.textContent = `
+        .starmus-timer-progress-bar-wrapper {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+        .starmus-timer-progress-bar {
+            height: 100%;
+            width: 0;
+            background: #27ae60;
+            transition: width 0.3s, background 0.3s;
+        }
+    `;
+    document.head.appendChild(style);
+}
 // FILE: starmus-audio-recorder-ui-controller.js (HOOKS-INTEGRATED)
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
@@ -66,14 +88,29 @@
     const timers = {};
     function startTimer(instanceId) {
         if (!safeId(instanceId) || timers[instanceId]) {return;}
+        const MAX_TIME_MS = 20 * 60 * 1000; // 20 minutes
         timers[instanceId] = setInterval(() => {
             const instance = window.StarmusAudioRecorder?._instances?.[instanceId];
             const timerEl = el(`starmus_timer_${instanceId}`);
-            if (instance?.isRecording && !instance.isPaused && timerEl) {
+            const progressEl = el(`starmus_timer_progress_${instanceId}`);
+            if (instance?.isRecording && !instance.isPaused && timerEl && progressEl) {
                 const elapsed = Date.now() - instance.startTime;
                 const minutes = Math.floor(elapsed / 60000);
                 const seconds = Math.floor((elapsed % 60000) / 1000);
                 timerEl.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+
+                // Progress bar logic
+                const percent = Math.min(100, (elapsed / MAX_TIME_MS) * 100);
+                progressEl.style.width = percent + '%';
+                // Color transitions
+                const timeLeft = (MAX_TIME_MS - elapsed) / 1000; // seconds
+                if (timeLeft <= 180) {
+                    progressEl.style.background = '#e74c3c'; // red
+                } else if (timeLeft <= 420) {
+                    progressEl.style.background = '#f39c12'; // orange
+                } else {
+                    progressEl.style.background = '#27ae60'; // green
+                }
             }
         }, 1000);
     }
@@ -97,11 +134,17 @@
             <div id="starmus_volume_level_${instanceId}" class="starmus-volume-level"></div>
         </div>
         <div class="starmus-recorder-controls">
-            <button type="button" id="starmus_calibrate_btn_${instanceId}" class="starmus-btn starmus-btn--secondary">1. Setup Mic</button>
-            <button type="button" id="starmus_record_btn_${instanceId}" class="starmus-btn starmus-btn--record" disabled>2. Record</button>
-            <button type="button" id="starmus_stop_btn_${instanceId}" class="starmus-btn starmus-btn--stop" style="display:none;">Stop</button>
-            <button type="button" id="starmus_pause_btn_${instanceId}" class="starmus-btn starmus-btn--pause" style="display:none;">Pause</button>
+            <div class="starmus-btn-group">
+                <button type="button" id="starmus_calibrate_btn_${instanceId}" class="starmus-btn starmus-btn--secondary">Mic Test</button>
+                <button type="button" id="starmus_record_btn_${instanceId}" class="starmus-btn starmus-btn--record" disabled>Record</button>
+                <button type="button" id="starmus_stop_btn_${instanceId}" class="starmus-btn starmus-btn--stop" style="display:none;">Stop</button>
+                <button type="button" id="starmus_pause_btn_${instanceId}" class="starmus-btn starmus-btn--pause" style="display:none;">Pause</button>
+                <button type="button" id="starmus_delete_btn_${instanceId}" class="starmus-btn starmus-btn--danger" style="display:none;">Delete</button>
+            </div>
             <div id="starmus_timer_${instanceId}" class="starmus-recorder-timer">00:00</div>
+            <div class="starmus-timer-progress-bar-wrapper">
+                <div id="starmus_timer_progress_${instanceId}" class="starmus-timer-progress-bar"></div>
+            </div>
         </div>
     `;
 
@@ -109,10 +152,11 @@
     const recordBtn = el(`starmus_record_btn_${instanceId}`);
     const stopBtn = el(`starmus_stop_btn_${instanceId}`);
     const pauseBtn = el(`starmus_pause_btn_${instanceId}`);
+    const deleteBtn = el(`starmus_delete_btn_${instanceId}`);
     const submitBtn = document.querySelector(`#${instanceId} #starmus_submit_btn_${instanceId}`);
     const statusArea = el(`starmus_recorder_status_${instanceId}`);
 
-    if (!calibrateBtn || !recordBtn || !stopBtn || !pauseBtn || !submitBtn || !statusArea) {return;}
+    if (!calibrateBtn || !recordBtn || !stopBtn || !pauseBtn || !deleteBtn || !submitBtn || !statusArea) {return;}
 
     // The initial message now correctly guides the user to set up their mic.
     statusArea.textContent = 'Please run the mic setup for best results.';
@@ -146,10 +190,11 @@
             const volumeEl = el(`starmus_volume_level_${instanceId}`);
             if (volumeEl) {volumeEl.style.width = `${volume}%`;}
         });
-        calibrateBtn.style.display = 'none';
+        calibrateBtn.disabled = true;
         recordBtn.style.display = 'none';
         stopBtn.style.display = 'inline-block';
         pauseBtn.style.display = 'inline-block';
+        deleteBtn.style.display = 'inline-block';
         submitBtn.disabled = true;
         statusArea.textContent = 'Recording...';
         startTimer(instanceId);
@@ -161,11 +206,31 @@
         stopTimer(instanceId);
         stopBtn.style.display = 'none';
         pauseBtn.style.display = 'none';
+        deleteBtn.style.display = 'none';
         recordBtn.textContent = 'Record Again';
         recordBtn.style.display = 'inline-block';
-        calibrateBtn.style.display = 'inline-block'; // Show calibrate button again
+        calibrateBtn.disabled = false;
+        calibrateBtn.style.display = 'inline-block';
         submitBtn.disabled = false;
         statusArea.textContent = 'Recording finished. Ready to submit.';
+    });
+
+    // Delete/cancel button logic
+    deleteBtn.addEventListener('click', () => {
+        doAction('starmus_record_delete', instanceId);
+        window.StarmusAudioRecorder.stopRecording(instanceId);
+        stopTimer(instanceId);
+        // Reset UI to initial state
+        stopBtn.style.display = 'none';
+        pauseBtn.style.display = 'none';
+        deleteBtn.style.display = 'none';
+        recordBtn.textContent = 'Record';
+        recordBtn.style.display = 'inline-block';
+        calibrateBtn.disabled = false;
+        calibrateBtn.style.display = 'inline-block';
+        submitBtn.disabled = true;
+        statusArea.textContent = 'Recording canceled. You can start again.';
+        // Optionally clear waveform, timer, etc.
     });
 
     pauseBtn.addEventListener('click', () => {
@@ -174,6 +239,13 @@
         pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
         statusArea.textContent = isPaused ? 'Paused.' : 'Recording...';
         doAction('starmus_record_pause', instanceId, isPaused);
+        // Restart volume monitoring if resumed
+        if (!isPaused) {
+            window.StarmusAudioRecorder.startVolumeMonitoring(instanceId, (volume) => {
+                const volumeEl = el(`starmus_volume_level_${instanceId}`);
+                if (volumeEl) {volumeEl.style.width = `${volume}%`;}
+            });
+        }
     });
 }
 

@@ -20,7 +20,7 @@
     "build:vendor": "node -e \"const fs=require('fs'),p=require('path');fs.mkdirSync('vendor/js',{recursive:true});fs.copyFileSync(p.join('node_modules','peaks.js','dist','peaks.min.js'),p.join('vendor','js','peaks.min.js'));fs.copyFileSync(p.join('node_modules','tus-js-client','dist','tus.min.js'),p.join('vendor','js','tus.min.js'));\"",
     "build:css": "postcss src/css/starmus-audio-recorder-style.css -o assets/css/starmus-styles.min.css",
     "build:js": "terser src/js/starmus-audio-recorder-hooks.js src/js/starmus-audio-recorder-module.js src/js/starmus-audio-recorder-submissions-handler.js src/js/starmus-audio-recorder-ui-controller.js -o assets/js/starmus-app.min.js --compress drop_console=true --mangle",
-  "build:hash": "node build-starmus.cjs assets/css/starmus-styles.min.css assets/js/starmus-app.min.js",
+    "build:hash": "node build-starmus.cjs assets/css/starmus-styles.min.css assets/js/starmus-app.min.js",
     "version:sync": "node sync-version.js",
     "build": "npm run clean && npm run build:vendor && npm run build:css && npm run build:js && npm run build:hash && npm run version:sync",
     "i18n-check": "grep -r \"__('\" src/ || echo 'No i18n strings found'",
@@ -73,7 +73,7 @@
   "packageManager": "npm@10",
   "devDependencies": {
     "@babel/eslint-parser": "^7.25.7",
-    "@eslint/js": "^9.34.0",
+    "@eslint/js": "^9.36.0",
     "@microsoft/tsdoc": "^0.15.1",
     "@playwright/test": "^1.55.0",
     "@size-limit/file": "^11.2.0",

@@ -1,4 +1,5 @@
 <?php
+namespace Starmus\includes;
 /**
  * Registers Custom Post Types, Taxonomies, and ACF fields.
  *

@@ -1,11 +1,5 @@
 <?php
-// Import WordPress core functions for static analysis and clarity
-use function is_admin;
-use function wp_next_scheduled;
-use function wp_schedule_event;
-use function flush_rewrite_rules;
-use function wp_clear_scheduled_hook;
-use function get_role;
+namespace Starmus\includes;
 /**
  * Main plugin class. Initializes hooks and manages plugin star_components.
  * This version uses a clean, linear loading sequence to avoid race conditions.
@@ -15,13 +9,19 @@ use function get_role;
  * @since 0.1.0
  */
 
-namespace Starmus\includes;
 
 use Starmus\admin\StarmusAdmin;
 use Starmus\frontend\StarmusAudioEditorUI;
 use Starmus\frontend\StarmusAudioRecorderUI;
 use LogicException;
 use Throwable;
+// Import WordPress core functions for static analysis and clarity
+use function is_admin;
+use function wp_next_scheduled;
+use function wp_schedule_event;
+use function flush_rewrite_rules;
+use function wp_clear_scheduled_hook;
+use function get_role;
 
 /**
  * Main plugin class (Singleton).
