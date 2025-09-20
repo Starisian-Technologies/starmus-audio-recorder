@@ -3,7 +3,7 @@
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * @module  StarmusSubmissionsHandler
+ * @module  StarmusSubmissionsHandler 
  * @version 1.2.1
  * @file    The Submission Engine - Pure data handling with hooks integration
  */

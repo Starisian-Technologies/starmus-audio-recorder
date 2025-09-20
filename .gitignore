@@ -45,6 +45,8 @@ wp-content/upgrade/
 wp-content/uploads/
 wp-content/mu-plugins/
 wp-content/wp-cache-config.php
+wordpress/
+wordpress-installer/
 
 # ---- Test artifacts ----
 playwright-report/

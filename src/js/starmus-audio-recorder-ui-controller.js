@@ -1,25 +1,3 @@
-// Add styles for the progress bar if not already present
-if (!document.getElementById('starmus-timer-progress-bar-style')) {
-    const style = document.createElement('style');
-    style.id = 'starmus-timer-progress-bar-style';
-    style.textContent = `
-        .starmus-timer-progress-bar-wrapper {
-            width: 100%;
-            height: 8px;
-            background: #eee;
-            border-radius: 4px;
-            margin-top: 4px;
-            overflow: hidden;
-        }
-        .starmus-timer-progress-bar {
-            height: 100%;
-            width: 0;
-            background: #27ae60;
-            transition: width 0.3s, background 0.3s;
-        }
-    `;
-    document.head.appendChild(style);
-}
 // FILE: starmus-audio-recorder-ui-controller.js (HOOKS-INTEGRATED)
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
@@ -202,17 +180,26 @@ if (!document.getElementById('starmus-timer-progress-bar-style')) {
 
     stopBtn.addEventListener('click', () => {
         doAction('starmus_record_stop', instanceId);
-        window.StarmusAudioRecorder.stopRecording(instanceId);
-        stopTimer(instanceId);
-        stopBtn.style.display = 'none';
-        pauseBtn.style.display = 'none';
-        deleteBtn.style.display = 'none';
-        recordBtn.textContent = 'Record Again';
-        recordBtn.style.display = 'inline-block';
-        calibrateBtn.disabled = false;
-        calibrateBtn.style.display = 'inline-block';
-        submitBtn.disabled = false;
-        statusArea.textContent = 'Recording finished. Ready to submit.';
+        statusArea.textContent = 'Finalizing recording...';
+        submitBtn.disabled = true;
+
+        window.StarmusAudioRecorder.stopRecording(instanceId).then((audioBlob) => {
+            log('info', 'Stop recording resolved. Blob ready.', { size: audioBlob?.size });
+            stopTimer(instanceId);
+
+            stopBtn.style.display = 'none';
+            pauseBtn.style.display = 'none';
+            deleteBtn.style.display = 'none';
+            recordBtn.textContent = 'Record Again';
+            recordBtn.style.display = 'inline-block';
+            calibrateBtn.disabled = false;
+            calibrateBtn.style.display = 'inline-block';
+            submitBtn.disabled = false;
+            statusArea.textContent = 'Recording finished. Ready to submit.';
+        }).catch(err => {
+            log('error', 'Error during stopRecording', err);
+            showUserMessage(instanceId, 'Failed to finalize recording. Please try again.', 'error');
+        });
     });
 
     // Delete/cancel button logic

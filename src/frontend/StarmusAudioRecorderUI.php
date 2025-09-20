@@ -327,6 +327,84 @@ class StarmusAudioRecorderUI {
 					)
 				);
 	}
+  /**
+   * Safely handle a single file upload, validating and processing it securely.
+   */
+  private function safe_handle_upload( array $file, array $form_data = [] ): array|\WP_Error {
+    // 1. Validate PHP upload error codes
+    if ( ! empty( $file['error'] ) && $file['error'] !== UPLOAD_ERR_OK ) {
+        return new WP_Error(
+            'upload_error',
+            'Upload failed: ' . $this->php_error_message( $file['error'] ),
+            [ 'status' => 400 ]
+        );
+    }
+    // 2. Ensure file exists and is readable
+    if ( ! is_uploaded_file( $file['tmp_name'] ) || ! is_readable( $file['tmp_name'] ) ) {
+        return new WP_Error( 'file_missing', 'Temporary file missing or unreadable.', [ 'status' => 400 ] );
+    }
+
+    $size = filesize( $file['tmp_name'] );
+    if ( $size === false || $size <= 0 ) {
+        return new WP_Error( 'file_empty', 'Uploaded file is empty.', [ 'status' => 400 ] );
+    }
+    if ( $size > 50 * 1024 * 1024 ) { // 50 MB cap (adjust as needed)
+        return new WP_Error( 'file_too_large', 'Uploaded file exceeds maximum size.', [ 'status' => 413 ] );
+    }
+
+    // 3. Clone to a safe working copy (avoid overwrite/cleanup races)
+    $tmp_copy = wp_tempnam( $file['name'] );
+    if ( ! $tmp_copy || ! copy( $file['tmp_name'], $tmp_copy ) ) {
+        return new WP_Error( 'tmp_copy_fail', 'Failed to create safe temp copy.', [ 'status' => 500 ] );
+    }
+
+    // 4. Sniff MIME type safely
+    $finfo = finfo_open( FILEINFO_MIME_TYPE );
+    $detected_mime = $finfo ? finfo_file( $finfo, $tmp_copy ) : false;
+    if ( $finfo ) finfo_close( $finfo );
+
+    if ( ! $detected_mime || strpos( $detected_mime, 'audio/' ) !== 0 ) {
+        @unlink( $tmp_copy );
+        return new WP_Error( 'invalid_mime', 'File is not a valid audio type.', [ 'status' => 415 ] );
+    }
+
+    // 5. Hand off to WordPress sideload
+    $file_array = [
+        'name'     => wp_unique_filename( wp_upload_dir()['path'], $file['name'] ),
+        'tmp_name' => $tmp_copy,
+    ];
+
+    $overrides = [
+        'test_form' => false,
+        'mimes'     => [ 'mp3' => 'audio/mpeg', 'wav' => 'audio/wav', 'webm' => 'audio/webm', 'ogg' => 'audio/ogg' ],
+    ];
+
+    $result = wp_handle_sideload( $file_array, $overrides );
+
+	if ( !empty( $result['error'] ) ) {
+		@unlink( $tmp_copy );
+		return new WP_Error( 'sideload_error', $result['error'], [ 'status' => 500 ] );
+	}
+
+    return $result; // ['file' => path, 'url' => url, 'type' => mime]
+}
+
+/**
+ * Map PHP upload error codes to human-readable messages.
+ */
+private function php_error_message( int $code ): string {
+    $map = [
+        UPLOAD_ERR_INI_SIZE   => 'The uploaded file exceeds the upload_max_filesize limit.',
+        UPLOAD_ERR_FORM_SIZE  => 'The uploaded file exceeds the MAX_FILE_SIZE directive.',
+        UPLOAD_ERR_PARTIAL    => 'The file was only partially uploaded.',
+        UPLOAD_ERR_NO_FILE    => 'No file was uploaded.',
+        UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder on server.',
+        UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+        UPLOAD_ERR_EXTENSION  => 'A PHP extension stopped the upload.',
+    ];
+    return $map[$code] ?? 'Unknown upload error.';
+}
+
 	/**
 	 * Handles simple, non-chunked audio file uploads from the REST fallback.
 	 */
@@ -364,7 +442,7 @@ class StarmusAudioRecorderUI {
 		);
 		$params     = $request->get_params();
 		foreach ( $acf_fields as $field ) {
-			$val = isset( $params[ $field ] ) ? $params[ $field ] : '[NOT SET]';
+		$val = ( array_key_exists( $field, $params ) && $params[ $field ] !== '' ) ? $params[ $field ] : '[NOT SET]';
 			error_log( "STARMUS DEBUG: Field '$field': " . ( is_string( $val ) ? $val : print_r( $val, true ) ) );
 		}
 		// --- END OF NEW DEBUGGING ---
@@ -442,65 +520,34 @@ class StarmusAudioRecorderUI {
 			error_log( 'STARMUS DEBUG: Received Params: ' . print_r( $params, true ) );
 			error_log( 'STARMUS DEBUG: Received Files: ' . print_r( $files, true ) );
 
-			// Simple validation for the fallback upload.
-			if ( empty( $files['audio_file'] ) || $files['audio_file']['error'] !== UPLOAD_ERR_OK ) {
-				error_log( 'STARMUS DEBUG: Validation failed - audio_file is missing or has an upload error.' );
-				return new WP_Error( 'invalid_request_data', __( 'Audio file is missing or invalid.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
-			}
-			if ( empty( $params['starmus_title'] ) ) {
-				error_log( 'STARMUS DEBUG: Validation failed - starmus_title is missing.' );
-				return new WP_Error( 'invalid_request_data', __( 'Recording title is required.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
-			}
 
-			// Check the uploaded file's temporary path and size.
-			$temp_file_path = $files['audio_file']['tmp_name'];
-			$temp_file_size = filesize( $temp_file_path );
-			// Fallback: If filesize() fails, use the reported size from $_FILES
-			if ( $temp_file_size === false || $temp_file_size === 0 ) {
-				$temp_file_size = isset( $files['audio_file']['size'] ) ? (int) $files['audio_file']['size'] : 0;
-			}
+	       // Use safe_handle_upload for all file validation and sideloading
+	       if ( empty( $files['audio_file'] ) ) {
+		       error_log( 'STARMUS DEBUG: Validation failed - audio_file is missing.' );
+		       return new WP_Error( 'invalid_request_data', __( 'Audio file is missing.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
+	       }
+	       if ( empty( $params['starmus_title'] ) ) {
+		       error_log( 'STARMUS DEBUG: Validation failed - starmus_title is missing.' );
+		       return new WP_Error( 'invalid_request_data', __( 'Recording title is required.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
+	       }
 
-			error_log( 'STARMUS DEBUG: Temp file path: ' . $temp_file_path );
-			error_log( 'STARMUS DEBUG: Temp file size: ' . $temp_file_size . ' bytes.' );
+	       $safe_result = $this->safe_handle_upload( $files['audio_file'], $params );
+	       if ( is_wp_error( $safe_result ) ) {
+		       error_log( 'STARMUS DEBUG: safe_handle_upload failed: ' . $safe_result->get_error_message() );
+		       return $safe_result;
+	       }
 
-			if ( $temp_file_size === 0 ) {
-				error_log( 'STARMUS DEBUG: Validation failed - uploaded file is 0 bytes (after fallback check).' );
-				return new WP_Error( 'empty_file_upload', __( 'The uploaded audio file is empty.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
-			}
-
-			// Use a unique filename if provided in params or metadata (from JS)
-
-			$unique_file_name = $files['audio_file']['name'];
-			if ( ! empty( $params['recording_metadata'] ) ) {
-				$meta = json_decode( $params['recording_metadata'], true );
-				if ( ! empty( $meta['identifiers']['submissionUUID'] ) ) {
-					// Try to use starmus_title from params for filename if available
-					$title            = isset( $params['starmus_title'] ) ? $params['starmus_title'] : 'recording';
-					$title            = preg_replace( '/[^a-zA-Z0-9\-_]+/', '_', $title );
-					$title            = preg_replace( '/_+/', '_', $title );
-					$title            = trim( $title, '_' );
-					$ext              = pathinfo( $unique_file_name, PATHINFO_EXTENSION );
-					$unique_file_name = $title . '-' . $meta['identifiers']['submissionUUID'] . '.' . ( $ext ?: 'webm' );
-				}
-			}
-			error_log( 'STARMUS DEBUG: Using unique file name: ' . $unique_file_name );
-
-			// Create a temporary UUID to work with the existing finalize function.
-			$uuid = wp_generate_uuid4();
-
-			// Use the existing create_draft_post and finalize_submission logic.
-			   $this->create_draft_post( $uuid, $files['audio_file']['size'], $unique_file_name, $params );
-			   // Save all mapped metadata to post after draft creation (ACF or post meta)
-			   // This will be handled in finalize_submission or save_all_metadata as needed.
-
-			// The finalize_submission function contains the finfo_file check that is likely failing.
-			// It will now be called AFTER we have confirmed the file is not empty.
-			$return = $this->finalize_submission( $uuid, $unique_file_name, $temp_file_path, $params );
+	       // Use the safely handled file for post creation and finalization
+	       $unique_file_name = basename( $safe_result['file'] );
+	       $file_size = filesize( $safe_result['file'] );
+	       $uuid = wp_generate_uuid4();
+	       $this->create_draft_post( $uuid, $file_size, $unique_file_name, $params );
+	       $return = $this->finalize_submission( $uuid, $unique_file_name, $safe_result['file'], $params );
 
 			// After meta save, log post meta for all ACF fields if post was created
-			if ( is_array( $return ) && isset( $return['post_id'] ) ) {
+			if ( is_array( $return ) && array_key_exists( 'post_id', $return ) && $return['post_id'] ) {
 				$post_id = $return['post_id'];
-			} elseif ( is_object( $return ) && isset( $return->data['post_id'] ) ) {
+			} elseif ( is_object( $return ) && isset( $return->data['post_id'] ) && $return->data['post_id'] ) {
 				$post_id = $return->data['post_id'];
 			} else {
 				$post_id = null;
@@ -777,11 +824,12 @@ class StarmusAudioRecorderUI {
 			$file_data,
 			array(
 				'test_form' => false,
+        'test_upload' => true, // Ensure the file is a valid upload
 				'mimes'     => $allowed_mimes,
 			)
 		);
 
-		if ( isset( $upload_result['error'] ) ) {
+		if (! empty( $upload_result['error'] ) ) {
 			if ( file_exists( $temp_file_path ) ) {
 				wp_delete_file( $temp_file_path );
 			}
@@ -905,7 +953,7 @@ class StarmusAudioRecorderUI {
 		);
 		if ( function_exists( 'update_field' ) ) {
 			foreach ( $acf_fields as $acf_field ) {
-				   if ( isset( $form_data[ $acf_field ] ) && $form_data[ $acf_field ] !== '' ) {
+				   if ( array_key_exists( $acf_field, $form_data ) && $form_data[ $acf_field ] !== '' ) {
 					$value = $form_data[ $acf_field ];
 					// Decode JSON for gps_coordinates and first_pass_transcription
 					if ( in_array( $acf_field, array( 'gps_coordinates', 'first_pass_transcription' ), true ) ) {

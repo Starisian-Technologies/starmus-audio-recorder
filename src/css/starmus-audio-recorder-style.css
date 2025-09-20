@@ -194,7 +194,23 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 	justify-content: center;
 	flex-wrap: wrap;
 	margin: 1.5rem 0;
-}
+
+        .starmus-timer-progress-bar-wrapper {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .starmus-timer-progress-bar {
+            height: 100%;
+            width: 0;
+            background: #27ae60;
+            transition: width 0.3s, background 0.3s;
+        }
+
 
 
 /*
@@ -484,4 +500,5 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 
 @keyframes spin {
 	to { transform: rotate(360deg); }
+}
 }

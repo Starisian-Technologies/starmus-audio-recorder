@@ -287,22 +287,36 @@
         },
 
         stopRecording: function(instanceId) {
-            if (!isSafeId(instanceId) || !(instanceId in instances)) {return;}
+            if (!isSafeId(instanceId) || !(instanceId in instances)) {
+                return Promise.reject(new Error('Invalid instance ID for stopRecording.'));
+            }
             const instance = instances[instanceId];
-            if (instance.recorder && instance.recorder.state !== 'inactive') {
+            if (!instance.recorder || instance.recorder.state === 'inactive') {
+                return Promise.resolve();
+            }
+
+            return new Promise((resolve) => {
+                instance.recorder.onstop = () => {
+                    instance.audioBlob = new Blob(instance.chunks, {
+                        type: instance.recorder.mimeType || 'audio/webm'
+                    });
+                    secureLog('info', 'Blob created', { size: instance.audioBlob.size, type: instance.audioBlob.type });
+
+                    if (instance.silenceStart) {
+                        instance.totalSilence += Date.now() - instance.silenceStart;
+                    }
+                    instance.isRecording = false;
+                    instance.isPaused = false;
+
+                    doAction('starmus_recording_stopped', instanceId, instance.audioBlob);
+                    resolve(instance.audioBlob);
+                };
+
+                if (instance.speechRecognition && instance.speechRecognition.readyState !== 'ended') {
+                    instance.speechRecognition.stop();
+                }
                 instance.recorder.stop();
-            }
-            if (instance.speechRecognition) {
-                instance.speechRecognition.stop();
-            }
-
-            // Final silence calculation
-            if (instance.silenceStart) {
-                instance.totalSilence += Date.now() - instance.silenceStart;
-            }
-
-            instance.isRecording = false;
-            instance.isPaused = false;
+            });
         },
 
         getRecordingQuality: function(instanceId) {
