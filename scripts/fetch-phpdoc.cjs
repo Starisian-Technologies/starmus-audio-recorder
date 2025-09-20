@@ -12,7 +12,11 @@ function download(url) {
     if (res.statusCode!==200){console.error('Download failed:',res.statusCode);process.exit(1);}
     const out=fs.createWriteStream(dest); 
     res.pipe(out).on('finish',()=>{fs.chmodSync(dest,0o755);console.log('phpDocumentor.phar ready');});
-  }).on('error',e=>{console.error(e);process.exit(1);});
+  }).on('error',e=>{
+    const errMsg = (e && e.message ? e.message : String(e)).replace(/[\r\n]+/g, ' ');
+    console.error('Download error:', errMsg);
+    process.exit(1);
+  });
 }
 
 download('https://phpdoc.org/phpDocumentor.phar');
