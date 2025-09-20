@@ -1,11 +1,16 @@
-// FILE: starmus-audio-recorder-module.js (HOOKS-INTEGRATED)
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * @module  StarmusAudioRecorder
- * @version 1.2.2
- * @file    The Core Recording Engine - Pure audio functionality with hooks integration
+ * @module          StarmusAudioRecorder
+ * @file            starmus-audio-recorder-module.js (HOOKS-INTEGRATED)
+ * @version         0.7.0
+ * @since           0.1.0
+ * @author          Starisian Technologies (Max Barrett)
+ * @description     The Core Recording Engine - Pure audio functionality with hooks integration
+ * @note            This code uses math.randomUUID() to generate a unique file name and not used in the securing
+ *                  the application or user information. This method is used to ensure functionality within
+ *                  older browsers and mobile devices in areas like Africa.
  */
 (function(window) {
     'use strict';
