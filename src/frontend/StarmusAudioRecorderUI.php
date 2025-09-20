@@ -9,7 +9,7 @@ namespace Starmus\frontend;
  *
  * @package Starmus\frontend
  * @since 0.1.0
- * @version 0.6.9
+ * @version 0.7.0
  * @author Starisian Technologies (Max Barrett)
  *
  * Changelog:
@@ -41,7 +41,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Defines the user interface and submission handling for the audio recorder.
  *
  * @since 0.1.0
- * @version 0.6.9
+ * @version 0.7.0
  * @package Starmus\frontend
  * @uses StarmusSettings
  */
@@ -72,7 +72,7 @@ class StarmusAudioRecorderUI {
 	 * @param array $atts Shortcode attributes.
 	 * @return string The rendered HTML content.
 	 * @since 0.3.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	public function render_my_recordings_shortcode( $atts = array() ): string {
 		error_log( 'StarmusAudioRecorderUI: render_my_recordings_shortcode called with atts: ' . print_r( $atts, true ) );
@@ -128,7 +128,7 @@ class StarmusAudioRecorderUI {
 	 *
 	 * @return string The URL of the edit page.
 	 * @since 0.3.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	public function clear_taxonomy_transients(): void {
 		delete_transient( 'starmus_languages_list' );
@@ -183,7 +183,7 @@ class StarmusAudioRecorderUI {
 	 * @param string $cache_key The transient cache key.
 	 * @return array The list of terms.
 	 * @since 0.3.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function get_cached_terms( string $taxonomy, string $cache_key ): array {
 		$terms = get_transient( $cache_key );
@@ -304,7 +304,7 @@ class StarmusAudioRecorderUI {
 	 * Register REST API routes for chunked audio uploads.
 	 *
 	 * @since 0.2.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 * @return void
 	 */
 	public function register_rest_routes(): void {
@@ -573,7 +573,7 @@ private function php_error_message( int $code ): string {
 	 * @param WP_REST_Request $request The REST request object.
 	 * @return bool True if the user can upload, false otherwise.
 	 * @since 0.2.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	public function upload_permissions_check( WP_REST_Request $request ): bool {
 		$allowed = current_user_can( 'upload_files' );
@@ -596,7 +596,7 @@ private function php_error_message( int $code ): string {
 	 * @param WP_REST_Request $request The REST request object.
 	 * @return WP_REST_Response|WP_Error The response or error object.
 	 * @since 0.2.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	public function handle_upload_chunk_rest( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		try {
@@ -690,7 +690,7 @@ private function php_error_message( int $code ): string {
 	 * @param string $tmp_name The temporary file name of the uploaded chunk.
 	 * @return string|WP_Error The path to the temporary file or an error.
 	 * @since 0.2.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function write_chunk_streamed( string $uuid, int $offset, string $tmp_name ): string|WP_Error {
 		$uuid = sanitize_key( $uuid );
@@ -757,7 +757,7 @@ private function php_error_message( int $code ): string {
 	 * @param array  $form_data Additional form data.
 	 * @return WP_REST_Response|WP_Error The response or error object.
 	 * @since 0.2.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function finalize_submission( string $uuid, string $file_name, string $temp_file_path, array $form_data ): WP_REST_Response|WP_Error {
 		$post = $this->find_post_by_uuid( $uuid );
@@ -974,7 +974,7 @@ private function php_error_message( int $code ): string {
 	 * @param array $form_data The submitted form data.
 	 * @return int|null The ID of the consent post or null if not created.
 	 * @since 0.3.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function create_consent_post( int $audio_post_id, array $form_data ): ?int {
 		if ( empty( $form_data['audio_consent'] ) ) {
@@ -1007,7 +1007,7 @@ private function php_error_message( int $code ): string {
 	 * @param int|null $consent_post_id The ID of the consent post, if any.
 	 * @param array    $form_data The submitted form data.
 	 * @since 0.3.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function update_audio_recording_metadata( int $audio_post_id, int $attachment_id, ?int $consent_post_id, array $form_data ): void {
 		\update_post_meta( $audio_post_id, '_audio_attachment_id', $attachment_id );
@@ -1030,7 +1030,7 @@ private function php_error_message( int $code ): string {
 	 * @param int   $audio_post_id The ID of the audio recording post.
 	 * @param array $form_data The submitted form data.
 	 * @since 0.3.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function assign_audio_recording_taxonomies( int $audio_post_id, array $form_data ): void {
 		$taxonomies = array(
@@ -1070,7 +1070,7 @@ private function php_error_message( int $code ): string {
 	 * @param array $form_data The submitted form data.
 	 * @return array The modified response with redirect URL.
 	 * @since 0.3.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	public function add_conditional_redirect( array $response, int $post_id, array $form_data ): array {
 		$slug                     = $form_data['recording_type'] ?? 'default';
@@ -1088,7 +1088,7 @@ private function php_error_message( int $code ): string {
 	 * @param int $attachment_id The attachment ID of the audio file.
 	 * @return bool True on success, false on failure.
 	 * @since 0.3.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function generate_waveform_data( int $attachment_id ): bool {
 		if ( ! $this->settings->get( 'enable_waveform_generation' ) || ! apply_filters( 'starmus_allow_waveform_generation', false ) ) {
@@ -1171,7 +1171,7 @@ private function php_error_message( int $code ): string {
 		 * @param array  $args The arguments to pass to the template.
 		 * @return string The rendered template content.
 		 * @since 0.2.0
-		 * @version 0.6.9
+		 * @version 0.7.0
 		 */
 	private function render_template( string $template_name, array $args = array() ): string {
 		error_log( 'StarmusAudioRecorderUI: render_template called for: ' . $template_name );
@@ -1231,7 +1231,7 @@ private function php_error_message( int $code ): string {
 	 *
 	 * @return bool True if rate limited, false otherwise.
 	 * @since 0.2.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function is_rate_limited(): bool {
 		$limit   = (int) apply_filters( 'starmus_rate_limit_uploads_per_minute', 20 );
@@ -1250,7 +1250,7 @@ private function php_error_message( int $code ): string {
 	 *
 	 * @return string|WP_Error The path to the temporary directory or an error.
 	 * @since 0.2.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function get_temp_dir(): string|WP_Error {
 		$upload_dir       = wp_get_upload_dir();
@@ -1278,7 +1278,7 @@ private function php_error_message( int $code ): string {
 	 * Schedule a cron job to clean up stale temporary files.
 	 *
 	 * @since 0.2.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	public function maybe_schedule_cron(): void {
 		if ( function_exists( '\wp_next_scheduled' ) && ! \wp_next_scheduled( 'starmus_cleanup_temp_files' ) ) {
@@ -1289,7 +1289,7 @@ private function php_error_message( int $code ): string {
 	 * Clean up stale temporary files older than 24 hours.
 	 *
 	 * @since 0.2.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	public function cleanup_stale_temp_files(): void {
 		$temp_dir = $this->get_temp_dir();
@@ -1319,7 +1319,7 @@ private function php_error_message( int $code ): string {
 	 * @param string $uuid The unique upload identifier.
 	 * @return WP_Post|null The found post or null if not found.
 	 * @since 0.2.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function find_post_by_uuid( string $uuid ): ?\WP_Post {
 		$uuid      = sanitize_key( $uuid );
@@ -1350,7 +1350,7 @@ private function php_error_message( int $code ): string {
 	 *
 	 * @return string The edit page URL or empty string if not set.
 	 * @since 0.3.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function get_edit_page_url(): string {
 		$edit_page_id = $this->settings->get( 'edit_page_id' );
@@ -1365,7 +1365,7 @@ private function php_error_message( int $code ): string {
 	 *
 	 * @return string The client's IP address or empty string if not available.
 	 * @since 0.3.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function get_client_ip(): string {
 		// Check proxy headers in order of preference
@@ -1412,7 +1412,7 @@ private function php_error_message( int $code ): string {
 	 *
 	 * @return string The User-Agent string or empty string if not available.
 	 * @since 0.3.0
-	 * @version 0.6.9
+	 * @version 0.7.0
 	 */
 	private function get_user_agent(): string {
 		$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) );

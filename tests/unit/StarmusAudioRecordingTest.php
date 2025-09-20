@@ -1,7 +1,7 @@
 <?php
 /**
  * @package Starmus\tests\unit
- * @version 0.6.9
+ * @version 0.7.0
  * @since 0.3.1
  */
 
