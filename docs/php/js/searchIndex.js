@@ -181,6 +181,11 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#property_cached_context"
         },                {
+            "fqsen": "\\ABSPATH",
+            "name": "ABSPATH",
+            "summary": "",
+            "url": "namespaces/default.html#constant_ABSPATH"
+        },                {
             "fqsen": "\\Starmus\\frontend\\absint\u0028\u0029",
             "name": "absint",
             "summary": "",

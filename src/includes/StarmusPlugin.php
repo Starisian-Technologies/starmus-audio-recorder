@@ -20,7 +20,7 @@ use function is_admin;
 use function wp_next_scheduled;
 use function wp_schedule_event;
 use function flush_rewrite_rules;
-use function wp_clear_scheduled_hook;
+use function wp_clear_scheduled_hook; 
 use function get_role;
 
 /**
@@ -154,8 +154,8 @@ final class StarmusPlugin {
 			add_filter(
 				'upload_mimes',
 				function ( $mimes ) {
-					$mimes['webm'] = 'audio/webm';
 					$mimes['weba'] = 'audio/webm';
+          $mimes['webm'] = 'video/webm';
 					$mimes['opus'] = 'audio/ogg; codecs=opus';
 					return $mimes;
 				}

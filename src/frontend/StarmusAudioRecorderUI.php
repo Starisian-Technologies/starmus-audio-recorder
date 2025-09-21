@@ -16,9 +16,29 @@ namespace Starmus\frontend;
  */
 
 use Starmus\includes\StarmusSettings;
+use File;
+use Media;
+use Image;
+use WP_Filesystem;
+use WP_REST_Request;
+use WP_Error;
 use Throwable;
 use RecursiveIteratorIterator;
 use RecursiveArrayIterator;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	// Fallback for CLI/standalone context; adjust as needed for your environment
+	define( 'ABSPATH', dirname( __FILE__, 5 ) . '/');
+}
+if ( ! function_exists( 'sanitize_file_name' ) ) {
+	require_once ABSPATH . 'wp-includes/formatting.php';
+}
+if ( ! function_exists( 'wp_upload_dir' ) ) {
+	require_once ABSPATH . 'wp-includes/functions.php';
+}
+if ( ! function_exists( 'wp_unique_filename' ) ) {
+	require_once ABSPATH . 'wp-includes/functions.php';
+}
 // Add missing global functions and helpers
 if ( ! function_exists( 'absint' ) ) {
        function absint( $maybeint ) {
@@ -358,21 +378,58 @@ class StarmusAudioRecorderUI {
         return new WP_Error( 'tmp_copy_fail', 'Failed to create safe temp copy.', [ 'status' => 500 ] );
     }
 
-    // 4. Sniff MIME type safely
-    $finfo = finfo_open( FILEINFO_MIME_TYPE );
-    $detected_mime = $finfo ? finfo_file( $finfo, $tmp_copy ) : false;
-    if ( $finfo ) finfo_close( $finfo );
 
-    if ( ! $detected_mime || strpos( $detected_mime, 'audio/' ) !== 0 ) {
-        @unlink( $tmp_copy );
-        return new WP_Error( 'invalid_mime', 'File is not a valid audio type.', [ 'status' => 415 ] );
-    }
+	// 4. Sniff MIME type safely
+	// Copy the uploaded tmp file to a safe location before sniffing.
+	$tmp_copy = wp_tempnam( $_FILES['audio_file']['name'] );
+	if ( ! $tmp_copy || ! copy( $_FILES['audio_file']['tmp_name'], $tmp_copy ) ) {
+		return new WP_Error( 'upload_copy_failed', 'Unable to copy uploaded file for validation.' );
+	}
+
+	// Use finfo to detect the real MIME type.
+	$finfo = finfo_open( FILEINFO_MIME_TYPE );
+	$detected_mime = $finfo ? finfo_file( $finfo, $tmp_copy ) : false;
+	if ( $finfo ) {
+		finfo_close( $finfo );
+	}
+
+	// Allowable audio/video MIME types (extend as needed).
+	$allowed_mimes = [
+		'audio/webm',
+		'video/webm', // Accept video/webm for audio-only webm blobs
+		'audio/weba', // Accept audio/weba for .weba extension
+		'audio/ogg',
+		'audio/opus',
+		'audio/wav',
+		'audio/mpeg',       // mp3
+		'audio/mp4',        // m4a
+		'audio/x-m4a',
+		'audio/aac',
+		'audio/flac',
+	];
+
+	// Validate against the whitelist.
+	if ( ! $detected_mime || ! in_array( $detected_mime, $allowed_mimes, true ) ) {
+		@unlink( $tmp_copy );
+		return new WP_Error(
+			'invalid_mime',
+			sprintf( 'File is not a valid audio type. Detected: %s', esc_html( $detected_mime ?: 'unknown' ) ),
+			[ 'status' => 415 ]
+		);
+	}
+
 
     // 5. Hand off to WordPress sideload
-    $file_array = [
-        'name'     => wp_unique_filename( wp_upload_dir()['path'], $file['name'] ),
-        'tmp_name' => $tmp_copy,
-    ];
+	// Use starmus_title (sanitized) and uuid for filename if available
+	$title_part = !empty($form_data['starmus_title']) ? sanitize_file_name($form_data['starmus_title']) : 'recording';
+	$uuid_part = !empty($form_data['submissionUUID']) ? $form_data['submissionUUID'] : uniqid();
+	$ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+	if (!$ext) { $ext = 'webm'; }
+	$final_name = $title_part . '-' . $uuid_part . '.' . $ext;
+	$file_array = [
+		'name'     => wp_unique_filename( wp_upload_dir()['path'], $final_name ),
+		'tmp_name' => $tmp_copy,
+	];
 
     $overrides = [
         'test_form' => false,
@@ -408,7 +465,7 @@ private function php_error_message( int $code ): string {
 	/**
 	 * Handles simple, non-chunked audio file uploads from the REST fallback.
 	 */
-	public function handle_fallback_upload_rest( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+	public function handle_fallback_upload_rest( \WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		// --- START OF NEW DEBUGGING ---
 		error_log( 'STARMUS DEBUG: Fallback handler initiated.' );
 		// Log all expected ACF/meta fields
@@ -575,7 +632,7 @@ private function php_error_message( int $code ): string {
 	 * @since 0.2.0
 	 * @version 0.7.0
 	 */
-	public function upload_permissions_check( WP_REST_Request $request ): bool {
+	public function upload_permissions_check( \WP_REST_Request $request ): bool {
 		$allowed = current_user_can( 'upload_files' );
 		$allowed = (bool) apply_filters_ref_array( 'starmus_can_upload', array( $allowed, $request ) );
 
@@ -598,7 +655,7 @@ private function php_error_message( int $code ): string {
 	 * @since 0.2.0
 	 * @version 0.7.0
 	 */
-	public function handle_upload_chunk_rest( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+	public function handle_upload_chunk_rest( \WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		try {
 			if ( $this->is_rate_limited() ) {
 				return new WP_Error( 'rate_limit_exceeded', __( 'You are uploading too frequently.', STARMUS_TEXT_DOMAIN ), array( 'status' => 429 ) );
@@ -641,7 +698,7 @@ private function php_error_message( int $code ): string {
 	 * @param string    $context A brief context message.
 	 * @param Throwable $e The exception to log.
 	 */
-	private function log_error( string $context, Throwable $e ): void {
+	private function log_error( string $context, \Throwable $e ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 			error_log(
 				sprintf(
@@ -675,7 +732,7 @@ private function php_error_message( int $code ): string {
 		if ( $total_size > $max_size ) {
 			return new WP_Error( 'file_too_large', __( 'The uploaded file exceeds the maximum allowed size.', STARMUS_TEXT_DOMAIN ), array( 'status' => 413 ) );
 		}
-		$allowed_exts = array_map( 'strtolower', (array) $this->settings->get( 'allowed_extensions', array( 'webm', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
+	$allowed_exts = array_map( 'strtolower', (array) $this->settings->get( 'allowed_extensions', array( 'webm', 'weba', 'opus', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
 		$extension    = strtolower( pathinfo( $file_name, PATHINFO_EXTENSION ) );
 		if ( ! in_array( $extension, $allowed_exts, true ) ) {
 			return new WP_Error( 'invalid_file_extension', __( 'The file type is not permitted.', STARMUS_TEXT_DOMAIN ), array( 'status' => 415 ) );
@@ -790,7 +847,7 @@ private function php_error_message( int $code ): string {
 
 		// Extend core mime map with webm
 		$core_mime_map         = wp_get_mime_types();
-		$core_mime_map['webm'] = 'audio/webm';
+		$core_mime_map['webm'] = 'video/webm';
 		$core_mime_map['weba'] = 'audio/webm';
 		$core_mime_map['opus'] = 'audio/ogg; codecs=opus';
 
@@ -820,6 +877,10 @@ private function php_error_message( int $code ): string {
 			'tmp_name' => $temp_file_path,
 		);
 
+    // This second filter is the "nuclear option" to bypass any other security
+    // plugins that might be interfering with MIME type checks.
+    add_filter( 'wp_check_filetype_and_ext', '__return_true', 100 );
+
 		$upload_result = wp_handle_sideload(
 			$file_data,
 			array(
@@ -828,6 +889,9 @@ private function php_error_message( int $code ): string {
 				'mimes'     => $allowed_mimes,
 			)
 		);
+
+    // IMPORTANT: Immediately remove our temporary filter.
+    remove_filter( 'wp_check_filetype_and_ext', '__return_true', 100 );
 
 		if (! empty( $upload_result['error'] ) ) {
 			if ( file_exists( $temp_file_path ) ) {

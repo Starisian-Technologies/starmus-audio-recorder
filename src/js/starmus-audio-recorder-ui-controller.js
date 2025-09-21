@@ -67,11 +67,13 @@
     function startTimer(instanceId) {
         if (!safeId(instanceId) || timers[instanceId]) {return;}
         const MAX_TIME_MS = 20 * 60 * 1000; // 20 minutes
+        console.log('[Starmus] startTimer called', { instanceId });
         timers[instanceId] = setInterval(() => {
             const instance = window.StarmusAudioRecorder?._instances?.[instanceId];
             const timerEl = el(`starmus_timer_${instanceId}`);
             const progressEl = el(`starmus_timer_progress_${instanceId}`);
             if (instance?.isRecording && !instance.isPaused && timerEl && progressEl) {
+                console.log('[Starmus] Timer tick', { instanceId, startTime: instance.startTime });
                 const elapsed = Date.now() - instance.startTime;
                 const minutes = Math.floor(elapsed / 60000);
                 const seconds = Math.floor((elapsed % 60000) / 1000);

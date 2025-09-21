@@ -203,6 +203,7 @@
         startRecording: function(instanceId, language = 'en-US') {
             if (!isSafeId(instanceId) || !(instanceId in instances) || instances[instanceId].isRecording) {return;}
             const instance = instances[instanceId];
+            console.log('[Starmus] startRecording called', { instanceId, startTime: instance.startTime });
 
             // Initialize speech recognition if available
             if (window.SpeechRecognition || window.webkitSpeechRecognition) {
@@ -264,6 +265,7 @@
                 instance.isRecording = true;
                 instance.isPaused = false;
                 instance.startTime = Date.now();
+                console.log('[Starmus] startRecording set startTime', { instanceId, startTime: instance.startTime });
 
                 instance.recorder.ondataavailable = event => {
                     if (event.data.size > 0) {instance.chunks.push(event.data);}
