@@ -59,10 +59,15 @@ if ( file_exists( STARMUS_MAIN_DIR . '/vendor/autoload.php' ) ) {
 
 // Ensure all required classes are loaded
 require_once STARMUS_PATH . 'src/includes/StarmusSettings.php';
-require_once STARMUS_PATH . 'src/includes/StarmusPlugin.php';
+require_once STARMUS_PATH . 'src/StarmusPlugin.php';
 require_once STARMUS_PATH . 'src/admin/StarmusAdmin.php';
 require_once STARMUS_PATH . 'src/frontend/StarmusAudioRecorderUI.php';
 require_once STARMUS_PATH . 'src/frontend/StarmusAudioEditorUI.php';
+require_once STARMUS_PATH . 'src/core/StarmusPluginUpdater.php';
+require_once STARMUS_PATH . 'src/cli/StarmusCLI.php';
+require_once STARMUS_PATH . 'src/cli/StarmusCacheCommand.php';
+
+use Starmus\StarmusPlugin;
 
 // Register Plugin Lifecycle Hooks.
 register_activation_hook( STARMUS_MAIN_FILE, array( 'Starmus\StarmusPlugin', 'activate' ) );
@@ -72,7 +77,7 @@ register_uninstall_hook( STARMUS_MAIN_FILE, array( 'Starmus\includes\StarmusPlug
 add_action(
 	'plugins_loaded',
 	function () {
-			\Starmus\StarmusPlugin::run();
+			StarmusPlugin::run();
 	}
 );
 
@@ -80,6 +85,6 @@ add_action(
 add_action(
 	'init',
 	function () {
-			\Starmus\StarmusPlugin::get_instance()->init();
+			StarmusPlugin::get_instance()->init();
 	}
 );

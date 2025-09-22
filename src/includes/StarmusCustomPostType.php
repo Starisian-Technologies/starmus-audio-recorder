@@ -1,5 +1,4 @@
 <?php
-namespace Starmus\includes;
 /**
  * Registers Custom Post Types, Taxonomies, and ACF fields.
  *
@@ -683,4 +682,5 @@ add_filter(
 		$columns['date']           = 'Date';
 		return $columns;
 	}
+  
 );

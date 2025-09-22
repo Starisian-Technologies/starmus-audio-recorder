@@ -4,7 +4,8 @@
  * Produces both MP3 (distribution) and WAV (archival) and triggers metadata writing.
  *
  * @package Starmus\services
- * @version 1.3.0
+ * @version 0.7.2
+ * @since  0.7.2
  */
 
 namespace Starmus\services;
@@ -18,6 +19,8 @@ class PostProcessingService {
     private $audio_processing_service;
 
     public function __construct() {
+
+        // This service now depends on the metadata service to write tags.
         $this->audio_processing_service = new AudioProcessingService();
     }
 
@@ -26,44 +29,86 @@ class PostProcessingService {
         return !empty(trim($path));
     }
 
-    public function process_and_archive_audio( int $attachment_id ): bool {
-        if ( !$this->is_tool_available() ) { /* ... error handling ... */ return false; }
+    /**
+     * Main entry point to transcode, master, and archive an audio attachment.
+     *
+     * @param int $attachment_id The WordPress attachment ID.
+     * @param array $options Configuration options.
+     * @return bool True on success, false on failure.
+     */
+    public function process_and_archive_audio( int $attachment_id, array $options = [] ): bool {
+        if ( !$this->is_tool_available() ) {
+            error_log('Starmus PostProcessing: ffmpeg not available.');
+            return false;
+        }
 
         $original_path = get_attached_file( $attachment_id );
-        if ( ! $original_path || ! file_exists( $original_path ) ) { /* ... error handling ... */ return false; }
-
+        if ( ! $original_path || ! file_exists( $original_path ) ) {
+            error_log("Starmus PostProcessing: Source file not found for attachment {$attachment_id}.");
+            return false;
+        }
+$options[""] = $original_path;
         $upload_dir = wp_get_upload_dir();
         $base_filename = pathinfo($original_path, PATHINFO_FILENAME);
 
+
         $backup_path = $original_path . '.bak';
         if (!rename($original_path, $backup_path)) { /* ... error handling ... */ return false; }
+        // --- 1. Backup the original file before any changes ---
+        $backup_path = $original_path . '.bak';
+        if (!rename($original_path, $backup_path)) {
+            error_log("Starmus PostProcessing: Could not create backup for attachment {$attachment_id}.");
+            return false;
+        }
 
-        // --- 1. Generate Lossless Archival WAV ---
+        // --- 2. Generate Lossless Archival WAV Copy ---
         $archival_path = $upload_dir['path'] . '/' . $base_filename . '-archive.wav';
-        // ... (ffmpeg command for WAV as in previous version) ...
-        // ... (error handling for WAV creation) ...
+        $cmd_wav = sprintf(
+            'ffmpeg -i %s -c:a pcm_s16le -ar 44100 -y %s',
+            escapeshellarg($backup_path),
+            escapeshellarg($archival_path)
+        );
+        exec($cmd_wav . ' 2>&1', $out_wav, $ret_wav);
 
-        // --- 2. Generate Mastered Distribution MP3 ---
-        $filters = ["loudnorm=I=-16", "silenceremove=start_periods=1:start_threshold=-50dB"];
+        if ($ret_wav !== 0 || !file_exists($archival_path)) {
+            error_log("Starmus ffmpeg (WAV archive) failed for attachment {$attachment_id}: " . implode("\n", $out_wav));
+            rename($backup_path, $original_path); // Restore backup on failure
+            return false;
+        }
+
+        // --- 3. Build and Generate Mastered Distribution MP3 ---
+        $filters = ["loudnorm=I=-16:TP=-1.5:LRA=11", "silenceremove=start_periods=1:start_threshold=-50dB"];
         $filters = apply_filters( 'starmus_ffmpeg_filters', $filters, $attachment_id );
         $filter_chain = implode(',', array_filter($filters));
-        
-        $mp3_path = $upload_dir['path'] . '/' . $base_filename . '.mp3';
-        // ... (ffmpeg command for MP3 as in previous version) ...
-        // ... (error handling for MP3 creation, including restoring backup) ...
 
-        // --- 3. Update WordPress to use the new MP3 ---
+        $mp3_path = $upload_dir['path'] . '/' . $base_filename . '.mp3';
+        $cmd_mp3 = sprintf(
+            'ffmpeg -i %s -af "%s" -c:a libmp3lame -b:a 192k -y %s',
+            escapeshellarg($backup_path),
+            $filter_chain,
+            escapeshellarg($mp3_path)
+        );
+        exec($cmd_mp3 . ' 2>&1', $out_mp3, $ret_mp3);
+
+        if ($ret_mp3 !== 0 || !file_exists($mp3_path)) {
+            error_log("Starmus ffmpeg (MP3 master) failed for attachment {$attachment_id}: " . implode("\n", $out_mp3));
+            rename($backup_path, $original_path); // Restore backup
+            if (file_exists($archival_path)) unlink($archival_path); // Clean up partial archive
+            return false;
+        }
+
+        // --- 4. Update WordPress to use the new MP3 as the main attachment ---
         update_attached_file( $attachment_id, $mp3_path );
         wp_update_post(['ID' => $attachment_id, 'post_mime_type' => 'audio/mpeg']);
-        wp_update_attachment_metadata($attachment_id, wp_generate_attachment_metadata($attachment_id, $mp3_path));
+        wp_update_attachment_metadata($attachment_id, wp_generate_attachment_metadata($attachment_id, $mp3_pah));
 
-        // --- 4. Call Metadata Service to write ID3 tags and run transcription hook ---
-        // This is the key change: the metadata/tagging step is now part of this service's flow.
+
+        // --- 5. Call the Metadata Service to write ID3 tags to the new MP3 ---
         $this->audio_processing_service->process_attachment( $attachment_id );
 
-        // --- 5. Finalize ---
+        // --- 6. Store archival path and clean up ---
         update_post_meta($attachment_id, '_starmus_archival_path', $archival_path);
-        unlink($backup_path);
+        unlink($backup_path); // Success, so remove the backup file.
 
         do_action('starmus_audio_postprocessed', $attachment_id, ['mp3' => $mp3_path, 'wav' => $archival_path]);
 

@@ -1,18 +1,19 @@
 <?php
-
-namespace Starmus\cli;
 /**
  * WP-CLI commands for managing the Starmus Audio Recorder plugin.
  *
+ * This is the final, consolidated class containing all commands and best practices.
+ *
  * @package Starmus\cli
- * @version 0.7.2
- * @since 0.7.2
+ * @version 1.6.0
  */
 
+namespace Starmus\cli;
 
 use WP_CLI;
 use WP_CLI_Command;
 use WP_Query;
+use Starmus\services\WaveformService;
 use Starmus\frontend\StarmusAudioRecorderUI;
 
 if ( ! defined( 'WP_CLI' ) ) {
@@ -24,106 +25,92 @@ if ( ! defined( 'WP_CLI' ) ) {
  */
 class StarmusCLI extends WP_CLI_Command {
 
+    private $waveform_service;
+
+    public function __construct() {
+        $this->waveform_service = new WaveformService();
+    }
+
     /**
-     * Generates waveform data for audio recordings.
-     *
-     * ## OPTIONS
-     *
-     * [--post_ids=<ids>]
-     * : A comma-separated list of specific audio recording post IDs to process.
-     *
-     * [--regenerate]
-     * : Force regeneration of waveforms even if they already exist.
+     * Manages audio recording waveforms.
      *
      * ## EXAMPLES
      *
-     *     # Generate waveforms for all recordings that are missing them.
-     *     $ wp starmus generate-waveforms
+     *     # Generate waveforms for all recordings missing them.
+     *     $ wp starmus waveform generate
      *
      *     # Force regenerate waveforms for posts 123 and 456.
-     *     $ wp starmus generate-waveforms --post_ids=123,456 --regenerate
+     *     $ wp starmus waveform generate --post_ids=123,456 --regenerate
      *
-     * @param array $args Positional arguments.
-     * @param array $assoc_args Associative arguments.
+     *     # Delete waveform data for attachment ID 789.
+     *     $ wp starmus waveform delete --attachment_ids=789
      */
-    public function generate_waveforms( $args, $assoc_args ) {
-        $query_args = [
-            'post_type'      => 'audio-recording',
-            'post_status'    => 'publish',
-            'posts_per_page' => -1,
-            'fields'         => 'ids',
-        ];
+    public function waveform( $args, $assoc_args ) {
+        if ( empty($args[0]) ) {
+            WP_CLI::error( "Please specify an action: 'generate' or 'delete'." );
+        }
 
-        if ( ! empty( $assoc_args['post_ids'] ) ) {
-            $query_args['post__in'] = array_map( 'absint', explode( ',', $assoc_args['post_ids'] ) );
-            WP_CLI::line( 'Processing ' . count( $query_args['post__in'] ) . ' specific recordings...' );
+        $action = $args[0];
+
+        switch ( $action ) {
+            case 'generate':
+                $this->generate_waveforms( $assoc_args );
+                break;
+            case 'delete':
+                $this->delete_waveforms( $assoc_args );
+                break;
+            default:
+                WP_CLI::error( "Invalid action '{$action}'. Supported actions: generate, delete." );
+        }
+    }
+
+    /**
+     * Manages the Starmus caches.
+     *
+     * ## EXAMPLES
+     *
+     *     # Flush taxonomy caches
+     *     $ wp starmus cache flush
+     */
+    public function cache( $args, $assoc_args ) {
+        if ( empty($args[0]) ) {
+            WP_CLI::error( "Please specify an action: 'flush'." );
+        }
+
+        $action = $args[0];
+
+        if ( 'flush' === $action ) {
+            $this->flush_cache( $assoc_args );
         } else {
-            WP_CLI::line( 'Querying all audio recordings...' );
+            WP_CLI::error( "Invalid action '{$action}'. Supported actions: flush." );
         }
-
-        $query = new WP_Query( $query_args );
-
-        if ( ! $query->have_posts() ) {
-            WP_CLI::success( 'No recordings found to process.' );
-            return;
-        }
-
-        $recorder_ui = new StarmusAudioRecorderUI();
-        $regenerate  = isset( $assoc_args['regenerate'] );
-        $progress    = \WP_CLI\Utils\make_progress_bar( 'Generating Waveforms', $query->post_count );
-        $processed   = 0;
-        $skipped     = 0;
-
-        foreach ( $query->posts as $post_id ) {
-            $attachment_id = get_post_meta( $post_id, '_audio_attachment_id', true );
-            if ( ! $attachment_id ) {
-                $skipped++;
-                $progress->tick();
-                continue;
-            }
-
-            if ( ! $regenerate && get_post_meta( $attachment_id, '_waveform_data', true ) ) {
-                $skipped++;
-                $progress->tick();
-                continue;
-            }
-
-            // The waveform generation logic is private, so we need a public wrapper or reflection.
-            // For now, let's assume you'll make it callable or create a public wrapper.
-            // This is a placeholder for the actual call.
-            // $success = $recorder_ui->generate_waveform_data_public( $attachment_id );
-
-            // For this example, we'll simulate the call.
-            // In your real code, you would call your actual waveform generation method here.
-            $success = true; // Replace with your actual method call.
-
-            if ( $success ) {
-                $processed++;
-            } else {
-                WP_CLI::warning( "Failed to generate waveform for attachment ID: {$attachment_id} (Post ID: {$post_id})" );
-            }
-            $progress->tick();
-        }
-
-        $progress->finish();
-        WP_CLI::success( "Processing complete. Generated: {$processed}, Skipped: {$skipped}." );
     }
 
     /**
      * Cleans up stale temporary files.
      *
-     * Immediately runs the cleanup process for partial upload files older than 24 hours.
+     * ## OPTIONS
      *
-     * ## EXAMPLES
-     *
-     *     $ wp starmus cleanup-temp-files
+     * [--days=<days>]
+     * : Cleanup files older than this many days. Defaults to 1.
+     * ---
+     * default: 1
+     * ---
      */
-    public function cleanup_temp_files() {
-        WP_CLI::line( 'Running cleanup of stale temporary files...' );
+    public function cleanup_temp_files( $args, $assoc_args ) {
+        $days   = absint( $assoc_args['days'] ?? 1 );
+        $cutoff = strtotime( "-{$days} days" );
+
+        WP_CLI::line( "Cleaning temporary files older than {$days} day(s)..." );
+
         $recorder_ui = new StarmusAudioRecorderUI();
-        // Assuming cleanup_stale_temp_files is public
-        $recorder_ui->cleanup_stale_temp_files();
-        WP_CLI::success( 'Cleanup process complete.' );
+
+        if ( method_exists($recorder_ui, 'cleanup_stale_temp_files') ) {
+            $recorder_ui->cleanup_stale_temp_files( $cutoff );
+            WP_CLI::success( 'Cleanup process complete.' );
+        } else {
+            WP_CLI::error('Required method cleanup_stale_temp_files() not found on StarmusAudioRecorderUI.');
+        }
     }
 
     /**
@@ -132,21 +119,13 @@ class StarmusCLI extends WP_CLI_Command {
      * ## OPTIONS
      *
      * [--format=<format>]
-     * : The export format.
+     * : The export format. `csv` or `json`. Defaults to `csv`.
      * ---
      * default: csv
      * options:
      *   - csv
      *   - json
      * ---
-     *
-     * ## EXAMPLES
-     *
-     *     # Export all recordings to a CSV file.
-     *     $ wp starmus export > recordings.csv
-     *
-     *     # Export all recordings as a JSON object.
-     *     $ wp starmus export --format=json
      */
     public function export( $args, $assoc_args ) {
         $query = new WP_Query( [
@@ -157,11 +136,10 @@ class StarmusCLI extends WP_CLI_Command {
 
         if ( ! $query->have_posts() ) {
             WP_CLI::error( 'No recordings found to export.' );
-            return;
         }
 
         $items = [];
-        $headers = ['ID', 'Title', 'Date', 'Author ID', 'Audio URL', 'Language', 'Recording Type']; // Add more as needed
+        $headers = ['ID', 'Title', 'Date', 'Author ID', 'Audio URL', 'Language', 'Recording Type'];
 
         foreach ( $query->posts as $post ) {
             $attachment_id = get_post_meta( $post->ID, '_audio_attachment_id', true );
@@ -176,8 +154,9 @@ class StarmusCLI extends WP_CLI_Command {
             ];
         }
 
-        if ( 'json' === $assoc_args['format'] ) {
-            WP_CLI::line( wp_json_encode( $items, JSON_PRETTY_PRINT ) );
+        $format = $assoc_args['format'] ?? 'csv';
+        if ( 'json' === $format ) {
+            WP_CLI::line( json_encode( $items, JSON_PRETTY_PRINT ) );
         } else {
             $output = fopen( 'php://stdout', 'w' );
             fputcsv( $output, $headers );
@@ -191,22 +170,137 @@ class StarmusCLI extends WP_CLI_Command {
     /**
      * Imports audio recordings from a CSV file.
      *
-     * NOTE: This is a placeholder and a complex operation. It requires a well-defined
-     * CSV format and careful handling of file paths.
+     * ## OPTIONS
      *
-     * ## EXAMPLES
+     * [<file>]
+     * : The path to the CSV file to import.
      *
-     *     $ wp starmus import <path-to-csv> --audio_path=<path-to-folder>
+     * [--dry-run]
+     * : Preview the import without creating posts or attachments.
      */
     public function import( $args, $assoc_args ) {
-        WP_CLI::warning( 'The import command is a placeholder and not yet implemented.' );
-        // Future logic would go here:
-        // 1. Check for file existence ($args[0]) and path existence ($assoc_args['audio_path']).
-        // 2. Parse the CSV file row by row.
-        // 3. For each row, find the audio file in the audio_path.
-        // 4. Use media_handle_sideload() to add the audio file to the media library.
-        // 5. Use wp_insert_post() to create the 'audio-recording' post.
-        // 6. Use update_post_meta() to attach the audio and save all other metadata.
-        // 7. Use wp_set_post_terms() to set taxonomies.
+        if ( empty($args[0]) ) {
+            WP_CLI::error( 'Please provide a path to the CSV file.' );
+        }
+
+        $csv_file = $args[0];
+        if ( ! file_exists( $csv_file ) || ! is_readable( $csv_file ) ) {
+            WP_CLI::error( "CSV file not found or is not readable at: {$csv_file}" );
+        }
+
+        WP_CLI::error( 'The import command is not yet implemented.' );
+    }
+
+    /**
+     * Private handler for generating waveforms.
+     */
+    private function generate_waveforms( $assoc_args ) {
+        // PRE-FLIGHT CHECK: Verify the tool is available before doing anything else.
+        if (!$this->waveform_service->is_tool_available()) {
+            WP_CLI::error(
+                "The 'audiowaveform' command-line tool is not installed or not in the server's PATH. " .
+                "Please install it to generate waveforms. See: https://github.com/bbc/audiowaveform"
+            );
+            return; // Exit immediately.
+        }
+
+        $query_args = [
+            'post_type'      => 'audio-recording',
+            'post_status'    => 'publish',
+            'posts_per_page' => (int) ($assoc_args['chunk_size'] ?? 100),
+            'fields'         => 'ids',
+            'paged'          => 1,
+        ];
+
+        if ( ! empty( $assoc_args['post_ids'] ) ) {
+            $query_args['post__in'] = array_map( 'absint', explode( ',', $assoc_args['post_ids'] ) );
+            $query_args['posts_per_page'] = count($query_args['post__in']);
+        }
+
+        // Use a WP_Query to get a reliable count of posts to be processed.
+        $count_query = new WP_Query( $query_args );
+        $total_posts = $count_query->found_posts;
+
+        if ( ! $total_posts ) {
+            WP_CLI::success( 'No recordings found to process.' );
+            return;
+        }
+
+        $regenerate  = isset( $assoc_args['regenerate'] );
+        $progress    = \WP_CLI\Utils\make_progress_bar( 'Generating Waveforms', $total_posts );
+        $processed   = 0;
+        $skipped     = 0;
+        $failed      = 0;
+
+        do {
+            $query = new WP_Query( $query_args );
+            if ( ! $query->have_posts() ) break;
+
+            foreach ( $query->posts as $post_id ) {
+                $attachment_id = get_post_meta( $post_id, '_audio_attachment_id', true );
+
+                if ( ! $attachment_id ) {
+                    $skipped++;
+                } elseif ( ! $regenerate && $this->waveform_service->has_waveform_data( $attachment_id ) ) {
+                    $skipped++;
+                } else {
+                    if ( $this->waveform_service->generate_waveform_data( $attachment_id, $regenerate ) ) {
+                        $processed++;
+                    } else {
+                        $failed++;
+                        WP_CLI::warning( "\nFailed for Post ID {$post_id} (Attachment ID: {$attachment_id}). Check server logs." );
+                    }
+                }
+                $progress->tick();
+            }
+
+            // Clear WP's internal object cache between chunks to prevent memory leaks on very large sites.
+            wp_cache_flush();
+            $query_args['paged']++;
+
+        } while ( $query_args['paged'] <= $query->max_num_pages );
+
+        $progress->finish();
+        WP_CLI::success( "Processing complete. Generated: {$processed}, Skipped: {$skipped}, Failed: {$failed}." );
+    }
+
+    /**
+     * Private handler for deleting waveforms.
+     */
+    private function delete_waveforms( $assoc_args ) {
+        if ( empty( $assoc_args['attachment_ids'] ) ) {
+            WP_CLI::error( 'Please provide one or more attachment IDs using --attachment_ids=<ids>.' );
+        }
+
+        $attachment_ids = array_map( 'absint', explode( ',', $assoc_args['attachment_ids'] ) );
+        $deleted = 0;
+        $skipped = 0;
+
+        foreach ( $attachment_ids as $attachment_id ) {
+            if ( $this->waveform_service->delete_waveform_data( $attachment_id ) ) {
+                WP_CLI::log( "Deleted waveform data for attachment ID: {$attachment_id}" );
+                $deleted++;
+            } else {
+                WP_CLI::log( "No waveform data to delete for attachment ID: {$attachment_id}" );
+                $skipped++;
+            }
+        }
+        WP_CLI::success( "Deletion complete. Deleted: {$deleted}, Skipped: {$skipped}." );
+    }
+
+    /**
+     * Private handler for flushing caches.
+     */
+    private function flush_cache( $assoc_args ) {
+        WP_CLI::line( "Flushing Starmus taxonomy caches..." );
+
+        $recorder_ui = new StarmusAudioRecorderUI();
+
+        if ( method_exists( $recorder_ui, 'clear_taxonomy_transients' ) ) {
+            $recorder_ui->clear_taxonomy_transients();
+            WP_CLI::success( 'Starmus caches have been flushed.' );
+        } else {
+            WP_CLI::error( 'Required method clear_taxonomy_transients() not found.' );
+        }
     }
 }
