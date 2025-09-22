@@ -9,9 +9,6 @@
 
 namespace Starmus\services;
 
-require_once __DIR__ . '/../libs/getid3/getid3.php';
-require_once __DIR__ . '/../libs/getid3/write.php';
-
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }

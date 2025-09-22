@@ -65,7 +65,9 @@ require_once STARMUS_PATH . 'src/frontend/StarmusAudioRecorderUI.php';
 require_once STARMUS_PATH . 'src/frontend/StarmusAudioEditorUI.php';
 require_once STARMUS_PATH . 'src/core/StarmusPluginUpdater.php';
 require_once STARMUS_PATH . 'src/cli/StarmusCLI.php';
-require_once STARMUS_PATH . 'src/cli/StarmusCacheCommand.php';
+require_once STARMUS_PATH . 'src/services/PostProcessingService.php';
+require_once STARMUS_PATH . 'src/services/WaveformService.php';
+require_once STARMUS_PATH . 'src/services/AudioProcessingService.php';
 
 use Starmus\StarmusPlugin;
 
