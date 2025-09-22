@@ -3,7 +3,7 @@
  * Starmus My Recordings List Template - Accessible Version
  *
  * @package Starmus\templates
- * @version 0.7.2
+ * @version 0.7.3
  * @since   0.4.5
  *
  * @var WP_Query $query         The WordPress query object for the recordings.
