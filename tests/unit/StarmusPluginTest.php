@@ -7,7 +7,7 @@
 declare(strict_types=1);
 namespace Starmus\tests\unit;
 use PHPUnit\Framework\TestCase;
-use Starmus\includes\StarmusPlugin;
+use Starmus\StarmusPlugin;
 
 final class StarmusPluginTest extends TestCase
 {

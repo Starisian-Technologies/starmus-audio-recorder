@@ -65,14 +65,14 @@ require_once STARMUS_PATH . 'src/frontend/StarmusAudioRecorderUI.php';
 require_once STARMUS_PATH . 'src/frontend/StarmusAudioEditorUI.php';
 
 // Register Plugin Lifecycle Hooks.
-register_activation_hook( STARMUS_MAIN_FILE, array( 'Starmus\includes\StarmusPlugin', 'activate' ) );
+register_activation_hook( STARMUS_MAIN_FILE, array( 'Starmus\StarmusPlugin', 'activate' ) );
 register_deactivation_hook( STARMUS_MAIN_FILE, array( 'Starmus\includes\StarmusPlugin', 'deactivate' ) );
 register_uninstall_hook( STARMUS_MAIN_FILE, array( 'Starmus\includes\StarmusPlugin', 'uninstall' ) );
 // Initialize the plugin.
 add_action(
 	'plugins_loaded',
 	function () {
-			\Starmus\includes\StarmusPlugin::run();
+			\Starmus\StarmusPlugin::run();
 	}
 );
 
@@ -80,6 +80,6 @@ add_action(
 add_action(
 	'init',
 	function () {
-			\Starmus\includes\StarmusPlugin::get_instance()->init();
+			\Starmus\StarmusPlugin::get_instance()->init();
 	}
 );

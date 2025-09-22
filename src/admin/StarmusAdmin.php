@@ -28,13 +28,15 @@ class StarmusAdmin {
 
 		/** Mapping of option keys to field types. */
 	private array $field_types = array();
+  private ?StamusSettings $settings = null;
 
 	/**
 	 * Constructor - initializes admin settings.
 	 *
 	 * @since 0.3.1
 	 */
-	public function __construct() {
+	public function __construct(?StarmusSettings $settings) {
+        $this->settings = $settings;
 				$this->field_types = array(
 					'cpt_slug'              => 'text',
 					'file_size_limit'       => 'number',
@@ -53,7 +55,7 @@ class StarmusAdmin {
 	 * @since 0.3.1
 	 */
 	public function add_admin_menu(): void {
-		$cpt_slug = StarmusSettings::get( 'cpt_slug', 'audio-recording' );
+		$cpt_slug = $this->settings::get( 'cpt_slug', 'audio-recording' );
 		if ( empty( $cpt_slug ) || ! $this->is_valid_cpt_slug( $cpt_slug ) ) {
 			$cpt_slug = 'audio-recording';
 		}
@@ -108,10 +110,10 @@ class StarmusAdmin {
 	public function register_settings(): void {
 		register_setting(
 			self::STAR_SETTINGS_GROUP,
-			StarmusSettings::STAR_OPTION_KEY,
+			$this->settings::STAR_OPTION_KEY,
 			array(
 				'sanitize_callback' => array( $this, 'sanitize_settings' ),
-				'default'           => StarmusSettings::get_defaults(),
+				'default'           => $this->settings::get_defaults(),
 			)
 		);
 
@@ -222,7 +224,7 @@ class StarmusAdmin {
 	 * Sanitize settings with comprehensive validation.
 	 */
 	public function sanitize_settings( array $input ): array {
-		$defaults = StarmusSettings::get_defaults();
+		$defaults = $this->settings::get_defaults();
 		if ( ! is_array( $defaults ) ) {
 			$defaults = array();
 		}
@@ -286,8 +288,8 @@ class StarmusAdmin {
 
 		$id    = esc_attr( $args['id'] );
 		$type  = $args['type'] ?? 'text';
-		$value = StarmusSettings::get( $id );
-		$name  = StarmusSettings::STAR_OPTION_KEY . "[$id]";
+		$value = $this->settings::get( $id );
+		$name  = $this->settings::STAR_OPTION_KEY . "[$id]";
 
 		switch ( $type ) {
 			case 'textarea':

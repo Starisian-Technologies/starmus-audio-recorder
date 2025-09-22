@@ -71,15 +71,15 @@ class StarmusAudioRecorderUI {
 	public const STAR_REST_NAMESPACE = 'starmus/v1';
 
 		/** Settings handler instance. */
-	private StarmusSettings $settings;
+	private ?StarmusSettings $settings = null;
 
 		/**
 		 * Initialize the recorder UI and load settings.
 		 */
-	public function __construct() {
+	public function __construct(?StarmusSettings $settings) {
 			error_log( 'StarmusAudioRecorderUI: Constructor called' );
 		try {
-				$this->settings = new StarmusSettings();
+        $this->settings = $settings;
 				error_log( 'StarmusAudioRecorderUI: Settings instantiated successfully' );
 		} catch ( Throwable $e ) {
 				error_log( 'StarmusAudioRecorderUI: Failed to instantiate settings: ' . $e->getMessage() );
