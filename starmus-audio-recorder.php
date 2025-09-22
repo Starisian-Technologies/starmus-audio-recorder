@@ -73,8 +73,8 @@ use Starmus\StarmusPlugin;
 
 // Register Plugin Lifecycle Hooks.
 register_activation_hook( STARMUS_MAIN_FILE, array( 'Starmus\StarmusPlugin', 'activate' ) );
-register_deactivation_hook( STARMUS_MAIN_FILE, array( 'Starmus\includes\StarmusPlugin', 'deactivate' ) );
-register_uninstall_hook( STARMUS_MAIN_FILE, array( 'Starmus\includes\StarmusPlugin', 'uninstall' ) );
+register_deactivation_hook( STARMUS_MAIN_FILE, array( 'Starmus\StarmusPlugin', 'deactivate' ) );
+register_uninstall_hook( STARMUS_MAIN_FILE, array( 'Starmus\StarmusPlugin', 'uninstall' ) );
 // Initialize the plugin.
 add_action(
 	'plugins_loaded',

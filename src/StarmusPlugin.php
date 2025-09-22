@@ -214,13 +214,12 @@ final class StarmusPlugin {
 			add_action( 'create_recording-type', array( $this->recorder, 'clear_taxonomy_transients' ) );
 			add_action( 'edit_recording-type', array( $this->recorder, 'clear_taxonomy_transients' ) );
 			add_action( 'delete_recording-type', array( $this->recorder, 'clear_taxonomy_transients' ) );
-      // Add filter so mime passes
+			// Add filter so mime passes
 			add_filter(
 				'upload_mimes',
 				function ( $mimes ) {
 					$mimes['weba'] = 'audio/webm';
-					$mimes['webm'] = 'audio/webm';
-          $mimes['webm'] = 'video/webm';
+					$mimes['webm'] = 'video/webm'; // webm can be both audio and video, prioritize video
 					$mimes['opus'] = 'audio/ogg; codecs=opus';
 					return $mimes;
 				}
@@ -230,11 +229,11 @@ final class StarmusPlugin {
 			error_log( 'Starmus Plugin: Recorder component NOT available' );
 		}
 
-    // Register settings hooks if settings component is available.
+		// Register settings hooks if settings component is available.
 
-    if ( is_object( $this->updater ) ) {
-              add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'check_for_updates' ) );
-    }
+		if ( is_object( $this->updater ) ) {
+			add_filter( 'pre_set_site_transient_update_plugins', array( $this->updater, 'check_for_updates' ) );
+		}
 
 		error_log( 'Starmus Plugin: All hooks registered successfully' );
 	}
@@ -266,8 +265,8 @@ final class StarmusPlugin {
 
 		// Register StarmusSettings first as it may be needed by other components.
 		try {
-			if ( !is_object( $this->settings ) && class_exists('StarmusSettings') ) {
-				$this->settings = new StarmusSettings();
+			if ( ! is_object( $this->settings ) && class_exists( 'Starmus\\includes\\StarmusSettings' ) ) {
+				$this->settings = new \Starmus\includes\StarmusSettings();
 				error_log( 'Starmus Plugin: Settings component instantiated.' );
 			}
 		} catch ( Throwable $e ) {
@@ -304,10 +303,10 @@ final class StarmusPlugin {
 		}
 
 		try {
-			if ( class_exists('StarmusPluginUpdater') ) {
+			if ( class_exists( 'Starmus\\core\\StarmusPluginUpdater' ) ) {
 				// phpcs:ignore Squiz.NamingConventions.ValidVariableName.NotCamelCaps
 				// @phpstan-ignore-next-line
-				$this->updater = new StarmusPluginUpdater(STARMUS_MAIN_FILE, STARMUS_VERSION);
+				$this->updater = new StarmusPluginUpdater( STARMUS_MAIN_FILE, STARMUS_VERSION );
 			}
 		} catch ( Throwable $e ) {
 			error_log( 'Failed to load updater component: ' . esc_html( $e->getMessage() ));
@@ -354,7 +353,7 @@ final class StarmusPlugin {
 	 * @since 0.1.0
 	 */
 	public static function deactivate(): void {
-	\flush_rewrite_rules();
+		\flush_rewrite_rules();
 	}
 
 	/**
@@ -371,8 +370,8 @@ final class StarmusPlugin {
 		} else {
 			error_log( 'Starmus Plugin: Uninstall file not found' );
 		}
-	\wp_clear_scheduled_hook( 'starmus_cleanup_temp_files' );
-	\flush_rewrite_rules();
+		\wp_clear_scheduled_hook( 'starmus_cleanup_temp_files' );
+		\flush_rewrite_rules();
 	}
 
 	/**
@@ -401,7 +400,7 @@ final class StarmusPlugin {
 				}
 			}
 		} catch ( Throwable $e ) {
-			if ( ( WP_DEBUG === true ) && ( WP_DEBUG_LOG === true ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 				trigger_error( 'Starmus Plugin: Error adding capabilities - ' . esc_html( sanitize_text_field( $e->getMessage() ) ), E_USER_WARNING );
 			}
 		}
