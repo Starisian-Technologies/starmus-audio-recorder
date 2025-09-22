@@ -3,7 +3,7 @@
  * Handles cache management for the Starmus plugin.
  *
  * @package Starmus\cli
- * @version 1.0.0
+ * @version 0.7.2
  */
 
 namespace Starmus\cli;

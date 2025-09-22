@@ -4,7 +4,7 @@ namespace Starmus\includes;
  * Registers Custom Post Types, Taxonomies, and ACF fields.
  *
  * @package Starmus\includes
- * @version 0.7.1
+ * @version 0.7.2
  * @since 0.2.0
  */
 
