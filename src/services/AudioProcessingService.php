@@ -4,7 +4,7 @@
  * Handles ID3 tag writing (including multiple transcription frames) and exposes hooks for extension.
  *
  * @package Starmus\services
- * @version 0.7.3
+ * @version 0.7.4
  */
 
 namespace Starmus\services;
