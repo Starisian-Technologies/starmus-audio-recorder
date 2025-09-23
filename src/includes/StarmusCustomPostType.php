@@ -682,5 +682,4 @@ add_filter(
 		$columns['date']           = 'Date';
 		return $columns;
 	}
-  
 );

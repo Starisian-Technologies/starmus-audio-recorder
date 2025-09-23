@@ -49,8 +49,7 @@ define( 'STARMUS_MAIN_DIR', plugin_dir_path( __FILE__ ) );
 // ... other constants ...
 define( 'STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder' );
 define( 'STARMUS_PLUGIN_PREFIX', 'starmus' );
-define( 'STARMUS_TEXT_DOMAIN', 'starmus-audio-recorder' );
-define( 'STARMUS_VERSION', '0.7.3' );
+define( 'STARMUS_VERSION', '0.7.2' );
 
 // Load Composer autoloader if present.
 if ( file_exists( STARMUS_MAIN_DIR . '/vendor/autoload.php' ) ) {

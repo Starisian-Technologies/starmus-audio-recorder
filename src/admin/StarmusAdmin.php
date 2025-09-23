@@ -27,27 +27,34 @@ class StarmusAdmin {
 		const STAR_SETTINGS_GROUP = 'starmus_settings_group';
 
 		/** Mapping of option keys to field types. */
-	private array $field_types = array();
-  private ?StamusSettings $settings = null;
+	private array $field_types         = array();
+	private ?StarmusSettings $settings = null;
 
 	/**
 	 * Constructor - initializes admin settings.
 	 *
 	 * @since 0.3.1
 	 */
-	public function __construct(?StarmusSettings $settings) {
-        $this->settings = $settings;
-				$this->field_types = array(
-					'cpt_slug'              => 'text',
-					'file_size_limit'       => 'number',
-					'allowed_file_types'    => 'textarea',
-					'consent_message'       => 'textarea',
-					'collect_ip_ua'         => 'checkbox',
-					'edit_page_id'          => 'pages_dropdown',
-					'recorder_page_id'      => 'pages_dropdown',
-					'my_recordings_page_id' => 'pages_dropdown',
-				);
+	public function __construct( ?StarmusSettings $settings ) {
+		$this->settings            = $settings;
+    $this->field_types = array(
+      'cpt_slug'              => 'text',
+      'file_size_limit'       => 'number',
+      'allowed_file_types'    => 'textarea',
+      'consent_message'       => 'textarea',
+      'collect_ip_ua'         => 'checkbox',
+      'edit_page_id'          => 'pages_dropdown',
+      'recorder_page_id'      => 'pages_dropdown',
+      'my_recordings_page_id' => 'pages_dropdown',
+    );
+    $this->register_hooks();
 	}
+
+  private function register_hooks(): void {
+    error_log( 'Starmus Plugin: Admin component available, registering admin hooks' );
+		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+    add_action( 'admin_init', array( $this, 'register_settings' ) );
+  }
 
 	/**
 	 * Add admin menu with error handling.
@@ -64,8 +71,8 @@ class StarmusAdmin {
 
 		add_submenu_page(
 			$parent_slug,
-			__( 'Audio Recorder Settings', STARMUS_TEXT_DOMAIN ),
-			__( 'Settings', STARMUS_TEXT_DOMAIN ),
+			__( 'Audio Recorder Settings', 'starmus-audio-recorder' ),
+			__( 'Settings', 'starmus-audio-recorder' ),
 			'manage_options',
 			self::STAR_MENU_SLUG,
 			array( $this, 'render_settings_page' )
@@ -86,16 +93,16 @@ class StarmusAdmin {
 	 */
 	public function render_settings_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'You do not have sufficient permissions.', STARMUS_TEXT_DOMAIN ) );
+			wp_die( __( 'You do not have sufficient permissions.', 'starmus-audio-recorder' ) );
 		}
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Starmus Audio Recorder Settings', STARMUS_TEXT_DOMAIN ); ?></h1>
+			<h1><?php esc_html_e( 'Starmus Audio Recorder Settings', 'starmus-audio-recorder' ); ?></h1>
 			<form action="options.php" method="post">
 				<?php
 				settings_fields( self::STAR_SETTINGS_GROUP );
 				do_settings_sections( self::STAR_MENU_SLUG );
-				submit_button( __( 'Save Settings', STARMUS_TEXT_DOMAIN ) );
+				submit_button( __( 'Save Settings', 'starmus-audio-recorder' ) );
 				?>
 			</form>
 		</div>
@@ -127,28 +134,28 @@ class StarmusAdmin {
 	private function add_settings_sections(): void {
 		add_settings_section(
 			'starmus_cpt_section',
-			__( 'Custom Post Type Settings', STARMUS_TEXT_DOMAIN ),
+			__( 'Custom Post Type Settings', 'starmus-audio-recorder' ),
 			null,
 			self::STAR_MENU_SLUG
 		);
 
 		add_settings_section(
 			'starmus_rules_section',
-			__( 'File Upload & Recording Rules', STARMUS_TEXT_DOMAIN ),
+			__( 'File Upload & Recording Rules', 'starmus-audio-recorder' ),
 			null,
 			self::STAR_MENU_SLUG
 		);
 
 				add_settings_section(
 					'starmus_privacy_section',
-					__( 'Privacy & Form Settings', STARMUS_TEXT_DOMAIN ),
+					__( 'Privacy & Form Settings', 'starmus-audio-recorder' ),
 					null,
 					self::STAR_MENU_SLUG
 				);
 
 				add_settings_section(
 					'starmus_page_section',
-					__( 'Frontend Page Settings', STARMUS_TEXT_DOMAIN ),
+					__( 'Frontend Page Settings', 'starmus-audio-recorder' ),
 					null,
 					self::STAR_MENU_SLUG
 				);
@@ -160,45 +167,45 @@ class StarmusAdmin {
 	private function add_settings_fields(): void {
 		$fields = array(
 			'cpt_slug'              => array(
-				'title'       => __( 'Post Type Slug', STARMUS_TEXT_DOMAIN ),
+				'title'       => __( 'Post Type Slug', 'starmus-audio-recorder' ),
 				'section'     => 'starmus_cpt_section',
-				'description' => __( 'Use lowercase letters, numbers, and underscores only.', STARMUS_TEXT_DOMAIN ),
+				'description' => __( 'Use lowercase letters, numbers, and underscores only.', 'starmus-audio-recorder' ),
 			),
 			'file_size_limit'       => array(
-				'title'       => __( 'Max File Size (MB)', STARMUS_TEXT_DOMAIN ),
+				'title'       => __( 'Max File Size (MB)', 'starmus-audio-recorder' ),
 				'section'     => 'starmus_rules_section',
-				'description' => __( 'Maximum allowed file size for uploads.', STARMUS_TEXT_DOMAIN ),
+				'description' => __( 'Maximum allowed file size for uploads.', 'starmus-audio-recorder' ),
 			),
 			'allowed_file_types'    => array(
-				'title'       => __( 'Allowed File Extensions', STARMUS_TEXT_DOMAIN ),
+				'title'       => __( 'Allowed File Extensions', 'starmus-audio-recorder' ),
 				'section'     => 'starmus_rules_section',
-				'description' => __( 'Comma-separated list of allowed extensions.', STARMUS_TEXT_DOMAIN ),
+				'description' => __( 'Comma-separated list of allowed extensions.', 'starmus-audio-recorder' ),
 			),
 			'consent_message'       => array(
-				'title'       => __( 'Consent Checkbox Message', STARMUS_TEXT_DOMAIN ),
+				'title'       => __( 'Consent Checkbox Message', 'starmus-audio-recorder' ),
 				'section'     => 'starmus_privacy_section',
-				'description' => __( 'Text displayed next to consent checkbox.', STARMUS_TEXT_DOMAIN ),
+				'description' => __( 'Text displayed next to consent checkbox.', 'starmus-audio-recorder' ),
 			),
 			'collect_ip_ua'         => array(
-				'title'       => __( 'Store IP & User Agent', STARMUS_TEXT_DOMAIN ),
+				'title'       => __( 'Store IP & User Agent', 'starmus-audio-recorder' ),
 				'section'     => 'starmus_privacy_section',
-				'label'       => __( 'Save submitter IP and user agent.', STARMUS_TEXT_DOMAIN ),
-				'description' => __( 'Requires user consent.', STARMUS_TEXT_DOMAIN ),
+				'label'       => __( 'Save submitter IP and user agent.', 'starmus-audio-recorder' ),
+				'description' => __( 'Requires user consent.', 'starmus-audio-recorder' ),
 			),
 			'edit_page_id'          => array(
-				'title'       => __( 'Edit Page', STARMUS_TEXT_DOMAIN ),
+				'title'       => __( 'Edit Page', 'starmus-audio-recorder' ),
 				'section'     => 'starmus_page_section',
-				'description' => __( 'Page containing the audio editor shortcode.', STARMUS_TEXT_DOMAIN ),
+				'description' => __( 'Page containing the audio editor shortcode.', 'starmus-audio-recorder' ),
 			),
 			'recorder_page_id'      => array(
-				'title'       => __( 'Recorder Page', STARMUS_TEXT_DOMAIN ),
+				'title'       => __( 'Recorder Page', 'starmus-audio-recorder' ),
 				'section'     => 'starmus_page_section',
-				'description' => __( 'Page containing the [starmus-audio-recorder] shortcode.', STARMUS_TEXT_DOMAIN ),
+				'description' => __( 'Page containing the [starmus-audio-recorder] shortcode.', 'starmus-audio-recorder' ),
 			),
 			'my_recordings_page_id' => array(
-				'title'       => __( 'My Recordings Page', STARMUS_TEXT_DOMAIN ),
+				'title'       => __( 'My Recordings Page', 'starmus-audio-recorder' ),
 				'section'     => 'starmus_page_section',
-				'description' => __( 'Page containing the [starmus-my-recordings] shortcode.', STARMUS_TEXT_DOMAIN ),
+				'description' => __( 'Page containing the [starmus-my-recordings] shortcode.', 'starmus-audio-recorder' ),
 			),
 		);
 
@@ -326,7 +333,7 @@ class StarmusAdmin {
 						'name'              => $name,
 						'id'                => $id,
 						'selected'          => $value,
-						'show_option_none'  => __( '— Select a Page —', STARMUS_TEXT_DOMAIN ),
+						'show_option_none'  => __( '— Select a Page —', 'starmus-audio-recorder' ),
 						'option_none_value' => '0',
 					)
 				);

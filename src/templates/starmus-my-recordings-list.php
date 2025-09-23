@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php if ( $query->have_posts() ) : ?>
 
 		<section aria-labelledby="starmus-recordings-heading">
-			<h2 id="starmus-recordings-heading" class="starmus-visually-hidden"><?php esc_html_e( 'A list of your audio recordings', STARMUS_TEXT_DOMAIN ); ?></h2>
+			<h2 id="starmus-recordings-heading" class="starmus-visually-hidden"><?php esc_html_e( 'A list of your audio recordings', 'starmus-audio-recorder' ); ?></h2>
 
 			<div class="starmus-recordings-grid">
 				<?php
@@ -66,7 +66,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 									<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/webm">
 									<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/mp4">
 									<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/mpeg">
-									<?php esc_html_e( 'Your browser does not support the audio element.', STARMUS_TEXT_DOMAIN ); ?>
+									<?php esc_html_e( 'Your browser does not support the audio element.', 'starmus-audio-recorder' ); ?>
 								</audio>
 								<?php if ( $duration ) : ?>
 									<span class="starmus-card__duration"><?php echo esc_html( gmdate( 'i:s', $duration ) ); ?></span>
@@ -76,7 +76,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						<div class="starmus-card__actions">
 							<a href="<?php the_permalink(); ?>" class="starmus-btn starmus-btn--outline">
-								<?php esc_html_e( 'View Details', STARMUS_TEXT_DOMAIN ); ?>
+								<?php esc_html_e( 'View Details', 'starmus-audio-recorder' ); ?>
 							</a>
 							<?php if ( ! empty( $edit_page_url ) && current_user_can( 'edit_post', $current_post_id ) ) : ?>
 								<?php
@@ -84,7 +84,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								$secure_edit_link = wp_nonce_url( $edit_link, 'starmus_edit_audio', 'nonce' );
 								?>
 								<a href="<?php echo esc_url( $secure_edit_link ); ?>" class="starmus-btn starmus-btn--primary">
-									<?php esc_html_e( 'Edit Audio', STARMUS_TEXT_DOMAIN ); ?>
+									<?php esc_html_e( 'Edit Audio', 'starmus-audio-recorder' ); ?>
 								</a>
 							<?php endif; ?>
 						</div>
@@ -99,10 +99,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 		the_posts_pagination(
 			array(
 				'mid_size'           => 2,
-				'prev_text'          => esc_html__( 'Previous', STARMUS_TEXT_DOMAIN ),
-				'next_text'          => esc_html__( 'Next', STARMUS_TEXT_DOMAIN ),
-				'screen_reader_text' => esc_html__( 'Recordings navigation', STARMUS_TEXT_DOMAIN ),
-				'aria_label'         => esc_html__( 'Recordings', STARMUS_TEXT_DOMAIN ),
+				'prev_text'          => esc_html__( 'Previous', 'starmus-audio-recorder' ),
+				'next_text'          => esc_html__( 'Next', 'starmus-audio-recorder' ),
+				'screen_reader_text' => esc_html__( 'Recordings navigation', 'starmus-audio-recorder' ),
+				'aria_label'         => esc_html__( 'Recordings', 'starmus-audio-recorder' ),
 			)
 		);
 		?>
@@ -110,7 +110,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php else : ?>
 
 		<div class="starmus-no-recordings">
-			<p><?php esc_html_e( 'You have not submitted any recordings yet.', STARMUS_TEXT_DOMAIN ); ?></p>
+			<p><?php esc_html_e( 'You have not submitted any recordings yet.', 'starmus-audio-recorder' ); ?></p>
 		</div>
 
 	<?php endif; ?>

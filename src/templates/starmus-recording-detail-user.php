@@ -27,7 +27,7 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 		<h1 class="starmus-detail__title"><?php echo esc_html( get_the_title( $post_id ) ); ?></h1>
 		<div class="starmus-detail__meta">
 			<span class="starmus-meta__date">
-				<?php esc_html_e( 'Recorded on', STARMUS_TEXT_DOMAIN ); ?>
+				<?php esc_html_e( 'Recorded on', 'starmus-audio-recorder' ); ?>
 				<time datetime="<?php echo esc_attr( get_the_date( 'c', $post_id ) ); ?>">
 					<?php echo esc_html( get_the_date( 'F j, Y \a\t g:i A', $post_id ) ); ?>
 				</time>
@@ -40,7 +40,7 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 			<?php endif; ?>
 			<?php if ( $language && ! is_wp_error( $language ) ) : ?>
 				<span class="starmus-meta__language">
-					<?php esc_html_e( 'Language:', STARMUS_TEXT_DOMAIN ); ?>
+					<?php esc_html_e( 'Language:', 'starmus-audio-recorder' ); ?>
 					<strong><?php echo esc_html( $language[0]->name ); ?></strong>
 				</span>
 			<?php endif; ?>
@@ -54,11 +54,11 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 				<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/webm">
 				<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/mp4">
 				<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/mpeg">
-				<?php esc_html_e( 'Your browser does not support the audio element.', STARMUS_TEXT_DOMAIN ); ?>
+				<?php esc_html_e( 'Your browser does not support the audio element.', 'starmus-audio-recorder' ); ?>
 			</audio>
 			<?php if ( $meta_data && isset( $meta_data['technical']['duration'] ) ) : ?>
 				<p class="starmus-audio__duration">
-					<?php esc_html_e( 'Duration:', STARMUS_TEXT_DOMAIN ); ?>
+					<?php esc_html_e( 'Duration:', 'starmus-audio-recorder' ); ?>
 					<?php echo esc_html( gmdate( 'i:s', $meta_data['technical']['duration'] / 1000 ) ); ?>
 				</p>
 			<?php endif; ?>
@@ -67,9 +67,9 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 
 	<?php if ( $transcript_data && ! empty( $transcript_data['transcript'] ) ) : ?>
 		<div class="starmus-detail__transcript">
-			<h2><?php esc_html_e( 'Automatic Transcription', STARMUS_TEXT_DOMAIN ); ?></h2>
+			<h2><?php esc_html_e( 'Automatic Transcription', 'starmus-audio-recorder' ); ?></h2>
 			<p class="starmus-transcript__note">
-				<?php esc_html_e( 'This is an automatic transcription and may contain errors.', STARMUS_TEXT_DOMAIN ); ?>
+				<?php esc_html_e( 'This is an automatic transcription and may contain errors.', 'starmus-audio-recorder' ); ?>
 			</p>
 			<div class="starmus-transcript__content">
 				<?php foreach ( $transcript_data['transcript'] as $segment ) : ?>
@@ -82,19 +82,19 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 	<?php endif; ?>
 
 	<div class="starmus-detail__status">
-		<h2><?php esc_html_e( 'Submission Status', STARMUS_TEXT_DOMAIN ); ?></h2>
+		<h2><?php esc_html_e( 'Submission Status', 'starmus-audio-recorder' ); ?></h2>
 		<div class="starmus-status-card">
 			<div class="starmus-status__icon">✓</div>
 			<div class="starmus-status__content">
-				<h3><?php esc_html_e( 'Successfully Submitted', STARMUS_TEXT_DOMAIN ); ?></h3>
-				<p><?php esc_html_e( 'Your recording has been received and is being processed for the linguistic corpus.', STARMUS_TEXT_DOMAIN ); ?></p>
+				<h3><?php esc_html_e( 'Successfully Submitted', 'starmus-audio-recorder' ); ?></h3>
+				<p><?php esc_html_e( 'Your recording has been received and is being processed for the linguistic corpus.', 'starmus-audio-recorder' ); ?></p>
 			</div>
 		</div>
 	</div>
 
 	<div class="starmus-detail__actions">
 		<a href="<?php echo esc_url( wp_get_referer() ?: home_url( '/my-recordings/' ) ); ?>" class="starmus-btn starmus-btn--outline">
-			<?php esc_html_e( '← Back to My Recordings', STARMUS_TEXT_DOMAIN ); ?>
+			<?php esc_html_e( '← Back to My Recordings', 'starmus-audio-recorder' ); ?>
 		</a>
 	</div>
 </div>
