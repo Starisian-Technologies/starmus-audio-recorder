@@ -626,6 +626,7 @@ Search.appendIndex(
             "summary": "Writes\u0020ID3\u0020tags\u0020\u0028title,\u0020artist,\u0020transcriptions,\u0020etc.\u0029\u0020to\u0020the\u0020audio\u0020file.",
             "url": "classes/Starmus-services-AudioProcessingService.html#method_write_id3_tags"
         },                {
+<<<<<<< HEAD
             "fqsen": "\\Starmus\\services\\FileService",
             "name": "FileService",
             "summary": "",
@@ -641,6 +642,8 @@ Search.appendIndex(
             "summary": "Uploads\u0020a\u0020local\u0020file\u0020to\u0020replace\u0020an\u0020existing\u0020attachment,\u0020respecting\u0020offloaders.",
             "url": "classes/Starmus-services-FileService.html#method_upload_and_replace_attachment"
         },                {
+=======
+>>>>>>> dae95dc1 (09242025MB Add StarmusCron and related services)
             "fqsen": "\\Starmus\\services\\PostProcessingService",
             "name": "PostProcessingService",
             "summary": "",
@@ -845,6 +848,19 @@ Search.appendIndex(
             "name": "postService",
             "summary": "",
             "url": "classes/Starmus-StarmusPlugin.html#property_postService"
+<<<<<<< HEAD
+=======
+        },                {
+            "fqsen": "\\esc_attr\u0028\u0029",
+            "name": "esc_attr",
+            "summary": "",
+            "url": "namespaces/default.html#function_esc_attr"
+        },                {
+            "fqsen": "\\current_user_can\u0028\u0029",
+            "name": "current_user_can",
+            "summary": "",
+            "url": "namespaces/default.html#function_current_user_can"
+>>>>>>> dae95dc1 (09242025MB Add StarmusCron and related services)
         },                {
             "fqsen": "\\",
             "name": "\\",

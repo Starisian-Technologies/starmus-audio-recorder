@@ -19,6 +19,16 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
+// Add missing global functions for direct template use
+if ( ! function_exists( 'esc_attr' ) ) {
+	function esc_attr( $text ) { return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' ); }
+}
+if ( ! function_exists( 'current_user_can' ) ) {
+	function current_user_can( $cap ) {
+		// Fallback: Only allow for logged-in users in non-WP context
+		return isset( $_COOKIE['wordpress_logged_in'] );
+	}
+}
 
 // ** CRITICAL **
 // A unique instance ID is generated to ensure multiple forms on one page do not conflict.
@@ -165,6 +175,29 @@ $is_admin              = current_user_can( 'manage_options' );
 			<button type="submit" id="starmus_submit_btn_<?php echo esc_attr( $instance_id ); ?>" class="starmus-btn starmus-btn--primary" disabled>
 				<?php esc_html_e( 'Submit Recording', 'starmus-audio-recorder' ); ?>
 			</button>
+			<?php
+			// Show 'Upload audio' link for Authors and above
+			if ( current_user_can( 'author' ) || current_user_can( 'editor' ) || current_user_can( 'administrator' ) ) : ?>
+				<div class="starmus-upload-audio-link" style="margin-top:24px;text-align:right;">
+					<a href="#" id="starmus_show_upload_<?php echo esc_attr( $instance_id ); ?>" style="font-size:0.95em;">Upload audio</a>
+				</div>
+				<div id="starmus_manual_upload_wrap_<?php echo esc_attr( $instance_id ); ?>" style="display:none;margin-top:12px;">
+					<label for="starmus_manual_upload_input_<?php echo esc_attr( $instance_id ); ?>">Select audio file to upload:</label>
+					<input type="file" id="starmus_manual_upload_input_<?php echo esc_attr( $instance_id ); ?>" name="audio_file" accept="audio/*">
+				</div>
+				<script>
+				document.addEventListener('DOMContentLoaded', function() {
+					var link = document.getElementById('starmus_show_upload_<?php echo esc_attr( $instance_id ); ?>');
+					var wrap = document.getElementById('starmus_manual_upload_wrap_<?php echo esc_attr( $instance_id ); ?>');
+					if (link && wrap) {
+						link.addEventListener('click', function(e) {
+							e.preventDefault();
+							wrap.style.display = (wrap.style.display === 'none') ? 'block' : 'none';
+						});
+					}
+				});
+				</script>
+			<?php endif; ?>
 		</div>
 	</form>
 </div>

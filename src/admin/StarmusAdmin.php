@@ -98,11 +98,11 @@ class StarmusAdmin {
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Starmus Audio Recorder Settings', 'starmus-audio-recorder' ); ?></h1>
-			<form action="options.php" method="post">
+			<form action="<?php echo esc_url( 'options.php' ); ?>" method="post">
 				<?php
 				settings_fields( self::STAR_SETTINGS_GROUP );
 				do_settings_sections( self::STAR_MENU_SLUG );
-				submit_button( __( 'Save Settings', 'starmus-audio-recorder' ) );
+				submit_button( esc_html__( 'Save Settings', 'starmus-audio-recorder' ) );
 				?>
 			</form>
 		</div>
@@ -302,7 +302,7 @@ class StarmusAdmin {
 			case 'textarea':
 				printf(
 					'<textarea id="%s" name="%s" rows="4" class="large-text">%s</textarea>',
-					$id,
+					esc_attr( $id ),
 					esc_attr( $name ),
 					esc_textarea( $value )
 				);
@@ -311,7 +311,7 @@ class StarmusAdmin {
 			case 'checkbox':
 				printf(
 					'<label><input type="checkbox" id="%s" name="%s" value="1" %s /> %s</label>',
-					$id,
+					esc_attr( $id ),
 					esc_attr( $name ),
 					checked( 1, $value, false ),
 					esc_html( $args['label'] ?? '' )
@@ -321,7 +321,7 @@ class StarmusAdmin {
 			case 'number':
 				printf(
 					'<input type="number" id="%s" name="%s" value="%s" class="small-text" min="1" max="100" />',
-					$id,
+					esc_attr( $id ),
 					esc_attr( $name ),
 					esc_attr( $value )
 				);
@@ -330,10 +330,10 @@ class StarmusAdmin {
 			case 'pages_dropdown':
 				wp_dropdown_pages(
 					array(
-						'name'              => $name,
-						'id'                => $id,
-						'selected'          => $value,
-						'show_option_none'  => __( '— Select a Page —', 'starmus-audio-recorder' ),
+						'name'              => esc_attr( $name ),
+						'id'                => esc_attr( $id ),
+						'selected'          => esc_attr( $value ),
+						'show_option_none'  => esc_html__( '— Select a Page —', 'starmus-audio-recorder' ),
 						'option_none_value' => '0',
 					)
 				);
@@ -343,7 +343,7 @@ class StarmusAdmin {
 			default:
 				printf(
 					'<input type="text" id="%s" name="%s" value="%s" class="regular-text" />',
-					$id,
+					esc_attr( $id ),
 					esc_attr( $name ),
 					esc_attr( $value )
 				);
