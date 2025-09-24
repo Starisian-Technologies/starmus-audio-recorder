@@ -4,7 +4,7 @@
  * Shows comprehensive metadata and technical details for admins and editors
  *
  * @package Starmus\templates
- * @version 0.7.3
+ * @version 0.7.4
  * @var int $post_id The recording post ID
  */
 
@@ -32,7 +32,7 @@ $author          = get_userdata( get_post_field( 'post_author', $post_id ) );
 				<h1 class="starmus-detail__title"><?php echo esc_html( get_the_title( $post_id ) ); ?></h1>
 				<div class="starmus-detail__meta">
 					<span class="starmus-meta__author">
-						<?php esc_html_e( 'Submitted by:', STARMUS_TEXT_DOMAIN ); ?>
+						<?php esc_html_e( 'Submitted by:', 'starmus-audio-recorder' ); ?>
 						<strong><?php echo esc_html( $author->display_name ?? 'Unknown' ); ?></strong>
 					</span>
 					<span class="starmus-meta__date">
@@ -45,27 +45,27 @@ $author          = get_userdata( get_post_field( 'post_author', $post_id ) );
 
 			<?php if ( $audio_url ) : ?>
 				<div class="starmus-detail__audio">
-					<h2><?php esc_html_e( 'Audio Recording', STARMUS_TEXT_DOMAIN ); ?></h2>
+					<h2><?php esc_html_e( 'Audio Recording', 'starmus-audio-recorder' ); ?></h2>
 					<audio controls preload="metadata" class="starmus-audio-player--large">
 						<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/webm">
 						<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/mp4">
 						<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/mpeg">
-						<?php esc_html_e( 'Your browser does not support the audio element.', STARMUS_TEXT_DOMAIN ); ?>
+						<?php esc_html_e( 'Your browser does not support the audio element.', 'starmus-audio-recorder' ); ?>
 					</audio>
 				</div>
 			<?php endif; ?>
 
 			<?php if ( $transcript_data && ! empty( $transcript_data['transcript'] ) ) : ?>
 				<div class="starmus-detail__transcript">
-					<h2><?php esc_html_e( 'Speech Recognition Results', STARMUS_TEXT_DOMAIN ); ?></h2>
+					<h2><?php esc_html_e( 'Speech Recognition Results', 'starmus-audio-recorder' ); ?></h2>
 					<div class="starmus-transcript__stats">
 						<span class="starmus-stat">
-							<?php esc_html_e( 'Segments:', STARMUS_TEXT_DOMAIN ); ?>
+							<?php esc_html_e( 'Segments:', 'starmus-audio-recorder' ); ?>
 							<strong><?php echo count( $transcript_data['transcript'] ); ?></strong>
 						</span>
 						<?php if ( isset( $transcript_data['detectedLanguage'] ) ) : ?>
 							<span class="starmus-stat">
-								<?php esc_html_e( 'Detected:', STARMUS_TEXT_DOMAIN ); ?>
+								<?php esc_html_e( 'Detected:', 'starmus-audio-recorder' ); ?>
 								<strong><?php echo esc_html( $transcript_data['detectedLanguage'] ); ?></strong>
 							</span>
 						<?php endif; ?>
@@ -96,24 +96,24 @@ $author          = get_userdata( get_post_field( 'post_author', $post_id ) );
 
 			<!-- Recording Info -->
 			<div class="starmus-info-card">
-				<h3><?php esc_html_e( 'Recording Information', STARMUS_TEXT_DOMAIN ); ?></h3>
+				<h3><?php esc_html_e( 'Recording Information', 'starmus-audio-recorder' ); ?></h3>
 				<dl class="starmus-info-list">
 					<?php if ( $recording_type && ! is_wp_error( $recording_type ) ) : ?>
-						<dt><?php esc_html_e( 'Type', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Type', 'starmus-audio-recorder' ); ?></dt>
 						<dd><?php echo esc_html( $recording_type[0]->name ); ?></dd>
 					<?php endif; ?>
 					<?php if ( $language && ! is_wp_error( $language ) ) : ?>
-						<dt><?php esc_html_e( 'Language', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Language', 'starmus-audio-recorder' ); ?></dt>
 						<dd><?php echo esc_html( $language[0]->name ); ?></dd>
 					<?php endif; ?>
 					<?php if ( $meta_data && isset( $meta_data['technical'] ) ) : ?>
-						<dt><?php esc_html_e( 'Duration', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Duration', 'starmus-audio-recorder' ); ?></dt>
 						<dd><?php echo esc_html( gmdate( 'i:s', $meta_data['technical']['duration'] / 1000 ) ); ?></dd>
-						<dt><?php esc_html_e( 'Sample Rate', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Sample Rate', 'starmus-audio-recorder' ); ?></dt>
 						<dd><?php echo esc_html( $meta_data['technical']['sampleRate'] ); ?> Hz</dd>
-						<dt><?php esc_html_e( 'File Size', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'File Size', 'starmus-audio-recorder' ); ?></dt>
 						<dd><?php echo esc_html( size_format( $meta_data['technical']['fileSize'] ) ); ?></dd>
-						<dt><?php esc_html_e( 'Codec', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Codec', 'starmus-audio-recorder' ); ?></dt>
 						<dd><?php echo esc_html( $meta_data['technical']['codec'] ); ?></dd>
 					<?php endif; ?>
 				</dl>
@@ -122,15 +122,15 @@ $author          = get_userdata( get_post_field( 'post_author', $post_id ) );
 			<!-- Quality Metrics -->
 			<?php if ( $meta_data && isset( $meta_data['technical']['audioProcessing'] ) ) : ?>
 				<div class="starmus-info-card">
-					<h3><?php esc_html_e( 'Audio Processing', STARMUS_TEXT_DOMAIN ); ?></h3>
+					<h3><?php esc_html_e( 'Audio Processing', 'starmus-audio-recorder' ); ?></h3>
 					<dl class="starmus-info-list">
-						<dt><?php esc_html_e( 'Noise Suppression', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Noise Suppression', 'starmus-audio-recorder' ); ?></dt>
 						<dd><?php echo $meta_data['technical']['audioProcessing']['noiseSuppression'] ? '✓' : '✗'; ?></dd>
-						<dt><?php esc_html_e( 'Echo Cancellation', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Echo Cancellation', 'starmus-audio-recorder' ); ?></dt>
 						<dd><?php echo $meta_data['technical']['audioProcessing']['echoCancellation'] ? '✓' : '✗'; ?></dd>
-						<dt><?php esc_html_e( 'Auto Gain Control', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Auto Gain Control', 'starmus-audio-recorder' ); ?></dt>
 						<dd><?php echo $meta_data['technical']['audioProcessing']['autoGainControl'] ? '✓' : '✗'; ?></dd>
-						<dt><?php esc_html_e( 'Calibrated', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Calibrated', 'starmus-audio-recorder' ); ?></dt>
 						<dd><?php echo $meta_data['technical']['audioProcessing']['isCalibrated'] ? '✓' : '✗'; ?></dd>
 					</dl>
 				</div>
@@ -139,14 +139,14 @@ $author          = get_userdata( get_post_field( 'post_author', $post_id ) );
 			<!-- Device Information -->
 			<?php if ( $meta_data && isset( $meta_data['device'] ) ) : ?>
 				<div class="starmus-info-card">
-					<h3><?php esc_html_e( 'Device Information', STARMUS_TEXT_DOMAIN ); ?></h3>
+					<h3><?php esc_html_e( 'Device Information', 'starmus-audio-recorder' ); ?></h3>
 					<dl class="starmus-info-list">
-						<dt><?php esc_html_e( 'Platform', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Platform', 'starmus-audio-recorder' ); ?></dt>
 						<dd><?php echo esc_html( $meta_data['device']['platform'] ); ?></dd>
-						<dt><?php esc_html_e( 'Screen', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Screen', 'starmus-audio-recorder' ); ?></dt>
 						<dd><?php echo esc_html( $meta_data['device']['screenResolution'] ); ?></dd>
 						<?php if ( isset( $meta_data['device']['connection'] ) && is_array( $meta_data['device']['connection'] ) ) : ?>
-							<dt><?php esc_html_e( 'Connection', STARMUS_TEXT_DOMAIN ); ?></dt>
+							<dt><?php esc_html_e( 'Connection', 'starmus-audio-recorder' ); ?></dt>
 							<dd><?php echo esc_html( $meta_data['device']['connection']['effectiveType'] ?? 'Unknown' ); ?></dd>
 						<?php endif; ?>
 					</dl>
@@ -156,11 +156,11 @@ $author          = get_userdata( get_post_field( 'post_author', $post_id ) );
 			<!-- Unique Identifiers -->
 			<?php if ( $meta_data && isset( $meta_data['identifiers'] ) ) : ?>
 				<div class="starmus-info-card">
-					<h3><?php esc_html_e( 'Corpus Identifiers', STARMUS_TEXT_DOMAIN ); ?></h3>
+					<h3><?php esc_html_e( 'Corpus Identifiers', 'starmus-audio-recorder' ); ?></h3>
 					<dl class="starmus-info-list">
-						<dt><?php esc_html_e( 'Session UUID', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Session UUID', 'starmus-audio-recorder' ); ?></dt>
 						<dd><code><?php echo esc_html( $meta_data['identifiers']['sessionUUID'] ); ?></code></dd>
-						<dt><?php esc_html_e( 'Submission UUID', STARMUS_TEXT_DOMAIN ); ?></dt>
+						<dt><?php esc_html_e( 'Submission UUID', 'starmus-audio-recorder' ); ?></dt>
 						<dd><code><?php echo esc_html( $meta_data['identifiers']['submissionUUID'] ); ?></code></dd>
 					</dl>
 				</div>
@@ -171,10 +171,10 @@ $author          = get_userdata( get_post_field( 'post_author', $post_id ) );
 
 	<div class="starmus-detail__actions">
 		<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=audio-recording' ) ); ?>" class="starmus-btn starmus-btn--outline">
-			<?php esc_html_e( '← Back to All Recordings', STARMUS_TEXT_DOMAIN ); ?>
+			<?php esc_html_e( '← Back to All Recordings', 'starmus-audio-recorder' ); ?>
 		</a>
 		<a href="<?php echo esc_url( get_edit_post_link( $post_id ) ); ?>" class="starmus-btn starmus-btn--primary">
-			<?php esc_html_e( 'Edit Post', STARMUS_TEXT_DOMAIN ); ?>
+			<?php esc_html_e( 'Edit Post', 'starmus-audio-recorder' ); ?>
 		</a>
 	</div>
 </div>

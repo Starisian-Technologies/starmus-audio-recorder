@@ -1,5 +1,6 @@
 <?php
 namespace Starmus\frontend;
+
 /**
  * Starmus Audio Recorder UI - Corrected and Complete with Full Error Handling
  *
@@ -9,7 +10,7 @@ namespace Starmus\frontend;
  *
  * @package Starmus\frontend
  * @since 0.1.0
- * @version 0.7.3
+ * @version 0.7.4
  * @author Starisian Technologies (Max Barrett)
  *
  * Changelog:
@@ -21,14 +22,16 @@ use Media;
 use Image;
 use WP_Filesystem;
 use WP_REST_Request;
+use WP_REST_Response;
 use WP_Error;
+use WP_Query;
 use Throwable;
 use RecursiveIteratorIterator;
 use RecursiveArrayIterator;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	// Fallback for CLI/standalone context; adjust as needed for your environment
-	define( 'ABSPATH', dirname( __FILE__, 5 ) . '/');
+	define( 'ABSPATH', dirname( __DIR__, 4 ) . '/' );
 }
 if ( ! function_exists( 'sanitize_file_name' ) ) {
 	require_once ABSPATH . 'wp-includes/formatting.php';
@@ -41,17 +44,17 @@ if ( ! function_exists( 'wp_unique_filename' ) ) {
 }
 // Add missing global functions and helpers
 if ( ! function_exists( 'absint' ) ) {
-       function absint( $maybeint ) {
-	       return (int) $maybeint; } }
+	function absint( $maybeint ) {
+		return (int) $maybeint; } }
 if ( ! function_exists( '__' ) ) {
-       function __( $text, $domain = null ) {
-	       return $text; } }
+	function __( $text, $domain = null ) {
+		return $text; } }
 if ( ! function_exists( 'is_wp_error' ) ) {
-       function is_wp_error( $thing ) {
-	       return ( $thing instanceof \WP_Error ); } }
+	function is_wp_error( $thing ) {
+		return ( $thing instanceof \WP_Error ); } }
 if ( ! function_exists( 'wp_generate_uuid4' ) ) {
-       function wp_generate_uuid4() {
-	       return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x', mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0x0fff ) | 0x4000, mt_rand( 0, 0x3fff ) | 0x8000, mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ) ); } }
+	function wp_generate_uuid4() {
+		return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x', mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0x0fff ) | 0x4000, mt_rand( 0, 0x3fff ) | 0x8000, mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ) ); } }
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -61,7 +64,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Defines the user interface and submission handling for the audio recorder.
  *
  * @since 0.1.0
- * @version 0.7.3
+ * @version 0.7.4
  * @package Starmus\frontend
  * @uses StarmusSettings
  */
@@ -76,15 +79,38 @@ class StarmusAudioRecorderUI {
 		/**
 		 * Initialize the recorder UI and load settings.
 		 */
-	public function __construct(?StarmusSettings $settings) {
+	public function __construct( ?StarmusSettings $settings ) {
 			error_log( 'StarmusAudioRecorderUI: Constructor called' );
 		try {
-        $this->settings = $settings;
+			$this->settings = $settings;
+			$this->register_hooks();
 				error_log( 'StarmusAudioRecorderUI: Settings instantiated successfully' );
 		} catch ( Throwable $e ) {
 				error_log( 'StarmusAudioRecorderUI: Failed to instantiate settings: ' . $e->getMessage() );
 				throw $e;
 		}
+	}
+
+	private function register_hooks(): void {
+		error_log( 'Starmus Plugin: Recorder component available, registering recorder hooks' );
+			add_shortcode( 'starmus_my_recordings', array( $this, 'render_my_recordings_shortcode' ) );
+			add_shortcode( 'starmus_audio_recorder_form', array( $this, 'render_recorder_shortcode' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+			add_action( 'starmus_after_audio_upload', array( $this, 'save_all_metadata' ), 10, 3 );
+			add_filter( 'starmus_audio_upload_success_response', array( $this, 'add_conditional_redirect' ), 10, 3 );
+			// Cron scheduling moved to activation to avoid performance issues
+			add_action( 'starmus_cleanup_temp_files', array( $this, 'cleanup_stale_temp_files' ) );
+			// Clear cache when a Language is added, edited, or deleted.
+			add_action( 'create_language', array( $this, 'clear_taxonomy_transients' ) );
+			add_action( 'edit_language', array( $this, 'clear_taxonomy_transients' ) );
+			add_action( 'delete_language', array( $this, 'clear_taxonomy_transients' ) );
+			// Clear cache when a Recording Type is added, edited, or deleted.
+			add_action( 'create_recording-type', array( $this, 'clear_taxonomy_transients' ) );
+			add_action( 'edit_recording-type', array( $this, 'clear_taxonomy_transients' ) );
+			add_action( 'delete_recording-type', array( $this, 'clear_taxonomy_transients' ) );
+
+			error_log( 'Starmus Plugin: Shortcodes registered - starmus_my_recordings and starmus_audio_recorder' );
 	}
 	/**
 	 * Render the "My Recordings" shortcode.
@@ -92,14 +118,14 @@ class StarmusAudioRecorderUI {
 	 * @param array $atts Shortcode attributes.
 	 * @return string The rendered HTML content.
 	 * @since 0.3.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	public function render_my_recordings_shortcode( $atts = array() ): string {
 		error_log( 'StarmusAudioRecorderUI: render_my_recordings_shortcode called with atts: ' . print_r( $atts, true ) );
 
 		if ( ! is_user_logged_in() ) {
 			error_log( 'StarmusAudioRecorderUI: User not logged in for my_recordings shortcode' );
-			return '<p>' . esc_html__( 'You must be logged in to view your recordings.', STARMUS_TEXT_DOMAIN ) . '</p>';
+			return '<p>' . esc_html__( 'You must be logged in to view your recordings.', 'starmus-audio-recorder' ) . '</p>';
 		}
 
 		error_log( 'StarmusAudioRecorderUI: User is logged in, proceeding with my_recordings shortcode' );
@@ -140,7 +166,7 @@ class StarmusAudioRecorderUI {
 
 		} catch ( Throwable $e ) {
 			error_log( 'StarmusAudioRecorderUI: My recordings shortcode error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
-			return '<p>' . esc_html__( 'Unable to load recordings.', STARMUS_TEXT_DOMAIN ) . '</p>';
+			return '<p>' . esc_html__( 'Unable to load recordings.', 'starmus-audio-recorder' ) . '</p>';
 		}
 	}
 	/**
@@ -148,7 +174,7 @@ class StarmusAudioRecorderUI {
 	 *
 	 * @return string The URL of the edit page.
 	 * @since 0.3.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	public function clear_taxonomy_transients(): void {
 		delete_transient( 'starmus_languages_list' );
@@ -203,7 +229,7 @@ class StarmusAudioRecorderUI {
 	 * @param string $cache_key The transient cache key.
 	 * @return array The list of terms.
 	 * @since 0.3.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function get_cached_terms( string $taxonomy, string $cache_key ): array {
 		$terms = get_transient( $cache_key );
@@ -236,95 +262,77 @@ class StarmusAudioRecorderUI {
 	 * @since 1.2.1
 	 */
 	public function enqueue_scripts(): void {
-		try {
-			// Do not load any frontend assets in the admin area.
-			if ( is_admin() ) {
-				return;
-			}
-
-			// We need the global $post object to check its content for shortcodes.
-			// Exit early if it's not a valid post object, to prevent errors.
-			global $post;
-			if ( ! is_a( $post, 'WP_Post' ) || empty( $post->post_content ) ) {
-				return;
-			}
-
-			// --- Asset loading logic ---
-
-			// Define our shortcode names for clarity and easy maintenance.
-			// **IMPORTANT**: Make sure these match the names you use in `add_shortcode`.
-			$recorder_shortcode = 'starmus_audio_recorder_form';
-			$list_shortcode     = 'starmus_my_recordings';
-
-			// Check if our shortcodes exist on the current page.
-			$has_recorder = has_shortcode( $post->post_content, $recorder_shortcode );
-			$has_list     = has_shortcode( $post->post_content, $list_shortcode );
-
-			// If neither shortcode is found, there is nothing to do. Exit immediately.
-			if ( ! $has_recorder && ! $has_list ) {
-				return;
-			}
-
-			// --- 1. Enqueue the Stylesheet ---
-			// This single, unified stylesheet contains styles for both the recorder and
-			// the recordings list, so we load it if either shortcode is present.
-			wp_enqueue_style(
-				'starmus-unified-styles',
-				STARMUS_URL . 'assets/css/starmus-styles.min.css', // Points to the single minified CSS file.
-				array(), // No other stylesheet dependencies.
-				STARMUS_VERSION // For cache busting.
-			);
-
-			// --- 2. Enqueue the JavaScript Application ---
-			// The full JavaScript application is only needed for the interactive recorder.
-			if ( $has_recorder ) {
-
-				// Load individual JS files for development, bundled for production
-				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					// Development: Load individual files
-					wp_enqueue_script( 'starmus-hooks', STARMUS_URL . 'src/js/starmus-audio-recorder-hooks.js', array(), STARMUS_VERSION, true );
-					wp_enqueue_script( 'starmus-recorder-module', STARMUS_URL . 'src/js/starmus-audio-recorder-module.js', array( 'starmus-hooks' ), STARMUS_VERSION, true );
-					wp_enqueue_script( 'starmus-submissions-handler', STARMUS_URL . 'src/js/starmus-audio-recorder-submissions-handler.js', array( 'starmus-hooks' ), STARMUS_VERSION, true );
-					wp_enqueue_script( 'starmus-ui-controller', STARMUS_URL . 'src/js/starmus-audio-recorder-ui-controller.js', array( 'starmus-hooks', 'starmus-recorder-module', 'starmus-submissions-handler' ), STARMUS_VERSION, true );
-					wp_enqueue_script( 'tus-js', STARMUS_URL . 'vendor/js/tus.min.js', array(), '4.3.1', true );
-				} else {
-					// Production: Load bundled file
-					wp_enqueue_script( 'starmus-app', STARMUS_URL . 'assets/js/starmus-app.min.js', array(), STARMUS_VERSION, true );
-					wp_enqueue_script( 'tus-js', STARMUS_URL . 'vendor/js/tus.min.js', array(), '4.3.1', true );
+			try {
+				// Do not load any frontend assets in the admin area.
+				if ( is_admin() ) {
+					return;
 				}
 
-				// Pass critical data from PHP to our JavaScript application.
-				$script_handle = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? 'starmus-ui-controller' : 'starmus-app';
-				wp_localize_script(
-					$script_handle,
-					'starmusFormData',
-					array(
-						'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
-						'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-					)
-				);
+				global $post;
+				if ( ! is_a( $post, 'WP_Post' ) || empty( $post->post_content ) ) {
+					return;
+				}
 
-				// Provide the tus.io endpoint to our JavaScript application if it is configured.
-				$tus_endpoint = $this->settings->get( 'tus_endpoint', '' );
-				if ( ! empty( $tus_endpoint ) ) {
-						wp_add_inline_script(
+				$recorder_shortcode = 'starmus_audio_recorder_form';
+				$list_shortcode     = 'starmus_my_recordings';
+				$has_recorder = has_shortcode( $post->post_content, $recorder_shortcode );
+				$has_list     = has_shortcode( $post->post_content, $list_shortcode );
+
+				// Only load recorder/list assets if needed
+				if ( $has_recorder || $has_list ) {
+					wp_enqueue_style(
+						'starmus-unified-styles',
+						STARMUS_URL . 'assets/css/starmus-styles.min.css',
+						array(),
+						STARMUS_VERSION
+					);
+					if ( $has_recorder ) {
+						if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+							wp_enqueue_script( 'starmus-hooks', STARMUS_URL . 'src/js/starmus-audio-recorder-hooks.js', array(), STARMUS_VERSION, true );
+							wp_enqueue_script( 'starmus-recorder-module', STARMUS_URL . 'src/js/starmus-audio-recorder-module.js', array( 'starmus-hooks' ), STARMUS_VERSION, true );
+							wp_enqueue_script( 'starmus-submissions-handler', STARMUS_URL . 'src/js/starmus-audio-recorder-submissions-handler.js', array( 'starmus-hooks' ), STARMUS_VERSION, true );
+							wp_enqueue_script( 'starmus-ui-controller', STARMUS_URL . 'src/js/starmus-audio-recorder-ui-controller.js', array( 'starmus-hooks', 'starmus-recorder-module', 'starmus-submissions-handler' ), STARMUS_VERSION, true );
+							wp_enqueue_script( 'tus-js', STARMUS_URL . 'vendor/js/tus.min.js', array(), '4.3.1', true );
+						} else {
+							wp_enqueue_script( 'starmus-app', STARMUS_URL . 'assets/js/starmus-app.min.js', array(), STARMUS_VERSION, true );
+							wp_enqueue_script( 'tus-js', STARMUS_URL . 'vendor/js/tus.min.js', array(), '4.3.1', true );
+						}
+						$script_handle = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? 'starmus-ui-controller' : 'starmus-app';
+						wp_localize_script(
 							$script_handle,
-							'window.starmusTus = { endpoint: "' . esc_url_raw( $tus_endpoint ) . '" };',
-							'before'
+							'starmusFormData',
+							array(
+								'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
+								'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+							)
 						);
+						$tus_endpoint = $this->settings->get( 'tus_endpoint', '' );
+						if ( ! empty( $tus_endpoint ) ) {
+							wp_add_inline_script(
+								$script_handle,
+								'window.starmusTus = { endpoint: "' . esc_url_raw( $tus_endpoint ) . '" };',
+								'before'
+							);
+						}
+					}
 				}
+				// Always load the offline sync script globally (minimal impact)
+				wp_enqueue_script(
+					'starmus-offline-sync',
+					STARMUS_URL . 'src/js/starmus-offline-sync.js',
+					array( 'starmus-submissions-handler' ),
+					'1.0.0',
+					true
+				);
+			} catch ( Throwable $e ) {
+				$this->log_error( 'Script enqueue error', $e );
 			}
-		} catch ( Throwable $e ) {
-			// If anything goes wrong during this process, log it securely
-			// using your existing class method for consistency.
-			$this->log_error( 'Script enqueue error', $e );
 		}
-	}
 	/**
 	 * Register REST API routes for chunked audio uploads.
 	 *
 	 * @since 0.2.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 * @return void
 	 */
 	public function register_rest_routes(): void {
@@ -347,120 +355,136 @@ class StarmusAudioRecorderUI {
 					)
 				);
 	}
-  /**
-   * Safely handle a single file upload, validating and processing it securely.
-   */
-  private function safe_handle_upload( array $file, array $form_data = [] ): array|\WP_Error {
-    // 1. Validate PHP upload error codes
-    if ( ! empty( $file['error'] ) && $file['error'] !== UPLOAD_ERR_OK ) {
-        return new WP_Error(
-            'upload_error',
-            'Upload failed: ' . $this->php_error_message( $file['error'] ),
-            [ 'status' => 400 ]
-        );
-    }
-    // 2. Ensure file exists and is readable
-    if ( ! is_uploaded_file( $file['tmp_name'] ) || ! is_readable( $file['tmp_name'] ) ) {
-        return new WP_Error( 'file_missing', 'Temporary file missing or unreadable.', [ 'status' => 400 ] );
-    }
+	/**
+	 * Safely handle a single file upload, validating and processing it securely.
+	 */
+	private function safe_handle_upload( array $file, array $form_data = array() ): array|\WP_Error {
+		// 1. Validate PHP upload error codes
+		if ( ! empty( $file['error'] ) && $file['error'] !== UPLOAD_ERR_OK ) {
+			return new WP_Error(
+				'upload_error',
+				'Upload failed: ' . $this->php_error_message( $file['error'] ),
+				array( 'status' => 400 )
+			);
+		}
+		// 2. Ensure file exists and is readable
+		if ( ! is_uploaded_file( $file['tmp_name'] ) || ! is_readable( $file['tmp_name'] ) ) {
+			return new WP_Error( 'file_missing', 'Temporary file missing or unreadable.', array( 'status' => 400 ) );
+		}
 
-    $size = filesize( $file['tmp_name'] );
-    if ( $size === false || $size <= 0 ) {
-        return new WP_Error( 'file_empty', 'Uploaded file is empty.', [ 'status' => 400 ] );
-    }
-    if ( $size > 50 * 1024 * 1024 ) { // 50 MB cap (adjust as needed)
-        return new WP_Error( 'file_too_large', 'Uploaded file exceeds maximum size.', [ 'status' => 413 ] );
-    }
+		$size = filesize( $file['tmp_name'] );
+		if ( $size === false || $size <= 0 ) {
+			return new WP_Error( 'file_empty', 'Uploaded file is empty.', array( 'status' => 400 ) );
+		}
+		if ( $size > 50 * 1024 * 1024 ) { // 50 MB cap (adjust as needed)
+			return new WP_Error( 'file_too_large', 'Uploaded file exceeds maximum size.', array( 'status' => 413 ) );
+		}
 
-    // 3. Clone to a safe working copy (avoid overwrite/cleanup races)
-    $tmp_copy = wp_tempnam( $file['name'] );
-    if ( ! $tmp_copy || ! copy( $file['tmp_name'], $tmp_copy ) ) {
-        return new WP_Error( 'tmp_copy_fail', 'Failed to create safe temp copy.', [ 'status' => 500 ] );
-    }
+		// 3. Clone to a safe working copy (avoid overwrite/cleanup races)
+		$tmp_copy = wp_tempnam( $file['name'] );
+		if ( ! $tmp_copy || ! copy( $file['tmp_name'], $tmp_copy ) ) {
+			return new WP_Error( 'tmp_copy_fail', 'Failed to create safe temp copy.', array( 'status' => 500 ) );
+		}
 
+		// 4. Sniff MIME type safely
+		// Copy the uploaded tmp file to a safe location before sniffing.
+		$tmp_copy = \wp_tempnam( $_FILES['audio_file']['name'] );
+		if ( ! $tmp_copy || ! copy( $_FILES['audio_file']['tmp_name'], $tmp_copy ) ) {
+			return new \WP_Error( 'upload_copy_failed', 'Unable to copy uploaded file for validation.' );
+		}
 
-	// 4. Sniff MIME type safely
-	// Copy the uploaded tmp file to a safe location before sniffing.
-	$tmp_copy = wp_tempnam( $_FILES['audio_file']['name'] );
-	if ( ! $tmp_copy || ! copy( $_FILES['audio_file']['tmp_name'], $tmp_copy ) ) {
-		return new WP_Error( 'upload_copy_failed', 'Unable to copy uploaded file for validation.' );
-	}
+		// Use finfo to detect the real MIME type.
+		$finfo         = finfo_open( FILEINFO_MIME_TYPE );
+		$detected_mime = $finfo ? finfo_file( $finfo, $tmp_copy ) : false;
+		if ( $finfo ) {
+			finfo_close( $finfo );
+		}
 
-	// Use finfo to detect the real MIME type.
-	$finfo = finfo_open( FILEINFO_MIME_TYPE );
-	$detected_mime = $finfo ? finfo_file( $finfo, $tmp_copy ) : false;
-	if ( $finfo ) {
-		finfo_close( $finfo );
-	}
-
-	// Allowable audio/video MIME types (extend as needed).
-	$allowed_mimes = [
-		'audio/webm',
-		'video/webm', // Accept video/webm for audio-only webm blobs
-		'audio/weba', // Accept audio/weba for .weba extension
-		'audio/ogg',
-		'audio/opus',
-		'audio/wav',
-		'audio/mpeg',       // mp3
-		'audio/mp4',        // m4a
-		'audio/x-m4a',
-		'audio/aac',
-		'audio/flac',
-	];
-
-	// Validate against the whitelist.
-	if ( ! $detected_mime || ! in_array( $detected_mime, $allowed_mimes, true ) ) {
-		@unlink( $tmp_copy );
-		return new WP_Error(
-			'invalid_mime',
-			sprintf( 'File is not a valid audio type. Detected: %s', esc_html( $detected_mime ?: 'unknown' ) ),
-			[ 'status' => 415 ]
+		// Allowable audio/video MIME types (extend as needed).
+		$allowed_mimes = array(
+			'audio/webm',
+			'video/webm',
+			'audio/weba',
+			'audio/ogg',
+			'audio/opus',
+			'audio/wav',
+			'audio/mpeg',
+			'audio/mp4',
+			'audio/x-m4a',
+			'audio/aac',
+			'audio/flac',
 		);
+
+		// If admin selected a file type, restrict to only that type
+		if ( ! empty( $_POST['audio_file_type'] ) ) {
+			$selected_type = sanitize_text_field( $_POST['audio_file_type'] );
+			if ( in_array( $selected_type, $allowed_mimes, true ) ) {
+				$allowed_mimes = array( $selected_type );
+				// Accept video/webm for audio/webm
+				if ( $selected_type === 'audio/webm' ) {
+					$allowed_mimes[] = 'video/webm';
+				}
+			}
+		}
+
+		// Validate against the whitelist.
+		if ( ! $detected_mime || ! in_array( $detected_mime, $allowed_mimes, true ) ) {
+			@unlink( $tmp_copy );
+			return new \WP_Error(
+				'invalid_mime',
+				sprintf( 'File is not a valid audio type. Detected: %s', esc_html( $detected_mime ?: 'unknown' ) ),
+				array( 'status' => 415 )
+			);
+		}
+
+		// 5. Hand off to WordPress sideload
+		// Use starmus_title (sanitized) and uuid for filename if available
+		$title_part = ! empty( $form_data['starmus_title'] ) ? \sanitize_file_name( $form_data['starmus_title'] ) : 'recording';
+		$uuid_part  = ! empty( $form_data['submissionUUID'] ) ? $form_data['submissionUUID'] : uniqid();
+		$ext        = pathinfo( $file['name'], PATHINFO_EXTENSION );
+		if ( ! $ext ) {
+			$ext = 'webm'; }
+		$final_name = $title_part . '-' . $uuid_part . '.' . $ext;
+		$file_array = array(
+			'name'     => \wp_unique_filename( \wp_upload_dir()['path'], $final_name ),
+			'tmp_name' => $tmp_copy,
+		);
+
+		$overrides = array(
+			'test_form' => false,
+			'mimes'     => array(
+				'mp3'  => 'audio/mpeg',
+				'wav'  => 'audio/wav',
+				'webm' => 'audio/webm',
+				'ogg'  => 'audio/ogg',
+			),
+		);
+
+		$result = \wp_handle_sideload( $file_array, $overrides );
+
+		if ( ! empty( $result['error'] ) ) {
+			@unlink( $tmp_copy );
+			return new WP_Error( 'sideload_error', $result['error'], array( 'status' => 500 ) );
+		}
+
+		return $result; // ['file' => path, 'url' => url, 'type' => mime]
 	}
 
-
-    // 5. Hand off to WordPress sideload
-	// Use starmus_title (sanitized) and uuid for filename if available
-	$title_part = !empty($form_data['starmus_title']) ? sanitize_file_name($form_data['starmus_title']) : 'recording';
-	$uuid_part = !empty($form_data['submissionUUID']) ? $form_data['submissionUUID'] : uniqid();
-	$ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-	if (!$ext) { $ext = 'webm'; }
-	$final_name = $title_part . '-' . $uuid_part . '.' . $ext;
-	$file_array = [
-		'name'     => wp_unique_filename( wp_upload_dir()['path'], $final_name ),
-		'tmp_name' => $tmp_copy,
-	];
-
-    $overrides = [
-        'test_form' => false,
-        'mimes'     => [ 'mp3' => 'audio/mpeg', 'wav' => 'audio/wav', 'webm' => 'audio/webm', 'ogg' => 'audio/ogg' ],
-    ];
-
-    $result = wp_handle_sideload( $file_array, $overrides );
-
-	if ( !empty( $result['error'] ) ) {
-		@unlink( $tmp_copy );
-		return new WP_Error( 'sideload_error', $result['error'], [ 'status' => 500 ] );
+	/**
+	 * Map PHP upload error codes to human-readable messages.
+	 */
+	private function php_error_message( int $code ): string {
+		$map = array(
+			UPLOAD_ERR_INI_SIZE   => 'The uploaded file exceeds the upload_max_filesize limit.',
+			UPLOAD_ERR_FORM_SIZE  => 'The uploaded file exceeds the MAX_FILE_SIZE directive.',
+			UPLOAD_ERR_PARTIAL    => 'The file was only partially uploaded.',
+			UPLOAD_ERR_NO_FILE    => 'No file was uploaded.',
+			UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder on server.',
+			UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+			UPLOAD_ERR_EXTENSION  => 'A PHP extension stopped the upload.',
+		);
+		return $map[ $code ] ?? 'Unknown upload error.';
 	}
-
-    return $result; // ['file' => path, 'url' => url, 'type' => mime]
-}
-
-/**
- * Map PHP upload error codes to human-readable messages.
- */
-private function php_error_message( int $code ): string {
-    $map = [
-        UPLOAD_ERR_INI_SIZE   => 'The uploaded file exceeds the upload_max_filesize limit.',
-        UPLOAD_ERR_FORM_SIZE  => 'The uploaded file exceeds the MAX_FILE_SIZE directive.',
-        UPLOAD_ERR_PARTIAL    => 'The file was only partially uploaded.',
-        UPLOAD_ERR_NO_FILE    => 'No file was uploaded.',
-        UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder on server.',
-        UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
-        UPLOAD_ERR_EXTENSION  => 'A PHP extension stopped the upload.',
-    ];
-    return $map[$code] ?? 'Unknown upload error.';
-}
 
 	/**
 	 * Handles simple, non-chunked audio file uploads from the REST fallback.
@@ -499,7 +523,7 @@ private function php_error_message( int $code ): string {
 		);
 		$params     = $request->get_params();
 		foreach ( $acf_fields as $field ) {
-		$val = ( array_key_exists( $field, $params ) && $params[ $field ] !== '' ) ? $params[ $field ] : '[NOT SET]';
+			$val = ( array_key_exists( $field, $params ) && $params[ $field ] !== '' ) ? $params[ $field ] : '[NOT SET]';
 			error_log( "STARMUS DEBUG: Field '$field': " . ( is_string( $val ) ? $val : print_r( $val, true ) ) );
 		}
 		// --- END OF NEW DEBUGGING ---
@@ -510,113 +534,111 @@ private function php_error_message( int $code ): string {
 				return new WP_Error( 'rate_limit_exceeded', __( 'You are uploading too frequently.', 'starmus-audio-recorder' ), array( 'status' => 429 ) );
 			}
 
+				$params = $request->get_params();
+				$files  = $request->get_file_params();
 
-			   $params = $request->get_params();
-			   $files  = $request->get_file_params();
-
-			   // Parse JSON metadata fields if present
-			   $json_fields = array();
-			   foreach ( array('recording_metadata', 'metadata') as $json_key ) {
-				   if ( !empty($params[$json_key]) ) {
-					   $decoded = json_decode($params[$json_key], true);
-					   if (is_array($decoded)) {
-						   $json_fields = array_merge($json_fields, $decoded);
-					   }
-				   }
-			   }
-
-			   // Flatten nested keys for easy mapping
-			   $flat_json = array();
-			   $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($json_fields));
-			   foreach ($iterator as $key => $value) {
-				   $keys = array();
-				   foreach (range(0, $iterator->getDepth()) as $depth) {
-					   $keys[] = $iterator->getSubIterator($depth)->key();
-				   }
-				   $flat_json[implode('_', array_filter($keys))] = $value;
-			   }
-
-			   // Map relevant fields from JSON to params if not already set
-			   $field_map = array(
-				   'session_date' => array('session_date', 'temporal_recordedAt'),
-				   'session_start_time' => array('session_start_time'),
-				   'session_end_time' => array('session_end_time'),
-				   'location' => array('location'),
-				   'gps_coordinates' => array('gps_coordinates', 'device_gps'),
-				   'accession_number' => array('accession_number'),
-				   'audio_quality_score' => array('audio_quality_score', 'quality_avgVolume'),
-				   'first_pass_transcription' => array('first_pass_transcription', 'transcript'),
-				   'audio_consent' => array('audio_consent'),
-				   'language' => array('language', 'linguistic_detectedLanguage'),
-				   'recording_type' => array('recording_type', 'linguistic_recordingType'),
-				   'starmus_title' => array('starmus_title'),
-				   'audio_file_url' => array('audio_file_url'),
-				   'audio_file_id' => array('audio_file_id'),
-				   // Add more mappings as needed
-			   );
-			   foreach ($field_map as $param_key => $json_keys) {
-				   if (empty($params[$param_key])) {
-					   foreach ($json_keys as $json_key) {
-						   if (!empty($flat_json[$json_key])) {
-							   $params[$param_key] = $flat_json[$json_key];
-							   break;
-						   }
-					   }
-				   }
-			   }
-
-			   // Always ensure a UUID is set for corpus tracking
-			   if (empty($params['sessionUUID'])) {
-				   $params['sessionUUID'] = !empty($flat_json['identifiers_sessionUUID']) ? $flat_json['identifiers_sessionUUID'] : wp_generate_uuid4();
-			   }
-			   if (empty($params['submissionUUID'])) {
-				   $params['submissionUUID'] = !empty($flat_json['identifiers_submissionUUID']) ? $flat_json['identifiers_submissionUUID'] : wp_generate_uuid4();
-			   }
-
-			// --- MORE DEBUGGING ---
-			error_log( 'STARMUS DEBUG: Received Params: ' . print_r( $params, true ) );
-			error_log( 'STARMUS DEBUG: Received Files: ' . print_r( $files, true ) );
-
-
-	       // Use safe_handle_upload for all file validation and sideloading
-	       if ( empty( $files['audio_file'] ) ) {
-		       error_log( 'STARMUS DEBUG: Validation failed - audio_file is missing.' );
-		       return new WP_Error( 'invalid_request_data', __( 'Audio file is missing.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
-	       }
-	       if ( empty( $params['starmus_title'] ) ) {
-		       error_log( 'STARMUS DEBUG: Validation failed - starmus_title is missing.' );
-		       return new WP_Error( 'invalid_request_data', __( 'Recording title is required.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
-	       }
-
-	       $safe_result = $this->safe_handle_upload( $files['audio_file'], $params );
-	       if ( is_wp_error( $safe_result ) ) {
-		       error_log( 'STARMUS DEBUG: safe_handle_upload failed: ' . $safe_result->get_error_message() );
-		       return $safe_result;
-	       }
-
-	       // Use the safely handled file for post creation and finalization
-	       $unique_file_name = basename( $safe_result['file'] );
-	       $file_size = filesize( $safe_result['file'] );
-	       $uuid = wp_generate_uuid4();
-	       $this->create_draft_post( $uuid, $file_size, $unique_file_name, $params );
-	       $return = $this->finalize_submission( $uuid, $unique_file_name, $safe_result['file'], $params );
-
-			// After meta save, log post meta for all ACF fields if post was created
-			if ( is_array( $return ) && array_key_exists( 'post_id', $return ) && $return['post_id'] ) {
-				$post_id = $return['post_id'];
-			} elseif ( is_object( $return ) && isset( $return->data['post_id'] ) && $return->data['post_id'] ) {
-				$post_id = $return->data['post_id'];
-			} else {
-				$post_id = null;
-			}
-			if ( $post_id ) {
-				$meta = array();
-				foreach ( $acf_fields as $field ) {
-					   $meta[ $field ] = \get_post_meta( $post_id, $field, true );
+				// Parse JSON metadata fields if present
+				$json_fields = array();
+			foreach ( array( 'recording_metadata', 'metadata' ) as $json_key ) {
+				if ( ! empty( $params[ $json_key ] ) ) {
+					$decoded = json_decode( $params[ $json_key ], true );
+					if ( is_array( $decoded ) ) {
+						$json_fields = array_merge( $json_fields, $decoded );
+					}
 				}
-				error_log( 'STARMUS DEBUG: Saved post meta: ' . print_r( $meta, true ) );
 			}
-			return $return;
+
+				// Flatten nested keys for easy mapping
+				$flat_json = array();
+				$iterator  = new \RecursiveIteratorIterator( new \RecursiveArrayIterator( $json_fields ) );
+			foreach ( $iterator as $key => $value ) {
+				$keys = array();
+				foreach ( range( 0, $iterator->getDepth() ) as $depth ) {
+					$keys[] = $iterator->getSubIterator( $depth )->key();
+				}
+				$flat_json[ implode( '_', array_filter( $keys ) ) ] = $value;
+			}
+
+				// Map relevant fields from JSON to params if not already set
+				$field_map = array(
+					'session_date'             => array( 'session_date', 'temporal_recordedAt' ),
+					'session_start_time'       => array( 'session_start_time' ),
+					'session_end_time'         => array( 'session_end_time' ),
+					'location'                 => array( 'location' ),
+					'gps_coordinates'          => array( 'gps_coordinates', 'device_gps' ),
+					'accession_number'         => array( 'accession_number' ),
+					'audio_quality_score'      => array( 'audio_quality_score', 'quality_avgVolume' ),
+					'first_pass_transcription' => array( 'first_pass_transcription', 'transcript' ),
+					'audio_consent'            => array( 'audio_consent' ),
+					'language'                 => array( 'language', 'linguistic_detectedLanguage' ),
+					'recording_type'           => array( 'recording_type', 'linguistic_recordingType' ),
+					'starmus_title'            => array( 'starmus_title' ),
+					'audio_file_url'           => array( 'audio_file_url' ),
+					'audio_file_id'            => array( 'audio_file_id' ),
+					// Add more mappings as needed
+				);
+				foreach ( $field_map as $param_key => $json_keys ) {
+					if ( empty( $params[ $param_key ] ) ) {
+						foreach ( $json_keys as $json_key ) {
+							if ( ! empty( $flat_json[ $json_key ] ) ) {
+								$params[ $param_key ] = $flat_json[ $json_key ];
+								break;
+							}
+						}
+					}
+				}
+
+				// Always ensure a UUID is set for corpus tracking
+				if ( empty( $params['sessionUUID'] ) ) {
+					$params['sessionUUID'] = ! empty( $flat_json['identifiers_sessionUUID'] ) ? $flat_json['identifiers_sessionUUID'] : wp_generate_uuid4();
+				}
+				if ( empty( $params['submissionUUID'] ) ) {
+					$params['submissionUUID'] = ! empty( $flat_json['identifiers_submissionUUID'] ) ? $flat_json['identifiers_submissionUUID'] : wp_generate_uuid4();
+				}
+
+				// --- MORE DEBUGGING ---
+				error_log( 'STARMUS DEBUG: Received Params: ' . print_r( $params, true ) );
+				error_log( 'STARMUS DEBUG: Received Files: ' . print_r( $files, true ) );
+
+				// Use safe_handle_upload for all file validation and sideloading
+				if ( empty( $files['audio_file'] ) ) {
+					error_log( 'STARMUS DEBUG: Validation failed - audio_file is missing.' );
+					return new WP_Error( 'invalid_request_data', __( 'Audio file is missing.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
+				}
+				if ( empty( $params['starmus_title'] ) ) {
+					error_log( 'STARMUS DEBUG: Validation failed - starmus_title is missing.' );
+					return new WP_Error( 'invalid_request_data', __( 'Recording title is required.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
+				}
+
+				$safe_result = $this->safe_handle_upload( $files['audio_file'], $params );
+				if ( is_wp_error( $safe_result ) ) {
+					error_log( 'STARMUS DEBUG: safe_handle_upload failed: ' . $safe_result->get_error_message() );
+					return $safe_result;
+				}
+
+				// Use the safely handled file for post creation and finalization
+				$unique_file_name = basename( $safe_result['file'] );
+				$file_size        = filesize( $safe_result['file'] );
+				$uuid             = wp_generate_uuid4();
+				$this->create_draft_post( $uuid, $file_size, $unique_file_name, $params );
+				$return = $this->finalize_submission( $uuid, $unique_file_name, $safe_result['file'], $params );
+
+				// After meta save, log post meta for all ACF fields if post was created
+				if ( is_array( $return ) && array_key_exists( 'post_id', $return ) && $return['post_id'] ) {
+					$post_id = $return['post_id'];
+				} elseif ( is_object( $return ) && isset( $return->data['post_id'] ) && $return->data['post_id'] ) {
+					$post_id = $return->data['post_id'];
+				} else {
+					$post_id = null;
+				}
+				if ( $post_id ) {
+					$meta = array();
+					foreach ( $acf_fields as $field ) {
+						$meta[ $field ] = \get_post_meta( $post_id, $field, true );
+					}
+					error_log( 'STARMUS DEBUG: Saved post meta: ' . print_r( $meta, true ) );
+				}
+				return $return;
 
 		} catch ( Throwable $e ) {
 			$this->log_error( 'Fallback upload error', $e );
@@ -630,7 +652,7 @@ private function php_error_message( int $code ): string {
 	 * @param WP_REST_Request $request The REST request object.
 	 * @return bool True if the user can upload, false otherwise.
 	 * @since 0.2.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	public function upload_permissions_check( \WP_REST_Request $request ): bool {
 		$allowed = current_user_can( 'upload_files' );
@@ -653,12 +675,12 @@ private function php_error_message( int $code ): string {
 	 * @param WP_REST_Request $request The REST request object.
 	 * @return WP_REST_Response|WP_Error The response or error object.
 	 * @since 0.2.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	public function handle_upload_chunk_rest( \WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		try {
 			if ( $this->is_rate_limited() ) {
-				return new WP_Error( 'rate_limit_exceeded', __( 'You are uploading too frequently.', STARMUS_TEXT_DOMAIN ), array( 'status' => 429 ) );
+				return new WP_Error( 'rate_limit_exceeded', __( 'You are uploading too frequently.', 'starmus-audio-recorder' ), array( 'status' => 429 ) );
 			}
 			$params = $request->get_params();
 			$files  = $request->get_file_params();
@@ -671,7 +693,7 @@ private function php_error_message( int $code ): string {
 			}
 			$post = $this->find_post_by_uuid( $data['uuid'] );
 			if ( ! $post || (int) get_current_user_id() !== (int) $post->post_author ) {
-				return new WP_Error( 'forbidden_submission', __( 'You cannot modify this submission.', STARMUS_TEXT_DOMAIN ), array( 'status' => 403 ) );
+				return new WP_Error( 'forbidden_submission', __( 'You cannot modify this submission.', 'starmus-audio-recorder' ), array( 'status' => 403 ) );
 			}
 			$write_result = $this->write_chunk_streamed( $data['uuid'], $data['offset'], $files['audio_file']['tmp_name'] );
 			if ( is_wp_error( $write_result ) ) {
@@ -683,13 +705,13 @@ private function php_error_message( int $code ): string {
 			return new WP_REST_Response(
 				array(
 					'success' => true,
-					'message' => __( 'Chunk received.', STARMUS_TEXT_DOMAIN ),
+					'message' => __( 'Chunk received.', 'starmus-audio-recorder' ),
 				),
 				200
 			);
 		} catch ( Throwable $e ) {
 			$this->log_error( 'Chunk upload error', $e );
-			return new WP_Error( 'upload_error', __( 'Upload failed. Please try again.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
+			return new WP_Error( 'upload_error', __( 'Upload failed. Please try again.', 'starmus-audio-recorder' ), array( 'status' => 500 ) );
 		}
 	}
 	/**
@@ -726,16 +748,16 @@ private function php_error_message( int $code ): string {
 		$file_name  = sanitize_file_name( $params['fileName'] ?? 'audio.webm' );
 		$file_chunk = $files['audio_file'] ?? null;
 		if ( ! $uuid || ! $file_chunk || UPLOAD_ERR_OK !== ( $file_chunk['error'] ?? 0 ) || ! $total_size ) {
-			return new WP_Error( 'invalid_request_data', __( 'Invalid or missing request data.', STARMUS_TEXT_DOMAIN ), array( 'status' => 400 ) );
+			return new WP_Error( 'invalid_request_data', __( 'Invalid or missing request data.', 'starmus-audio-recorder' ), array( 'status' => 400 ) );
 		}
 		$max_size = (int) $this->settings->get( 'max_file_size_mb', 25 ) * 1024 * 1024;
 		if ( $total_size > $max_size ) {
-			return new WP_Error( 'file_too_large', __( 'The uploaded file exceeds the maximum allowed size.', STARMUS_TEXT_DOMAIN ), array( 'status' => 413 ) );
+			return new WP_Error( 'file_too_large', __( 'The uploaded file exceeds the maximum allowed size.', 'starmus-audio-recorder' ), array( 'status' => 413 ) );
 		}
-	$allowed_exts = array_map( 'strtolower', (array) $this->settings->get( 'allowed_extensions', array( 'webm', 'weba', 'opus', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
+		$allowed_exts = array_map( 'strtolower', (array) $this->settings->get( 'allowed_extensions', array( 'webm', 'weba', 'opus', 'mp3', 'm4a', 'wav', 'ogg' ) ) );
 		$extension    = strtolower( pathinfo( $file_name, PATHINFO_EXTENSION ) );
 		if ( ! in_array( $extension, $allowed_exts, true ) ) {
-			return new WP_Error( 'invalid_file_extension', __( 'The file type is not permitted.', STARMUS_TEXT_DOMAIN ), array( 'status' => 415 ) );
+			return new WP_Error( 'invalid_file_extension', __( 'The file type is not permitted.', 'starmus-audio-recorder' ), array( 'status' => 415 ) );
 		}
 		return compact( 'uuid', 'offset', 'total_size', 'file_chunk', 'file_name' );
 	}
@@ -747,15 +769,15 @@ private function php_error_message( int $code ): string {
 	 * @param string $tmp_name The temporary file name of the uploaded chunk.
 	 * @return string|WP_Error The path to the temporary file or an error.
 	 * @since 0.2.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function write_chunk_streamed( string $uuid, int $offset, string $tmp_name ): string|WP_Error {
 		$uuid = sanitize_key( $uuid );
 		if ( empty( $uuid ) || strlen( $uuid ) > 40 || ! preg_match( '/^[a-zA-Z0-9_-]+$/', $uuid ) ) {
-			return new WP_Error( 'invalid_uuid', __( 'Invalid upload identifier.', STARMUS_TEXT_DOMAIN ) );
+			return new WP_Error( 'invalid_uuid', __( 'Invalid upload identifier.', 'starmus-audio-recorder' ) );
 		}
 		if ( ! is_uploaded_file( $tmp_name ) ) {
-			return new WP_Error( 'invalid_temp_file', __( 'Invalid temporary file.', STARMUS_TEXT_DOMAIN ) );
+			return new WP_Error( 'invalid_temp_file', __( 'Invalid temporary file.', 'starmus-audio-recorder' ) );
 		}
 
 		$temp_dir = $this->get_temp_dir();
@@ -774,18 +796,18 @@ private function php_error_message( int $code ): string {
 		$real_temp_dir  = realpath( $temp_dir );
 		$real_temp_file = realpath( dirname( $temp_file_path ) ) . '/' . basename( $temp_file_path );
 		if ( ! $real_temp_dir || strpos( $real_temp_file, $real_temp_dir ) !== 0 ) {
-			return new WP_Error( 'path_traversal_attempt', __( 'Invalid file path.', STARMUS_TEXT_DOMAIN ) );
+			return new WP_Error( 'path_traversal_attempt', __( 'Invalid file path.', 'starmus-audio-recorder' ) );
 		}
 
 		$current_size = $wp_filesystem->exists( $temp_file_path ) ? $wp_filesystem->size( $temp_file_path ) : 0;
 		if ( $offset !== $current_size ) {
-			return new WP_Error( 'bad_chunk_offset', sprintf( __( 'Chunk offset mismatch. Received %1$d, expected %2$d.', STARMUS_TEXT_DOMAIN ), $offset, $current_size ), array( 'status' => 409 ) );
+			return new WP_Error( 'bad_chunk_offset', sprintf( __( 'Chunk offset mismatch. Received %1$d, expected %2$d.', 'starmus-audio-recorder' ), $offset, $current_size ), array( 'status' => 409 ) );
 		}
 
 		// Read chunk data
 		$chunk_data = $wp_filesystem->get_contents( $tmp_name );
 		if ( false === $chunk_data ) {
-			return new WP_Error( 'chunk_read_failed', __( 'Failed to read chunk data.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
+			return new WP_Error( 'chunk_read_failed', __( 'Failed to read chunk data.', 'starmus-audio-recorder' ), array( 'status' => 500 ) );
 		}
 
 		// Append or create file
@@ -794,13 +816,13 @@ private function php_error_message( int $code ): string {
 		} else {
 			$existing_data = $wp_filesystem->get_contents( $temp_file_path );
 			if ( false === $existing_data ) {
-				return new WP_Error( 'existing_read_failed', __( 'Failed to read existing file.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
+				return new WP_Error( 'existing_read_failed', __( 'Failed to read existing file.', 'starmus-audio-recorder' ), array( 'status' => 500 ) );
 			}
 			$result = $wp_filesystem->put_contents( $temp_file_path, $existing_data . $chunk_data );
 		}
 
 		if ( false === $result ) {
-			return new WP_Error( 'chunk_write_failed', __( 'Failed to write chunk data.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
+			return new WP_Error( 'chunk_write_failed', __( 'Failed to write chunk data.', 'starmus-audio-recorder' ), array( 'status' => 500 ) );
 		}
 
 		return $temp_file_path;
@@ -814,7 +836,7 @@ private function php_error_message( int $code ): string {
 	 * @param array  $form_data Additional form data.
 	 * @return WP_REST_Response|WP_Error The response or error object.
 	 * @since 0.2.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function finalize_submission( string $uuid, string $file_name, string $temp_file_path, array $form_data ): WP_REST_Response|WP_Error {
 		$post = $this->find_post_by_uuid( $uuid );
@@ -822,7 +844,7 @@ private function php_error_message( int $code ): string {
 			if ( file_exists( $temp_file_path ) ) {
 				wp_delete_file( $temp_file_path );
 			}
-			return new WP_Error( 'submission_not_found', __( 'Draft submission post could not be found.', STARMUS_TEXT_DOMAIN ), array( 'status' => 404 ) );
+			return new WP_Error( 'submission_not_found', __( 'Draft submission post could not be found.', 'starmus-audio-recorder' ), array( 'status' => 404 ) );
 		}
 
 		$finfo     = finfo_open( FILEINFO_MIME_TYPE );
@@ -840,7 +862,7 @@ private function php_error_message( int $code ): string {
 			wp_delete_file( $temp_file_path );
 			return new WP_Error(
 				'invalid_mime_type',
-				__( 'File content is not a valid audio type.', STARMUS_TEXT_DOMAIN ),
+				__( 'File content is not a valid audio type.', 'starmus-audio-recorder' ),
 				array( 'status' => 415 )
 			);
 		}
@@ -869,7 +891,7 @@ private function php_error_message( int $code ): string {
 		$file_name = sanitize_file_name( basename( $file_name ) );
 		if ( empty( $file_name ) || strpos( $file_name, '..' ) !== false ) {
 			wp_delete_file( $temp_file_path );
-			return new WP_Error( 'invalid_filename', __( 'Invalid file name.', STARMUS_TEXT_DOMAIN ) );
+			return new WP_Error( 'invalid_filename', __( 'Invalid file name.', 'starmus-audio-recorder' ) );
 		}
 
 		$file_data = array(
@@ -877,23 +899,23 @@ private function php_error_message( int $code ): string {
 			'tmp_name' => $temp_file_path,
 		);
 
-    // This second filter is the "nuclear option" to bypass any other security
-    // plugins that might be interfering with MIME type checks.
-    add_filter( 'wp_check_filetype_and_ext', '__return_true', 100 );
+		// This second filter is the "nuclear option" to bypass any other security
+		// plugins that might be interfering with MIME type checks.
+		add_filter( 'wp_check_filetype_and_ext', '__return_true', 100 );
 
 		$upload_result = wp_handle_sideload(
 			$file_data,
 			array(
-				'test_form' => false,
-        'test_upload' => true, // Ensure the file is a valid upload
-				'mimes'     => $allowed_mimes,
+				'test_form'   => false,
+				'test_upload' => true, // Ensure the file is a valid upload
+				'mimes'       => $allowed_mimes,
 			)
 		);
 
-    // IMPORTANT: Immediately remove our temporary filter.
-    remove_filter( 'wp_check_filetype_and_ext', '__return_true', 100 );
+		// IMPORTANT: Immediately remove our temporary filter.
+		remove_filter( 'wp_check_filetype_and_ext', '__return_true', 100 );
 
-		if (! empty( $upload_result['error'] ) ) {
+		if ( ! empty( $upload_result['error'] ) ) {
 			if ( file_exists( $temp_file_path ) ) {
 				wp_delete_file( $temp_file_path );
 			}
@@ -942,7 +964,7 @@ private function php_error_message( int $code ): string {
 			'starmus_audio_upload_success_response',
 			array(
 				array(
-					'message'            => esc_html__( 'Submission complete!', STARMUS_TEXT_DOMAIN ),
+					'message'            => esc_html__( 'Submission complete!', 'starmus-audio-recorder' ),
 					'post_id'            => (int) $post->ID,
 					'attachment_id'      => $attachment_id,
 					'waveform_generated' => (bool) $waveform_generated,
@@ -1017,7 +1039,7 @@ private function php_error_message( int $code ): string {
 		);
 		if ( function_exists( 'update_field' ) ) {
 			foreach ( $acf_fields as $acf_field ) {
-				   if ( array_key_exists( $acf_field, $form_data ) && $form_data[ $acf_field ] !== '' ) {
+				if ( array_key_exists( $acf_field, $form_data ) && $form_data[ $acf_field ] !== '' ) {
 					$value = $form_data[ $acf_field ];
 					// Decode JSON for gps_coordinates and first_pass_transcription
 					if ( in_array( $acf_field, array( 'gps_coordinates', 'first_pass_transcription' ), true ) ) {
@@ -1026,7 +1048,7 @@ private function php_error_message( int $code ): string {
 							$value = $decoded;
 						}
 					}
-					   \update_field( $acf_field, $value, $audio_post_id );
+					\update_field( $acf_field, $value, $audio_post_id );
 				}
 			}
 		}
@@ -1038,7 +1060,7 @@ private function php_error_message( int $code ): string {
 	 * @param array $form_data The submitted form data.
 	 * @return int|null The ID of the consent post or null if not created.
 	 * @since 0.3.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function create_consent_post( int $audio_post_id, array $form_data ): ?int {
 		if ( empty( $form_data['audio_consent'] ) ) {
@@ -1046,7 +1068,7 @@ private function php_error_message( int $code ): string {
 		}
 		$consent_post_data = array(
 			'post_title'     => sprintf( 'Consent for Recording #%d', $audio_post_id ),
-			'post_content'   => __( 'Consent granted for this recording.', STARMUS_TEXT_DOMAIN ),
+			'post_content'   => __( 'Consent granted for this recording.', 'starmus-audio-recorder' ),
 			'post_status'    => 'private',
 			'comment_status' => 'closed',
 			'post_author'    => get_current_user_id(),
@@ -1071,20 +1093,20 @@ private function php_error_message( int $code ): string {
 	 * @param int|null $consent_post_id The ID of the consent post, if any.
 	 * @param array    $form_data The submitted form data.
 	 * @since 0.3.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function update_audio_recording_metadata( int $audio_post_id, int $attachment_id, ?int $consent_post_id, array $form_data ): void {
 		\update_post_meta( $audio_post_id, '_audio_attachment_id', $attachment_id );
-		   if ( $consent_post_id ) {
-			   \update_post_meta( $audio_post_id, '_consent_post_id', $consent_post_id );
+		if ( $consent_post_id ) {
+			\update_post_meta( $audio_post_id, '_consent_post_id', $consent_post_id );
 		}
-		   if ( ! empty( $form_data['audio_description'] ) ) {
-			   \wp_update_post(
-				   array(
-					   'ID'           => $audio_post_id,
-					   'post_content' => \sanitize_textarea_field( $form_data['audio_description'] ),
-				   )
-			   );
+		if ( ! empty( $form_data['audio_description'] ) ) {
+			\wp_update_post(
+				array(
+					'ID'           => $audio_post_id,
+					'post_content' => \sanitize_textarea_field( $form_data['audio_description'] ),
+				)
+			);
 		}
 		\do_action( 'starmus_update_recording_metadata', $audio_post_id, $attachment_id, $consent_post_id, $form_data );
 	}
@@ -1094,7 +1116,7 @@ private function php_error_message( int $code ): string {
 	 * @param int   $audio_post_id The ID of the audio recording post.
 	 * @param array $form_data The submitted form data.
 	 * @since 0.3.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function assign_audio_recording_taxonomies( int $audio_post_id, array $form_data ): void {
 		$taxonomies = array(
@@ -1102,28 +1124,28 @@ private function php_error_message( int $code ): string {
 			'recording_type' => $form_data['recording_type'] ?? null,
 		);
 		foreach ( $taxonomies as $tax_slug => $provided ) {
-			   if ( empty( $provided ) || ! \taxonomy_exists( $tax_slug ) ) {
+			if ( empty( $provided ) || ! \taxonomy_exists( $tax_slug ) ) {
 				continue;
 			}
-			$term_ids = array();
-			   $values   = is_array( $provided ) ? $provided : array( $provided );
-			   foreach ( $values as $val ) {
-				   if ( is_numeric( $val ) ) {
-					   $term_id = (int) $val;
-					   if ( \get_term( $term_id, $tax_slug ) ) {
-						   $term_ids[] = $term_id;
-					   }
-				   } else {
-					   $slug = \sanitize_key( (string) $val );
-					   $term = \get_term_by( 'slug', $slug, $tax_slug );
-					   if ( $term && ! \is_wp_error( $term ) ) {
-						   $term_ids[] = (int) $term->term_id;
-					   }
-				   }
-			   }
-			   if ( ! empty( $term_ids ) ) {
-				   \wp_set_post_terms( $audio_post_id, $term_ids, $tax_slug, false );
-			   }
+			$term_ids   = array();
+				$values = is_array( $provided ) ? $provided : array( $provided );
+			foreach ( $values as $val ) {
+				if ( is_numeric( $val ) ) {
+					$term_id = (int) $val;
+					if ( \get_term( $term_id, $tax_slug ) ) {
+						$term_ids[] = $term_id;
+					}
+				} else {
+					$slug = \sanitize_key( (string) $val );
+					$term = \get_term_by( 'slug', $slug, $tax_slug );
+					if ( $term && ! \is_wp_error( $term ) ) {
+						$term_ids[] = (int) $term->term_id;
+					}
+				}
+			}
+			if ( ! empty( $term_ids ) ) {
+				\wp_set_post_terms( $audio_post_id, $term_ids, $tax_slug, false );
+			}
 		}
 	}
 	/**
@@ -1134,7 +1156,7 @@ private function php_error_message( int $code ): string {
 	 * @param array $form_data The submitted form data.
 	 * @return array The modified response with redirect URL.
 	 * @since 0.3.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	public function add_conditional_redirect( array $response, int $post_id, array $form_data ): array {
 		$slug                     = $form_data['recording_type'] ?? 'default';
@@ -1152,7 +1174,7 @@ private function php_error_message( int $code ): string {
 	 * @param int $attachment_id The attachment ID of the audio file.
 	 * @return bool True on success, false on failure.
 	 * @since 0.3.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function generate_waveform_data( int $attachment_id ): bool {
 		if ( ! $this->settings->get( 'enable_waveform_generation' ) || ! apply_filters( 'starmus_allow_waveform_generation', false ) ) {
@@ -1235,7 +1257,7 @@ private function php_error_message( int $code ): string {
 		 * @param array  $args The arguments to pass to the template.
 		 * @return string The rendered template content.
 		 * @since 0.2.0
-		 * @version 0.7.3
+		 * @version 0.7.4
 		 */
 	private function render_template( string $template_name, array $args = array() ): string {
 		error_log( 'StarmusAudioRecorderUI: render_template called for: ' . $template_name );
@@ -1295,7 +1317,7 @@ private function php_error_message( int $code ): string {
 	 *
 	 * @return bool True if rate limited, false otherwise.
 	 * @since 0.2.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function is_rate_limited(): bool {
 		$limit   = (int) apply_filters( 'starmus_rate_limit_uploads_per_minute', 20 );
@@ -1314,14 +1336,14 @@ private function php_error_message( int $code ): string {
 	 *
 	 * @return string|WP_Error The path to the temporary directory or an error.
 	 * @since 0.2.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function get_temp_dir(): string|WP_Error {
 		$upload_dir       = wp_get_upload_dir();
 		$default_temp_dir = trailingslashit( $upload_dir['basedir'] ) . 'starmus-temp';
 		$temp_dir         = apply_filters( 'starmus_temp_upload_dir', $default_temp_dir );
 		if ( ! wp_mkdir_p( $temp_dir ) ) {
-			return new WP_Error( 'temp_dir_error', __( 'Cannot create temporary directory.', STARMUS_TEXT_DOMAIN ), array( 'status' => 500 ) );
+			return new WP_Error( 'temp_dir_error', __( 'Cannot create temporary directory.', 'starmus-audio-recorder' ), array( 'status' => 500 ) );
 		}
 		global $wp_filesystem;
 		if ( empty( $wp_filesystem ) ) {
@@ -1342,7 +1364,7 @@ private function php_error_message( int $code ): string {
 	 * Schedule a cron job to clean up stale temporary files.
 	 *
 	 * @since 0.2.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	public function maybe_schedule_cron(): void {
 		if ( function_exists( '\wp_next_scheduled' ) && ! \wp_next_scheduled( 'starmus_cleanup_temp_files' ) ) {
@@ -1353,7 +1375,7 @@ private function php_error_message( int $code ): string {
 	 * Clean up stale temporary files older than 24 hours.
 	 *
 	 * @since 0.2.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	public function cleanup_stale_temp_files(): void {
 		$temp_dir = $this->get_temp_dir();
@@ -1383,12 +1405,12 @@ private function php_error_message( int $code ): string {
 	 * @param string $uuid The unique upload identifier.
 	 * @return WP_Post|null The found post or null if not found.
 	 * @since 0.2.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function find_post_by_uuid( string $uuid ): ?\WP_Post {
 		$uuid      = sanitize_key( $uuid );
 		$cache_key = 'starmus_post_id_for_uuid_' . $uuid;
-		$post_id   = wp_cache_get( $cache_key, STARMUS_TEXT_DOMAIN );
+		$post_id   = wp_cache_get( $cache_key, 'starmus-audio-recorder' );
 		if ( false === $post_id ) {
 			$q       = new WP_Query(
 				array(
@@ -1405,7 +1427,7 @@ private function php_error_message( int $code ): string {
 				)
 			);
 			$post_id = $q->have_posts() ? (int) $q->posts[0] : 0;
-			wp_cache_set( $cache_key, $post_id, STARMUS_TEXT_DOMAIN, 5 * MINUTE_IN_SECONDS );
+			wp_cache_set( $cache_key, $post_id, 'starmus-audio-recorder', 5 * MINUTE_IN_SECONDS );
 		}
 		return $post_id ? get_post( (int) $post_id ) : null;
 	}
@@ -1414,7 +1436,7 @@ private function php_error_message( int $code ): string {
 	 *
 	 * @return string The edit page URL or empty string if not set.
 	 * @since 0.3.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function get_edit_page_url(): string {
 		$edit_page_id = $this->settings->get( 'edit_page_id' );
@@ -1429,7 +1451,7 @@ private function php_error_message( int $code ): string {
 	 *
 	 * @return string The client's IP address or empty string if not available.
 	 * @since 0.3.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function get_client_ip(): string {
 		// Check proxy headers in order of preference
@@ -1476,7 +1498,7 @@ private function php_error_message( int $code ): string {
 	 *
 	 * @return string The User-Agent string or empty string if not available.
 	 * @since 0.3.0
-	 * @version 0.7.3
+	 * @version 0.7.4
 	 */
 	private function get_user_agent(): string {
 		$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) );

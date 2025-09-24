@@ -7,7 +7,7 @@
  * and the Tier C fallback for legacy browsers.
  *
  * @package Starmus\templates
- * @version 0.7.3
+ * @version 0.7.4
  * @since   0.4.5
  * @var string $form_id         Base ID for the form, passed from the shortcode.
  * @var string $consent_message The user consent message.
@@ -19,11 +19,28 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
+// Add missing global functions for direct template use
+if ( ! function_exists( 'esc_attr' ) ) {
+	function esc_attr( $text ) { return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' ); }
+}
+if ( ! function_exists( 'current_user_can' ) ) {
+	function current_user_can( $cap ) {
+		// Fallback: Only allow for logged-in users in non-WP context
+		return isset( $_COOKIE['wordpress_logged_in'] );
+	}
+}
 
 // ** CRITICAL **
 // A unique instance ID is generated to ensure multiple forms on one page do not conflict.
 // All JavaScript and CSS selectors will use this unique ID.
 $instance_id = 'starmus_form_' . sanitize_key( $form_id . '_' . wp_generate_uuid4() );
+
+
+// Get allowed file types from settings (comma-separated string)
+$allowed_file_types    = isset( $allowed_file_types ) ? $allowed_file_types : 'webm';
+$allowed_types_arr     = array_filter( array_map( 'trim', explode( ',', $allowed_file_types ) ) );
+$show_file_type_select = count( $allowed_types_arr ) > 1;
+$is_admin              = current_user_can( 'manage_options' );
 ?>
 
 <!-- Main wrapper with the class our unified CSS is targeting -->
@@ -71,6 +88,21 @@ $instance_id = 'starmus_form_' . sanitize_key( $form_id . '_' . wp_generate_uuid
 					<?php endif; ?>
 				</select>
 			</div>
+
+			<?php if ( $show_file_type_select ) : ?>
+			<div class="starmus-field-group">
+				<label for="starmus_audio_file_type_<?php echo esc_attr( $instance_id ); ?>">
+					<?php esc_html_e( 'Audio File Type', 'starmus-audio-recorder' ); ?>
+				</label>
+				<select id="starmus_audio_file_type_<?php echo esc_attr( $instance_id ); ?>" name="audio_file_type">
+					<?php foreach ( $allowed_types_arr as $type ) : ?>
+						<option value="audio/<?php echo esc_attr( $type ); ?>"><?php echo strtoupper( esc_html( $type ) ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<?php else : ?>
+				<input type="hidden" name="audio_file_type" value="audio/<?php echo esc_attr( $allowed_types_arr[0] ); ?>">
+			<?php endif; ?>
 
 			<!-- ==================================================================== -->
 			<!-- REFACTORED: Formal and Accessible Consent Section                    -->
@@ -143,6 +175,29 @@ $instance_id = 'starmus_form_' . sanitize_key( $form_id . '_' . wp_generate_uuid
 			<button type="submit" id="starmus_submit_btn_<?php echo esc_attr( $instance_id ); ?>" class="starmus-btn starmus-btn--primary" disabled>
 				<?php esc_html_e( 'Submit Recording', 'starmus-audio-recorder' ); ?>
 			</button>
+			<?php
+			// Show 'Upload audio' link for Authors and above
+			if ( current_user_can( 'author' ) || current_user_can( 'editor' ) || current_user_can( 'administrator' ) ) : ?>
+				<div class="starmus-upload-audio-link" style="margin-top:24px;text-align:right;">
+					<a href="#" id="starmus_show_upload_<?php echo esc_attr( $instance_id ); ?>" style="font-size:0.95em;">Upload audio</a>
+				</div>
+				<div id="starmus_manual_upload_wrap_<?php echo esc_attr( $instance_id ); ?>" style="display:none;margin-top:12px;">
+					<label for="starmus_manual_upload_input_<?php echo esc_attr( $instance_id ); ?>">Select audio file to upload:</label>
+					<input type="file" id="starmus_manual_upload_input_<?php echo esc_attr( $instance_id ); ?>" name="audio_file" accept="audio/*">
+				</div>
+				<script>
+				document.addEventListener('DOMContentLoaded', function() {
+					var link = document.getElementById('starmus_show_upload_<?php echo esc_attr( $instance_id ); ?>');
+					var wrap = document.getElementById('starmus_manual_upload_wrap_<?php echo esc_attr( $instance_id ); ?>');
+					if (link && wrap) {
+						link.addEventListener('click', function(e) {
+							e.preventDefault();
+							wrap.style.display = (wrap.style.display === 'none') ? 'block' : 'none';
+						});
+					}
+				});
+				</script>
+			<?php endif; ?>
 		</div>
 	</form>
 </div>

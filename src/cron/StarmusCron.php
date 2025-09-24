@@ -1,58 +1,80 @@
 <?php
+/**
+ * Service class for managing all WP-Cron related tasks for the Starmus plugin.
+ *
+ * @package Starmus\cron
+ * @version 0.7.4
+ * @since 0.7.3
+ */
+
 namespace Starmus\cron;
 
-use Starmus\services\WaveformService;
-use Starmus\services\PostProcessingService;
-use Starmus\services\AudioProcessingService;
-
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 class StarmusCron {
-  private $waveform_service;
-  private $audio_processing_service;
-  private $post_processing_service;
-  
 
-    public function __construct() {
-        add_action( 'starmus_cron', array( $this, 'starmus_cron' ) );
-        add_action( 'starmus_process_audio_attachment', 'starmus_run_audio_processing_pipeline', 10, 1 );
+	const PROCESS_AUDIO_HOOK = 'starmus_process_audio_attachment';
 
-    }
+	private $waveform_service;
+	private $post_proc_service;
 
-    public function starmus_cron() {
-        $this->starmus_cron_clear_log();
-    }
+	public function __construct() {
+		// This service orchestrates the others, so it needs instances of them.
+		$this->waveform_service  = new WaveformService();
+		$this->post_proc_service = new PostProcessingService();
+	}
 
-    public function starmus_cron_clear_log() {
-        global $wpdb;
-        $wpdb->query( "DELETE FROM {$wpdb->prefix}starmus_log" );
-    }
+	/**
+	 * Registers all WordPress hooks related to cron jobs.
+	 * This should be called from the main plugin file.
+	 */
+	public function register_hooks(): void {
+		// Defines what function to run when the cron job executes.
+		add_action( self::PROCESS_AUDIO_HOOK, array( $this, 'run_audio_processing_pipeline' ), 10, 1 );
+	}
 
-/**
- * Defines the complete audio processing pipeline run by WP-Cron.
- */
-public function starmus_run_audio_processing_pipeline( $attachment_id ) {
-    if ( empty( $attachment_id ) ) return;
-    $attachment_id = (int) $attachment_id;
+	/**
+	 * Schedules the main audio processing pipeline for a given attachment.
+	 * This is the public method that other classes should call.
+	 *
+	 * @param int $attachment_id The ID of the attachment to process.
+	 */
+	public function schedule_audio_processing( int $attachment_id ): void {
+		// To prevent duplicate jobs, first check if one is already scheduled for this attachment.
+		if ( ! wp_next_scheduled( self::PROCESS_AUDIO_HOOK, array( $attachment_id ) ) ) {
+			// Schedule it to run in 60 seconds.
+			wp_schedule_single_event(
+				time() + 60,
+				self::PROCESS_AUDIO_HOOK,
+				array( $attachment_id )
+			);
+		}
+	}
 
-    $this->waveform_service = new WaveformService();
-    $this->post_proc_service = new PostProcessingService();
-    $this->metadata_service = new AudioProcessingService();
+	/**
+	 * The main pipeline function that is executed by WP-Cron.
+	 * It orchestrates the different services in the correct order.
+	 *
+	 * @param int $attachment_id The attachment ID passed from the scheduled event.
+	 */
+	public function run_audio_processing_pipeline( int $attachment_id ): void {
+		// Mark as processing at the very beginning.
+		update_post_meta( $attachment_id, '_audio_processing_status', 'processing' );
 
-    // STEP 1: Generate waveform for the UI from the original uploaded file (e.g., WebM).
-    $this->waveform_service->generate_waveform_data( $attachment_id );
+		// STEP 1: Generate UI waveform from the original uploaded file.
+		$this->waveform_service->generate_waveform_data( $attachment_id );
 
-    // STEP 2: Transcode and master the original file into a final MP3.
-    // This replaces the original file in the media library.
-    $mastering_success = $this->post_proc_service->transcode_and_master_audio( $attachment_id );
+		// STEP 2: Run the full transcoding, mastering, archival, and metadata pipeline.
+		$success = $this->post_proc_service->process_and_archive_audio( $attachment_id );
 
-    if ( ! $mastering_success ) {
-        update_post_meta($attachment_id, '_audio_processing_status', 'failed_mastering');
-        return;
-    }
-
-    // STEP 3: Write metadata and run transcription on the NEW, MASTERED MP3 file.
-    $this->metadata_service->process_attachment( $attachment_id );
-
-    do_action( 'starmus_audio_pipeline_complete', $attachment_id );
-}
+		if ( $success ) {
+			// The metadata service sets the final 'complete' status internally.
+			do_action( 'starmus_audio_pipeline_complete', $attachment_id );
+		} else {
+			error_log( "Starmus Pipeline: The main processing pipeline failed for attachment {$attachment_id}." );
+			update_post_meta( $attachment_id, '_audio_processing_status', 'failed_processing' );
+		}
+	}
 }

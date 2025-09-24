@@ -4,7 +4,7 @@
  * Starmus Audio Editor UI - Refactored for Security & Performance
  *
  * @package Starmus\frontend
- * @version 0.7.3
+ * @version 0.7.4
  * @since 0.3.1
  */
 
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Secure and optimized audio editor UI class.
  *
  * @since 0.3.1
- * @version 0.7.3
+ * @version 0.7.4
  * @package Starmus\frontend
  */
 class StarmusAudioEditorUI {
@@ -38,13 +38,20 @@ class StarmusAudioEditorUI {
 	private ?array $cached_context = null;
 
 	public function __construct() {
-		// Initialization if needed
+		$this->register_hooks();
+	}
+
+	private function register_hooks(): void {
+		error_log( 'Starmus Plugin: Editor component available, registering editor hooks' );
+			add_shortcode( 'starmus_audio_editor', array( $this, 'render_audio_editor_shortcode' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			add_action( 'rest_api_init', array( $this, 'register_rest_endpoint' ) );
 	}
 
 	public function render_audio_editor_shortcode(): string {
 		try {
 			if ( ! is_user_logged_in() ) {
-				return '<p>' . esc_html__( 'You must be logged in to edit audio.', STARMUS_TEXT_DOMAIN ) . '</p>';
+				return '<p>' . esc_html__( 'You must be logged in to edit audio.', 'starmus-audio-recorder' ) . '</p>';
 			}
 			do_action( 'starmus_before_editor_render' );
 			$context = $this->get_editor_context();
@@ -54,7 +61,7 @@ class StarmusAudioEditorUI {
 			return $this->render_template_secure( $context );
 		} catch ( Throwable $e ) {
 			$this->log_error( 'Editor shortcode error', $e );
-			return '<div class="notice notice-error"><p>' . esc_html__( 'Audio editor unavailable.', STARMUS_TEXT_DOMAIN ) . '</p></div>';
+			return '<div class="notice notice-error"><p>' . esc_html__( 'Audio editor unavailable.', 'starmus-audio-recorder' ) . '</p></div>';
 		}
 	}
 
@@ -62,10 +69,10 @@ class StarmusAudioEditorUI {
 		$default_template = STARMUS_PATH . 'src/templates/starmus-audio-editor-ui.php';
 		$template_path    = apply_filters( 'starmus_editor_template', $default_template, $context );
 		if ( ! $this->is_valid_template_path( $template_path ) ) {
-			return '<div class="notice notice-error"><p>' . esc_html__( 'Invalid template path.', STARMUS_TEXT_DOMAIN ) . '</p></div>';
+			return '<div class="notice notice-error"><p>' . esc_html__( 'Invalid template path.', 'starmus-audio-recorder' ) . '</p></div>';
 		}
 		if ( ! file_exists( $template_path ) ) {
-			return '<div class="notice notice-error"><p>' . esc_html__( 'Editor template not found.', STARMUS_TEXT_DOMAIN ) . '</p></div>';
+			return '<div class="notice notice-error"><p>' . esc_html__( 'Editor template not found.', 'starmus-audio-recorder' ) . '</p></div>';
 		}
 		try {
 			ob_start();
@@ -75,7 +82,7 @@ class StarmusAudioEditorUI {
 			return $output !== false ? $output : '';
 		} catch ( Throwable $e ) {
 			$this->log_error( 'Editor template error', $e );
-			return '<div class="notice notice-error"><p>' . esc_html__( 'Template loading failed.', STARMUS_TEXT_DOMAIN ) . '</p></div>';
+			return '<div class="notice notice-error"><p>' . esc_html__( 'Template loading failed.', 'starmus-audio-recorder' ) . '</p></div>';
 		}
 	}
 
@@ -163,22 +170,22 @@ class StarmusAudioEditorUI {
 			}
 			$nonce = sanitize_key( $_GET['nonce'] ?? '' );
 			if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'starmus_edit_audio' ) ) {
-				return new WP_Error( 'invalid_nonce', __( 'Security check failed.', STARMUS_TEXT_DOMAIN ) );
+				return new WP_Error( 'invalid_nonce', __( 'Security check failed.', 'starmus-audio-recorder' ) );
 			}
 			$post_id = absint( $_GET['post_id'] ?? 0 );
 			if ( ! $post_id || ! get_post( $post_id ) ) {
-				return new WP_Error( 'invalid_id', __( 'Invalid submission ID.', STARMUS_TEXT_DOMAIN ) );
+				return new WP_Error( 'invalid_id', __( 'Invalid submission ID.', 'starmus-audio-recorder' ) );
 			}
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
-				return new WP_Error( 'permission_denied', __( 'Permission denied.', STARMUS_TEXT_DOMAIN ) );
+				return new WP_Error( 'permission_denied', __( 'Permission denied.', 'starmus-audio-recorder' ) );
 			}
 			$attachment_id = absint( get_post_meta( $post_id, '_audio_attachment_id', true ) );
 			if ( ! $attachment_id || get_post_type( $attachment_id ) !== 'attachment' ) {
-				return new WP_Error( 'no_audio', __( 'No audio file attached.', STARMUS_TEXT_DOMAIN ) );
+				return new WP_Error( 'no_audio', __( 'No audio file attached.', 'starmus-audio-recorder' ) );
 			}
 			$audio_url = wp_get_attachment_url( $attachment_id );
 			if ( ! $audio_url ) {
-				return new WP_Error( 'no_audio_url', __( 'Audio file URL not available.', STARMUS_TEXT_DOMAIN ) );
+				return new WP_Error( 'no_audio_url', __( 'Audio file URL not available.', 'starmus-audio-recorder' ) );
 			}
 			$waveform_url         = $this->get_secure_waveform_url( $attachment_id );
 			$annotations_json     = get_post_meta( $post_id, 'starmus_annotations_json', true );
@@ -193,7 +200,7 @@ class StarmusAudioEditorUI {
 			return $this->cached_context;
 		} catch ( Throwable $e ) {
 			$this->log_error( 'Context retrieval error', $e );
-			return new WP_Error( 'context_error', __( 'Unable to load editor context.', STARMUS_TEXT_DOMAIN ) );
+			return new WP_Error( 'context_error', __( 'Unable to load editor context.', 'starmus-audio-recorder' ) );
 		}
 	}
 
@@ -314,7 +321,7 @@ class StarmusAudioEditorUI {
 				return new WP_REST_Response(
 					array(
 						'success' => false,
-						'message' => __( 'Too many requests. Please wait.', STARMUS_TEXT_DOMAIN ),
+						'message' => __( 'Too many requests. Please wait.', 'starmus-audio-recorder' ),
 					),
 					429
 				);
@@ -334,7 +341,7 @@ class StarmusAudioEditorUI {
 				return new WP_REST_Response(
 					array(
 						'success' => false,
-						'message' => __( 'Failed to encode annotations.', STARMUS_TEXT_DOMAIN ),
+						'message' => __( 'Failed to encode annotations.', 'starmus-audio-recorder' ),
 					),
 					500
 				);
@@ -345,7 +352,7 @@ class StarmusAudioEditorUI {
 			return new WP_REST_Response(
 				array(
 					'success' => true,
-					'message' => __( 'Annotations saved successfully.', STARMUS_TEXT_DOMAIN ),
+					'message' => __( 'Annotations saved successfully.', 'starmus-audio-recorder' ),
 					'count'   => count( $annotations ),
 				),
 				200
@@ -355,7 +362,7 @@ class StarmusAudioEditorUI {
 			return new WP_REST_Response(
 				array(
 					'success' => false,
-					'message' => __( 'Internal server error.', STARMUS_TEXT_DOMAIN ),
+					'message' => __( 'Internal server error.', 'starmus-audio-recorder' ),
 				),
 				500
 			);
@@ -386,7 +393,7 @@ class StarmusAudioEditorUI {
 			$current = $annotations[ $i ];
 			$next    = $annotations[ $i + 1 ];
 			if ( $current['endTime'] > $next['startTime'] ) {
-				return new WP_Error( 'overlap_detected', __( 'Overlapping annotations detected.', STARMUS_TEXT_DOMAIN ) );
+				return new WP_Error( 'overlap_detected', __( 'Overlapping annotations detected.', 'starmus-audio-recorder' ) );
 			}
 		}
 		return true;

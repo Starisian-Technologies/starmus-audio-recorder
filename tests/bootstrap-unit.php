@@ -24,8 +24,8 @@ if ( ! defined( 'WP_DEBUG_LOG' ) ) {
 	define( 'WP_DEBUG_LOG', true );
 }
 
-if ( ! defined( 'STARMUS_TEXT_DOMAIN' ) ) {
-	define( 'STARMUS_TEXT_DOMAIN', 'starmus-audio-recorder' );
+if ( ! defined( ''starmus-audio-recorder'' ) ) {
+	define( ''starmus-audio-recorder'', 'starmus-audio-recorder' );
 }
 
 if ( ! defined( 'STARMUS_PATH' ) ) {

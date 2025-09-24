@@ -22,7 +22,7 @@
         banner.style.cssText = 'position:fixed;top:48px;left:0;z-index:99999;background:#22a;color:#fff;padding:4px 12px;font:14px monospace;opacity:0.95';
         document.body.appendChild(banner);
         setTimeout(() => banner.remove(), 4000);
-        secureLog('info', 'DEBUG: Recorder Module banner shown');
+        secureLog('info', 'DEBUG: Recorder Module banner shown'); 
     }
 
     const hasMediaRecorder = !!(window.MediaRecorder && window.navigator.mediaDevices);
@@ -200,10 +200,20 @@
             instance.volumeMonitorId = requestAnimationFrame(update);
         },
 
-        startRecording: function(instanceId, language = 'en-US') {
+        startRecording: function(instanceId, selectedTypeOrLang) {
+            // selectedTypeOrLang can be either MIME type or language
+            let selectedType = 'audio/webm';
+            let language = 'en-US';
+            if (typeof selectedTypeOrLang === 'string') {
+                if (selectedTypeOrLang.startsWith('audio/')) {
+                    selectedType = selectedTypeOrLang;
+                } else {
+                    language = selectedTypeOrLang;
+                }
+            }
             if (!isSafeId(instanceId) || !(instanceId in instances) || instances[instanceId].isRecording) {return;}
             const instance = instances[instanceId];
-            console.log('[Starmus] startRecording called', { instanceId, startTime: instance.startTime });
+            console.log('[Starmus] startRecording called', { instanceId, startTime: instance.startTime, selectedType });
 
             // Initialize speech recognition if available
             if (window.SpeechRecognition || window.webkitSpeechRecognition) {
@@ -253,7 +263,10 @@
 
                 // Use lower bitrate for bandwidth
                 const options = { audioBitsPerSecond: 32000 };
-                if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+                // Try to use the selected MIME type if supported
+                if (MediaRecorder.isTypeSupported(selectedType)) {
+                    options.mimeType = selectedType;
+                } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
                     options.mimeType = 'audio/webm;codecs=opus';
                 } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
                     options.mimeType = 'audio/mp4';
@@ -265,7 +278,7 @@
                 instance.isRecording = true;
                 instance.isPaused = false;
                 instance.startTime = Date.now();
-                console.log('[Starmus] startRecording set startTime', { instanceId, startTime: instance.startTime });
+                console.log('[Starmus] startRecording set startTime', { instanceId, startTime: instance.startTime, mimeType: options.mimeType });
 
                 instance.recorder.ondataavailable = event => {
                     if (event.data.size > 0) {instance.chunks.push(event.data);}
@@ -273,7 +286,7 @@
 
                 instance.recorder.onstop = () => {
                     // Always set the MIME type explicitly to avoid server-side rejection
-                    let mimeType = 'audio/webm';
+                    let mimeType = options.mimeType || 'audio/webm';
                     if (instance.recorder && instance.recorder.mimeType && instance.recorder.mimeType.startsWith('audio/')) {
                         mimeType = instance.recorder.mimeType;
                     }
@@ -289,7 +302,7 @@
 
             } catch (error) {
                 secureLog('error', 'Failed to start recording.', error.message);
-                    doAction('starmus_recording_failed', instanceId, error);
+                doAction('starmus_recording_failed', instanceId, error);
             }
         },
 

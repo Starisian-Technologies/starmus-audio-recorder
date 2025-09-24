@@ -11,6 +11,11 @@ Search.appendIndex(
             "summary": "Constructor\u0020\u002D\u0020initializes\u0020admin\u0020settings.",
             "url": "classes/Starmus-admin-StarmusAdmin.html#method___construct"
         },                {
+            "fqsen": "\\Starmus\\admin\\StarmusAdmin\u003A\u003Aregister_hooks\u0028\u0029",
+            "name": "register_hooks",
+            "summary": "",
+            "url": "classes/Starmus-admin-StarmusAdmin.html#method_register_hooks"
+        },                {
             "fqsen": "\\Starmus\\admin\\StarmusAdmin\u003A\u003Aadd_admin_menu\u0028\u0029",
             "name": "add_admin_menu",
             "summary": "Add\u0020admin\u0020menu\u0020with\u0020error\u0020handling.",
@@ -76,25 +81,25 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starmus-admin-StarmusAdmin.html#property_settings"
         },                {
-            "fqsen": "\\Starmus\\cli\\StarmusCacheCommands",
-            "name": "StarmusCacheCommands",
-            "summary": "Manages\u0020Starmus\u0020caches.",
-            "url": "classes/Starmus-cli-StarmusCacheCommands.html"
-        },                {
-            "fqsen": "\\Starmus\\cli\\StarmusCacheCommands\u003A\u003Aflush\u0028\u0029",
-            "name": "flush",
-            "summary": "Flushes\u0020the\u0020plugin\u0027s\u0020taxonomy\u0020transients.",
-            "url": "classes/Starmus-cli-StarmusCacheCommands.html#method_flush"
-        },                {
             "fqsen": "\\Starmus\\cli\\StarmusCLI",
             "name": "StarmusCLI",
             "summary": "Manages\u0020the\u0020Starmus\u0020Audio\u0020Recorder\u0020plugin.",
             "url": "classes/Starmus-cli-StarmusCLI.html"
         },                {
-            "fqsen": "\\Starmus\\cli\\StarmusCLI\u003A\u003Agenerate_waveforms\u0028\u0029",
-            "name": "generate_waveforms",
-            "summary": "Generates\u0020waveform\u0020data\u0020for\u0020audio\u0020recordings.",
-            "url": "classes/Starmus-cli-StarmusCLI.html#method_generate_waveforms"
+            "fqsen": "\\Starmus\\cli\\StarmusCLI\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "",
+            "url": "classes/Starmus-cli-StarmusCLI.html#method___construct"
+        },                {
+            "fqsen": "\\Starmus\\cli\\StarmusCLI\u003A\u003Awaveform\u0028\u0029",
+            "name": "waveform",
+            "summary": "Manages\u0020audio\u0020recording\u0020waveforms.",
+            "url": "classes/Starmus-cli-StarmusCLI.html#method_waveform"
+        },                {
+            "fqsen": "\\Starmus\\cli\\StarmusCLI\u003A\u003Acache\u0028\u0029",
+            "name": "cache",
+            "summary": "Manages\u0020the\u0020Starmus\u0020caches.",
+            "url": "classes/Starmus-cli-StarmusCLI.html#method_cache"
         },                {
             "fqsen": "\\Starmus\\cli\\StarmusCLI\u003A\u003Acleanup_temp_files\u0028\u0029",
             "name": "cleanup_temp_files",
@@ -111,6 +116,26 @@ Search.appendIndex(
             "summary": "Imports\u0020audio\u0020recordings\u0020from\u0020a\u0020CSV\u0020file.",
             "url": "classes/Starmus-cli-StarmusCLI.html#method_import"
         },                {
+            "fqsen": "\\Starmus\\cli\\StarmusCLI\u003A\u003Agenerate_waveforms\u0028\u0029",
+            "name": "generate_waveforms",
+            "summary": "Private\u0020handler\u0020for\u0020generating\u0020waveforms.",
+            "url": "classes/Starmus-cli-StarmusCLI.html#method_generate_waveforms"
+        },                {
+            "fqsen": "\\Starmus\\cli\\StarmusCLI\u003A\u003Adelete_waveforms\u0028\u0029",
+            "name": "delete_waveforms",
+            "summary": "Private\u0020handler\u0020for\u0020deleting\u0020waveforms.",
+            "url": "classes/Starmus-cli-StarmusCLI.html#method_delete_waveforms"
+        },                {
+            "fqsen": "\\Starmus\\cli\\StarmusCLI\u003A\u003Aflush_cache\u0028\u0029",
+            "name": "flush_cache",
+            "summary": "Private\u0020handler\u0020for\u0020flushing\u0020caches.",
+            "url": "classes/Starmus-cli-StarmusCLI.html#method_flush_cache"
+        },                {
+            "fqsen": "\\Starmus\\cli\\StarmusCLI\u003A\u003A\u0024waveform_service",
+            "name": "waveform_service",
+            "summary": "",
+            "url": "classes/Starmus-cli-StarmusCLI.html#property_waveform_service"
+        },                {
             "fqsen": "\\Starmus\\core\\StarmusPluginUpdater",
             "name": "StarmusPluginUpdater",
             "summary": "Handles\u0020checking\u0020for\u0020and\u0020providing\u0020updates\u0020for\u0020the\u0020Starmus\u0020plugin.",
@@ -120,6 +145,11 @@ Search.appendIndex(
             "name": "__construct",
             "summary": "",
             "url": "classes/Starmus-core-StarmusPluginUpdater.html#method___construct"
+        },                {
+            "fqsen": "\\Starmus\\core\\StarmusPluginUpdater\u003A\u003Aregister_hooks\u0028\u0029",
+            "name": "register_hooks",
+            "summary": "",
+            "url": "classes/Starmus-core-StarmusPluginUpdater.html#method_register_hooks"
         },                {
             "fqsen": "\\Starmus\\core\\StarmusPluginUpdater\u003A\u003Acheck_for_updates\u0028\u0029",
             "name": "check_for_updates",
@@ -141,6 +171,46 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starmus-core-StarmusPluginUpdater.html#property_update_api_url"
         },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron",
+            "name": "StarmusCron",
+            "summary": "",
+            "url": "classes/Starmus-cron-StarmusCron.html"
+        },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "",
+            "url": "classes/Starmus-cron-StarmusCron.html#method___construct"
+        },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003Aregister_hooks\u0028\u0029",
+            "name": "register_hooks",
+            "summary": "Registers\u0020all\u0020WordPress\u0020hooks\u0020related\u0020to\u0020cron\u0020jobs.",
+            "url": "classes/Starmus-cron-StarmusCron.html#method_register_hooks"
+        },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003Aschedule_audio_processing\u0028\u0029",
+            "name": "schedule_audio_processing",
+            "summary": "Schedules\u0020the\u0020main\u0020audio\u0020processing\u0020pipeline\u0020for\u0020a\u0020given\u0020attachment.",
+            "url": "classes/Starmus-cron-StarmusCron.html#method_schedule_audio_processing"
+        },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003Arun_audio_processing_pipeline\u0028\u0029",
+            "name": "run_audio_processing_pipeline",
+            "summary": "The\u0020main\u0020pipeline\u0020function\u0020that\u0020is\u0020executed\u0020by\u0020WP\u002DCron.",
+            "url": "classes/Starmus-cron-StarmusCron.html#method_run_audio_processing_pipeline"
+        },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003APROCESS_AUDIO_HOOK",
+            "name": "PROCESS_AUDIO_HOOK",
+            "summary": "",
+            "url": "classes/Starmus-cron-StarmusCron.html#constant_PROCESS_AUDIO_HOOK"
+        },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003A\u0024waveform_service",
+            "name": "waveform_service",
+            "summary": "",
+            "url": "classes/Starmus-cron-StarmusCron.html#property_waveform_service"
+        },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003A\u0024post_proc_service",
+            "name": "post_proc_service",
+            "summary": "",
+            "url": "classes/Starmus-cron-StarmusCron.html#property_post_proc_service"
+        },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI",
             "name": "StarmusAudioEditorUI",
             "summary": "Secure\u0020and\u0020optimized\u0020audio\u0020editor\u0020UI\u0020class.",
@@ -150,6 +220,11 @@ Search.appendIndex(
             "name": "__construct",
             "summary": "",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method___construct"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Aregister_hooks\u0028\u0029",
+            "name": "register_hooks",
+            "summary": "",
+            "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_register_hooks"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Arender_audio_editor_shortcode\u0028\u0029",
             "name": "render_audio_editor_shortcode",
@@ -285,6 +360,11 @@ Search.appendIndex(
             "name": "__construct",
             "summary": "Initialize\u0020the\u0020recorder\u0020UI\u0020and\u0020load\u0020settings.",
             "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method___construct"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Aregister_hooks\u0028\u0029",
+            "name": "register_hooks",
+            "summary": "",
+            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_register_hooks"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Arender_my_recordings_shortcode\u0028\u0029",
             "name": "render_my_recordings_shortcode",
@@ -456,6 +536,11 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starmus-includes-StarmusSettings.html"
         },                {
+            "fqsen": "\\Starmus\\includes\\StarmusSettings\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "",
+            "url": "classes/Starmus-includes-StarmusSettings.html#method___construct"
+        },                {
             "fqsen": "\\Starmus\\includes\\StarmusSettings\u003A\u003Aget\u0028\u0029",
             "name": "get",
             "summary": "Get\u0020a\u0020single\u0020setting\u0020with\u0020caching.",
@@ -526,6 +611,94 @@ Search.appendIndex(
             "summary": "Cached\u0020default\u0020settings\u0020to\u0020avoid\u0020repeated\u0020computation.",
             "url": "classes/Starmus-includes-StarmusSettings.html#property_star_default_cache"
         },                {
+            "fqsen": "\\Starmus\\services\\AudioProcessingService",
+            "name": "AudioProcessingService",
+            "summary": "",
+            "url": "classes/Starmus-services-AudioProcessingService.html"
+        },                {
+            "fqsen": "\\Starmus\\services\\AudioProcessingService\u003A\u003Aprocess_attachment\u0028\u0029",
+            "name": "process_attachment",
+            "summary": "Main\u0020entry\u0020point\u0020for\u0020processing\u0020an\u0020audio\u0020attachment\u0027s\u0020metadata.",
+            "url": "classes/Starmus-services-AudioProcessingService.html#method_process_attachment"
+        },                {
+            "fqsen": "\\Starmus\\services\\AudioProcessingService\u003A\u003Awrite_id3_tags\u0028\u0029",
+            "name": "write_id3_tags",
+            "summary": "Writes\u0020ID3\u0020tags\u0020\u0028title,\u0020artist,\u0020transcriptions,\u0020etc.\u0029\u0020to\u0020the\u0020audio\u0020file.",
+            "url": "classes/Starmus-services-AudioProcessingService.html#method_write_id3_tags"
+        },                {
+<<<<<<< HEAD
+            "fqsen": "\\Starmus\\services\\FileService",
+            "name": "FileService",
+            "summary": "",
+            "url": "classes/Starmus-services-FileService.html"
+        },                {
+            "fqsen": "\\Starmus\\services\\FileService\u003A\u003Aget_local_copy\u0028\u0029",
+            "name": "get_local_copy",
+            "summary": "Guarantees\u0020a\u0020local\u0020copy\u0020of\u0020an\u0020attachment\u0027s\u0020file\u0020is\u0020available\u0020for\u0020processing.",
+            "url": "classes/Starmus-services-FileService.html#method_get_local_copy"
+        },                {
+            "fqsen": "\\Starmus\\services\\FileService\u003A\u003Aupload_and_replace_attachment\u0028\u0029",
+            "name": "upload_and_replace_attachment",
+            "summary": "Uploads\u0020a\u0020local\u0020file\u0020to\u0020replace\u0020an\u0020existing\u0020attachment,\u0020respecting\u0020offloaders.",
+            "url": "classes/Starmus-services-FileService.html#method_upload_and_replace_attachment"
+        },                {
+=======
+>>>>>>> dae95dc1 (09242025MB Add StarmusCron and related services)
+            "fqsen": "\\Starmus\\services\\PostProcessingService",
+            "name": "PostProcessingService",
+            "summary": "",
+            "url": "classes/Starmus-services-PostProcessingService.html"
+        },                {
+            "fqsen": "\\Starmus\\services\\PostProcessingService\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "",
+            "url": "classes/Starmus-services-PostProcessingService.html#method___construct"
+        },                {
+            "fqsen": "\\Starmus\\services\\PostProcessingService\u003A\u003Ais_tool_available\u0028\u0029",
+            "name": "is_tool_available",
+            "summary": "",
+            "url": "classes/Starmus-services-PostProcessingService.html#method_is_tool_available"
+        },                {
+            "fqsen": "\\Starmus\\services\\PostProcessingService\u003A\u003Aprocess_and_archive_audio\u0028\u0029",
+            "name": "process_and_archive_audio",
+            "summary": "Main\u0020entry\u0020point\u0020to\u0020transcode,\u0020master,\u0020and\u0020archive\u0020an\u0020audio\u0020attachment.",
+            "url": "classes/Starmus-services-PostProcessingService.html#method_process_and_archive_audio"
+        },                {
+            "fqsen": "\\Starmus\\services\\PostProcessingService\u003A\u003A\u0024audio_processing_service",
+            "name": "audio_processing_service",
+            "summary": "",
+            "url": "classes/Starmus-services-PostProcessingService.html#property_audio_processing_service"
+        },                {
+            "fqsen": "\\Starmus\\services\\WaveformService",
+            "name": "WaveformService",
+            "summary": "Handles\u0020waveform\u0020data\u0020generation\u0020and\u0020storage\u0020using\u0020the\u0020\u0027audiowaveform\u0027\u0020tool.",
+            "url": "classes/Starmus-services-WaveformService.html"
+        },                {
+            "fqsen": "\\Starmus\\services\\WaveformService\u003A\u003Ais_tool_available\u0028\u0029",
+            "name": "is_tool_available",
+            "summary": "Checks\u0020if\u0020the\u0020required\u0020command\u002Dline\u0020tool\u0020is\u0020installed\u0020and\u0020available.",
+            "url": "classes/Starmus-services-WaveformService.html#method_is_tool_available"
+        },                {
+            "fqsen": "\\Starmus\\services\\WaveformService\u003A\u003Agenerate_waveform_data\u0028\u0029",
+            "name": "generate_waveform_data",
+            "summary": "Generates\u0020waveform\u0020data\u0020for\u0020an\u0020audio\u0020attachment\u0020and\u0020stores\u0020it\u0020in\u0020post\u0020meta.",
+            "url": "classes/Starmus-services-WaveformService.html#method_generate_waveform_data"
+        },                {
+            "fqsen": "\\Starmus\\services\\WaveformService\u003A\u003Adelete_waveform_data\u0028\u0029",
+            "name": "delete_waveform_data",
+            "summary": "Deletes\u0020waveform\u0020data\u0020for\u0020an\u0020audio\u0020attachment.",
+            "url": "classes/Starmus-services-WaveformService.html#method_delete_waveform_data"
+        },                {
+            "fqsen": "\\Starmus\\services\\WaveformService\u003A\u003Ahas_waveform_data\u0028\u0029",
+            "name": "has_waveform_data",
+            "summary": "Checks\u0020if\u0020waveform\u0020data\u0020exists\u0020for\u0020an\u0020audio\u0020attachment.",
+            "url": "classes/Starmus-services-WaveformService.html#method_has_waveform_data"
+        },                {
+            "fqsen": "\\Starmus\\services\\WaveformService\u003A\u003Aextract_waveform_from_file\u0028\u0029",
+            "name": "extract_waveform_from_file",
+            "summary": "Extracts\u0020waveform\u0020data\u0020from\u0020an\u0020audio\u0020file\u0020using\u0020\u0027audiowaveform\u0027.",
+            "url": "classes/Starmus-services-WaveformService.html#method_extract_waveform_from_file"
+        },                {
             "fqsen": "\\Starmus\\StarmusPlugin",
             "name": "StarmusPlugin",
             "summary": "Main\u0020plugin\u0020class\u0020\u0028Singleton\u0029.",
@@ -556,10 +729,20 @@ Search.appendIndex(
             "summary": "Loads\u0020the\u0020Custom\u0020Post\u0020Type\u0020definitions.",
             "url": "classes/Starmus-StarmusPlugin.html#method_loadCPT"
         },                {
+            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003Aset_starmus_settings\u0028\u0029",
+            "name": "set_starmus_settings",
+            "summary": "Instantiates\u0020the\u0020StarmusSettings\u0020component\u0020of\u0020the\u0020plugin.",
+            "url": "classes/Starmus-StarmusPlugin.html#method_set_starmus_settings"
+        },                {
             "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003AinstantiateComponents\u0028\u0029",
             "name": "instantiateComponents",
             "summary": "Instantiates\u0020the\u0020main\u0020components\u0020of\u0020the\u0020plugin.",
             "url": "classes/Starmus-StarmusPlugin.html#method_instantiateComponents"
+        },                {
+            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003Aget_starmus_settings\u0028\u0029",
+            "name": "get_starmus_settings",
+            "summary": "",
+            "url": "classes/Starmus-StarmusPlugin.html#method_get_starmus_settings"
         },                {
             "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003Aactivate\u0028\u0029",
             "name": "activate",
@@ -621,6 +804,11 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starmus-StarmusPlugin.html#property_runtimeErrors"
         },                {
+            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024settings",
+            "name": "settings",
+            "summary": "",
+            "url": "classes/Starmus-StarmusPlugin.html#property_settings"
+        },                {
             "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024admin",
             "name": "admin",
             "summary": "",
@@ -641,10 +829,38 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starmus-StarmusPlugin.html#property_updater"
         },                {
-            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024settings",
-            "name": "settings",
+            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024cli",
+            "name": "cli",
             "summary": "",
-            "url": "classes/Starmus-StarmusPlugin.html#property_settings"
+            "url": "classes/Starmus-StarmusPlugin.html#property_cli"
+        },                {
+            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024waveform",
+            "name": "waveform",
+            "summary": "",
+            "url": "classes/Starmus-StarmusPlugin.html#property_waveform"
+        },                {
+            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024audioService",
+            "name": "audioService",
+            "summary": "",
+            "url": "classes/Starmus-StarmusPlugin.html#property_audioService"
+        },                {
+            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024postService",
+            "name": "postService",
+            "summary": "",
+            "url": "classes/Starmus-StarmusPlugin.html#property_postService"
+<<<<<<< HEAD
+=======
+        },                {
+            "fqsen": "\\esc_attr\u0028\u0029",
+            "name": "esc_attr",
+            "summary": "",
+            "url": "namespaces/default.html#function_esc_attr"
+        },                {
+            "fqsen": "\\current_user_can\u0028\u0029",
+            "name": "current_user_can",
+            "summary": "",
+            "url": "namespaces/default.html#function_current_user_can"
+>>>>>>> dae95dc1 (09242025MB Add StarmusCron and related services)
         },                {
             "fqsen": "\\",
             "name": "\\",
@@ -666,6 +882,11 @@ Search.appendIndex(
             "summary": "",
             "url": "namespaces/starmus-core.html"
         },                {
+            "fqsen": "\\Starmus\\cron",
+            "name": "cron",
+            "summary": "",
+            "url": "namespaces/starmus-cron.html"
+        },                {
             "fqsen": "\\Starmus\\frontend",
             "name": "frontend",
             "summary": "",
@@ -675,6 +896,11 @@ Search.appendIndex(
             "name": "includes",
             "summary": "",
             "url": "namespaces/starmus-includes.html"
+        },                {
+            "fqsen": "\\Starmus\\services",
+            "name": "services",
+            "summary": "",
+            "url": "namespaces/starmus-services.html"
         },                {
             "fqsen": "\\Starmus",
             "name": "Starmus",
