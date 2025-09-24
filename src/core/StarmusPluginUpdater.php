@@ -18,13 +18,13 @@ class StarmusPluginUpdater {
 	public function __construct( $plugin_file, $current_version ) {
 		$this->plugin_file     = $plugin_file;
 		$this->current_version = $current_version;
-    $this->register_hooks();
-		// The crucial hook that starts the process. 
+		$this->register_hooks();
+		// The crucial hook that starts the process.
 	}
 
-  private function register_hooks(): void {
-    add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'check_for_updates' ) );
-  }
+	private function register_hooks(): void {
+		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'check_for_updates' ) );
+	}
 
 	/**
 	 * The callback function that intercepts the WordPress update check.

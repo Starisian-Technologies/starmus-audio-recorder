@@ -58,7 +58,8 @@ final class StarmusPlugin {
 	public const STAR_CAP_RECORD_AUDIO = 'starmus_record_audio';
 
 	private static ?StarmusPlugin $instance = null;
-	private array $runtimeErrors            = array();
+  /** @var string[] */
+  private array $runtimeErrors = [];
 
 	private ?StarmusSettings $settings            = null;
 	private ?StarmusAdmin $admin                  = null;
@@ -203,11 +204,6 @@ final class StarmusPlugin {
 		if ( \is_admin() ) {
 			add_action( 'admin_notices', array( $this, 'displayRuntimeErrorNotice' ) );
 		}
-
-
-
-
-
 
 		error_log( 'Starmus Plugin: All hooks registered successfully' );
 	}

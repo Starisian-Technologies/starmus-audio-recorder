@@ -165,7 +165,13 @@
     // Your existing event listeners for record, stop, and pause remain largely the same.
     recordBtn.addEventListener('click', () => {
         doAction('starmus_record_start', instanceId);
-        window.StarmusAudioRecorder.startRecording(instanceId);
+        // Get selected file type from form
+        let selectedType = 'audio/webm';
+        const typeSelect = document.querySelector(`#${instanceId} [name="audio_file_type"]`);
+        if (typeSelect && typeSelect.value) {
+            selectedType = typeSelect.value;
+        }
+        window.StarmusAudioRecorder.startRecording(instanceId, selectedType);
         window.StarmusAudioRecorder.startVolumeMonitoring(instanceId, (volume) => {
             const volumeEl = el(`starmus_volume_level_${instanceId}`);
             if (volumeEl) {volumeEl.style.width = `${volume}%`;}

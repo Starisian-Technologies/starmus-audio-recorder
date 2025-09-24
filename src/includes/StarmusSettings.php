@@ -27,14 +27,19 @@ final class StarmusSettings {
 		 *
 		 * @var array|null
 		 */
-	private static ?array $star_cache = null;
+	private static $star_cache = array();
 
 		/**
 		 * Cached default settings to avoid repeated computation.
 		 *
 		 * @var array|null
 		 */
-	private static ?array $star_default_cache = null;
+	private static $star_default_cache = array();
+
+	public function __construct() {
+		// get all settings
+		self::all();
+	}
 
 	/**
 	 * Get a single setting with caching.
@@ -49,7 +54,7 @@ final class StarmusSettings {
 	 */
 	public static function all(): array {
 		if ( self::$star_cache === null ) {
-			$saved            = get_option( self::STAR_OPTION_KEY, array() );
+			$saved            = \get_option( self::STAR_OPTION_KEY, array() );
 			$defaults         = self::get_defaults();
 			self::$star_cache = wp_parse_args( $saved, $defaults );
 		}
@@ -64,10 +69,10 @@ final class StarmusSettings {
 			return false;
 		}
 
-		$saved         = get_option( self::STAR_OPTION_KEY, array() );
+		$saved         = \get_option( self::STAR_OPTION_KEY, array() );
 		$saved[ $key ] = self::starmus_sanitize_value( $key, $value );
 
-		$result = update_option( self::STAR_OPTION_KEY, $saved );
+		$result = \update_option( self::STAR_OPTION_KEY, $saved );
 		if ( $result ) {
 			self::starmus_clear_cache();
 		}
@@ -86,9 +91,9 @@ final class StarmusSettings {
 		}
 
 		// Merge with defaults to prevent missing keys
-		$merged = wp_parse_args( $sanitized, self::get_defaults() );
+		$merged = \wp_parse_args( $sanitized, self::get_defaults() );
 
-		$result = update_option( self::STAR_OPTION_KEY, $merged );
+		$result = \update_option( self::STAR_OPTION_KEY, $merged );
 		if ( $result ) {
 			self::starmus_clear_cache();
 		}
@@ -104,15 +109,15 @@ final class StarmusSettings {
 				'cpt_slug'              => 'audio-recording',
 				'file_size_limit'       => 10,
 				'recording_time_limit'  => 300,
-				'allowed_file_types'    => 'mp3,wav,webm,m4a,ogg,opus',
-				'consent_message'       => __( 'I consent to having this audio recording stored and used.', 'starmus-audio-recorder' ),
+				'allowed_file_types'    => '', // Blank by default, admin must set
+				'consent_message'       => \__( 'I consent to having this audio recording stored and used.', 'starmus-audio-recorder' ),
 				'collect_ip_ua'         => 0,
 				'data_policy_url'       => '',
 				'edit_page_id'          => 0,
 				'recorder_page_id'      => 0,
 				'my_recordings_page_id' => 0,
 			);
-			self::$star_default_cache = apply_filters( 'starmus_default_settings', self::$star_default_cache );
+			self::$star_default_cache = \apply_filters( 'starmus_default_settings', self::$star_default_cache );
 		}
 		return self::$star_default_cache;
 	}
@@ -123,11 +128,11 @@ final class StarmusSettings {
 	public static function add_defaults_on_activation(): void {
 		$existing = get_option( self::STAR_OPTION_KEY );
 		if ( $existing === false ) {
-			add_option( self::STAR_OPTION_KEY, self::get_defaults() );
+			\add_option( self::STAR_OPTION_KEY, self::get_defaults() );
 		} else {
 			// Merge with existing to preserve user settings
-			$merged = wp_parse_args( $existing, self::get_defaults() );
-			update_option( self::STAR_OPTION_KEY, $merged );
+			$merged = \wp_parse_args( $existing, self::get_defaults() );
+			\update_option( self::STAR_OPTION_KEY, $merged );
 		}
 		self::starmus_clear_cache();
 	}
@@ -146,22 +151,22 @@ final class StarmusSettings {
 	private static function starmus_sanitize_value( string $key, $value ) {
 		switch ( $key ) {
 			case 'cpt_slug':
-				return sanitize_key( $value );
+				return \sanitize_key( $value );
 			case 'file_size_limit':
 			case 'recording_time_limit':
 			case 'collect_ip_ua':
 			case 'edit_page_id':
 			case 'recorder_page_id':
 			case 'my_recordings_page_id':
-				return absint( $value );
+				return \absint( $value );
 			case 'allowed_file_types':
-				return sanitize_text_field( $value );
+				return \sanitize_text_field( $value );
 			case 'consent_message':
-				return wp_kses_post( $value );
+				return \wp_kses_post( $value );
 			case 'data_policy_url':
-				return esc_url_raw( $value );
+				return \esc_url_raw( $value );
 			default:
-				return sanitize_text_field( $value );
+				return \sanitize_text_field( $value );
 		}
 	}
 
@@ -177,7 +182,7 @@ final class StarmusSettings {
 	 */
 	public static function delete_all(): bool {
 		self::starmus_clear_cache();
-		return delete_option( self::STAR_OPTION_KEY );
+		return \delete_option( self::STAR_OPTION_KEY );
 	}
 
 	/**

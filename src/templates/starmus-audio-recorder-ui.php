@@ -24,6 +24,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 // A unique instance ID is generated to ensure multiple forms on one page do not conflict.
 // All JavaScript and CSS selectors will use this unique ID.
 $instance_id = 'starmus_form_' . sanitize_key( $form_id . '_' . wp_generate_uuid4() );
+
+
+// Get allowed file types from settings (comma-separated string)
+$allowed_file_types    = isset( $allowed_file_types ) ? $allowed_file_types : 'webm';
+$allowed_types_arr     = array_filter( array_map( 'trim', explode( ',', $allowed_file_types ) ) );
+$show_file_type_select = count( $allowed_types_arr ) > 1;
+$is_admin              = current_user_can( 'manage_options' );
 ?>
 
 <!-- Main wrapper with the class our unified CSS is targeting -->
@@ -71,6 +78,21 @@ $instance_id = 'starmus_form_' . sanitize_key( $form_id . '_' . wp_generate_uuid
 					<?php endif; ?>
 				</select>
 			</div>
+
+			<?php if ( $show_file_type_select ) : ?>
+			<div class="starmus-field-group">
+				<label for="starmus_audio_file_type_<?php echo esc_attr( $instance_id ); ?>">
+					<?php esc_html_e( 'Audio File Type', 'starmus-audio-recorder' ); ?>
+				</label>
+				<select id="starmus_audio_file_type_<?php echo esc_attr( $instance_id ); ?>" name="audio_file_type">
+					<?php foreach ( $allowed_types_arr as $type ) : ?>
+						<option value="audio/<?php echo esc_attr( $type ); ?>"><?php echo strtoupper( esc_html( $type ) ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<?php else : ?>
+				<input type="hidden" name="audio_file_type" value="audio/<?php echo esc_attr( $allowed_types_arr[0] ); ?>">
+			<?php endif; ?>
 
 			<!-- ==================================================================== -->
 			<!-- REFACTORED: Formal and Accessible Consent Section                    -->

@@ -73,11 +73,19 @@
                 
             </li>
                     <li>
+                <a href="namespaces/starmus-cron.html" class="">cron</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/starmus-frontend.html" class="">frontend</a>
                 
             </li>
                     <li>
                 <a href="namespaces/starmus-includes.html" class="">includes</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/starmus-services.html" class="">services</a>
                 
             </li>
             </ul>
@@ -102,11 +110,19 @@
                 
             </li>
                     <li>
+                <a href="packages/Starmus-cron.html" class="">cron</a>
+                
+            </li>
+                    <li>
                 <a href="packages/Starmus-frontend.html" class="">frontend</a>
                 
             </li>
                     <li>
                 <a href="packages/Starmus-includes.html" class="">includes</a>
+                
+            </li>
+                    <li>
+                <a href="packages/Starmus-services.html" class="">services</a>
                 
             </li>
                     <li>
@@ -152,7 +168,8 @@
             <div class="phpdocumentor-element__package">
             in package
             <ul class="phpdocumentor-breadcrumbs">
-                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Application.html">Application</a></li>
+                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Starmus.html">Starmus</a></li>
+                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Starmus-cli.html">cli</a></li>
                             </ul>
         </div>
     
@@ -167,7 +184,7 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cli/StarmusCLI.php"><a href="files/src-cli-starmuscli.html"><abbr title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">25</span>
+    <span class="phpdocumentor-element-found-in__line">26</span>
 
     </aside>
 
@@ -195,6 +212,19 @@
 
 
 
+<h4 id="toc-properties">
+    Properties
+    <a href="classes/Starmus-cli-StarmusCLI.html#toc-properties" class="headerlink"><i class="fas fa-link"></i></a>
+
+</h4>
+<dl class="phpdocumentor-table-of-contents">
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Starmus-cli-StarmusCLI.html#property_waveform_service">$waveform_service</a>
+    <span>
+                        &nbsp;: mixed            </span>
+</dt>
+
+    </dl>
 
 <h4 id="toc-methods">
     Methods
@@ -202,6 +232,19 @@
 
 </h4>
 <dl class="phpdocumentor-table-of-contents">
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-cli-StarmusCLI.html#method___construct">__construct()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-cli-StarmusCLI.html#method_cache">cache()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Manages the Starmus caches.</dd>
+
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-cli-StarmusCLI.html#method_cleanup_temp_files">cleanup_temp_files()</a>
     <span>
@@ -217,18 +260,39 @@
 <dd>Exports audio recording metadata.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-cli-StarmusCLI.html#method_generate_waveforms">generate_waveforms()</a>
-    <span>
-                                &nbsp;: mixed    </span>
-</dt>
-<dd>Generates waveform data for audio recordings.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-cli-StarmusCLI.html#method_import">import()</a>
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
 <dd>Imports audio recordings from a CSV file.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-cli-StarmusCLI.html#method_waveform">waveform()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Manages audio recording waveforms.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Starmus-cli-StarmusCLI.html#method_delete_waveforms">delete_waveforms()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Private handler for deleting waveforms.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Starmus-cli-StarmusCLI.html#method_flush_cache">flush_cache()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Private handler for flushing caches.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Starmus-cli-StarmusCLI.html#method_generate_waveforms">generate_waveforms()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Private handler for generating waveforms.</dd>
 
     </dl>
 
@@ -237,6 +301,51 @@
         
 
         
+    <section class="phpdocumentor-properties">
+        <h3 class="phpdocumentor-elements__header" id="properties">
+            Properties
+            <a href="classes/Starmus-cli-StarmusCLI.html#properties" class="headerlink"><i class="fas fa-link"></i></a>
+
+        </h3>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_waveform_service">
+        $waveform_service
+        <a href="classes/Starmus-cli-StarmusCLI.html#property_waveform_service" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/cli/StarmusCLI.php"><a href="files/src-cli-starmuscli.html"><abbr title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">28</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">$waveform_service</span>
+    </code>
+
+    
+    
+    
+
+    
+
+    
+
+</article>
+            </section>
 
             <section class="phpdocumentor-methods">
         <h3 class="phpdocumentor-elements__header" id="methods">
@@ -250,33 +359,27 @@
             -public
                                                         "
 >
-    <h4 class="phpdocumentor-element__name" id="method_cleanup_temp_files">
-        cleanup_temp_files()
-        <a href="classes/Starmus-cli-StarmusCLI.html#method_cleanup_temp_files" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method___construct">
+        __construct()
+        <a href="classes/Starmus-cli-StarmusCLI.html#method___construct" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cli/StarmusCLI.php"><a href="files/src-cli-starmuscli.html"><abbr title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">121</span>
+    <span class="phpdocumentor-element-found-in__line">30</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Cleans up stale temporary files.</p>
-
+    
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">cleanup_temp_files</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+                    <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
     
-        <section class="phpdocumentor-description"><p>Immediately runs the cleanup process for partial upload files older than 24 hours.</p>
-<h2>EXAMPLES</h2>
-<pre class="prettyprint"><code class="prettyprint">$ wp starmus cleanup-temp-files
-</code></pre>
-</section>
-
+    
     
     
 
@@ -290,44 +393,30 @@
             -public
                                                         "
 >
-    <h4 class="phpdocumentor-element__name" id="method_export">
-        export()
-        <a href="classes/Starmus-cli-StarmusCLI.html#method_export" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_cache">
+        cache()
+        <a href="classes/Starmus-cli-StarmusCLI.html#method_cache" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cli/StarmusCLI.php"><a href="files/src-cli-starmuscli.html"><abbr title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">151</span>
+    <span class="phpdocumentor-element-found-in__line">75</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Exports audio recording metadata.</p>
+        <p class="phpdocumentor-summary">Manages the Starmus caches.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">export</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$args</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$assoc_args</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+                    <span class="phpdocumentor-signature__name">cache</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$args</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$assoc_args</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
     
-        <section class="phpdocumentor-description"><h2>OPTIONS</h2>
-<h2>[--format=<format>]
-: The export format.</h2>
-<p>default: csv
-options:</p>
-<ul>
-<li>csv</li>
-<li>json</li>
-</ul>
-<hr />
-<h2>EXAMPLES</h2>
-<pre class="prettyprint"><code class="prettyprint"># Export all recordings to a CSV file.
-$ wp starmus export &gt; recordings.csv
-
-# Export all recordings as a JSON object.
-$ wp starmus export --format=json
-</code></pre>
+        <section class="phpdocumentor-description"><h2>EXAMPLES</h2>
+<h1>Flush taxonomy caches</h1>
+<p>$ wp starmus cache flush</p>
 </section>
 
         <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
@@ -360,60 +449,111 @@ $ wp starmus export --format=json
             -public
                                                         "
 >
-    <h4 class="phpdocumentor-element__name" id="method_generate_waveforms">
-        generate_waveforms()
-        <a href="classes/Starmus-cli-StarmusCLI.html#method_generate_waveforms" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_cleanup_temp_files">
+        cleanup_temp_files()
+        <a href="classes/Starmus-cli-StarmusCLI.html#method_cleanup_temp_files" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cli/StarmusCLI.php"><a href="files/src-cli-starmuscli.html"><abbr title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">49</span>
+    <span class="phpdocumentor-element-found-in__line">100</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Generates waveform data for audio recordings.</p>
+        <p class="phpdocumentor-summary">Cleans up stale temporary files.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">generate_waveforms</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$args</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$assoc_args</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+                    <span class="phpdocumentor-signature__name">cleanup_temp_files</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$args</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$assoc_args</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
     
         <section class="phpdocumentor-description"><h2>OPTIONS</h2>
-<p>[--post_ids=<ids>]
-: A comma-separated list of specific audio recording post IDs to process.</p>
-<p>[--regenerate]
-: Force regeneration of waveforms even if they already exist.</p>
-<h2>EXAMPLES</h2>
-<pre class="prettyprint"><code class="prettyprint"># Generate waveforms for all recordings that are missing them.
-$ wp starmus generate-waveforms
-
-# Force regenerate waveforms for posts 123 and 456.
-$ wp starmus generate-waveforms --post_ids=123,456 --regenerate
-</code></pre>
+<h2>[--days=<days>]
+: Cleanup files older than this many days. Defaults to 1.</h2>
+<h2>default: 1</h2>
 </section>
 
         <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
     <dl class="phpdocumentor-argument-list">
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-signature__argument__name">$args</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Positional arguments.</p>
-</section>
-
+                
             </dd>
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-signature__argument__name">$assoc_args</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Associative arguments.</p>
+                
+            </dd>
+            </dl>
+
+    
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_export">
+        export()
+        <a href="classes/Starmus-cli-StarmusCLI.html#method_export" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/cli/StarmusCLI.php"><a href="files/src-cli-starmuscli.html"><abbr title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">130</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Exports audio recording metadata.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">export</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$args</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$assoc_args</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><h2>OPTIONS</h2>
+<h2>[--format=<format>]
+: The export format. <code class="prettyprint">csv</code> or <code class="prettyprint">json</code>. Defaults to <code class="prettyprint">csv</code>.</h2>
+<p>default: csv
+options:</p>
+<ul>
+<li>csv</li>
+<li>json</li>
+</ul>
+<hr />
 </section>
 
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$args</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$assoc_args</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
             </dd>
             </dl>
 
@@ -437,7 +577,7 @@ $ wp starmus generate-waveforms --post_ids=123,456 --regenerate
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cli/StarmusCLI.php"><a href="files/src-cli-starmuscli.html"><abbr title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">201</span>
+    <span class="phpdocumentor-element-found-in__line">183</span>
 
     </aside>
 
@@ -450,11 +590,11 @@ $ wp starmus generate-waveforms --post_ids=123,456 --regenerate
     <div class="phpdocumentor-label-line">
         </div>
     
-        <section class="phpdocumentor-description"><p>NOTE: This is a placeholder and a complex operation. It requires a well-defined
-CSV format and careful handling of file paths.</p>
-<h2>EXAMPLES</h2>
-<pre class="prettyprint"><code class="prettyprint">$ wp starmus import &lt;path-to-csv&gt; --audio_path=&lt;path-to-folder&gt;
-</code></pre>
+        <section class="phpdocumentor-description"><h2>OPTIONS</h2>
+<p>[<file>]
+: The path to the CSV file to import.</p>
+<p>[--dry-run]
+: Preview the import without creating posts or attachments.</p>
 </section>
 
         <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
@@ -466,6 +606,201 @@ CSV format and careful handling of file paths.</p>
             <dd class="phpdocumentor-argument-list__definition">
                 
             </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$assoc_args</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_waveform">
+        waveform()
+        <a href="classes/Starmus-cli-StarmusCLI.html#method_waveform" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/cli/StarmusCLI.php"><a href="files/src-cli-starmuscli.html"><abbr title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">48</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Manages audio recording waveforms.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">waveform</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$args</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$assoc_args</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><h2>EXAMPLES</h2>
+<h1>Generate waveforms for all recordings missing them.</h1>
+<p>$ wp starmus waveform generate</p>
+<h1>Force regenerate waveforms for posts 123 and 456.</h1>
+<p>$ wp starmus waveform generate --post_ids=123,456 --regenerate</p>
+<h1>Delete waveform data for attachment ID 789.</h1>
+<p>$ wp starmus waveform delete --attachment_ids=789</p>
+</section>
+
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$args</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$assoc_args</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_delete_waveforms">
+        delete_waveforms()
+        <a href="classes/Starmus-cli-StarmusCLI.html#method_delete_waveforms" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/cli/StarmusCLI.php"><a href="files/src-cli-starmuscli.html"><abbr title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">272</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Private handler for deleting waveforms.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">delete_waveforms</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$assoc_args</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$assoc_args</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_flush_cache">
+        flush_cache()
+        <a href="classes/Starmus-cli-StarmusCLI.html#method_flush_cache" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/cli/StarmusCLI.php"><a href="files/src-cli-starmuscli.html"><abbr title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">296</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Private handler for flushing caches.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">flush_cache</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$assoc_args</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$assoc_args</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_generate_waveforms">
+        generate_waveforms()
+        <a href="classes/Starmus-cli-StarmusCLI.html#method_generate_waveforms" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/cli/StarmusCLI.php"><a href="files/src-cli-starmuscli.html"><abbr title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">199</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Private handler for generating waveforms.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">generate_waveforms</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$assoc_args</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-signature__argument__name">$assoc_args</span>
                 : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
@@ -588,18 +923,30 @@ CSV format and careful handling of file paths.</p>
             <li class="phpdocumentor-on-this-page-section__title">Table Of Contents</li>
             <li>
                 <ul class="phpdocumentor-list -clean">
-                                                                                <li><a href="classes/Starmus-cli-StarmusCLI.html#toc-methods">Methods</a></li>
+                                                            <li><a href="classes/Starmus-cli-StarmusCLI.html#toc-properties">Properties</a></li>
+                                                            <li><a href="classes/Starmus-cli-StarmusCLI.html#toc-methods">Methods</a></li>
                                     </ul>
             </li>
             
+                            <li class="phpdocumentor-on-this-page-section__title">Properties</li>
+                <li>
+                    <ul class="phpdocumentor-list -clean">
+                                                    <li class=""><a href="classes/Starmus-cli-StarmusCLI.html#property_waveform_service">$waveform_service</a></li>
+                                            </ul>
+                </li>
             
                         <li class="phpdocumentor-on-this-page-section__title">Methods</li>
             <li>
                 <ul class="phpdocumentor-list -clean">
+                                            <li class=""><a href="classes/Starmus-cli-StarmusCLI.html#method___construct">__construct()</a></li>
+                                            <li class=""><a href="classes/Starmus-cli-StarmusCLI.html#method_cache">cache()</a></li>
                                             <li class=""><a href="classes/Starmus-cli-StarmusCLI.html#method_cleanup_temp_files">cleanup_temp_files()</a></li>
                                             <li class=""><a href="classes/Starmus-cli-StarmusCLI.html#method_export">export()</a></li>
-                                            <li class=""><a href="classes/Starmus-cli-StarmusCLI.html#method_generate_waveforms">generate_waveforms()</a></li>
                                             <li class=""><a href="classes/Starmus-cli-StarmusCLI.html#method_import">import()</a></li>
+                                            <li class=""><a href="classes/Starmus-cli-StarmusCLI.html#method_waveform">waveform()</a></li>
+                                            <li class=""><a href="classes/Starmus-cli-StarmusCLI.html#method_delete_waveforms">delete_waveforms()</a></li>
+                                            <li class=""><a href="classes/Starmus-cli-StarmusCLI.html#method_flush_cache">flush_cache()</a></li>
+                                            <li class=""><a href="classes/Starmus-cli-StarmusCLI.html#method_generate_waveforms">generate_waveforms()</a></li>
                                     </ul>
             </li>
                     </ul>

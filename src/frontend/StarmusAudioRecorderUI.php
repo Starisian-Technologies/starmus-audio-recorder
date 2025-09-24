@@ -22,7 +22,9 @@ use Media;
 use Image;
 use WP_Filesystem;
 use WP_REST_Request;
+use WP_REST_Response;
 use WP_Error;
+use WP_Query;
 use Throwable;
 use RecursiveIteratorIterator;
 use RecursiveArrayIterator;
@@ -81,7 +83,7 @@ class StarmusAudioRecorderUI {
 			error_log( 'StarmusAudioRecorderUI: Constructor called' );
 		try {
 			$this->settings = $settings;
-      $this->register_hooks();
+			$this->register_hooks();
 				error_log( 'StarmusAudioRecorderUI: Settings instantiated successfully' );
 		} catch ( Throwable $e ) {
 				error_log( 'StarmusAudioRecorderUI: Failed to instantiate settings: ' . $e->getMessage() );
@@ -89,8 +91,8 @@ class StarmusAudioRecorderUI {
 		}
 	}
 
-  private function register_hooks():void {
-    error_log( 'Starmus Plugin: Recorder component available, registering recorder hooks' );
+	private function register_hooks(): void {
+		error_log( 'Starmus Plugin: Recorder component available, registering recorder hooks' );
 			add_shortcode( 'starmus_my_recordings', array( $this, 'render_my_recordings_shortcode' ) );
 			add_shortcode( 'starmus_audio_recorder_form', array( $this, 'render_recorder_shortcode' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -109,7 +111,7 @@ class StarmusAudioRecorderUI {
 			add_action( 'delete_recording-type', array( $this, 'clear_taxonomy_transients' ) );
 
 			error_log( 'Starmus Plugin: Shortcodes registered - starmus_my_recordings and starmus_audio_recorder' );
-  }
+	}
 	/**
 	 * Render the "My Recordings" shortcode.
 	 *
@@ -404,9 +406,9 @@ class StarmusAudioRecorderUI {
 
 		// 4. Sniff MIME type safely
 		// Copy the uploaded tmp file to a safe location before sniffing.
-		$tmp_copy = wp_tempnam( $_FILES['audio_file']['name'] );
+		$tmp_copy = \wp_tempnam( $_FILES['audio_file']['name'] );
 		if ( ! $tmp_copy || ! copy( $_FILES['audio_file']['tmp_name'], $tmp_copy ) ) {
-			return new WP_Error( 'upload_copy_failed', 'Unable to copy uploaded file for validation.' );
+			return new \WP_Error( 'upload_copy_failed', 'Unable to copy uploaded file for validation.' );
 		}
 
 		// Use finfo to detect the real MIME type.
@@ -419,22 +421,34 @@ class StarmusAudioRecorderUI {
 		// Allowable audio/video MIME types (extend as needed).
 		$allowed_mimes = array(
 			'audio/webm',
-			'video/webm', // Accept video/webm for audio-only webm blobs
-			'audio/weba', // Accept audio/weba for .weba extension
+			'video/webm',
+			'audio/weba',
 			'audio/ogg',
 			'audio/opus',
 			'audio/wav',
-			'audio/mpeg',       // mp3
-			'audio/mp4',        // m4a
+			'audio/mpeg',
+			'audio/mp4',
 			'audio/x-m4a',
 			'audio/aac',
 			'audio/flac',
 		);
 
+		// If admin selected a file type, restrict to only that type
+		if ( ! empty( $_POST['audio_file_type'] ) ) {
+			$selected_type = sanitize_text_field( $_POST['audio_file_type'] );
+			if ( in_array( $selected_type, $allowed_mimes, true ) ) {
+				$allowed_mimes = array( $selected_type );
+				// Accept video/webm for audio/webm
+				if ( $selected_type === 'audio/webm' ) {
+					$allowed_mimes[] = 'video/webm';
+				}
+			}
+		}
+
 		// Validate against the whitelist.
 		if ( ! $detected_mime || ! in_array( $detected_mime, $allowed_mimes, true ) ) {
 			@unlink( $tmp_copy );
-			return new WP_Error(
+			return new \WP_Error(
 				'invalid_mime',
 				sprintf( 'File is not a valid audio type. Detected: %s', esc_html( $detected_mime ?: 'unknown' ) ),
 				array( 'status' => 415 )
@@ -443,14 +457,14 @@ class StarmusAudioRecorderUI {
 
 		// 5. Hand off to WordPress sideload
 		// Use starmus_title (sanitized) and uuid for filename if available
-		$title_part = ! empty( $form_data['starmus_title'] ) ? sanitize_file_name( $form_data['starmus_title'] ) : 'recording';
+		$title_part = ! empty( $form_data['starmus_title'] ) ? \sanitize_file_name( $form_data['starmus_title'] ) : 'recording';
 		$uuid_part  = ! empty( $form_data['submissionUUID'] ) ? $form_data['submissionUUID'] : uniqid();
 		$ext        = pathinfo( $file['name'], PATHINFO_EXTENSION );
 		if ( ! $ext ) {
 			$ext = 'webm'; }
 		$final_name = $title_part . '-' . $uuid_part . '.' . $ext;
 		$file_array = array(
-			'name'     => wp_unique_filename( wp_upload_dir()['path'], $final_name ),
+			'name'     => \wp_unique_filename( \wp_upload_dir()['path'], $final_name ),
 			'tmp_name' => $tmp_copy,
 		);
 
@@ -464,7 +478,7 @@ class StarmusAudioRecorderUI {
 			),
 		);
 
-		$result = wp_handle_sideload( $file_array, $overrides );
+		$result = \wp_handle_sideload( $file_array, $overrides );
 
 		if ( ! empty( $result['error'] ) ) {
 			@unlink( $tmp_copy );

@@ -38,15 +38,15 @@ class StarmusAudioEditorUI {
 	private ?array $cached_context = null;
 
 	public function __construct() {
-      $this->register_hooks();
-  }
+		$this->register_hooks();
+	}
 
-  private function register_hooks(): void {
-    error_log( 'Starmus Plugin: Editor component available, registering editor hooks' );
+	private function register_hooks(): void {
+		error_log( 'Starmus Plugin: Editor component available, registering editor hooks' );
 			add_shortcode( 'starmus_audio_editor', array( $this, 'render_audio_editor_shortcode' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			add_action( 'rest_api_init', array( $this, 'register_rest_endpoint' ) );
-  }
+	}
 
 	public function render_audio_editor_shortcode(): string {
 		try {

@@ -36,25 +36,25 @@ class StarmusAdmin {
 	 * @since 0.3.1
 	 */
 	public function __construct( ?StarmusSettings $settings ) {
-		$this->settings            = $settings;
-    $this->field_types = array(
-      'cpt_slug'              => 'text',
-      'file_size_limit'       => 'number',
-      'allowed_file_types'    => 'textarea',
-      'consent_message'       => 'textarea',
-      'collect_ip_ua'         => 'checkbox',
-      'edit_page_id'          => 'pages_dropdown',
-      'recorder_page_id'      => 'pages_dropdown',
-      'my_recordings_page_id' => 'pages_dropdown',
-    );
-    $this->register_hooks();
+		$this->settings    = $settings;
+		$this->field_types = array(
+			'cpt_slug'              => 'text',
+			'file_size_limit'       => 'number',
+			'allowed_file_types'    => 'textarea',
+			'consent_message'       => 'textarea',
+			'collect_ip_ua'         => 'checkbox',
+			'edit_page_id'          => 'pages_dropdown',
+			'recorder_page_id'      => 'pages_dropdown',
+			'my_recordings_page_id' => 'pages_dropdown',
+		);
+		$this->register_hooks();
 	}
 
-  private function register_hooks(): void {
-    error_log( 'Starmus Plugin: Admin component available, registering admin hooks' );
+	private function register_hooks(): void {
+		error_log( 'Starmus Plugin: Admin component available, registering admin hooks' );
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
-    add_action( 'admin_init', array( $this, 'register_settings' ) );
-  }
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
+	}
 
 	/**
 	 * Add admin menu with error handling.
