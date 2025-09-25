@@ -10,7 +10,17 @@
 (function(window, document) {
     'use strict';
 
+    /** Logging configuration for the submissions handler. */
     const CONFIG = { LOG_PREFIX: '[Starmus Submissions]' };
+    /**
+     * Hidden field names used for telemetry that is populated automatically.
+     * @type {Readonly<{MIC_ADJUSTMENTS: string, DEVICE: string, USER_AGENT: string}>}
+     */
+    const HIDDEN_FIELD_NAMES = Object.freeze({
+        MIC_ADJUSTMENTS: 'mic-rest-adjustments',
+        DEVICE: 'device',
+        USER_AGENT: 'user_agent'
+    });
     function log(level, msg, data) { if (console && console[level]) { console[level](CONFIG.LOG_PREFIX, msg, data || ''); } }
 
     function debugInitBanner() {
@@ -28,6 +38,148 @@
     function collectFormFields(form) { const fields = {}; new FormData(form).forEach((value, key) => fields[key] = value); return fields; }
     function doAction(hook, ...args) { if (window.StarmusHooks?.doAction) { window.StarmusHooks.doAction(hook, ...args); } }
     function applyFilters(hook, value, ...args) { return window.StarmusHooks?.applyFilters ? window.StarmusHooks.applyFilters(hook, value, ...args) : value; }
+
+    /**
+     * Remove control characters and HTML-significant tokens from strings.
+     *
+     * @param {string} rawValue Value requiring sanitisation.
+     * @returns {string} Cleaned string that is safe for hidden inputs.
+     */
+    function scrubTelemetryString(rawValue) {
+        if (typeof rawValue !== 'string') {return '';}
+        let cleaned = '';
+        for (let index = 0; index < rawValue.length; index += 1) {
+            const charCode = rawValue.charCodeAt(index);
+            const char = rawValue.charAt(index);
+            if (charCode < 32 || char === '<' || char === '>') {continue;}
+            cleaned += char;
+        }
+        return cleaned;
+    }
+
+    /**
+     * Retrieve the form element for a specific recorder instance.
+     *
+     * @param {string} instanceId Recorder instance identifier.
+     * @returns {HTMLFormElement|null} The matching form element, if found.
+     */
+    function getInstanceForm(instanceId) {
+        if (!safeId(instanceId)) {return null;}
+        const form = document.getElementById(instanceId);
+        return form instanceof HTMLFormElement ? form : null;
+    }
+
+    /**
+     * Locate a hidden input field within the specified recorder form.
+     *
+     * @param {string} instanceId Recorder instance identifier.
+     * @param {string} fieldName Hidden input name attribute.
+     * @returns {HTMLInputElement|null} The hidden field, if available.
+     */
+    function getHiddenField(instanceId, fieldName) {
+        if (!safeId(instanceId) || typeof fieldName !== 'string') {return null;}
+        const form = getInstanceForm(instanceId);
+        if (!form) {return null;}
+        const field = form.elements.namedItem(fieldName);
+        return field instanceof HTMLInputElement ? field : null;
+    }
+
+    /**
+     * Sanitize and assign a value to a telemetry hidden field.
+     *
+     * @param {string} instanceId Recorder instance identifier.
+     * @param {string} fieldName Hidden input name attribute.
+     * @param {unknown} value The value to store.
+     */
+    function setHiddenFieldValue(instanceId, fieldName, value) {
+        const field = getHiddenField(instanceId, fieldName);
+        if (!field) {return;}
+        let sanitized = '';
+        if (typeof value === 'string') {
+            sanitized = scrubTelemetryString(value);
+        } else if (value && typeof value === 'object') {
+            try {
+                sanitized = JSON.stringify(value, (key, nestedValue) => {
+                    if (typeof nestedValue === 'string') {
+                        return scrubTelemetryString(nestedValue);
+                    }
+                    return nestedValue;
+                });
+            } catch (error) {
+                log('warn', 'Failed to serialise hidden field value', { fieldName, error: error?.message });
+                sanitized = '';
+            }
+        } else if (value !== undefined && value !== null) {
+            sanitized = scrubTelemetryString(String(value));
+        }
+        if (sanitized.length > 2000) {
+            sanitized = sanitized.slice(0, 2000);
+        }
+        field.value = sanitized;
+    }
+
+    /**
+     * Gather lightweight device metadata for analytics storage.
+     *
+     * @returns {{platform: string, memory: string|number, concurrency: string|number, screen: string, connection: object|string}}
+     * Device information snapshot safe for submission.
+     */
+    function gatherDeviceSnapshot() {
+        const connection = navigator.connection ? {
+            effectiveType: navigator.connection.effectiveType || 'unknown',
+            downlink: navigator.connection.downlink || 'unknown',
+            rtt: navigator.connection.rtt || 'unknown'
+        } : 'unknown';
+        return {
+            platform: navigator.platform || 'unknown',
+            memory: navigator.deviceMemory || 'unknown',
+            concurrency: navigator.hardwareConcurrency || 'unknown',
+            screen: `${screen.width || 0}x${screen.height || 0}`,
+            connection
+        };
+    }
+
+    /**
+     * Populate static telemetry fields (device + user agent) for all recorder forms.
+     */
+    function populateStaticTelemetryFields() {
+        const forms = document.querySelectorAll('form.starmus-audio-form');
+        const deviceData = gatherDeviceSnapshot();
+        const userAgent = scrubTelemetryString(navigator.userAgent || 'unknown');
+        forms.forEach(form => {
+            if (!(form instanceof HTMLFormElement) || !safeId(form.id)) {return;}
+            setHiddenFieldValue(form.id, HIDDEN_FIELD_NAMES.DEVICE, deviceData);
+            setHiddenFieldValue(form.id, HIDDEN_FIELD_NAMES.USER_AGENT, userAgent);
+        });
+    }
+
+    /** Flag to prevent duplicate calibration listeners. */
+    let micListenerBound = false;
+
+    /**
+     * Store calibration details every time the microphone setup completes.
+     */
+    function bindMicAdjustmentListener() {
+        if (micListenerBound) {return;}
+        if (!window.StarmusHooks?.addAction) {
+            window.setTimeout(bindMicAdjustmentListener, 200);
+            return;
+        }
+        window.StarmusHooks.addAction('starmus_calibration_complete', (instanceId, calibrationData) => {
+            if (!safeId(instanceId) || !calibrationData || typeof calibrationData !== 'object') {return;}
+            const statusElement = el(`starmus_recorder_status_${instanceId}`);
+            const message = statusElement?.textContent ? statusElement.textContent.trim() : '';
+            const payload = {
+                message,
+                gain: typeof calibrationData.gain === 'number' ? Number(calibrationData.gain.toFixed(3)) : null,
+                snr: typeof calibrationData.snr === 'number' ? Number(calibrationData.snr.toFixed(3)) : null,
+                noiseFloor: typeof calibrationData.noiseFloor === 'number' ? Number(calibrationData.noiseFloor.toFixed(6)) : null,
+                recordedAt: new Date().toISOString()
+            };
+            setHiddenFieldValue(instanceId, HIDDEN_FIELD_NAMES.MIC_ADJUSTMENTS, payload);
+        });
+        micListenerBound = true;
+    }
 
   function showUserMessage(instanceId, text, type){
     log('debug', 'showUserMessage called', { instanceId, text, type });
@@ -443,6 +595,8 @@
     log('info', 'SubmissionsHandler init called');
     debugInitBanner();
     Offline.init();
+    populateStaticTelemetryFields();
+    bindMicAdjustmentListener();
     window.addEventListener('online', () => {
       log('info', 'Network online event');
       doAction('starmus_network_online');

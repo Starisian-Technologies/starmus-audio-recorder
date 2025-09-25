@@ -42,6 +42,17 @@ if ( ! function_exists( 'wp_upload_dir' ) ) {
 if ( ! function_exists( 'wp_unique_filename' ) ) {
 	require_once ABSPATH . 'wp-includes/functions.php';
 }
+if ( ! function_exists( 'sanitize_textarea_field' ) ) {
+        /**
+         * Provide a safe fallback sanitizer when WordPress helpers are unavailable.
+         *
+         * @param string $text Raw textarea content.
+         * @return string Sanitized string with HTML entities escaped.
+         */
+        function sanitize_textarea_field( $text ) {
+                return is_string( $text ) ? filter_var( $text, FILTER_SANITIZE_FULL_SPECIAL_CHARS ) : '';
+        }
+}
 // Add missing global functions and helpers
 if ( ! function_exists( 'absint' ) ) {
 	function absint( $maybeint ) {
@@ -1049,28 +1060,42 @@ class StarmusAudioRecorderUI {
 			'recording_equipment',
 			'audio_files_originals',
 			'media_condition_notes',
-			'related_consent_agreement',
-			'usage_restrictions_rights',
-			'access_level',
-			'first_pass_transcription',
-			'audio_quality_score',
-		);
-		if ( function_exists( 'update_field' ) ) {
-			foreach ( $acf_fields as $acf_field ) {
-				if ( array_key_exists( $acf_field, $form_data ) && $form_data[ $acf_field ] !== '' ) {
-					$value = $form_data[ $acf_field ];
-					// Decode JSON for gps_coordinates and first_pass_transcription
-					if ( in_array( $acf_field, array( 'gps_coordinates', 'first_pass_transcription' ), true ) ) {
-						$decoded = json_decode( $value, true );
-						if ( is_array( $decoded ) ) {
-							$value = $decoded;
-						}
-					}
-					\update_field( $acf_field, $value, $audio_post_id );
-				}
-			}
-		}
-	}
+                        'related_consent_agreement',
+                        'usage_restrictions_rights',
+                        'access_level',
+                        'first_pass_transcription',
+                        'audio_quality_score',
+                        'mic-rest-adjustments',
+                        'device',
+                        'user_agent',
+                );
+                if ( function_exists( 'update_field' ) ) {
+                        foreach ( $acf_fields as $acf_field ) {
+                                if ( array_key_exists( $acf_field, $form_data ) && $form_data[ $acf_field ] !== '' ) {
+                                        $value = $form_data[ $acf_field ];
+                                        // Decode JSON for gps_coordinates and first_pass_transcription
+                                        if ( in_array( $acf_field, array( 'gps_coordinates', 'first_pass_transcription' ), true ) ) {
+                                                $decoded = json_decode( $value, true );
+                                                if ( is_array( $decoded ) ) {
+                                                        $value = $decoded;
+                                                }
+                                        }
+                                        if ( in_array( $acf_field, array( 'mic-rest-adjustments', 'device' ), true ) ) {
+                                                $decoded_value = json_decode( (string) $value, true );
+                                                if ( is_array( $decoded_value ) ) {
+                                                        $value = wp_json_encode( $decoded_value );
+                                                } else {
+                                                        $value = sanitize_textarea_field( (string) $value );
+                                                }
+                                        }
+                                        if ( 'user_agent' === $acf_field ) {
+                                                $value = sanitize_text_field( (string) $value );
+                                        }
+                                        \update_field( $acf_field, $value, $audio_post_id );
+                                }
+                        }
+                }
+        }
 	/**
 	 * Create a consent post if the user has given consent.
 	 *
