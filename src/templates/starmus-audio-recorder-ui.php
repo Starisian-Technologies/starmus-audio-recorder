@@ -140,6 +140,10 @@ $is_admin              = current_user_can( 'manage_options' );
 				<input type="hidden" name="first_pass_transcription" value="">
 				<input type="hidden" name="audio_quality_score" value="">
 				<input type="hidden" name="recording_metadata" value="">
+				<!-- Hidden telemetry populated automatically -->
+				<input type="hidden" name="mic-rest-adjustments" value="">
+				<input type="hidden" name="device" value="">
+				<input type="hidden" name="user_agent" value="">
 
 			<button type="button" id="starmus_continue_btn_<?php echo esc_attr( $instance_id ); ?>" class="starmus-btn starmus-btn--primary">
 				<?php esc_html_e( 'Continue to Recording', 'starmus-audio-recorder' ); ?>
