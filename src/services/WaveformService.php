@@ -43,14 +43,14 @@ class WaveformService {
 
 		$file_path = get_attached_file( $attachment_id );
 		if ( ! $file_path || ! file_exists( $file_path ) ) {
-			error_log( "Starmus Waveform Service: Source file not found for attachment ID {$attachment_id}." );
+
 			return false;
 		}
 
 		$waveform_peaks = $this->extract_waveform_from_file( $file_path );
 
 		if ( is_null( $waveform_peaks ) ) { // Check for null, as an empty array could be a valid (silent) waveform.
-			error_log( "Starmus Waveform Service: Failed to extract waveform data for file: {$file_path}." );
+
 			return false;
 		}
 
@@ -88,11 +88,11 @@ class WaveformService {
 		// Create a temporary file path for the JSON output.
 		$temp_base = tempnam( sys_get_temp_dir(), 'waveform-' );
 		if ( ! $temp_base ) {
-			error_log( 'Starmus Waveform Service: Could not create temporary file.' );
+
 			return null;
 		}
 		$temp_json_path = $temp_base . '.json';
-		unlink( $temp_base ); // Immediately remove the file created by tempnam. We only want the name.
+		wp_delete_file( $temp_base ); // Immediately remove the file created by tempnam. We only want the name.
 
 		$input_path  = escapeshellarg( $file_path );
 		$output_path = escapeshellarg( $temp_json_path );
@@ -102,22 +102,20 @@ class WaveformService {
 
 		// Check if the command failed or if the output file wasn't created.
 		if ( $return_code !== 0 || ! file_exists( $temp_json_path ) ) {
-			error_log( "Starmus Waveform Service: audiowaveform failed. Return code: {$return_code}. Command: {$command}. Output: " . implode( "\n", $output_lines ) );
 			if ( file_exists( $temp_json_path ) ) {
-				unlink( $temp_json_path ); // Cleanup on failure.
+				wp_delete_file( $temp_json_path ); // Cleanup on failure.
 			}
 			return null;
 		}
 
 		$json_content = file_get_contents( $temp_json_path );
-		unlink( $temp_json_path ); // Cleanup on success.
+		wp_delete_file( $temp_json_path ); // Cleanup on success.
 
 		$decoded = json_decode( $json_content, true );
 		if ( json_last_error() === JSON_ERROR_NONE && isset( $decoded['data'] ) ) {
 			return $decoded['data'];
 		}
 
-		error_log( 'Starmus Waveform Service: Failed to decode JSON from audiowaveform output.' );
 		return null;
 	}
 }

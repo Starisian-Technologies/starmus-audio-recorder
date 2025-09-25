@@ -98,7 +98,6 @@ class AudioProcessingService {
 			return true;
 		}
 
-		error_log( 'Starmus Service: Failed to write ID3 tags. Errors: ' . implode( '; ', $tagwriter->errors ) );
 		return false;
 	}
 }

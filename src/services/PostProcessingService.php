@@ -38,13 +38,13 @@ class PostProcessingService {
 	 */
 	public function process_and_archive_audio( int $attachment_id, array $options = array() ): bool {
 		if ( ! $this->is_tool_available() ) {
-			error_log( 'Starmus PostProcessing: ffmpeg not available.' );
+
 			return false;
 		}
 
 		$original_path = get_attached_file( $attachment_id );
 		if ( ! $original_path || ! file_exists( $original_path ) ) {
-			error_log( "Starmus PostProcessing: Source file not found for attachment {$attachment_id}." );
+
 			return false;
 		}
 		$options['']   = $original_path;
@@ -57,7 +57,7 @@ class PostProcessingService {
 		// --- 1. Backup the original file before any changes ---
 		$backup_path = $original_path . '.bak';
 		if ( ! rename( $original_path, $backup_path ) ) {
-			error_log( "Starmus PostProcessing: Could not create backup for attachment {$attachment_id}." );
+
 			return false;
 		}
 
@@ -71,7 +71,6 @@ class PostProcessingService {
 		exec( $cmd_wav . ' 2>&1', $out_wav, $ret_wav );
 
 		if ( $ret_wav !== 0 || ! file_exists( $archival_path ) ) {
-			error_log( "Starmus ffmpeg (WAV archive) failed for attachment {$attachment_id}: " . implode( "\n", $out_wav ) );
 			rename( $backup_path, $original_path ); // Restore backup on failure
 			return false;
 		}
@@ -91,10 +90,9 @@ class PostProcessingService {
 		exec( $cmd_mp3 . ' 2>&1', $out_mp3, $ret_mp3 );
 
 		if ( $ret_mp3 !== 0 || ! file_exists( $mp3_path ) ) {
-			error_log( "Starmus ffmpeg (MP3 master) failed for attachment {$attachment_id}: " . implode( "\n", $out_mp3 ) );
 			rename( $backup_path, $original_path ); // Restore backup
 			if ( file_exists( $archival_path ) ) {
-				unlink( $archival_path ); // Clean up partial archive
+				wp_delete_file( $archival_path ); // Clean up partial archive
 			}
 			return false;
 		}
@@ -114,7 +112,7 @@ class PostProcessingService {
 
 		// --- 6. Store archival path and clean up ---
 		update_post_meta( $attachment_id, '_starmus_archival_path', $archival_path );
-		unlink( $backup_path ); // Success, so remove the backup file.
+		wp_delete_file( $backup_path ); // Success, so remove the backup file.
 
 		do_action(
 			'starmus_audio_postprocessed',

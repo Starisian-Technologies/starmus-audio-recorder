@@ -73,7 +73,7 @@ class StarmusCron {
 			// The metadata service sets the final 'complete' status internally.
 			do_action( 'starmus_audio_pipeline_complete', $attachment_id );
 		} else {
-			error_log( "Starmus Pipeline: The main processing pipeline failed for attachment {$attachment_id}." );
+
 			update_post_meta( $attachment_id, '_audio_processing_status', 'failed_processing' );
 		}
 	}
