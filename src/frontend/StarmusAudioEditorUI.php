@@ -399,14 +399,7 @@ class StarmusAudioEditorUI {
 
 	private function log_error( string $context, Throwable $e ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-				sprintf(
-					'Starmus Editor: %s - %s in %s:%d',
-					sanitize_text_field( $context ),
-					sanitize_text_field( $e->getMessage() ),
-					$e->getFile(),
-					$e->getLine()
-				)
-			);
+			// Debug logging has been removed for production.
 		}
 	}
 }

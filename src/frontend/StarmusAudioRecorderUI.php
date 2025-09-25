@@ -704,14 +704,7 @@ class StarmusAudioRecorderUI {
 	 */
 	private function log_error( string $context, \Throwable $e ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-				sprintf(
-					'Starmus: %s - %s in %s:%d',
-					sanitize_text_field( $context ),
-					sanitize_text_field( $e->getMessage() ),
-					sanitize_text_field( $e->getFile() ),
-					$e->getLine()
-				)
-			);
+			// Debug logging has been removed for production.
 		}
 	}
 	/**
@@ -782,6 +775,7 @@ class StarmusAudioRecorderUI {
 
 		$current_size = $wp_filesystem->exists( $temp_file_path ) ? $wp_filesystem->size( $temp_file_path ) : 0;
 		if ( $offset !== $current_size ) {
+			// translators: %1$d is the received offset, %2$d is the expected offset.
 			return new WP_Error( 'bad_chunk_offset', sprintf( __( 'Chunk offset mismatch. Received %1$d, expected %2$d.', 'starmus-audio-recorder' ), $offset, $current_size ), array( 'status' => 409 ) );
 		}
 
