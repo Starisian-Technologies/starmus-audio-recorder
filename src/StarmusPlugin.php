@@ -205,6 +205,65 @@ final class StarmusPlugin {
 			add_action( 'admin_notices', array( $this, 'displayRuntimeErrorNotice' ) );
 		}
 
+		// Register admin menu and settings if admin component is available.
+		if ( is_object( $this->admin ) ) {
+			error_log( 'Starmus Plugin: Admin component available, registering admin hooks' );
+			add_action( 'admin_menu', array( $this->admin, 'add_admin_menu' ) );
+			add_action( 'admin_init', array( $this->admin, 'register_settings' ) );
+		} else {
+			error_log( 'Starmus Plugin: Admin component NOT available' );
+		}
+
+		// Register front-end editor shortcodes and scripts if components are available.
+		if ( is_object( $this->editor ) ) {
+			error_log( 'Starmus Plugin: Editor component available, registering editor hooks' );
+			add_shortcode( 'starmus_audio_editor', array( $this->editor, 'render_audio_editor_shortcode' ) );
+			add_action( 'wp_enqueue_scripts', array( $this->editor, 'enqueue_scripts' ) );
+			add_action( 'rest_api_init', array( $this->editor, 'register_rest_endpoint' ) );
+		} else {
+			error_log( 'Starmus Plugin: Editor component NOT available' );
+		}
+
+		// Register front-end recorder shortcodes, scripts, and hooks if component is available.
+		if ( is_object( $this->recorder ) ) {
+			error_log( 'Starmus Plugin: Recorder component available, registering recorder hooks' );
+			add_shortcode( 'starmus_my_recordings', array( $this->recorder, 'render_my_recordings_shortcode' ) );
+			add_shortcode( 'starmus_audio_recorder_form', array( $this->recorder, 'render_recorder_shortcode' ) );
+			add_action( 'wp_enqueue_scripts', array( $this->recorder, 'enqueue_scripts' ) );
+			add_action( 'rest_api_init', array( $this->recorder, 'register_rest_routes' ) );
+			add_action( 'starmus_after_audio_upload', array( $this->recorder, 'save_all_metadata' ), 10, 3 );
+			add_filter( 'starmus_audio_upload_success_response', array( $this->recorder, 'add_conditional_redirect' ), 10, 3 );
+			// Cron scheduling moved to activation to avoid performance issues
+			add_action( 'starmus_cleanup_temp_files', array( $this->recorder, 'cleanup_stale_temp_files' ) );
+			// Clear cache when a Language is added, edited, or deleted.
+			add_action( 'create_language', array( $this->recorder, 'clear_taxonomy_transients' ) );
+			add_action( 'edit_language', array( $this->recorder, 'clear_taxonomy_transients' ) );
+			add_action( 'delete_language', array( $this->recorder, 'clear_taxonomy_transients' ) );
+			// Clear cache when a Recording Type is added, edited, or deleted.
+			add_action( 'create_recording-type', array( $this->recorder, 'clear_taxonomy_transients' ) );
+			add_action( 'edit_recording-type', array( $this->recorder, 'clear_taxonomy_transients' ) );
+			add_action( 'delete_recording-type', array( $this->recorder, 'clear_taxonomy_transients' ) );
+			// Add filter so mime passes
+			add_filter(
+				'upload_mimes',
+				function ( $mimes ) {
+					$mimes['weba'] = 'audio/webm';
+					$mimes['webm'] = 'video/webm'; // webm can be both audio and video, prioritize video
+					$mimes['opus'] = 'audio/ogg; codecs=opus';
+					return $mimes;
+				}
+			);
+			error_log( 'Starmus Plugin: Shortcodes registered - starmus_my_recordings and starmus_audio_recorder' );
+		} else {
+			error_log( 'Starmus Plugin: Recorder component NOT available' );
+		}
+
+		// Register settings hooks if settings component is available.
+
+		if ( is_object( $this->updater ) ) {
+			add_filter( 'pre_set_site_transient_update_plugins', array( $this->updater, 'check_for_updates' ) );
+		}
+
 		error_log( 'Starmus Plugin: All hooks registered successfully' );
 	}
 	/**
@@ -231,8 +290,9 @@ final class StarmusPlugin {
 	 */
 	private function set_starmus_settings(): void {
 		try {
-			if ( ! is_object( $this->settings ) && class_exists( 'StarmusSettings' ) ) {
-				$this->settings = new StarmusSettings();
+			if ( ! is_object( $this->settings ) && class_exists( 'Starmus\\includes\\StarmusSettings' ) ) {
+				$this->settings = new \Starmus\includes\StarmusSettings();
+
 				error_log( 'Starmus Plugin: Settings component instantiated.' );
 			}
 		} catch ( Throwable $e ) {
@@ -279,7 +339,7 @@ final class StarmusPlugin {
 		}
 
 		try {
-			if ( class_exists( 'StarmusPluginUpdater' ) ) {
+			if ( class_exists( 'Starmus\\core\\StarmusPluginUpdater' ) ) {
 				// phpcs:ignore Squiz.NamingConventions.ValidVariableName.NotCamelCaps
 				// @phpstan-ignore-next-line
 				$this->updater = new StarmusPluginUpdater( STARMUS_MAIN_FILE, STARMUS_VERSION );
@@ -382,7 +442,7 @@ final class StarmusPlugin {
 				}
 			}
 		} catch ( Throwable $e ) {
-			if ( ( WP_DEBUG === true ) && ( WP_DEBUG_LOG === true ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 				trigger_error( 'Starmus Plugin: Error adding capabilities - ' . esc_html( sanitize_text_field( $e->getMessage() ) ), E_USER_WARNING );
 			}
 		}

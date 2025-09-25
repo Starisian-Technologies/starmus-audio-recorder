@@ -22,7 +22,7 @@
         banner.style.cssText = 'position:fixed;top:48px;left:0;z-index:99999;background:#22a;color:#fff;padding:4px 12px;font:14px monospace;opacity:0.95';
         document.body.appendChild(banner);
         setTimeout(() => banner.remove(), 4000);
-        secureLog('info', 'DEBUG: Recorder Module banner shown');
+        secureLog('info', 'DEBUG: Recorder Module banner shown'); 
     }
 
     const hasMediaRecorder = !!(window.MediaRecorder && window.navigator.mediaDevices);

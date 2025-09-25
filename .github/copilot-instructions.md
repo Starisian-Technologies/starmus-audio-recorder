@@ -1,55 +1,74 @@
 # Copilot Instructions for Starmus Audio Recorder
 
 ## Project Overview
-- **Purpose:** Mobile-first, offline-capable WordPress plugin for audio recording, annotation, and consent capture, optimized for low-bandwidth and legacy devices.
-- **Architecture:** Modular, progressive enhancement. Modern browsers get advanced features (calibration, speech-to-text); legacy browsers get a fallback. Core flows are chunked uploads (tus.io), offline queue (IndexedDB), and robust REST API integration.
+Mobile-first WordPress audio recorder designed for West Africa's constrained networks. Built with offline-first architecture, progressive enhancement (Tier A/B/C browsers), and strict payload budgets (≤60KB JS, ≤25KB CSS gzipped).
 
 ## Key Components & Patterns
-- **PHP:**
-  - `src/includes/StarmusPlugin.php`: Main plugin controller, hooks registration.
-  - `src/frontend/StarmusAudioRecorderUI.php`: Handles UI, chunked uploads, metadata, and redirects.
-  - `src/frontend/StarmusAudioEditorUI.php`: Annotation editor and REST API.
-  - Custom post types: `audio-recording`, `consent-agreement`.
-  - Taxonomies: `language`, `recording_type`.
-- **JS:**
-  - `src/js/starmus-audio-recorder-module.js`: Recording engine (MediaRecorder, calibration, speech recognition).
-  - `src/js/starmus-audio-recorder-submissions-handler.js`: Uploads, offline queue, tus.io, REST fallback.
-  - `src/js/starmus-audio-recorder-ui-controller.js`: UI logic, validation, delegates to engine/uploader.
-  - `src/js/starmus-audio-recorder-submissions.js`: Legacy fallback, geolocation, polyfills.
-- **CSS:**
-  - Payload budgets: ≤ 60KB JS, ≤ 25KB CSS (gzipped).
+**Core Architecture:**
+- `src/StarmusPlugin.php`: Main plugin controller, singleton pattern, hooks registration
+- `src/frontend/StarmusAudioRecorderUI.php`: Two-step UI, chunked uploads, tus.io integration
+- `src/frontend/StarmusAudioEditorUI.php`: Peaks.js-based editor, REST API endpoints
+- Custom post types: `audio-recording`, `consent-agreement`
+- Taxonomies: `language`, `recording_type`
+
+**JavaScript Modules (Separation of Concerns):**
+- `src/js/starmus-audio-recorder-module.js`: Pure recording engine (MediaRecorder, calibration)
+- `src/js/starmus-audio-recorder-submissions-handler.js`: Upload logic, IndexedDB queue, tus.io
+- `src/js/starmus-audio-recorder-ui-controller.js`: Form validation, two-step flow delegation
+- `src/js/starmus-offline-sync.js`: Legacy fallback, geolocation, polyfills
 
 ## Developer Workflows
-- **Build:** Use `msbuild` (see VSCode tasks) for .NET components if present. For PHP/JS, standard Composer/NPM workflows.
-- **Test:**
-  - PHP: PHPUnit (`phpunit.xml.dist`), integration/REST tests in `tests/integration/`.
-  - JS: Playwright E2E (`tests/e2e/`), run via `npx playwright test`.
-- **Lint:**
-  - PHP: `phpcs.xml.dist`, `phpstan.neon.dist`.
-  - JS/CSS: `eslint.config.js`, `stylelint.config.js`, `prettierrc.json`.
-- **Docs:** Update `README.md`, `CHANGELOG.md` for all major changes.
+**Build & Test Commands:**
+```bash
+# Frontend/E2E testing
+npm test                    # Runs Playwright E2E + accessibility tests
+npm run test:e2e           # End-to-end tests
+npm run test:a11y          # WCAG compliance tests
 
-## Conventions & Guardrails
-- **Naming:** Prefix all handles/routes with `star-<slug>`. REST: `star-<slug>/v1`.
-- **Security:** Use nonces/capabilities for privileged actions. Sanitize input, escape output, use prepared SQL, strict MIME for uploads.
-- **Privacy:** No PII in logs. Consent gating for recording/analytics. Explicit delete/opt-out flows.
-- **Dependencies:** No heavy front-end frameworks. Use vanilla JS, progressive enhancement. Bundle Composer/NPM deps in `/vendor/js/`.
-- **Licensing:** SPDX header, copyright Starisian Technologies.
+# PHP/Backend testing  
+composer test              # PHPUnit + quality checks (requires vendor install)
+composer run test:unit     # Unit tests only
+composer run lint:php      # PHPCS code style
+composer run analyze:php   # PHPStan static analysis
 
-## Integration Points
-- **tus.io:** Resumable uploads. Configure endpoint in `StarmusAudioRecorderUI.php`.
-- **audiowaveform:** Required for waveform generation in editor (must be on server PATH).
-- **Hooks:**
-  - `starmus_before_recorder_render`, `starmus_after_audio_upload`, `starmus_audio_upload_success_response` (see `README.md` for usage).
-  - Editor: `starmus_before_editor_render`, `starmus_editor_template`, `starmus_before_annotations_save`, `starmus_after_annotations_save`.
+# Build pipeline
+npm run build              # Full build: clean → vendor → CSS/JS → hash → version sync
+```
 
-## Examples
-- See `README.md` for shortcode usage and hook examples.
-- JS modules are decoupled: UI delegates to engine/uploader, never mixes concerns.
+**Key Config Files:** `phpunit.xml.dist`, `phpcs.xml.dist`, `phpstan.neon.dist`, `eslint.config.js`, `playwright.config.js`
 
-## Acceptance
-- All code must pass lint/tests, respect payload budgets, and work offline (queue resumes after drop).
-- i18n strings must be extractable.
+## Naming Conventions & Standards
+- **Namespace:** `Starmus\\ComponentName\\` (PSR-4 autoload)
+- **Handles/Routes:** `star-<slug>-*` (e.g., `star-audio-recorder-upload`)
+- **REST Namespace:** `star-<slug>/v1` (e.g., `/wp-json/star-audio-recorder/v1/upload`)
+- **Hook Prefix:** `starmus_` (e.g., `starmus_before_recorder_render`)
+- **Error Handling:** Internals throw exceptions, boundaries return `WP_Error`
+- **JS Responses:** `{ ok: boolean, code: string, message: string, data: object }`
 
----
-For more, see `AGENTS.md` and `README.md`. When in doubt, prefer minimal, secure, and offline-first solutions.
+## Security & Offline Patterns
+- **Capabilities + nonces** for privileged actions
+- **IndexedDB-first** with localStorage fallback for offline queue
+- **Chunked uploads** with resume capability (tus.io protocol)
+- **Input sanitization:** `sanitize_text_field()`, `absint()`, `$wpdb->prepare()`
+- **Output escaping:** `esc_html()`, `esc_attr()`, `wp_kses()`
+
+## Integration Points & Hooks
+```php
+// Core recorder hooks
+do_action('starmus_before_recorder_render', $instance_id);
+do_action('starmus_after_audio_upload', $post_id, $file_path, $metadata);
+$response = apply_filters('starmus_audio_upload_success_response', $response, $post_id, $form_data);
+
+// Editor hooks  
+do_action('starmus_before_editor_render', $post_id);
+do_action('starmus_before_annotations_save', $post_id, $annotations);
+```
+
+## Mobile-First Requirements
+- **Progressive enhancement:** Tier A (modern), Tier B (legacy), Tier C (file upload fallback)
+- **Offline queue resilience:** FIFO IndexedDB queue with retry logic
+- **Bundle constraints:** Validate with `npm run size-check`
+- **Accessibility:** WCAG 2.1 AA compliance, keyboard navigation
+- **Legacy browser support:** Avoid ES2020+ features, include polyfills
+
+Refer to `AGENTS.md`, `INSTRUCTIONS.md`, and `TESTING.md` for detailed conventions. When in doubt, prioritize offline-first, secure, and minimal solutions.

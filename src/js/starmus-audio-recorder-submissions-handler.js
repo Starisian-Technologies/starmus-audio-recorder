@@ -30,7 +30,7 @@
         banner.style.cssText = 'position:fixed;top:24px;left:0;z-index:99999;background:#2a2;color:#fff;padding:4px 12px;font:14px monospace;opacity:0.95';
         document.body.appendChild(banner);
         setTimeout(() => banner.remove(), 4000);
-        log('info', 'DEBUG: Submissions Handler banner shown');
+        log('info', 'DEBUG: Submissions Handler banner shown'); 
     }
     function el(id) { return document.getElementById(id); }
     function safeId(id) { return typeof id === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(id); }

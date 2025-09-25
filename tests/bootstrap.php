@@ -17,13 +17,14 @@ if ( ! $_tests_dir ) {
 	$_tests_dir = '/wordpress-phpunit';
 }
 
-if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
-	echo "Could not find $_tests_dir/includes/functions.php\n";
+$file = $_tests_dir . '/includes/functions.php' 
+if ( ! file_exists( $file ) ) {
+	echo "Could not find " .  esc_html($file);
 	exit( 1 );
 }
 
 // Give access to tests_add_filter() function
-require_once $_tests_dir . '/includes/functions.php';
+require_once $file;
 
 /**
  * Manually load the plugin being tested
