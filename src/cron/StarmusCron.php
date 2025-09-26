@@ -31,8 +31,8 @@ class StarmusCron {
 	 * This should be called from the main plugin file.
 	 */
 	public function register_hooks(): void {
-		// Defines what function to run when the cron job executes.
-		add_action( self::PROCESS_AUDIO_HOOK, array( $this, 'run_audio_processing_pipeline' ), 10, 1 );
+		// 		
+
 	}
 
 	/**

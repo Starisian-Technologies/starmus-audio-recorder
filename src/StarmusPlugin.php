@@ -219,8 +219,9 @@ final class StarmusPlugin {
                         'ogv'  => 'video/ogg',
                         'avi'  => 'video/x-msvideo',
                         'wmv'  => 'video/x-ms-wmv',
-                        'svg'  => 'image/svg+xml',
-                        'pdf'  => 'application/pdf',
+						'3gp'  => 'video/3gpp',
+						'3g2'  => 'video/3gpp2',
+
                 );
 
                 if ( isset( $whitelist[ $ext ] ) ) {
@@ -245,7 +246,6 @@ final class StarmusPlugin {
                 $mimes['weba'] = 'audio/webm';
                 $mimes['webm'] = 'video/webm';
                 $mimes['opus'] = 'audio/ogg; codecs=opus';
-
                 return $mimes;
         }
 	/**
@@ -335,8 +335,17 @@ final class StarmusPlugin {
 
 		error_log( 'Starmus Plugin: Component instantiation complete' );
 	}
-
-	public function get_starmus_settings(): ?StarmusSettings {
+	/**
+	 *
+	 * Ensures the settings component is instantiated before returning it.
+	 *
+	 * @since 0.1.0
+	 * @return StarmusSettings The settings instance.
+	 */
+	public function get_starmus_settings(): StarmusSettings{
+		if(! is_object($this->settings)) {
+			$this->set_starmus_settings();
+		}
 		return $this->settings;
 	}
 
