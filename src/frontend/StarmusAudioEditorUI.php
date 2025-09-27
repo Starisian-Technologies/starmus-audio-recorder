@@ -30,19 +30,40 @@ if (!defined('ABSPATH')) {
 class StarmusAudioEditorUI
 {
 
-	const STAR_REST_NAMESPACE = 'starmus/v1';
+        /**
+         * REST namespace consumed by the editor for annotation endpoints.
+         */
+        public const STAR_REST_NAMESPACE = StarmusSubmissionHandler::STAR_REST_NAMESPACE;
 
-	const STAR_MAX_ANNOTATIONS = 1000;
-	const STAR_RATE_LIMIT_SECONDS = 2;
+        /**
+         * Upper bound for stored annotations to avoid overloading requests.
+         */
+        public const STAR_MAX_ANNOTATIONS = 1000;
 
-	private ?array $cached_context = null;
+        /**
+         * Time-based throttle applied when saving annotations.
+         */
+        public const STAR_RATE_LIMIT_SECONDS = 2;
 
-	public function __construct()
-	{
-		$this->register_hooks();
-	}
+        /**
+         * Cached rendering context shared between hooks during a request.
+         */
+        private ?array $cached_context = null;
 
-	private function register_hooks(): void
+        /**
+         * Bootstrap the editor by registering its WordPress hooks.
+         */
+        public function __construct()
+        {
+                $this->register_hooks();
+        }
+
+        /**
+         * Register shortcode, assets, and REST route hooks.
+         *
+         * @return void
+         */
+        private function register_hooks(): void
 	{
 		// Register shortcode for audio editor.
 		add_shortcode('starmus_audio_editor', array($this, 'render_audio_editor_shortcode'));
@@ -52,7 +73,12 @@ class StarmusAudioEditorUI
 		add_action('rest_api_init', array($this, 'register_rest_endpoint'));
 	}
 
-	public function render_audio_editor_shortcode(): string
+        /**
+         * Render the audio editor shortcode output for the current user.
+         *
+         * @return string HTML payload for the editor interface.
+         */
+        public function render_audio_editor_shortcode(): string
 	{
 		try {
 			if (!is_user_logged_in()) {
@@ -70,7 +96,14 @@ class StarmusAudioEditorUI
 		}
 	}
 
-	private function render_template_secure(array $context): string
+        /**
+         * Safely render the editor template with the provided context.
+         *
+         * @param array $context Data exposed to the template during rendering.
+         *
+         * @return string Rendered markup or an error notice.
+         */
+        private function render_template_secure(array $context): string
 	{
 		$default_template = STARMUS_PATH . 'src/templates/starmus-audio-editor-ui.php';
 		$template_path = apply_filters('starmus_editor_template', $default_template, $context);
@@ -92,7 +125,14 @@ class StarmusAudioEditorUI
 		}
 	}
 
-	private function is_valid_template_path(string $path): bool
+        /**
+         * Validate that the template path resolves to an allowed directory.
+         *
+         * @param string $path Candidate template path.
+         *
+         * @return bool True when the path is safe to include.
+         */
+        private function is_valid_template_path(string $path): bool
 	{
 		$real_path = realpath($path);
 		if (!$real_path) {
@@ -113,7 +153,12 @@ class StarmusAudioEditorUI
 		return false;
 	}
 
-	public function enqueue_scripts(): void
+        /**
+         * Conditionally enqueue front-end assets required by the editor.
+         *
+         * @return void
+         */
+        public function enqueue_scripts(): void
 	{
 		try {
 			if (!is_singular()) {
@@ -155,7 +200,14 @@ class StarmusAudioEditorUI
 		}
 	}
 
-	private function parse_annotations_json(string $json): array
+        /**
+         * Convert stored annotations JSON to a sanitized array structure.
+         *
+         * @param string $json Raw JSON string.
+         *
+         * @return array Parsed annotation data.
+         */
+        private function parse_annotations_json(string $json): array
 	{
 		try {
 			if (empty($json)) {
@@ -172,7 +224,12 @@ class StarmusAudioEditorUI
 		}
 	}
 
-	private function get_editor_context(): array|WP_Error
+        /**
+         * Build the editor rendering context for the current request.
+         *
+         * @return array|WP_Error Context array or WP_Error on failure.
+         */
+        private function get_editor_context(): array|WP_Error
 	{
 		try {
 			if ($this->cached_context !== null) {
@@ -214,7 +271,14 @@ class StarmusAudioEditorUI
 		}
 	}
 
-	private function get_secure_waveform_url(int $attachment_id): string
+        /**
+         * Generate a signed URL for the waveform attachment if available.
+         *
+         * @param int $attachment_id Attachment ID storing the waveform data.
+         *
+         * @return string Public URL for the waveform or empty string when missing.
+         */
+        private function get_secure_waveform_url(int $attachment_id): string
 	{
 		$wave_json_path = get_post_meta($attachment_id, '_waveform_json_path', true);
 		if (!is_string($wave_json_path) || empty($wave_json_path)) {
@@ -232,7 +296,12 @@ class StarmusAudioEditorUI
 		return str_replace($uploads['basedir'], $uploads['baseurl'], $wave_json_path);
 	}
 
-	public function register_rest_endpoint(): void
+        /**
+         * Register REST endpoints used by the editor for annotation persistence.
+         *
+         * @return void
+         */
+        public function register_rest_endpoint(): void
 	{
 		register_rest_route(
 			self::STAR_REST_NAMESPACE,
@@ -258,12 +327,26 @@ class StarmusAudioEditorUI
 		);
 	}
 
-	public function validate_post_id($value): bool
+        /**
+         * Validate incoming post ID arguments for REST requests.
+         *
+         * @param mixed $value Raw value supplied to the REST endpoint.
+         *
+         * @return bool True when the value is a valid post identifier.
+         */
+        public function validate_post_id($value): bool
 	{
 		return is_numeric($value) && $value > 0 && get_post(absint($value)) !== null;
 	}
 
-	public function sanitize_annotations($value): array
+        /**
+         * Sanitize incoming annotations payloads from REST requests.
+         *
+         * @param mixed $value Raw annotations payload.
+         *
+         * @return array Normalized annotations array.
+         */
+        public function sanitize_annotations($value): array
 	{
 		try {
 			if (!is_array($value)) {
@@ -289,7 +372,14 @@ class StarmusAudioEditorUI
 		}
 	}
 
-	public function validate_annotations($value): bool
+        /**
+         * Validate that annotations array obeys structural constraints.
+         *
+         * @param mixed $value Annotations payload to validate.
+         *
+         * @return bool True when annotations are acceptable.
+         */
+        public function validate_annotations($value): bool
 	{
 		if (!is_array($value) || count($value) > self::STAR_MAX_ANNOTATIONS) {
 			return false;
@@ -310,7 +400,14 @@ class StarmusAudioEditorUI
 		return true;
 	}
 
-	public function can_save_annotations(WP_REST_Request $request): bool
+        /**
+         * Determine whether the current request is authorized to save annotations.
+         *
+         * @param WP_REST_Request $request REST request context.
+         *
+         * @return bool True when the user can persist annotations.
+         */
+        public function can_save_annotations(WP_REST_Request $request): bool
 	{
 		try {
 			$nonce = $request->get_header('X-WP-Nonce');
@@ -328,7 +425,14 @@ class StarmusAudioEditorUI
 		}
 	}
 
-	public function handle_save_annotations(WP_REST_Request $request): WP_REST_Response
+        /**
+         * Persist sanitized annotations for a recording.
+         *
+         * @param WP_REST_Request $request REST request containing annotations.
+         *
+         * @return WP_REST_Response Success response with saved annotations.
+         */
+        public function handle_save_annotations(WP_REST_Request $request): WP_REST_Response
 	{
 		try {
 			$post_id = absint($request->get_param('postId'));
@@ -385,7 +489,14 @@ class StarmusAudioEditorUI
 		}
 	}
 
-	private function is_rate_limited(int $post_id): bool
+        /**
+         * Check if the request should be throttled to avoid rapid writes.
+         *
+         * @param int $post_id Recording post ID.
+         *
+         * @return bool True when rate limited.
+         */
+        private function is_rate_limited(int $post_id): bool
 	{
 		$user_id = get_current_user_id();
 		$key = "starmus_ann_rl_{$user_id}_{$post_id}";
@@ -396,7 +507,14 @@ class StarmusAudioEditorUI
 		return false;
 	}
 
-	private function validate_annotation_consistency(array $annotations)
+        /**
+         * Ensure annotation timestamps are sorted and non-overlapping.
+         *
+         * @param array $annotations Annotation entries to validate.
+         *
+         * @return void
+         */
+        private function validate_annotation_consistency(array $annotations)
 	{
 		if (empty($annotations)) {
 			return true;
@@ -417,7 +535,15 @@ class StarmusAudioEditorUI
 		return true;
 	}
 
-	private function log_error(string $context, Throwable $e): void
+        /**
+         * Log an error with unified context handling.
+         *
+         * @param string    $context Message prefix describing the failure.
+         * @param Throwable $e       Captured exception instance.
+         *
+         * @return void
+         */
+        private function log_error(string $context, Throwable $e): void
 	{
 		if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
 			// Debug logging has been removed for production.
