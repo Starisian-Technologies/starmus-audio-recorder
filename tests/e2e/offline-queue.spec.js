@@ -45,7 +45,7 @@ test.describe("Offline-first patterns", () => {
   });
 
   test("chunked upload with slow connection", async ({ page }) => {
-    await page.route("**/starmus/v1/upload-chunk", (route) => {
+    await page.route("**/star-starmus-audio-recorder/v1/upload-chunk", (route) => {
       setTimeout(() => route.continue(), 2000); // 2s delay
     });
 

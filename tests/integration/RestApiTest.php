@@ -23,14 +23,14 @@ class RestApiTest extends WP_UnitTestCase {
     }
 
     public function test_rest_namespace_follows_star_convention() {
-        $namespace = \Starmus\frontend\StarmusAudioRecorderUI::STAR_REST_NAMESPACE;
-        $this->assertStringStartsWith('starmus/', $namespace);
+        $namespace = \Starmus\frontend\StarmusSubmissionHandler::STAR_REST_NAMESPACE;
+        $this->assertStringStartsWith('star-', $namespace);
     }
 
     public function test_upload_requires_authentication() {
         wp_set_current_user(0); // Logout
         
-        $request = new WP_REST_Request('POST', '/starmus/v1/upload-chunk');
+        $request = new WP_REST_Request('POST', '/star-starmus-audio-recorder/v1/upload-chunk');
         $response = $this->ui->upload_permissions_check($request);
         
         $this->assertFalse($response);
@@ -41,14 +41,14 @@ class RestApiTest extends WP_UnitTestCase {
         $user_id = $this->factory->user->create(['role' => 'subscriber']);
         wp_set_current_user($user_id);
         
-        $request = new WP_REST_Request('POST', '/starmus/v1/upload-chunk');
+        $request = new WP_REST_Request('POST', '/star-starmus-audio-recorder/v1/upload-chunk');
         $response = $this->ui->upload_permissions_check($request);
         
         $this->assertFalse($response);
     }
 
     public function test_upload_requires_valid_nonce() {
-        $request = new WP_REST_Request('POST', '/starmus/v1/upload-chunk');
+        $request = new WP_REST_Request('POST', '/star-starmus-audio-recorder/v1/upload-chunk');
         $request->set_header('X-WP-Nonce', 'invalid_nonce');
         
         $response = $this->ui->upload_permissions_check($request);
