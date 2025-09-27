@@ -32,8 +32,8 @@ class StarmusAudioEditorUI
 
         /**
          * REST namespace consumed by the editor for annotation endpoints.
+         * Use StarmusSubmissionHandler::STAR_REST_NAMESPACE directly where needed.
          */
-        public const STAR_REST_NAMESPACE = StarmusSubmissionHandler::STAR_REST_NAMESPACE;
 
         /**
          * Upper bound for stored annotations to avoid overloading requests.
