@@ -45,6 +45,7 @@ class StarmusAudioEditorUI {
 			add_shortcode( 'starmus_audio_editor', array( $this, 'render_audio_editor_shortcode' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			add_action( 'rest_api_init', array( $this, 'register_rest_endpoint' ) );
+
 	}
 
 	public function render_audio_editor_shortcode(): string {

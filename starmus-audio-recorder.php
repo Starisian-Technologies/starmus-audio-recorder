@@ -39,16 +39,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// 1. Define Plugin Constants.
+/** Absolute filesystem path to the plugin directory. */
 define( 'STARMUS_PATH', plugin_dir_path( __FILE__ ) );
+/** Public URL to the plugin directory. */
 define( 'STARMUS_URL', plugin_dir_url( __FILE__ ) );
+/** Main plugin file reference used for WordPress hooks. */
 define( 'STARMUS_MAIN_FILE', __FILE__ );
+/** Directory path alias kept for backward compatibility. */
 define( 'STARMUS_MAIN_DIR', plugin_dir_path( __FILE__ ) );
 
-
-// ... other constants ...
+/** Human readable plugin name displayed in WordPress admin. */
 define( 'STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder' );
+/** Shared prefix applied to option keys, actions, and filters. */
 define( 'STARMUS_PLUGIN_PREFIX', 'starmus' );
+/** Current plugin semantic version string. */
 define( 'STARMUS_VERSION', '0.7.4' );
 
 // Load Composer autoloader if present.
@@ -74,18 +78,8 @@ use Starmus\StarmusPlugin;
 register_activation_hook( STARMUS_MAIN_FILE, array( 'Starmus\StarmusPlugin', 'activate' ) );
 register_deactivation_hook( STARMUS_MAIN_FILE, array( 'Starmus\StarmusPlugin', 'deactivate' ) );
 register_uninstall_hook( STARMUS_MAIN_FILE, array( 'Starmus\StarmusPlugin', 'uninstall' ) );
-// Initialize the plugin.
-add_action(
-	'plugins_loaded',
-	function () {
-			StarmusPlugin::run();
-	}
-);
+// Initialize the plugin once all other plugins are loaded.
+add_action( 'plugins_loaded', array( StarmusPlugin::class, 'run' ) );
 
-// Hook the init method to the WordPress init action.
-add_action(
-	'init',
-	function () {
-			StarmusPlugin::get_instance()->init();
-	}
-);
+// Bootstrap plugin services during WordPress init lifecycle.
+add_action( 'init', array( StarmusPlugin::class, 'init_plugin' ) );

@@ -17,17 +17,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
-}
-// Add missing global functions for direct template use
-if ( ! function_exists( 'esc_attr' ) ) {
-	function esc_attr( $text ) { return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' ); }
-}
-if ( ! function_exists( 'current_user_can' ) ) {
-	function current_user_can( $cap ) {
-		// Fallback: Only allow for logged-in users in non-WP context
-		return isset( $_COOKIE['wordpress_logged_in'] );
-	}
+        exit; // Exit if accessed directly.
 }
 
 // ** CRITICAL **
@@ -114,7 +104,7 @@ $is_admin              = current_user_can( 'manage_options' );
 					<label for="starmus_consent_<?php echo esc_attr( $instance_id ); ?>">
 						<?php echo wp_kses_post( $consent_message ); ?>
 						<?php if ( ! empty( $data_policy_url ) ) : ?>
-							<a href="<?php echo esc_url( $data_policy_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Privacy Policy', 'starmus-audio-recorder' ); ?></a>
+                                                        <a href="<?php echo esc_url( $data_policy_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Privacy Policy', 'starmus-audio-recorder' ); ?></a>
 						<?php endif; ?>
 					</label>
 				</div>
@@ -140,6 +130,10 @@ $is_admin              = current_user_can( 'manage_options' );
 				<input type="hidden" name="first_pass_transcription" value="">
 				<input type="hidden" name="audio_quality_score" value="">
 				<input type="hidden" name="recording_metadata" value="">
+				<!-- Hidden telemetry populated automatically -->
+				<input type="hidden" name="mic-rest-adjustments" value="">
+				<input type="hidden" name="device" value="">
+				<input type="hidden" name="user_agent" value="">
 
 			<button type="button" id="starmus_continue_btn_<?php echo esc_attr( $instance_id ); ?>" class="starmus-btn starmus-btn--primary">
 				<?php esc_html_e( 'Continue to Recording', 'starmus-audio-recorder' ); ?>
@@ -177,26 +171,31 @@ $is_admin              = current_user_can( 'manage_options' );
 			</button>
 			<?php
 			// Show 'Upload audio' link for Authors and above
-			if ( current_user_can( 'author' ) || current_user_can( 'editor' ) || current_user_can( 'administrator' ) ) : ?>
-				<div class="starmus-upload-audio-link" style="margin-top:24px;text-align:right;">
-					<a href="#" id="starmus_show_upload_<?php echo esc_attr( $instance_id ); ?>" style="font-size:0.95em;">Upload audio</a>
-				</div>
-				<div id="starmus_manual_upload_wrap_<?php echo esc_attr( $instance_id ); ?>" style="display:none;margin-top:12px;">
-					<label for="starmus_manual_upload_input_<?php echo esc_attr( $instance_id ); ?>">Select audio file to upload:</label>
-					<input type="file" id="starmus_manual_upload_input_<?php echo esc_attr( $instance_id ); ?>" name="audio_file" accept="audio/*">
-				</div>
-				<script>
-				document.addEventListener('DOMContentLoaded', function() {
-					var link = document.getElementById('starmus_show_upload_<?php echo esc_attr( $instance_id ); ?>');
-					var wrap = document.getElementById('starmus_manual_upload_wrap_<?php echo esc_attr( $instance_id ); ?>');
-					if (link && wrap) {
-						link.addEventListener('click', function(e) {
-							e.preventDefault();
-							wrap.style.display = (wrap.style.display === 'none') ? 'block' : 'none';
-						});
-					}
-				});
-				</script>
+                        if ( current_user_can( 'author' ) || current_user_can( 'editor' ) || current_user_can( 'administrator' ) ) : ?>
+                                <div class="starmus-upload-audio-link" style="margin-top:24px;text-align:right;">
+                                        <button type="button" id="starmus_show_upload_<?php echo esc_attr( $instance_id ); ?>" class="starmus-btn starmus-btn--link" aria-controls="starmus_manual_upload_wrap_<?php echo esc_attr( $instance_id ); ?>" aria-expanded="false" style="font-size:0.95em;">
+                                                <?php esc_html_e( 'Upload audio', 'starmus-audio-recorder' ); ?>
+                                        </button>
+                                </div>
+                                <div id="starmus_manual_upload_wrap_<?php echo esc_attr( $instance_id ); ?>" style="display:none;margin-top:12px;">
+                                        <label for="starmus_manual_upload_input_<?php echo esc_attr( $instance_id ); ?>">Select audio file to upload:</label>
+                                        <input type="file" id="starmus_manual_upload_input_<?php echo esc_attr( $instance_id ); ?>" name="audio_file" accept="audio/*">
+                                </div>
+                                <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                        const instanceId = <?php echo wp_json_encode( $instance_id ); ?>;
+                                        const toggle = document.getElementById('starmus_show_upload_' + instanceId);
+                                        const wrapper = document.getElementById('starmus_manual_upload_wrap_' + instanceId);
+                                        if (toggle && wrapper) {
+                                                toggle.addEventListener('click', function(event) {
+                                                        event.preventDefault();
+                                                        const isHidden = wrapper.style.display === 'none' || wrapper.style.display === '';
+                                                        wrapper.style.display = isHidden ? 'block' : 'none';
+                                                        toggle.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+                                                });
+                                        }
+                                });
+                                </script>
 			<?php endif; ?>
 		</div>
 	</form>
