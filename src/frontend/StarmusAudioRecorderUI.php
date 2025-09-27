@@ -91,16 +91,16 @@ class StarmusAudioRecorderUI {
 		 * Initialize the recorder UI and load settings.
 		 */
 	public function __construct( ?StarmusSettings $settings ) {
-			error_log( 'StarmusAudioRecorderUI: Constructor called' );
+
 		try {
 			$this->settings = $settings;
 			$this->register_hooks();
-				error_log( 'StarmusAudioRecorderUI: Settings instantiated successfully' );
+
 		} catch ( Throwable $e ) {
-				error_log( 'StarmusAudioRecorderUI: Failed to instantiate settings: ' . $e->getMessage() );
 				throw $e;
 		}
 	}
+
 
         /**
          * Register all WordPress hooks required for the front-end recorder UI.
@@ -109,6 +109,7 @@ class StarmusAudioRecorderUI {
          */
         private function register_hooks(): void {
 		error_log( 'Starmus Plugin: Recorder component available, registering recorder hooks' );
+
 			add_shortcode( 'starmus_my_recordings', array( $this, 'render_my_recordings_shortcode' ) );
 			add_shortcode( 'starmus_audio_recorder_form', array( $this, 'render_recorder_shortcode' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -126,7 +127,6 @@ class StarmusAudioRecorderUI {
 			add_action( 'edit_recording-type', array( $this, 'clear_taxonomy_transients' ) );
 			add_action( 'delete_recording-type', array( $this, 'clear_taxonomy_transients' ) );
 
-			error_log( 'Starmus Plugin: Shortcodes registered - starmus_my_recordings and starmus_audio_recorder' );
 	}
 	/**
 	 * Render the "My Recordings" shortcode.
@@ -137,25 +137,20 @@ class StarmusAudioRecorderUI {
 	 * @version 0.7.4
 	 */
 	public function render_my_recordings_shortcode( $atts = array() ): string {
-		error_log( 'StarmusAudioRecorderUI: render_my_recordings_shortcode called with atts: ' . print_r( $atts, true ) );
 
 		if ( ! is_user_logged_in() ) {
-			error_log( 'StarmusAudioRecorderUI: User not logged in for my_recordings shortcode' );
+
 			return '<p>' . esc_html__( 'You must be logged in to view your recordings.', 'starmus-audio-recorder' ) . '</p>';
 		}
-
-		error_log( 'StarmusAudioRecorderUI: User is logged in, proceeding with my_recordings shortcode' );
 
 		// FIX: Added full try...catch block
 		try {
 			$attributes = shortcode_atts( array( 'posts_per_page' => 10 ), $atts );
-			error_log( 'StarmusAudioRecorderUI: Shortcode attributes processed: ' . print_r( $attributes, true ) );
 
 			$posts_per_page = max( 1, absint( $attributes['posts_per_page'] ) );
 			$paged          = get_query_var( 'paged' ) ? (int) get_query_var( 'paged' ) : 1;
 
 			$cpt_slug = $this->settings->get( 'cpt_slug', 'audio-recording' );
-			error_log( 'StarmusAudioRecorderUI: Using CPT slug: ' . $cpt_slug );
 
 			$query = new WP_Query(
 				array(
@@ -167,8 +162,6 @@ class StarmusAudioRecorderUI {
 				)
 			);
 
-			error_log( 'StarmusAudioRecorderUI: Query executed, found posts: ' . $query->found_posts );
-
 			$template_result = $this->render_template(
 				'starmus-my-recordings-list.php',
 				array(
@@ -177,11 +170,9 @@ class StarmusAudioRecorderUI {
 				)
 			);
 
-			error_log( 'StarmusAudioRecorderUI: Template rendered, length: ' . strlen( $template_result ) );
 			return $template_result;
 
 		} catch ( Throwable $e ) {
-			error_log( 'StarmusAudioRecorderUI: My recordings shortcode error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
 			return '<p>' . esc_html__( 'Unable to load recordings.', 'starmus-audio-recorder' ) . '</p>';
 		}
 	}
@@ -233,7 +224,6 @@ class StarmusAudioRecorderUI {
 			return $admin_flag . $this->render_template( 'starmus-audio-recorder-ui.php', $template_args );
 
 		} catch ( Throwable $e ) {
-			error_log( 'Starmus Plugin: Recorder shortcode render error - ' . $e->getMessage() );
 			return '<p>' . esc_html__( 'The audio recorder is temporarily unavailable.', 'starmus-audio-recorder' ) . '</p>';
 		}
 	}
@@ -260,7 +250,6 @@ class StarmusAudioRecorderUI {
 				set_transient( $cache_key, $terms, 12 * HOUR_IN_SECONDS );
 			} else {
 				// This now correctly uses your log_error method.
-				error_log( $terms->get_error_message() );
 				$this->log_error( 'Get terms failed for ' . $taxonomy, new \Exception( $terms->get_error_message() ) );
 				$terms = array();
 			}
@@ -371,6 +360,7 @@ class StarmusAudioRecorderUI {
 					)
 				);
 	}
+
         /**
          * Validate and sideload an uploaded audio file securely.
          *
@@ -452,6 +442,7 @@ class StarmusAudioRecorderUI {
          * @return string Friendly error message for display/logging.
          */
         private function php_error_message( int $code ): string {
+
 		$map = array(
 			UPLOAD_ERR_INI_SIZE   => 'The uploaded file exceeds the upload_max_filesize limit.',
 			UPLOAD_ERR_FORM_SIZE  => 'The uploaded file exceeds the MAX_FILE_SIZE directive.',
@@ -565,6 +556,7 @@ class StarmusAudioRecorderUI {
                 }
         }
 
+
 	/**
 	 * Check if the current user has permission to upload files.
 	 *
@@ -643,15 +635,7 @@ class StarmusAudioRecorderUI {
 	 */
 	private function log_error( string $context, \Throwable $e ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-			error_log(
-				sprintf(
-					'Starmus: %s - %s in %s:%d',
-					sanitize_text_field( $context ),
-					sanitize_text_field( $e->getMessage() ),
-					sanitize_text_field( $e->getFile() ),
-					$e->getLine()
-				)
-			);
+			// Debug logging has been removed for production.
 		}
 	}
 	/**
@@ -722,6 +706,7 @@ class StarmusAudioRecorderUI {
 
 		$current_size = $wp_filesystem->exists( $temp_file_path ) ? $wp_filesystem->size( $temp_file_path ) : 0;
 		if ( $offset !== $current_size ) {
+			// translators: %1$d is the received offset, %2$d is the expected offset.
 			return new WP_Error( 'bad_chunk_offset', sprintf( __( 'Chunk offset mismatch. Received %1$d, expected %2$d.', 'starmus-audio-recorder' ), $offset, $current_size ), array( 'status' => 409 ) );
 		}
 
@@ -1467,10 +1452,8 @@ class StarmusAudioRecorderUI {
 		 * @version 0.7.4
 		 */
 	private function render_template( string $template_name, array $args = array() ): string {
-		error_log( 'StarmusAudioRecorderUI: render_template called for: ' . $template_name );
 
 		$template_name = basename( $template_name );
-		error_log( 'StarmusAudioRecorderUI: Template basename: ' . $template_name );
 
 		// CORRECTED: Added 'src/' to the plugin's template path.
 		$locations = array(
@@ -1479,23 +1462,21 @@ class StarmusAudioRecorderUI {
 			trailingslashit( STARMUS_PATH ) . 'src/templates/' . $template_name,
 		);
 
-		error_log( 'StarmusAudioRecorderUI: Template search locations: ' . print_r( $locations, true ) );
 
 		$template_path = '';
 		foreach ( $locations as $location ) {
-			error_log( 'StarmusAudioRecorderUI: Checking template location: ' . $location );
+
 			if ( file_exists( $location ) ) {
 				$template_path = $location;
-				error_log( 'StarmusAudioRecorderUI: Template found at: ' . $template_path );
+
 				break;
 			} else {
-				error_log( 'StarmusAudioRecorderUI: Template not found at: ' . $location );
+
 			}
 		}
 
 		try {
 			if ( $template_path ) {
-				error_log( 'StarmusAudioRecorderUI: Loading template: ' . $template_path );
 
 				// CORRECTED: This makes variables like $query available to the template file.
 				if ( is_array( $args ) ) {
@@ -1508,13 +1489,11 @@ class StarmusAudioRecorderUI {
 				include $template_path;
 
 				$output = (string) ob_get_clean();
-				error_log( 'StarmusAudioRecorderUI: Template loaded successfully, output length: ' . strlen( $output ) );
 				return $output;
 			} else {
-				error_log( 'StarmusAudioRecorderUI: No template found for: ' . $template_name );
+
 			}
 		} catch ( Throwable $e ) {
-			error_log( 'StarmusAudioRecorderUI: Template render error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
 		}
 		return '';
 	}

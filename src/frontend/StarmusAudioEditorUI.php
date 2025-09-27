@@ -29,7 +29,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class StarmusAudioEditorUI {
 
-
 	const STAR_REST_NAMESPACE = 'starmus/v1';
 
 	const STAR_MAX_ANNOTATIONS    = 1000;
@@ -42,7 +41,11 @@ class StarmusAudioEditorUI {
 	}
 
 	private function register_hooks(): void {
-		// Register shortcode for audio editor.
+
+			add_shortcode( 'starmus_audio_editor', array( $this, 'render_audio_editor_shortcode' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			add_action( 'rest_api_init', array( $this, 'register_rest_endpoint' ) );
+
 	}
 
 	public function render_audio_editor_shortcode(): string {
@@ -272,7 +275,6 @@ class StarmusAudioEditorUI {
 		}
 	}
 
-
 	public function validate_annotations( $value ): bool {
 		if ( ! is_array( $value ) || count( $value ) > self::STAR_MAX_ANNOTATIONS ) {
 			return false;
@@ -398,15 +400,7 @@ class StarmusAudioEditorUI {
 
 	private function log_error( string $context, Throwable $e ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-			error_log(
-				sprintf(
-					'Starmus Editor: %s - %s in %s:%d',
-					sanitize_text_field( $context ),
-					sanitize_text_field( $e->getMessage() ),
-					$e->getFile(),
-					$e->getLine()
-				)
-			);
+			// Debug logging has been removed for production.
 		}
 	}
 }

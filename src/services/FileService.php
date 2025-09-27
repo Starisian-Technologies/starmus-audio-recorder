@@ -36,7 +36,7 @@ class FileService {
 		// The file is likely offloaded. Download it to a temporary location.
 		$remote_url = wp_get_attachment_url( $attachment_id );
 		if ( ! $remote_url ) {
-			error_log( "Starmus FileUtility: Could not get URL for attachment {$attachment_id}." );
+
 			return null;
 		}
 
@@ -49,7 +49,6 @@ class FileService {
 		$temp_file_path = download_url( $remote_url );
 
 		if ( is_wp_error( $temp_file_path ) ) {
-			error_log( "Starmus FileUtility: Failed to download {$remote_url}. Error: " . $temp_file_path->get_error_message() );
 			return null;
 		}
 

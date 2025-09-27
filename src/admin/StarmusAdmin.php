@@ -51,7 +51,7 @@ class StarmusAdmin {
 	}
 
 	private function register_hooks(): void {
-		error_log( 'Starmus Plugin: Admin component available, registering admin hooks' );
+
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 	}
