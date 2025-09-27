@@ -188,7 +188,7 @@ final class StarmusSettings {
 	/**
 	 * @deprecated Use get() instead
 	 */
-	public static function starmus_get_option( string $key, $default = '' ) {
-		return self::get( $key, $default );
+	public static function starmus_get_option( string $key, $default_settings = '' ) {
+		return self::get( $key, $default_settings );
 	}
 }

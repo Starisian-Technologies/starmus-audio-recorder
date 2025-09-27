@@ -114,14 +114,21 @@ class PostProcessingService {
 		update_post_meta( $attachment_id, '_starmus_archival_path', $archival_path );
 		wp_delete_file( $backup_path ); // Success, so remove the backup file.
 
-		do_action(
-			'starmus_audio_postprocessed',
-			$attachment_id,
-			array(
-				'mp3' => $mp3_path,
-				'wav' => $archival_path,
-			)
-		);
+			/**
+			* Fires after an audio file has been successfully transcoded and archived.
+			*
+			* @hook starmus_audio_postprocessed
+			* @param int   $attachment_id The ID of the master MP3 attachment.
+			* @param array $processed_files An array of paths to the generated files.
+			*/
+			do_action(
+				'starmus_audio_postprocessed',
+				$attachment_id,
+				array(
+					'mp3' => $mp3_path,
+					'wav' => $archival_path,
+				)
+			);
 
 		return true;
 	}

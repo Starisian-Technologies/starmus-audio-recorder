@@ -6,48 +6,48 @@ on:
   pull_request:
     branches: [main, develop]
   schedule:
-    - cron: '0 2 * * *' # Daily at 2 AM
+    - cron: "0 2 * * *" # Daily at 2 AM
 
 jobs:
   wordpress-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['8.2', '8.3']
-        wordpress: ['6.4', 'latest']
-    
+        php: ["8.2", "8.3"]
+        wordpress: ["6.4", "latest"]
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4
         with:
           php-version: ${{ matrix.php }}
-          
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-          
+          node-version: "18"
+          cache: "npm"
+
       - name: Install dependencies
         run: |
           npm ci
           composer install --no-interaction
-          
+
       - name: Start WordPress ${{ matrix.wordpress }}
         run: |
           echo '{"core": "WordPress/WordPress#${{ matrix.wordpress }}", "phpVersion": "${{ matrix.php }}"}' > .wp-env.override.json
           npm run env:start
-          
+
       - name: Run WordPress tests
         run: npm run test:wp
-        
+
       - name: Run E2E tests
         run: |
           npx playwright install --with-deps chromium
           npm run test:e2e
-          
+
       - name: Stop WordPress
         run: npm run env:stop
         if: always()
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Run security audit
         run: |
           npm audit --audit-level=moderate

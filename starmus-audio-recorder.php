@@ -16,6 +16,11 @@
  * @since 0.1.0
  * @version 0.7.4
  * @package Starmus
+ * @author Starisian Technologies (Max Barrett)
+ * @module  StarmusAudioRecorder
+ * @file    Main plugin file.
+ * @license SEE LICENSE.md
+ * @link   https://starisian.com
  */
 
 /**
@@ -25,6 +30,7 @@
  * Version:           0.7.4
  * Requires at least: 6.4
  * Requires PHP:      8.0
+ * Tested up to:      6.5
  * Author:            Starisian Technologies (Max Barrett)
  * Author URI:        https://starisian.com
  * Text Domain:       starmus-audio-recorder
@@ -55,12 +61,38 @@ define( 'STARMUS_PLUGIN_PREFIX', 'starmus' );
 /** Current plugin semantic version string. */
 define( 'STARMUS_VERSION', '0.7.4' );
 
-// Load Composer autoloader if present.
-if ( file_exists( STARMUS_MAIN_DIR . '/vendor/autoload.php' ) ) {
-	require STARMUS_MAIN_DIR . '/vendor/autoload.php';
+// 1. Include the Composer autoloader.
+// This makes all the libraries you installed via Composer available.
+require_once STARMUS_PATH . 'vendor/autoload.php';
+// 2. Manually load the Secure Custom Fields plugin.
+// This code checks if another ACF/SCF plugin is already active before loading.
+if ( ! class_exists( 'ACF' ) ) {
+	// Define the path to the SCF plugin within your vendor directory.
+	define( 'STARMUS_SCF_PATH', STARMUS_PATH . 'vendor/wpackagist-plugin/secure-custom-fields/' );
+
+	// Include the main SCF plugin file to make it active.
+	require_once STARMUS_SCF_PATH . 'secure-custom-fields.php';
+
+	// Optional: Hide the ACF admin menu if you are managing fields in code.
+	add_filter( 'acf/settings/show_admin', '__return_false' );
 }
 
-// Ensure all required classes are loaded
+
+// Ensure all required classes are loaded.
+require_once STARMUS_PATH . 'src/includes/StarmusSettings.php';
+require_once STARMUS_PATH . 'src/frontend/StarmusAudioRecorderUI.php';
+require_once STARMUS_PATH . 'src/frontend/StarmusSubmissionHandler.php';
+require_once STARMUS_PATH . 'src/frontend/StarmusRestHandler.php';
+
+add_action(
+	'plugins_loaded',
+	function () {
+		$settings           = new \Starmus\includes\StarmusSettings();
+		$submission_handler = new \Starmus\frontend\StarmusSubmissionHandler( $settings );
+		$rest_handler       = new \Starmus\frontend\StarmusRestHandler( $submission_handler );
+		$ui_handler         = new \Starmus\frontend\StarmusAudioRecorderUI( $settings );
+	}
+);
 require_once STARMUS_PATH . 'src/includes/StarmusSettings.php';
 require_once STARMUS_PATH . 'src/StarmusPlugin.php';
 require_once STARMUS_PATH . 'src/admin/StarmusAdmin.php';
@@ -74,10 +106,66 @@ require_once STARMUS_PATH . 'src/services/AudioProcessingService.php';
 
 use Starmus\StarmusPlugin;
 
+/**
+ * Plugin Activation Hook.
+ *
+ * Sets up the plugin on activation by adding custom capabilities and flushing rewrite rules.
+ *
+ * @since 0.1.0
+ */
+function starmus_activate(): void {
+	// Block activation if ACF or SCF is missing
+	if ( ! \Starmus\StarmusPlugin::check_field_plugin_dependency() ) {
+		deactivate_plugins( plugin_basename( STARMUS_MAIN_FILE ) );
+		error_log( 'Starmus Plugin: Activation failed due to missing ACF/SCF dependency' );
+		wp_die( __( 'Starmus Audio Recorder requires Advanced Custom Fields or Smart Custom Fields to be installed and activated.', 'starmus-audio-recorder' ) );
+	} else {
+		$cpt_file = realpath( STARMUS_PATH . 'src/includes/StarmusCustomPostType.php' );
+		if ( $cpt_file && str_starts_with( $cpt_file, realpath( STARMUS_PATH ) ) && file_exists( $cpt_file ) ) {
+			require_once $cpt_file;
+		} else {
+			error_log( 'Starmus Plugin: CPT file not found or invalid path during activation' );
+		}
+	}
+	// Add custom capabilities to roles
+	\flush_rewrite_rules();
+}
+/**
+ * Deactivation hook for the Starmus Audio Recorder plugin.
+ *
+ * @return  void
+ * @since 0.1.0
+ */
+function starmus_deactivate(): void {
+	// Unregister the post type, so the rules are no longer in memory.
+	unregister_post_type( 'audio-recording' );
+	// Clear the permalinks to remove our post type's rules from the database.
+	flush_rewrite_rules();
+	error_log( 'Starmus Plugin: Deactivation completed, CPT unregistered and rewrite rules flushed' );
+}
+/**
+ * Plugin Uninstall Hook.
+ *
+ * @since 0.1.0
+ */
+function starmus_uninstall(): void {
+	$file = realpath( STARMUS_PATH . 'uninstall.php' );
+	if ( $file && str_starts_with( $file, realpath( STARMUS_PATH ) ) && file_exists( $file ) ) {
+		require_once $file;
+	} else {
+		error_log( 'Starmus Plugin: Uninstall file not found' );
+	}
+	\wp_clear_scheduled_hook( 'starmus_cleanup_temp_files' );
+	\flush_rewrite_rules();
+	error_log( 'Starmus Plugin: Uninstall completed, scheduled hooks cleared and rewrite rules flushed' );
+}
+
+
+
 // Register Plugin Lifecycle Hooks.
-register_activation_hook( STARMUS_MAIN_FILE, array( 'Starmus\StarmusPlugin', 'activate' ) );
-register_deactivation_hook( STARMUS_MAIN_FILE, array( 'Starmus\StarmusPlugin', 'deactivate' ) );
-register_uninstall_hook( STARMUS_MAIN_FILE, array( 'Starmus\StarmusPlugin', 'uninstall' ) );
+register_activation_hook( STARMUS_MAIN_FILE, 'starmus_activate' );
+register_deactivation_hook( STARMUS_MAIN_FILE, 'starmus_deactivate' );
+register_uninstall_hook( STARMUS_MAIN_FILE, 'starmus_uninstall' );
 // Initialize the plugin once all other plugins are loaded.
 add_action( 'plugins_loaded', array( StarmusPlugin::class, 'run' ) );
 

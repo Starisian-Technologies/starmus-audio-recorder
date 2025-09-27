@@ -97,7 +97,16 @@ class WaveformService {
 		$input_path  = escapeshellarg( $file_path );
 		$output_path = escapeshellarg( $temp_json_path );
 
-		$command = "audiowaveform -i {$input_path} -o {$output_path} --pixels-per-second 100 --bits 8";
+		/**
+		 * Filter the audiowaveform command used to generate waveform data.
+		 *
+		 * @hook starmus_waveform_command
+		 * @param string $command The default command.
+		 * @param string $input_path The escaped path to the input audio file.
+		 * @param string $output_path The escaped path for the temporary JSON output.
+		 * @return string The modified command.
+		 */
+		$command = apply_filters( 'starmus_waveform_command', "audiowaveform -i {$input_path} -o {$output_path} --pixels-per-second 100 --bits 8", $input_path, $output_path );
 		exec( $command . ' 2>&1', $output_lines, $return_code );
 
 		// Check if the command failed or if the output file wasn't created.
@@ -112,7 +121,16 @@ class WaveformService {
 		wp_delete_file( $temp_json_path ); // Cleanup on success.
 
 		$decoded = json_decode( $json_content, true );
+
 		if ( json_last_error() === JSON_ERROR_NONE && isset( $decoded['data'] ) ) {
+			/**
+			 * Fires after waveform data is successfully extracted from an audio file.
+			 *
+			 * @hook starmus_waveform_extracted
+			 * @param int $attachment_id The WordPress attachment ID.
+			 * @param array $waveform_data The extracted waveform data array.
+			 */
+			do_action( 'starmus_waveform_extracted', $file_path, $decoded['data'] );
 			return $decoded['data'];
 		}
 

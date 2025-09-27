@@ -32,9 +32,22 @@
     "issues": "https://github.com/Starisian-Technologies/starmus-audio-recorder/issues",
     "source": "https://github.com/Starisian-Technologies/starmus-audio-recorder"
   },
-  "keywords": ["wordpress","audio","recorder","plugin","starmus","MediaRecorder","API","webm","opus"],
+  "keywords": [
+    "wordpress",
+    "audio",
+    "recorder",
+    "plugin",
+    "starmus",
+    "MediaRecorder",
+    "API",
+    "webm",
+    "opus"
+  ],
   "repositories": [
-    { "type": "git", "url": "https://github.com/Starisian-Technologies/starmus-audio-recorder.git" }
+    {
+      "type": "git",
+      "url": "https://github.com/Starisian-Technologies/starmus-audio-recorder.git"
+    }
   ],
   "minimum-stability": "stable",
   "require-dev": {
@@ -51,13 +64,16 @@
     "phpcompatibility/phpcompatibility-wp": "^2.1"
   },
   "config": {
-    "platform": { "php": "8.0.30" },
+    "platform": {
+      "php": "8.0.30"
+    },
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true,
       "phpstan/extension-installer": true
     }
   },
   "scripts": {
+    "phpcbf": "phpcbf --standard=phpcs.xml.dist src/",
     "lint": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full .",
     "lint:fix": "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php .",
     "analyze": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=1G",

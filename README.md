@@ -90,17 +90,17 @@ Example URL: `https://yoursite.com/edit-recording/?post_id=123&nonce=...`
 
 ## For Developers: Architecture & Extensibility
 
-- **StarmusPlugin** – main plugin controller  
-- **StarmusAudioRecorderUI** – manages recording form, chunked uploads, metadata, and redirects  
+- **StarmusPlugin** – main plugin controller
+- **StarmusAudioRecorderUI** – manages recording form, chunked uploads, metadata, and redirects
 - **StarmusAudioEditorUI** – manages the annotation editor and REST API
 
 ### Custom Post Types & Taxonomies
 
-- **CPTs:**  
-  - `audio-recording`  
-  - `consent-agreement`  
-- **Taxonomies:**  
-  - `language`  
+- **CPTs:**
+  - `audio-recording`
+  - `consent-agreement`
+- **Taxonomies:**
+  - `language`
   - `recording_type`
 
 ### Core JavaScript Architecture
@@ -126,7 +126,7 @@ The Starmus Audio Recorder is a lightweight, front-end WordPress plugin that all
 
 - **`starmus_before_recorder_render` (Action)**  
   Fires before recorder form displays.
-  *Example: Redirect if profile is incomplete.*
+  _Example: Redirect if profile is incomplete._
 
 ```php
   add_action('starmus_before_recorder_render', function() {
@@ -141,9 +141,9 @@ The Starmus Audio Recorder is a lightweight, front-end WordPress plugin that all
 
 - **`starmus_after_audio_upload` (Action)**  
   Fires after recording + metadata saved.  
-  *Example: Send an email to the admin.*
+  _Example: Send an email to the admin._
 
-```php  
+```php
 add_action('starmus_after_audio_upload', function($audio_post_id, $attachment_id, $form_data) {
     $title = get_the_title($audio_post_id);
     wp_mail(
@@ -156,7 +156,7 @@ add_action('starmus_after_audio_upload', function($audio_post_id, $attachment_id
 
 - **`starmus_audio_upload_success_response` (Filter)**  
   Modify JSON response.  
-  *Example: add conditional redirect.*
+  _Example: add conditional redirect._
 
 ```php
   add_filter('starmus_audio_upload_success_response', function($response, $post_id, $form_data) {
@@ -169,9 +169,9 @@ add_action('starmus_after_audio_upload', function($audio_post_id, $attachment_id
 
 ### Audio Editor Hooks
 
-- **`starmus_before_editor_render` (Action)** – Before the editor loads  
-- **`starmus_editor_template` (Filter)** – Override the editor template  
-- **`starmus_before_annotations_save` (Action)** – Fires via REST before annotations are saved  
+- **`starmus_before_editor_render` (Action)** – Before the editor loads
+- **`starmus_editor_template` (Filter)** – Override the editor template
+- **`starmus_before_annotations_save` (Action)** – Fires via REST before annotations are saved
 - **`starmus_after_annotations_save` (Action)** – Fires after annotations saved
 
 ---

@@ -20,13 +20,14 @@ use Starmus\includes\StarmusSettings;
  */
 class StarmusAdmin {
 
-		/** Menu slug for the plugin settings page. */
-		const STAR_MENU_SLUG = 'starmus-admin';
 
-		/** Settings group identifier for WordPress options API. */
-		const STAR_SETTINGS_GROUP = 'starmus_settings_group';
+	/** Menu slug for the plugin settings page. */
+	const STAR_MENU_SLUG = 'starmus-admin';
 
-		/** Mapping of option keys to field types. */
+	/** Settings group identifier for WordPress options API. */
+	const STAR_SETTINGS_GROUP = 'starmus_settings_group';
+
+	/** Mapping of option keys to field types. */
 	private array $field_types         = array();
 	private ?StarmusSettings $settings = null;
 
@@ -41,6 +42,7 @@ class StarmusAdmin {
 			'cpt_slug'              => 'text',
 			'file_size_limit'       => 'number',
 			'allowed_file_types'    => 'textarea',
+			'allowed_languages'     => 'text',
 			'consent_message'       => 'textarea',
 			'collect_ip_ua'         => 'checkbox',
 			'edit_page_id'          => 'pages_dropdown',
@@ -145,20 +147,26 @@ class StarmusAdmin {
 			null,
 			self::STAR_MENU_SLUG
 		);
+		add_settings_section(
+			'starmus_language_section',
+			__( 'Language Validation', 'starmus-audio-recorder' ),
+			null,
+			self::STAR_MENU_SLUG
+		);
 
-				add_settings_section(
-					'starmus_privacy_section',
-					__( 'Privacy & Form Settings', 'starmus-audio-recorder' ),
-					null,
-					self::STAR_MENU_SLUG
-				);
+		add_settings_section(
+			'starmus_privacy_section',
+			__( 'Privacy & Form Settings', 'starmus-audio-recorder' ),
+			null,
+			self::STAR_MENU_SLUG
+		);
 
-				add_settings_section(
-					'starmus_page_section',
-					__( 'Frontend Page Settings', 'starmus-audio-recorder' ),
-					null,
-					self::STAR_MENU_SLUG
-				);
+		add_settings_section(
+			'starmus_page_section',
+			__( 'Frontend Page Settings', 'starmus-audio-recorder' ),
+			null,
+			self::STAR_MENU_SLUG
+		);
 	}
 
 	/**
@@ -180,6 +188,11 @@ class StarmusAdmin {
 				'title'       => __( 'Allowed File Extensions', 'starmus-audio-recorder' ),
 				'section'     => 'starmus_rules_section',
 				'description' => __( 'Comma-separated list of allowed extensions.', 'starmus-audio-recorder' ),
+			),
+			'allowed_languages'     => array(
+				'title'       => __( 'Allowed Languages (ISO codes)', 'starmus-audio-recorder' ),
+				'section'     => 'starmus_language_section',
+				'description' => __( 'Comma-separated list of allowed language ISO codes (e.g., mnk, eng, fra). Leave blank to use default validation.', 'starmus-audio-recorder' ),
 			),
 			'consent_message'       => array(
 				'title'       => __( 'Consent Checkbox Message', 'starmus-audio-recorder' ),
@@ -208,6 +221,20 @@ class StarmusAdmin {
 				'description' => __( 'Page containing the [starmus-my-recordings] shortcode.', 'starmus-audio-recorder' ),
 			),
 		);
+		// Allowed languages
+		$allowed_langs = sanitize_text_field( $input['allowed_languages'] ?? '' );
+		if ( ! empty( $allowed_langs ) ) {
+			$langs                          = array_map( 'trim', explode( ',', $allowed_langs ) );
+			$langs                          = array_filter(
+				$langs,
+				function ( $l ) {
+					return preg_match( '/^[a-z]{2,4}$/i', $l );
+				}
+			);
+			$sanitized['allowed_languages'] = implode( ',', $langs );
+		} else {
+			$sanitized['allowed_languages'] = '';
+		}
 
 		foreach ( $fields as $id => $field ) {
 			add_settings_field(
@@ -262,19 +289,19 @@ class StarmusAdmin {
 		// Collect IP/UA
 		$sanitized['collect_ip_ua'] = ! empty( $input['collect_ip_ua'] ) ? 1 : 0;
 
-				// Edit page ID
-				$page_id                   = absint( $input['edit_page_id'] ?? 0 );
-				$sanitized['edit_page_id'] = ( $page_id > 0 && get_post( $page_id ) ) ? $page_id : 0;
+		// Edit page ID
+		$page_id                   = absint( $input['edit_page_id'] ?? 0 );
+		$sanitized['edit_page_id'] = ( $page_id > 0 && get_post( $page_id ) ) ? $page_id : 0;
 
-				// Recorder page ID
-				$page_id                       = absint( $input['recorder_page_id'] ?? 0 );
-				$sanitized['recorder_page_id'] = ( $page_id > 0 && get_post( $page_id ) ) ? $page_id : 0;
+		// Recorder page ID
+		$page_id                       = absint( $input['recorder_page_id'] ?? 0 );
+		$sanitized['recorder_page_id'] = ( $page_id > 0 && get_post( $page_id ) ) ? $page_id : 0;
 
-				// My Recordings page ID
-				$page_id                            = absint( $input['my_recordings_page_id'] ?? 0 );
-				$sanitized['my_recordings_page_id'] = ( $page_id > 0 && get_post( $page_id ) ) ? $page_id : 0;
+		// My Recordings page ID
+		$page_id                            = absint( $input['my_recordings_page_id'] ?? 0 );
+		$sanitized['my_recordings_page_id'] = ( $page_id > 0 && get_post( $page_id ) ) ? $page_id : 0;
 
-				return $sanitized;
+		return $sanitized;
 	}
 
 	/**

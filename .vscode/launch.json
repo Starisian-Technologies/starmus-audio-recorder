@@ -5,6 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Listen for Xdebug (Plugin Only)",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "pathMappings": {
+                "/var/www/html/wp-content/plugins/starmus-audio-recorder": "${workspaceFolder}"
+            },
+            "skipFiles": [
+                "${workspaceFolder}/../**/wp-*",
+                "${workspaceFolder}/../**/wp-admin/**",
+                "${workspaceFolder}/../**/wp-includes/**"
+            ]
+        },
+        {
             "name": "Listen for Xdebug",
             "type": "php",
             "request": "launch",

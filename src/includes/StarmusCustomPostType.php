@@ -7,6 +7,9 @@
  * @since 0.2.0
  */
 
+use function add_action;
+use function add_filter;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

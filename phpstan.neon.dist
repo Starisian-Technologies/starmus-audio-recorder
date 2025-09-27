@@ -1,4 +1,4 @@
-# phpstan.neon.
+# phpstan.neon.dist
 
 parameters:
   level: 6
@@ -21,6 +21,16 @@ parameters:
       - node_modules/*
       - assets/*
       - includes/lib/*
+      - tools/*
+      - wp-admin/*
+      - .vscode/*
+      - .git/*
+      - .github.*
+      - .phpdoc/*
+      - docs/*
+      - test-results/*
+      - scripts/*
+      - playwright-report/*
 
   # You can now remove these lines. The phpstan-wordpress extension
   # provides stubs for these functions, so PHPStan will understand them.

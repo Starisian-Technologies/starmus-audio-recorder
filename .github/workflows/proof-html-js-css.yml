@@ -34,28 +34,27 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm' # Use built-in caching for Node.js
+          node-version: "18"
+          cache: "npm" # Use built-in caching for Node.js
 
       - name: Install dependencies
         run: npm ci
-            
+
       - name: Lint JavaScript (Check only)
         # We run WITHOUT --fix here. The goal is to report errors, not hide them.
         run: npx eslint "src/js/**/*.js"
-        
 
       - name: Lint CSS (Check only)
         # We run WITHOUT --fix here.
         run: npx stylelint "src/css/**/*.css"
-      
+
       - name: Proof HTML files
         # This action checks for issues like broken links, invalid tags, etc.
         uses: anishathalye/proof-html@121673da047796671cf7391fdeee2d8c7b911f8c
         with:
           # Tell the proofer which directory to scan for HTML files.
           # You can change this to '.' to scan the whole repository.
-          directory: './templates'
+          directory: "./templates"
           # Optional: Add flags to ignore certain checks if needed.
           # options: '--disable-external'
 
@@ -69,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     # CRITICAL: This condition ensures the job only runs for pull requests.
     if: github.event_name == 'pull_request'
-    
+
     permissions:
       contents: write # This job needs permission to push code.
 
@@ -83,8 +82,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci

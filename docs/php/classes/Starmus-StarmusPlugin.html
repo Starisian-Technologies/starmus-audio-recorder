@@ -165,7 +165,6 @@
             in package
             <ul class="phpdocumentor-breadcrumbs">
                                     <li class="phpdocumentor-breadcrumb"><a href="packages/Starmus.html">Starmus</a></li>
-                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Starmus-includes.html">includes</a></li>
                             </ul>
         </div>
     
@@ -182,34 +181,14 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">54</span>
+    <span class="phpdocumentor-element-found-in__line">64</span>
 
     </aside>
 
-            <p class="phpdocumentor-summary">Main plugin class (Singleton).</p>
+        
 
 
-    <section class="phpdocumentor-description"><p>This class is the central controller for the Starmus Audio Recorder plugin.
-It ensures that all star_components are loaded in the correct order, handles plugin
-lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
-</section>
 
-
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-StarmusPlugin.html#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.1.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
 
 
 
@@ -238,12 +217,14 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <span>
         &nbsp;= &#039;starmus_edit_audio&#039;                            </span>
 </dt>
+<dd>Capability allowing users to edit uploaded audio.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -constant -public">
     <a class="" href="classes/Starmus-StarmusPlugin.html#constant_STAR_CAP_RECORD_AUDIO">STAR_CAP_RECORD_AUDIO</a>
     <span>
         &nbsp;= &#039;starmus_record_audio&#039;                            </span>
 </dt>
+<dd>Capability allowing users to create new recordings.</dd>
 
     </dl>
 
@@ -259,66 +240,84 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <span>
                         &nbsp;: <a href="classes/Starmus-admin-StarmusAdmin.html"><abbr title="\Starmus\admin\StarmusAdmin">StarmusAdmin</abbr></a>|null            </span>
 </dt>
+<dd>Admin controller dependency.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Starmus-StarmusPlugin.html#property_audioService">$audioService</a>
     <span>
                         &nbsp;: <a href="classes/Starmus-services-AudioProcessingService.html"><abbr title="\Starmus\services\AudioProcessingService">AudioProcessingService</abbr></a>|null            </span>
 </dt>
+<dd>Audio processing service dependency.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Starmus-StarmusPlugin.html#property_cli">$cli</a>
     <span>
                         &nbsp;: <a href="classes/Starmus-cli-StarmusCLI.html"><abbr title="\Starmus\cli\StarmusCLI">StarmusCLI</abbr></a>|null            </span>
 </dt>
+<dd>WP-CLI command handler dependency.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Starmus-StarmusPlugin.html#property_editor">$editor</a>
     <span>
                         &nbsp;: <a href="classes/Starmus-frontend-StarmusAudioEditorUI.html"><abbr title="\Starmus\frontend\StarmusAudioEditorUI">StarmusAudioEditorUI</abbr></a>|null            </span>
 </dt>
+<dd>Front-end editor controller dependency.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Starmus-StarmusPlugin.html#property_hooksRegistered">$hooksRegistered</a>
+    <span>
+                        &nbsp;: bool            </span>
+</dt>
+<dd>Indicates whether WordPress hooks are already registered.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Starmus-StarmusPlugin.html#property_instance">$instance</a>
     <span>
                         &nbsp;: <a href="classes/Starmus-StarmusPlugin.html"><abbr title="\Starmus\StarmusPlugin">StarmusPlugin</abbr></a>|null            </span>
 </dt>
+<dd>Singleton instance reference.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Starmus-StarmusPlugin.html#property_postService">$postService</a>
     <span>
                         &nbsp;: <a href="classes/Starmus-services-PostProcessingService.html"><abbr title="\Starmus\services\PostProcessingService">PostProcessingService</abbr></a>|null            </span>
 </dt>
+<dd>Post processing service dependency.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Starmus-StarmusPlugin.html#property_recorder">$recorder</a>
     <span>
-                        &nbsp;: <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html"><abbr title="\Starmus\frontend\StarmusAudioRecorderUI">StarmusAudioRecorderUI</abbr></a>|null            </span>
+                        &nbsp;: <abbr title="\Starmus\frontend\StarmusAudioRecorderUI">StarmusAudioRecorderUI</abbr>|null            </span>
 </dt>
+<dd>Front-end recorder controller dependency.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Starmus-StarmusPlugin.html#property_runtimeErrors">$runtimeErrors</a>
     <span>
-                        &nbsp;: array&lt;string|int, mixed&gt;            </span>
+                        &nbsp;: array&lt;string|int, string&gt;            </span>
 </dt>
+<dd>Collected runtime error messages for admin display.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Starmus-StarmusPlugin.html#property_settings">$settings</a>
     <span>
                         &nbsp;: <a href="classes/Starmus-includes-StarmusSettings.html"><abbr title="\Starmus\includes\StarmusSettings">StarmusSettings</abbr></a>|null            </span>
 </dt>
+<dd>Settings manager dependency.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Starmus-StarmusPlugin.html#property_updater">$updater</a>
     <span>
                         &nbsp;: <a href="classes/Starmus-core-StarmusPluginUpdater.html"><abbr title="\Starmus\core\StarmusPluginUpdater">StarmusPluginUpdater</abbr></a>|null            </span>
 </dt>
+<dd>Updater service dependency.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Starmus-StarmusPlugin.html#property_waveform">$waveform</a>
     <span>
-                        &nbsp;: <abbr title="\Starmus\WaveformService">WaveformService</abbr>|null            </span>
+                        &nbsp;: <a href="classes/Starmus-services-WaveformService.html"><abbr title="\Starmus\services\WaveformService">WaveformService</abbr></a>|null            </span>
 </dt>
+<dd>Waveform processing service dependency.</dd>
 
     </dl>
 
@@ -343,18 +342,11 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
 <dd>Prevents unserializing of the singleton instance.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-StarmusPlugin.html#method_activate">activate()</a>
+    <a class="" href="classes/Starmus-StarmusPlugin.html#method_check_field_plugin_dependency">check_field_plugin_dependency()</a>
     <span>
-                                &nbsp;: void    </span>
+                                &nbsp;: bool    </span>
 </dt>
-<dd>Plugin Activation Hook.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-StarmusPlugin.html#method_deactivate">deactivate()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Plugin Deactivation Hook.</dd>
+<dd>Checks for required field plugins (ACF or SCF) and shows admin notice if missing.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-StarmusPlugin.html#method_displayRuntimeErrorNotice">displayRuntimeErrorNotice()</a>
@@ -364,6 +356,20 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
 <dd>Displays a dismissible admin notice for any runtime errors.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-StarmusPlugin.html#method_filter_filetype_and_ext">filter_filetype_and_ext()</a>
+    <span>
+                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
+</dt>
+<dd>Expand allowable MIME types during uploads.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-StarmusPlugin.html#method_filter_upload_mimes">filter_upload_mimes()</a>
+    <span>
+                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
+</dt>
+<dd>Allow audio/video MIME uploads that WordPress blocks by default.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-StarmusPlugin.html#method_get_instance">get_instance()</a>
     <span>
                                 &nbsp;: <a href="classes/Starmus-StarmusPlugin.html"><abbr title="\Starmus\StarmusPlugin">StarmusPlugin</abbr></a>    </span>
@@ -371,10 +377,18 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
 <dd>Main singleton instance method.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-StarmusPlugin.html#method_get_mime_whitelist">get_mime_whitelist()</a>
+    <span>
+                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
+</dt>
+<dd>Returns the whitelist of allowed file extensions and MIME types.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-StarmusPlugin.html#method_get_starmus_settings">get_starmus_settings()</a>
     <span>
-                                &nbsp;: <a href="classes/Starmus-includes-StarmusSettings.html"><abbr title="\Starmus\includes\StarmusSettings">StarmusSettings</abbr></a>|null    </span>
+                                &nbsp;: <a href="classes/Starmus-includes-StarmusSettings.html"><abbr title="\Starmus\includes\StarmusSettings">StarmusSettings</abbr></a>    </span>
 </dt>
+<dd>Ensures the settings component is instantiated before returning it.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-StarmusPlugin.html#method_init">init()</a>
@@ -384,11 +398,18 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
 <dd>The main &quot;engine room&quot; of the plugin, hooked to `init`.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-StarmusPlugin.html#method_init_plugin">init_plugin()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Hooked into WordPress init to bootstrap services and hooks.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-StarmusPlugin.html#method_register_hooks">register_hooks()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
-<dd>Registers all necessary WordPress hooks.</dd>
+<dd>Registers global WordPress hooks owned by the plugin bootstrapper.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-StarmusPlugin.html#method_run">run()</a>
@@ -396,13 +417,6 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
                                 &nbsp;: void    </span>
 </dt>
 <dd>Public static method to run the plugin.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-StarmusPlugin.html#method_uninstall">uninstall()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Plugin Uninstall Hook.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starmus-StarmusPlugin.html#method___construct">__construct()</a>
@@ -460,11 +474,12 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">57</span>
+    <span class="phpdocumentor-element-found-in__line">68</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Capability allowing users to edit uploaded audio.</p>
+
     
     <code class="phpdocumentor-signature phpdocumentor-code ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -491,11 +506,12 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">58</span>
+    <span class="phpdocumentor-element-found-in__line">70</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Capability allowing users to create new recordings.</p>
+
     
     <code class="phpdocumentor-signature phpdocumentor-code ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -538,11 +554,12 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">64</span>
+    <span class="phpdocumentor-element-found-in__line">87</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Admin controller dependency.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
@@ -576,11 +593,12 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">70</span>
+    <span class="phpdocumentor-element-found-in__line">99</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Audio processing service dependency.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
@@ -614,11 +632,12 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">68</span>
+    <span class="phpdocumentor-element-found-in__line">95</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">WP-CLI command handler dependency.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
@@ -652,17 +671,57 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">65</span>
+    <span class="phpdocumentor-element-found-in__line">89</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Front-end editor controller dependency.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
             <span class="phpdocumentor-signature__type"><a href="classes/Starmus-frontend-StarmusAudioEditorUI.html"><abbr title="\Starmus\frontend\StarmusAudioEditorUI">StarmusAudioEditorUI</abbr></a>|null</span>
     <span class="phpdocumentor-signature__name">$editor</span>
      = <span class="phpdocumentor-signature__default-value">null</span></code>
+
+    
+    
+    
+
+    
+
+    
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_hooksRegistered">
+        $hooksRegistered
+        <a href="classes/Starmus-StarmusPlugin.html#property_hooksRegistered" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">82</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Indicates whether WordPress hooks are already registered.</p>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type">bool</span>
+    <span class="phpdocumentor-signature__name">$hooksRegistered</span>
+     = <span class="phpdocumentor-signature__default-value">false</span></code>
 
     
     
@@ -690,11 +749,12 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">60</span>
+    <span class="phpdocumentor-element-found-in__line">73</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Singleton instance reference.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
@@ -728,11 +788,12 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">71</span>
+    <span class="phpdocumentor-element-found-in__line">101</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Post processing service dependency.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
@@ -766,15 +827,16 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">66</span>
+    <span class="phpdocumentor-element-found-in__line">91</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Front-end recorder controller dependency.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html"><abbr title="\Starmus\frontend\StarmusAudioRecorderUI">StarmusAudioRecorderUI</abbr></a>|null</span>
+            <span class="phpdocumentor-signature__type"><abbr title="\Starmus\frontend\StarmusAudioRecorderUI">StarmusAudioRecorderUI</abbr>|null</span>
     <span class="phpdocumentor-signature__name">$recorder</span>
      = <span class="phpdocumentor-signature__default-value">null</span></code>
 
@@ -804,15 +866,16 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">61</span>
+    <span class="phpdocumentor-element-found-in__line">79</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Collected runtime error messages for admin display.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type">array&lt;string|int, mixed&gt;</span>
+            <span class="phpdocumentor-signature__type">array&lt;string|int, string&gt;</span>
     <span class="phpdocumentor-signature__name">$runtimeErrors</span>
      = <span class="phpdocumentor-signature__default-value">array()</span></code>
 
@@ -842,11 +905,12 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">63</span>
+    <span class="phpdocumentor-element-found-in__line">85</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Settings manager dependency.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
@@ -880,11 +944,12 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">67</span>
+    <span class="phpdocumentor-element-found-in__line">93</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Updater service dependency.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
@@ -918,15 +983,16 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">69</span>
+    <span class="phpdocumentor-element-found-in__line">97</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Waveform processing service dependency.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><abbr title="\Starmus\WaveformService">WaveformService</abbr>|null</span>
+            <span class="phpdocumentor-signature__type"><a href="classes/Starmus-services-WaveformService.html"><abbr title="\Starmus\services\WaveformService">WaveformService</abbr></a>|null</span>
     <span class="phpdocumentor-signature__name">$waveform</span>
      = <span class="phpdocumentor-signature__default-value">null</span></code>
 
@@ -961,7 +1027,7 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">433</span>
+    <span class="phpdocumentor-element-found-in__line">467</span>
 
     </aside>
 
@@ -1021,7 +1087,7 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">443</span>
+    <span class="phpdocumentor-element-found-in__line">477</span>
 
     </aside>
 
@@ -1073,103 +1139,42 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
             -public
                                     -static                    "
 >
-    <h4 class="phpdocumentor-element__name" id="method_activate">
-        activate()
-        <a href="classes/Starmus-StarmusPlugin.html#method_activate" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_check_field_plugin_dependency">
+        check_field_plugin_dependency()
+        <a href="classes/Starmus-StarmusPlugin.html#method_check_field_plugin_dependency" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">312</span>
+    <span class="phpdocumentor-element-found-in__line">204</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Plugin Activation Hook.</p>
+        <p class="phpdocumentor-summary">Checks for required field plugins (ACF or SCF) and shows admin notice if missing.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">activate</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">check_field_plugin_dependency</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
     
-        <section class="phpdocumentor-description"><p>Sets up the plugin on activation by adding custom capabilities and flushing rewrite rules.</p>
+    
+    
+    
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">bool</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>True if dependency present, false if missing.</p>
 </section>
 
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-StarmusPlugin.html#method_activate#tags" class="headerlink"><i class="fas fa-link"></i></a>
+            </section>
 
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.1.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                    -static                    "
->
-    <h4 class="phpdocumentor-element__name" id="method_deactivate">
-        deactivate()
-        <a href="classes/Starmus-StarmusPlugin.html#method_deactivate" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">341</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Plugin Deactivation Hook.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">deactivate</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><p>Flushes rewrite rules to ensure CPTs are no longer publicly accessible.</p>
-</section>
-
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-StarmusPlugin.html#method_deactivate#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.1.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-    
 </article>
                     <article
         class="phpdocumentor-element
@@ -1185,7 +1190,7 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">414</span>
+    <span class="phpdocumentor-element-found-in__line">447</span>
 
     </aside>
 
@@ -1227,6 +1232,152 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
         class="phpdocumentor-element
             -method
             -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_filter_filetype_and_ext">
+        filter_filetype_and_ext()
+        <a href="classes/Starmus-StarmusPlugin.html#method_filter_filetype_and_ext" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">259</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Expand allowable MIME types during uploads.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">filter_filetype_and_ext</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;|false&nbsp;</span><span class="phpdocumentor-signature__argument__name">$types</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$file</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$filename</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$mimes_allowed</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$real_mime</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$types</span>
+                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;|false</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>Existing MIME check result from WordPress.</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$file</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>Current file path (unused).</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$filename</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>Original filename provided by the user.</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$mimes_allowed</span>
+                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>Allowed MIME types passed into the filter.</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$real_mime</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>MIME type detected by PHP.</p>
+</section>
+
+            </dd>
+            </dl>
+
+    
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>Filtered MIME type data.</p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_filter_upload_mimes">
+        filter_upload_mimes()
+        <a href="classes/Starmus-StarmusPlugin.html#method_filter_upload_mimes" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">280</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Allow audio/video MIME uploads that WordPress blocks by default.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">filter_upload_mimes</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$mimes</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$mimes</span>
+                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>Existing MIME mapping keyed by extension.</p>
+</section>
+
+            </dd>
+            </dl>
+
+    
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>Filtered MIME mapping.</p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
                                     -static                    "
 >
     <h4 class="phpdocumentor-element__name" id="method_get_instance">
@@ -1237,7 +1388,7 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">89</span>
+    <span class="phpdocumentor-element-found-in__line">119</span>
 
     </aside>
 
@@ -1250,7 +1401,7 @@ lifecycle hooks (activation, deactivation), and manages custom capabilities.</p>
     <div class="phpdocumentor-label-line">
         </div>
     
-        <section class="phpdocumentor-description"><p>Intentionally empty - initialization happens in init()
+        <section class="phpdocumentor-description"><p>Intentionally empty - initialization happens in init().
 Ensures that only one instance of the plugin's main class exists.</p>
 </section>
 
@@ -1290,22 +1441,23 @@ Ensures that only one instance of the plugin's main class exists.</p>
             -public
                                                         "
 >
-    <h4 class="phpdocumentor-element__name" id="method_get_starmus_settings">
-        get_starmus_settings()
-        <a href="classes/Starmus-StarmusPlugin.html#method_get_starmus_settings" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_get_mime_whitelist">
+        get_mime_whitelist()
+        <a href="classes/Starmus-StarmusPlugin.html#method_get_mime_whitelist" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">301</span>
+    <span class="phpdocumentor-element-found-in__line">225</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Returns the whitelist of allowed file extensions and MIME types.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">get_starmus_settings</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><a href="classes/Starmus-includes-StarmusSettings.html"><abbr title="\Starmus\includes\StarmusSettings">StarmusSettings</abbr></a>|null</span></code>
+                    <span class="phpdocumentor-signature__name">get_mime_whitelist</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -1318,7 +1470,65 @@ Ensures that only one instance of the plugin's main class exists.</p>
 
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type"><a href="classes/Starmus-includes-StarmusSettings.html"><abbr title="\Starmus\includes\StarmusSettings">StarmusSettings</abbr></a>|null</span>
+        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_get_starmus_settings">
+        get_starmus_settings()
+        <a href="classes/Starmus-StarmusPlugin.html#method_get_starmus_settings" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">382</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Ensures the settings component is instantiated before returning it.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">get_starmus_settings</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><a href="classes/Starmus-includes-StarmusSettings.html"><abbr title="\Starmus\includes\StarmusSettings">StarmusSettings</abbr></a></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+    <h5 class="phpdocumentor-tag-list__heading" id="tags">
+        Tags
+        <a href="classes/Starmus-StarmusPlugin.html#method_get_starmus_settings#tags" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h5>
+    <dl class="phpdocumentor-tag-list">
+                                    <dt class="phpdocumentor-tag-list__entry">
+                    <span class="phpdocumentor-tag__name">since</span>
+                </dt>
+                <dd class="phpdocumentor-tag-list__definition">
+                                            <span class="phpdocumentor-tag-link">0.1.0</span>
+                                                                                
+                                             
+                                    </dd>
+                                            </dl>
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><a href="classes/Starmus-includes-StarmusSettings.html"><abbr title="\Starmus\includes\StarmusSettings">StarmusSettings</abbr></a></span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>The settings instance.</p>
+</section>
+
             </section>
 
 </article>
@@ -1336,7 +1546,7 @@ Ensures that only one instance of the plugin's main class exists.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">104</span>
+    <span class="phpdocumentor-element-found-in__line">134</span>
 
     </aside>
 
@@ -1379,6 +1589,41 @@ custom post types, and instantiating all necessary classes.</p>
         class="phpdocumentor-element
             -method
             -public
+                                    -static                    "
+>
+    <h4 class="phpdocumentor-element__name" id="method_init_plugin">
+        init_plugin()
+        <a href="classes/Starmus-StarmusPlugin.html#method_init_plugin" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">436</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Hooked into WordPress init to bootstrap services and hooks.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">init_plugin</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
                                                         "
 >
     <h4 class="phpdocumentor-element__name" id="method_register_hooks">
@@ -1389,11 +1634,11 @@ custom post types, and instantiating all necessary classes.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">136</span>
+    <span class="phpdocumentor-element-found-in__line">171</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Registers all necessary WordPress hooks.</p>
+        <p class="phpdocumentor-summary">Registers global WordPress hooks owned by the plugin bootstrapper.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -1402,8 +1647,8 @@ custom post types, and instantiating all necessary classes.</p>
     <div class="phpdocumentor-label-line">
         </div>
     
-        <section class="phpdocumentor-description"><p>This method sets up admin menus, shortcodes, REST API endpoints, and other hooks
-for the plugin's components.</p>
+        <section class="phpdocumentor-description"><p>Component classes self-register their own actions during instantiation; this
+method focuses on cross-cutting filters, CLI commands, and admin diagnostics.</p>
 </section>
 
     
@@ -1442,7 +1687,7 @@ for the plugin's components.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">403</span>
+    <span class="phpdocumentor-element-found-in__line">429</span>
 
     </aside>
 
@@ -1484,58 +1729,6 @@ and start the plugin.</p>
                     <article
         class="phpdocumentor-element
             -method
-            -public
-                                    -static                    "
->
-    <h4 class="phpdocumentor-element__name" id="method_uninstall">
-        uninstall()
-        <a href="classes/Starmus-StarmusPlugin.html#method_uninstall" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">352</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Plugin Uninstall Hook.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">uninstall</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><p>Placeholder for future cleanup logic.</p>
-</section>
-
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-StarmusPlugin.html#method_uninstall#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.1.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
             -private
                                                         "
 >
@@ -1547,7 +1740,7 @@ and start the plugin.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">76</span>
+    <span class="phpdocumentor-element-found-in__line">106</span>
 
     </aside>
 
@@ -1582,7 +1775,7 @@ and start the plugin.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">370</span>
+    <span class="phpdocumentor-element-found-in__line">396</span>
 
     </aside>
 
@@ -1634,7 +1827,7 @@ and start the plugin.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">253</span>
+    <span class="phpdocumentor-element-found-in__line">328</span>
 
     </aside>
 
@@ -1686,7 +1879,7 @@ and start the plugin.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">221</span>
+    <span class="phpdocumentor-element-found-in__line">294</span>
 
     </aside>
 
@@ -1738,7 +1931,7 @@ and start the plugin.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusPlugin.php"><a href="files/src-starmusplugin.html"><abbr title="src/StarmusPlugin.php">StarmusPlugin.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">236</span>
+    <span class="phpdocumentor-element-found-in__line">310</span>
 
     </aside>
 
@@ -1886,6 +2079,7 @@ and start the plugin.</p>
                                                     <li class=""><a href="classes/Starmus-StarmusPlugin.html#property_audioService">$audioService</a></li>
                                                     <li class=""><a href="classes/Starmus-StarmusPlugin.html#property_cli">$cli</a></li>
                                                     <li class=""><a href="classes/Starmus-StarmusPlugin.html#property_editor">$editor</a></li>
+                                                    <li class=""><a href="classes/Starmus-StarmusPlugin.html#property_hooksRegistered">$hooksRegistered</a></li>
                                                     <li class=""><a href="classes/Starmus-StarmusPlugin.html#property_instance">$instance</a></li>
                                                     <li class=""><a href="classes/Starmus-StarmusPlugin.html#property_postService">$postService</a></li>
                                                     <li class=""><a href="classes/Starmus-StarmusPlugin.html#property_recorder">$recorder</a></li>
@@ -1901,15 +2095,17 @@ and start the plugin.</p>
                 <ul class="phpdocumentor-list -clean">
                                             <li class=""><a href="classes/Starmus-StarmusPlugin.html#method___clone">__clone()</a></li>
                                             <li class=""><a href="classes/Starmus-StarmusPlugin.html#method___wakeup">__wakeup()</a></li>
-                                            <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_activate">activate()</a></li>
-                                            <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_deactivate">deactivate()</a></li>
+                                            <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_check_field_plugin_dependency">check_field_plugin_dependency()</a></li>
                                             <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_displayRuntimeErrorNotice">displayRuntimeErrorNotice()</a></li>
+                                            <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_filter_filetype_and_ext">filter_filetype_and_ext()</a></li>
+                                            <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_filter_upload_mimes">filter_upload_mimes()</a></li>
                                             <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_get_instance">get_instance()</a></li>
+                                            <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_get_mime_whitelist">get_mime_whitelist()</a></li>
                                             <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_get_starmus_settings">get_starmus_settings()</a></li>
                                             <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_init">init()</a></li>
+                                            <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_init_plugin">init_plugin()</a></li>
                                             <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_register_hooks">register_hooks()</a></li>
                                             <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_run">run()</a></li>
-                                            <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_uninstall">uninstall()</a></li>
                                             <li class=""><a href="classes/Starmus-StarmusPlugin.html#method___construct">__construct()</a></li>
                                             <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_add_custom_capabilities">add_custom_capabilities()</a></li>
                                             <li class=""><a href="classes/Starmus-StarmusPlugin.html#method_instantiateComponents">instantiateComponents()</a></li>

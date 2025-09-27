@@ -4,7 +4,7 @@ name: Release Code Quality Final Review
 
 on:
   push:
-    tags: ['v*']
+    tags: ["v*"]
 
 permissions:
   contents: write
@@ -67,7 +67,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4
         with:
-          php-version: '8.2'
+          php-version: "8.2"
           tools: composer:v2
           coverage: none
       - name: Install PHP dependencies (no-dev)
@@ -77,8 +77,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
       - name: Install JS dependencies
         run: npm ci
 
