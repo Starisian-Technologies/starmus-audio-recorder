@@ -148,13 +148,31 @@ final class StarmusPlugin
 			error_log('Starmus Plugin: Error loading CPT - ' . esc_html($e->getMessage()) . ' in ' . esc_html($e->getFile()) . ':' . esc_html((string) $e->getLine()));
 			$this->runtimeErrors[] = 'Error loading CPT: ' . esc_html($e->getMessage()) . ' in ' . esc_html($e->getFile()) . ':' . esc_html((string) $e->getLine());
 		}
-		error_log('Starmus Plugin: CPT load called');
+		//error_log('Starmus Plugin: CPT load called');
 
 		// Ensure settings are loaded before other components that may depend on them.
 		$this->set_starmus_settings();
 
 		// Instantiate components
 		$this->instantiateComponents();
+
+		// Instantiate assets and recorder UI (explicitly)
+		try {
+			new \Starmus\includes\StarmusAssets();
+		} catch (\Throwable $e) {
+			error_log('Starmus Plugin: Error loading StarmusAssets - ' . esc_html($e->getMessage()));
+		}
+		try {
+			new \Starmus\frontend\StarmusAudioRecorderUI(new \Starmus\includes\StarmusSettings());
+		} catch (\Throwable $e) {
+			error_log('Starmus Plugin: Error loading StarmusAudioRecorderUI - ' . esc_html($e->getMessage()));
+		}
+		// Initialize StarmusTemplateLoader
+		try {
+			new \Starmus\frontend\StarmusTemplateLoader($this->get_starmus_settings());
+		} catch (\Throwable $e) {
+			error_log('Starmus Plugin: Error loading StarmusTemplateLoader - ' . esc_html($e->getMessage()));
+		}
 
 		// Register hooks
 		$this->register_hooks();

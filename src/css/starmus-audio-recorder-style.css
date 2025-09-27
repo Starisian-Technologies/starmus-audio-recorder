@@ -229,6 +229,33 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
       width 0.3s,
       background 0.3s;
   }
+  /*
+  * ========================================================================
+  *   4b. COMPONENT: Audio Player in Cards
+  * ========================================================================
+  */
+ .starmus-card__audio {
+   margin-top: 1rem;
+   display: flex;
+   flex-direction: column;
+   align-items: stretch;
+   gap: 0.5rem;
+ }
+ 
+ .starmus-card__audio audio,
+ .starmus-audio-player {
+   width: 100%;
+   max-width: 100%;
+   border-radius: 9999px;
+   border: 1px solid var(--starmus-border-color);
+   background-color: var(--starmus-bg-card);
+ }
+ 
+ .starmus-card__duration {
+   font-size: 0.75rem;
+   color: var(--starmus-text-muted);
+   text-align: right;
+ }
 
   /*
  * ========================================================================
@@ -544,3 +571,255 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
     }
   }
 }
+/*
+ * ========================================================================
+ *   7. COMPONENT: User Recording Detail View
+ * ========================================================================
+ */
+.starmus-recording-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  color: var(--starmus-text-color);
+}
+
+/* --- Header --- */
+.starmus-detail__header {
+  margin-bottom: 1rem;
+}
+
+.starmus-detail__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.starmus-detail__meta {
+  font-size: 0.875rem;
+  color: var(--starmus-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* --- Audio Section --- */
+.starmus-detail__audio {
+  margin: 1.5rem 0;
+}
+
+.starmus-audio-player--large {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid var(--starmus-border-color);
+  background: var(--starmus-bg-card);
+}
+
+.starmus-audio__duration {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--starmus-text-muted);
+}
+
+/* --- Transcript --- */
+.starmus-detail__transcript {
+  margin-top: 2rem;
+}
+
+.starmus-transcript__note {
+  font-size: 0.875rem;
+  color: var(--starmus-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.starmus-transcript__content {
+  border: 1px solid var(--starmus-border-color);
+  border-radius: 0.5rem;
+  background: var(--starmus-bg-card);
+  padding: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+.starmus-transcript__segment {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* --- Submission Status --- */
+.starmus-detail__status {
+  margin-top: 2rem;
+}
+
+.starmus-status-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  border: 1px solid var(--starmus-border-color);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: var(--starmus-bg-light);
+}
+
+.starmus-status__icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--starmus-success-color);
+}
+
+.starmus-status__content h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.starmus-status__content p {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--starmus-text-muted);
+}
+
+/* --- Actions --- */
+.starmus-detail__actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 2rem;
+}
+.starmus-detail__actions .starmus-btn {
+  margin-right: 1rem;
+}
+/*
+ * ========================================================================
+ *   6. COMPONENT: Admin / Editor Detail View
+ * ========================================================================
+ */
+.starmus-admin-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  color: var(--starmus-text-color);
+}
+
+.starmus-admin-detail__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .starmus-admin-detail__grid {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
+}
+
+/* --- Main --- */
+.starmus-detail__header {
+  margin-bottom: 1.5rem;
+}
+
+.starmus-detail__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.starmus-detail__meta {
+  font-size: 0.875rem;
+  color: var(--starmus-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.starmus-detail__audio {
+  margin: 1.5rem 0;
+}
+
+.starmus-audio-player--large {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid var(--starmus-border-color);
+  background: var(--starmus-bg-card);
+}
+
+/* --- Transcript --- */
+.starmus-detail__transcript {
+  margin-top: 2rem;
+}
+
+.starmus-transcript__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--starmus-text-muted);
+}
+
+.starmus-transcript__content {
+  border: 1px solid var(--starmus-border-color);
+  border-radius: 0.5rem;
+  background: var(--starmus-bg-card);
+  padding: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.starmus-transcript__segment {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--starmus-border-color);
+}
+
+.starmus-transcript__text {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.starmus-transcript__meta {
+  font-size: 0.75rem;
+  color: var(--starmus-text-muted);
+  display: flex;
+  justify-content: space-between;
+}
+
+.starmus-confidence[data-confidence] {
+  font-weight: 600;
+}
+
+.starmus-confidence[data-confidence^="0.9"],
+.starmus-confidence[data-confidence^="1"] {
+  color: var(--starmus-success-color);
+}
+
+.starmus-confidence[data-confidence^="0.5"] {
+  color: #f59e0b; /* amber for mid confidence */
+}
+
+.starmus-confidence[data-confidence^="0.3"],
+.starmus-confidence[data-confidence^="0.2"],
+.starmus-confidence[data-confidence^="0.1"] {
+  color: var(--starmus-danger-color);
+}
+
+/* --- Sidebar Cards --- */
+.starmus-info-card {
+  background: var(--starmus-bg-card);
+  border: 1px solid var(--starmus-border-color);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.starmus-info-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.starmus-info-list dt {
+  font-weight: 600;
+  margin-top: 0.5rem;
+  color: var(--starmus-text-m

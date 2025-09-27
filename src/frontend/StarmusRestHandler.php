@@ -1,5 +1,4 @@
 <?php
-
 /**
  * REST handler bridging HTTP endpoints to submission services.
  *
@@ -14,9 +13,15 @@ if (!defined('ABSPATH')) {
 
 use Starmus\includes\StarmusSettings;
 use Starmus\helpers\StarmusLogger;
+use Starmus\frontend\StarmusSubmissionHandler;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
+
+use function register_rest_route;
+use function is_wp_error;
+use function get_post_status;
+use function get_post_type;
 
 /**
  * Exposes WordPress REST API routes for audio submissions.
@@ -43,8 +48,6 @@ class StarmusRestHandler
 
     /**
      * Register REST API routes.
-     *
-     * @return void
      */
     public function register_routes(): void
     {
@@ -54,7 +57,7 @@ class StarmusRestHandler
             [
                 'methods' => 'POST',
                 'callback' => [$this, 'handle_fallback_upload'],
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn() => \current_user_can('upload_files'),
             ]
         );
 
@@ -64,7 +67,7 @@ class StarmusRestHandler
             [
                 'methods' => 'POST',
                 'callback' => [$this, 'handle_chunk_upload'],
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn() => \current_user_can('upload_files'),
             ]
         );
 
@@ -74,7 +77,7 @@ class StarmusRestHandler
             [
                 'methods' => 'GET',
                 'callback' => [$this, 'handle_status'],
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn() => \current_user_can('upload_files'),
                 'args' => [
                     'id' => [
                         'validate_callback' => 'is_numeric',
@@ -87,9 +90,7 @@ class StarmusRestHandler
     /**
      * Handle fallback form-based upload.
      *
-     * @param WP_REST_Request $request REST request containing the form payload.
-     *
-     * @return WP_REST_Response|WP_Error REST response or error wrapper.
+     * @throws \Throwable
      */
     public function handle_fallback_upload(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
@@ -100,9 +101,15 @@ class StarmusRestHandler
                 return $result;
             }
 
-            return new WP_REST_Response(['success' => true, 'data' => $result], 200);
+            // Fire a hook for post-upload processing (e.g. schedule cron pipeline).
+            do_action('starmus_submission_complete', $result['attachment_id'], $result['post_id']);
+
+            return new WP_REST_Response([
+                'success' => true,
+                'data' => $result,
+            ], 200);
         } catch (\Throwable $e) {
-            StarmusLogger::log('RestHandler:fallback', $e);
+            StarmusLogger::error('RestHandler:fallback', $e);
             return new WP_Error('server_error', 'Upload failed', ['status' => 500]);
         }
     }
@@ -110,9 +117,7 @@ class StarmusRestHandler
     /**
      * Handle chunked uploads.
      *
-     * @param WP_REST_Request $request REST request containing chunk data.
-     *
-     * @return WP_REST_Response|WP_Error REST response or error wrapper.
+     * @throws \Throwable
      */
     public function handle_chunk_upload(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
@@ -123,9 +128,17 @@ class StarmusRestHandler
                 return $result;
             }
 
-            return new WP_REST_Response(['success' => true, 'data' => $result], 200);
+            // If the result has attachment_id, assume finalization and fire the hook.
+            if (!empty($result['attachment_id']) && !empty($result['post_id'])) {
+                do_action('starmus_submission_complete', $result['attachment_id'], $result['post_id']);
+            }
+
+            return new WP_REST_Response([
+                'success' => true,
+                'data' => $result,
+            ], 200);
         } catch (\Throwable $e) {
-            StarmusLogger::log('RestHandler:chunk', $e);
+            StarmusLogger::error('RestHandler:chunk', $e);
             return new WP_Error('server_error', 'Chunk upload failed', ['status' => 500]);
         }
     }
@@ -133,9 +146,7 @@ class StarmusRestHandler
     /**
      * Handle status check for a submission.
      *
-     * @param WP_REST_Request $request REST request containing the submission ID.
-     *
-     * @return WP_REST_Response|WP_Error REST response or error wrapper.
+     * @throws \Throwable
      */
     public function handle_status(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
@@ -148,18 +159,21 @@ class StarmusRestHandler
                 return new WP_Error('not_found', 'Submission not found', ['status' => 404]);
             }
 
-            return new WP_REST_Response(
-                [
-                    'success' => true,
-                    'data' => [
-                        'id' => $post_id,
-                        'status' => $status,
-                    ],
+            // Ensure it's the correct CPT
+            $post_type = get_post_type($post_id);
+            if ($post_type !== $this->submission_handler->settings?->get('cpt_slug', 'audio-recording')) {
+                return new WP_Error('invalid_type', 'Not an audio recording', ['status' => 403]);
+            }
+
+            return new WP_REST_Response([
+                'success' => true,
+                'data' => [
+                    'id' => $post_id,
+                    'status' => $status,
                 ],
-                200
-            );
+            ], 200);
         } catch (\Throwable $e) {
-            StarmusLogger::log('RestHandler:status', $e);
+            StarmusLogger::error('RestHandler:status', $e);
             return new WP_Error('server_error', 'Could not fetch status', ['status' => 500]);
         }
     }

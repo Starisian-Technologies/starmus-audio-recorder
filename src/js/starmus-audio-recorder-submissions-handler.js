@@ -770,89 +770,53 @@
     log("info", "handleSubmit: starting upload", submissionPackage);
     doAction("starmus_submission_started", instanceId, submissionPackage);
     return resumableTusUpload(blob, fileName, formFields, metadata, instanceId)
-      .then((url) => {
-        log("info", "handleSubmit: upload success", url);
-        doAction("starmus_upload_success", instanceId, url);
-        return notifyServer(url, formFields, metadata);
-      })
-      .then(() => {
-        log("info", "handleSubmit: submission complete");
-        doAction("starmus_submission_complete", instanceId, submissionPackage);
+    .then(response => {
+      // --- THIS IS THE CORRECTED LOGIC ---
+      // First, check if the top-level response indicates success.
+      // Then, check for the 'data' object and the 'redirect_url' inside it.
+      if (response && response.success === true && response.data && response.data.redirect_url) {
+        log('info', 'handleSubmit: Submission successful. Server responded with:', response.data);
+        doAction('starmus_submission_complete', instanceId, response.data);
+
+        // --- UI FEEDBACK AND REDIRECT LOGIC ---
+        showUserMessage(instanceId, 'Submission successful! Redirecting...', 'success');
         if (submitBtn) {
-          submitBtn.textContent = "Submitted!";
-          setTimeout(() => {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText || "Submit";
-          }, 2000);
+          submitBtn.textContent = 'Success!';
+          // The button remains disabled to prevent resubmission.
         }
-      })
-      .catch((err) => {
-        log("error", "handleSubmit: an error occurred during submission", {
-          message: err?.message,
-          instanceId,
+
+        // Redirect the user to the URL provided by the server inside the 'data' object.
+        setTimeout(() => {
+          window.location.href = response.data.redirect_url;
+        }, 2000); // Wait 2 seconds so the user can see the success message.
+
+      } else {
+        // Handle cases where the server response is not in the expected format.
+        log('error', 'handleSubmit: Received an invalid or failed response from the server.', response);
+        throw new Error('Invalid response received from server.');
+      }
+    })
+        .catch((err) => {
+            log('error', 'handleSubmit: An error occurred during submission', { message: err?.message, instanceId });
+
+            if (!navigator.onLine) {
+                showUserMessage(instanceId, 'You seem to be offline. Your submission has been saved and will be sent automatically when you reconnect.', 'info');
+                Offline.add(instanceId, blob, fileName, formFields, metadata);
+            } else {
+                showUserMessage(instanceId, 'Submission failed. The server may have encountered an error. Please try again.', 'error');
+            }
+
+            // Always re-enable the button on any failure.
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText || 'Submit Recording';
+            }
+
+            doAction('starmus_submission_failed', instanceId, err);
+            throw err; // Re-throw the error for the console.
         });
-
-        // Check if the user is ACTUALLY offline.
-        if (!navigator.onLine) {
-          // The browser says we are offline, so save the submission.
-          showUserMessage(
-            instanceId,
-            "You seem to be offline. Your submission has been saved and will be sent automatically when you reconnect.",
-            "info",
-          );
-          Offline.add(instanceId, blob, fileName, formFields, metadata);
-        } else {
-          // The user is online, so the problem must be the server.
-          // Give a more accurate error message.
-          showUserMessage(
-            instanceId,
-            "Submission failed. The server responded with an error. Please try again later.",
-            "error",
-          );
-        }
-
-        // Always re-enable the button on any failure.
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = originalText || "Submit Recording";
-        }
-
-        doAction("starmus_submission_failed", instanceId, err);
-        // We still throw the error for other parts of the system that might need to know about it.
-        throw err;
-      });
   }
 
-  function notifyServer(tusUrl, formFields, metadata) {
-    const wpData = window.starmusFormData || {};
-    if (!wpData.rest_url || !wpData.rest_nonce) {
-      return Promise.resolve();
-    }
-
-    const fd = new FormData();
-    Object.keys(formFields || {}).forEach((k) => fd.append(k, formFields[k]));
-    fd.append("tus_url", tusUrl || "");
-    fd.append("metadata", JSON.stringify(metadata));
-
-    if (formFields["first_pass_transcription"]) {
-      fd.append(
-        "first_pass_transcription",
-        formFields["first_pass_transcription"],
-      );
-    }
-
-    // force notify to fallback route
-    const notifyUrl = wpData.rest_url.replace(
-      "/upload-chunk",
-      "/upload-fallback",
-    );
-
-    return fetch(notifyUrl, {
-      method: "POST",
-      headers: { "X-WP-Nonce": wpData.rest_nonce },
-      body: fd,
-    });
-  }
 
   // --- Init ---
   function init() {
