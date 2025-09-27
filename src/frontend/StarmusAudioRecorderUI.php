@@ -1,12 +1,19 @@
 <?php
+
+/**
+ * Front-end presentation layer for the Starmus recorder experience.
+ *
+ * @package   Starmus
+ */
+
 namespace Starmus\frontend;
 
 if (!defined('ABSPATH')) {
-	exit;
+        exit;
 }
 
-use Starmus\includes\StarmusSettings;
 use Starmus\helpers\StarmusLogger;
+use Starmus\includes\StarmusSettings;
 
 /**
  * Renders the user interface for the audio recorder and recordings list.
@@ -16,24 +23,37 @@ use Starmus\helpers\StarmusLogger;
 class StarmusAudioRecorderUI
 {
 
-	public const STAR_REST_NAMESPACE = 'starmus/v1';
+        /**
+         * REST namespace exposed to localized front-end scripts.
+         */
+        public const STAR_REST_NAMESPACE = StarmusSubmissionHandler::STAR_REST_NAMESPACE;
 
-	private ?StarmusSettings $settings = null;
+        /**
+         * Optional settings container used to hydrate UI data.
+         */
+        private ?StarmusSettings $settings = null;
 
-	public function __construct(?StarmusSettings $settings)
-	{
-		$this->settings = $settings;
-		$this->register_hooks();
-	}
+        /**
+         * Prime the UI layer with optional settings for template hydration.
+         *
+         * @param StarmusSettings|null $settings Configuration object, if available.
+         */
+        public function __construct(?StarmusSettings $settings)
+        {
+                $this->settings = $settings;
+                $this->register_hooks();
+        }
 
 
-	/**
-	 * Register all WordPress hooks required for the front-end recorder UI.
-	 */
-	private function register_hooks(): void
-	{
-		add_shortcode('starmus_my_recordings', array($this, 'render_my_recordings_shortcode'));
-		add_shortcode('starmus_audio_recorder_form', array($this, 'render_recorder_shortcode'));
+        /**
+         * Register all WordPress hooks required for the front-end recorder UI.
+         *
+         * @return void
+         */
+        private function register_hooks(): void
+        {
+                add_shortcode('starmus_my_recordings', array($this, 'render_my_recordings_shortcode'));
+                add_shortcode('starmus_audio_recorder_form', array($this, 'render_recorder_shortcode'));
 
 		add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
 
@@ -47,10 +67,14 @@ class StarmusAudioRecorderUI
 		add_action('delete_recording-type', array($this, 'clear_taxonomy_transients'));
 	}
 
-	/**
-	 * Render the "My Recordings" shortcode.
-	 */
-	public function render_my_recordings_shortcode($atts = array()): string
+        /**
+         * Render the "My Recordings" shortcode.
+         *
+         * @param array $atts Shortcode attributes supplied by WordPress.
+         *
+         * @return string Rendered HTML for the recordings list.
+         */
+        public function render_my_recordings_shortcode($atts = array()): string
 	{
 		if (!is_user_logged_in()) {
 			return '<p>' . esc_html__('You must be logged in to view your recordings.', 'starmus-audio-recorder') . '</p>';
@@ -86,10 +110,14 @@ class StarmusAudioRecorderUI
 		}
 	}
 
-	/**
-	 * Renders the audio recorder shortcode by passing data to the template.
-	 */
-	public function render_recorder_shortcode($atts = array()): string
+        /**
+         * Render the recorder form shortcode output.
+         *
+         * @param array $atts Shortcode attributes supplied by WordPress.
+         *
+         * @return string Rendered HTML for the recorder UI.
+         */
+        public function render_recorder_shortcode($atts = array()): string
 	{
 		if (!is_user_logged_in()) {
 			return '<p>' . esc_html__('You must be logged in to record audio.', 'starmus-audio-recorder') . '</p>';
@@ -119,11 +147,12 @@ class StarmusAudioRecorderUI
 		}
 	}
 
-	/**
-	 * Registers and conditionally enqueues all frontend scripts and styles.
-	 * Mirrors your original debug/minified split and script localization.
-	 */
-	public function enqueue_scripts(): void
+        /**
+         * Register and localize front-end assets for the recorder UI.
+         *
+         * @return void
+         */
+        public function enqueue_scripts(): void
 	{
 		try {
 			if (is_admin()) {
@@ -173,7 +202,7 @@ class StarmusAudioRecorderUI
 					$script_handle,
 					'starmusFormData',
 					array(
-						'rest_url' => esc_url_raw(rest_url(self::STAR_REST_NAMESPACE . '/upload-chunk')),
+                                                'rest_url' => esc_url_raw(rest_url(StarmusSubmissionHandler::STAR_REST_NAMESPACE . '/upload-chunk')),
 						'rest_nonce' => wp_create_nonce('wp_rest'),
 					)
 				);
@@ -218,11 +247,16 @@ class StarmusAudioRecorderUI
 		}
 	}
 
-	/**
-	 * Render a template file with provided arguments.
-	 * Searches child theme, parent theme, then plugin (src/templates).
-	 */
-	private function render_template(string $template_file, array $args = array()): string
+        /**
+         * Render a template file with provided arguments.
+         * Searches child theme, parent theme, then plugin (src/templates).
+         *
+         * @param string $template_file Template filename to locate.
+         * @param array  $args          Context passed into the template scope.
+         *
+         * @return string Rendered HTML output from the template.
+         */
+        private function render_template(string $template_file, array $args = array()): string
 	{
 		try {
 			$template_name = basename($template_file);
@@ -259,10 +293,15 @@ class StarmusAudioRecorderUI
 		}
 	}
 
-	/**
-	 * Get cached terms for a taxonomy, with transient caching.
-	 */
-	private function get_cached_terms(string $taxonomy, string $cache_key): array
+        /**
+         * Get cached terms for a taxonomy, with transient caching.
+         *
+         * @param string $taxonomy  Taxonomy slug.
+         * @param string $cache_key Transient cache key for storing the terms.
+         *
+         * @return array List of taxonomy terms.
+         */
+        private function get_cached_terms(string $taxonomy, string $cache_key): array
 	{
 		$terms = get_transient($cache_key);
 		if (false === $terms) {
@@ -282,28 +321,34 @@ class StarmusAudioRecorderUI
 		return is_array($terms) ? $terms : array();
 	}
 
-	/**
-	 * Clear term caches for Language and Recording Type.
-	 */
-	public function clear_taxonomy_transients(): void
+        /**
+         * Clear term caches for Language and Recording Type.
+         *
+         * @return void
+         */
+        public function clear_taxonomy_transients(): void
 	{
 		delete_transient('starmus_languages_list');
 		delete_transient('starmus_recording_types_list');
 	}
 
-	/**
-	 * Admin edit screen for CPT list (kept for back-compat with your template usage).
-	 */
-	private function get_edit_page_url_admin(): string
+        /**
+         * Admin edit screen for CPT list (kept for back-compat with your template usage).
+         *
+         * @return string URL to the admin list table for recordings.
+         */
+        private function get_edit_page_url_admin(): string
 	{
 		$cpt = $this->settings ? $this->settings->get('cpt_slug', 'audio-recording') : 'audio-recording';
 		return admin_url('edit.php?post_type=' . $cpt);
 	}
 
-	/**
-	 * Front-end edit page URL (optional, preserved if your theme templates use it).
-	 */
-	private function get_edit_page_url(): string
+        /**
+         * Front-end edit page URL (optional, preserved if your theme templates use it).
+         *
+         * @return string URL to the front-end edit page or an empty string.
+         */
+        private function get_edit_page_url(): string
 	{
 		$edit_page_id = $this->settings ? $this->settings->get('edit_page_id') : 0;
 		if (!empty($edit_page_id)) {
