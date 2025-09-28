@@ -201,7 +201,9 @@ class StarmusSubmissionHandler
         $destination = $upload_dir['path'] . '/' . $filename;
 
         if (!@rename($file_path, $destination)) {
-            unlink($file_path);
+            if (!@unlink($file_path)) {
+                StarmusLogger::error("Failed to delete temporary file: {$file_path}");
+            }
             return new WP_Error('move_failed', 'Failed to move upload.');
         }
 
