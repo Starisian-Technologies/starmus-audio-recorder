@@ -6,7 +6,7 @@ namespace Starmus\core;
  *
  * @file        StarmusPluginUpdater.php
  * @package     Starmus\core
- * @version 0.7.4
+ * @version 0.7.5
  * @since       0.7.2
  */
 class StarmusPluginUpdater {

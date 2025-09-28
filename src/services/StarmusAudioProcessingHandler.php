@@ -5,7 +5,7 @@
  *
  * @package Starmus\services
  * @module  StarmusAudioProcessingHandler
- * @version 0.7.4
+ * @version 0.7.5
  * @since   0.7.4
  * @file    Central handler for the post-upload audio processing pipeline.
  */

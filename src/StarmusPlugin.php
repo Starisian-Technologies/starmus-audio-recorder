@@ -7,7 +7,7 @@
  *
  * @package Starmus;
  * @since 0.1.0
- * @version 0.7.4
+ * @version 0.7.5
  * @author Starisian Technologies (Max Barrett)
  * @license SEE LICENSE.md
  * @link   https://starisian.com
@@ -20,7 +20,7 @@ namespace Starmus;
  * This version uses a clean, linear loading sequence to avoid race conditions.
  *
  * @package Starmus\includes
- * @version 0.7.4
+ * @version 0.7.5
  * @since 0.1.0
  */
 if ( ! defined( 'ABSPATH' ) ) {

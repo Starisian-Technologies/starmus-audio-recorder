@@ -3,7 +3,7 @@
  * Service class for handling file operations, especially for offloaded media.
  *
  * @package Starmus\services
- * @version 1.0.0
+ * @version 0.7.5
  */
 
 namespace Starmus\services;
