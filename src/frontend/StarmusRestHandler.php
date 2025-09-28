@@ -38,11 +38,12 @@ class StarmusRestHandler
     /**
      * Build the handler and register the REST routes during boot.
      *
-     * @param StarmusSettings $settings Plugin configuration wrapper.
+     * @param StarmusSettings            $settings            Plugin configuration wrapper.
+     * @param StarmusSubmissionHandler|null $submission_handler Optional prebuilt submission handler.
      */
-    public function __construct(StarmusSettings $settings)
+    public function __construct(StarmusSettings $settings, ?StarmusSubmissionHandler $submission_handler = null)
     {
-        $this->submission_handler = new StarmusSubmissionHandler($settings);
+        $this->submission_handler = $submission_handler ?? new StarmusSubmissionHandler($settings);
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 

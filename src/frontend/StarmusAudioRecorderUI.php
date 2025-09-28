@@ -25,7 +25,7 @@ class StarmusAudioRecorderUI
 	/**
 	 * REST namespace exposed to localized front-end scripts.
 	 */
-	public const STAR_REST_NAMESPACE = \Starmus\includes\StarmusSubmissionHandler::STAR_REST_NAMESPACE;
+	public const STAR_REST_NAMESPACE = \Starmus\frontend\StarmusSubmissionHandler::STAR_REST_NAMESPACE;
 
 	/**
 	 * Optional settings container used to hydrate UI data.
