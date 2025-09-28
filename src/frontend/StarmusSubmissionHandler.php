@@ -200,7 +200,7 @@ class StarmusSubmissionHandler
         $upload_dir = wp_upload_dir();
         $destination = $upload_dir['path'] . '/' . $filename;
 
-        if (!rename($file_path, $destination)) {
+        if (!@rename($file_path, $destination)) {
             unlink($file_path);
             return new WP_Error('move_failed', 'Failed to move upload.');
         }
