@@ -13,6 +13,7 @@ if (!defined('ABSPATH')) {
 
 use Starmus\helpers\StarmusLogger;
 use Starmus\includes\StarmusSettings;
+use Starmus\frontend\StarmusSubmissionHandler;
 
 /**
  * Renders the user interface for the audio recorder and recordings list.
@@ -25,7 +26,7 @@ class StarmusAudioRecorderUI
 	/**
 	 * REST namespace exposed to localized front-end scripts.
 	 */
-	public const STAR_REST_NAMESPACE = \Starmus\frontend\StarmusSubmissionHandler::STAR_REST_NAMESPACE;
+	public const STAR_REST_NAMESPACE = StarmusSubmissionHandler::STAR_REST_NAMESPACE;
 
 	/**
 	 * Optional settings container used to hydrate UI data.
