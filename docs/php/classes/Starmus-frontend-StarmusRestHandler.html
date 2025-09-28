@@ -81,6 +81,10 @@
                 
             </li>
                     <li>
+                <a href="namespaces/starmus-helpers.html" class="">helpers</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/starmus-includes.html" class="">includes</a>
                 
             </li>
@@ -165,7 +169,7 @@
             <div class="phpdocumentor-element__package">
             in package
             <ul class="phpdocumentor-breadcrumbs">
-                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Application.html">Application</a></li>
+                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Starmus.html">Starmus</a></li>
                             </ul>
         </div>
     
@@ -180,13 +184,15 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusRestHandler.php"><a href="files/src-frontend-starmusresthandler.html"><abbr title="src/frontend/StarmusRestHandler.php">StarmusRestHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">16</span>
+    <span class="phpdocumentor-element-found-in__line">31</span>
 
     </aside>
 
-            <p class="phpdocumentor-summary">Registers and handles all REST API endpoints for the Starmus plugin.</p>
+            <p class="phpdocumentor-summary">Exposes WordPress REST API routes for audio submissions.</p>
 
 
+    <section class="phpdocumentor-description"><p>Routes map directly to <a href="classes/Starmus-frontend-StarmusSubmissionHandler.html"><abbr title="\Starmus\frontend\StarmusSubmissionHandler">StarmusSubmissionHandler</abbr></a> to keep logic in one place.</p>
+</section>
 
 
 
@@ -219,6 +225,7 @@
     <span>
                         &nbsp;: <a href="classes/Starmus-frontend-StarmusSubmissionHandler.html"><abbr title="\Starmus\frontend\StarmusSubmissionHandler">StarmusSubmissionHandler</abbr></a>            </span>
 </dt>
+<dd>Submission service that performs all validation and storage work.</dd>
 
     </dl>
 
@@ -233,36 +240,35 @@
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
+<dd>Build the handler and register the REST routes during boot.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusRestHandler.html#method_allow_webm_uploads">allow_webm_uploads()</a>
-    <span>
-                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
-</dt>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusRestHandler.html#method_check_upload_permissions">check_upload_permissions()</a>
-    <span>
-                                &nbsp;: bool    </span>
-</dt>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_fallback_request">handle_fallback_request()</a>
+    <a class="" href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_chunk_upload">handle_chunk_upload()</a>
     <span>
                                 &nbsp;: <abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr>    </span>
 </dt>
+<dd>Handle chunked uploads.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusRestHandler.html#method_register_rest_routes">register_rest_routes()</a>
+    <a class="" href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_fallback_upload">handle_fallback_upload()</a>
     <span>
-                                &nbsp;: void    </span>
+                                &nbsp;: <abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr>    </span>
 </dt>
+<dd>Handle fallback form-based upload.</dd>
 
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusRestHandler.html#method_register_hooks">register_hooks()</a>
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_status">handle_status()</a>
+    <span>
+                                &nbsp;: <abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr>    </span>
+</dt>
+<dd>Handle status check for a submission.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-frontend-StarmusRestHandler.html#method_register_routes">register_routes()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
+<dd>Register REST API routes.</dd>
 
     </dl>
 
@@ -294,11 +300,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusRestHandler.php"><a href="files/src-frontend-starmusresthandler.html"><abbr title="src/frontend/StarmusRestHandler.php">StarmusRestHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">19</span>
+    <span class="phpdocumentor-element-found-in__line">37</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Submission service that performs all validation and storage work.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
@@ -337,14 +344,15 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusRestHandler.php"><a href="files/src-frontend-starmusresthandler.html"><abbr title="src/frontend/StarmusRestHandler.php">StarmusRestHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">21</span>
+    <span class="phpdocumentor-element-found-in__line">45</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Build the handler and register the REST routes during boot.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><a href="classes/Starmus-frontend-StarmusSubmissionHandler.html"><abbr title="\Starmus\frontend\StarmusSubmissionHandler">StarmusSubmissionHandler</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$submission_handler</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+                    <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><a href="classes/Starmus-includes-StarmusSettings.html"><abbr title="\Starmus\includes\StarmusSettings">StarmusSettings</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$settings</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type"><a href="classes/Starmus-frontend-StarmusSubmissionHandler.html"><abbr title="\Starmus\frontend\StarmusSubmissionHandler">StarmusSubmissionHandler</abbr></a>|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$submission_handler</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -352,12 +360,23 @@
     
         <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
     <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$settings</span>
+                : <span class="phpdocumentor-signature__argument__return-type"><a href="classes/Starmus-includes-StarmusSettings.html"><abbr title="\Starmus\includes\StarmusSettings">StarmusSettings</abbr></a></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>Plugin configuration wrapper.</p>
+</section>
+
+            </dd>
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-signature__argument__name">$submission_handler</span>
-                : <span class="phpdocumentor-signature__argument__return-type"><a href="classes/Starmus-frontend-StarmusSubmissionHandler.html"><abbr title="\Starmus\frontend\StarmusSubmissionHandler">StarmusSubmissionHandler</abbr></a></span>
-                            </dt>
+                : <span class="phpdocumentor-signature__argument__return-type"><a href="classes/Starmus-frontend-StarmusSubmissionHandler.html"><abbr title="\Starmus\frontend\StarmusSubmissionHandler">StarmusSubmissionHandler</abbr></a>|null</span>
+                 = <span class="phpdocumentor-signature__argument__default-value">null</span>            </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>Optional prebuilt submission handler.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -373,108 +392,23 @@
             -public
                                                         "
 >
-    <h4 class="phpdocumentor-element__name" id="method_allow_webm_uploads">
-        allow_webm_uploads()
-        <a href="classes/Starmus-frontend-StarmusRestHandler.html#method_allow_webm_uploads" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_handle_chunk_upload">
+        handle_chunk_upload()
+        <a href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_chunk_upload" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusRestHandler.php"><a href="files/src-frontend-starmusresthandler.html"><abbr title="src/frontend/StarmusRestHandler.php">StarmusRestHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">70</span>
+    <span class="phpdocumentor-element-found-in__line">134</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Handle chunked uploads.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">allow_webm_uploads</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$mime_types</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$mime_types</span>
-                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_check_upload_permissions">
-        check_upload_permissions()
-        <a href="classes/Starmus-frontend-StarmusRestHandler.html#method_check_upload_permissions" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusRestHandler.php"><a href="files/src-frontend-starmusresthandler.html"><abbr title="src/frontend/StarmusRestHandler.php">StarmusRestHandler.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">66</span>
-
-    </aside>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">check_upload_permissions</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">bool</span>
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_handle_fallback_request">
-        handle_fallback_request()
-        <a href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_fallback_request" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusRestHandler.php"><a href="files/src-frontend-starmusresthandler.html"><abbr title="src/frontend/StarmusRestHandler.php">StarmusRestHandler.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">43</span>
-
-    </aside>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">handle_fallback_request</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$request</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span></code>
+                    <span class="phpdocumentor-signature__name">handle_chunk_upload</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$request</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -492,6 +426,21 @@
             </dl>
 
     
+    <h5 class="phpdocumentor-tag-list__heading" id="tags">
+        Tags
+        <a href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_chunk_upload#tags" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h5>
+    <dl class="phpdocumentor-tag-list">
+                                    <dt class="phpdocumentor-tag-list__entry">
+                    <span class="phpdocumentor-tag__name">throws</span>
+                </dt>
+                <dd class="phpdocumentor-tag-list__definition">
+                                                                <span class="phpdocumentor-tag-link"><abbr title="\Throwable">Throwable</abbr></span>
+                                                            
+                                             
+                                    </dd>
+                                            </dl>
 
     
 
@@ -507,56 +456,151 @@
             -public
                                                         "
 >
-    <h4 class="phpdocumentor-element__name" id="method_register_rest_routes">
-        register_rest_routes()
-        <a href="classes/Starmus-frontend-StarmusRestHandler.html#method_register_rest_routes" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_handle_fallback_upload">
+        handle_fallback_upload()
+        <a href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_fallback_upload" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusRestHandler.php"><a href="files/src-frontend-starmusresthandler.html"><abbr title="src/frontend/StarmusRestHandler.php">StarmusRestHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">31</span>
+    <span class="phpdocumentor-element-found-in__line">95</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Handle fallback form-based upload.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">register_rest_routes</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+                    <span class="phpdocumentor-signature__name">handle_fallback_upload</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$request</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
     
     
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$request</span>
+                : <span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
     
-    
+    <h5 class="phpdocumentor-tag-list__heading" id="tags">
+        Tags
+        <a href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_fallback_upload#tags" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h5>
+    <dl class="phpdocumentor-tag-list">
+                                    <dt class="phpdocumentor-tag-list__entry">
+                    <span class="phpdocumentor-tag__name">throws</span>
+                </dt>
+                <dd class="phpdocumentor-tag-list__definition">
+                                                                <span class="phpdocumentor-tag-link"><abbr title="\Throwable">Throwable</abbr></span>
+                                                            
+                                             
+                                    </dd>
+                                            </dl>
 
     
 
-    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span>
+            </section>
+
 </article>
                     <article
         class="phpdocumentor-element
             -method
-            -private
+            -public
                                                         "
 >
-    <h4 class="phpdocumentor-element__name" id="method_register_hooks">
-        register_hooks()
-        <a href="classes/Starmus-frontend-StarmusRestHandler.html#method_register_hooks" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_handle_status">
+        handle_status()
+        <a href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_status" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusRestHandler.php"><a href="files/src-frontend-starmusresthandler.html"><abbr title="src/frontend/StarmusRestHandler.php">StarmusRestHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">26</span>
+    <span class="phpdocumentor-element-found-in__line">165</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Handle status check for a submission.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">register_hooks</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">handle_status</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$request</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$request</span>
+                : <span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+    <h5 class="phpdocumentor-tag-list__heading" id="tags">
+        Tags
+        <a href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_status#tags" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h5>
+    <dl class="phpdocumentor-tag-list">
+                                    <dt class="phpdocumentor-tag-list__entry">
+                    <span class="phpdocumentor-tag__name">throws</span>
+                </dt>
+                <dd class="phpdocumentor-tag-list__definition">
+                                                                <span class="phpdocumentor-tag-link"><abbr title="\Throwable">Throwable</abbr></span>
+                                                            
+                                             
+                                    </dd>
+                                            </dl>
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_register_routes">
+        register_routes()
+        <a href="classes/Starmus-frontend-StarmusRestHandler.html#method_register_routes" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusRestHandler.php"><a href="files/src-frontend-starmusresthandler.html"><abbr title="src/frontend/StarmusRestHandler.php">StarmusRestHandler.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">53</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Register REST API routes.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">register_routes</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -692,11 +736,10 @@
             <li>
                 <ul class="phpdocumentor-list -clean">
                                             <li class=""><a href="classes/Starmus-frontend-StarmusRestHandler.html#method___construct">__construct()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusRestHandler.html#method_allow_webm_uploads">allow_webm_uploads()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusRestHandler.html#method_check_upload_permissions">check_upload_permissions()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_fallback_request">handle_fallback_request()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusRestHandler.html#method_register_rest_routes">register_rest_routes()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusRestHandler.html#method_register_hooks">register_hooks()</a></li>
+                                            <li class=""><a href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_chunk_upload">handle_chunk_upload()</a></li>
+                                            <li class=""><a href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_fallback_upload">handle_fallback_upload()</a></li>
+                                            <li class=""><a href="classes/Starmus-frontend-StarmusRestHandler.html#method_handle_status">handle_status()</a></li>
+                                            <li class=""><a href="classes/Starmus-frontend-StarmusRestHandler.html#method_register_routes">register_routes()</a></li>
                                     </ul>
             </li>
                     </ul>

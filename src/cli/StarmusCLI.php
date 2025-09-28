@@ -25,7 +25,8 @@ if ( ! defined( 'WP_CLI' ) ) {
  */
 class StarmusCLI extends WP_CLI_Command {
 
-	private $waveform_service;
+
+	private ?WaveformService $waveform_service = null;
 
 	public function __construct() {
 		$this->waveform_service = new WaveformService();
@@ -248,7 +249,7 @@ class StarmusCLI extends WP_CLI_Command {
 				} elseif ( ! $regenerate && $this->waveform_service->has_waveform_data( $attachment_id ) ) {
 					++$skipped;
 				} elseif ( $this->waveform_service->generate_waveform_data( $attachment_id, $regenerate ) ) {
-						++$processed;
+					++$processed;
 				} else {
 					++$failed;
 					WP_CLI::warning( "\nFailed for Post ID {$post_id} (Attachment ID: {$attachment_id}). Check server logs." );

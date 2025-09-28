@@ -1,30 +1,33 @@
 <?php
 /**
- * Starmus Recording Detail - User View
- * Shows basic information to the user who submitted the recording
+ * Starmus Single Recording Detail Template Part (User View)
  *
- * @package Starmus\templates
- * @version 0.7.4
- * @var int $post_id The recording post ID
+ * @package Starmus\templates\parts
  */
 
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$audio_url      = get_post_meta( $post_id, 'audio_file_url', true );
-$recording_type = get_the_terms( $post_id, 'recording_type' );
-$language       = get_the_terms( $post_id, 'language' );
-$transcript     = get_post_meta( $post_id, 'first_pass_transcription', true );
-$metadata       = get_post_meta( $post_id, 'recording_metadata', true );
+// Assume the global $post is set by the shortcode's context.
+$post_id = get_the_ID();
 
+// Get the audio URL correctly
+$audio_attachment_id = get_post_meta( $post_id, '_audio_attachment_id', true );
+$audio_url           = ! empty( $audio_attachment_id ) ? wp_get_attachment_url( (int) $audio_attachment_id ) : '';
+
+// Get other necessary data
+$recording_type  = get_the_terms( $post_id, 'recording_type' );
+$language        = get_the_terms( $post_id, 'language' );
+$transcript      = get_post_meta( $post_id, 'first_pass_transcription', true );
+$metadata        = get_post_meta( $post_id, 'recording_metadata', true );
 $transcript_data = $transcript ? json_decode( $transcript, true ) : null;
 $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 ?>
 
 <div class="starmus-recording-detail">
 	<header class="starmus-detail__header">
-		<h1 class="starmus-detail__title"><?php echo esc_html( get_the_title( $post_id ) ); ?></h1>
 		<div class="starmus-detail__meta">
 			<span class="starmus-meta__date">
 				<?php esc_html_e( 'Recorded on', 'starmus-audio-recorder' ); ?>
@@ -50,10 +53,9 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 	<?php if ( $audio_url ) : ?>
 		<div class="starmus-detail__audio">
 			<h2><?php esc_html_e( 'Your Recording', 'starmus-audio-recorder' ); ?></h2>
-			<audio controls preload="metadata" class="starmus-audio-player--large">
+			<audio controls controlsList="nodownload" preload="metadata" class="starmus-audio-player--large"
+				style="width: 100%;">
 				<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/webm">
-				<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/mp4">
-				<source src="<?php echo esc_url( $audio_url ); ?>" type="audio/mpeg">
 				<?php esc_html_e( 'Your browser does not support the audio element.', 'starmus-audio-recorder' ); ?>
 			</audio>
 			<?php if ( $meta_data && isset( $meta_data['technical']['duration'] ) ) : ?>
@@ -62,6 +64,10 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 					<?php echo esc_html( gmdate( 'i:s', $meta_data['technical']['duration'] / 1000 ) ); ?>
 				</p>
 			<?php endif; ?>
+		</div>
+	<?php else : ?>
+		<div class="starmus-submission-error">
+			<p><strong>Audio file could not be found for this submission.</strong></p>
 		</div>
 	<?php endif; ?>
 
@@ -73,7 +79,8 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 			</p>
 			<div class="starmus-transcript__content">
 				<?php foreach ( $transcript_data['transcript'] as $segment ) : ?>
-					<span class="starmus-transcript__segment" data-timestamp="<?php echo esc_attr( $segment['timestamp'] ?? 0 ); ?>">
+					<span class="starmus-transcript__segment"
+						data-timestamp="<?php echo esc_attr( $segment['timestamp'] ?? 0 ); ?>">
 						<?php echo esc_html( $segment['text'] ?? '' ); ?>
 					</span>
 				<?php endforeach; ?>
@@ -87,14 +94,20 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 			<div class="starmus-status__icon">✓</div>
 			<div class="starmus-status__content">
 				<h3><?php esc_html_e( 'Successfully Submitted', 'starmus-audio-recorder' ); ?></h3>
-				<p><?php esc_html_e( 'Your recording has been received and is being processed for the linguistic corpus.', 'starmus-audio-recorder' ); ?></p>
+				<p><?php esc_html_e( 'Your recording has been received and is being processed for the linguistic corpus.', 'starmus-audio-recorder' ); ?>
+				</p>
 			</div>
 		</div>
 	</div>
 
 	<div class="starmus-detail__actions">
-		<a href="<?php echo esc_url( wp_get_referer() ?: home_url( '/my-recordings/' ) ); ?>" class="starmus-btn starmus-btn--outline">
-			<?php esc_html_e( '← Back to My Recordings', 'starmus-audio-recorder' ); ?>
-		</a>
+		<?php
+		$archive_url = get_post_type_archive_link( 'audio-recording' );
+		if ( $archive_url ) :
+			?>
+			<a href="<?php echo esc_url( $archive_url ); ?>" class="starmus-btn starmus-btn--outline">
+				<?php esc_html_e( '← Back to My Recordings', 'starmus-audio-recorder' ); ?>
+			</a>
+		<?php endif; ?>
 	</div>
 </div>

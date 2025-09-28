@@ -81,6 +81,10 @@
                 
             </li>
                     <li>
+                <a href="namespaces/starmus-helpers.html" class="">helpers</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/starmus-includes.html" class="">includes</a>
                 
             </li>
@@ -181,7 +185,7 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">30</span>
+    <span class="phpdocumentor-element-found-in__line">31</span>
 
     </aside>
 
@@ -241,18 +245,21 @@
     <span>
         &nbsp;= 1000                            </span>
 </dt>
+<dd>Upper bound for stored annotations to avoid overloading requests.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -constant -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#constant_STAR_RATE_LIMIT_SECONDS">STAR_RATE_LIMIT_SECONDS</a>
     <span>
         &nbsp;= 2                            </span>
 </dt>
+<dd>Time-based throttle applied when saving annotations.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -constant -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#constant_STAR_REST_NAMESPACE">STAR_REST_NAMESPACE</a>
     <span>
-        &nbsp;= &#039;starmus/v1&#039;                            </span>
+        &nbsp;= &#039;star-starmus-audio-recorder/v1&#039;                            </span>
 </dt>
+<dd>REST namespace for editor endpoints (must match other handlers)</dd>
 
     </dl>
 
@@ -268,6 +275,7 @@
     <span>
                         &nbsp;: array&lt;string|int, mixed&gt;|null            </span>
 </dt>
+<dd>Cached rendering context shared between hooks during a request.</dd>
 
     </dl>
 
@@ -282,108 +290,126 @@
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
+<dd>Bootstrap the editor by registering its WordPress hooks.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_can_save_annotations">can_save_annotations()</a>
     <span>
                                 &nbsp;: bool    </span>
 </dt>
+<dd>Determine whether the current request is authorized to save annotations.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_enqueue_scripts">enqueue_scripts()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
+<dd>Conditionally enqueue front-end assets required by the editor.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_handle_save_annotations">handle_save_annotations()</a>
     <span>
                                 &nbsp;: <abbr title="\WP_REST_Response">WP_REST_Response</abbr>    </span>
 </dt>
+<dd>Persist sanitized annotations for a recording.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_register_rest_endpoint">register_rest_endpoint()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
+<dd>Register REST endpoints used by the editor for annotation persistence.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_render_audio_editor_shortcode">render_audio_editor_shortcode()</a>
     <span>
                                 &nbsp;: string    </span>
 </dt>
+<dd>Render the audio editor shortcode output for the current user.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_sanitize_annotations">sanitize_annotations()</a>
     <span>
                                 &nbsp;: array&lt;string|int, mixed&gt;    </span>
 </dt>
+<dd>Sanitize incoming annotations payloads from REST requests.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_validate_annotations">validate_annotations()</a>
     <span>
                                 &nbsp;: bool    </span>
 </dt>
+<dd>Validate that annotations array obeys structural constraints.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_validate_post_id">validate_post_id()</a>
     <span>
                                 &nbsp;: bool    </span>
 </dt>
+<dd>Validate incoming post ID arguments for REST requests.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_get_editor_context">get_editor_context()</a>
     <span>
                                 &nbsp;: array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr>    </span>
 </dt>
+<dd>Build the editor rendering context for the current request.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_get_secure_waveform_url">get_secure_waveform_url()</a>
     <span>
                                 &nbsp;: string    </span>
 </dt>
+<dd>Generate a signed URL for the waveform attachment if available.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_is_rate_limited">is_rate_limited()</a>
     <span>
                                 &nbsp;: bool    </span>
 </dt>
+<dd>Check if the request should be throttled to avoid rapid writes.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_is_valid_template_path">is_valid_template_path()</a>
     <span>
                                 &nbsp;: bool    </span>
 </dt>
+<dd>Validate that the template path resolves to an allowed directory.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_log_error">log_error()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
+<dd>Log an error with unified context handling.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_parse_annotations_json">parse_annotations_json()</a>
     <span>
                                 &nbsp;: array&lt;string|int, mixed&gt;    </span>
 </dt>
+<dd>Convert stored annotations JSON to a sanitized array structure.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_register_hooks">register_hooks()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
+<dd>Register shortcode, assets, and REST route hooks.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_render_template_secure">render_template_secure()</a>
     <span>
                                 &nbsp;: string    </span>
 </dt>
+<dd>Safely render the editor template with the provided context.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starmus-frontend-StarmusAudioEditorUI.html#method_validate_annotation_consistency">validate_annotation_consistency()</a>
     <span>
-                                &nbsp;: mixed    </span>
+                                &nbsp;: void    </span>
 </dt>
+<dd>Ensure annotation timestamps are sorted and non-overlapping.</dd>
 
     </dl>
 
@@ -406,11 +432,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">35</span>
+    <span class="phpdocumentor-element-found-in__line">46</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Upper bound for stored annotations to avoid overloading requests.</p>
+
     
     <code class="phpdocumentor-signature phpdocumentor-code ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -437,11 +464,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">36</span>
+    <span class="phpdocumentor-element-found-in__line">51</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Time-based throttle applied when saving annotations.</p>
+
     
     <code class="phpdocumentor-signature phpdocumentor-code ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -468,17 +496,18 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">33</span>
+    <span class="phpdocumentor-element-found-in__line">36</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">REST namespace for editor endpoints (must match other handlers)</p>
+
     
     <code class="phpdocumentor-signature phpdocumentor-code ">
     <span class="phpdocumentor-signature__visibility">public</span>
         <span class="phpdocumentor-signature__type">mixed</span>
     <span class="phpdocumentor-signature__name">STAR_REST_NAMESPACE</span>
-    = <span class="phpdocumentor-signature__default-value">&#039;starmus/v1&#039;</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;star-starmus-audio-recorder/v1&#039;</span>
 </code>
 
 
@@ -515,11 +544,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">38</span>
+    <span class="phpdocumentor-element-found-in__line">56</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Cached rendering context shared between hooks during a request.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
@@ -558,11 +588,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">40</span>
+    <span class="phpdocumentor-element-found-in__line">61</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Bootstrap the editor by registering its WordPress hooks.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
@@ -592,11 +623,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">301</span>
+    <span class="phpdocumentor-element-found-in__line">402</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Determine whether the current request is authorized to save annotations.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">can_save_annotations</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$request</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
@@ -612,7 +644,9 @@
                 : <span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr></span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>REST request context.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -623,6 +657,10 @@
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">bool</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>True when the user can persist annotations.</p>
+</section>
+
             </section>
 
 </article>
@@ -640,11 +678,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">111</span>
+    <span class="phpdocumentor-element-found-in__line">161</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Conditionally enqueue front-end assets required by the editor.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">enqueue_scripts</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
@@ -674,11 +713,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">318</span>
+    <span class="phpdocumentor-element-found-in__line">426</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Persist sanitized annotations for a recording.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">handle_save_annotations</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$request</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr></span></code>
@@ -694,7 +734,9 @@
                 : <span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr></span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>REST request containing annotations.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -705,6 +747,10 @@
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr></span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>Success response with saved annotations.</p>
+</section>
+
             </section>
 
 </article>
@@ -722,11 +768,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">226</span>
+    <span class="phpdocumentor-element-found-in__line">300</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Register REST endpoints used by the editor for annotation persistence.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">register_rest_endpoint</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
@@ -756,11 +803,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">53</span>
+    <span class="phpdocumentor-element-found-in__line">84</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Render the audio editor shortcode output for the current user.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">render_audio_editor_shortcode</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
@@ -777,6 +825,10 @@
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">string</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>HTML payload for the editor interface.</p>
+</section>
+
             </section>
 
 </article>
@@ -794,11 +846,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">255</span>
+    <span class="phpdocumentor-element-found-in__line">343</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Sanitize incoming annotations payloads from REST requests.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">sanitize_annotations</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$value</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
@@ -814,7 +867,9 @@
                 : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>Raw annotations payload.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -825,6 +880,10 @@
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>Normalized annotations array.</p>
+</section>
+
             </section>
 
 </article>
@@ -842,11 +901,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">281</span>
+    <span class="phpdocumentor-element-found-in__line">375</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Validate that annotations array obeys structural constraints.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">validate_annotations</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$value</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
@@ -862,7 +922,9 @@
                 : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>Annotations payload to validate.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -873,6 +935,10 @@
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">bool</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>True when annotations are acceptable.</p>
+</section>
+
             </section>
 
 </article>
@@ -890,11 +956,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">251</span>
+    <span class="phpdocumentor-element-found-in__line">332</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Validate incoming post ID arguments for REST requests.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">validate_post_id</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$value</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
@@ -910,7 +977,9 @@
                 : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>Raw value supplied to the REST endpoint.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -921,6 +990,10 @@
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">bool</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>True when the value is a valid post identifier.</p>
+</section>
+
             </section>
 
 </article>
@@ -938,11 +1011,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">168</span>
+    <span class="phpdocumentor-element-found-in__line">230</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Build the editor rendering context for the current request.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
                     <span class="phpdocumentor-signature__name">get_editor_context</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr></span></code>
@@ -959,6 +1033,10 @@
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr></span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>Context array or WP_Error on failure.</p>
+</section>
+
             </section>
 
 </article>
@@ -976,11 +1054,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">209</span>
+    <span class="phpdocumentor-element-found-in__line">278</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Generate a signed URL for the waveform attachment if available.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
                     <span class="phpdocumentor-signature__name">get_secure_waveform_url</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$attachment_id</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
@@ -996,7 +1075,9 @@
                 : <span class="phpdocumentor-signature__argument__return-type">int</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>Attachment ID storing the waveform data.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -1007,6 +1088,10 @@
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">string</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>Public URL for the waveform or empty string when missing.</p>
+</section>
+
             </section>
 
 </article>
@@ -1024,11 +1109,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">374</span>
+    <span class="phpdocumentor-element-found-in__line">489</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Check if the request should be throttled to avoid rapid writes.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
                     <span class="phpdocumentor-signature__name">is_rate_limited</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$post_id</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
@@ -1044,7 +1130,9 @@
                 : <span class="phpdocumentor-signature__argument__return-type">int</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>Recording post ID.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -1055,6 +1143,10 @@
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">bool</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>True when rate limited.</p>
+</section>
+
             </section>
 
 </article>
@@ -1072,11 +1164,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">91</span>
+    <span class="phpdocumentor-element-found-in__line">136</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Validate that the template path resolves to an allowed directory.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
                     <span class="phpdocumentor-signature__name">is_valid_template_path</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$path</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
@@ -1092,7 +1185,9 @@
                 : <span class="phpdocumentor-signature__argument__return-type">string</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>Candidate template path.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -1103,6 +1198,10 @@
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">bool</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>True when the path is safe to include.</p>
+</section>
+
             </section>
 
 </article>
@@ -1120,11 +1219,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">404</span>
+    <span class="phpdocumentor-element-found-in__line">534</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Log an error with unified context handling.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
                     <span class="phpdocumentor-signature__name">log_error</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$context</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type"><abbr title="\Throwable">Throwable</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$e</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
@@ -1140,14 +1240,18 @@
                 : <span class="phpdocumentor-signature__argument__return-type">string</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>Message prefix describing the failure.</p>
+</section>
+
             </dd>
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-signature__argument__name">$e</span>
                 : <span class="phpdocumentor-signature__argument__return-type"><abbr title="\Throwable">Throwable</abbr></span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>Captured exception instance.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -1171,11 +1275,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">152</span>
+    <span class="phpdocumentor-element-found-in__line">209</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Convert stored annotations JSON to a sanitized array structure.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
                     <span class="phpdocumentor-signature__name">parse_annotations_json</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$json</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
@@ -1191,7 +1296,9 @@
                 : <span class="phpdocumentor-signature__argument__return-type">string</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>Raw JSON string.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -1202,6 +1309,10 @@
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>Parsed annotation data.</p>
+</section>
+
             </section>
 
 </article>
@@ -1219,11 +1330,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">44</span>
+    <span class="phpdocumentor-element-found-in__line">70</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Register shortcode, assets, and REST route hooks.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
                     <span class="phpdocumentor-signature__name">register_hooks</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
@@ -1253,11 +1365,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">70</span>
+    <span class="phpdocumentor-element-found-in__line">108</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Safely render the editor template with the provided context.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
                     <span class="phpdocumentor-signature__name">render_template_secure</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$context</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
@@ -1273,7 +1386,9 @@
                 : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>Data exposed to the template during rendering.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -1284,6 +1399,10 @@
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">string</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>Rendered markup or an error notice.</p>
+</section>
+
             </section>
 
 </article>
@@ -1301,14 +1420,15 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioEditorUI.php"><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">384</span>
+    <span class="phpdocumentor-element-found-in__line">506</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Ensure annotation timestamps are sorted and non-overlapping.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">validate_annotation_consistency</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$annotations</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+                    <span class="phpdocumentor-signature__name">validate_annotation_consistency</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$annotations</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -1321,7 +1441,9 @@
                 : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
+                    <section class="phpdocumentor-description"><p>Annotation entries to validate.</p>
+</section>
+
             </dd>
             </dl>
 

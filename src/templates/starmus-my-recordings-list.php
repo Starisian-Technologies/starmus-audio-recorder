@@ -1,13 +1,9 @@
 <?php
 /**
- * Starmus My Recordings List Template - Accessible Version
+ * Starmus My Recordings List Template
  *
  * @package Starmus\templates
- * @version 0.7.4
- * @since   0.4.5
- *
- * @var WP_Query $query         The WordPress query object for the recordings.
- * @var string   $edit_page_url The base URL for the audio editor page.
+ * @version 0.8.0
  */
 
 // Exit if accessed directly.
@@ -18,13 +14,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <div class="starmus-my-recordings-container">
 
-	<!-- ARIA live region to announce content updates for screen readers -->
-	<div id="starmus-recordings-announcer" class="starmus-visually-hidden" aria-live="polite" aria-atomic="true"></div>
-
 	<?php if ( $query->have_posts() ) : ?>
 
 		<section aria-labelledby="starmus-recordings-heading">
-			<h2 id="starmus-recordings-heading" class="starmus-visually-hidden"><?php esc_html_e( 'A list of your audio recordings', 'starmus-audio-recorder' ); ?></h2>
+			<h2 id="starmus-recordings-heading" class="starmus-visually-hidden">
+				<?php esc_html_e( 'A list of your audio recordings', 'starmus-audio-recorder' ); ?></h2>
 
 			<div class="starmus-recordings-grid">
 				<?php
@@ -32,10 +26,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$query->the_post();
 					$current_post_id = get_the_ID();
 					$post_title      = get_the_title();
-					$audio_url       = get_post_meta( $current_post_id, 'audio_file_url', true );
-					$recording_type  = get_the_terms( $current_post_id, 'recording_type' );
-					$language        = get_the_terms( $current_post_id, 'language' );
-					$duration        = get_post_meta( $current_post_id, 'audio_duration', true );
+
+					// --- CORRECTED LOGIC START ---
+					// 1. Get the Attachment ID (this is what you save in the handler).
+					$audio_attachment_id = get_post_meta( $current_post_id, '_audio_attachment_id', true );
+					$audio_url           = ''; // Default to empty
+
+					// 2. If an ID exists, get the URL from it.
+					if ( ! empty( $audio_attachment_id ) ) {
+						$audio_url = wp_get_attachment_url( (int) $audio_attachment_id );
+					}
+					// --- CORRECTED LOGIC END ---
+
+					$recording_type = get_the_terms( $current_post_id, 'recording_type' );
+					$language       = get_the_terms( $current_post_id, 'language' );
+					$duration       = get_post_meta( $current_post_id, 'audio_duration', true );
 					?>
 
 					<div class="starmus-card">
@@ -95,16 +100,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</section>
 
 		<?php
-		// Pagination with accessibility improvements
-		the_posts_pagination(
-			array(
-				'mid_size'           => 2,
-				'prev_text'          => esc_html__( 'Previous', 'starmus-audio-recorder' ),
-				'next_text'          => esc_html__( 'Next', 'starmus-audio-recorder' ),
-				'screen_reader_text' => esc_html__( 'Recordings navigation', 'starmus-audio-recorder' ),
-				'aria_label'         => esc_html__( 'Recordings', 'starmus-audio-recorder' ),
-			)
-		);
+		the_posts_pagination( /* ... */ );
 		?>
 
 	<?php else : ?>

@@ -81,6 +81,10 @@
                 
             </li>
                     <li>
+                <a href="namespaces/starmus-helpers.html" class="">helpers</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/starmus-includes.html" class="">includes</a>
                 
             </li>
@@ -181,7 +185,7 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">16</span>
+    <span class="phpdocumentor-element-found-in__line">31</span>
 
     </aside>
 
@@ -213,10 +217,18 @@
 </h4>
 <dl class="phpdocumentor-table-of-contents">
             <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Starmus-cron-StarmusCron.html#constant_CLEANUP_TEMP_FILES_HOOK">CLEANUP_TEMP_FILES_HOOK</a>
+    <span>
+        &nbsp;= &#039;starmus_cleanup_temp_files&#039;                            </span>
+</dt>
+<dd>Recurring cleanup hook for stale temp upload parts (chunked uploads).</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
     <a class="" href="classes/Starmus-cron-StarmusCron.html#constant_PROCESS_AUDIO_HOOK">PROCESS_AUDIO_HOOK</a>
     <span>
         &nbsp;= &#039;starmus_process_audio_attachment&#039;                            </span>
 </dt>
+<dd>Fired when a single audio attachment should be processed by the pipeline.</dd>
 
     </dl>
 
@@ -230,13 +242,13 @@
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Starmus-cron-StarmusCron.html#property_post_proc_service">$post_proc_service</a>
     <span>
-                        &nbsp;: mixed            </span>
+                        &nbsp;: <a href="classes/Starmus-services-PostProcessingService.html"><abbr title="\Starmus\services\PostProcessingService">PostProcessingService</abbr></a>            </span>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Starmus-cron-StarmusCron.html#property_waveform_service">$waveform_service</a>
     <span>
-                        &nbsp;: mixed            </span>
+                        &nbsp;: <a href="classes/Starmus-services-WaveformService.html"><abbr title="\Starmus\services\WaveformService">WaveformService</abbr></a>            </span>
 </dt>
 
     </dl>
@@ -252,6 +264,34 @@
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-cron-StarmusCron.html#method_activate">activate()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Ensure our recurring cleanup job exists. Call on plugin activation.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-cron-StarmusCron.html#method_cleanup_stale_temp_files">cleanup_stale_temp_files()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Clean up stale temporary files (created during chunked uploads) older than 24 hours.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-cron-StarmusCron.html#method_deactivate">deactivate()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Clear any recurring jobs we created. Call on plugin deactivation.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starmus-cron-StarmusCron.html#method_register_custom_schedules">register_custom_schedules()</a>
+    <span>
+                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
+</dt>
+<dd>(Optional) Add custom cron schedules. Example adds a 15-minute cadence.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-cron-StarmusCron.html#method_register_hooks">register_hooks()</a>
@@ -274,6 +314,13 @@
 </dt>
 <dd>Schedules the main audio processing pipeline for a given attachment.</dd>
 
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Starmus-cron-StarmusCron.html#method_get_temp_dir">get_temp_dir()</a>
+    <span>
+                                &nbsp;: string    </span>
+</dt>
+<dd>Resolve / create the temp directory used during chunked uploads.</dd>
+
     </dl>
 
 
@@ -286,6 +333,38 @@
 
         </h3>
                     <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CLEANUP_TEMP_FILES_HOOK">
+        CLEANUP_TEMP_FILES_HOOK
+        <a href="classes/Starmus-cron-StarmusCron.html#constant_CLEANUP_TEMP_FILES_HOOK" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">38</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Recurring cleanup hook for stale temp upload parts (chunked uploads).</p>
+
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CLEANUP_TEMP_FILES_HOOK</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;starmus_cleanup_temp_files&#039;</span>
+</code>
+
+
+    
+    
+    
+
+    
+
+</article>
+                    <article class="phpdocumentor-element -constant -public ">
     <h4 class="phpdocumentor-element__name" id="constant_PROCESS_AUDIO_HOOK">
         PROCESS_AUDIO_HOOK
         <a href="classes/Starmus-cron-StarmusCron.html#constant_PROCESS_AUDIO_HOOK" class="headerlink"><i class="fas fa-link"></i></a>
@@ -295,11 +374,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">18</span>
+    <span class="phpdocumentor-element-found-in__line">35</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Fired when a single audio attachment should be processed by the pipeline.</p>
+
     
     <code class="phpdocumentor-signature phpdocumentor-code ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -342,7 +422,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">21</span>
+    <span class="phpdocumentor-element-found-in__line">44</span>
 
     </aside>
 
@@ -350,7 +430,7 @@
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type">mixed</span>
+            <span class="phpdocumentor-signature__type"><a href="classes/Starmus-services-PostProcessingService.html"><abbr title="\Starmus\services\PostProcessingService">PostProcessingService</abbr></a></span>
     <span class="phpdocumentor-signature__name">$post_proc_service</span>
     </code>
 
@@ -380,7 +460,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">20</span>
+    <span class="phpdocumentor-element-found-in__line">41</span>
 
     </aside>
 
@@ -388,7 +468,7 @@
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type">mixed</span>
+            <span class="phpdocumentor-signature__type"><a href="classes/Starmus-services-WaveformService.html"><abbr title="\Starmus\services\WaveformService">WaveformService</abbr></a></span>
     <span class="phpdocumentor-signature__name">$waveform_service</span>
     </code>
 
@@ -423,7 +503,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">23</span>
+    <span class="phpdocumentor-element-found-in__line">46</span>
 
     </aside>
 
@@ -447,6 +527,164 @@
         class="phpdocumentor-element
             -method
             -public
+                                    -static                    "
+>
+    <h4 class="phpdocumentor-element__name" id="method_activate">
+        activate()
+        <a href="classes/Starmus-cron-StarmusCron.html#method_activate" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">163</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Ensure our recurring cleanup job exists. Call on plugin activation.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">activate</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><p>Schedules hourly by default; can be changed to a custom schedule below.</p>
+</section>
+
+    
+    
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_cleanup_stale_temp_files">
+        cleanup_stale_temp_files()
+        <a href="classes/Starmus-cron-StarmusCron.html#method_cleanup_stale_temp_files" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">139</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Clean up stale temporary files (created during chunked uploads) older than 24 hours.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">cleanup_stale_temp_files</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><p>Runs via WP-Cron on the CLEANUP_TEMP_FILES_HOOK schedule.</p>
+</section>
+
+    
+    
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                    -static                    "
+>
+    <h4 class="phpdocumentor-element__name" id="method_deactivate">
+        deactivate()
+        <a href="classes/Starmus-cron-StarmusCron.html#method_deactivate" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">173</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Clear any recurring jobs we created. Call on plugin deactivation.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">deactivate</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_register_custom_schedules">
+        register_custom_schedules()
+        <a href="classes/Starmus-cron-StarmusCron.html#method_register_custom_schedules" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">186</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">(Optional) Add custom cron schedules. Example adds a 15-minute cadence.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">register_custom_schedules</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$schedules</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$schedules</span>
+                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
                                                         "
 >
     <h4 class="phpdocumentor-element__name" id="method_register_hooks">
@@ -457,7 +695,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">33</span>
+    <span class="phpdocumentor-element-found-in__line">56</span>
 
     </aside>
 
@@ -470,7 +708,7 @@
     <div class="phpdocumentor-label-line">
         </div>
     
-        <section class="phpdocumentor-description"><p>This should be called from the main plugin file.</p>
+        <section class="phpdocumentor-description"><p>This should be called from the main plugin file after instances are constructed.</p>
 </section>
 
     
@@ -494,7 +732,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">60</span>
+    <span class="phpdocumentor-element-found-in__line">95</span>
 
     </aside>
 
@@ -507,7 +745,7 @@
     <div class="phpdocumentor-label-line">
         </div>
     
-        <section class="phpdocumentor-description"><p>It orchestrates the different services in the correct order.</p>
+        <section class="phpdocumentor-description"><p>Orchestrates waveform gen + full post-processing / archival pipeline.</p>
 </section>
 
         <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
@@ -543,7 +781,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">42</span>
+    <span class="phpdocumentor-element-found-in__line">73</span>
 
     </aside>
 
@@ -556,7 +794,7 @@
     <div class="phpdocumentor-label-line">
         </div>
     
-        <section class="phpdocumentor-description"><p>This is the public method that other classes should call.</p>
+        <section class="phpdocumentor-description"><p>Public API for other classes to enqueue a processing job.</p>
 </section>
 
         <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
@@ -577,6 +815,51 @@
     
 
     
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_get_temp_dir">
+        get_temp_dir()
+        <a href="classes/Starmus-cron-StarmusCron.html#method_get_temp_dir" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">202</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Resolve / create the temp directory used during chunked uploads.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">get_temp_dir</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><p>Mirrors the logic used elsewhere in the plugin to keep paths consistent.</p>
+</section>
+
+    
+    
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">string</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>Absolute path to the temp directory (with trailing slash).</p>
+</section>
+
+            </section>
+
 </article>
             </section>
 
@@ -693,6 +976,7 @@
                             <li class="phpdocumentor-on-this-page-section__title">Constants</li>
                 <li>
                     <ul class="phpdocumentor-list -clean">
+                                                    <li class=""><a href="classes/Starmus-cron-StarmusCron.html#constant_CLEANUP_TEMP_FILES_HOOK">CLEANUP_TEMP_FILES_HOOK</a></li>
                                                     <li class=""><a href="classes/Starmus-cron-StarmusCron.html#constant_PROCESS_AUDIO_HOOK">PROCESS_AUDIO_HOOK</a></li>
                                             </ul>
                 </li>
@@ -709,9 +993,14 @@
             <li>
                 <ul class="phpdocumentor-list -clean">
                                             <li class=""><a href="classes/Starmus-cron-StarmusCron.html#method___construct">__construct()</a></li>
+                                            <li class=""><a href="classes/Starmus-cron-StarmusCron.html#method_activate">activate()</a></li>
+                                            <li class=""><a href="classes/Starmus-cron-StarmusCron.html#method_cleanup_stale_temp_files">cleanup_stale_temp_files()</a></li>
+                                            <li class=""><a href="classes/Starmus-cron-StarmusCron.html#method_deactivate">deactivate()</a></li>
+                                            <li class=""><a href="classes/Starmus-cron-StarmusCron.html#method_register_custom_schedules">register_custom_schedules()</a></li>
                                             <li class=""><a href="classes/Starmus-cron-StarmusCron.html#method_register_hooks">register_hooks()</a></li>
                                             <li class=""><a href="classes/Starmus-cron-StarmusCron.html#method_run_audio_processing_pipeline">run_audio_processing_pipeline()</a></li>
                                             <li class=""><a href="classes/Starmus-cron-StarmusCron.html#method_schedule_audio_processing">schedule_audio_processing()</a></li>
+                                            <li class=""><a href="classes/Starmus-cron-StarmusCron.html#method_get_temp_dir">get_temp_dir()</a></li>
                                     </ul>
             </li>
                     </ul>

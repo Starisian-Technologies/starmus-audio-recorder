@@ -81,6 +81,10 @@
                 
             </li>
                     <li>
+                <a href="namespaces/starmus-helpers.html" class="">helpers</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/starmus-includes.html" class="">includes</a>
                 
             </li>
@@ -166,7 +170,6 @@
             in package
             <ul class="phpdocumentor-breadcrumbs">
                                     <li class="phpdocumentor-breadcrumb"><a href="packages/Starmus.html">Starmus</a></li>
-                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Starmus-frontend.html">frontend</a></li>
                             </ul>
         </div>
     
@@ -181,46 +184,18 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">85</span>
+    <span class="phpdocumentor-element-found-in__line">24</span>
 
     </aside>
 
-            <p class="phpdocumentor-summary">Defines the user interface and submission handling for the audio recorder.</p>
+            <p class="phpdocumentor-summary">Renders the user interface for the audio recorder and recordings list.</p>
 
 
+    <section class="phpdocumentor-description"><p>Pure presentation: shortcodes + template rendering.
+Assets are handled separately in StarmusAssets.</p>
+</section>
 
 
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.1.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">uses</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                                                                    <span class="phpdocumentor-tag-link"><a href="classes/Starmus-includes-StarmusSettings.html"><abbr title="\Starmus\includes\StarmusSettings">StarmusSettings</abbr></a></span>
-                                        
-                                             
-                                    </dd>
-                        </dl>
 
 
 
@@ -247,9 +222,9 @@
             <dt class="phpdocumentor-table-of-contents__entry -constant -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#constant_STAR_REST_NAMESPACE">STAR_REST_NAMESPACE</a>
     <span>
-        &nbsp;= &#039;starmus/v1&#039;                            </span>
+        &nbsp;= \Starmus\frontend\StarmusSubmissionHandler::STAR_REST_NAMESPACE                            </span>
 </dt>
-<dd>REST namespace for front-end endpoints.</dd>
+<dd>REST namespace exposed to localized front-end scripts.</dd>
 
     </dl>
 
@@ -265,7 +240,7 @@
     <span>
                         &nbsp;: <a href="classes/Starmus-includes-StarmusSettings.html"><abbr title="\Starmus\includes\StarmusSettings">StarmusSettings</abbr></a>|null            </span>
 </dt>
-<dd>Settings handler instance.</dd>
+<dd>Optional settings container used to hydrate UI data.</dd>
 
     </dl>
 
@@ -280,273 +255,42 @@
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
-<dd>Initialize the recorder UI and load settings.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_add_conditional_redirect">add_conditional_redirect()</a>
-    <span>
-                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
-</dt>
-<dd>Add a conditional redirect URL after successful submission.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_cleanup_stale_temp_files">cleanup_stale_temp_files()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Clean up stale temporary files older than 24 hours.</dd>
+<dd>Prime the UI layer with optional settings for template hydration.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_clear_taxonomy_transients">clear_taxonomy_transients()</a>
     <span>
-                                &nbsp;: string    </span>
-</dt>
-<dd>Get the URL of the edit page for audio recordings.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_enqueue_scripts">enqueue_scripts()</a>
-    <span>
                                 &nbsp;: void    </span>
 </dt>
-<dd>Registers and conditionally enqueues all frontend scripts and styles.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_fallback_upload_rest">handle_fallback_upload_rest()</a>
-    <span>
-                                &nbsp;: <abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr>    </span>
-</dt>
-<dd>Handle simple, non-chunked audio file uploads from the REST fallback endpoint.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_upload_chunk_rest">handle_upload_chunk_rest()</a>
-    <span>
-                                &nbsp;: <abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr>    </span>
-</dt>
-<dd>Handle chunked audio file uploads via REST API.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_maybe_schedule_cron">maybe_schedule_cron()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Schedule a cron job to clean up stale temporary files.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_register_rest_routes">register_rest_routes()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Register REST API routes for chunked audio uploads.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_my_recordings_shortcode">render_my_recordings_shortcode()</a>
-    <span>
-                                &nbsp;: string    </span>
-</dt>
-<dd>Render the &quot;My Recordings&quot; shortcode.</dd>
+<dd>Clear cached terms.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_recorder_shortcode">render_recorder_shortcode()</a>
     <span>
                                 &nbsp;: string    </span>
 </dt>
-<dd>Renders the audio recorder shortcode by correctly passing data to the template.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_save_all_metadata">save_all_metadata()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Save all metadata and taxonomy terms for the recording.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_upload_permissions_check">upload_permissions_check()</a>
-    <span>
-                                &nbsp;: bool    </span>
-</dt>
-<dd>Check if the current user has permission to upload files.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_assign_audio_recording_taxonomies">assign_audio_recording_taxonomies()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Assign taxonomies to the audio recording post.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_create_consent_post">create_consent_post()</a>
-    <span>
-                                &nbsp;: int|null    </span>
-</dt>
-<dd>Create a consent post if the user has given consent.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_create_draft_post">create_draft_post()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Create a draft post to hold upload metadata.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_finalize_submission">finalize_submission()</a>
-    <span>
-                                &nbsp;: <abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr>    </span>
-</dt>
-<dd>Finalize the submission by validating and attaching the audio file.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_find_post_by_uuid">find_post_by_uuid()</a>
-    <span>
-                                &nbsp;: <abbr title="\Starmus\frontend\WP_Post">WP_Post</abbr>|null    </span>
-</dt>
-<dd>Find a post by its UUID.</dd>
+<dd>Render the recorder form shortcode.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_cached_terms">get_cached_terms()</a>
     <span>
                                 &nbsp;: array&lt;string|int, mixed&gt;    </span>
 </dt>
-<dd>Get cached terms for a given taxonomy, with transient caching.</dd>
+<dd>Get cached terms with transient support.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_client_ip">get_client_ip()</a>
+    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_edit_page_url_admin">get_edit_page_url_admin()</a>
     <span>
                                 &nbsp;: string    </span>
 </dt>
-<dd>Get the client&#039;s IP address with proxy support.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_edit_page_url">get_edit_page_url()</a>
-    <span>
-                                &nbsp;: string    </span>
-</dt>
-<dd>Get the URL of the edit page from settings.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_temp_dir">get_temp_dir()</a>
-    <span>
-                                &nbsp;: string|<abbr title="\WP_Error">WP_Error</abbr>    </span>
-</dt>
-<dd>Get or create the temporary upload directory.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_user_agent">get_user_agent()</a>
-    <span>
-                                &nbsp;: string    </span>
-</dt>
-<dd>Get the client&#039;s User-Agent string.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_is_rate_limited">is_rate_limited()</a>
-    <span>
-                                &nbsp;: bool    </span>
-</dt>
-<dd>Simple rate limiting based on user ID and IP address.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_log_error">log_error()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Log errors to the debug log if WP_DEBUG_LOG is enabled.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_map_mimes_to_extensions">map_mimes_to_extensions()</a>
-    <span>
-                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
-</dt>
-<dd>Convert MIME types into the extension=&gt;mime map expected by wp_handle_sideload().</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_php_error_message">php_error_message()</a>
-    <span>
-                                &nbsp;: string    </span>
-</dt>
-<dd>Map PHP upload error codes to localized, human-readable messages.</dd>
+<dd>Admin edit screen URL.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_register_hooks">register_hooks()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
-<dd>Register all WordPress hooks required for the front-end recorder UI.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_template">render_template()</a>
-    <span>
-                                &nbsp;: string    </span>
-</dt>
-<dd>Render a template file with provided arguments.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_resolve_allowed_mimes">resolve_allowed_mimes()</a>
-    <span>
-                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
-</dt>
-<dd>Resolve the whitelist of allowed MIME types for audio uploads.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_safe_handle_upload">safe_handle_upload()</a>
-    <span>
-                                &nbsp;: array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr>    </span>
-</dt>
-<dd>Validate and sideload an uploaded audio file securely.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_array">sanitize_array()</a>
-    <span>
-                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
-</dt>
-<dd>Recursively sanitize nested arrays for JSON payloads.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_structured_field">sanitize_structured_field()</a>
-    <span>
-                                &nbsp;: string    </span>
-</dt>
-<dd>Sanitize structured/JSON fields while preserving array semantics.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_submission_data">sanitize_submission_data()</a>
-    <span>
-                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
-</dt>
-<dd>Sanitize all recorder submission data prior to persistence.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_term_values">sanitize_term_values()</a>
-    <span>
-                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
-</dt>
-<dd>Normalize taxonomy input into sanitized identifiers.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_uuid">sanitize_uuid()</a>
-    <span>
-                                &nbsp;: string    </span>
-</dt>
-<dd>Ensure UUID strings are safe and bounded.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_update_audio_recording_metadata">update_audio_recording_metadata()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Update the audio recording post metadata.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_validate_chunk_data">validate_chunk_data()</a>
-    <span>
-                                &nbsp;: array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr>    </span>
-</dt>
-<dd>Validate chunk upload data.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_write_chunk_streamed">write_chunk_streamed()</a>
-    <span>
-                                &nbsp;: string|<abbr title="\WP_Error">WP_Error</abbr>    </span>
-</dt>
-<dd>Write the uploaded chunk to a temporary file.</dd>
+<dd>Register shortcodes and taxonomy cache hooks.</dd>
 
     </dl>
 
@@ -569,18 +313,18 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">88</span>
+    <span class="phpdocumentor-element-found-in__line">31</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">REST namespace for front-end endpoints.</p>
+        <p class="phpdocumentor-summary">REST namespace exposed to localized front-end scripts.</p>
 
     
     <code class="phpdocumentor-signature phpdocumentor-code ">
     <span class="phpdocumentor-signature__visibility">public</span>
         <span class="phpdocumentor-signature__type">mixed</span>
     <span class="phpdocumentor-signature__name">STAR_REST_NAMESPACE</span>
-    = <span class="phpdocumentor-signature__default-value">&#039;starmus/v1&#039;</span>
+    = <span class="phpdocumentor-signature__default-value">\Starmus\frontend\StarmusSubmissionHandler::STAR_REST_NAMESPACE</span>
 </code>
 
 
@@ -617,11 +361,11 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">91</span>
+    <span class="phpdocumentor-element-found-in__line">36</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Settings handler instance.</p>
+        <p class="phpdocumentor-summary">Optional settings container used to hydrate UI data.</p>
 
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
@@ -661,11 +405,11 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">96</span>
+    <span class="phpdocumentor-element-found-in__line">43</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Initialize the recorder UI and load settings.</p>
+        <p class="phpdocumentor-summary">Prime the UI layer with optional settings for template hydration.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -682,165 +426,13 @@
                 : <span class="phpdocumentor-signature__argument__return-type"><a href="classes/Starmus-includes-StarmusSettings.html"><abbr title="\Starmus\includes\StarmusSettings">StarmusSettings</abbr></a>|null</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-            </dl>
-
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_add_conditional_redirect">
-        add_conditional_redirect()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_add_conditional_redirect" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1373</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Add a conditional redirect URL after successful submission.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">add_conditional_redirect</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$response</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$post_id</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$form_data</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$response</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The current response data.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$post_id</span>
-                : <span class="phpdocumentor-signature__argument__return-type">int</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The ID of the created audio post.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$form_data</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The submitted form data.</p>
+                    <section class="phpdocumentor-description"><p>Configuration object, if available.</p>
 </section>
 
             </dd>
             </dl>
 
     
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_add_conditional_redirect#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.3.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The modified response with redirect URL.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_cleanup_stale_temp_files">
-        cleanup_stale_temp_files()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_cleanup_stale_temp_files" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1511</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Clean up stale temporary files older than 24 hours.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">cleanup_stale_temp_files</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_cleanup_stale_temp_files#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.2.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
 
     
 
@@ -860,15 +452,15 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">198</span>
+    <span class="phpdocumentor-element-found-in__line">124</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Get the URL of the edit page for audio recordings.</p>
+        <p class="phpdocumentor-summary">Clear cached terms.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">clear_taxonomy_transients</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+                    <span class="phpdocumentor-signature__name">clear_taxonomy_transients</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -876,423 +468,10 @@
     
     
     
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_clear_taxonomy_transients#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.3.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">string</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The URL of the edit page.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_enqueue_scripts">
-        enqueue_scripts()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_enqueue_scripts" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">284</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Registers and conditionally enqueues all frontend scripts and styles.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">enqueue_scripts</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><p>This is the final, definitive method, architected to work with the modern
-build process which produces a single, bundled JavaScript application file.
-It ensures optimal performance by only loading assets when a corresponding
-shortcode is present on the page.</p>
-</section>
-
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_enqueue_scripts#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">1.2.1</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
 
     
 
     
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_handle_fallback_upload_rest">
-        handle_fallback_upload_rest()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_fallback_upload_rest" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">480</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Handle simple, non-chunked audio file uploads from the REST fallback endpoint.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">handle_fallback_upload_rest</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$request</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$request</span>
-                : <span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr></span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Incoming REST request containing audio data.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>REST response or descriptive error.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_handle_upload_chunk_rest">
-        handle_upload_chunk_rest()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_upload_chunk_rest" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">606</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Handle chunked audio file uploads via REST API.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">handle_upload_chunk_rest</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$request</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$request</span>
-                : <span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr></span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The REST request object.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_upload_chunk_rest#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.2.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The response or error object.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_maybe_schedule_cron">
-        maybe_schedule_cron()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_maybe_schedule_cron" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1500</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Schedule a cron job to clean up stale temporary files.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">maybe_schedule_cron</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_maybe_schedule_cron#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.2.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_register_rest_routes">
-        register_rest_routes()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_register_rest_routes" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">361</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Register REST API routes for chunked audio uploads.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">register_rest_routes</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_register_rest_routes#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.2.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_render_my_recordings_shortcode">
-        render_my_recordings_shortcode()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_my_recordings_shortcode" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">142</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Render the &quot;My Recordings&quot; shortcode.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">render_my_recordings_shortcode</span><span>(</span><span class="phpdocumentor-signature__argument"><span>[</span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$atts</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">array()</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$atts</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                 = <span class="phpdocumentor-signature__argument__default-value">array()</span>            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Shortcode attributes.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_my_recordings_shortcode#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.3.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">string</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The rendered HTML content.</p>
-</section>
-
-            </section>
-
 </article>
                     <article
         class="phpdocumentor-element
@@ -1308,15 +487,15 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">210</span>
+    <span class="phpdocumentor-element-found-in__line">71</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Renders the audio recorder shortcode by correctly passing data to the template.</p>
+        <p class="phpdocumentor-summary">Render the recorder form shortcode.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">render_recorder_shortcode</span><span>(</span><span class="phpdocumentor-signature__argument"><span>[</span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$atts</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">array()</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+                    <span class="phpdocumentor-signature__name">render_recorder_shortcode</span><span>(</span><span class="phpdocumentor-signature__argument"><span>[</span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$atts</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">array()</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -1326,607 +505,20 @@ shortcode is present on the page.</p>
     <dl class="phpdocumentor-argument-list">
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-signature__argument__name">$atts</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
                  = <span class="phpdocumentor-signature__argument__default-value">array()</span>            </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Shortcode attributes.</p>
-</section>
-
+                
             </dd>
             </dl>
 
     
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_recorder_shortcode#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">1.2.2</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
 
     
 
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">string</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The HTML output of the recorder form.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_save_all_metadata">
-        save_all_metadata()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_save_all_metadata" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">943</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Save all metadata and taxonomy terms for the recording.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">save_all_metadata</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$audio_post_id</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$attachment_id</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$form_data</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$audio_post_id</span>
-                : <span class="phpdocumentor-signature__argument__return-type">int</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The audio post ID.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$attachment_id</span>
-                : <span class="phpdocumentor-signature__argument__return-type">int</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The attachment ID for the audio file.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$form_data</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Submitted form data.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_upload_permissions_check">
-        upload_permissions_check()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_upload_permissions_check" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">583</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Check if the current user has permission to upload files.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">upload_permissions_check</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$request</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$request</span>
-                : <span class="phpdocumentor-signature__argument__return-type"><abbr title="\WP_REST_Request">WP_REST_Request</abbr></span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The REST request object.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_upload_permissions_check#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.2.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">bool</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>True if the user can upload, false otherwise.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_assign_audio_recording_taxonomies">
-        assign_audio_recording_taxonomies()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_assign_audio_recording_taxonomies" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1064</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Assign taxonomies to the audio recording post.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">assign_audio_recording_taxonomies</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$audio_post_id</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$form_data</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$audio_post_id</span>
-                : <span class="phpdocumentor-signature__argument__return-type">int</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The ID of the audio recording post.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$form_data</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The submitted form data.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_assign_audio_recording_taxonomies#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.3.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_create_consent_post">
-        create_consent_post()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_create_consent_post" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1008</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Create a consent post if the user has given consent.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">create_consent_post</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$audio_post_id</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$form_data</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">int|null</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$audio_post_id</span>
-                : <span class="phpdocumentor-signature__argument__return-type">int</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The ID of the audio recording post.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$form_data</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The submitted form data.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_create_consent_post#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.3.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">int|null</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The ID of the consent post or null if not created.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_create_draft_post">
-        create_draft_post()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_create_draft_post" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">915</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Create a draft post to hold upload metadata.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">create_draft_post</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$uuid</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$total_size</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$file_name</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$form_data</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$uuid</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Unique upload identifier.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$total_size</span>
-                : <span class="phpdocumentor-signature__argument__return-type">int</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Expected total upload size.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$file_name</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Original filename.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$form_data</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Submitted form data.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_finalize_submission">
-        finalize_submission()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_finalize_submission" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">769</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Finalize the submission by validating and attaching the audio file.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">finalize_submission</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$uuid</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$file_name</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$temp_file_path</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$form_data</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$uuid</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The unique upload identifier.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$file_name</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The original file name.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$temp_file_path</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The path to the temporary file.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$form_data</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Additional form data.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_finalize_submission#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.2.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type"><abbr title="\WP_REST_Response">WP_REST_Response</abbr>|<abbr title="\WP_Error">WP_Error</abbr></span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The response or error object.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_find_post_by_uuid">
-        find_post_by_uuid()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_find_post_by_uuid" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1541</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Find a post by its UUID.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">find_post_by_uuid</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$uuid</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Starmus\frontend\WP_Post">WP_Post</abbr>|null</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$uuid</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The unique upload identifier.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_find_post_by_uuid#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.2.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type"><abbr title="\Starmus\frontend\WP_Post">WP_Post</abbr>|null</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The found post or null if not found.</p>
-</section>
-
             </section>
 
 </article>
@@ -1944,11 +536,11 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">254</span>
+    <span class="phpdocumentor-element-found-in__line">102</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Get cached terms for a given taxonomy, with transient caching.</p>
+        <p class="phpdocumentor-summary">Get cached terms with transient support.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
@@ -1965,484 +557,14 @@ shortcode is present on the page.</p>
                 : <span class="phpdocumentor-signature__argument__return-type">string</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The taxonomy slug.</p>
-</section>
-
+                
             </dd>
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-signature__argument__name">$cache_key</span>
                 : <span class="phpdocumentor-signature__argument__return-type">string</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The transient cache key.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_cached_terms#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.3.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The list of terms.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_get_client_ip">
-        get_client_ip()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_client_ip" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1587</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Get the client&#039;s IP address with proxy support.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">get_client_ip</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_client_ip#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.3.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">string</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The client's IP address or empty string if not available.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_get_edit_page_url">
-        get_edit_page_url()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_edit_page_url" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1572</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Get the URL of the edit page from settings.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">get_edit_page_url</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_edit_page_url#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.3.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">string</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The edit page URL or empty string if not set.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_get_temp_dir">
-        get_temp_dir()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_temp_dir" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1472</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Get or create the temporary upload directory.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">get_temp_dir</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string|<abbr title="\WP_Error">WP_Error</abbr></span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_temp_dir#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.2.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">string|<abbr title="\WP_Error">WP_Error</abbr></span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The path to the temporary directory or an error.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_get_user_agent">
-        get_user_agent()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_user_agent" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1634</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Get the client&#039;s User-Agent string.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">get_user_agent</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_user_agent#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.3.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">string</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The User-Agent string or empty string if not available.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_is_rate_limited">
-        is_rate_limited()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_is_rate_limited" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1453</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Simple rate limiting based on user ID and IP address.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">is_rate_limited</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><p>Limits to a certain number of uploads per minute.</p>
-</section>
-
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_is_rate_limited#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.2.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">bool</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>True if rate limited, false otherwise.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_log_error">
-        log_error()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_log_error" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">651</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Log errors to the debug log if WP_DEBUG_LOG is enabled.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">log_error</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$context</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type"><abbr title="\Throwable">Throwable</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$e</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$context</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>A brief context message.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$e</span>
-                : <span class="phpdocumentor-signature__argument__return-type"><abbr title="\Throwable">Throwable</abbr></span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The exception to log.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_map_mimes_to_extensions">
-        map_mimes_to_extensions()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_map_mimes_to_extensions" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1312</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Convert MIME types into the extension=&gt;mime map expected by wp_handle_sideload().</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">map_mimes_to_extensions</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$allowed_mimes</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$allowed_mimes</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>List of allowed MIME types.</p>
-</section>
-
+                
             </dd>
             </dl>
 
@@ -2453,10 +575,6 @@ shortcode is present on the page.</p>
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>Extension keyed MIME map.</p>
-</section>
-
             </section>
 
 </article>
@@ -2466,41 +584,29 @@ shortcode is present on the page.</p>
             -private
                                                         "
 >
-    <h4 class="phpdocumentor-element__name" id="method_php_error_message">
-        php_error_message()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_php_error_message" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_get_edit_page_url_admin">
+        get_edit_page_url_admin()
+        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_edit_page_url_admin" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">461</span>
+    <span class="phpdocumentor-element-found-in__line">132</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Map PHP upload error codes to localized, human-readable messages.</p>
+        <p class="phpdocumentor-summary">Admin edit screen URL.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">php_error_message</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$code</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+                    <span class="phpdocumentor-signature__name">get_edit_page_url_admin</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
     
     
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$code</span>
-                : <span class="phpdocumentor-signature__argument__return-type">int</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>PHP upload error constant.</p>
-</section>
-
-            </dd>
-            </dl>
-
+    
     
 
     
@@ -2508,10 +614,6 @@ shortcode is present on the page.</p>
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">string</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>Friendly error message for display/logging.</p>
-</section>
-
             </section>
 
 </article>
@@ -2529,11 +631,11 @@ shortcode is present on the page.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">113</span>
+    <span class="phpdocumentor-element-found-in__line">53</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Register all WordPress hooks required for the front-end recorder UI.</p>
+        <p class="phpdocumentor-summary">Register shortcodes and taxonomy cache hooks.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
@@ -2549,744 +651,6 @@ shortcode is present on the page.</p>
     
 
     
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_render_template">
-        render_template()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_template" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1393</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Render a template file with provided arguments.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">render_template</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$template_name</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$args</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">array()</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$template_name</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The name of the template file.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$args</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                 = <span class="phpdocumentor-signature__argument__default-value">array()</span>            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The arguments to pass to the template.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_template#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.2.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">string</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The rendered template content.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_resolve_allowed_mimes">
-        resolve_allowed_mimes()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_resolve_allowed_mimes" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1278</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Resolve the whitelist of allowed MIME types for audio uploads.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">resolve_allowed_mimes</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$form_data</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$form_data</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Sanitized submission payload.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>List of allowed MIME types.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_safe_handle_upload">
-        safe_handle_upload()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_safe_handle_upload" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">388</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Validate and sideload an uploaded audio file securely.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">safe_handle_upload</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$file</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$form_data</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">array()</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr></span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$file</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Uploaded file array from $_FILES.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$form_data</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                 = <span class="phpdocumentor-signature__argument__default-value">array()</span>            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Sanitized submission payload.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr></span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>Result from wp_handle_sideload or error on failure.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_sanitize_array">
-        sanitize_array()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_array" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1188</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Recursively sanitize nested arrays for JSON payloads.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">sanitize_array</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$value</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$value</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Raw array data.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>Sanitized array data.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_sanitize_structured_field">
-        sanitize_structured_field()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_structured_field" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1217</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Sanitize structured/JSON fields while preserving array semantics.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">sanitize_structured_field</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$value</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$value</span>
-                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Raw structured data.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">string</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>Sanitized JSON or text payload.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_sanitize_submission_data">
-        sanitize_submission_data()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_submission_data" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1103</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Sanitize all recorder submission data prior to persistence.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">sanitize_submission_data</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$data</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$data</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Raw submission payload.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>Sanitized payload safe for storage.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_sanitize_term_values">
-        sanitize_term_values()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_term_values" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1240</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Normalize taxonomy input into sanitized identifiers.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">sanitize_term_values</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$value</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$value</span>
-                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Raw taxonomy submission value.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>Array of sanitized IDs or slugs.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_sanitize_uuid">
-        sanitize_uuid()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_uuid" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1266</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Ensure UUID strings are safe and bounded.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">sanitize_uuid</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$uuid</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$uuid</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Raw UUID string.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">string</span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>Sanitized UUID value.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_update_audio_recording_metadata">
-        update_audio_recording_metadata()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_update_audio_recording_metadata" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">1041</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Update the audio recording post metadata.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">update_audio_recording_metadata</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$audio_post_id</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$attachment_id</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">int|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$consent_post_id</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$form_data</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$audio_post_id</span>
-                : <span class="phpdocumentor-signature__argument__return-type">int</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The ID of the audio recording post.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$attachment_id</span>
-                : <span class="phpdocumentor-signature__argument__return-type">int</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The ID of the audio attachment.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$consent_post_id</span>
-                : <span class="phpdocumentor-signature__argument__return-type">int|null</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The ID of the consent post, if any.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$form_data</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The submitted form data.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_update_audio_recording_metadata#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.3.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_validate_chunk_data">
-        validate_chunk_data()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_validate_chunk_data" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">671</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Validate chunk upload data.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">validate_chunk_data</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$params</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$files</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr></span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$params</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The request parameters.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$files</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The uploaded files.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr></span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The validated data or an error.</p>
-</section>
-
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_write_chunk_streamed">
-        write_chunk_streamed()
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_write_chunk_streamed" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/frontend/StarmusAudioRecorderUI.php"><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">702</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Write the uploaded chunk to a temporary file.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">write_chunk_streamed</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$uuid</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$offset</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$tmp_name</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string|<abbr title="\WP_Error">WP_Error</abbr></span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$uuid</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The unique upload identifier.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$offset</span>
-                : <span class="phpdocumentor-signature__argument__return-type">int</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The byte offset for this chunk.</p>
-</section>
-
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$tmp_name</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>The temporary file name of the uploaded chunk.</p>
-</section>
-
-            </dd>
-            </dl>
-
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_write_chunk_streamed#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.2.0</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">version</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.4</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">string|<abbr title="\WP_Error">WP_Error</abbr></span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>The path to the temporary file or an error.</p>
-</section>
-
-            </section>
-
 </article>
             </section>
 
@@ -3418,44 +782,11 @@ shortcode is present on the page.</p>
             <li>
                 <ul class="phpdocumentor-list -clean">
                                             <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method___construct">__construct()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_add_conditional_redirect">add_conditional_redirect()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_cleanup_stale_temp_files">cleanup_stale_temp_files()</a></li>
                                             <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_clear_taxonomy_transients">clear_taxonomy_transients()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_enqueue_scripts">enqueue_scripts()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_fallback_upload_rest">handle_fallback_upload_rest()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_handle_upload_chunk_rest">handle_upload_chunk_rest()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_maybe_schedule_cron">maybe_schedule_cron()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_register_rest_routes">register_rest_routes()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_my_recordings_shortcode">render_my_recordings_shortcode()</a></li>
                                             <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_recorder_shortcode">render_recorder_shortcode()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_save_all_metadata">save_all_metadata()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_upload_permissions_check">upload_permissions_check()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_assign_audio_recording_taxonomies">assign_audio_recording_taxonomies()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_create_consent_post">create_consent_post()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_create_draft_post">create_draft_post()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_finalize_submission">finalize_submission()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_find_post_by_uuid">find_post_by_uuid()</a></li>
                                             <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_cached_terms">get_cached_terms()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_client_ip">get_client_ip()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_edit_page_url">get_edit_page_url()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_temp_dir">get_temp_dir()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_user_agent">get_user_agent()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_is_rate_limited">is_rate_limited()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_log_error">log_error()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_map_mimes_to_extensions">map_mimes_to_extensions()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_php_error_message">php_error_message()</a></li>
+                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_edit_page_url_admin">get_edit_page_url_admin()</a></li>
                                             <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_register_hooks">register_hooks()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_template">render_template()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_resolve_allowed_mimes">resolve_allowed_mimes()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_safe_handle_upload">safe_handle_upload()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_array">sanitize_array()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_structured_field">sanitize_structured_field()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_submission_data">sanitize_submission_data()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_term_values">sanitize_term_values()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_sanitize_uuid">sanitize_uuid()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_update_audio_recording_metadata">update_audio_recording_metadata()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_validate_chunk_data">validate_chunk_data()</a></li>
-                                            <li class=""><a href="classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_write_chunk_streamed">write_chunk_streamed()</a></li>
                                     </ul>
             </li>
                     </ul>

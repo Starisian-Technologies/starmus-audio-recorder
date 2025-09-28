@@ -196,10 +196,40 @@ Search.appendIndex(
             "summary": "The\u0020main\u0020pipeline\u0020function\u0020that\u0020is\u0020executed\u0020by\u0020WP\u002DCron.",
             "url": "classes/Starmus-cron-StarmusCron.html#method_run_audio_processing_pipeline"
         },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003Acleanup_stale_temp_files\u0028\u0029",
+            "name": "cleanup_stale_temp_files",
+            "summary": "Clean\u0020up\u0020stale\u0020temporary\u0020files\u0020\u0028created\u0020during\u0020chunked\u0020uploads\u0029\u0020older\u0020than\u002024\u0020hours.",
+            "url": "classes/Starmus-cron-StarmusCron.html#method_cleanup_stale_temp_files"
+        },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003Aactivate\u0028\u0029",
+            "name": "activate",
+            "summary": "Ensure\u0020our\u0020recurring\u0020cleanup\u0020job\u0020exists.\u0020Call\u0020on\u0020plugin\u0020activation.",
+            "url": "classes/Starmus-cron-StarmusCron.html#method_activate"
+        },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003Adeactivate\u0028\u0029",
+            "name": "deactivate",
+            "summary": "Clear\u0020any\u0020recurring\u0020jobs\u0020we\u0020created.\u0020Call\u0020on\u0020plugin\u0020deactivation.",
+            "url": "classes/Starmus-cron-StarmusCron.html#method_deactivate"
+        },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003Aregister_custom_schedules\u0028\u0029",
+            "name": "register_custom_schedules",
+            "summary": "\u0028Optional\u0029\u0020Add\u0020custom\u0020cron\u0020schedules.\u0020Example\u0020adds\u0020a\u002015\u002Dminute\u0020cadence.",
+            "url": "classes/Starmus-cron-StarmusCron.html#method_register_custom_schedules"
+        },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003Aget_temp_dir\u0028\u0029",
+            "name": "get_temp_dir",
+            "summary": "Resolve\u0020\/\u0020create\u0020the\u0020temp\u0020directory\u0020used\u0020during\u0020chunked\u0020uploads.",
+            "url": "classes/Starmus-cron-StarmusCron.html#method_get_temp_dir"
+        },                {
             "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003APROCESS_AUDIO_HOOK",
             "name": "PROCESS_AUDIO_HOOK",
-            "summary": "",
+            "summary": "Fired\u0020when\u0020a\u0020single\u0020audio\u0020attachment\u0020should\u0020be\u0020processed\u0020by\u0020the\u0020pipeline.",
             "url": "classes/Starmus-cron-StarmusCron.html#constant_PROCESS_AUDIO_HOOK"
+        },                {
+            "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003ACLEANUP_TEMP_FILES_HOOK",
+            "name": "CLEANUP_TEMP_FILES_HOOK",
+            "summary": "Recurring\u0020cleanup\u0020hook\u0020for\u0020stale\u0020temp\u0020upload\u0020parts\u0020\u0028chunked\u0020uploads\u0029.",
+            "url": "classes/Starmus-cron-StarmusCron.html#constant_CLEANUP_TEMP_FILES_HOOK"
         },                {
             "fqsen": "\\Starmus\\cron\\StarmusCron\u003A\u003A\u0024waveform_service",
             "name": "waveform_service",
@@ -218,193 +248,398 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
-            "summary": "",
+            "summary": "Bootstrap\u0020the\u0020editor\u0020by\u0020registering\u0020its\u0020WordPress\u0020hooks.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method___construct"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Aregister_hooks\u0028\u0029",
             "name": "register_hooks",
-            "summary": "",
+            "summary": "Register\u0020shortcode,\u0020assets,\u0020and\u0020REST\u0020route\u0020hooks.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_register_hooks"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Arender_audio_editor_shortcode\u0028\u0029",
             "name": "render_audio_editor_shortcode",
-            "summary": "",
+            "summary": "Render\u0020the\u0020audio\u0020editor\u0020shortcode\u0020output\u0020for\u0020the\u0020current\u0020user.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_render_audio_editor_shortcode"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Arender_template_secure\u0028\u0029",
             "name": "render_template_secure",
-            "summary": "",
+            "summary": "Safely\u0020render\u0020the\u0020editor\u0020template\u0020with\u0020the\u0020provided\u0020context.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_render_template_secure"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Ais_valid_template_path\u0028\u0029",
             "name": "is_valid_template_path",
-            "summary": "",
+            "summary": "Validate\u0020that\u0020the\u0020template\u0020path\u0020resolves\u0020to\u0020an\u0020allowed\u0020directory.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_is_valid_template_path"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Aenqueue_scripts\u0028\u0029",
             "name": "enqueue_scripts",
-            "summary": "",
+            "summary": "Conditionally\u0020enqueue\u0020front\u002Dend\u0020assets\u0020required\u0020by\u0020the\u0020editor.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_enqueue_scripts"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Aparse_annotations_json\u0028\u0029",
             "name": "parse_annotations_json",
-            "summary": "",
+            "summary": "Convert\u0020stored\u0020annotations\u0020JSON\u0020to\u0020a\u0020sanitized\u0020array\u0020structure.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_parse_annotations_json"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Aget_editor_context\u0028\u0029",
             "name": "get_editor_context",
-            "summary": "",
+            "summary": "Build\u0020the\u0020editor\u0020rendering\u0020context\u0020for\u0020the\u0020current\u0020request.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_get_editor_context"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Aget_secure_waveform_url\u0028\u0029",
             "name": "get_secure_waveform_url",
-            "summary": "",
+            "summary": "Generate\u0020a\u0020signed\u0020URL\u0020for\u0020the\u0020waveform\u0020attachment\u0020if\u0020available.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_get_secure_waveform_url"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Aregister_rest_endpoint\u0028\u0029",
             "name": "register_rest_endpoint",
-            "summary": "",
+            "summary": "Register\u0020REST\u0020endpoints\u0020used\u0020by\u0020the\u0020editor\u0020for\u0020annotation\u0020persistence.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_register_rest_endpoint"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Avalidate_post_id\u0028\u0029",
             "name": "validate_post_id",
-            "summary": "",
+            "summary": "Validate\u0020incoming\u0020post\u0020ID\u0020arguments\u0020for\u0020REST\u0020requests.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_validate_post_id"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Asanitize_annotations\u0028\u0029",
             "name": "sanitize_annotations",
-            "summary": "",
+            "summary": "Sanitize\u0020incoming\u0020annotations\u0020payloads\u0020from\u0020REST\u0020requests.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_sanitize_annotations"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Avalidate_annotations\u0028\u0029",
             "name": "validate_annotations",
-            "summary": "",
+            "summary": "Validate\u0020that\u0020annotations\u0020array\u0020obeys\u0020structural\u0020constraints.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_validate_annotations"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Acan_save_annotations\u0028\u0029",
             "name": "can_save_annotations",
-            "summary": "",
+            "summary": "Determine\u0020whether\u0020the\u0020current\u0020request\u0020is\u0020authorized\u0020to\u0020save\u0020annotations.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_can_save_annotations"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Ahandle_save_annotations\u0028\u0029",
             "name": "handle_save_annotations",
-            "summary": "",
+            "summary": "Persist\u0020sanitized\u0020annotations\u0020for\u0020a\u0020recording.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_handle_save_annotations"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Ais_rate_limited\u0028\u0029",
             "name": "is_rate_limited",
-            "summary": "",
+            "summary": "Check\u0020if\u0020the\u0020request\u0020should\u0020be\u0020throttled\u0020to\u0020avoid\u0020rapid\u0020writes.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_is_rate_limited"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Avalidate_annotation_consistency\u0028\u0029",
             "name": "validate_annotation_consistency",
-            "summary": "",
+            "summary": "Ensure\u0020annotation\u0020timestamps\u0020are\u0020sorted\u0020and\u0020non\u002Doverlapping.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_validate_annotation_consistency"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003Alog_error\u0028\u0029",
             "name": "log_error",
-            "summary": "",
+            "summary": "Log\u0020an\u0020error\u0020with\u0020unified\u0020context\u0020handling.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_log_error"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003ASTAR_REST_NAMESPACE",
             "name": "STAR_REST_NAMESPACE",
-            "summary": "",
+            "summary": "REST\u0020namespace\u0020for\u0020editor\u0020endpoints\u0020\u0028must\u0020match\u0020other\u0020handlers\u0029",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#constant_STAR_REST_NAMESPACE"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003ASTAR_MAX_ANNOTATIONS",
             "name": "STAR_MAX_ANNOTATIONS",
-            "summary": "",
+            "summary": "Upper\u0020bound\u0020for\u0020stored\u0020annotations\u0020to\u0020avoid\u0020overloading\u0020requests.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#constant_STAR_MAX_ANNOTATIONS"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003ASTAR_RATE_LIMIT_SECONDS",
             "name": "STAR_RATE_LIMIT_SECONDS",
-            "summary": "",
+            "summary": "Time\u002Dbased\u0020throttle\u0020applied\u0020when\u0020saving\u0020annotations.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#constant_STAR_RATE_LIMIT_SECONDS"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003A\u0024cached_context",
             "name": "cached_context",
-            "summary": "",
+            "summary": "Cached\u0020rendering\u0020context\u0020shared\u0020between\u0020hooks\u0020during\u0020a\u0020request.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#property_cached_context"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI",
+            "name": "StarmusAudioRecorderUI",
+            "summary": "Renders\u0020the\u0020user\u0020interface\u0020for\u0020the\u0020audio\u0020recorder\u0020and\u0020recordings\u0020list.",
+            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "Prime\u0020the\u0020UI\u0020layer\u0020with\u0020optional\u0020settings\u0020for\u0020template\u0020hydration.",
+            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method___construct"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Aregister_hooks\u0028\u0029",
+            "name": "register_hooks",
+            "summary": "Register\u0020shortcodes\u0020and\u0020taxonomy\u0020cache\u0020hooks.",
+            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_register_hooks"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Arender_recorder_shortcode\u0028\u0029",
+            "name": "render_recorder_shortcode",
+            "summary": "Render\u0020the\u0020recorder\u0020form\u0020shortcode.",
+            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_render_recorder_shortcode"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Aget_cached_terms\u0028\u0029",
+            "name": "get_cached_terms",
+            "summary": "Get\u0020cached\u0020terms\u0020with\u0020transient\u0020support.",
+            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_cached_terms"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Aclear_taxonomy_transients\u0028\u0029",
+            "name": "clear_taxonomy_transients",
+            "summary": "Clear\u0020cached\u0020terms.",
+            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_clear_taxonomy_transients"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Aget_edit_page_url_admin\u0028\u0029",
+            "name": "get_edit_page_url_admin",
+            "summary": "Admin\u0020edit\u0020screen\u0020URL.",
+            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_edit_page_url_admin"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003ASTAR_REST_NAMESPACE",
+            "name": "STAR_REST_NAMESPACE",
+            "summary": "REST\u0020namespace\u0020exposed\u0020to\u0020localized\u0020front\u002Dend\u0020scripts.",
+            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#constant_STAR_REST_NAMESPACE"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003A\u0024settings",
+            "name": "settings",
+            "summary": "Optional\u0020settings\u0020container\u0020used\u0020to\u0020hydrate\u0020UI\u0020data.",
+            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#property_settings"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusRestHandler",
             "name": "StarmusRestHandler",
-            "summary": "Registers\u0020and\u0020handles\u0020all\u0020REST\u0020API\u0020endpoints\u0020for\u0020the\u0020Starmus\u0020plugin.",
+            "summary": "Exposes\u0020WordPress\u0020REST\u0020API\u0020routes\u0020for\u0020audio\u0020submissions.",
             "url": "classes/Starmus-frontend-StarmusRestHandler.html"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusRestHandler\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
-            "summary": "",
+            "summary": "Build\u0020the\u0020handler\u0020and\u0020register\u0020the\u0020REST\u0020routes\u0020during\u0020boot.",
             "url": "classes/Starmus-frontend-StarmusRestHandler.html#method___construct"
         },                {
-            "fqsen": "\\Starmus\\frontend\\StarmusRestHandler\u003A\u003Aregister_hooks\u0028\u0029",
-            "name": "register_hooks",
-            "summary": "",
-            "url": "classes/Starmus-frontend-StarmusRestHandler.html#method_register_hooks"
+            "fqsen": "\\Starmus\\frontend\\StarmusRestHandler\u003A\u003Aregister_routes\u0028\u0029",
+            "name": "register_routes",
+            "summary": "Register\u0020REST\u0020API\u0020routes.",
+            "url": "classes/Starmus-frontend-StarmusRestHandler.html#method_register_routes"
         },                {
-            "fqsen": "\\Starmus\\frontend\\StarmusRestHandler\u003A\u003Aregister_rest_routes\u0028\u0029",
-            "name": "register_rest_routes",
-            "summary": "",
-            "url": "classes/Starmus-frontend-StarmusRestHandler.html#method_register_rest_routes"
+            "fqsen": "\\Starmus\\frontend\\StarmusRestHandler\u003A\u003Ahandle_fallback_upload\u0028\u0029",
+            "name": "handle_fallback_upload",
+            "summary": "Handle\u0020fallback\u0020form\u002Dbased\u0020upload.",
+            "url": "classes/Starmus-frontend-StarmusRestHandler.html#method_handle_fallback_upload"
         },                {
-            "fqsen": "\\Starmus\\frontend\\StarmusRestHandler\u003A\u003Ahandle_fallback_request\u0028\u0029",
-            "name": "handle_fallback_request",
-            "summary": "",
-            "url": "classes/Starmus-frontend-StarmusRestHandler.html#method_handle_fallback_request"
+            "fqsen": "\\Starmus\\frontend\\StarmusRestHandler\u003A\u003Ahandle_chunk_upload\u0028\u0029",
+            "name": "handle_chunk_upload",
+            "summary": "Handle\u0020chunked\u0020uploads.",
+            "url": "classes/Starmus-frontend-StarmusRestHandler.html#method_handle_chunk_upload"
         },                {
-            "fqsen": "\\Starmus\\frontend\\StarmusRestHandler\u003A\u003Acheck_upload_permissions\u0028\u0029",
-            "name": "check_upload_permissions",
-            "summary": "",
-            "url": "classes/Starmus-frontend-StarmusRestHandler.html#method_check_upload_permissions"
-        },                {
-            "fqsen": "\\Starmus\\frontend\\StarmusRestHandler\u003A\u003Aallow_webm_uploads\u0028\u0029",
-            "name": "allow_webm_uploads",
-            "summary": "",
-            "url": "classes/Starmus-frontend-StarmusRestHandler.html#method_allow_webm_uploads"
+            "fqsen": "\\Starmus\\frontend\\StarmusRestHandler\u003A\u003Ahandle_status\u0028\u0029",
+            "name": "handle_status",
+            "summary": "Handle\u0020status\u0020check\u0020for\u0020a\u0020submission.",
+            "url": "classes/Starmus-frontend-StarmusRestHandler.html#method_handle_status"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusRestHandler\u003A\u003A\u0024submission_handler",
             "name": "submission_handler",
-            "summary": "",
+            "summary": "Submission\u0020service\u0020that\u0020performs\u0020all\u0020validation\u0020and\u0020storage\u0020work.",
             "url": "classes/Starmus-frontend-StarmusRestHandler.html#property_submission_handler"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusShortcodeLoader",
+            "name": "StarmusShortcodeLoader",
+            "summary": "Handles\u0020shortcodes\u0020for\u0020displaying\u0020user\u0020recordings\u0020and\u0020recording\u0020details.",
+            "url": "classes/Starmus-frontend-StarmusShortcodeLoader.html"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusShortcodeLoader\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "",
+            "url": "classes/Starmus-frontend-StarmusShortcodeLoader.html#method___construct"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusShortcodeLoader\u003A\u003Aregister_hooks\u0028\u0029",
+            "name": "register_hooks",
+            "summary": "",
+            "url": "classes/Starmus-frontend-StarmusShortcodeLoader.html#method_register_hooks"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusShortcodeLoader\u003A\u003Arender_my_recordings_shortcode\u0028\u0029",
+            "name": "render_my_recordings_shortcode",
+            "summary": "Render\u0020the\u0020\u0022My\u0020Recordings\u0022\u0020shortcode.",
+            "url": "classes/Starmus-frontend-StarmusShortcodeLoader.html#method_render_my_recordings_shortcode"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusShortcodeLoader\u003A\u003Arender_submission_detail_shortcode\u0028\u0029",
+            "name": "render_submission_detail_shortcode",
+            "summary": "Renders\u0020the\u0020\u005Bstarmus_recording_detail\u005D\u0020shortcode.",
+            "url": "classes/Starmus-frontend-StarmusShortcodeLoader.html#method_render_submission_detail_shortcode"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusShortcodeLoader\u003A\u003Arender_submission_detail_via_filter\u0028\u0029",
+            "name": "render_submission_detail_via_filter",
+            "summary": "Replaces\u0020the\u0020content\u0020of\u0020single\u0020\u0027audio\u002Drecording\u0027\u0020posts\u0020with\u0020our\u0020custom\u0020template.",
+            "url": "classes/Starmus-frontend-StarmusShortcodeLoader.html#method_render_submission_detail_via_filter"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusShortcodeLoader\u003A\u003Aget_edit_page_url_admin\u0028\u0029",
+            "name": "get_edit_page_url_admin",
+            "summary": "Admin\u0020edit\u0020screen\u0020URL.",
+            "url": "classes/Starmus-frontend-StarmusShortcodeLoader.html#method_get_edit_page_url_admin"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusShortcodeLoader\u003A\u003A\u0024settings",
+            "name": "settings",
+            "summary": "",
+            "url": "classes/Starmus-frontend-StarmusShortcodeLoader.html#property_settings"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler",
             "name": "StarmusSubmissionHandler",
-            "summary": "Handles\u0020the\u0020core\u0020business\u0020logic\u0020of\u0020processing\u0020an\u0020audio\u0020submission.",
+            "summary": "Handles\u0020validation\u0020and\u0020persistence\u0020for\u0020audio\u0020submissions.",
             "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
-            "summary": "",
+            "summary": "Build\u0020the\u0020submission\u0020handler\u0020and\u0020wire\u0020scheduled\u0020maintenance\u0020hooks.",
             "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method___construct"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Ahandle_upload_chunk_rest\u0028\u0029",
+            "name": "handle_upload_chunk_rest",
+            "summary": "Process\u0020a\u0020chunked\u0020upload\u0020request\u0020coming\u0020from\u0020the\u0020REST\u0020API.",
+            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_handle_upload_chunk_rest"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Ahandle_fallback_upload_rest\u0028\u0029",
+            "name": "handle_fallback_upload_rest",
+            "summary": "Handle\u0020the\u0020REST\u0020fallback\u0020upload\u0020that\u0020uses\u0020multipart\/form\u002Ddata.",
+            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_handle_fallback_upload_rest"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Avalidate_chunk_data\u0028\u0029",
+            "name": "validate_chunk_data",
+            "summary": "Validate\u0020the\u0020minimal\u0020payload\u0020required\u0020for\u0020chunk\u0020persistence.",
+            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_validate_chunk_data"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Awrite_chunk_streamed\u0028\u0029",
+            "name": "write_chunk_streamed",
+            "summary": "Append\u0020a\u0020decoded\u0020chunk\u0020to\u0020the\u0020temporary\u0020upload\u0020file\u0020on\u0020disk.",
+            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_write_chunk_streamed"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Afinalize_submission\u0028\u0029",
+            "name": "finalize_submission",
+            "summary": "Finalize\u0020a\u0020chunked\u0020upload\u0020by\u0020promoting\u0020the\u0020temporary\u0020file\u0020to\u0020media.",
+            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_finalize_submission"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Aprocess_fallback_upload\u0028\u0029",
             "name": "process_fallback_upload",
-            "summary": "Main\u0020processing\u0020function\u0020for\u0020a\u0020fallback\u0020upload.",
+            "summary": "Process\u0020classic\u0020form\u0020uploads.\u0020This\u0020definitive\u0020version\u0020uses\u0020media_handle_sideload\u0028\u0029\nand\u0020includes\u0020safe\u0020metadata\u0020generation\u0020for\u0020non\u002Dimage\u0020files.",
             "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_process_fallback_upload"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Acreate_recording_post\u0028\u0029",
             "name": "create_recording_post",
-            "summary": "",
+            "summary": "Persist\u0020the\u0020custom\u0020post\u0020type\u0020entry\u0020that\u0020pairs\u0020with\u0020the\u0020attachment.",
             "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_create_recording_post"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Asave_all_metadata\u0028\u0029",
             "name": "save_all_metadata",
-            "summary": "",
+            "summary": "Store\u0020all\u0020submitted\u0020metadata.\u0020This\u0020definitive\u0020version\u0020saves\u0020the\u0020raw\u0020JSON\u0020archives\nAND\u0020parses\u0020the\u0020\u0060recording_metadata\u0060\u0020object\u0020to\u0020populate\u0020individual\u0020ACF\u0020fields\nusing\u0020the\u0020precise\u0020field\u0020keys\u0020from\u0020the\u0020ACF\u0020JSON\u0020export.",
             "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_save_all_metadata"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Asanitize_submission_data\u0028\u0029",
             "name": "sanitize_submission_data",
-            "summary": "",
+            "summary": "Proxy\u0020helper\u0020to\u0020sanitize\u0020request\u0020data\u0020using\u0020the\u0020shared\u0020sanitizer.",
             "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_sanitize_submission_data"
         },                {
-            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Alog_error\u0028\u0029",
-            "name": "log_error",
-            "summary": "",
-            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_log_error"
+            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Ais_rate_limited\u0028\u0029",
+            "name": "is_rate_limited",
+            "summary": "Determine\u0020whether\u0020the\u0020current\u0020user\u0020has\u0020exceeded\u0020rate\u0020limits.",
+            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_is_rate_limited"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Aget_temp_dir\u0028\u0029",
+            "name": "get_temp_dir",
+            "summary": "Compute\u0020the\u0020path\u0020used\u0020to\u0020store\u0020temporary\u0020upload\u0020chunks.",
+            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_get_temp_dir"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Acleanup_stale_temp_files\u0028\u0029",
+            "name": "cleanup_stale_temp_files",
+            "summary": "Remove\u0020stale\u0020chunk\u0020files\u0020older\u0020than\u0020one\u0020day\u0020to\u0020reclaim\u0020disk\u0020space.",
+            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_cleanup_stale_temp_files"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003Aget_redirect_url\u0028\u0029",
+            "name": "get_redirect_url",
+            "summary": "Resolve\u0020redirect\u0020location\u0020after\u0020a\u0020successful\u0020submission.",
+            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_get_redirect_url"
+        },                {
+            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003ASTAR_REST_NAMESPACE",
+            "name": "STAR_REST_NAMESPACE",
+            "summary": "Namespaced\u0020identifier\u0020used\u0020for\u0020REST\u0020endpoints.",
+            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#constant_STAR_REST_NAMESPACE"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003A\u0024settings",
             "name": "settings",
-            "summary": "",
+            "summary": "Lazily\u0020injected\u0020plugin\u0020settings\u0020service.",
             "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#property_settings"
+        },                {
+            "fqsen": "\\Starmus\\helpers\\StarmusLogger",
+            "name": "StarmusLogger",
+            "summary": "Centralized\u0020error\u0020and\u0020debug\u0020logger\u0020for\u0020Starmus.",
+            "url": "classes/Starmus-helpers-StarmusLogger.html"
+        },                {
+            "fqsen": "\\Starmus\\helpers\\StarmusLogger\u003A\u003Alog\u0028\u0029",
+            "name": "log",
+            "summary": "Log\u0020a\u0020message\u0020with\u0020context.",
+            "url": "classes/Starmus-helpers-StarmusLogger.html#method_log"
+        },                {
+            "fqsen": "\\Starmus\\helpers\\StarmusMimeHelper",
+            "name": "StarmusMimeHelper",
+            "summary": "",
+            "url": "classes/Starmus-helpers-StarmusMimeHelper.html"
+        },                {
+            "fqsen": "\\Starmus\\helpers\\StarmusMimeHelper\u003A\u003Aget_allowed_mimes\u0028\u0029",
+            "name": "get_allowed_mimes",
+            "summary": "",
+            "url": "classes/Starmus-helpers-StarmusMimeHelper.html#method_get_allowed_mimes"
+        },                {
+            "fqsen": "\\Starmus\\helpers\\StarmusSanitizer",
+            "name": "StarmusSanitizer",
+            "summary": "Sanitizer\u0020for\u0020Starmus\u0020audio\u0020submissions.",
+            "url": "classes/Starmus-helpers-StarmusSanitizer.html"
+        },                {
+            "fqsen": "\\Starmus\\helpers\\StarmusSanitizer\u003A\u003Asanitize_submission_data\u0028\u0029",
+            "name": "sanitize_submission_data",
+            "summary": "Sanitize\u0020general\u0020submission\u0020data\u0020from\u0020forms\u0020or\u0020REST\u0020params.",
+            "url": "classes/Starmus-helpers-StarmusSanitizer.html#method_sanitize_submission_data"
+        },                {
+            "fqsen": "\\Starmus\\helpers\\StarmusSanitizer\u003A\u003Asanitize_metadata\u0028\u0029",
+            "name": "sanitize_metadata",
+            "summary": "Sanitize\u0020structured\u0020metadata\u0020for\u0020saving\u0020into\u0020CPT\/attachment.",
+            "url": "classes/Starmus-helpers-StarmusSanitizer.html#method_sanitize_metadata"
+        },                {
+            "fqsen": "\\Starmus\\helpers\\StarmusSanitizer\u003A\u003Aget_user_ip\u0028\u0029",
+            "name": "get_user_ip",
+            "summary": "",
+            "url": "classes/Starmus-helpers-StarmusSanitizer.html#method_get_user_ip"
+        },                {
+            "fqsen": "\\Starmus\\helpers\\StarmusTemplateLoaderHelper",
+            "name": "StarmusTemplateLoaderHelper",
+            "summary": "",
+            "url": "classes/Starmus-helpers-StarmusTemplateLoaderHelper.html"
+        },                {
+            "fqsen": "\\Starmus\\helpers\\StarmusTemplateLoaderHelper\u003A\u003Arender_template\u0028\u0029",
+            "name": "render_template",
+            "summary": "Render\u0020a\u0020template\u0020file.",
+            "url": "classes/Starmus-helpers-StarmusTemplateLoaderHelper.html#method_render_template"
+        },                {
+            "fqsen": "\\Starmus\\helpers\\StarmusTemplateLoaderHelper\u003A\u003Alocate_template\u0028\u0029",
+            "name": "locate_template",
+            "summary": "Locates\u0020a\u0020template\u0020file,\u0020checking\u0020the\u0020theme\/child\u0020theme\u0020first,\u0020then\u0020the\u0020plugin.",
+            "url": "classes/Starmus-helpers-StarmusTemplateLoaderHelper.html#method_locate_template"
+        },                {
+            "fqsen": "\\Starmus\\helpers\\StarmusTemplateLoaderHelper\u003A\u003Aget_edit_page_url_admin\u0028\u0029",
+            "name": "get_edit_page_url_admin",
+            "summary": "Admin\u0020edit\u0020screen\u0020URL.",
+            "url": "classes/Starmus-helpers-StarmusTemplateLoaderHelper.html#method_get_edit_page_url_admin"
+        },                {
+            "fqsen": "\\Starmus\\includes\\StarmusAssetLoader",
+            "name": "StarmusAssetLoader",
+            "summary": "",
+            "url": "classes/Starmus-includes-StarmusAssetLoader.html"
+        },                {
+            "fqsen": "\\Starmus\\includes\\StarmusAssetLoader\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "Boot\u0020hooks.",
+            "url": "classes/Starmus-includes-StarmusAssetLoader.html#method___construct"
+        },                {
+            "fqsen": "\\Starmus\\includes\\StarmusAssetLoader\u003A\u003Aenqueue_frontend_assets\u0028\u0029",
+            "name": "enqueue_frontend_assets",
+            "summary": "Enqueue\u0020styles\/scripts\u0020on\u0020frontend\u0020conditionally.",
+            "url": "classes/Starmus-includes-StarmusAssetLoader.html#method_enqueue_frontend_assets"
+        },                {
+            "fqsen": "\\Starmus\\includes\\StarmusAssetLoader\u003A\u003Aenqueue_admin_assets\u0028\u0029",
+            "name": "enqueue_admin_assets",
+            "summary": "Enqueue\u0020admin\u0020styles\u0020for\u0020detail\/editor\u0020screens.",
+            "url": "classes/Starmus-includes-StarmusAssetLoader.html#method_enqueue_admin_assets"
         },                {
             "fqsen": "\\Starmus\\includes\\StarmusSettings",
             "name": "StarmusSettings",
@@ -706,11 +941,6 @@ Search.appendIndex(
             "summary": "Checks\u0020for\u0020required\u0020field\u0020plugins\u0020\u0028ACF\u0020or\u0020SCF\u0029\u0020and\u0020shows\u0020admin\u0020notice\u0020if\u0020missing.",
             "url": "classes/Starmus-StarmusPlugin.html#method_check_field_plugin_dependency"
         },                {
-            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003Aget_mime_whitelist\u0028\u0029",
-            "name": "get_mime_whitelist",
-            "summary": "Returns\u0020the\u0020whitelist\u0020of\u0020allowed\u0020file\u0020extensions\u0020and\u0020MIME\u0020types.",
-            "url": "classes/Starmus-StarmusPlugin.html#method_get_mime_whitelist"
-        },                {
             "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003Afilter_filetype_and_ext\u0028\u0029",
             "name": "filter_filetype_and_ext",
             "summary": "Expand\u0020allowable\u0020MIME\u0020types\u0020during\u0020uploads.",
@@ -801,6 +1031,11 @@ Search.appendIndex(
             "summary": "Settings\u0020manager\u0020dependency.",
             "url": "classes/Starmus-StarmusPlugin.html#property_settings"
         },                {
+            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024asset_loader",
+            "name": "asset_loader",
+            "summary": "Asset\u0020Loader\u0020dependency.",
+            "url": "classes/Starmus-StarmusPlugin.html#property_asset_loader"
+        },                {
             "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024admin",
             "name": "admin",
             "summary": "Admin\u0020controller\u0020dependency.",
@@ -821,10 +1056,20 @@ Search.appendIndex(
             "summary": "Updater\u0020service\u0020dependency.",
             "url": "classes/Starmus-StarmusPlugin.html#property_updater"
         },                {
+            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024shortcode_loader",
+            "name": "shortcode_loader",
+            "summary": "Template\u0020loader\u0020dependency.",
+            "url": "classes/Starmus-StarmusPlugin.html#property_shortcode_loader"
+        },                {
             "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024cli",
             "name": "cli",
             "summary": "WP\u002DCLI\u0020command\u0020handler\u0020dependency.",
             "url": "classes/Starmus-StarmusPlugin.html#property_cli"
+        },                {
+            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024cron",
+            "name": "cron",
+            "summary": "Cron\u0020service\u0020dependency.",
+            "url": "classes/Starmus-StarmusPlugin.html#property_cron"
         },                {
             "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024waveform",
             "name": "waveform",
@@ -870,6 +1115,11 @@ Search.appendIndex(
             "name": "frontend",
             "summary": "",
             "url": "namespaces/starmus-frontend.html"
+        },                {
+            "fqsen": "\\Starmus\\helpers",
+            "name": "helpers",
+            "summary": "",
+            "url": "namespaces/starmus-helpers.html"
         },                {
             "fqsen": "\\Starmus\\includes",
             "name": "includes",

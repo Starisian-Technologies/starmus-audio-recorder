@@ -10,6 +10,7 @@ export default {
     "dist/**",
     "build/**",
     "assets/css/**/*.min.css",
+    "vendor/**",
   ],
   rules: {
     "color-function-notation": "legacy",

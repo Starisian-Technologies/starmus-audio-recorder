@@ -229,33 +229,34 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
       width 0.3s,
       background 0.3s;
   }
+
   /*
   * ========================================================================
   *   4b. COMPONENT: Audio Player in Cards
   * ========================================================================
   */
- .starmus-card__audio {
-   margin-top: 1rem;
-   display: flex;
-   flex-direction: column;
-   align-items: stretch;
-   gap: 0.5rem;
- }
- 
- .starmus-card__audio audio,
- .starmus-audio-player {
-   width: 100%;
-   max-width: 100%;
-   border-radius: 9999px;
-   border: 1px solid var(--starmus-border-color);
-   background-color: var(--starmus-bg-card);
- }
- 
- .starmus-card__duration {
-   font-size: 0.75rem;
-   color: var(--starmus-text-muted);
-   text-align: right;
- }
+  .starmus-card__audio {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .starmus-card__audio audio,
+  .starmus-audio-player {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 9999px;
+    border: 1px solid var(--starmus-border-color);
+    background-color: var(--starmus-bg-card);
+  }
+
+  .starmus-card__duration {
+    font-size: 0.75rem;
+    color: var(--starmus-text-muted);
+    text-align: right;
+  }
 
   /*
  * ========================================================================
@@ -571,6 +572,7 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
     }
   }
 }
+
 /*
  * ========================================================================
  *   7. COMPONENT: User Recording Detail View
@@ -685,9 +687,11 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   justify-content: flex-start;
   margin-top: 2rem;
 }
+
 .starmus-detail__actions .starmus-btn {
   margin-right: 1rem;
 }
+
 /*
  * ========================================================================
  *   6. COMPONENT: Admin / Editor Detail View
@@ -706,71 +710,14 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   gap: 2rem;
 }
 
-@media (min-width: 1024px) {
+@media (width >= 1024px) {
   .starmus-admin-detail__grid {
     grid-template-columns: 2fr 1fr;
     align-items: start;
   }
 }
 
-/* --- Main --- */
-.starmus-detail__header {
-  margin-bottom: 1.5rem;
-}
-
-.starmus-detail__title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.starmus-detail__meta {
-  font-size: 0.875rem;
-  color: var(--starmus-text-muted);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.starmus-detail__audio {
-  margin: 1.5rem 0;
-}
-
-.starmus-audio-player--large {
-  width: 100%;
-  border-radius: 1rem;
-  border: 1px solid var(--starmus-border-color);
-  background: var(--starmus-bg-card);
-}
-
-/* --- Transcript --- */
-.starmus-detail__transcript {
-  margin-top: 2rem;
-}
-
-.starmus-transcript__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-  color: var(--starmus-text-muted);
-}
-
-.starmus-transcript__content {
-  border: 1px solid var(--starmus-border-color);
-  border-radius: 0.5rem;
-  background: var(--starmus-bg-card);
-  padding: 1rem;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.starmus-transcript__segment {
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--starmus-border-color);
-}
+/* --- Transcript Section --- */
 
 .starmus-transcript__text {
   display: block;
@@ -822,4 +769,11 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 .starmus-info-list dt {
   font-weight: 600;
   margin-top: 0.5rem;
-  color: var(--starmus-text-m
+  color: var(--starmus-text-color);
+}
+
+.starmus-info-list dd {
+  margin-bottom: 0.5rem;
+  color: var(--starmus-text-muted);
+  margin-left: 0;
+}
