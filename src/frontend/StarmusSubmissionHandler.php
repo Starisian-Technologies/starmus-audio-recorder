@@ -17,7 +17,6 @@ use Starmus\includes\StarmusSettings;
 use WP_Error;
 use WP_REST_Request;
 
-use function register_rest_route;
 use function is_wp_error;
 use function wp_upload_dir;
 use function wp_insert_attachment;
@@ -45,41 +44,42 @@ use function unlink;
 use const MINUTE_IN_SECONDS;
 use const DAY_IN_SECONDS;
 
+/**
+ * Handles validation and persistence for audio submissions.
+ *
+ * The class exposes helpers that can be wired into REST callbacks or
+ * traditional form submissions. It purposely avoids registering REST
+ * routes directly so the caller controls exposure and permissions.
+ */
 class StarmusSubmissionHandler
 {
+    /**
+     * Namespaced identifier used for REST endpoints.
+     */
     public const STAR_REST_NAMESPACE = 'star-starmus-audio-recorder/v1';
+
+    /**
+     * Lazily injected plugin settings service.
+     */
     private ?StarmusSettings $settings;
 
+    /**
+     * Build the submission handler and wire scheduled maintenance hooks.
+     *
+     * @param StarmusSettings|null $settings Optional plugin settings adapter.
+     */
     public function __construct(?StarmusSettings $settings)
     {
         $this->settings = $settings;
-        add_action('rest_api_init', [$this, 'register_rest_routes']);
         add_action('starmus_cleanup_temp_files', [$this, 'cleanup_stale_temp_files']);
     }
 
-    public function register_rest_routes(): void
-    {
-        register_rest_route(
-            self::STAR_REST_NAMESPACE,
-            '/upload-chunk',
-            [
-                'methods' => 'POST',
-                'callback' => [$this, 'handle_upload_chunk_rest'],
-                'permission_callback' => static fn() => current_user_can('upload_files'),
-            ]
-        );
-
-        register_rest_route(
-            self::STAR_REST_NAMESPACE,
-            '/upload-fallback',
-            [
-                'methods' => 'POST',
-                'callback' => [$this, 'handle_fallback_upload_rest'],
-                'permission_callback' => static fn() => current_user_can('upload_files'),
-            ]
-        );
-    }
-
+    /**
+     * Process a chunked upload request coming from the REST API.
+     *
+     * @param WP_REST_Request $request Incoming WordPress REST request.
+     * @return array|WP_Error Response payload on success or error object.
+     */
     public function handle_upload_chunk_rest(WP_REST_Request $request): array|WP_Error
     {
         try {
@@ -115,6 +115,12 @@ class StarmusSubmissionHandler
         }
     }
 
+    /**
+     * Handle the REST fallback upload that uses multipart/form-data.
+     *
+     * @param WP_REST_Request $request Incoming WordPress REST request.
+     * @return array|WP_Error Response payload on success or error object.
+     */
     public function handle_fallback_upload_rest(WP_REST_Request $request): array|WP_Error
     {
         try {
@@ -132,6 +138,12 @@ class StarmusSubmissionHandler
         }
     }
 
+    /**
+     * Validate the minimal payload required for chunk persistence.
+     *
+     * @param array $params Sanitized request parameters.
+     * @return true|WP_Error True when valid or WP_Error on failure.
+     */
     private function validate_chunk_data(array $params): true|WP_Error
     {
         if (empty($params['upload_id']) || empty($params['chunk_index'])) {
@@ -143,6 +155,12 @@ class StarmusSubmissionHandler
         return true;
     }
 
+    /**
+     * Append a decoded chunk to the temporary upload file on disk.
+     *
+     * @param array $params Sanitized request parameters.
+     * @return string|WP_Error File path of the temporary upload or error.
+     */
     private function write_chunk_streamed(array $params): string|WP_Error
     {
         $temp_dir = $this->get_temp_dir();
@@ -165,6 +183,13 @@ class StarmusSubmissionHandler
         return $file_path;
     }
 
+    /**
+     * Finalize a chunked upload by promoting the temporary file to media.
+     *
+     * @param string $file_path Temporary file path.
+     * @param array  $form_data Sanitized submission context.
+     * @return array|WP_Error Finalized payload or error object.
+     */
     private function finalize_submission(string $file_path, array $form_data): array|WP_Error
     {
         if (!file_exists($file_path)) {
@@ -176,12 +201,28 @@ class StarmusSubmissionHandler
         $destination = $upload_dir['path'] . '/' . $filename;
 
         if (!@rename($file_path, $destination)) {
+            if (!@unlink($file_path)) {
+                StarmusLogger::error("Failed to delete temporary file: " . basename($file_path));
+            }
             return new WP_Error('move_failed', 'Failed to move upload.');
+        }
+
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        $file_check = wp_check_filetype_and_ext($destination, $filename, wp_get_mime_types());
+        $mime_type = $file_check['type'] ?? '';
+        $ext = $file_check['ext'] ?? '';
+        if (empty($mime_type) || empty($ext) || !preg_match('#^audio/([a-z0-9.+-]+)$#i', $mime_type)) {
+            if (!@unlink($destination)) {
+                if (class_exists('\Starmus\helpers\StarmusLogger')) {
+                    \Starmus\helpers\StarmusLogger::error("Failed to delete invalid audio file: $destination");
+                }
+            }
+            return new WP_Error('invalid_type', 'Uploaded file must be an audio format.');
         }
 
         $attachment_id = wp_insert_attachment(
             [
-                'post_mime_type' => mime_content_type($destination),
+                'post_mime_type' => $mime_type,
                 'post_title' => pathinfo($filename, PATHINFO_FILENAME),
                 'post_content' => '',
                 'post_status' => 'inherit',
@@ -215,6 +256,13 @@ class StarmusSubmissionHandler
         ];
     }
 
+    /**
+     * Process classic form uploads submitted through multipart endpoints.
+     *
+     * @param array $files_data Normalized $_FILES array from the request.
+     * @param array $form_data  Sanitized form parameters.
+     * @return array|WP_Error Result payload or WP_Error when validation fails.
+     */
     public function process_fallback_upload(array $files_data, array $form_data): array|WP_Error
     {
         try {
@@ -258,6 +306,14 @@ class StarmusSubmissionHandler
         }
     }
 
+    /**
+     * Persist the custom post type entry that pairs with the attachment.
+     *
+     * @param int    $attachment_id WordPress media attachment identifier.
+     * @param array  $form_data     Sanitized submission metadata.
+     * @param string $original_filename Original filename for title fallback.
+     * @return int|WP_Error Post ID on success or WP_Error on failure.
+     */
     private function create_recording_post(int $attachment_id, array $form_data, string $original_filename): int|WP_Error
     {
         return wp_insert_post(
@@ -270,6 +326,14 @@ class StarmusSubmissionHandler
         );
     }
 
+    /**
+     * Store sanitized metadata on both the CPT record and attachment.
+     *
+     * @param int   $audio_post_id  Identifier of the CPT post.
+     * @param int   $attachment_id  Identifier of the attachment.
+     * @param array $form_data      Sanitized submission metadata.
+     * @return void
+     */
     public function save_all_metadata(int $audio_post_id, int $attachment_id, array $form_data): void
     {
         $meta = StarmusSanitizer::sanitize_metadata($form_data);
@@ -279,11 +343,23 @@ class StarmusSubmissionHandler
         }
     }
 
+    /**
+     * Proxy helper to sanitize request data using the shared sanitizer.
+     *
+     * @param array $data Raw request payload.
+     * @return array Sanitized data.
+     */
     public function sanitize_submission_data(array $data): array
     {
         return StarmusSanitizer::sanitize_submission_data($data);
     }
 
+    /**
+     * Determine whether the current user has exceeded rate limits.
+     *
+     * @param int $user_id WordPress user identifier.
+     * @return bool True when throttled.
+     */
     private function is_rate_limited(int $user_id): bool
     {
         $key = 'starmus_rate_' . $user_id;
@@ -295,11 +371,21 @@ class StarmusSubmissionHandler
         return false;
     }
 
+    /**
+     * Compute the path used to store temporary upload chunks.
+     *
+     * @return string Absolute path inside the uploads directory.
+     */
     private function get_temp_dir(): string
     {
         return trailingslashit(wp_upload_dir()['basedir']) . 'starmus_tmp/';
     }
 
+    /**
+     * Remove stale chunk files older than one day to reclaim disk space.
+     *
+     * @return void
+     */
     public function cleanup_stale_temp_files(): void
     {
         $dir = $this->get_temp_dir();
@@ -313,6 +399,11 @@ class StarmusSubmissionHandler
         }
     }
 
+    /**
+     * Resolve redirect location after a successful submission.
+     *
+     * @return string Absolute URL pointing to the submissions list.
+     */
     private function get_redirect_url(): string
     {
         $redirect_page_id = $this->settings ? $this->settings->get('redirect_page_id', 0) : 0;

@@ -89,7 +89,7 @@ add_action(
 	function () {
 		$settings = new \Starmus\includes\StarmusSettings();
 		$submission_handler = new \Starmus\frontend\StarmusSubmissionHandler($settings);
-		$rest_handler = new \Starmus\frontend\StarmusRestHandler($settings);
+		$rest_handler = new \Starmus\frontend\StarmusRestHandler($settings, $submission_handler);
 		$ui_handler = new \Starmus\frontend\StarmusAudioRecorderUI($settings);
 	}
 );
