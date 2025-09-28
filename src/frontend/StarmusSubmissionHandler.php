@@ -209,7 +209,11 @@ class StarmusSubmissionHandler
 
         $mime_type = mime_content_type($destination) ?: '';
         if (!preg_match('#^audio/([a-z0-9.+-]+)$#i', $mime_type)) {
-            unlink($destination);
+            if (!@unlink($destination)) {
+                if (class_exists('\Starmus\helpers\StarmusLogger')) {
+                    \Starmus\helpers\StarmusLogger::error("Failed to delete invalid audio file: $destination");
+                }
+            }
             return new WP_Error('invalid_type', 'Uploaded file must be an audio format.');
         }
 
