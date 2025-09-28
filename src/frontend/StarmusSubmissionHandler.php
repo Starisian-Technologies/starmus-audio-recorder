@@ -207,8 +207,11 @@ class StarmusSubmissionHandler
             return new WP_Error('move_failed', 'Failed to move upload.');
         }
 
-        $mime_type = mime_content_type($destination) ?: '';
-        if (!preg_match('#^audio/([a-z0-9.+-]+)$#i', $mime_type)) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        $file_check = wp_check_filetype_and_ext($destination, $filename, wp_get_mime_types());
+        $mime_type = $file_check['type'] ?? '';
+        $ext = $file_check['ext'] ?? '';
+        if (empty($mime_type) || empty($ext) || !preg_match('#^audio/([a-z0-9.+-]+)$#i', $mime_type)) {
             if (!@unlink($destination)) {
                 if (class_exists('\Starmus\helpers\StarmusLogger')) {
                     \Starmus\helpers\StarmusLogger::error("Failed to delete invalid audio file: $destination");
