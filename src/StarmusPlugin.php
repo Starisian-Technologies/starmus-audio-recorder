@@ -131,7 +131,7 @@ final class StarmusPlugin
 	 * @since 0.1.0
 	 * @return StarmusPlugin The single instance of the class.
 	 */
-	public static function get_instance(): StarmusPlugin
+	public static function starmus_get_instance(): StarmusPlugin
 	{
 		if (null === self::$instance) {
 			self::$instance = new self();
@@ -147,7 +147,7 @@ final class StarmusPlugin
 	 *
 	 * @since 0.1.0
 	 */
-	public function init(): void
+	public function starmus_init(): void
 	{
 		// Load translations first.
 		load_plugin_textdomain('starmus-audio-recorder', false, dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/');
@@ -165,10 +165,10 @@ final class StarmusPlugin
 		$this->set_starmus_settings();
 
 		// Instantiate components
-		$this->instantiateComponents();
+		$this->starmus_instantiateComponents();
 
 		// Register hooks
-		$this->register_hooks();
+		$this->starmus_register_hooks();
 	}
 
 	/**
@@ -179,7 +179,7 @@ final class StarmusPlugin
 	 *
 	 * @since 0.4.0
 	 */
-	public function register_hooks(): void
+	public function starmus_register_hooks(): void
 	{
 		if ($this->hooksRegistered) {
 			return;
@@ -213,7 +213,7 @@ final class StarmusPlugin
 	 *
 	 * @return bool True if dependency present, false if missing.
 	 */
-	public static function check_field_plugin_dependency(): bool
+	public static function starmus_check_field_plugin_dependency(): bool
 	{
 		if (class_exists('ACF') || class_exists('SCF')) {
 			return true;
@@ -272,7 +272,7 @@ final class StarmusPlugin
 	 *
 	 * @since 0.1.0
 	 */
-	private function instantiateComponents(): void
+	private function starmus_instantiateComponents(): void
 	{
 
 		if (is_object($this->get_starmus_settings())) {
@@ -416,9 +416,9 @@ final class StarmusPlugin
 	 *
 	 * @since 0.1.0
 	 */
-	public static function run(): void
+	public static function starmus_run(): void
 	{
-		self::get_instance();
+		self::starmus_get_instance();
 	}
 
 	/**
