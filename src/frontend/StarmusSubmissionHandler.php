@@ -64,7 +64,7 @@ class StarmusSubmissionHandler {
         /**
          * Lazily injected plugin settings service.
          */
-        private ?StarmusSettings $settings = null;
+        private ?StarmusSettings $settings;
 
 	/**
 	 * Build the submission handler and wire scheduled maintenance hooks.
