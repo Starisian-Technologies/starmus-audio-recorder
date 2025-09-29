@@ -316,7 +316,7 @@ final class StarmusPlugin
 		}
 
 		try {
-			if (class_exists('StarmusPluginUpdater')) {
+			if (class_exists('Starmus\\core\\StarmusPluginUpdater')) {
 				// phpcs:ignore Squiz.NamingConventions.ValidVariableName.NotCamelCaps.
 				// @phpstan-ignore-next-line.
 				$this->updater = new StarmusPluginUpdater(STARMUS_MAIN_FILE, STARMUS_VERSION);
