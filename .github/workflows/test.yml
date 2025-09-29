@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - # v4.1.6 commit pin keeps checkout immutable across matrix runs.
-        uses: actions/checkout@5a4ac9002afc2a3b8d9a0e327669c9fe749ac181
+        uses: actions/checkout@v5.0.0
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4
@@ -29,7 +29,7 @@ jobs:
 
       - name: Setup Node.js
         # v4.0.2 commit pin ensures deterministic Node setup.
-        uses: actions/setup-node@8f1525dfb8c7b99f04f58f80ab1c2b74fdc6a059
+        uses: actions/setup-node@v5.0.0
         with:
           node-version: "18"
           cache: "npm"
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - # v4.1.6 commit pin keeps checkout immutable for audit job as well.
-        uses: actions/checkout@5a4ac9002afc2a3b8d9a0e327669c9fe749ac181
+        uses: actions/checkout@v5.0.0
 
       - name: Run security audit
         run: |
