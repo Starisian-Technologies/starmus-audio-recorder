@@ -22,6 +22,7 @@ use function register_rest_route;
 use function is_wp_error;
 use function get_post_status;
 use function get_post_type;
+use function __;
 
 /**
  * Exposes WordPress REST API routes for audio submissions.
@@ -116,15 +117,13 @@ class StarmusRestHandler {
 			// Log the full error to the server's error log
 			StarmusLogger::log( 'RestHandler:fallback', $e, 'error' );
 
-			// Return the ACTUAL error message to the browser console for debugging.
-			// WARNING: Do not leave this in production code as it can expose server paths.
-			return new WP_Error(
-				'server_error_debug',
-				'Upload failed: ' . $e->getMessage(), // <<< This is the important part
-				array( 'status' => 500 )
-			);
-		}
-	}
+                        return new WP_Error(
+                                'server_error',
+                                __( 'Upload failed. Please try again later.', 'starmus-audio-recorder' ),
+                                array( 'status' => 500 )
+                        );
+                }
+        }
 
 	/**
 	 * Handle chunked uploads.
@@ -174,9 +173,9 @@ class StarmusRestHandler {
 
 			// Ensure it's the correct CPT
 			$post_type = get_post_type( $post_id );
-			if ( $post_type !== $this->submission_handler->settings?->get( 'cpt_slug', 'audio-recording' ) ) {
-				return new WP_Error( 'invalid_type', 'Not an audio recording', array( 'status' => 403 ) );
-			}
+                        if ( $post_type !== $this->submission_handler->get_cpt_slug() ) {
+                                return new WP_Error( 'invalid_type', 'Not an audio recording', array( 'status' => 403 ) );
+                        }
 
 			return new WP_REST_Response(
 				array(
