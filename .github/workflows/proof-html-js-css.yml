@@ -84,7 +84,7 @@ jobs:
 
       - name: Set up Node.js
         # v4.0.2 commit pin ensures Node setup action stays deterministic.
-        uses: actions/setup-node@8f1525dfb8c7b99f04f58f80ab1c2b74fdc6a05
+        uses: actions/setup-node@8f1525dfb8c7b99f04f58f80ab1c2b74fdc6a051
         with:
           node-version: "18"
           cache: "npm"
