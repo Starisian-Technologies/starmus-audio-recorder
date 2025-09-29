@@ -1,3 +1,5 @@
+# Auto Assign Workflow
+# Purpose: Automatically route new issues and pull requests to the Quality and Support team for triage.
 name: Auto Assign
 
 on:
