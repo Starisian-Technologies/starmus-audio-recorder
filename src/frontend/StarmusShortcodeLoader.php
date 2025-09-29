@@ -16,7 +16,7 @@ use Starmus\helpers\StarmusTemplateLoaderHelper;
  * NOTE - Recorder form and Edit Audio Form are located in their own classes
  *
  * @since 0.7.5
- * @version 0.7.5
+ * @version 0.7.6
  */
 class StarmusShortcodeLoader {
 

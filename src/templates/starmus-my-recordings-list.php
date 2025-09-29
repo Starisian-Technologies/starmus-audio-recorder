@@ -3,7 +3,7 @@
  * Starmus My Recordings List Template
  *
  * @package Starmus\templates
- * @version 0.7.5
+ * @version 0.7.6
  */
 
 // Exit if accessed directly.

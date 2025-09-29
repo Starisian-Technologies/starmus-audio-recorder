@@ -3,7 +3,7 @@
  * Service class for generating waveform data for audio files.
  *
  * @package Starmus\services
- * @version 0.7.5
+ * @version 0.7.6
  */
 
 namespace Starmus\services;

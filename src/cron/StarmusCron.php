@@ -3,7 +3,7 @@
  * Service class for managing all WP-Cron related tasks for the Starmus plugin.
  *
  * @package Starmus\cron
- * @version 0.7.5
+ * @version 0.7.6
  * @since   0.7.3
  */
 

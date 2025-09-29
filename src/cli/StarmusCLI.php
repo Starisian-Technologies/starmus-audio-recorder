@@ -5,7 +5,7 @@
  * This is the final, consolidated class containing all commands and best practices.
  *
  * @package Starmus\cli
- * @version 0.7.5
+ * @version 0.7.6
  */
 
 namespace Starmus\cli;

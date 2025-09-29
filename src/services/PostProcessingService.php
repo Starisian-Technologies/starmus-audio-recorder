@@ -4,7 +4,7 @@
  * Produces both MP3 (distribution) and WAV (archival) and triggers metadata writing.
  *
  * @package Starmus\services
- * @version 0.7.5
+ * @version 0.7.6
  * @since  0.7.2
  */
 

@@ -14,7 +14,7 @@
  * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
  *
  * @since 0.1.0
- * @version 0.7.5
+ * @version 0.7.6
  * @package Starmus
  * @author Starisian Technologies (Max Barrett)
  * @module  StarmusAudioRecorder
@@ -27,7 +27,7 @@
  * Plugin Name:       Starmus Audio Recorder
  * Plugin URI:        https://github.com/Starisian-Technologies/starmus-audio-recorder
  * Description:       Adds a mobile-friendly MP3 audio recorder for oral history submission in low-bandwidth environments.
- * Version:           0.7.5
+ * Version:           0.7.6
  * Requires at least: 6.4
  * Requires PHP:      8.0
  * Tested up to:      6.5
