@@ -28,6 +28,7 @@ use function wp_update_post;
 use function wp_get_attachment_url;
 use function media_handle_upload;
 use function get_current_user_id;
+use function sanitize_key;
 use function get_transient;
 use function set_transient;
 use function wp_mkdir_p;
@@ -60,10 +61,10 @@ class StarmusSubmissionHandler {
 	 */
 	public const STAR_REST_NAMESPACE = 'star-starmus-audio-recorder/v1';
 
-	/**
-	 * Lazily injected plugin settings service.
-	 */
-	private ?StarmusSettings $settings;
+        /**
+         * Lazily injected plugin settings service.
+         */
+        private ?StarmusSettings $settings;
 
 	/**
 	 * Build the submission handler and wire scheduled maintenance hooks.
@@ -353,21 +354,22 @@ class StarmusSubmissionHandler {
 	 * @param string $original_filename Original filename for title fallback.
 	 * @return int|WP_Error Post ID on success or WP_Error on failure.
 	 */
-	private function create_recording_post( int $attachment_id, array $form_data, string $original_filename ): int|WP_Error {
-		return wp_insert_post(
-			array(
-				'post_title'  => $form_data['starmus_title'] ?? pathinfo( $original_filename, PATHINFO_FILENAME ),
-				'post_type'   => $this->settings->get( 'cpt_slug', 'audio-recording' ),
-				'post_status' => 'publish',
-				'post_author' => get_current_user_id(),
-			)
-		);
-	}
+        private function create_recording_post( int $attachment_id, array $form_data, string $original_filename ): int|WP_Error {
+                return wp_insert_post(
+                        array(
+                                'post_title'  => $form_data['starmus_title'] ?? pathinfo( $original_filename, PATHINFO_FILENAME ),
+                                'post_type'   => $this->get_cpt_slug(),
+                                'post_status' => 'publish',
+                                'post_author' => get_current_user_id(),
+                        )
+                );
+        }
 
 	/**
 	 * Store all submitted metadata. This definitive version saves the raw JSON archives
-	 * AND parses the `recording_metadata` object to populate individual ACF fields
-	 * using portable FIELD NAMES for maximum compatibility.
+         * AND parses the `recording_metadata` object to populate individual ACF fields
+         * using portable FIELD NAMES for maximum compatibility. When Advanced Custom
+         * Fields is unavailable the method silently falls back to native post meta.
 	 *
 	 * @param int   $audio_post_id  Identifier of the CPT post.
 	 * @param int   $attachment_id  Identifier of the attachment.
@@ -378,10 +380,10 @@ class StarmusSubmissionHandler {
 		// --- STEP 1: SAVE THE RAW JSON ARCHIVES ---
 		// We use the FIELD NAME, which is consistent across sites.
 		if ( isset( $form_data['first_pass_transcription'] ) ) {
-			update_field( 'first_pass_transcription', wp_kses_post( wp_unslash( $form_data['first_pass_transcription'] ) ), $audio_post_id );
+			$this->update_acf_field( 'first_pass_transcription', wp_kses_post( wp_unslash( $form_data['first_pass_transcription'] ) ), $audio_post_id );
 		}
 		if ( isset( $form_data['recording_metadata'] ) ) {
-			update_field( 'recording_metadata', wp_kses_post( wp_unslash( $form_data['recording_metadata'] ) ), $audio_post_id );
+			$this->update_acf_field( 'recording_metadata', wp_kses_post( wp_unslash( $form_data['recording_metadata'] ) ), $audio_post_id );
 		}
 
 		// --- STEP 2: PARSE METADATA AND MAP TO SPECIFIC ACF FIELDS ---
@@ -393,15 +395,15 @@ class StarmusSubmissionHandler {
 			if ( isset( $metadata['temporal']['recordedAt'] ) ) {
 				try {
 					$date = new \DateTime( $metadata['temporal']['recordedAt'] );
-					update_field( 'session_date', $date->format( 'Ymd' ), $audio_post_id );
-					update_field( 'session_start_time', $date->format( 'H:i:s' ), $audio_post_id );
+					$this->update_acf_field( 'session_date', $date->format( 'Ymd' ), $audio_post_id );
+					$this->update_acf_field( 'session_start_time', $date->format( 'H:i:s' ), $audio_post_id );
 				} catch ( \Exception $e ) {
 				}
 			}
 			if ( isset( $metadata['temporal']['submittedAt'] ) ) {
 				try {
 					$date = new \DateTime( $metadata['temporal']['submittedAt'] );
-					update_field( 'session_end_time', $date->format( 'H:i:s' ), $audio_post_id );
+					$this->update_acf_field( 'session_end_time', $date->format( 'H:i:s' ), $audio_post_id );
 				} catch ( \Exception $e ) {
 				}
 			}
@@ -413,7 +415,7 @@ class StarmusSubmissionHandler {
 			}
 			// ... add other technical notes ...
 			if ( ! empty( $equipment_notes ) ) {
-				update_field( 'recording_equipment', implode( "\n", $equipment_notes ), $audio_post_id );
+				$this->update_acf_field( 'recording_equipment', implode( "\n", $equipment_notes ), $audio_post_id );
 			}
 
 			$condition_notes = array();
@@ -422,12 +424,12 @@ class StarmusSubmissionHandler {
 			}
 			// ... add other condition notes ...
 			if ( ! empty( $condition_notes ) ) {
-				update_field( 'media_condition_notes', implode( "\n", $condition_notes ), $audio_post_id );
+				$this->update_acf_field( 'media_condition_notes', implode( "\n", $condition_notes ), $audio_post_id );
 			}
 		}
 
 		// --- STEP 3: SAVE SERVER & DIRECT FORM DATA ---
-		update_field( 'submission_ip', StarmusSanitizer::get_user_ip(), $audio_post_id );
+		$this->update_acf_field( 'submission_ip', StarmusSanitizer::get_user_ip(), $audio_post_id );
 
 		// This handles fields that are submitted directly in the form.
 		$direct_fields = array(
@@ -440,13 +442,13 @@ class StarmusSubmissionHandler {
 		);
 		foreach ( $direct_fields as $field_name ) {
 			if ( isset( $form_data[ $field_name ] ) ) {
-				update_field( $field_name, sanitize_text_field( wp_unslash( $form_data[ $field_name ] ) ), $audio_post_id );
+				$this->update_acf_field( $field_name, sanitize_text_field( wp_unslash( $form_data[ $field_name ] ) ), $audio_post_id );
 			}
 		}
 
 		// --- STEP 4: SAVE ATTACHMENT & TAXONOMIES ---
 		if ( $attachment_id ) {
-			update_field( 'audio_files_originals', $attachment_id, $audio_post_id );
+			$this->update_acf_field( 'audio_files_originals', $attachment_id, $audio_post_id );
 		}
 		if ( ! empty( $form_data['language'] ) ) {
 			wp_set_post_terms( $audio_post_id, (int) $form_data['language'], 'language', false );
@@ -456,13 +458,46 @@ class StarmusSubmissionHandler {
 		}
 
 		// --- STEP 5: FIRE THE EXTENSIBILITY HOOK ---
-		do_action( 'starmus_after_save_submission_metadata', $audio_post_id, $form_data, $metadata, $attachment_id );
-	}
+                do_action( 'starmus_after_save_submission_metadata', $audio_post_id, $form_data, $metadata, $attachment_id );
+        }
 
-	/**
-	 * Proxy helper to sanitize request data using the shared sanitizer.
-	 *
-	 * @param array $data Raw request payload.
+        /**
+         * Resolve the CPT slug even when configuration is unavailable.
+         *
+         * @return string Sanitized custom post type slug.
+         */
+        public function get_cpt_slug(): string {
+                if ( $this->settings instanceof StarmusSettings ) {
+                        $slug = $this->settings->get( 'cpt_slug', 'audio-recording' );
+                        if ( is_string( $slug ) && $slug !== '' ) {
+                                return sanitize_key( $slug );
+                        }
+                }
+
+                return 'audio-recording';
+        }
+
+        /**
+         * Update an ACF field when ACF is loaded, otherwise fall back to post meta.
+         *
+         * @param string $field_key Field identifier or meta key to persist.
+         * @param mixed  $value     Sanitized value to save.
+         * @param int    $post_id   Target post identifier.
+         * @return void
+         */
+        private function update_acf_field( string $field_key, $value, int $post_id ): void {
+                if ( function_exists( 'update_field' ) ) {
+                        update_field( $field_key, $value, $post_id );
+                        return;
+                }
+
+                update_post_meta( $post_id, $field_key, $value );
+        }
+
+        /**
+         * Proxy helper to sanitize request data using the shared sanitizer.
+         *
+         * @param array $data Raw request payload.
 	 * @return array Sanitized data.
 	 */
 	public function sanitize_submission_data( array $data ): array {
