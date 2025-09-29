@@ -61,17 +61,31 @@ define('STARMUS_PLUGIN_PREFIX', 'starmus');
 /** Current plugin semantic version string. */
 define('STARMUS_VERSION', '0.7.4');
 
-// 1. Include the Composer autoloader.
-// This makes all the libraries you installed via Composer available.
-require_once STARMUS_PATH . 'vendor/autoload.php';
+/**
+ * Load Composer's autoloader if it is available.
+ *
+ * Guarding the include prevents fatal errors during early bootstrap when the
+ * vendor directory has not been installed (for example, during a manual
+ * deployment that omits development assets).
+ */
+/** Absolute path to the Composer autoloader file. */
+$starmus_autoload_path = STARMUS_PATH . 'vendor/autoload.php';
+if (file_exists($starmus_autoload_path)) {
+        require_once $starmus_autoload_path;
+} else {
+        error_log('Starmus Plugin: Missing vendor/autoload.php; aborting plugin bootstrap.');
+
+        return;
+}
 // 2. Manually load the Secure Custom Fields plugin.
 // This code checks if another ACF/SCF plugin is already active before loading.
 if (!class_exists('ACF')) {
-	// Define the path to the SCF plugin within your vendor directory.
-	define('STARMUS_SCF_PATH', STARMUS_PATH . 'vendor/wpackagist-plugin/secure-custom-fields/');
+        // Define the path to the SCF plugin within your vendor directory.
+        /** Filesystem path to the bundled Secure Custom Fields plugin. */
+        define('STARMUS_SCF_PATH', STARMUS_PATH . 'vendor/wpackagist-plugin/secure-custom-fields/');
 
-	// Include the main SCF plugin file to make it active.
-	require_once STARMUS_SCF_PATH . 'secure-custom-fields.php';
+        // Include the main SCF plugin file to make it active.
+        require_once STARMUS_SCF_PATH . 'secure-custom-fields.php';
 
 	// Optional: Hide the ACF admin menu if you are managing fields in code.
 	add_filter('acf/settings/show_admin', '__return_false');
@@ -97,9 +111,9 @@ require_once STARMUS_PATH . 'src/services/AudioProcessingService.php';
 
 // Load WP-CLI commands if in CLI context
 if (defined(constant_name: 'WP_CLI') && WP_CLI) {
-	require_once STARMUS_PATH . 'src/cli/StarmusCLI.php';
-	// Register WP-CLI command if running in CLI context
-	\WP_CLI::add_command('starmus', StarmusCLI::class);
+        require_once STARMUS_PATH . 'src/cli/StarmusCLI.php';
+        // Register WP-CLI command if running in CLI context
+        \WP_CLI::add_command('starmus', \Starmus\cli\StarmusCLI::class);
 
 }
 
@@ -167,10 +181,10 @@ register_activation_hook(STARMUS_MAIN_FILE, 'starmus_activate');
 register_deactivation_hook(STARMUS_MAIN_FILE, 'starmus_deactivate');
 register_uninstall_hook(STARMUS_MAIN_FILE, 'starmus_uninstall');
 // Initialize the plugin once all other plugins are loaded.
-add_action('plugins_loaded', array(StarmusPlugin::class, 'run'));
+add_action('plugins_loaded', array(\Starmus\StarmusPlugin::class, 'run'));
 
 // Bootstrap plugin services during WordPress init lifecycle.
-add_action('init', array(StarmusPlugin::class, 'init_plugin'));
+add_action('init', array(\Starmus\StarmusPlugin::class, 'init_plugin'));
 
 add_action(
 	'plugins_loaded',
