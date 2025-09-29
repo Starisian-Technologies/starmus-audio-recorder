@@ -29,10 +29,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        # v4.1.6 commit pin prevents tampering with checkout action.
+        uses: actions/checkout@5a4ac9002afc2a3b8d9a0e327669c9fe749ac181
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        # v4.0.2 commit pin ensures Node setup action stays deterministic.
+        uses: actions/setup-node@8f1525dfb8c7b99f04f58f80ab1c2b74fdc6a051
         with:
           node-version: "18"
           cache: "npm" # Use built-in caching for Node.js
@@ -74,13 +76,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        # v4.1.6 commit pin prevents tampering with checkout action.
+        uses: actions/checkout@5a4ac9002afc2a3b8d9a0e327669c9fe749ac181
         # CRITICAL: Check out the actual branch of the pull request.
         with:
           ref: ${{ github.head_ref }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        # v4.0.2 commit pin ensures Node setup action stays deterministic.
+        uses: actions/setup-node@8f1525dfb8c7b99f04f58f80ab1c2b74fdc6a051
         with:
           node-version: "18"
           cache: "npm"

@@ -16,7 +16,8 @@ jobs:
     steps:
       # Step 1: Check out the repository's code.
       - name: Checkout
-        uses: actions/checkout@v4
+        # v4.1.6 commit pin prevents release automation from using mutable checkout code.
+        uses: actions/checkout@5a4ac9002afc2a3b8d9a0e327669c9fe749ac181
         with:
           fetch-depth: 0
           token: ${{ secrets.WORKFLOW_PAT }}
@@ -75,7 +76,8 @@ jobs:
 
       # Step 8: Set up Node.js and build frontend assets.
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        # v4.0.2 commit pin ensures deterministic Node installation.
+        uses: actions/setup-node@8f1525dfb8c7b99f04f58f80ab1c2b74fdc6a059
         with:
           node-version: "18"
           cache: "npm"

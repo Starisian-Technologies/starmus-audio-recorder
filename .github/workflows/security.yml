@@ -1,3 +1,5 @@
+# Security Checks Workflow
+# Purpose: Run recurring dependency audits while treating vendor-only advisories as informational.
 name: Security Checks
 
 on:
@@ -12,10 +14,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - # v4.1.6 commit pin keeps checkout immutable for weekly scans.
+        uses: actions/checkout@5a4ac9002afc2a3b8d9a0e327669c9fe749ac181
 
       - name: Cache Composer packages
-        uses: actions/cache@v3
+        # v3.3.2 commit pin keeps cache action immutable.
+        uses: actions/cache@95c1f4a8644e5904bde0c0025c2cb19cb86611ec
         with:
           path: vendor
           key: composer-${{ hashFiles('composer.lock') }}
@@ -28,7 +32,8 @@ jobs:
         run: composer audit || echo "Composer audit found vulnerabilities"
 
       - name: Cache NPM packages
-        uses: actions/cache@v3
+        # v3.3.2 commit pin keeps cache action immutable.
+        uses: actions/cache@95c1f4a8644e5904bde0c0025c2cb19cb86611ec
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('package-lock.json') }}
