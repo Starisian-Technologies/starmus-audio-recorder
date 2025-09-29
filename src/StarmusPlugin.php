@@ -185,8 +185,8 @@ final class StarmusPlugin
 			return;
 		}
 
-		add_filter('wp_check_filetype_and_ext', array($this, 'filter_filetype_and_ext'), 10, 5);
-		add_filter('upload_mimes', array($this, 'filter_upload_mimes'));
+		add_filter('wp_check_filetype_and_ext', array('StarmusMimeHelper', 'filter_filetype_and_ext'), 10, 5);
+		add_filter('upload_mimes', array('StarmusMimeHelper', 'filter_upload_mimes'));
 
 		if (defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
 			$cli_path = STARMUS_PATH . 'src/cli/';
@@ -230,47 +230,6 @@ final class StarmusPlugin
 		return false;
 	}
 
-	/**
-	 * Expand allowable MIME types during uploads.
-	 *
-	 * @param array|false $types         Existing MIME check result from WordPress.
-	 * @param string      $file          Current file path (unused).
-	 * @param string      $filename      Original filename provided by the user.
-	 * @param array       $mimes_allowed Allowed MIME types passed into the filter.
-	 * @param string      $real_mime     MIME type detected by PHP.
-	 *
-	 * @return array Filtered MIME type data.
-	 */
-	public function filter_filetype_and_ext($types, $file, $filename, $mimes_allowed, $real_mime): array
-	{
-		unset($file, $mimes_allowed, $real_mime);
-		$ext = strtolower((string) pathinfo($filename, PATHINFO_EXTENSION));
-		$whitelist = StarmusMimeHelper::get_allowed_mimes();
-		if (isset($whitelist[$ext])) {
-			return array(
-				'ext' => $ext,
-				'type' => $whitelist[$ext],
-				'proper_filename' => $filename,
-			);
-		}
-		return is_array($types) ? $types : array();
-	}
-
-	/**
-	 * Allow audio/video MIME uploads that WordPress blocks by default.
-	 *
-	 * @param array $mimes Existing MIME mapping keyed by extension.
-	 *
-	 * @return array Filtered MIME mapping.
-	 */
-	public function filter_upload_mimes(array $mimes): array
-	{
-		$whitelist = StarmusMimeHelper::get_allowed_mimes();
-		foreach ($whitelist as $ext => $mime) {
-			$mimes[$ext] = $mime;
-		}
-		return $mimes;
-	}
 	/**
 	 * Loads the Custom Post Type definitions.
 	 *

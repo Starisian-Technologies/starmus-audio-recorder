@@ -95,10 +95,6 @@ require_once STARMUS_PATH . 'src/services/PostProcessingService.php';
 require_once STARMUS_PATH . 'src/services/WaveformService.php';
 require_once STARMUS_PATH . 'src/services/AudioProcessingService.php';
 
-
-use Starmus\StarmusPlugin;
-use Starmus\cli\StarmusCLI;
-
 // Load WP-CLI commands if in CLI context
 if (defined(constant_name: 'WP_CLI') && WP_CLI) {
 	require_once STARMUS_PATH . 'src/cli/StarmusCLI.php';
