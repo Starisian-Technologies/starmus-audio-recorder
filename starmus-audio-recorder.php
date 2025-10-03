@@ -85,38 +85,11 @@ if (!class_exists('ACF')) {
 	define('STARMUS_SCF_PATH', STARMUS_PATH . 'vendor/wpackagist-plugin/secure-custom-fields/');
 
 	// Include the main SCF plugin file to make it active.
-	require_once STARMUS_SCF_PATH . 'secure-custom-fields.php';
+	//require_once STARMUS_SCF_PATH . 'secure-custom-fields.php';
 
 	// Optional: Hide the ACF admin menu if you are managing fields in code.
 	add_filter('acf/settings/show_admin', '__return_false');
 }
-
-
-// Ensure all required classes are loaded.
-require_once STARMUS_PATH . 'src/includes/StarmusSettings.php';
-require_once STARMUS_PATH . 'src/frontend/StarmusAudioRecorderUI.php';
-require_once STARMUS_PATH . 'src/frontend/StarmusSubmissionHandler.php';
-require_once STARMUS_PATH . 'src/frontend/StarmusRestHandler.php';
-
-
-require_once STARMUS_PATH . 'src/includes/StarmusSettings.php';
-require_once STARMUS_PATH . 'src/StarmusPlugin.php';
-require_once STARMUS_PATH . 'src/admin/StarmusAdmin.php';
-require_once STARMUS_PATH . 'src/frontend/StarmusAudioRecorderUI.php';
-require_once STARMUS_PATH . 'src/frontend/StarmusAudioEditorUI.php';
-require_once STARMUS_PATH . 'src/core/StarmusPluginUpdater.php';
-require_once STARMUS_PATH . 'src/services/PostProcessingService.php';
-require_once STARMUS_PATH . 'src/services/WaveformService.php';
-require_once STARMUS_PATH . 'src/services/AudioProcessingService.php';
-
-// Load WP-CLI commands if in CLI context
-if (defined(constant_name: 'WP_CLI') && WP_CLI) {
-	require_once STARMUS_PATH . 'src/cli/StarmusCLI.php';
-	// Register WP-CLI command if running in CLI context
-	\WP_CLI::add_command('starmus', \Starmus\cli\StarmusCLI::class);
-
-}
-
 
 
 /**
@@ -184,10 +157,6 @@ register_deactivation_hook(STARMUS_MAIN_FILE, 'starmus_deactivate');
 register_uninstall_hook(STARMUS_MAIN_FILE, 'starmus_uninstall');
 // Initialize the plugin once all other plugins are loaded.
 add_action('plugins_loaded', array(\Starmus\StarmusPlugin::class, 'starmus_run'));
-
-// Bootstrap plugin services during WordPress init lifecycle.
-add_action('init', array(\Starmus\StarmusPlugin::class, 'starmus_init'));
-
 add_action(
 	'plugins_loaded',
 	function () {
@@ -197,3 +166,7 @@ add_action(
 		$ui_handler = new \Starmus\frontend\StarmusAudioRecorderUI($settings);
 	}
 );
+// Bootstrap plugin services during WordPress init lifecycle.
+add_action('init', array(\Starmus\StarmusPlugin::class, 'starmus_init_plugin'));
+
+

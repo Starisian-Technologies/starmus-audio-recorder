@@ -34,7 +34,6 @@ use Starmus\frontend\StarmusAudioRecorderUI;
 use Starmus\includes\StarmusSettings;
 use Starmus\includes\StarmusAssetLoader;
 use Starmus\frontend\StarmusShortcodeLoader;
-use Starmus\cli\StarmusCLI;
 use Starmus\cron\StarmusCron;
 use Starmus\core\StarmusPluginUpdater;
 use Starmus\services\AudioProcessingService;
@@ -66,10 +65,6 @@ use function __;
 
 final class StarmusPlugin
 {
-
-
-
-
 
 	/** Capability allowing users to edit uploaded audio. */
 	public const STAR_CAP_EDIT_AUDIO = 'starmus_edit_audio';
@@ -103,7 +98,7 @@ final class StarmusPlugin
 	/** Template loader dependency. */
 	private ?StarmusShortcodeLoader $shortcode_loader = null;
 	/** WP-CLI command handler dependency. */
-	private ?StarmusCLI $cli = null;
+	private ?StarmusMimeHelper $mimeHelper = null;
 	/** Cron service dependency. */
 	private ?StarmusCron $cron = null;
 	/** Waveform processing service dependency. */
@@ -184,9 +179,6 @@ final class StarmusPlugin
 		if ($this->hooksRegistered) {
 			return;
 		}
-
-		add_filter('wp_check_filetype_and_ext', array('StarmusMimeHelper', 'filter_filetype_and_ext'), 10, 5);
-		add_filter('upload_mimes', array('StarmusMimeHelper', 'filter_upload_mimes'));
 
 		if (defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
 			$cli_path = STARMUS_PATH . 'src/cli/';
@@ -274,6 +266,7 @@ final class StarmusPlugin
 	 */
 	private function starmus_instantiateComponents(): void
 	{
+		$this->mimeHelper = StarmusMimeHelper::get_instance();
 
 		if (is_object($this->get_starmus_settings())) {
 			try {
@@ -424,9 +417,9 @@ final class StarmusPlugin
 	/**
 	 * Hooked into WordPress init to bootstrap services and hooks.
 	 */
-	public static function init_plugin(): void
+	public static function starmus_init_plugin(): void
 	{
-		self::get_instance()->init();
+		self::starmus_get_instance()->starmus_init();
 	}
 
 	/**
@@ -471,5 +464,36 @@ final class StarmusPlugin
 	public function __wakeup()
 	{
 		throw new LogicException('Unserializing of ' . esc_html(__CLASS__) . ' is not allowed.');
+	}
+	
+	/**
+	 * Prevents serializing of the singleton instance.
+	 *
+	 * @since 0.1.0
+	 * @throws LogicException If someone tries to serialize the object.
+	 */
+	public function __sleep(): array
+	{
+		throw new LogicException("Cannot serialize class");
+		return [];
+	}
+	/**
+	 * Prevents serializing of the singleton instance.
+	 *
+	 * @since 0.1.0
+	 * @throws LogicException If someone tries to serialize the object.
+	 */
+	public function __serialize(): array {
+    	throw new LogicException('Serialization of ' . __CLASS__ . ' is not allowed.');
+
+	}
+	/**
+	 * Prevents serializing of the singleton instance.
+	 *
+	 * @since 0.1.0
+	 * @throws LogicException If someone tries to serialize the object.
+	 */
+	public function __unserialize(array $data): void {
+		throw new LogicException('Unserialization of ' . __CLASS__ . ' is not allowed.');
 	}
 }

@@ -10,7 +10,34 @@ if (!defined('ABSPATH')) {
 
 class StarmusMimeHelper
 {
+	private static ?StarmusMimeHelper $instance = null;
+	private function __construct()
+	{
+		$this->register_hooks();
+	}
 
+	/**
+	 * Main singleton instance method.
+	 *
+	 * Intentionally empty - initialization happens in init().
+	 * Ensures that only one instance of the plugin's main class exists.
+	 *
+	 * @since 0.1.0
+	 * @return StarmusPlugin The single instance of the class.
+	 */
+	public static function get_instance(): StarmusMimeHelper
+	{
+		if (null === self::$instance) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	public function register_hooks(): void
+	{
+		add_filter('wp_check_filetype_and_ext', array($this, 'filter_filetype_and_ext'), 10, 5);
+		add_filter('upload_mimes', array($this, 'filter_upload_mimes'));
+	}
 	/**
 	 * Expand allowable MIME types during uploads.
 	 *
@@ -22,7 +49,7 @@ class StarmusMimeHelper
 	 *
 	 * @return array Filtered MIME type data.
 	 */
-	public static function filter_filetype_and_ext($types, $file, $filename, $mimes_allowed, $real_mime): array
+	public function filter_filetype_and_ext($types, $file, $filename, $mimes_allowed, $real_mime): array
 	{
 		unset($file, $mimes_allowed, $real_mime);
 		$ext = strtolower((string) pathinfo($filename, PATHINFO_EXTENSION));
@@ -44,7 +71,7 @@ class StarmusMimeHelper
 	 *
 	 * @return array Filtered MIME mapping.
 	 */
-	public static function filter_upload_mimes(array $mimes): array
+	public function filter_upload_mimes(array $mimes): array
 	{
 		$whitelist = self::get_allowed_mimes();
 		foreach ($whitelist as $ext => $mime) {
