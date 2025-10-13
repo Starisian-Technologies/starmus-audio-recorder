@@ -2,15 +2,17 @@
 /**
  * Service class for generating waveform data for audio files.
  *
- * @package Starmus\services
+ * @package Starisian\Starmus\services
  * @version 0.7.6
  */
 
-namespace Starmus\services;
+namespace Starisian\Starmus\services;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
+
+use Starisian\Starmus\services\FileService;
 
 /**
  * Handles waveform data generation and storage using the 'audiowaveform' tool.
@@ -41,7 +43,7 @@ class WaveformService {
 			return true;
 		}
 
-		$file_path = get_attached_file( $attachment_id );
+		$file_path = FileService::get_local_copy( $attachment_id );
 		if ( ! $file_path || ! file_exists( $file_path ) ) {
 
 			return false;

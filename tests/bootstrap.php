@@ -2,7 +2,7 @@
 /**
  * WordPress Test Framework Bootstrap
  *
- * @package Starmus\tests
+ * @package Starisian\Starmus\tests
  */
 
 // Load Composer autoloader first

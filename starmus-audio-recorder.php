@@ -53,13 +53,15 @@ define('STARMUS_URL', plugin_dir_url(__FILE__));
 define('STARMUS_MAIN_FILE', __FILE__);
 /** Directory path alias kept for backward compatibility. */
 define('STARMUS_MAIN_DIR', plugin_dir_path(__FILE__));
-
 /** Human readable plugin name displayed in WordPress admin. */
 define('STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder');
 /** Shared prefix applied to option keys, actions, and filters. */
 define('STARMUS_PLUGIN_PREFIX', 'starmus');
 /** Current plugin semantic version string. */
 define('STARMUS_VERSION', '0.7.4');
+/** Starmus Logger default settings */
+if(!defined('STARMUS_LOG_LEVEL')) { define('STARMUS_LOG_LEVEL', 'Warning'); }
+if(!defined('STARMUS_LOG_FILE')) { define('STARMUS_LOG_FILE', ''); }
 
 /**
  * Load Composer's autoloader if it is available.
@@ -77,6 +79,9 @@ if (file_exists($starmus_autoload_path)) {
 
 	return;
 }
+
+use Starisian\Starmus\StarmusAudioRecorder;
+
 // 2. Manually load the Secure Custom Fields plugin.
 // This code checks if another ACF/SCF plugin is already active before loading.
 if (!class_exists('ACF')) {
@@ -102,7 +107,7 @@ if (!class_exists('ACF')) {
 function starmus_activate(): void
 {
 	// Block activation if ACF or SCF is missing
-	if (!\Starmus\StarmusPlugin::check_field_plugin_dependency()) {
+	if (!\Starmus\StarmusAudioRecorder::check_field_plugin_dependency()) {
 		deactivate_plugins(plugin_basename(STARMUS_MAIN_FILE));
 		error_log('Starmus Plugin: Activation failed due to missing ACF/SCF dependency');
 		wp_die(__('Starmus Audio Recorder requires Advanced Custom Fields or Smart Custom Fields to be installed and activated.', 'starmus-audio-recorder'));
@@ -155,18 +160,12 @@ function starmus_uninstall(): void
 register_activation_hook(STARMUS_MAIN_FILE, 'starmus_activate');
 register_deactivation_hook(STARMUS_MAIN_FILE, 'starmus_deactivate');
 register_uninstall_hook(STARMUS_MAIN_FILE, 'starmus_uninstall');
+// Starmus Cron activation / deactivation
+register_activation_hook( __FILE__, [ \Starisian\Starmus\cron\StarmusCron::class, 'activate' ] );
+register_deactivation_hook( __FILE__, [ \Starisian\Starmus\cron\StarmusCron::class, 'deactivate' ] );
 // Initialize the plugin once all other plugins are loaded.
-add_action('plugins_loaded', array(\Starmus\StarmusPlugin::class, 'starmus_run'));
-add_action(
-	'plugins_loaded',
-	function () {
-		$settings = new \Starmus\includes\StarmusSettings();
-		$submission_handler = new \Starmus\frontend\StarmusSubmissionHandler($settings);
-		$rest_handler = new \Starmus\frontend\StarmusRestHandler($settings, $submission_handler);
-		$ui_handler = new \Starmus\frontend\StarmusAudioRecorderUI($settings);
-	}
-);
-// Bootstrap plugin services during WordPress init lifecycle.
-add_action('init', array(\Starmus\StarmusPlugin::class, 'starmus_init_plugin'));
+add_action('plugins_loaded', array(\Starisian\Starmus\StarmusAudioRecorder::class, 'starmus_run'));
 
+// Bootstrap plugin services during WordPress init lifecycle.
+add_action('init', array(\Starisian\Starmus\StarmusAudioRecorder::class, 'starmus_init_plugin'));
 

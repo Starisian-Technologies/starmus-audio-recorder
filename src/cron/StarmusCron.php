@@ -2,18 +2,18 @@
 /**
  * Service class for managing all WP-Cron related tasks for the Starmus plugin.
  *
- * @package Starmus\cron
+ * @package Starisian\Starmus\cron
  * @version 0.7.6
  * @since   0.7.3
  */
 
-namespace Starmus\cron;
+namespace Starisian\Starmus\cron;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function trailingslashit;
+
 
 /**
  * NOTE:
@@ -25,8 +25,10 @@ use function trailingslashit;
  */
 
 // If your services are namespaced differently, update these use statements.
-use Starmus\services\WaveformService;
-use Starmus\services\PostProcessingService;
+use Starisian\Starmus\services\WaveformService;
+use Starisian\Starmus\services\PostProcessingService;
+
+use function trailingslashit;
 
 class StarmusCron {
 

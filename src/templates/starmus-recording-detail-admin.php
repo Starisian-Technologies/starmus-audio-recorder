@@ -1,6 +1,9 @@
 <?php
 // FILE: src/templates/parts/detail-admin.php
 
+// Ensure StarmusSettings is available (assuming it's loaded by your plugin)
+use Starisian\Starmus\core\StarmusSettings;
+
 $post_id = get_the_ID();
 
 // Correctly get the audio URL
@@ -101,5 +104,29 @@ $metadata_array  = json_decode( $metadata_json, true );
 		<?php endif; ?>
 	</section>
 
-	<!-- ... footer actions ... -->
+	<!-- Footer actions: Add the Edit Audio Link here -->
+	<footer class="starmus-detail__footer-actions">
+		<?php
+		// Retrieve the edit page URL from StarmusSettings
+		$starmus_settings = new StarmusSettings(); // Instantiate settings
+		$edit_page_id     = (int) $starmus_settings->get( 'edit_page_id', 0 );
+		$edit_page_url    = '';
+
+		if ( $edit_page_id > 0 ) {
+			$edit_page_url = get_permalink( $edit_page_id );
+			if ( false === $edit_page_url ) { // get_permalink can return false
+				$edit_page_url = '';
+			}
+		}
+
+		// Only show the edit link if the URL is valid and the user has permission
+		if ( ! empty( $edit_page_url ) && current_user_can( 'edit_post', $post_id ) ) :
+			$edit_link        = add_query_arg( 'post_id', $post_id, $edit_page_url );
+			$secure_edit_link = wp_nonce_url( $edit_link, 'starmus_edit_audio', 'nonce' );
+			?>
+			<a href="<?php echo esc_url( $secure_edit_link ); ?>" class="starmus-btn starmus-btn--primary">
+				<?php esc_html_e( 'Edit Audio Submission', 'starmus-audio-recorder' ); ?>
+			</a>
+		<?php endif; ?>
+	</footer>
 </article>

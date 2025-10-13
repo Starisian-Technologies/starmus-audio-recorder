@@ -61,15 +61,15 @@ Search.appendIndex(
             "summary": "Render\u0020form\u0020field\u0020with\u0020validation.",
             "url": "classes/Starmus-admin-StarmusAdmin.html#method_render_field"
         },                {
-            "fqsen": "\\Starmus\\admin\\StarmusAdmin\u003A\u003ASTAR_MENU_SLUG",
-            "name": "STAR_MENU_SLUG",
+            "fqsen": "\\Starmus\\admin\\StarmusAdmin\u003A\u003ASTARMUS_MENU_SLUG",
+            "name": "STARMUS_MENU_SLUG",
             "summary": "Menu\u0020slug\u0020for\u0020the\u0020plugin\u0020settings\u0020page.",
-            "url": "classes/Starmus-admin-StarmusAdmin.html#constant_STAR_MENU_SLUG"
+            "url": "classes/Starmus-admin-StarmusAdmin.html#constant_STARMUS_MENU_SLUG"
         },                {
-            "fqsen": "\\Starmus\\admin\\StarmusAdmin\u003A\u003ASTAR_SETTINGS_GROUP",
-            "name": "STAR_SETTINGS_GROUP",
+            "fqsen": "\\Starmus\\admin\\StarmusAdmin\u003A\u003ASTARMUS_SETTINGS_GROUP",
+            "name": "STARMUS_SETTINGS_GROUP",
             "summary": "Settings\u0020group\u0020identifier\u0020for\u0020WordPress\u0020options\u0020API.",
-            "url": "classes/Starmus-admin-StarmusAdmin.html#constant_STAR_SETTINGS_GROUP"
+            "url": "classes/Starmus-admin-StarmusAdmin.html#constant_STARMUS_SETTINGS_GROUP"
         },                {
             "fqsen": "\\Starmus\\admin\\StarmusAdmin\u003A\u003A\u0024field_types",
             "name": "field_types",
@@ -336,20 +336,20 @@ Search.appendIndex(
             "summary": "Log\u0020an\u0020error\u0020with\u0020unified\u0020context\u0020handling.",
             "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#method_log_error"
         },                {
-            "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003ASTAR_REST_NAMESPACE",
-            "name": "STAR_REST_NAMESPACE",
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003ASTARMUS_REST_NAMESPACE",
+            "name": "STARMUS_REST_NAMESPACE",
             "summary": "REST\u0020namespace\u0020for\u0020editor\u0020endpoints\u0020\u0028must\u0020match\u0020other\u0020handlers\u0029",
-            "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#constant_STAR_REST_NAMESPACE"
+            "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#constant_STARMUS_REST_NAMESPACE"
         },                {
-            "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003ASTAR_MAX_ANNOTATIONS",
-            "name": "STAR_MAX_ANNOTATIONS",
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003ASTARMUS_MAX_ANNOTATIONS",
+            "name": "STARMUS_MAX_ANNOTATIONS",
             "summary": "Upper\u0020bound\u0020for\u0020stored\u0020annotations\u0020to\u0020avoid\u0020overloading\u0020requests.",
-            "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#constant_STAR_MAX_ANNOTATIONS"
+            "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#constant_STARMUS_MAX_ANNOTATIONS"
         },                {
-            "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003ASTAR_RATE_LIMIT_SECONDS",
-            "name": "STAR_RATE_LIMIT_SECONDS",
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003ASTARMUS_RATE_LIMIT_SECONDS",
+            "name": "STARMUS_RATE_LIMIT_SECONDS",
             "summary": "Time\u002Dbased\u0020throttle\u0020applied\u0020when\u0020saving\u0020annotations.",
-            "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#constant_STAR_RATE_LIMIT_SECONDS"
+            "url": "classes/Starmus-frontend-StarmusAudioEditorUI.html#constant_STARMUS_RATE_LIMIT_SECONDS"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioEditorUI\u003A\u003A\u0024cached_context",
             "name": "cached_context",
@@ -391,10 +391,10 @@ Search.appendIndex(
             "summary": "Admin\u0020edit\u0020screen\u0020URL.",
             "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#method_get_edit_page_url_admin"
         },                {
-            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003ASTAR_REST_NAMESPACE",
-            "name": "STAR_REST_NAMESPACE",
+            "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003ASTARMUS_REST_NAMESPACE",
+            "name": "STARMUS_REST_NAMESPACE",
             "summary": "REST\u0020namespace\u0020exposed\u0020to\u0020localized\u0020front\u002Dend\u0020scripts.",
-            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#constant_STAR_REST_NAMESPACE"
+            "url": "classes/Starmus-frontend-StarmusAudioRecorderUI.html#constant_STARMUS_REST_NAMESPACE"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003A\u0024settings",
             "name": "settings",
@@ -551,10 +551,10 @@ Search.appendIndex(
             "summary": "Resolve\u0020redirect\u0020location\u0020after\u0020a\u0020successful\u0020submission.",
             "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#method_get_redirect_url"
         },                {
-            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003ASTAR_REST_NAMESPACE",
-            "name": "STAR_REST_NAMESPACE",
+            "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003ASTARMUS_REST_NAMESPACE",
+            "name": "STARMUS_REST_NAMESPACE",
             "summary": "Namespaced\u0020identifier\u0020used\u0020for\u0020REST\u0020endpoints.",
-            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#constant_STAR_REST_NAMESPACE"
+            "url": "classes/Starmus-frontend-StarmusSubmissionHandler.html#constant_STARMUS_REST_NAMESPACE"
         },                {
             "fqsen": "\\Starmus\\frontend\\StarmusSubmissionHandler\u003A\u003A\u0024settings",
             "name": "settings",
@@ -706,10 +706,10 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starmus-includes-StarmusSettings.html#method_starmus_get_option"
         },                {
-            "fqsen": "\\Starmus\\includes\\StarmusSettings\u003A\u003ASTAR_OPTION_KEY",
-            "name": "STAR_OPTION_KEY",
+            "fqsen": "\\Starmus\\includes\\StarmusSettings\u003A\u003ASTARMUS_OPTION_KEY",
+            "name": "STARMUS_OPTION_KEY",
             "summary": "Option\u0020key\u0020used\u0020to\u0020store\u0020plugin\u0020settings.",
-            "url": "classes/Starmus-includes-StarmusSettings.html#constant_STAR_OPTION_KEY"
+            "url": "classes/Starmus-includes-StarmusSettings.html#constant_STARMUS_OPTION_KEY"
         },                {
             "fqsen": "\\Starmus\\includes\\StarmusSettings\u003A\u003A\u0024star_cache",
             "name": "star_cache",
@@ -1001,15 +1001,15 @@ Search.appendIndex(
             "summary": "Prevents\u0020unserializing\u0020of\u0020the\u0020singleton\u0020instance.",
             "url": "classes/Starmus-StarmusPlugin.html#method___wakeup"
         },                {
-            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003ASTAR_CAP_EDIT_AUDIO",
-            "name": "STAR_CAP_EDIT_AUDIO",
+            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003ASTARMUS_CAP_EDIT_AUDIO",
+            "name": "STARMUS_CAP_EDIT_AUDIO",
             "summary": "Capability\u0020allowing\u0020users\u0020to\u0020edit\u0020uploaded\u0020audio.",
-            "url": "classes/Starmus-StarmusPlugin.html#constant_STAR_CAP_EDIT_AUDIO"
+            "url": "classes/Starmus-StarmusPlugin.html#constant_STARMUS_CAP_EDIT_AUDIO"
         },                {
-            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003ASTAR_CAP_RECORD_AUDIO",
-            "name": "STAR_CAP_RECORD_AUDIO",
+            "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003ASTARMUS_CAP_RECORD_AUDIO",
+            "name": "STARMUS_CAP_RECORD_AUDIO",
             "summary": "Capability\u0020allowing\u0020users\u0020to\u0020create\u0020new\u0020recordings.",
-            "url": "classes/Starmus-StarmusPlugin.html#constant_STAR_CAP_RECORD_AUDIO"
+            "url": "classes/Starmus-StarmusPlugin.html#constant_STARMUS_CAP_RECORD_AUDIO"
         },                {
             "fqsen": "\\Starmus\\StarmusPlugin\u003A\u003A\u0024instance",
             "name": "instance",

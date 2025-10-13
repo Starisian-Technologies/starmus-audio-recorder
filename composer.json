@@ -8,14 +8,12 @@
     "php": "^8.0",
     "james-heinrich/getid3": "^1.9"
   },
-  "autoload": {
+   "autoload": {
     "psr-4": {
-      "Starmus\\": "src/",
-      "Starmus\\Admin\\": "src/admin/",
-      "Starmus\\Frontend\\": "src/frontend/",
-      "Starmus\\Includes\\": "src/includes/"
+      "Starisian\\Starmus\\": "src/"
     }
   },
+
   "autoload-dev": {
     "psr-4": {
       "Starmus\\Tests\\": "tests/"

@@ -2,7 +2,7 @@
 
 ## 1) Intake Checklist
 
-- Confirm **plugin identifiers**: `STAR_PLUGIN_NAME` (PascalCase), slug, text domain, REST namespace.
+- Confirm **plugin identifiers**: `STARMUS_PLUGIN_NAME` (PascalCase), slug, text domain, REST namespace.
 - Identify CPTs/taxonomies, REST endpoints, storage (options/custom tables), and required roles/caps.
 - Note offline interactions (recording, forms), data sensitivity, and deletion/opt‑out requirements.
 
@@ -89,7 +89,7 @@ Include bootstrap guards (PHP/WP versions), PSR‑4 autoload (Composer + fallbac
 **REST Endpoint (PHP)**
 
 ```php
-register_rest_route( 'star-' . STAR_PLUGIN_SLUG . '/v1', '/queue/(?P<uuid>[A-Za-z0-9-]+)', [
+register_rest_route( 'star-' . STARMUS_PLUGIN_SLUG . '/v1', '/queue/(?P<uuid>[A-Za-z0-9-]+)', [
   'methods'             => 'POST',
   'permission_callback' => function () { return current_user_can( 'upload_files' ); },
   'args'                => [ 'uuid' => [ 'required' => true ] ],
@@ -147,7 +147,7 @@ namespace Starisian\Recorder\Rest;
 class Routes{
   public function register(){
     add_action('rest_api_init', function(){
-      register_rest_route('star-' . STAR_PLUGIN_SLUG . '/v1','/health',[
+      register_rest_route('star-' . STARMUS_PLUGIN_SLUG . '/v1','/health',[
         'methods'=>'GET',
         'permission_callback'=>'__return_true',
         'callback'=> function(){ return rest_ensure_response([ 'status'=>'ok','ts'=>time() ]); }

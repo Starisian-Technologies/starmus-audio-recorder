@@ -3,20 +3,20 @@
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * @package Starmus\services
+ * @package Starisian\Starmus\services
  * @module  StarmusAudioProcessingHandler
  * @version 0.7.6
  * @since   0.7.4
  * @file    Central handler for the post-upload audio processing pipeline.
  */
 
-namespace Starmus\services;
+namespace Starisian\Starmus\services;
 
-use Starmus\frontend\StarmusAudioRecorderUI;
-use Starmus\services\WaveformService;
-use Starmus\services\PostProcessingService;
-use Starmus\services\FileService;
-use Starmus\services\AudioProcessingService;
+use Starisian\Starmus\frontend\StarmusAudioRecorderUI;
+use Starisian\Starmus\services\WaveformService;
+use Starisian\Starmus\services\PostProcessingService;
+use Starisian\Starmus\services\FileService;
+use Starisian\Starmus\services\AudioProcessingService;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {

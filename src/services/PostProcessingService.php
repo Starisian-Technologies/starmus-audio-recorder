@@ -3,20 +3,24 @@
  * Service class for post-save audio transcoding, mastering, and archival using ffmpeg.
  * Produces both MP3 (distribution) and WAV (archival) and triggers metadata writing.
  *
- * @package Starmus\services
+ * @package Starisian\Starmus\services
  * @version 0.7.6
  * @since  0.7.2
  */
 
-namespace Starmus\services;
+namespace Starisian\Starmus\services;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Starisian\Starmus\services\AudioProcessingService;
+use Starisian\Starmus\services\WaveformService;
+use Starisian\Starmus\services\FileService;
+
 class PostProcessingService {
 
-	private $audio_processing_service;
+	private ?AudioProcessingService $audio_processing_service;
 
 	public function __construct() {
 
@@ -36,17 +40,20 @@ class PostProcessingService {
 	 * @param array $options Configuration options.
 	 * @return bool True on success, false on failure.
 	 */
-	public function process_and_archive_audio( int $attachment_id, array $options = array() ): bool {
+	public function process_and_archive_audio( int $audio_postid, int $attachment_id, array $options = array() ): bool {
 		if ( ! $this->is_tool_available() ) {
 
 			return false;
 		}
 
-		$original_path = get_attached_file( $attachment_id );
+		$original_path = FileService::get_local_copy( $attachment_id );
 		if ( ! $original_path || ! file_exists( $original_path ) ) {
 
 			return false;
 		}
+
+
+
 		$options['']   = $original_path;
 		$upload_dir    = wp_get_upload_dir();
 		$base_filename = pathinfo( $original_path, PATHINFO_FILENAME );
@@ -109,7 +116,8 @@ class PostProcessingService {
 
 		// --- 5. Call the Metadata Service to write ID3 tags to the new MP3 ---
 		$this->audio_processing_service->process_attachment( $attachment_id );
-
+		// generate waveform
+		WaveformService::generate_waveform_data($attachment_id);
 		// --- 6. Store archival path and clean up ---
 		update_post_meta( $attachment_id, '_starmus_archival_path', $archival_path );
 		wp_delete_file( $backup_path ); // Success, so remove the backup file.

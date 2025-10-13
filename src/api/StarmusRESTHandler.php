@@ -5,15 +5,15 @@
  * @package   Starmus
  */
 
-namespace Starmus\frontend;
+namespace Starisian\Starmus\api;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starmus\includes\StarmusSettings;
-use Starmus\helpers\StarmusLogger;
-use Starmus\frontend\StarmusSubmissionHandler;
+use Starisian\Starmus\core\StarmusSettings;
+use Starisian\Starmus\helpers\StarmusLogger;
+use Starisian\Starmus\includes\StarmusSubmissionHandler;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -29,7 +29,7 @@ use function __;
  *
  * Routes map directly to {@see StarmusSubmissionHandler} to keep logic in one place.
  */
-class StarmusRestHandler {
+class StarmusRESTHandler {
 
 
 	/**
@@ -53,7 +53,7 @@ class StarmusRestHandler {
 	 */
 	public function register_routes(): void {
 		register_rest_route(
-			StarmusSubmissionHandler::STAR_REST_NAMESPACE,
+			StarmusSubmissionHandler::STARMUS_REST_NAMESPACE,
 			'/upload-fallback',
 			array(
 				'methods'             => 'POST',
@@ -63,7 +63,7 @@ class StarmusRestHandler {
 		);
 
 		register_rest_route(
-			StarmusSubmissionHandler::STAR_REST_NAMESPACE,
+			StarmusSubmissionHandler::STARMUS_REST_NAMESPACE,
 			'/upload-chunk',
 			array(
 				'methods'             => 'POST',
@@ -73,7 +73,7 @@ class StarmusRestHandler {
 		);
 
 		register_rest_route(
-			StarmusSubmissionHandler::STAR_REST_NAMESPACE,
+			StarmusSubmissionHandler::STARMUS_REST_NAMESPACE,
 			'/status/(?P<id>\d+)',
 			array(
 				'methods'             => 'GET',

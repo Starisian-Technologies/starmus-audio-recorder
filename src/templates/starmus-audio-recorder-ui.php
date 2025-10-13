@@ -6,7 +6,7 @@
  * to be controlled by the JavaScript modules, with containers for the dynamic UI
  * and the Tier C fallback for legacy browsers.
  *
- * @package Starmus\templates
+ * @package Starisian\Starmus\templates
  * @version 0.7.6
  * @since   0.4.5
  * @var string $form_id         Base ID for the form, passed from the shortcode.

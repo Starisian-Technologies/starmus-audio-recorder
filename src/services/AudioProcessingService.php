@@ -3,17 +3,27 @@
  * Service class for post-save metadata processing of audio files.
  * Handles ID3 tag writing (including multiple transcription frames) and exposes hooks for extension.
  *
- * @package Starmus\services
+ * @package Starisian\Starmus\services
  * @version 0.7.6
  */
 
-namespace Starmus\services;
+namespace Starisian\Starmus\services;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Starisian\Starmus\services\FileService;
+use getid3;
+use getid3_writetags;
+
+
 class AudioProcessingService {
+
+	public function __construct(){
+		// future defaults to load;
+		
+	}
 
 	/**
 	 * Main entry point for processing an audio attachment's metadata.
@@ -22,7 +32,7 @@ class AudioProcessingService {
 	 * @return bool
 	 */
 	public function process_attachment( int $attachment_id ): bool {
-		$file_path = get_attached_file( $attachment_id );
+		$file_path = FileService::get_local_copy( $attachment_id );
 		if ( ! $file_path || ! file_exists( $file_path ) ) {
 			return false;
 		}

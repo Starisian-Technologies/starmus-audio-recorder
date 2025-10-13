@@ -1,18 +1,18 @@
 <?php
-namespace Starmus\frontend;
+namespace Starisian\Starmus\frontend;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starmus\includes\StarmusSettings;
+use Starisian\Starmus\core\StarmusSettings;
 
 /**
  * Renders the user interface for the audio recorder and recordings list.
  * Purely for presentation: shortcodes, enqueue, template rendering, etc.
  */
 class StarmusAudioRecorderUI {
-	public const STAR_REST_NAMESPACE   = 'starmus/v1';
+	public const STARMUS_REST_NAMESPACE   = 'starmus/v1';
 	private ?StarmusSettings $settings = null;
 
 	public function __construct( ?StarmusSettings $settings ) {
@@ -124,7 +124,7 @@ class StarmusAudioRecorderUI {
 					$script_handle,
 					'starmusFormData',
 					array(
-						'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
+						'rest_url'   => esc_url_raw( rest_url( self::STARMUS_REST_NAMESPACE . '/upload-chunk' ) ),
 						'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 					)
 				);
@@ -426,7 +426,7 @@ public function enqueue_scripts(): void {
 				$script_handle,
 				'starmusFormData',
 				array(
-					'rest_url'   => esc_url_raw( rest_url( self::STAR_REST_NAMESPACE . '/upload-chunk' ) ),
+					'rest_url'   => esc_url_raw( rest_url( self::STARMUS_REST_NAMESPACE . '/upload-chunk' ) ),
 					'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 				)
 			);
@@ -473,7 +473,7 @@ public function enqueue_scripts(): void {
 	 */
 public function register_rest_routes(): void {
 	register_rest_route(
-		self::STAR_REST_NAMESPACE,
+		self::STARMUS_REST_NAMESPACE,
 		'/upload-chunk',
 		array(
 			'methods'             => 'POST',
@@ -482,7 +482,7 @@ public function register_rest_routes(): void {
 		)
 	);
 	register_rest_route(
-		self::STAR_REST_NAMESPACE,
+		self::STARMUS_REST_NAMESPACE,
 		'/upload-fallback', // A new, different URL
 		array(
 			'methods'             => 'POST',

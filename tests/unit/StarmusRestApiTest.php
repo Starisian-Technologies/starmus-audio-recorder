@@ -2,13 +2,13 @@
 /**
  * REST API Tests for STAR/AIWA compliance
  * 
- * @package Starmus\tests\unit
+ * @package Starisian\Starmus\tests\unit
  */
 declare(strict_types=1);
-namespace Starmus\tests\unit;
+namespace Starisian\Starmus\tests\unit;
 
 use PHPUnit\Framework\TestCase;
-use Starmus\frontend\StarmusAudioRecorderUI;
+use Starisian\Starmus\frontend\StarmusAudioRecorderUI;
 
 final class StarmusRestApiTest extends TestCase
 {
@@ -30,7 +30,7 @@ final class StarmusRestApiTest extends TestCase
 
     public function testRestNamespaceFollowsStarConvention(): void
     {
-        $namespace = StarmusAudioRecorderUI::STAR_REST_NAMESPACE;
+        $namespace = StarmusAudioRecorderUI::STARMUS_REST_NAMESPACE;
         $this->assertStringStartsWith('starmus/', $namespace, 'REST namespace must follow STAR convention');
     }
 

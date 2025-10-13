@@ -5,16 +5,18 @@
  * @package   Starmus
  */
 
-namespace Starmus\frontend;
+namespace Starisian\Starmus\frontend;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starmus\helpers\StarmusLogger;
-use Starmus\includes\StarmusSettings;
-use Starmus\frontend\StarmusSubmissionHandler;
-use Starmus\helpers\StarmusTemplateLoaderHelper;
+use Starisian\Starmus\helpers\StarmusLogger;
+use Starisian\Starmus\core\StarmusSettings;
+use Starisian\Starmus\includes\StarmusSubmissionHandler;
+use Starisian\Starmus\helpers\StarmusTemplateLoaderHelper;
+use Exception;
+use Throwable;
 
 /**
  * Renders the user interface for the audio recorder and recordings list.
@@ -28,7 +30,7 @@ class StarmusAudioRecorderUI {
 	/**
 	 * REST namespace exposed to localized front-end scripts.
 	 */
-	public const STAR_REST_NAMESPACE = StarmusSubmissionHandler::STAR_REST_NAMESPACE;
+	public const STARMUS_REST_NAMESPACE = StarmusSubmissionHandler::STARMUS_REST_NAMESPACE;
 
 	/**
 	 * Optional settings container used to hydrate UI data.
@@ -51,8 +53,6 @@ class StarmusAudioRecorderUI {
 	 * @return void
 	 */
 	private function register_hooks(): void {
-		add_shortcode( 'starmus_audio_recorder_form', array( $this, 'render_recorder_shortcode' ) );
-
 		// Cache hygiene for taxonomies.
 		add_action( 'create_language', array( $this, 'clear_taxonomy_transients' ) );
 		add_action( 'edit_language', array( $this, 'clear_taxonomy_transients' ) );
@@ -63,18 +63,11 @@ class StarmusAudioRecorderUI {
 		add_action( 'delete_recording-type', array( $this, 'clear_taxonomy_transients' ) );
 	}
 
-
-
 	/**
 	 * Render the recorder form shortcode.
 	 */
-	public function render_recorder_shortcode( $atts = array() ): string {
-		if ( ! is_user_logged_in() ) {
-			return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus-audio-recorder' ) . '</p>';
-		}
-
-		do_action( 'starmus_before_recorder_render' );
-
+	public function render_recorder_shortcode(): string {
+		
 		try {
 			$template_args = array(
 				'form_id'         => 'starmus_recorder_form',
@@ -84,17 +77,14 @@ class StarmusAudioRecorderUI {
 				'languages'       => $this->get_cached_terms( 'language', 'starmus_languages_list' ),
 			);
 
-			$is_admin   = current_user_can( 'administrator' ) || current_user_can( 'manage_options' ) || current_user_can( 'super_admin' );
-			$admin_flag = '<script>window.isStarmusAdmin = ' . ( $is_admin ? 'true' : 'false' ) . ';</script>';
-
-			return $admin_flag . StarmusTemplateLoaderHelper::render_template( 'starmus-audio-recorder-ui.php', $template_args );
+			return StarmusTemplateLoaderHelper::secure_render_template( 'starmus-audio-recorder-ui.php', $template_args );
 
 		} catch ( \Throwable $e ) {
+			error_log($e);
 			StarmusLogger::log( 'UI:render_recorder_shortcode', $e );
 			return '<p>' . esc_html__( 'The audio recorder is temporarily unavailable.', 'starmus-audio-recorder' ) . '</p>';
 		}
 	}
-
 
 	/**
 	 * Get cached terms with transient support.
@@ -126,11 +116,4 @@ class StarmusAudioRecorderUI {
 		delete_transient( 'starmus_recording_types_list' );
 	}
 
-	/**
-	 * Admin edit screen URL.
-	 */
-	private function get_edit_page_url_admin(): string {
-		$cpt = $this->settings ? $this->settings->get( 'cpt_slug', 'audio-recording' ) : 'audio-recording';
-		return admin_url( 'edit.php?post_type=' . $cpt );
-	}
 }

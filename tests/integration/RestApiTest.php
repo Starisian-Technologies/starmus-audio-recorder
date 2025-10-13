@@ -2,7 +2,7 @@
 /**
  * WordPress REST API Integration Tests
  * 
- * @package Starmus\tests\integration
+ * @package Starisian\Starmus\tests\integration
  */
 
 class RestApiTest extends WP_UnitTestCase {
@@ -23,7 +23,7 @@ class RestApiTest extends WP_UnitTestCase {
     }
 
     public function test_rest_namespace_follows_star_convention() {
-        $namespace = \Starmus\frontend\StarmusSubmissionHandler::STAR_REST_NAMESPACE;
+        $namespace = \Starmus\includes\StarmusSubmissionHandler::STARMUS_REST_NAMESPACE;
         $this->assertStringStartsWith('star-', $namespace);
     }
 

@@ -1,15 +1,15 @@
 <?php
-namespace Starmus\core;
+namespace Starisian\Starmus\core;
 
 /**
  * Handles checking for and providing updates for the Starmus plugin.
  *
- * @file        StarmusPluginUpdater.php
+ * @file        StarmusAudioRecorderUpdater.php
  * @package     Starmus\core
  * @version 0.7.6
  * @since       0.7.2
  */
-class StarmusPluginUpdater {
+class StarmusAudioRecorderUpdater {
 
 	private $plugin_file;
 	private $current_version;

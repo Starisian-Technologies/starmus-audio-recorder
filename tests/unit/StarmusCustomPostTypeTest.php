@@ -1,11 +1,11 @@
 <?php
 /**
- * @package Starmus\tests\unit
+ * @package Starisian\Starmus\tests\unit
  * @version 0.7.6
  * @since 0.3.1
  */
 declare(strict_types=1);
-namespace Starmus\tests\unit;
+namespace Starisian\Starmus\tests\unit;
 use PHPUnit\Framework\TestCase;
 
 final class StarmusCustomPostTypeTest extends TestCase

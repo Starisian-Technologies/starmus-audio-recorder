@@ -2,7 +2,7 @@
 /**
  * Unit Test Bootstrap (No WordPress)
  *
- * @package Starmus\tests
+ * @package Starisian\Starmus\tests
  */
 
 // Load Composer autoloader

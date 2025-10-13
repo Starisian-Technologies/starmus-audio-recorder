@@ -2,18 +2,19 @@
 /**
  * Core submission service responsible for processing uploads.
  *
- * @package   Starmus
+ * @package   Starisian\Starmus\includes
  */
 
-namespace Starmus\frontend;
+namespace Starisian\Starmus\includes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starmus\helpers\StarmusLogger;
-use Starmus\helpers\StarmusSanitizer;
-use Starmus\includes\StarmusSettings;
+use Starisian\Starmus\helpers\StarmusLogger;
+use Starisian\Starmus\helpers\StarmusSanitizer;
+use Starisian\Starmus\core\StarmusSettings;
+use Starisian\Starmus\services\PostProcessingService;
 use WP_Error;
 use WP_REST_Request;
 
@@ -59,7 +60,7 @@ class StarmusSubmissionHandler {
 	/**
 	 * Namespaced identifier used for REST endpoints.
 	 */
-	public const STAR_REST_NAMESPACE = 'star-starmus-audio-recorder/v1';
+	public const STARMUS_REST_NAMESPACE = 'star-starmus-audio-recorder/v1';
 
         /**
          * Lazily injected plugin settings service.
@@ -459,7 +460,16 @@ class StarmusSubmissionHandler {
 
 		// --- STEP 5: FIRE THE EXTENSIBILITY HOOK ---
                 do_action( 'starmus_after_save_submission_metadata', $audio_post_id, $form_data, $metadata, $attachment_id );
-        }
+
+		try{
+
+				$this->post_processing = new PostProcessingService();
+				$this->post_processing->process_and_archive_audio($audio_post_id, $attachment_id);	
+		} catch (Throwable $e){
+			error_log($e);
+
+		}
+	}
 
         /**
          * Resolve the CPT slug even when configuration is unavailable.

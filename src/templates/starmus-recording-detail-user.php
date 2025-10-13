@@ -2,7 +2,7 @@
 /**
  * Starmus Single Recording Detail Template Part (User View)
  *
- * @package Starmus\templates\parts
+ * @package Starisian\Starmus\templates\parts
  */
 
 // Exit if accessed directly.

@@ -77,10 +77,10 @@
     "@eslint/js": "latest",
     "@microsoft/tsdoc": "latest",
     "@playwright/test": "latest",
-    "@size-limit/file": "^11.2.0",
+    "@size-limit/file": "latest",
     "@wordpress/env": "latest",
     "@wordpress/eslint-plugin": "latest",
-    "axe-playwright": "^2.2.2",
+    "axe-playwright": "latest",
     "cssnano": "latest",
     "eslint": "latest",
     "eslint-config-prettier": "latest",
@@ -88,13 +88,13 @@
     "eslint-plugin-jsx-a11y": "latest",
     "eslint-plugin-perf-standard": "latest",
     "eslint-plugin-security": "latest",
-    "globals": "^16.4.0",
+    "globals": "latest",
     "jsdoc-to-markdown": "latest",
     "markdownlint-cli": "latest",
     "postcss": "latest",
     "postcss-cli": "latest",
     "prettier": "latest",
-    "size-limit": "^11.2.0",
+    "size-limit": "latest",
     "stylelint": "latest",
     "stylelint-config-standard": "latest",
     "terser": "latest"
@@ -105,9 +105,5 @@
     "peaks.js": "latest",
     "tus-js-client": "latest",
     "waveform-data": "latest"
-  },
-  "overrides": {
-    "axios": "^1.11.0",
-    "@babel/runtime": "^7.26.10"
   }
 }

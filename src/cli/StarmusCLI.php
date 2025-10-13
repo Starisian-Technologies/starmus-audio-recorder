@@ -4,16 +4,16 @@
  *
  * This is the final, consolidated class containing all commands and best practices.
  *
- * @package Starmus\cli
+ * @package Starisian\Starmus\cli
  * @version 0.7.6
  */
 
-namespace Starmus\cli;
+namespace Starisian\Starmus\cli;
 
 
 use WP_Query;
-use Starmus\services\WaveformService;
-use Starmus\frontend\StarmusAudioRecorderUI;
+use Starisian\Starmus\services\WaveformService;
+use Starisian\Starmus\frontend\StarmusAudioRecorderUI;
 
 // WP_CLI guard removed: always define the class, only register commands when WP_CLI is present.
 
