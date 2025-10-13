@@ -64,6 +64,46 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 					<?php echo esc_html( gmdate( 'i:s', $meta_data['technical']['duration'] / 1000 ) ); ?>
 				</p>
 			<?php endif; ?>
+
+			<?php
+			// Waveform preview (if generated)
+			if ( $audio_attachment_id ) :
+				$waveform_peaks = get_post_meta( (int) $audio_attachment_id, '_waveform_data', true );
+				if ( ! empty( $waveform_peaks ) && is_array( $waveform_peaks ) ) :
+					$width = 900; // viewbox width (CSS will scale)
+					$height = 96;
+					$count = count( $waveform_peaks );
+					$max_points = 600; // limit for performance
+					$step = max( 1, (int) floor( $count / $max_points ) );
+					$abs_vals = array_map( 'abs', $waveform_peaks );
+					$max_val = ! empty( $abs_vals ) ? max( $abs_vals ) : 1;
+					if ( $max_val <= 0 ) { $max_val = 1; }
+					$points = array();
+					for ( $i = 0; $i < $count; $i += $step ) {
+						$v = (float) $waveform_peaks[ $i ];
+						$norm = $v / $max_val; // roughly -1..1
+						$x = ( $i / max(1, $count - 1) ) * $width;
+						// center the waveform vertically
+						$y = ( $height / 2 ) - ( $norm * ( $height / 2 ) );
+						$points[] = $x . ',' . $y;
+					}
+					$points_str = implode( ' ', $points );
+					?>
+					<div class="starmus-detail__waveform" style="margin-top:1rem;">
+						<h3><?php esc_html_e( 'Waveform', 'starmus-audio-recorder' ); ?></h3>
+						<svg viewBox="0 0 <?php echo esc_attr( $width ); ?> <?php echo esc_attr( $height ); ?>" preserveAspectRatio="none" width="100%" height="<?php echo esc_attr( $height ); ?>" aria-hidden="false" role="img" aria-label="<?php esc_attr_e( 'Waveform preview of the recording', 'starmus-audio-recorder' ); ?>">
+							<rect width="100%" height="100%" fill="transparent" />
+							<polyline points="<?php echo esc_attr( $points_str ); ?>" fill="none" stroke="#2b8cff" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round" />
+							<line x1="0" y1="<?php echo esc_attr( $height / 2 ); ?>" x2="<?php echo esc_attr( $width ); ?>" y2="<?php echo esc_attr( $height / 2 ); ?>" stroke="#e6eef9" stroke-width="0.5" />
+						</svg>
+						<details style="margin-top:.5rem;"><summary><?php esc_html_e( 'Show raw waveform data', 'starmus-audio-recorder' ); ?></summary>
+							<pre class="starmus-raw-json"><code><?php echo esc_html( json_encode( $waveform_peaks, JSON_PRETTY_PRINT ) ); ?></code></pre>
+						</details>
+					</div>
+				<?php
+				endif;
+			endif;
+			?>
 		</div>
 	<?php else : ?>
 		<div class="starmus-submission-error">

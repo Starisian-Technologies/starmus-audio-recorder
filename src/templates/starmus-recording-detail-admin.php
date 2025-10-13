@@ -48,13 +48,85 @@ $metadata_array  = json_decode( $metadata_json, true );
 	<section class="starmus-detail__section">
 		<h2><?php esc_html_e( 'Audio Recording', 'starmus-audio-recorder' ); ?></h2>
 		<?php if ( $audio_url ) : ?>
+			<!-- Primary player (attachment URL) -->
 			<audio controls preload="metadata" style="width: 100%;">
 				<source src="<?php echo esc_url( $audio_url ); ?>">
+				<?php esc_html_e( 'Your browser does not support the audio element.', 'starmus-audio-recorder' ); ?>
 			</audio>
+
+			<?php
+			// Show explicit info about the attached file and generated files (MP3/WAV).
+			$attached_file_path = ( $audio_attachment_id ) ? get_attached_file( (int) $audio_attachment_id ) : '';
+			$archival_fs_path = ( $audio_attachment_id ) ? get_post_meta( (int) $audio_attachment_id, '_starmus_archival_path', true ) : '';
+			$archival_url = '';
+			$uploads = wp_get_upload_dir();
+			if ( is_string( $archival_fs_path ) && ! empty( $archival_fs_path ) ) {
+				$real_arch = realpath( $archival_fs_path );
+				$real_base = realpath( $uploads['basedir'] );
+				if ( $real_arch && $real_base && str_starts_with( $real_arch, $real_base ) ) {
+					$archival_url = str_replace( $uploads['basedir'], $uploads['baseurl'], $archival_fs_path );
+				}
+			}
+			?>
+
+			<ul class="starmus-detail__files">
+				<?php if ( ! empty( $attached_file_path ) ) : ?>
+					<li><strong><?php esc_html_e( 'Attached file (filesystem):', 'starmus-audio-recorder' ); ?></strong> <?php echo esc_html( $attached_file_path ); ?></li>
+				<?php endif; ?>
+				<?php if ( ! empty( $audio_url ) ) : ?>
+					<li><strong><?php esc_html_e( 'Attachment URL:', 'starmus-audio-recorder' ); ?></strong> <a href="<?php echo esc_url( $audio_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( wp_basename( $audio_url ) ); ?></a></li>
+				<?php endif; ?>
+				<?php if ( ! empty( $archival_url ) ) : ?>
+					<li><strong><?php esc_html_e( 'Archival WAV:', 'starmus-audio-recorder' ); ?></strong> <a href="<?php echo esc_url( $archival_url ); ?>" download><?php echo esc_html( wp_basename( $archival_url ) ); ?></a>
+						<!-- Optional WAV player -->
+						<div style="margin-top:.5rem;"><audio controls preload="metadata" style="width:100%;"><source src="<?php echo esc_url( $archival_url ); ?>" type="audio/wav"><?php esc_html_e( 'Your browser does not support the audio element.', 'starmus-audio-recorder' ); ?></audio></div>
+					</li>
+				<?php elseif ( ! empty( $archival_fs_path ) ) : ?>
+					<li><strong><?php esc_html_e( 'Archival WAV (path):', 'starmus-audio-recorder' ); ?></strong> <?php echo esc_html( $archival_fs_path ); ?> <em>(not publicly available)</em></li>
+				<?php endif; ?>
+			</ul>
 		<?php else : ?>
 			<p><strong>Audio file could not be found.</strong></p>
 		<?php endif; ?>
 	</section>
+
+	<!-- Waveform visualization (uses waveform peaks stored on the attachment post) -->
+	<?php
+	if ( $audio_attachment_id ) :
+		$waveform_peaks = get_post_meta( (int) $audio_attachment_id, '_waveform_data', true );
+		if ( ! empty( $waveform_peaks ) && is_array( $waveform_peaks ) ) :
+			// Prepare an SVG polyline representation. Limit points for performance.
+			$width = 800;
+			$height = 120;
+			$count = count( $waveform_peaks );
+			$max_points = 600;
+			$step = max( 1, (int) floor( $count / $max_points ) );
+			$max_val = max( array_map( 'abs', $waveform_peaks ) );
+			if ( $max_val <= 0 ) { $max_val = 1; }
+			$points = array();
+			for ( $i = 0; $i < $count; $i += $step ) {
+				$v = (float) $waveform_peaks[ $i ];
+				$norm = $v / $max_val; // 0..1-ish
+				$x = ( $i / max(1, $count - 1) ) * $width;
+				$y = $height - ( $norm * $height );
+				$points[] = $x . ',' . $y;
+			}
+			$points_str = implode( ' ', $points );
+			?>
+		<section class="starmus-detail__section">
+			<h2><?php esc_html_e( 'Waveform Preview', 'starmus-audio-recorder' ); ?></h2>
+			<div class="starmus-waveform">
+				<svg viewBox="0 0 <?php echo esc_attr( $width ); ?> <?php echo esc_attr( $height ); ?>" preserveAspectRatio="none" width="100%" height="<?php echo esc_attr( $height ); ?>" role="img" aria-label="<?php esc_attr_e( 'Audio waveform preview', 'starmus-audio-recorder' ); ?>">
+					<polyline fill="none" stroke="#0073aa" stroke-width="1" points="<?php echo esc_attr( $points_str ); ?>" />
+				</svg>
+				<details style="margin-top:.5rem;"><summary><?php esc_html_e( 'Show raw waveform data', 'starmus-audio-recorder' ); ?></summary>
+					<pre class="starmus-raw-json"><code><?php echo esc_html( json_encode( $waveform_peaks, JSON_PRETTY_PRINT ) ); ?></code></pre>
+				</details>
+			</div>
+		</section>
+		<?php
+		endif;
+	endif;
 
 	<!-- 2. Parsed & Mapped ACF Fields -->
 	<section class="starmus-detail__section">
