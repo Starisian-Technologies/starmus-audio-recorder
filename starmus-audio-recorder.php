@@ -59,9 +59,18 @@ define('STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder');
 define('STARMUS_PLUGIN_PREFIX', 'starmus');
 /** Current plugin semantic version string. */
 define('STARMUS_VERSION', '0.7.4');
-/** Starmus Logger default settings */
-if(!defined('STARMUS_LOG_LEVEL')) { define('STARMUS_LOG_LEVEL', 'Warning'); }
-if(!defined('STARMUS_LOG_FILE')) { define('STARMUS_LOG_FILE', ''); }
+/**
+ * Default severity threshold used when the host environment does not define one.
+ */
+if (!defined('STARMUS_LOG_LEVEL')) {
+        define('STARMUS_LOG_LEVEL', 'Warning');
+}
+/**
+ * Optional custom log file path honoured by the shared logger when configured.
+ */
+if (!defined('STARMUS_LOG_FILE')) {
+        define('STARMUS_LOG_FILE', '');
+}
 
 /**
  * Load Composer's autoloader if it is available.
@@ -107,7 +116,7 @@ if (!class_exists('ACF')) {
 function starmus_activate(): void
 {
 	// Block activation if ACF or SCF is missing
-	if (!\Starmus\StarmusAudioRecorder::check_field_plugin_dependency()) {
+	if (!StarmusAudioRecorder::check_field_plugin_dependency()) {
 		deactivate_plugins(plugin_basename(STARMUS_MAIN_FILE));
 		error_log('Starmus Plugin: Activation failed due to missing ACF/SCF dependency');
 		wp_die(__('Starmus Audio Recorder requires Advanced Custom Fields or Smart Custom Fields to be installed and activated.', 'starmus-audio-recorder'));
@@ -161,11 +170,11 @@ register_activation_hook(STARMUS_MAIN_FILE, 'starmus_activate');
 register_deactivation_hook(STARMUS_MAIN_FILE, 'starmus_deactivate');
 register_uninstall_hook(STARMUS_MAIN_FILE, 'starmus_uninstall');
 // Starmus Cron activation / deactivation
-register_activation_hook( __FILE__, [ \Starisian\Starmus\cron\StarmusCron::class, 'activate' ] );
-register_deactivation_hook( __FILE__, [ \Starisian\Starmus\cron\StarmusCron::class, 'deactivate' ] );
+register_activation_hook(__FILE__, [ \Starisian\Starmus\cron\StarmusCron::class, 'activate' ]);
+register_deactivation_hook(__FILE__, [ \Starisian\Starmus\cron\StarmusCron::class, 'deactivate' ]);
 // Initialize the plugin once all other plugins are loaded.
-add_action('plugins_loaded', array(\Starisian\Starmus\StarmusAudioRecorder::class, 'starmus_run'));
+add_action('plugins_loaded', [StarmusAudioRecorder::class, 'starmus_run']);
 
 // Bootstrap plugin services during WordPress init lifecycle.
-add_action('init', array(\Starisian\Starmus\StarmusAudioRecorder::class, 'starmus_init_plugin'));
+add_action('init', [StarmusAudioRecorder::class, 'starmus_init_plugin']);
 
