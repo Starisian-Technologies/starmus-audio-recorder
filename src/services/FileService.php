@@ -2,11 +2,11 @@
 /**
  * Service class for handling file operations, especially for offloaded media.
  *
- * @package Starisian\Starmus\services
+ * @package Starisian\Sparxstar\Starmus\services
  * @version 0.7.6
  */
 
-namespace Starisian\Starmus\services;
+namespace Starisian\Sparxstar\Starmus\services;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

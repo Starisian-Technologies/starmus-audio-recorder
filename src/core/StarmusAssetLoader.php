@@ -7,27 +7,29 @@
  * @since  0.7.5
  */
 
-namespace Starisian\Starmus\core;
+namespace Starisian\Sparxstar\Starmus\core;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starisian\Starmus\helpers\StarmusLogger;
-use Starisian\Starmus\includes\StarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 
 class StarmusAssetLoader {
 
 	public function __construct() {
-		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_frontend_assets' ] );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
 	}
 
 	public function enqueue_frontend_assets(): void {
 		try {
-			if ( is_admin() ) return;
+			if ( is_admin() ) {
+				return;
+			}
 
 			global $post;
-			$has_content = ( $post instanceof \WP_Post ) && ! empty( $post->post_content );
+			$has_content  = ( $post instanceof \WP_Post ) && ! empty( $post->post_content );
 			$has_recorder = $has_content && has_shortcode( $post->post_content, 'starmus_audio_recorder' );
 			$has_list     = $has_content && has_shortcode( $post->post_content, 'starmus_my_recordings' );
 			$has_editor   = $has_content && has_shortcode( $post->post_content, 'starmus_audio_editor' );
@@ -36,13 +38,13 @@ class StarmusAssetLoader {
 			wp_enqueue_script(
 				'tus-js',
 				trailingslashit( STARMUS_URL ) . 'vendor/js/tus.min.js',
-				[],
+				array(),
 				'4.3.1',
 				true
 			);
 
 			// If the editor is present, load its deps BEFORE the core app so the app can use them.
-			$starmus_app_deps = [ 'tus-js' ];
+			$starmus_app_deps = array( 'tus-js' );
 
 			if ( $has_editor ) {
 				// If your build uses these vendor files, load them here.
@@ -50,21 +52,21 @@ class StarmusAssetLoader {
 				wp_enqueue_script(
 					'wavesurfer',
 					trailingslashit( STARMUS_URL ) . 'vendor/js/wavesurfer.min.js',
-					[],
+					array(),
 					$this->resolve_version(),
 					true
 				);
 				wp_enqueue_script(
 					'webaudio-peaks',
 					trailingslashit( STARMUS_URL ) . 'vendor/js/webaudio-peaks.min.js',
-					[ 'wavesurfer' ],
+					array( 'wavesurfer' ),
 					$this->resolve_version(),
 					true
 				);
 				wp_enqueue_script(
 					'peaks-js',
 					trailingslashit( STARMUS_URL ) . 'vendor/js/peaks.min.js',
-					[ 'webaudio-peaks' ],
+					array( 'webaudio-peaks' ),
 					$this->resolve_version(),
 					true
 				);
@@ -85,11 +87,11 @@ class StarmusAssetLoader {
 			wp_localize_script(
 				'starmus-app',
 				'starmusFormData',
-				[
+				array(
 					'rest_url'   => esc_url_raw( rest_url( StarmusSubmissionHandler::STARMUS_REST_NAMESPACE . '/upload-fallback' ) ),
 					'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 					'user_id'    => get_current_user_id(),
-				]
+				)
 			);
 
 			// --- CSS only when a Starmus UI is present (recorder, list, or editor)
@@ -98,14 +100,14 @@ class StarmusAssetLoader {
 					wp_enqueue_style(
 						'starmus-audio-styles',
 						trailingslashit( STARMUS_URL ) . 'src/css/starmus-audio-recorder-style.css',
-						[],
+						array(),
 						$this->resolve_version()
 					);
 				} else {
 					wp_enqueue_style(
 						'starmus-audio-styles',
 						trailingslashit( STARMUS_URL ) . 'starmus.styles.min.css',
-						[],
+						array(),
 						$this->resolve_version()
 					);
 				}

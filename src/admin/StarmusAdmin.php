@@ -2,18 +2,18 @@
 /**
  * Starmus Admin Handler - Refactored for Security & Performance
  *
- * @package Starisian\Starmus\admin
+ * @package Starisian\Sparxstar\Starmus\admin
  * @version 0.7.6
  * @since 0.3.1
  */
 
-namespace Starisian\Starmus\admin;
+namespace Starisian\Sparxstar\Starmus\admin;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-use Starisian\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 
 /**
  * Secure and optimized admin settings class.
@@ -168,8 +168,8 @@ class StarmusAdmin {
 		// Allowed languages
 		$allowed_langs = sanitize_text_field( $input['allowed_languages'] ?? '' );
 		if ( ! empty( $allowed_langs ) ) {
-			$langs = array_map( 'trim', explode( ',', $allowed_langs ) );
-			$langs = array_filter(
+			$langs                          = array_map( 'trim', explode( ',', $allowed_langs ) );
+			$langs                          = array_filter(
 				$langs,
 				function ( $l ) {
 					return preg_match( '/^[a-z]{2,4}$/', $l );
@@ -362,7 +362,7 @@ class StarmusAdmin {
 		$type  = $args['type'] ?? 'text';
 		$value = $this->settings->get( $id ); // This value is the stored ID (from wp_options)
 		// CORRECTED: Field name uses the option key as parent for Settings API
-		$name  = StarmusSettings::STARMUS_OPTION_KEY . "[$id]";
+		$name = StarmusSettings::STARMUS_OPTION_KEY . "[$id]";
 
 		switch ( $type ) {
 			case 'textarea':

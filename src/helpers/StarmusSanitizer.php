@@ -1,5 +1,5 @@
 <?php
-namespace Starisian\Starmus\helpers;
+namespace Starisian\Sparxstar\Starmus\helpers;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

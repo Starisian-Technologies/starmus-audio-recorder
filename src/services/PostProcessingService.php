@@ -1,143 +1,351 @@
 <?php
 /**
- * Service class for post-save audio transcoding, mastering, and archival using ffmpeg.
- * Produces both MP3 (distribution) and WAV (archival) and triggers metadata writing.
+ * STARISIAN TECHNOLOGIES CONFIDENTIAL
+ * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * @package Starisian\Starmus\services
- * @version 0.7.6
- * @since  0.7.2
+ * Post-save transcoding, mastering, archival, ID3, waveform generation.
+ *
+ * @package   Starisian\Sparxstar\Starmus\services
+ * @version   1.6.0
  */
 
-namespace Starisian\Starmus\services;
+namespace Starisian\Sparxstar\Starmus\services;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starisian\Starmus\services\AudioProcessingService;
-use Starisian\Starmus\services\WaveformService;
-use Starisian\Starmus\services\FileService;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
+/**
+ * PostProcessingService
+ *
+ * Responsibilities:
+ *  - Resolve ffmpeg path (options → env → PATH)
+ *  - Transcode original → WAV (archival), MP3 (distribution)
+ *  - Apply ID3 via AudioProcessingService
+ *  - Generate waveform via WaveformService
+ *  - Persist paths to attachment + ACF fields on CPT post
+ *  - Optional cloud offload via FileService
+ */
 class PostProcessingService {
 
-	private ?AudioProcessingService $audio_processing_service;
+	/** Status/state codes written to post meta for observability */
+	public const STATE_IDLE           = 'idle';
+	public const STATE_PROCESSING     = 'processing';
+	public const STATE_CONVERTING_WAV = 'converting_wav';
+	public const STATE_CONVERTING_MP3 = 'converting_mp3';
+	public const STATE_ID3_WRITING    = 'id3_writing';
+	public const STATE_WAVEFORM       = 'waveform';
+	public const STATE_COMPLETED      = 'completed';
 
-	public function __construct() {
+	public const STATE_ERR_FFMPEG_MISSING = 'error_ffmpeg_missing';
+	public const STATE_ERR_SOURCE_MISSING = 'error_source_missing';
+	public const STATE_ERR_BACKUP_FAILED  = 'error_backup_failed';
+	public const STATE_ERR_WAV_FAILED     = 'error_wav_failed';
+	public const STATE_ERR_MP3_FAILED     = 'error_mp3_failed';
+	public const STATE_ERR_ID3_FAILED     = 'error_id3_failed';
+	public const STATE_ERR_UNKNOWN        = 'error_unknown';
 
-		// This service now depends on the metadata service to write tags.
-		$this->audio_processing_service = new AudioProcessingService();
+	/** Meta keys (attachment) */
+	private const META_STATE           = '_audio_processing_status';
+	private const META_ORIGINAL_SOURCE = '_audio_original_source';
+	private const META_ID3_AT          = '_audio_id3_written_at';
+	private const META_MP3_PATH        = '_audio_mp3_path';
+	private const META_WAV_PATH        = '_audio_wav_path';
+	private const META_COPR_SRC        = '_audio_copyright_source';
+
+	/** Meta keys (ACF-friendly on CPT) */
+	private const ACF_ARCHIVAL_WAV = 'archival_wav';
+	private const ACF_MASTERED_MP3 = 'mastered_mp3';
+
+	/** Options / filters */
+	private const OPT_FFMPEG_PATH        = 'starmus_ffmpeg_path';   // optional string
+	private const ENV_FFMPEG_BIN         = 'FFMPEG_BIN';            // optional env var
+	private const FILTER_FFMPEG_PATH     = 'starmus_ffmpeg_path';
+	private const FILTER_PROCESS_OPTIONS = 'starmus_postprocess_options';
+
+	private AudioProcessingService $id3;
+	private FileService $files;
+	private WaveformService $waveform;
+
+	/** DI-friendly constructor (falls back to internal instantiation if omitted) */
+	public function __construct(
+		?AudioProcessingService $audio_processing_service = null,
+		?FileService $file_service = null,
+		?WaveformService $waveform_service = null
+	) {
+		$this->id3      = $audio_processing_service ?: new AudioProcessingService();
+		$this->files    = $file_service ?: new FileService();
+		$this->waveform = $waveform_service ?: new WaveformService();
 	}
 
-	public function is_tool_available(): bool {
-		$path = shell_exec( 'command -v ffmpeg' );
-		return ! empty( trim( $path ) );
+	/** Back-compat alias */
+	public function process_and_archive_audio( int $audio_post_id, int $attachment_id, array $options = array() ): bool {
+		return $this->process( $audio_post_id, $attachment_id, $options );
+	}
+
+	/** Back-compat alias (kept to avoid touching older callers) */
+	public function star_process_and_archive_audio( int $audio_post_id, int $attachment_id, array $options = array() ): bool {
+		return $this->process( $audio_post_id, $attachment_id, $options );
 	}
 
 	/**
-	 * Main entry point to transcode, master, and archive an audio attachment.
-	 *
-	 * @param int   $attachment_id The WordPress attachment ID.
-	 * @param array $options Configuration options.
-	 * @return bool True on success, false on failure.
+	 * Main entry point (strict)
 	 */
-	public function process_and_archive_audio( int $audio_postid, int $attachment_id, array $options = array() ): bool {
-		if ( ! $this->is_tool_available() ) {
+	public function process( int $audio_post_id, int $attachment_id, array $options = array() ): bool {
+		StarmusLogger::setCorrelationId();
+		StarmusLogger::timeStart( 'audio_postprocess' );
 
-			return false;
-		}
-
-		$original_path = FileService::get_local_copy( $attachment_id );
-		if ( ! $original_path || ! file_exists( $original_path ) ) {
-
-			return false;
-		}
-
-
-
-		$options['']   = $original_path;
-		$upload_dir    = wp_get_upload_dir();
-		$base_filename = pathinfo( $original_path, PATHINFO_FILENAME );
-
-		$backup_path = $original_path . '.bak';
-		if ( ! rename( $original_path, $backup_path ) ) {
-			/* ... error handling ... */ return false; }
-		// --- 1. Backup the original file before any changes ---
-		$backup_path = $original_path . '.bak';
-		if ( ! rename( $original_path, $backup_path ) ) {
-
-			return false;
-		}
-
-		// --- 2. Generate Lossless Archival WAV Copy ---
-		$archival_path = $upload_dir['path'] . '/' . $base_filename . '-archive.wav';
-		$cmd_wav       = sprintf(
-			'ffmpeg -i %s -c:a pcm_s16le -ar 44100 -y %s',
-			escapeshellarg( $backup_path ),
-			escapeshellarg( $archival_path )
-		);
-		exec( $cmd_wav . ' 2>&1', $out_wav, $ret_wav );
-
-		if ( $ret_wav !== 0 || ! file_exists( $archival_path ) ) {
-			rename( $backup_path, $original_path ); // Restore backup on failure
-			return false;
-		}
-
-		// --- 3. Build and Generate Mastered Distribution MP3 ---
-		$filters      = array( 'loudnorm=I=-16:TP=-1.5:LRA=11', 'silenceremove=start_periods=1:start_threshold=-50dB' );
-		$filters      = apply_filters( 'starmus_ffmpeg_filters', $filters, $attachment_id );
-		$filter_chain = implode( ',', array_filter( $filters ) );
-
-		$mp3_path = $upload_dir['path'] . '/' . $base_filename . '.mp3';
-		$cmd_mp3  = sprintf(
-			'ffmpeg -i %s -af "%s" -c:a libmp3lame -b:a 192k -y %s',
-			escapeshellarg( $backup_path ),
-			$filter_chain,
-			escapeshellarg( $mp3_path )
-		);
-		exec( $cmd_mp3 . ' 2>&1', $out_mp3, $ret_mp3 );
-
-		if ( $ret_mp3 !== 0 || ! file_exists( $mp3_path ) ) {
-			rename( $backup_path, $original_path ); // Restore backup
-			if ( file_exists( $archival_path ) ) {
-				wp_delete_file( $archival_path ); // Clean up partial archive
+		try {
+			$ffmpeg = $this->resolveFfmpegPath();
+			if ( ! $ffmpeg ) {
+				$this->setState( $attachment_id, self::STATE_ERR_FFMPEG_MISSING );
+				StarmusLogger::error( 'PostProcessingService', 'FFmpeg binary not found' );
+				return false;
 			}
-			return false;
-		}
 
-		// --- 4. Update WordPress to use the new MP3 as the main attachment ---
-		update_attached_file( $attachment_id, $mp3_path );
-		wp_update_post(
-			array(
-				'ID'             => $attachment_id,
-				'post_mime_type' => 'audio/mpeg',
-			)
-		);
-		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $mp3_pah ) );
+			$options = $this->resolveOptions( $audio_post_id, $attachment_id, $options );
 
-		// --- 5. Call the Metadata Service to write ID3 tags to the new MP3 ---
-		$this->audio_processing_service->process_attachment( $attachment_id );
-		// generate waveform
-		WaveformService::generate_waveform_data($attachment_id);
-		// --- 6. Store archival path and clean up ---
-		update_post_meta( $attachment_id, '_starmus_archival_path', $archival_path );
-		wp_delete_file( $backup_path ); // Success, so remove the backup file.
+			$original = $this->files->get_local_copy( $attachment_id );
+			if ( ! $original || ! file_exists( $original ) ) {
+				$this->setState( $attachment_id, self::STATE_ERR_SOURCE_MISSING );
+				StarmusLogger::error(
+					'PostProcessingService',
+					'Missing local source',
+					array(
+						'attachment_id' => $attachment_id,
+						'path'          => $original,
+					)
+				);
+				return false;
+			}
 
-			/**
-			* Fires after an audio file has been successfully transcoded and archived.
-			*
-			* @hook starmus_audio_postprocessed
-			* @param int   $attachment_id The ID of the master MP3 attachment.
-			* @param array $processed_files An array of paths to the generated files.
-			*/
+			$this->setState( $attachment_id, self::STATE_PROCESSING );
+			update_post_meta( $attachment_id, self::META_ORIGINAL_SOURCE, $original );
+
+			$is_temp_source = ( strpos( $original, sys_get_temp_dir() ) === 0 );
+			$upload_dir     = wp_get_upload_dir();
+			$base_filename  = pathinfo( $original, PATHINFO_FILENAME );
+			$backup         = $original . '.bak';
+
+			if ( ! @rename( $original, $backup ) ) {
+				$this->setState( $attachment_id, self::STATE_ERR_BACKUP_FAILED );
+				StarmusLogger::error( 'PostProcessingService', 'Backup creation failed', array( 'original' => $original ) );
+				return false;
+			}
+
+			do_action(
+				'starmus_audio_preprocess',
+				array(
+					'post_id'       => $audio_post_id,
+					'attachment_id' => $attachment_id,
+					'backup_path'   => $backup,
+					'options'       => $options,
+				)
+			);
+
+			// 1) WAV archival
+			$this->setState( $attachment_id, self::STATE_CONVERTING_WAV );
+			$wav_path         = trailingslashit( $upload_dir['path'] ) . "{$base_filename}-archive.wav";
+			[$okWav, $wavLog] = $this->execFfmpeg(
+				$ffmpeg,
+				sprintf(
+					'-y -i %s -c:a pcm_s16le -ar %d %s',
+					escapeshellarg( $backup ),
+					(int) $options['samplerate'],
+					escapeshellarg( $wav_path )
+				)
+			);
+			if ( ! $okWav || ! file_exists( $wav_path ) ) {
+				$this->restoreOriginal( $backup, $original );
+				$this->setState( $attachment_id, self::STATE_ERR_WAV_FAILED );
+				StarmusLogger::error( 'PostProcessingService', 'WAV generation failed', array( 'ffmpeg' => $wavLog ) );
+				return false;
+			}
+
+			// 2) MP3 distribution
+			$this->setState( $attachment_id, self::STATE_CONVERTING_MP3 );
+			$filters = array( 'loudnorm=I=-16:TP=-1.5:LRA=11' );
+			if ( empty( $options['preserve_silence'] ) ) {
+				$filters[] = 'silenceremove=start_periods=1:start_threshold=-50dB';
+			}
+			$filter_chain = implode( ',', array_filter( $filters ) );
+
+			$mp3_path         = trailingslashit( $upload_dir['path'] ) . "{$base_filename}.mp3";
+			[$okMp3, $mp3Log] = $this->execFfmpeg(
+				$ffmpeg,
+				sprintf(
+					'-y -i %s -af %s -c:a libmp3lame -b:a %s %s',
+					escapeshellarg( $backup ),
+					escapeshellarg( $filter_chain ),
+					escapeshellarg( (string) $options['bitrate'] ),
+					escapeshellarg( $mp3_path )
+				)
+			);
+			if ( ! $okMp3 || ! file_exists( $mp3_path ) ) {
+				$this->restoreOriginal( $backup, $original );
+				if ( file_exists( $wav_path ) ) {
+					wp_delete_file( $wav_path );
+				}
+				$this->setState( $attachment_id, self::STATE_ERR_MP3_FAILED );
+				StarmusLogger::error( 'PostProcessingService', 'MP3 generation failed', array( 'ffmpeg' => $mp3Log ) );
+				return false;
+			}
+
+			// 3) Attach MP3 as the definitive file (update attachment)
+			update_attached_file( $attachment_id, $mp3_path );
+			wp_update_post(
+				array(
+					'ID'             => $attachment_id,
+					'post_mime_type' => 'audio/mpeg',
+				)
+			);
+			wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $mp3_path ) );
+
+			// Persist raw paths on attachment
+			update_post_meta( $attachment_id, self::META_MP3_PATH, $mp3_path );
+			update_post_meta( $attachment_id, self::META_WAV_PATH, $wav_path );
+
+			// 4) ID3 tagging with detailed diagnostics
+			$this->setState( $attachment_id, self::STATE_ID3_WRITING );
+			$id3_ok = $this->id3->process_attachment( $attachment_id );
+			if ( ! $id3_ok ) {
+				$this->setState( $attachment_id, self::STATE_ERR_ID3_FAILED );
+				// process_attachment() already logs granular errors
+				// We choose to continue (soft failure) to keep deliverables usable
+			} else {
+				update_post_meta( $attachment_id, self::META_ID3_AT, current_time( 'mysql' ) );
+			}
+			do_action( 'starmus_audio_id3_written', $attachment_id, $mp3_path, $audio_post_id, $id3_ok );
+
+			// 5) Waveform generation
+			$this->setState( $attachment_id, self::STATE_WAVEFORM );
+			$this->waveform->generate_waveform_data( $attachment_id );
+
+			// 6) Metadata persistence to CPT (ACF if present)
+			update_post_meta( $attachment_id, '_starmus_archival_path', $wav_path );
+			if ( function_exists( 'update_field' ) ) {
+				// Store URLs if you prefer public links; otherwise store absolute paths
+				@update_field( self::ACF_ARCHIVAL_WAV, $wav_path, $audio_post_id );
+				@update_field( self::ACF_MASTERED_MP3, $mp3_path, $audio_post_id );
+			}
+
+			// 7) Optional cloud offload (no-op if FileService doesn’t replace)
+			$this->files->upload_and_replace_attachment( $attachment_id, $mp3_path );
+
+			// 8) Cleanup
+			wp_delete_file( $backup );
+			// If original lived in sys temp and WP copied it earlier, remove the local temp
+			if ( $is_temp_source && file_exists( $original ) ) {
+				@unlink( $original );
+			}
+
 			do_action(
 				'starmus_audio_postprocessed',
 				$attachment_id,
 				array(
-					'mp3' => $mp3_path,
-					'wav' => $archival_path,
+					'post_id' => $audio_post_id,
+					'mp3'     => $mp3_path,
+					'wav'     => $wav_path,
+					'ffmpeg'  => array(
+						'wav' => $wavLog,
+						'mp3' => $mp3Log,
+					),
+					'options' => $options,
 				)
 			);
 
-		return true;
+			$this->setState( $attachment_id, self::STATE_COMPLETED );
+			StarmusLogger::timeEnd( 'audio_postprocess', 'PostProcessingService' );
+			StarmusLogger::info(
+				'PostProcessingService',
+				'Post-processing complete',
+				array(
+					'attachment_id' => $attachment_id,
+					'mp3'           => $mp3_path,
+					'wav'           => $wav_path,
+				)
+			);
+			return true;
+
+		} catch ( \Throwable $e ) {
+			$this->setState( $attachment_id, self::STATE_ERR_UNKNOWN );
+			StarmusLogger::error(
+				'PostProcessingService',
+				'Unhandled post-process exception',
+				array(
+					'attachment_id' => $attachment_id,
+					'error'         => $e->getMessage(),
+				)
+			);
+			return false;
+		}
+	}
+
+	/** Resolve ffmpeg path: option → env → PATH; filterable */
+	private function resolveFfmpegPath(): ?string {
+		$opt = trim( (string) get_option( self::OPT_FFMPEG_PATH, '' ) );
+		if ( $opt !== '' ) {
+			return apply_filters( self::FILTER_FFMPEG_PATH, $opt );
+		}
+
+		$env = getenv( self::ENV_FFMPEG_BIN );
+		if ( is_string( $env ) && $env !== '' ) {
+			return apply_filters( self::FILTER_FFMPEG_PATH, $env );
+		}
+
+		$which = trim( (string) shell_exec( 'command -v ffmpeg' ) );
+		if ( $which !== '' ) {
+			return apply_filters( self::FILTER_FFMPEG_PATH, $which );
+		}
+
+		return null;
+	}
+
+	/** Execute ffmpeg, return [success(bool), combined_output(string)] */
+	private function execFfmpeg( string $ffmpeg, string $args ): array {
+		$cmd  = $ffmpeg . ' ' . $args . ' 2>&1';
+		$out  = array();
+		$code = 0;
+		exec( $cmd, $out, $code );
+		$combined = implode( "\n", $out );
+		StarmusLogger::debug(
+			'PostProcessingService',
+			'FFmpeg exec',
+			array(
+				'cmd'  => $cmd,
+				'exit' => $code,
+			)
+		);
+		return array( $code === 0, $combined );
+	}
+
+	/** Restore original file on failure */
+	private function restoreOriginal( string $backup, string $original ): void {
+		@rename( $backup, $original );
+	}
+
+	/** Update processing state on attachment */
+	private function setState( int $attachment_id, string $state ): void {
+		update_post_meta( $attachment_id, self::META_STATE, $state );
+	}
+
+	/** Resolve and filter options (bitrate, samplerate, preserve_silence) */
+	private function resolveOptions( int $post_id, int $attachment_id, array $options ): array {
+		$defaults = array(
+			'preserve_silence' => true,   // keep dead air for alignment
+			'bitrate'          => '192k', // MP3 bitrate
+			'samplerate'       => 44100,  // WAV sample rate
+		);
+		$resolved = array_replace( $defaults, $options );
+		return apply_filters(
+			self::FILTER_PROCESS_OPTIONS,
+			$resolved,
+			array(
+				'post_id'       => $post_id,
+				'attachment_id' => $attachment_id,
+			)
+		);
 	}
 }

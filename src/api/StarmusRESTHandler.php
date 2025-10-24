@@ -5,15 +5,15 @@
  * @package   Starmus
  */
 
-namespace Starisian\Starmus\api;
+namespace Starisian\Sparxstar\Starmus\api;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starisian\Starmus\core\StarmusSettings;
-use Starisian\Starmus\helpers\StarmusLogger;
-use Starisian\Starmus\includes\StarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -117,13 +117,13 @@ class StarmusRESTHandler {
 			// Log the full error to the server's error log
 			StarmusLogger::log( 'RestHandler:fallback', $e, 'error' );
 
-                        return new WP_Error(
-                                'server_error',
-                                __( 'Upload failed. Please try again later.', 'starmus-audio-recorder' ),
-                                array( 'status' => 500 )
-                        );
-                }
-        }
+						return new WP_Error(
+							'server_error',
+							__( 'Upload failed. Please try again later.', 'starmus-audio-recorder' ),
+							array( 'status' => 500 )
+						);
+		}
+	}
 
 	/**
 	 * Handle chunked uploads.
@@ -173,9 +173,9 @@ class StarmusRESTHandler {
 
 			// Ensure it's the correct CPT
 			$post_type = get_post_type( $post_id );
-                        if ( $post_type !== $this->submission_handler->get_cpt_slug() ) {
-                                return new WP_Error( 'invalid_type', 'Not an audio recording', array( 'status' => 403 ) );
-                        }
+			if ( $post_type !== $this->submission_handler->get_cpt_slug() ) {
+					return new WP_Error( 'invalid_type', 'Not an audio recording', array( 'status' => 403 ) );
+			}
 
 			return new WP_REST_Response(
 				array(

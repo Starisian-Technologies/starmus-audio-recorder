@@ -1,203 +1,191 @@
 <?php
 /**
- * STARISIAN TECHNOLOGIES CONFIDENTIAL
- * © 2023–2025 Starisian Technologies. All Rights Reserved.
+ * Full post-save transcoding, mastering, archival, ID3, waveform generation.
  *
- * @package Starisian\Starmus\services
- * @module  StarmusAudioProcessingHandler
- * @version 0.7.6
- * @since   0.7.4
- * @file    Central handler for the post-upload audio processing pipeline.
+ * @package Starisian\Sparxstar\Starmus\services
+ * @version 1.2.0
  */
 
-namespace Starisian\Starmus\services;
+namespace Starisian\Sparxstar\Starmus\services;
 
-use Starisian\Starmus\frontend\StarmusAudioRecorderUI;
-use Starisian\Starmus\services\WaveformService;
-use Starisian\Starmus\services\PostProcessingService;
-use Starisian\Starmus\services\FileService;
-use Starisian\Starmus\services\AudioProcessingService;
-use WP_Error;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class StarmusAudioProcessingHandler {
+class PostProcessingService {
 
-	private static $instance                                  = null;
-	private ?WaveformService $waveform_service                = null;
-	private ?PostProcessingService $post_processing_service   = null;
-	private ?FileService $file_service                        = null;
-	private ?AudioProcessingService $audio_processing_service = null;
-	private ?array $config                                    = array();
-	private ?array $pipeline                                  = array();
+	private AudioProcessingService $audio_processing_service;
+	private FileService $file_service;
+	private WaveformService $waveform_service;
 
-	public static function init(): StarmusAudioProcessingHandler {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-		return self::$instance;
-	}
-
-	private function __construct() {
-		$this->waveform_service         = new WaveformService();
-		$this->post_processing_service  = new PostProcessingService();
-		$this->file_service             = new FileService();
+	public function __construct() {
 		$this->audio_processing_service = new AudioProcessingService();
-		$this->setup_config();
-		$this->setup_pipeline();
+		$this->file_service             = new FileService();
+		$this->waveform_service         = new WaveformService();
 	}
 
-	private function setup_config(): void {
-		$default_config = array(
-			'log_level'            => 'info',
-			'generate_waveform'    => true,
-			'transcode_and_master' => true,
+	public function star_is_tool_available(): bool {
+		$path = shell_exec( 'command -v ffmpeg' );
+		return ! empty( trim( (string) $path ) );
+	}
+
+	public function process_and_archive_audio( int $audio_post_id, int $attachment_id, array $options = array() ): bool {
+		return $this->star_process_and_archive_audio( $audio_post_id, $attachment_id, $options );
+	}
+
+	/**
+	 * Transcode to WAV (archival) + MP3 (distribution), ID3, waveform, and updates.
+	 */
+	public function star_process_and_archive_audio( int $audio_post_id, int $attachment_id, array $options = array() ): bool {
+		StarmusLogger::setCorrelationId();
+		StarmusLogger::timeStart( 'audio_postprocess' );
+
+		if ( ! $this->star_is_tool_available() ) {
+			StarmusLogger::error( 'PostProcessingService', 'FFmpeg not available' );
+			return false;
+		}
+
+		$defaults = array(
+			'preserve_silence' => true, // maintain timing with transcription
+			'bitrate'          => '192k',
+			'samplerate'       => 44100,
 		);
-		$this->config   = apply_filters( 'starmus_audio_processing_config', $default_config );
-	}
+		$options  = array_replace( $defaults, $options );
 
-	private function setup_pipeline(): void {
-		$default_pipeline = array(
-			'10_validate_upload'      => array( $this, 'step_validate_upload' ),
-			'20_sideload_and_attach'  => array( $this, 'step_sideload_and_attach' ),
-			'30_generate_waveform'    => array( $this, 'step_generate_waveform' ),
-			'40_transcode_and_master' => array( $this, 'step_transcode_and_master' ),
-			'50_save_metadata'        => array( $this, 'step_save_metadata' ),
-			'60_finalize_post'        => array( $this, 'step_finalize_post' ),
-		);
-		$this->pipeline   = apply_filters( 'starmus_audio_processing_pipeline', $default_pipeline );
-		ksort( $this->pipeline );
-	}
-
-	public function process_audio( string $temp_file_path, array $form_data, string $uuid ): mixed {
-		$this->log( 'info', 'Starting audio processing pipeline.', array( 'uuid' => $uuid ) );
-		$post = $this->find_post_by_uuid( $uuid );
-		if ( ! $post || get_current_user_id() !== (int) $post->post_author ) {
-			return new WP_Error( 'not_found', 'Draft submission not found or permission denied.' );
+		$original_path = $this->file_service->get_local_copy( $attachment_id );
+		if ( ! $original_path || ! file_exists( $original_path ) ) {
+			StarmusLogger::error( 'PostProcessingService', 'Missing local source', array( 'attachment_id' => $attachment_id ) );
+			return false;
 		}
-		$context = array(
-			'temp_file_path' => $temp_file_path,
-			'form_data'      => $form_data,
-			'post_id'        => $post->ID,
-			'attachment_id'  => null,
-			'results'        => array(),
-		);
-		try {
-			foreach ( $this->pipeline as $step_name => $callback ) {
-				if ( ! is_callable( $callback ) ) {
-					continue;
-				}
-				$this->log( 'debug', "Executing pipeline step: [{$step_name}]" );
-				$context = call_user_func( $callback, $context, $this->config );
-				if ( is_wp_error( $context ) ) {
-					throw new \Exception( $context->get_error_message(), $context->get_error_code() );
-				}
-			}
-		} catch ( \Exception $e ) {
-			$this->log( 'error', 'Pipeline failed.', array( 'error' => $e->getMessage() ) );
-			wp_delete_post( $context['post_id'], true );
-			if ( $context['attachment_id'] ) {
-				wp_delete_attachment( $context['attachment_id'], true );
-			}
-			if ( file_exists( $temp_file_path ) ) {
-				unlink( $temp_file_path );
-			}
-			return new WP_Error( $e->getCode(), 'Processing failed: ' . $e->getMessage() );
+
+		$is_temp_source = ( strpos( $original_path, sys_get_temp_dir() ) === 0 );
+		$upload_dir     = wp_get_upload_dir();
+		$base_filename  = pathinfo( $original_path, PATHINFO_FILENAME );
+		$backup_path    = $original_path . '.bak';
+
+		if ( ! @rename( $original_path, $backup_path ) ) {
+			StarmusLogger::error( 'PostProcessingService', 'Backup creation failed' );
+			return false;
 		}
-		$this->log( 'info', 'Audio processing pipeline completed successfully.', array( 'post_id' => $context['post_id'] ) );
-		do_action( 'starmus_audio_processing_complete', $context );
-		return $context;
-	}
 
-	public function step_validate_upload( $context ): mixed {
-		$finfo     = finfo_open( FILEINFO_MIME_TYPE );
-		$real_mime = $finfo ? (string) finfo_file( $finfo, $context['temp_file_path'] ) : '';
-		finfo_close( $finfo );
-		if ( strpos( $real_mime, 'audio/' ) !== 0 && $real_mime !== 'video/webm' ) {
-			return new WP_Error( 'invalid_mime', 'File is not a valid audio type.' );
-		}
-		$context['results']['validation'] = array( 'mime_type' => $real_mime );
-		return $context;
-	}
-
-	public function step_sideload_and_attach( $context ): mixed {
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/media.php';
-		require_once ABSPATH . 'wp-admin/includes/image.php';
-		$file_name     = $context['form_data']['fileName'] ?? basename( $context['temp_file_path'] );
-		$file_data     = array(
-			'name'     => wp_unique_filename( wp_get_upload_dir()['path'], $file_name ),
-			'tmp_name' => $context['temp_file_path'],
-		);
-		$attachment_id = media_handle_sideload( $file_data, $context['post_id'] );
-		if ( is_wp_error( $attachment_id ) ) {
-			return $attachment_id;
-		}
-		$context['attachment_id']         = (int) $attachment_id;
-		$context['results']['attachment'] = array( 'id' => $attachment_id );
-		return $context;
-	}
-
-	public function step_generate_waveform( $context, $config ): mixed {
-		if ( $config['generate_waveform'] && $this->waveform_service->is_tool_available() ) {
-			$success                        = $this->waveform_service->generate_waveform_data( $context['attachment_id'] );
-			$context['results']['waveform'] = array( 'generated' => $success );
-		}
-		return $context;
-	}
-
-	public function step_transcode_and_master( $context, $config ): mixed {
-		if ( $config['transcode_and_master'] && $this->post_processing_service->is_tool_available() ) {
-			$success                         = $this->post_processing_service->process_and_archive_audio( $context['attachment_id'] );
-			$context['results']['transcode'] = array( 'processed' => $success );
-		}
-		return $context;
-	}
-
-	public function step_save_metadata( $context ): mixed {
-		$ui_class = new StarmusAudioRecorderUI( null );
-		$ui_class->save_all_metadata( $context['post_id'], $context['attachment_id'], $context['form_data'] );
-		$context['results']['metadata_saved'] = true;
-		return $context;
-	}
-
-	public function step_finalize_post( $context ): mixed {
-		wp_update_post(
+		/**
+		 * 🔹 Hook: before any audio processing.
+		 */
+		do_action(
+			'starmus_audio_preprocess',
 			array(
-				'ID'          => $context['post_id'],
-				'post_status' => 'publish',
+				'post_id'       => $audio_post_id,
+				'attachment_id' => $attachment_id,
+				'backup_path'   => $backup_path,
+				'options'       => $options,
 			)
 		);
-		update_post_meta( $context['post_id'], '_audio_attachment_id', $context['attachment_id'] );
-		set_post_thumbnail( $context['post_id'], $context['attachment_id'] );
-		$context['results']['post_finalized'] = true;
-		return $context;
-	}
 
-	private function find_post_by_uuid( string $uuid ): ?\WP_Post {
-		$args  = array(
-			'post_type'      => 'audio-recording',
-			'post_status'    => 'draft',
-			'meta_query'     => array(
-				array(
-					'key'   => '_submission_uuid',
-					'value' => $uuid,
-				),
-			),
-			'posts_per_page' => 1,
-			'fields'         => 'all',
+		// --- 1) WAV archival ---
+		$archival_path = trailingslashit( $upload_dir['path'] ) . "{$base_filename}-archive.wav";
+		$cmd_wav       = sprintf(
+			'ffmpeg -y -i %s -c:a pcm_s16le -ar %d %s',
+			escapeshellarg( $backup_path ),
+			(int) $options['samplerate'],
+			escapeshellarg( $archival_path )
 		);
-		$query = new \WP_Query( $args );
-		return $query->have_posts() ? $query->posts[0] : null;
-	}
-
-	private function log( $level, $message, $data = array() ): void {
-		if ( $this->config['log_level'] === 'debug' || $level !== 'debug' ) {
-			error_log( '[Starmus_Audio_Processing_Handler][' . strtoupper( $level ) . '] ' . $message . ' ' . json_encode( $data ) );
+		exec( $cmd_wav . ' 2>&1', $out_wav, $ret_wav );
+		if ( $ret_wav !== 0 || ! file_exists( $archival_path ) ) {
+			@rename( $backup_path, $original_path );
+			StarmusLogger::error( 'PostProcessingService', 'WAV generation failed', array( 'cmd' => $cmd_wav ) );
+			return false;
 		}
+
+		// --- 2) MP3 distribution ---
+		$filters = array( 'loudnorm=I=-16:TP=-1.5:LRA=11' );
+		if ( ! $options['preserve_silence'] ) {
+			$filters[] = 'silenceremove=start_periods=1:start_threshold=-50dB';
+		}
+		$filter_chain = implode( ',', array_filter( $filters ) );
+
+		$mp3_path = trailingslashit( $upload_dir['path'] ) . "{$base_filename}.mp3";
+		$cmd_mp3  = sprintf(
+			'ffmpeg -y -i %s -af %s -c:a libmp3lame -b:a %s %s',
+			escapeshellarg( $backup_path ),
+			escapeshellarg( $filter_chain ),
+			escapeshellarg( (string) $options['bitrate'] ),
+			escapeshellarg( $mp3_path )
+		);
+
+		exec( $cmd_mp3 . ' 2>&1', $out_mp3, $ret_mp3 );
+		if ( $ret_mp3 !== 0 || ! file_exists( $mp3_path ) ) {
+			@rename( $backup_path, $original_path );
+			if ( file_exists( $archival_path ) ) {
+				wp_delete_file( $archival_path );
+			}
+			StarmusLogger::error( 'PostProcessingService', 'MP3 generation failed', array( 'cmd' => $cmd_mp3 ) );
+			return false;
+		}
+
+		// --- 3) Attach and update WordPress ---
+		update_attached_file( $attachment_id, $mp3_path );
+		wp_update_post(
+			array(
+				'ID'             => $attachment_id,
+				'post_mime_type' => 'audio/mpeg',
+			)
+		);
+		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $mp3_path ) );
+
+		// --- 4) ID3 tagging ---
+		$this->audio_processing_service->process_attachment( $attachment_id );
+		do_action( 'starmus_audio_id3_written', $attachment_id, $mp3_path, $audio_post_id );
+
+		// --- 5) Waveform generation (always preserve dead air for time alignment) ---
+		$this->waveform_service->generate_waveform_data( $attachment_id );
+
+		// --- 6) Metadata persistence ---
+		update_post_meta( $attachment_id, '_starmus_archival_path', $archival_path );
+		if ( function_exists( 'update_field' ) ) {
+			@update_field( 'archival_wav', $archival_path, $audio_post_id );
+			@update_field( 'mastered_mp3', $mp3_path, $audio_post_id );
+		}
+
+		// --- 7) Optional cloud offload ---
+		$this->file_service->upload_and_replace_attachment( $attachment_id, $mp3_path );
+
+		// --- 8) Cleanup ---
+		wp_delete_file( $backup_path );
+		if ( $is_temp_source && file_exists( $original_path ) ) {
+			@unlink( $original_path );
+		}
+
+		/**
+		 * 🔹 Hook: after successful processing.
+		 */
+		do_action(
+			'starmus_audio_postprocessed',
+			$attachment_id,
+			array(
+				'post_id' => $audio_post_id,
+				'mp3'     => $mp3_path,
+				'wav'     => $archival_path,
+				'ffmpeg'  => array(
+					'wav' => $out_wav ?? array(),
+					'mp3' => $out_mp3 ?? array(),
+				),
+				'options' => $options,
+			)
+		);
+
+		StarmusLogger::timeEnd( 'audio_postprocess', 'PostProcessingService' );
+		StarmusLogger::info(
+			'PostProcessingService',
+			'Post-processing complete',
+			array(
+				'attachment_id' => $attachment_id,
+				'mp3'           => $mp3_path,
+				'wav'           => $archival_path,
+			)
+		);
+
+		return true;
 	}
 }
-
-Starmus_Audio_Processing_Handler::init();

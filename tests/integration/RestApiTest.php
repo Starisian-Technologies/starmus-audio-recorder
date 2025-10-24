@@ -2,7 +2,7 @@
 /**
  * WordPress REST API Integration Tests
  * 
- * @package Starisian\Starmus\tests\integration
+ * @package Starisian\Sparxstar\Starmus\tests\integration
  */
 
 class RestApiTest extends WP_UnitTestCase {

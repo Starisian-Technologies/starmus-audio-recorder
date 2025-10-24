@@ -1,11 +1,11 @@
 <?php
-namespace Starisian\Starmus\frontend;
+namespace Starisian\Sparxstar\Starmus\frontend;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starisian\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 
 /**
  * Renders the user interface for the audio recorder and recordings list.

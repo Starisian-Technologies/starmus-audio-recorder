@@ -2,12 +2,12 @@
 /**
  * Optimized and secure settings management for the Starmus plugin.
  *
- * @package Starisian\Starmus\core
+ * @package Starisian\Sparxstar\Starmus\core
  * @version 0.8.0
  * @since 0.3.1
  */
 
-namespace Starisian\Starmus\core;
+namespace Starisian\Sparxstar\Starmus\core;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,7 +19,7 @@ final class StarmusSettings {
 	 * Whitelisted MIME types for audio/video.
 	 * Centralized in a constant for clarity and reuse.
 	 */
-	private const ALLOWED_MIMES = [
+	private const ALLOWED_MIMES = array(
 		'mp3'  => 'audio/mpeg',
 		'wav'  => 'audio/wav',
 		'ogg'  => 'audio/ogg',
@@ -38,7 +38,7 @@ final class StarmusSettings {
 		'wmv'  => 'video/x-ms-wmv',
 		'3gp'  => 'video/3gpp',
 		'3g2'  => 'video/3gpp2',
-	];
+	);
 
 	/**
 	 * WP option key for storing settings.
@@ -68,15 +68,15 @@ final class StarmusSettings {
 	 * Register all filters related to MIME validation.
 	 */
 	private function register_hooks(): void {
-		add_filter( 'wp_check_filetype_and_ext', [ $this, 'filter_filetype_and_ext' ], 10, 5 );
-		add_filter( 'upload_mimes', [ $this, 'filter_upload_mimes' ] );
+		add_filter( 'wp_check_filetype_and_ext', array( $this, 'filter_filetype_and_ext' ), 10, 5 );
+		add_filter( 'upload_mimes', array( $this, 'filter_upload_mimes' ) );
 	}
 
 	/**
 	 * Retrieve a single setting by key with default fallback.
 	 *
 	 * @param string $key
-	 * @param mixed $default
+	 * @param mixed  $default
 	 * @return mixed
 	 */
 	public function get( string $key, $default = null ) {
@@ -90,13 +90,13 @@ final class StarmusSettings {
 	 */
 	public function all(): array {
 		if ( $this->obj_cache === null ) {
-			$saved  = \get_option( self::STARMUS_OPTION_KEY, [] );
+			$saved = \get_option( self::STARMUS_OPTION_KEY, array() );
 
-            // --- ADD THIS DEBUGGING LINE ---
-            error_log( 'StarmusSettings::all() - RAW result from get_option(' . self::STARMUS_OPTION_KEY . '): ' . print_r( $saved, true ) );
-            // --- END DEBUGGING LINE ---
+			// --- ADD THIS DEBUGGING LINE ---
+			error_log( 'StarmusSettings::all() - RAW result from get_option(' . self::STARMUS_OPTION_KEY . '): ' . print_r( $saved, true ) );
+			// --- END DEBUGGING LINE ---
 
-			$merged = \wp_parse_args( $saved, $this->get_defaults() );
+			$merged          = \wp_parse_args( $saved, $this->get_defaults() );
 			$this->obj_cache = $merged;
 		}
 		return $this->obj_cache;
@@ -127,7 +127,7 @@ final class StarmusSettings {
 	 * REVERTED: Now updates option.
 	 */
 	public function update_all( array $settings ): bool {
-		$sanitized = [];
+		$sanitized = array();
 		foreach ( $settings as $key => $value ) {
 			if ( $this->is_valid_key( $key ) ) {
 				$sanitized[ $key ] = $this->sanitize_value( $key, $value );
@@ -151,7 +151,7 @@ final class StarmusSettings {
 	 */
 	public function get_defaults(): array {
 		if ( $this->default_obj_cache === null ) {
-			$this->default_obj_cache = [
+			$this->default_obj_cache = array(
 				'cpt_slug'              => 'audio-recording',
 				'file_size_limit'       => 10,
 				'recording_time_limit'  => 300,
@@ -162,7 +162,7 @@ final class StarmusSettings {
 				'edit_page_id'          => 0,
 				'recorder_page_id'      => 0,
 				'my_recordings_page_id' => 0,
-			];
+			);
 			$this->default_obj_cache = \apply_filters( 'starmus_default_settings', $this->default_obj_cache );
 		}
 		return $this->default_obj_cache;
@@ -261,14 +261,14 @@ final class StarmusSettings {
 		$whitelist = self::get_allowed_mimes();
 
 		if ( isset( $whitelist[ $ext ] ) ) {
-			return [
+			return array(
 				'ext'             => $ext,
 				'type'            => $whitelist[ $ext ],
 				'proper_filename' => $filename,
-			];
+			);
 		}
 
-		return is_array( $types ) ? $types : [];
+		return is_array( $types ) ? $types : array();
 	}
 
 	/**

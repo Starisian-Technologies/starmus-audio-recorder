@@ -1,15 +1,15 @@
 <?php
-namespace Starisian\Starmus\frontend;
+namespace Starisian\Sparxstar\Starmus\frontend;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starisian\Starmus\core\StarmusSettings;
-use Starisian\Starmus\frontend\StarmusAudioRecorderUI;
-use Starisian\Starmus\frontend\StarmusAudioEditorUI;
-use Starisian\Starmus\helpers\StarmusLogger;
-use Starisian\Starmus\helpers\StarmusTemplateLoaderHelper;
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
+use Starisian\Sparxstar\Starmus\frontend\StarmusAudioEditorUI;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 
 /**
  * Registers shortcodes and routes rendering lazily to the correct UI classes.
@@ -22,7 +22,7 @@ class StarmusShortcodeLoader {
 
 	public function __construct( ?StarmusSettings $settings ) {
 		$this->settings = $settings ?? new StarmusSettings();
-		add_action( 'init', [ $this, 'register_shortcodes' ] );
+		add_action( 'init', array( $this, 'register_shortcodes' ) );
 	}
 
 	/**
@@ -30,29 +30,35 @@ class StarmusShortcodeLoader {
 	 */
 	public function register_shortcodes(): void {
 
-		add_shortcode( 'starmus_audio_recorder', function() {
-			try {
-				$recorder = new StarmusAudioRecorderUI( $this->settings );
-				return $recorder->render_recorder_shortcode();
-			} catch ( \Throwable $e ) {
-				StarmusLogger::log( 'Shortcode:starmus_audio_recorder', $e );
-				return '<p>' . esc_html__( 'Recorder unavailable.', 'starmus-audio-recorder' ) . '</p>';
+		add_shortcode(
+			'starmus_audio_recorder',
+			function () {
+				try {
+					$recorder = new StarmusAudioRecorderUI( $this->settings );
+					return $recorder->render_recorder_shortcode();
+				} catch ( \Throwable $e ) {
+					StarmusLogger::log( 'Shortcode:starmus_audio_recorder', $e );
+					return '<p>' . esc_html__( 'Recorder unavailable.', 'starmus-audio-recorder' ) . '</p>';
+				}
 			}
-		} );
+		);
 
-		add_shortcode( 'starmus_audio_editor', function() {
-			try {
-				$editor = new StarmusAudioEditorUI();
-				return $editor->render_audio_editor_shortcode();
-			} catch ( \Throwable $e ) {
-				StarmusLogger::log( 'Shortcode:starmus_audio_editor', $e );
-				return '<p>' . esc_html__( 'Editor unavailable.', 'starmus-audio-recorder' ) . '</p>';
+		add_shortcode(
+			'starmus_audio_editor',
+			function () {
+				try {
+					$editor = new StarmusAudioEditorUI();
+					return $editor->render_audio_editor_shortcode();
+				} catch ( \Throwable $e ) {
+					StarmusLogger::log( 'Shortcode:starmus_audio_editor', $e );
+					return '<p>' . esc_html__( 'Editor unavailable.', 'starmus-audio-recorder' ) . '</p>';
+				}
 			}
-		} );
+		);
 
-		add_shortcode( 'starmus_my_recordings', [ $this, 'render_my_recordings_shortcode' ] );
-		add_shortcode( 'starmus_recording_detail', [ $this, 'render_submission_detail_shortcode' ] );
-		add_filter( 'the_content', [ $this, 'render_submission_detail_via_filter' ], 100 );
+		add_shortcode( 'starmus_my_recordings', array( $this, 'render_my_recordings_shortcode' ) );
+		add_shortcode( 'starmus_recording_detail', array( $this, 'render_submission_detail_shortcode' ) );
+		add_filter( 'the_content', array( $this, 'render_submission_detail_via_filter' ), 100 );
 	}
 
 	/**
@@ -64,25 +70,27 @@ class StarmusShortcodeLoader {
 		}
 
 		try {
-			$attributes     = shortcode_atts( [ 'posts_per_page' => 10 ], $atts );
+			$attributes     = shortcode_atts( array( 'posts_per_page' => 10 ), $atts );
 			$posts_per_page = max( 1, absint( $attributes['posts_per_page'] ) );
 			$paged          = get_query_var( 'paged' ) ? (int) get_query_var( 'paged' ) : 1;
 			$cpt_slug       = $this->settings->get( 'cpt_slug', 'audio-recording' );
 
-			$query = new \WP_Query( [
-				'post_type'      => $cpt_slug,
-				'author'         => get_current_user_id(),
-				'posts_per_page' => $posts_per_page,
-				'paged'          => $paged,
-				'post_status'    => [ 'publish', 'draft', 'pending', 'private' ],
-			] );
+			$query = new \WP_Query(
+				array(
+					'post_type'      => $cpt_slug,
+					'author'         => get_current_user_id(),
+					'posts_per_page' => $posts_per_page,
+					'paged'          => $paged,
+					'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+				)
+			);
 
 			return StarmusTemplateLoaderHelper::render_template(
 				'parts/starmus-my-recordings-list.php',
-				[
+				array(
 					'query'         => $query,
 					'edit_page_url' => $this->get_edit_page_url_admin(),
-				]
+				)
 			);
 		} catch ( \Throwable $e ) {
 			StarmusLogger::log( 'UI:render_my_recordings', $e );
