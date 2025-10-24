@@ -6,7 +6,7 @@
  * Post-save transcoding, mastering, archival, ID3, waveform generation.
  *
  * @package   Starisian\Sparxstar\Starmus\services
- * @version   1.6.0
+ * @version   1.6.0-dal
  */
 
 namespace Starisian\Sparxstar\Starmus\services;
@@ -15,22 +15,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 /**
  * PostProcessingService
  *
  * Responsibilities:
- *  - Resolve ffmpeg path (options → env → PATH)
+ *  - Resolve ffmpeg path (via DAL → filters)
  *  - Transcode original → WAV (archival), MP3 (distribution)
  *  - Apply ID3 via AudioProcessingService
  *  - Generate waveform via WaveformService
- *  - Persist paths to attachment + ACF fields on CPT post
+ *  - Persist paths & state via DAL
  *  - Optional cloud offload via FileService
  */
 class PostProcessingService {
 
-	/** Status/state codes written to post meta for observability */
+	/** Status/state codes written for observability */
 	public const STATE_IDLE           = 'idle';
 	public const STATE_PROCESSING     = 'processing';
 	public const STATE_CONVERTING_WAV = 'converting_wav';
@@ -47,37 +48,33 @@ class PostProcessingService {
 	public const STATE_ERR_ID3_FAILED     = 'error_id3_failed';
 	public const STATE_ERR_UNKNOWN        = 'error_unknown';
 
-	/** Meta keys (attachment) */
-	private const META_STATE           = '_audio_processing_status';
+	/** Meta keys (attachment) kept for limited internal use */
 	private const META_ORIGINAL_SOURCE = '_audio_original_source';
-	private const META_ID3_AT          = '_audio_id3_written_at';
-	private const META_MP3_PATH        = '_audio_mp3_path';
-	private const META_WAV_PATH        = '_audio_wav_path';
-	private const META_COPR_SRC        = '_audio_copyright_source';
 
-	/** Meta keys (ACF-friendly on CPT) */
+	/** ACF keys (used only if ACF is present, via DAL method) */
 	private const ACF_ARCHIVAL_WAV = 'archival_wav';
 	private const ACF_MASTERED_MP3 = 'mastered_mp3';
 
-	/** Options / filters */
-	private const OPT_FFMPEG_PATH        = 'starmus_ffmpeg_path';   // optional string
-	private const ENV_FFMPEG_BIN         = 'FFMPEG_BIN';            // optional env var
+	/** Filters */
 	private const FILTER_FFMPEG_PATH     = 'starmus_ffmpeg_path';
 	private const FILTER_PROCESS_OPTIONS = 'starmus_postprocess_options';
 
 	private AudioProcessingService $id3;
 	private FileService $files;
 	private WaveformService $waveform;
+	private StarmusAudioRecorderDAL $dal;
 
 	/** DI-friendly constructor (falls back to internal instantiation if omitted) */
 	public function __construct(
 		?AudioProcessingService $audio_processing_service = null,
 		?FileService $file_service = null,
-		?WaveformService $waveform_service = null
+		?WaveformService $waveform_service = null,
+		?StarmusAudioRecorderDAL $dal = null
 	) {
 		$this->id3      = $audio_processing_service ?: new AudioProcessingService();
 		$this->files    = $file_service ?: new FileService();
 		$this->waveform = $waveform_service ?: new WaveformService();
+		$this->dal      = $dal ?: new StarmusAudioRecorderDAL();
 	}
 
 	/** Back-compat alias */
@@ -122,6 +119,7 @@ class PostProcessingService {
 			}
 
 			$this->setState( $attachment_id, self::STATE_PROCESSING );
+			// This is a transient diagnostic pointer; OK to write directly.
 			update_post_meta( $attachment_id, self::META_ORIGINAL_SOURCE, $original );
 
 			$is_temp_source = ( strpos( $original, sys_get_temp_dir() ) === 0 );
@@ -193,19 +191,9 @@ class PostProcessingService {
 				return false;
 			}
 
-			// 3) Attach MP3 as the definitive file (update attachment)
-			update_attached_file( $attachment_id, $mp3_path );
-			wp_update_post(
-				array(
-					'ID'             => $attachment_id,
-					'post_mime_type' => 'audio/mpeg',
-				)
-			);
-			wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $mp3_path ) );
-
-			// Persist raw paths on attachment
-			update_post_meta( $attachment_id, self::META_MP3_PATH, $mp3_path );
-			update_post_meta( $attachment_id, self::META_WAV_PATH, $wav_path );
+			// 3) Attach MP3 as the definitive file (update attachment & metadata via DAL)
+			$this->dal->update_attachment_metadata( $attachment_id, $mp3_path );
+			$this->dal->persist_audio_output( $attachment_id, $mp3_path, $wav_path );
 
 			// 4) ID3 tagging with detailed diagnostics
 			$this->setState( $attachment_id, self::STATE_ID3_WRITING );
@@ -215,7 +203,7 @@ class PostProcessingService {
 				// process_attachment() already logs granular errors
 				// We choose to continue (soft failure) to keep deliverables usable
 			} else {
-				update_post_meta( $attachment_id, self::META_ID3_AT, current_time( 'mysql' ) );
+				$this->dal->record_id3_timestamp( $attachment_id );
 			}
 			do_action( 'starmus_audio_id3_written', $attachment_id, $mp3_path, $audio_post_id, $id3_ok );
 
@@ -223,13 +211,8 @@ class PostProcessingService {
 			$this->setState( $attachment_id, self::STATE_WAVEFORM );
 			$this->waveform->generate_waveform_data( $attachment_id );
 
-			// 6) Metadata persistence to CPT (ACF if present)
-			update_post_meta( $attachment_id, '_starmus_archival_path', $wav_path );
-			if ( function_exists( 'update_field' ) ) {
-				// Store URLs if you prefer public links; otherwise store absolute paths
-				@update_field( self::ACF_ARCHIVAL_WAV, $wav_path, $audio_post_id );
-				@update_field( self::ACF_MASTERED_MP3, $mp3_path, $audio_post_id );
-			}
+			// 6) Metadata persistence to CPT (ACF if present) via DAL
+			$this->dal->update_acf_fields( $audio_post_id, $wav_path, $mp3_path );
 
 			// 7) Optional cloud offload (no-op if FileService doesn’t replace)
 			$this->files->upload_and_replace_attachment( $attachment_id, $mp3_path );
@@ -283,24 +266,13 @@ class PostProcessingService {
 		}
 	}
 
-	/** Resolve ffmpeg path: option → env → PATH; filterable */
+	/** Resolve ffmpeg path via DAL; allow external override through filter. */
 	private function resolveFfmpegPath(): ?string {
-		$opt = trim( (string) get_option( self::OPT_FFMPEG_PATH, '' ) );
-		if ( $opt !== '' ) {
-			return apply_filters( self::FILTER_FFMPEG_PATH, $opt );
+		$path = $this->dal->get_ffmpeg_path();
+		if ( $path !== null && $path !== '' ) {
+			$path = apply_filters( self::FILTER_FFMPEG_PATH, $path );
 		}
-
-		$env = getenv( self::ENV_FFMPEG_BIN );
-		if ( is_string( $env ) && $env !== '' ) {
-			return apply_filters( self::FILTER_FFMPEG_PATH, $env );
-		}
-
-		$which = trim( (string) shell_exec( 'command -v ffmpeg' ) );
-		if ( $which !== '' ) {
-			return apply_filters( self::FILTER_FFMPEG_PATH, $which );
-		}
-
-		return null;
+		return $path ?: null;
 	}
 
 	/** Execute ffmpeg, return [success(bool), combined_output(string)] */
@@ -326,9 +298,9 @@ class PostProcessingService {
 		@rename( $backup, $original );
 	}
 
-	/** Update processing state on attachment */
+	/** Update processing state on attachment via DAL */
 	private function setState( int $attachment_id, string $state ): void {
-		update_post_meta( $attachment_id, self::META_STATE, $state );
+		$this->dal->set_audio_state( $attachment_id, $state );
 	}
 
 	/** Resolve and filter options (bitrate, samplerate, preserve_silence) */

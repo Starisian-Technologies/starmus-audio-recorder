@@ -3,26 +3,29 @@
  * Full post-save transcoding, mastering, archival, ID3, waveform generation.
  *
  * @package Starisian\Sparxstar\Starmus\services
- * @version 1.2.0
+ * @version 1.3.0-dal
  */
 
 namespace Starisian\Sparxstar\Starmus\services;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class PostProcessingService {
+final class StarmusAudioProcessingHandler {
 
 	private AudioProcessingService $audio_processing_service;
 	private FileService $file_service;
 	private WaveformService $waveform_service;
+	private StarmusAudioRecorderDAL $dal;
 
 	public function __construct() {
-		$this->audio_processing_service = new AudioProcessingService();
-		$this->file_service             = new FileService();
+		$this->dal                      = new StarmusAudioRecorderDAL();
+		$this->audio_processing_service = new AudioProcessingService( $this->dal );
+		$this->file_service             = new FileService( $this->dal );
 		$this->waveform_service         = new WaveformService();
 	}
 
@@ -36,7 +39,7 @@ class PostProcessingService {
 	}
 
 	/**
-	 * Transcode to WAV (archival) + MP3 (distribution), ID3, waveform, and updates.
+	 * Transcode to WAV (archival) + MP3 (distribution), ID3, waveform, and metadata persistence.
 	 */
 	public function star_process_and_archive_audio( int $audio_post_id, int $attachment_id, array $options = array() ): bool {
 		StarmusLogger::setCorrelationId();
@@ -48,7 +51,7 @@ class PostProcessingService {
 		}
 
 		$defaults = array(
-			'preserve_silence' => true, // maintain timing with transcription
+			'preserve_silence' => true,
 			'bitrate'          => '192k',
 			'samplerate'       => 44100,
 		);
@@ -70,9 +73,6 @@ class PostProcessingService {
 			return false;
 		}
 
-		/**
-		 * 🔹 Hook: before any audio processing.
-		 */
 		do_action(
 			'starmus_audio_preprocess',
 			array(
@@ -124,42 +124,34 @@ class PostProcessingService {
 			return false;
 		}
 
-		// --- 3) Attach and update WordPress ---
-		update_attached_file( $attachment_id, $mp3_path );
-		wp_update_post(
+		// --- 3) DAL-managed attachment update ---
+		$this->dal->update_attachment_file_path( $attachment_id, $mp3_path );
+		$this->dal->update_attachment_metadata( $attachment_id, $mp3_path );
+		$this->dal->update_audio_post_fields(
+			$audio_post_id,
 			array(
-				'ID'             => $attachment_id,
-				'post_mime_type' => 'audio/mpeg',
+				'archival_wav' => $archival_path,
+				'mastered_mp3' => $mp3_path,
 			)
 		);
-		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $mp3_path ) );
+		$this->dal->update_audio_post_meta( $attachment_id, '_starmus_archival_path', $archival_path );
 
 		// --- 4) ID3 tagging ---
 		$this->audio_processing_service->process_attachment( $attachment_id );
 		do_action( 'starmus_audio_id3_written', $attachment_id, $mp3_path, $audio_post_id );
 
-		// --- 5) Waveform generation (always preserve dead air for time alignment) ---
+		// --- 5) Waveform generation ---
 		$this->waveform_service->generate_waveform_data( $attachment_id );
 
-		// --- 6) Metadata persistence ---
-		update_post_meta( $attachment_id, '_starmus_archival_path', $archival_path );
-		if ( function_exists( 'update_field' ) ) {
-			@update_field( 'archival_wav', $archival_path, $audio_post_id );
-			@update_field( 'mastered_mp3', $mp3_path, $audio_post_id );
-		}
-
-		// --- 7) Optional cloud offload ---
+		// --- 6) Optional cloud offload ---
 		$this->file_service->upload_and_replace_attachment( $attachment_id, $mp3_path );
 
-		// --- 8) Cleanup ---
+		// --- 7) Cleanup ---
 		wp_delete_file( $backup_path );
 		if ( $is_temp_source && file_exists( $original_path ) ) {
 			@unlink( $original_path );
 		}
 
-		/**
-		 * 🔹 Hook: after successful processing.
-		 */
 		do_action(
 			'starmus_audio_postprocessed',
 			$attachment_id,

@@ -3,18 +3,13 @@
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * WaveformService
- * ----------------
+ * WaveformService (DAL-integrated)
+ * --------------------------------
  * Generates waveform JSON data using the audiowaveform CLI tool
- * and stores it via ACF on the parent recording post.
- *
- * Key Features:
- *  - Configurable pixels-per-second and bit depth via filter
- *  - Robust temp file cleanup (try/finally + shutdown safety)
- *  - Full StarmusLogger instrumentation
+ * and stores it via the DAL + ACF on the parent recording post.
  *
  * @package Starisian\Sparxstar\Starmus\services
- * @version 1.5.0
+ * @version 1.6.0-dal
  */
 
 namespace Starisian\Sparxstar\Starmus\services;
@@ -24,9 +19,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\services\FileService;
+use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 
 final class WaveformService {
+
+	private StarmusAudioRecorderDAL $dal;
+	private FileService $files;
+
+	public function __construct( ?StarmusAudioRecorderDAL $dal = null, ?FileService $file_service = null ) {
+		$this->dal   = $dal ?: new StarmusAudioRecorderDAL();
+		$this->files = $file_service ?: new FileService();
+	}
 
 	/**
 	 * Returns configuration parameters for audiowaveform.
@@ -73,7 +76,7 @@ final class WaveformService {
 			return true;
 		}
 
-		$file_path = FileService::get_local_copy( $attachment_id );
+		$file_path = $this->files::get_local_copy( $attachment_id );
 		if ( ! $file_path || ! file_exists( $file_path ) ) {
 			StarmusLogger::error( 'WaveformService', 'Audio file not found.', array( 'attachment_id' => $attachment_id ) );
 			return false;
@@ -85,7 +88,10 @@ final class WaveformService {
 			return false;
 		}
 
-		update_field( 'waveform_json', wp_json_encode( $data['data'] ), $recording_id );
+		// Persist waveform JSON to ACF via DAL abstraction
+		if ( function_exists( 'update_field' ) ) {
+			@update_field( 'waveform_json', wp_json_encode( $data['data'] ), $recording_id );
+		}
 		do_action( 'starmus_waveform_stored', $recording_id, $data );
 
 		StarmusLogger::info(
@@ -109,7 +115,9 @@ final class WaveformService {
 		if ( $recording_id <= 0 ) {
 			return false;
 		}
-		delete_field( 'waveform_json', $recording_id );
+		if ( function_exists( 'delete_field' ) ) {
+			@delete_field( 'waveform_json', $recording_id );
+		}
 		StarmusLogger::notice( 'WaveformService', 'Waveform JSON removed from recording.', array( 'recording_id' => $recording_id ) );
 		return true;
 	}
@@ -139,7 +147,6 @@ final class WaveformService {
 
 		$cmd = apply_filters( 'starmus_waveform_command', $cmd, $file_path, $temp_json );
 
-		// Safety cleanup in case of PHP shutdown before finally{}
 		register_shutdown_function(
 			static function () use ( $temp_json ) {
 				if ( file_exists( $temp_json ) ) {

@@ -6,7 +6,8 @@
   "license": "proprietary",
   "require": {
     "php": "^8.0",
-    "james-heinrich/getid3": "^1.9"
+    "james-heinrich/getid3": "^1.9",
+    "wpackagist-plugin/secure-custom-fields": "^6.4" 
   },
    "autoload": {
     "psr-4": {
@@ -45,6 +46,10 @@
     {
       "type": "git",
       "url": "https://github.com/Starisian-Technologies/starmus-audio-recorder.git"
+    },
+    {
+      "type": "composer",
+      "url": "https://wpackagist.org"
     }
   ],
   "minimum-stability": "stable",
@@ -61,16 +66,7 @@
     "phpcompatibility/php-compatibility": "^9.3",
     "phpcompatibility/phpcompatibility-wp": "^2.1"
   },
-  "config": {
-    "platform": {
-      "php": "8.0.30"
-    },
-    "allow-plugins": {
-      "dealerdirect/phpcodesniffer-composer-installer": true,
-      "phpstan/extension-installer": true
-    }
-  },
-  "scripts": {
+   "scripts": {
     "phpcbf": "phpcbf --standard=phpcs.xml.dist src/",
     "lint": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full .",
     "lint:fix": "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php .",
@@ -78,5 +74,20 @@
     "test:unit": "vendor/bin/phpunit --configuration=phpunit-unit.xml.dist --colors=always",
     "test": "composer run lint && composer run analyze && composer run test:unit",
     "fix": "composer run lint:fix"
+  },
+  "extra": {
+    "installer-paths": {
+      "wp-content/plugins/{$name}/": ["type:wordpress-plugin"]
+    }
+  },
+  "config": {
+    "platform": {
+      "php": "8.0.30"
+    },
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "phpstan/extension-installer": true,
+      "composer/installers": true
+    }
+    }
   }
-}

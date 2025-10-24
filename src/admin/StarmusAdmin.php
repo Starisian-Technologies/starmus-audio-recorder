@@ -32,14 +32,16 @@ class StarmusAdmin {
 	/** Mapping of option keys to field types. */
 	private array $field_types         = array();
 	private ?StarmusSettings $settings = null;
+	private StarmusAudioRecorderDAL $dal;
 
 	/**
 	 * Constructor - initializes admin settings.
 	 *
 	 * @since 0.3.1
 	 */
-	public function __construct( ?StarmusSettings $settings ) {
-		$this->settings    = $settings;
+	public function __construct( ?StarmusAudioRecorderDAL $dal = null, ?StarmusSettings $settings = null ) {
+		$this->settings    = $settings ?? new StarmusSettings();
+		$this->dal         = $dal ?? new StarmusAudioRecorderDAL();
 		$this->field_types = array(
 			'cpt_slug'              => 'text',
 			'file_size_limit'       => 'number',
@@ -198,9 +200,8 @@ class StarmusAdmin {
 			$page_id    = 0;
 
 			if ( ! empty( $slug_input ) ) {
-				$page_object = get_page_by_path( $slug_input, OBJECT, 'page' );
-				if ( $page_object instanceof \WP_Post ) {
-					$page_id = $page_object->ID;
+				$page_id = $this->dal->get_page_id_by_slug( $slug_input );
+				if ( $page_id > 0 ) {
 				} else {
 					add_settings_error(
 						self::STARMUS_SETTINGS_GROUP,
@@ -408,10 +409,7 @@ class StarmusAdmin {
 			case 'slug_input':
 				$current_slug = '';
 				if ( (int) $value > 0 ) {
-					$page_obj = get_post( (int) $value );
-					if ( $page_obj instanceof \WP_Post ) {
-						$current_slug = $page_obj->post_name;
-					}
+					$current_slug = $this->dal->get_page_slug_by_id( (int) $value );
 				}
 				printf(
 					'<input type="text" id="%s" name="%s" value="%s" class="regular-text" placeholder="e.g., starmus-audio-editor" />',

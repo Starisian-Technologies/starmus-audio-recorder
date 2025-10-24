@@ -22,6 +22,7 @@ use Throwable;
 // Core + services you actually use here
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderUpdater;
 
 // Admin/UI/Assets
@@ -68,6 +69,8 @@ final class StarmusAudioRecorder {
 	/** Whether we've registered WordPress hooks (guard). */
 	private bool $hooksRegistered = false;
 
+	private ?StarmusAudioRecorderDAL $DAL = null;
+
 	/** Settings service (must be ready before other deps). */
 	private ?StarmusSettings $settings = null;
 
@@ -102,23 +105,10 @@ final class StarmusAudioRecorder {
 			// Example: Log to a specific file (overrides the default daily file in uploads)
 			StarmusLogger::setLogFilePath( ABSPATH . STARMUS_LOG_FILE );
 		}
+		$this->set_DAL();
 		$this->init_settings_or_throw();
 		$this->instantiate_components();
 		$this->register_hooks();
-
-		// TEMPORARY: Detect bad hook registrations early.
-		add_filter(
-			'add_action',
-			function ( $hook, $callback, $priority, $accepted_args ) {
-				if ( is_array( $callback ) && ( empty( $callback[0] ) || $callback[0] === null ) ) {
-					$bt = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 8 );
-					error_log( "❌ BAD HOOK REGISTERED: {$hook}\nCallback:\n" . print_r( $callback, true ) . "\nBacktrace:\n" . print_r( $bt, true ) );
-				}
-				return $hook;
-			},
-			10,
-			4
-		);
 	}
 
 	/**
@@ -179,6 +169,16 @@ final class StarmusAudioRecorder {
 		throw new \RuntimeException( 'StarmusSettings failed to initialize.' );
 	}
 
+	private function set_DAL(): void {
+		if ( $this->DAL === null ) {
+			$this->DAL = new StarmusAudioRecorderDAL();
+		}
+	}
+
+	public function get_DAL(): StarmusAudioRecorderDAL {
+		return $this->DAL;
+	}
+
 	/**
 	 * Instantiate components that depend on settings and environment.
 	 * Each component is wrapped in a try/catch so one failure doesn’t kill the plugin.
@@ -187,7 +187,7 @@ final class StarmusAudioRecorder {
 		error_log( 'Init Starmus Components' );
 		// Admin
 		try {
-			$this->admin = new StarmusAdmin( $this->settings );
+			$this->admin = new StarmusAdmin( $this->DAL, $this->settings );
 		} catch ( Throwable $e ) {
 			error_log( $e );
 			$this->log_runtime_error( 'Admin component', $e );
@@ -195,7 +195,7 @@ final class StarmusAudioRecorder {
 
 		// Frontend UI (Shortcodes) — manages Recorder UI + Editor UI
 		try {
-			$this->ui_loader = new StarmusShortcodeLoader( $this->settings );
+			$this->ui_loader = new StarmusShortcodeLoader( $this->DAL, $this->settings );
 		} catch ( Throwable $e ) {
 			error_log( $e );
 			$this->log_runtime_error( 'Shortcode loader', $e );
@@ -211,7 +211,7 @@ final class StarmusAudioRecorder {
 
 		// REST Handler — this internally creates the SubmissionHandler
 		try {
-			$this->rest_handler = new StarmusRESTHandler( $this->settings );
+			$this->rest_handler = new StarmusRESTHandler( $this->DAL, $this->settings );
 		} catch ( Throwable $e ) {
 			error_log( $e );
 			$this->log_runtime_error( 'REST handler', $e );
