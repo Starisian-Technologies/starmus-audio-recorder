@@ -173,7 +173,7 @@ register_uninstall_hook(STARMUS_MAIN_FILE, 'starmus_uninstall');
 register_activation_hook(__FILE__, [ \Starisian\Starmus\cron\StarmusCron::class, 'activate' ]);
 register_deactivation_hook(__FILE__, [ \Starisian\Starmus\cron\StarmusCron::class, 'deactivate' ]);
 // Initialize the plugin once all other plugins are loaded.
-add_action('plugins_loaded', [StarmusAudioRecorder::class, 'starmus_run']);
+add_action('plugins_loaded', [\Starisian\Starmus\StarmusAudioRecorder::class, 'starmus_run']);
 
 // Bootstrap plugin services during WordPress init lifecycle.
 add_action('init', [StarmusAudioRecorder::class, 'starmus_init_plugin']);
