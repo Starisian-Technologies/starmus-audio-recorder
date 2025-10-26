@@ -2,14 +2,14 @@
 /**
  * Template Loaders Helper class
  *
- * @package Starisian\Starmus\helpers
+ * @package Starisian\Sparxstar\Starmus\helpers
  * @version 0.7.6
  * @since 0.7.4
  */
 
-namespace Starisian\Starmus\helpers;
+namespace Starisian\Sparxstar\Starmus\helpers;
 
-use Starisian\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 class StarmusTemplateLoaderHelper {
 

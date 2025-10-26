@@ -5,16 +5,16 @@
  * @package   Starmus
  */
 
-namespace Starisian\Starmus\frontend;
+namespace Starisian\Sparxstar\Starmus\frontend;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starisian\Starmus\helpers\StarmusLogger;
-use Starisian\Starmus\core\StarmusSettings;
-use Starisian\Starmus\includes\StarmusSubmissionHandler;
-use Starisian\Starmus\helpers\StarmusTemplateLoaderHelper;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 use Exception;
 use Throwable;
 
@@ -67,7 +67,7 @@ class StarmusAudioRecorderUI {
 	 * Render the recorder form shortcode.
 	 */
 	public function render_recorder_shortcode(): string {
-		
+
 		try {
 			$template_args = array(
 				'form_id'         => 'starmus_recorder_form',
@@ -80,7 +80,7 @@ class StarmusAudioRecorderUI {
 			return StarmusTemplateLoaderHelper::secure_render_template( 'starmus-audio-recorder-ui.php', $template_args );
 
 		} catch ( \Throwable $e ) {
-			error_log($e);
+			error_log( $e );
 			StarmusLogger::log( 'UI:render_recorder_shortcode', $e );
 			return '<p>' . esc_html__( 'The audio recorder is temporarily unavailable.', 'starmus-audio-recorder' ) . '</p>';
 		}
@@ -115,5 +115,4 @@ class StarmusAudioRecorderUI {
 		delete_transient( 'starmus_languages_list' );
 		delete_transient( 'starmus_recording_types_list' );
 	}
-
 }
