@@ -128,14 +128,45 @@ final class StarmusAudioRecorder {
 	/**
 	 * Entry point called from main plugin file.
 	 */
-	public static function starmus_run(): void {
-		self::starmus_get_instance();
-	}
+        public static function starmus_run(): void
+        {
+                self::starmus_get_instance();
+        }
 
-	/**
-	 * Hook target for `init` to perform late initialization pieces.
-	 */
-	public static function starmus_init_plugin(): void {
+        /**
+         * Verify that either Advanced Custom Fields or Smart Custom Fields is active.
+         *
+         * The recorder relies on one of these field frameworks to manage submission metadata.
+         * ACF exposes a global function and root-level class, while Smart Custom Fields uses
+         * a namespaced bootstrap class. Checking the various identifiers keeps the runtime guard
+         * resilient without loading extra files during activation.
+         *
+         * @return bool True when a supported field framework is available.
+         */
+        public static function check_field_plugin_dependency(): bool
+        {
+                if (class_exists('ACF') || function_exists('acf')) {
+                        return true;
+                }
+
+                if (
+                        class_exists('SCF')
+                        || function_exists('scf')
+                        || class_exists('Smart_Custom_Fields')
+                        || class_exists('\Smart_Custom_Fields\Bootstrap')
+                ) {
+                        return true;
+                }
+
+                return false;
+        }
+
+        /**
+         * Hook target for `init` to perform late initialization pieces.
+         */
+        public static function starmus_init_plugin(): void
+        {
+
 		self::starmus_get_instance()->on_wp_init();
 	}
 

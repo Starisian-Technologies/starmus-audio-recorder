@@ -21,25 +21,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/** --- PLUGIN CONSTANTS --- */
-define( 'STARMUS_PATH', plugin_dir_path( __FILE__ ) );
-define( 'STARMUS_URL', plugin_dir_url( __FILE__ ) );
-define( 'STARMUS_MAIN_FILE', __FILE__ );
-// Human readable plugin name displayed in WordPress admin. 
-define( 'STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder' );
-// Shared prefix applied to option keys, actions, and filters. 
-define( 'STARMUS_PLUGIN_PREFIX', 'starmus' );
-// Current plugin semantic version string. 
-define( 'STARMUS_VERSION', '0.7.4' );
-// DAL Override Key
-define( 'STARMUS_DAL_OVERRIDE_KEY', 'f+vUT~wAhjSo1jQx9nG|~J7@/*yDekC?yoRS4E/vSv]ea&aNM)o+O>So=%g>L{=D');
-// Starmus Logger default settings.
-if ( ! defined( 'STARMUS_LOG_LEVEL' ) ) {
-define( 'STARMUS_LOG_LEVEL', 'Warning' ); }
-if ( ! defined( 'STARMUS_LOG_FILE' ) ) {
-define( 'STARMUS_LOG_FILE', '' ); }
+/** Absolute filesystem path to the plugin directory. */
+define('STARMUS_PATH', plugin_dir_path(__FILE__));
+/** Public URL to the plugin directory. */
+define('STARMUS_URL', plugin_dir_url(__FILE__));
+/** Main plugin file reference used for WordPress hooks. */
+define('STARMUS_MAIN_FILE', __FILE__);
+/** Directory path alias kept for backward compatibility. */
+define('STARMUS_MAIN_DIR', plugin_dir_path(__FILE__));
+/** Human readable plugin name displayed in WordPress admin. */
+define('STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder');
+/** Shared prefix applied to option keys, actions, and filters. */
+define('STARMUS_PLUGIN_PREFIX', 'starmus');
+/** Current plugin semantic version string. */
+define('STARMUS_VERSION', '0.7.4');
+/**
+ * Default severity threshold used when the host environment does not define one.
+ */
+if (!defined('STARMUS_LOG_LEVEL')) {
+        define('STARMUS_LOG_LEVEL', 'Warning');
+}
+/**
+ * Optional custom log file path honoured by the shared logger when configured.
+ */
+if (!defined('STARMUS_LOG_FILE')) {
+        define('STARMUS_LOG_FILE', '');
+}
 
-/** --- COMPOSER AUTOLOADER --- */
+/**
+ * Load Composer's autoloader if it is available.
+ *
+ * Guarding the include prevents fatal errors during early bootstrap when the
+ * vendor directory has not been installed (for example, during a manual
+ * deployment that omits development assets).
+ */
+/** Absolute path to the Composer autoloader file. */
+
 $starmus_autoload_path = STARMUS_PATH . 'vendor/autoload.php';
 if ( file_exists( $starmus_autoload_path ) ) {
 	require_once $starmus_autoload_path;
@@ -114,6 +131,7 @@ if ( ! class_exists( 'ACF' ) ) {
  *
  * @since 0.1.0
  */
+
 function starmus_activate(): void {
 	if ( ! class_exists('ACF') ) {
 		deactivate_plugins( plugin_basename( STARMUS_MAIN_FILE ) );
@@ -162,9 +180,15 @@ register_uninstall_hook( STARMUS_MAIN_FILE, 'starmus_uninstall' );
 register_activation_hook( __FILE__, array( \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'activate' ) );
 register_deactivation_hook( __FILE__, array( \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'deactivate' ) );
 
-// Initialize the plugin's main class once all other plugins are loaded.
-add_action( 'plugins_loaded', array( \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class, 'starmus_run' ) );
+// Register Plugin Lifecycle Hooks.
+register_activation_hook(STARMUS_MAIN_FILE, 'starmus_activate');
+register_deactivation_hook(STARMUS_MAIN_FILE, 'starmus_deactivate');
+register_uninstall_hook(STARMUS_MAIN_FILE, 'starmus_uninstall');
+// Starmus Cron activation / deactivation
+register_activation_hook(__FILE__, [ \Starisian\Starmus\cron\StarmusCron::class, 'activate' ]);
+register_deactivation_hook(__FILE__, [ \Starisian\Starmus\cron\StarmusCron::class, 'deactivate' ]);
+// Initialize the plugin once all other plugins are loaded.
+add_action('plugins_loaded', [\Starisian\Starmus\StarmusAudioRecorder::class, 'starmus_run']);
 
 // Bootstrap plugin services during WordPress init lifecycle.
-// This is likely where your 'audio-recording' CPT is registered, which is correct.
-add_action( 'init', array( \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class, 'starmus_init_plugin' ) );
+add_action('init', [StarmusAudioRecorder::class, 'starmus_init_plugin']);
