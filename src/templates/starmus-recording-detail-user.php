@@ -2,7 +2,7 @@
 /**
  * Starmus Single Recording Detail Template Part (User View)
  *
- * @package Starisian\Starmus\templates\parts
+ * @package Starisian\Sparxstar\Starmus\templates\parts
  */
 
 // Exit if accessed directly.
@@ -70,21 +70,22 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 			if ( $audio_attachment_id ) :
 				$waveform_peaks = get_post_meta( (int) $audio_attachment_id, '_waveform_data', true );
 				if ( ! empty( $waveform_peaks ) && is_array( $waveform_peaks ) ) :
-					$width = 900; // viewbox width (CSS will scale)
-					$height = 96;
-					$count = count( $waveform_peaks );
+					$width      = 900; // viewbox width (CSS will scale)
+					$height     = 96;
+					$count      = count( $waveform_peaks );
 					$max_points = 600; // limit for performance
-					$step = max( 1, (int) floor( $count / $max_points ) );
-					$abs_vals = array_map( 'abs', $waveform_peaks );
-					$max_val = ! empty( $abs_vals ) ? max( $abs_vals ) : 1;
-					if ( $max_val <= 0 ) { $max_val = 1; }
+					$step       = max( 1, (int) floor( $count / $max_points ) );
+					$abs_vals   = array_map( 'abs', $waveform_peaks );
+					$max_val    = ! empty( $abs_vals ) ? max( $abs_vals ) : 1;
+					if ( $max_val <= 0 ) {
+						$max_val = 1; }
 					$points = array();
 					for ( $i = 0; $i < $count; $i += $step ) {
-						$v = (float) $waveform_peaks[ $i ];
+						$v    = (float) $waveform_peaks[ $i ];
 						$norm = $v / $max_val; // roughly -1..1
-						$x = ( $i / max(1, $count - 1) ) * $width;
+						$x    = ( $i / max( 1, $count - 1 ) ) * $width;
 						// center the waveform vertically
-						$y = ( $height / 2 ) - ( $norm * ( $height / 2 ) );
+						$y        = ( $height / 2 ) - ( $norm * ( $height / 2 ) );
 						$points[] = $x . ',' . $y;
 					}
 					$points_str = implode( ' ', $points );
@@ -100,7 +101,7 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 							<pre class="starmus-raw-json"><code><?php echo esc_html( json_encode( $waveform_peaks, JSON_PRETTY_PRINT ) ); ?></code></pre>
 						</details>
 					</div>
-				<?php
+					<?php
 				endif;
 			endif;
 			?>
