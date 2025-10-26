@@ -186,4 +186,4 @@ private function process_completed_upload( $upload_info ) {
 }
 
 
-add_action( 'rest_api_init', 'starmus_initialize_tusd_hook_handler' )
+// Removed erroneous add_action for missing starmus_initialize_tusd_hook_handler
