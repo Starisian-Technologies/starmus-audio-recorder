@@ -138,10 +138,16 @@ public function process_completed_file( string $file_path, array $form_data ): a
             return $attachment_id;
         }
 
+        // Extract user ID from form_data metadata, fallback to 0 (anonymous) if not present or invalid.
+        $user_id = isset( $form_data['user_id'] ) ? absint( $form_data['user_id'] ) : 0;
+        if ( $user_id && ! get_userdata( $user_id ) ) {
+            $user_id = 0; // Invalid user ID, fallback to anonymous.
+        }
+        // For tusd uploads, user_id should be passed in metadata. Do not use get_current_user_id() as uploads may be processed asynchronously.
         $cpt_post_id = $this->dal->create_audio_post(
             $form_data['starmus_title'] ?? pathinfo( $filename, PATHINFO_FILENAME ),
             $this->get_cpt_slug(),
-            get_current_user_id() // NOTE: We might need to pass this in from metadata
+            $user_id
         );
         if ( is_wp_error( $cpt_post_id ) ) {
             $this->dal->delete_attachment( (int) $attachment_id );
