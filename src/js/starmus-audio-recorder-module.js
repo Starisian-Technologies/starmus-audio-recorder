@@ -575,9 +575,9 @@
               .replace(/_+/g, "_")
               .replace(/^_+|_+$/g, "")
           : "recording";
-        const submissionUUID = crypto.randomUUID
+        const submissionUUID = typeof crypto.randomUUID === 'function'
           ? crypto.randomUUID()
-          : "sub-" + Date.now() + "-" + Math.random().toString(36).substr(2, 9);
+          : generateUUIDv4();
         const fileName = applyFilters(
           "starmus_recorder_filename",
           `${starmusTitle}-${submissionUUID}.webm`,
