@@ -128,10 +128,10 @@ final class StarmusAudioRecorder
         }
 
         /**
-         * Verify that either Advanced Custom Fields or Secure Custom Fields is active.
+         * Verify that either Advanced Custom Fields or Smart Custom Fields is active.
          *
          * The recorder relies on one of these field frameworks to manage submission metadata.
-         * ACF exposes a global function and root-level class, while Secure Custom Fields uses
+         * ACF exposes a global function and root-level class, while Smart Custom Fields uses
          * a namespaced bootstrap class. Checking the various identifiers keeps the runtime guard
          * resilient without loading extra files during activation.
          *
