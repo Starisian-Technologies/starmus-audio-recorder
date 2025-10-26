@@ -147,7 +147,7 @@ final class StarmusAudioRecorder
                         class_exists('SCF')
                         || function_exists('scf')
                         || class_exists('Smart_Custom_Fields')
-                        || class_exists("\\Smart_Custom_Fields\\Bootstrap")
+                        || class_exists('\Smart_Custom_Fields\Bootstrap')
                 ) {
                         return true;
                 }
