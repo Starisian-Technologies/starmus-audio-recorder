@@ -87,11 +87,9 @@ private function process_completed_upload( $upload_info ) {
 			return new WP_Error( 'invalid_payload', 'Invalid or empty payload from tusd.', array( 'status' => 400 ) );
 		}
 
-		// Optional: For debugging, write the raw payload to a log file.
-		file_put_contents(
-			WP_CONTENT_DIR . '/debug-tusd.log',
-			date('c') . " | " . json_encode($data) . "\n",
-			FILE_APPEND
+		// Optional: For debugging, write the raw payload to the error log.
+		error_log(
+			'[TUSD HOOK DEBUG] ' . date('c') . " | " . json_encode($data)
 		);
 
 		switch ( $data['Type'] ) {
