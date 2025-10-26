@@ -2,13 +2,13 @@
 /**
  * REST API Tests for STAR/AIWA compliance
  * 
- * @package Starisian\Starmus\tests\unit
+ * @package Starisian\Sparxstar\Starmus\tests\unit
  */
 declare(strict_types=1);
-namespace Starisian\Starmus\tests\unit;
+namespace Starisian\Sparxstar\Starmus\tests\unit;
 
 use PHPUnit\Framework\TestCase;
-use Starisian\Starmus\frontend\StarmusAudioRecorderUI;
+use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
 
 final class StarmusRestApiTest extends TestCase
 {

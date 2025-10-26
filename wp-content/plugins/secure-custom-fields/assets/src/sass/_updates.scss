@@ -1,0 +1,142 @@
+/*---------------------------------------------------------------------------------------------
+*
+*  Updates layout
+*
+*---------------------------------------------------------------------------------------------*/
+.acf-settings-wrap.acf-updates {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-content: flex-start;
+	align-items: flex-start;
+}
+
+.custom-fields_page_acf-settings-updates .acf-admin-notice,
+.custom-fields_page_acf-settings-updates .acf-upgrade-notice,
+.custom-fields_page_acf-settings-updates .notice {
+	flex: 1 1 100%;
+}
+
+/*---------------------------------------------------------------------------------------------
+*
+*  ACF Box
+*
+*---------------------------------------------------------------------------------------------*/
+.acf-settings-wrap.acf-updates {
+
+	.acf-box {
+		margin: {
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+		};
+
+		.inner {
+			padding: {
+				top: 24px;
+				right: 24px;
+				bottom: 24px;
+				left: 24px;
+			};
+		}
+
+		@media screen and (max-width: $md) {
+			flex: 1 1 100%;
+		}
+
+	}
+
+}
+
+/*---------------------------------------------------------------------------------------------
+*
+*  Notices
+*
+*---------------------------------------------------------------------------------------------*/
+.acf-settings-wrap.acf-updates {
+
+	.acf-admin-notice {
+		flex: 1 1 100%;
+		margin: {
+			top: 16px;
+			right: 0;
+			left: 0;
+		};
+	}
+
+}
+
+/*---------------------------------------------------------------------------------------------
+*
+*  Update information table
+*
+*---------------------------------------------------------------------------------------------*/
+#acf-update-information {
+	flex: 1 1 35%;
+	max-width: calc(35% - 32px);
+
+	.form-table {
+
+		th,
+		td {
+			padding: {
+				top: 0;
+				right: 0;
+				bottom: 24px;
+				left: 0;
+			};
+			@extend .p4;
+			color: $gray-700;
+		}
+
+	}
+
+	.acf-update-changelog {
+		margin: {
+			top: 8px;
+			bottom: 24px;
+		};
+		padding: {
+			top: 8px;
+		};
+		border-top: {
+			width: 1px;
+			style: solid;
+			color: $gray-200;
+		};
+		color: $gray-700;
+
+		h4 {
+			margin: {
+				bottom: 0;
+			};
+		}
+
+		p {
+			margin: {
+				top: 0;
+				bottom: 16px;
+			};
+
+			&:last-of-type {
+				margin: {
+					bottom: 0;
+				};
+			}
+
+			em {
+				@extend .p6;
+				color: $gray-500;
+			}
+
+		}
+
+	}
+
+	.acf-btn {
+		display: inline-flex;
+	}
+
+}

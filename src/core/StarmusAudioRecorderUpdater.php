@@ -1,5 +1,5 @@
 <?php
-namespace Starisian\Starmus\core;
+namespace Starisian\Sparxstar\Starmus\core;
 
 /**
  * Handles checking for and providing updates for the Starmus plugin.
