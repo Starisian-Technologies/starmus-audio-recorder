@@ -116,7 +116,7 @@ if (!class_exists('ACF')) {
 function starmus_activate(): void
 {
 	// Block activation if ACF or SCF is missing
-	if (!StarmusAudioRecorder::check_field_plugin_dependency()) {
+	if (!\Starisian\Starmus\StarmusAudioRecorder::check_field_plugin_dependency()) {
 		deactivate_plugins(plugin_basename(STARMUS_MAIN_FILE));
 		error_log('Starmus Plugin: Activation failed due to missing ACF/SCF dependency');
 		wp_die(__('Starmus Audio Recorder requires Advanced Custom Fields or Smart Custom Fields to be installed and activated.', 'starmus-audio-recorder'));
