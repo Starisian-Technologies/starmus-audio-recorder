@@ -168,7 +168,19 @@ private function process_completed_upload( $upload_info ) {
 	}
 
 	public function permissions_check() {
-		if ( in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ), true ) ) {
+		// Sanitize and validate IP address
+		$remote_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? filter_var( $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP ) : false;
+		$allowed_ips = array( '127.0.0.1', '::1' );
+		$is_localhost = $remote_ip && in_array( $remote_ip, $allowed_ips, true );
+
+		// Check for shared secret header
+		$shared_secret = defined('TUSD_WEBHOOK_SECRET') ? TUSD_WEBHOOK_SECRET : get_option('tusd_webhook_secret', '');
+		$provided_secret = '';
+		if ( isset( $_SERVER['HTTP_X_TUSD_WEBHOOK_SECRET'] ) ) {
+			$provided_secret = sanitize_text_field( $_SERVER['HTTP_X_TUSD_WEBHOOK_SECRET'] );
+		}
+
+		if ( $is_localhost && $shared_secret && hash_equals( $shared_secret, $provided_secret ) ) {
 			return true;
 		}
 		return false;
