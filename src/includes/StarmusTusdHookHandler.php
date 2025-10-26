@@ -180,9 +180,13 @@ private function process_completed_upload( $upload_info ) {
 
 		if ( $is_localhost && $shared_secret && hash_equals( $shared_secret, $provided_secret ) ) {
 			return true;
+		// Use a shared secret for authentication, sent via a custom header.
+		$shared_secret = defined('STARMUS_TUSD_SHARED_SECRET') ? STARMUS_TUSD_SHARED_SECRET : null;
+		$auth_header = isset($_SERVER['HTTP_X_TUSD_AUTH']) ? $_SERVER['HTTP_X_TUSD_AUTH'] : null;
+		if ( $shared_secret && hash_equals( $shared_secret, $auth_header ) ) {
+			return true;
 		}
-		return false;
-	}
+		error_log('[TUSD HOOK] Permission denied: invalid or missing shared secret.');
 }
 
 
