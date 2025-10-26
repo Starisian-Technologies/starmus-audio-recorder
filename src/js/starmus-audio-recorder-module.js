@@ -28,7 +28,7 @@
       buf[8] = (buf[8] & 0x3f) | 0x80;
 
       // Convert bytes to hex and format as UUID string
-      const bth = Array.from(buf, x => x.toString(16).padStart(2, "0"));
+      const bth = Array.prototype.map.call(buf, x => x.toString(16).padStart(2, "0"));
       return (
         bth.slice(0, 4).join("") + "-" +
         bth.slice(4, 6).join("") + "-" +
