@@ -15,6 +15,34 @@
 (function (window) {
   "use strict";
 
+  // Generates RFC4122-compliant UUID v4 using crypto.getRandomValues (fallback for older browsers).
+  function generateUUIDv4() {
+    const cryptoObj = window.crypto || window.msCrypto;
+    if (cryptoObj && cryptoObj.getRandomValues) {
+      // Generate random values for UUID (16 bytes)
+      const buf = new Uint8Array(16);
+      cryptoObj.getRandomValues(buf);
+
+      // Set version bits (4) and variant bits (10)
+      buf[6] = (buf[6] & 0x0f) | 0x40;
+      buf[8] = (buf[8] & 0x3f) | 0x80;
+
+      // Convert bytes to hex and format as UUID string
+      const bth = Array.from(buf, x => x.toString(16).padStart(2, "0"));
+      return (
+        bth.slice(0, 4).join("") + "-" +
+        bth.slice(4, 6).join("") + "-" +
+        bth.slice(6, 8).join("") + "-" +
+        bth.slice(8, 10).join("") + "-" +
+        bth.slice(10, 16).join("")
+      );
+    } else {
+      // Very old browsers only: fallback with warning
+      console.warn("Insecure UUID fallback: crypto not available!");
+      return "uuid-" + Date.now() + "-" + Math.floor(Math.random() * 1e9).toString(36);
+    }
+  }
+
   function debugInitBanner() {
     if (!window.isStarmusAdmin) {
       return;
@@ -126,12 +154,9 @@
               peakVolume: 0,
               avgVolume: 0,
               volumeSamples: [],
-              sessionUUID: crypto.randomUUID
+              sessionUUID: typeof crypto.randomUUID === "function"
                 ? crypto.randomUUID()
-                : "uuid-" +
-                  Date.now() +
-                  "-" +
-                  Math.random().toString(36).substr(2, 9),
+                : generateUUIDv4(),
             };
             secureLog(
               "info",
