@@ -1,18 +1,25 @@
 <?php
-namespace Starisian\Starmus\helpers;
+namespace Starisian\Sparxstar\Starmus\helpers;
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
 /**
- * Centralized error and debug logger for Starmus.
- * This improved version writes to a dedicated log file, supports multiple log levels,
- * and provides better formatting for messages and exceptions.
+ * Centralized, extensible error and debug logger for Starmus.
+ * Retains full backward compatibility while adding:
+ *  - JSON mode for structured logs
+ *  - Correlation ID support
+ *  - Execution timers
+ *  - PII masking for safe logs
+ *  - Alert hooks for external integrations
+ *  - Log rotation & maintenance helpers
+ *
+ * @version 2.0.0
  */
 class StarmusLogger
 {
-    // Define log levels with integer values for easy comparison
+    // --- Existing log level constants ---
     public const DEBUG = 100;
     public const INFO = 200;
     public const NOTICE = 250;
@@ -22,20 +29,9 @@ class StarmusLogger
     public const ALERT = 550;
     public const EMERGENCY = 600;
 
-    /**
-     * @var string|null The absolute path to the log file.
-     */
     protected static ?string $log_file_path = null;
+    protected static int $min_log_level = self::INFO;
 
-    /**
-     * @var int The minimum log level to record messages. Messages with a lower severity will be ignored.
-     */
-    protected static int $min_log_level = self::INFO; // Default minimum level
-
-    /**
-     * Maps string level names to integer values for internal use.
-     * @var array<string, int>
-     */
     protected static array $levels = [
         'debug'     => self::DEBUG,
         'info'      => self::INFO,
@@ -47,103 +43,100 @@ class StarmusLogger
         'emergency' => self::EMERGENCY,
     ];
 
-    /**
-     * Sets the minimum log level for messages to be written.
-     * Messages below this level will be ignored.
-     *
-     * @param string $level_name The string name of the minimum log level (e.g., 'info', 'debug', 'error').
-     * @return void
-     */
-    public static function setMinLogLevel(string $level_name): void
-    {
+    // --- New features ---
+    protected static bool $json_mode = false;
+    protected static ?string $correlation_id = null;
+    protected static array $timers = [];
+
+    /*==============================================================
+     * CONFIGURATION
+     *=============================================================*/
+
+    public static function setMinLogLevel(string $level_name): void {
         $level_name = strtolower($level_name);
         if (isset(self::$levels[$level_name])) {
             self::$min_log_level = self::$levels[$level_name];
-        } else {
-            // Optionally log an error if an invalid level is provided, but avoid recursion.
-            // For now, silently ignore invalid levels.
         }
     }
 
-    /**
-     * Gets the current minimum log level.
-     *
-     * @return int
-     */
-    public static function getMinLogLevel(): int
-    {
+    public static function getMinLogLevel(): int {
         return self::$min_log_level;
     }
 
-    /**
-     * Sets a custom log file path. If not set, a default path in wp-content/uploads/starmus-logs/ will be used.
-     *
-     * @param string $path Absolute path to the log file.
-     * @return void
-     */
-    public static function setLogFilePath(string $path): void
-    {
+    public static function setLogFilePath(string $path): void {
         self::$log_file_path = $path;
     }
 
-    /**
-     * Determines and returns the absolute path to the log file.
-     * Creates the directory if it doesn't exist and attempts to secure it.
-     *
-     * @return string|null The absolute path to the log file, or null if it cannot be determined/created.
-     */
-    protected static function getLogFilePath(): ?string
-    {
+    public static function enableJsonMode(bool $enabled = true): void {
+        self::$json_mode = $enabled;
+    }
+
+    public static function setCorrelationId(?string $id = null): void {
+        self::$correlation_id = $id ?? wp_generate_uuid4();
+    }
+
+    public static function getCorrelationId(): ?string {
+        return self::$correlation_id;
+    }
+
+    /*==============================================================
+     * FILE HANDLING
+     *=============================================================*/
+
+    protected static function getLogFilePath(): ?string {
         if (self::$log_file_path === null) {
             if (!function_exists('wp_upload_dir')) {
-                // If WordPress functions are not available, we cannot determine the default path.
                 return null;
             }
 
             $upload_dir_info = wp_upload_dir();
             if (false === $upload_dir_info['basedir']) {
-                // If uploads directory cannot be determined.
                 return null;
             }
 
             $log_dir = $upload_dir_info['basedir'] . '/starmus-logs';
             if (!is_dir($log_dir)) {
-                // Attempt to create the directory using WordPress's function.
                 if (!wp_mkdir_p($log_dir)) {
-                    // If directory creation fails, fall back to native error_log.
                     error_log('StarmusLogger: Failed to create log directory: ' . $log_dir);
                     return null;
                 }
-                // Secure the directory from direct web access.
                 file_put_contents($log_dir . '/.htaccess', 'Deny from all');
                 file_put_contents($log_dir . '/index.html', '');
             }
 
-            // Use a daily log file for easier management and rotation.
             self::$log_file_path = $log_dir . '/starmus-' . date('Y-m-d') . '.log';
         }
         return self::$log_file_path;
     }
 
-    /**
-     * Converts a string log level name to its integer value.
-     *
-     * @param string $level_name
-     * @return int The integer representation of the level, or ERROR if unknown.
-     */
-    protected static function getLevelInt(string $level_name): int
-    {
+    public static function getCurrentLogFile(): ?string {
+        return self::getLogFilePath();
+    }
+
+    public static function clearOldLogs(int $days = 30): int {
+        $upload_dir_info = wp_upload_dir();
+        $log_dir = $upload_dir_info['basedir'] . '/starmus-logs';
+        if (!is_dir($log_dir)) return 0;
+
+        $deleted = 0;
+        foreach (glob($log_dir . '/starmus-*.log') as $file) {
+            if (filemtime($file) < strtotime("-{$days} days")) {
+                @unlink($file);
+                $deleted++;
+            }
+        }
+        return $deleted;
+    }
+
+    /*==============================================================
+     * CORE LOGGING
+     *=============================================================*/
+
+    protected static function getLevelInt(string $level_name): int {
         return self::$levels[strtolower($level_name)] ?? self::ERROR;
     }
 
-    /**
-     * Converts an integer log level to its string name.
-     *
-     * @param int $level_int
-     * @return string The string name of the level, or 'UNKNOWN' if unknown.
-     */
-    protected static function getLevelName(int $level_int): string
-    {
+    protected static function getLevelName(int $level_int): string {
         foreach (self::$levels as $name => $value) {
             if ($value === $level_int) {
                 return strtoupper($name);
@@ -152,185 +145,144 @@ class StarmusLogger
         return 'UNKNOWN';
     }
 
-    /**
-     * Main log method.
-     *
-     * @param string          $context Short context label (e.g. "SubmissionHandler").
-     * @param string|\Throwable $msg   Message or exception.
-     * @param string          $level   Log level: debug|info|notice|warning|error|critical|alert|emergency.
-     * @return void
-     */
-    public static function log(string $context, $msg, string $level = 'error'): void
-    {
-        // First, check the WordPress debug log setting.
-        // If WP_DEBUG_LOG is false, we generally don't log,
-        // but we'll allow critical errors through regardless for safety.
-        $current_level_int = self::getLevelInt($level);
+    protected static function sanitizeData(array $data): array {
+        foreach ($data as $k => &$v) {
+            if (is_string($v) && preg_match('/(ip|email|user|token|auth|fingerprint)/i', $k)) {
+                $v = '[REDACTED]';
+            } elseif (is_array($v)) {
+                $v = self::sanitizeData($v);
+            }
+        }
+        return $data;
+    }
 
+    public static function log(string $context, $msg, string $level = 'error', array $extra = []): void {
+        $current_level_int = self::getLevelInt($level);
         if (!defined('WP_DEBUG_LOG') || !WP_DEBUG_LOG) {
-            // Only bypass WP_DEBUG_LOG if the current level is ERROR or higher.
             if ($current_level_int < self::ERROR) {
                 return;
             }
         }
-        
-        // Then, check against our internal minimum log level.
         if ($current_level_int < self::$min_log_level) {
             return;
         }
 
         $log_file = self::getLogFilePath();
-        if ($log_file === null) {
-            // Fallback to PHP's native error_log if our file logging setup fails.
-            error_log(sprintf(
-                'StarmusLogger (Fallback): [%s] %s: %s',
-                strtoupper($level),
-                $context,
-                self::formatMessageContent($msg) // Use content formatter
-            ));
-            return;
-        }
-
         $timestamp = function_exists('current_time') ? current_time('mysql', true) : gmdate('Y-m-d H:i:s');
         $level_name = self::getLevelName($current_level_int);
         $message_content = self::formatMessageContent($msg);
-        $trace_content = '';
+        $trace_content = $msg instanceof \Throwable ? $msg->getTraceAsString() : '';
 
-        if ($msg instanceof \Throwable) {
-            $trace_content = "\nStack trace:\n" . $msg->getTraceAsString();
+        $entry_data = [
+            'timestamp' => $timestamp,
+            'level' => $level_name,
+            'context' => $context,
+            'message' => $message_content,
+            'trace' => $trace_content,
+            'correlation_id' => self::$correlation_id,
+            'extra' => self::sanitizeData($extra),
+        ];
+
+        // --- JSON mode ---
+        if (self::$json_mode) {
+            $log_entry = json_encode($entry_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+        } else {
+            $prefix = self::$correlation_id ? '[' . self::$correlation_id . '] ' : '';
+            $log_entry = sprintf(
+                "%s[%s] %s: [%s] %s%s\n",
+                $prefix,
+                $timestamp,
+                $level_name,
+                $context,
+                $message_content,
+                $trace_content ? "\nStack trace:\n" . $trace_content : ''
+            );
         }
 
-        $log_entry = sprintf(
-            "[%s] %s: [%s] %s%s\n",
-            $timestamp,
-            $level_name,
-            $context,
-            $message_content,
-            $trace_content
-        );
+        if ($log_file) {
+            $file_perms = defined('WP_FS_CHMOD_FILE') ? WP_FS_CHMOD_FILE : 0644;
+            @file_put_contents($log_file, $log_entry, FILE_APPEND | LOCK_EX);
+        } else {
+            error_log('StarmusLogger (Fallback): ' . $log_entry);
+        }
 
-        // Get correct file permissions from WP_FS_CHMOD_FILE constant if defined, otherwise default.
-        $file_perms = defined('WP_FS_CHMOD_FILE') ? WP_FS_CHMOD_FILE : 0644;
-
-        // Write to log file. Use FILE_APPEND and LOCK_EX for atomic writes.
-        // We suppress errors from file_put_contents because if it fails, we've already tried to log.
-        @file_put_contents($log_file, $log_entry, FILE_APPEND | LOCK_EX);
+        // --- Hook for external observers or alerts ---
+        do_action('starmus_log_event', $level_name, $context, $msg, $extra);
+        if (in_array($level_name, ['ERROR', 'CRITICAL', 'ALERT', 'EMERGENCY'], true)) {
+            do_action('starmus_logger_alert', $level_name, $context, $msg, $extra);
+        }
     }
 
-    /**
-     * Helper method to format the message content, especially for Throwables.
-     *
-     * @param string|\Throwable $msg
-     * @return string
-     */
-    protected static function formatMessageContent($msg): string
-    {
+    protected static function formatMessageContent($msg): string {
         if ($msg instanceof \Throwable) {
             return sprintf(
                 '%s: %s in %s:%d',
-                get_class($msg), // Include exception class name
+                get_class($msg),
                 $msg->getMessage(),
                 $msg->getFile(),
                 $msg->getLine()
             );
         }
-        // Do not use sanitize_text_field here; it's for HTML output, not raw log data.
         return (string) $msg;
     }
 
-    /**
-     * Convenience method for DEBUG level logging.
-     *
-     * @param string          $context Short context label.
-     * @param string|\Throwable $msg   Message or exception.
-     * @return void
-     */
-    public static function debug(string $context, $msg): void
-    {
-        self::log($context, $msg, 'debug');
+    /*==============================================================
+     * TIMER UTILITIES
+     *=============================================================*/
+
+    public static function timeStart(string $label): void {
+        self::$timers[$label] = microtime(true);
     }
 
-    /**
-     * Convenience method for INFO level logging.
-     *
-     * @param string          $context Short context label.
-     * @param string|\Throwable $msg   Message or exception.
-     * @return void
-     */
-    public static function info(string $context, $msg): void
-    {
-        self::log($context, $msg, 'info');
+    public static function timeEnd(string $label, string $context = 'Timer'): void {
+        if (!isset(self::$timers[$label])) return;
+        $duration = round((microtime(true) - self::$timers[$label]) * 1000, 2);
+        unset(self::$timers[$label]);
+        self::debug($context, "$label completed in {$duration}ms");
     }
 
-    /**
-     * Convenience method for NOTICE level logging.
-     *
-     * @param string          $context Short context label.
-     * @param string|\Throwable $msg   Message or exception.
-     * @return void
-     */
-    public static function notice(string $context, $msg): void
-    {
-        self::log($context, $msg, 'notice');
-    }
+    /*==============================================================
+     * CONVENIENCE WRAPPERS (unchanged signatures)
+     *=============================================================*/
 
-    /**
-     * Convenience method for WARNING level logging.
-     *
-     * @param string          $context Short context label.
-     * @param string|\Throwable $msg   Message or exception.
-     * @return void
-     */
-    public static function warning(string $context, $msg): void
-    {
-        self::log($context, $msg, 'warning');
-    }
+    public static function debug(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'debug', $extra); }
+    public static function info(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'info', $extra); }
+    public static function notice(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'notice', $extra); }
+    public static function warning(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'warning', $extra); }
+    public static function error(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'error', $extra); }
+    public static function critical(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'critical', $extra); }
+    public static function alert(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'alert', $extra); }
+    public static function emergency(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'emergency', $extra); }
 
-    /**
-     * Convenience method for ERROR level logging.
-     *
-     * @param string          $context Short context label.
-     * @param string|\Throwable $msg   Message or exception.
-     * @return void
-     */
-    public static function error(string $context, $msg): void
-    {
-        self::log($context, $msg, 'error');
-    }
 
-    /**
-     * Convenience method for CRITICAL level logging.
-     *
-     * @param string          $context Short context label.
-     * @param string|\Throwable $msg   Message or exception.
-     * @return void
-     */
-    public static function critical(string $context, $msg): void
-    {
-        self::log($context, $msg, 'critical');
-    }
+    // Add this to your wp-config.php or your theme's functions.php,
+// or a custom plugin that you know is active early.
+// THIS IS FOR DIAGNOSTIC PURPOSES ONLY. Remove after finding the error.
 
-    /**
-     * Convenience method for ALERT level logging.
-     *
-     * @param string          $context Short context label.
-     * @param string|\Throwable $msg   Message or exception.
-     * @return void
-     */
-    public static function alert(string $context, $msg): void
-    {
-        self::log($context, $msg, 'alert');
-    }
+public function starmus_catch_callback_errors() {
+    $error = error_get_last();
+    if ( $error && $error['type'] === E_ERROR ) { // E_ERROR includes E_USER_ERROR
+        // Check if the error message matches the one we're looking for
+        if ( strpos( $error['message'], 'call_user_func_array(): Argument #1 ($callback) must be a valid callback' ) !== false ) {
+            $log_message = sprintf(
+                "Callback Error Caught: Type: %d, Message: %s in %s on line %d\n",
+                $error['type'],
+                $error['message'],
+                $error['file'],
+                $error['line']
+            );
+            error_log( $log_message );
 
-    /**
-     * Convenience method for EMERGENCY level logging.
-     *
-     * @param string          $context Short context label.
-     * @param string|\Throwable $msg   Message or exception.
-     * @return void
-     */
-    public static function emergency(string $context, $msg): void
-    {
-        self::log($context, $msg, 'emergency');
+            // You can also try to get more context from the hook system if possible,
+            // but this is advanced and might require modifying WP core or using
+            // very specific hooks that run *before* the error.
+            // The call stack provided by WordPress is usually sufficient.
+        }
     }
+}
+
+public function register_hooks(): void{
+    register_shutdown_function( 'starmus_catch_callback_errors' );
+
+}
 }

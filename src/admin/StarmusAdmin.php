@@ -2,18 +2,21 @@
 /**
  * Starmus Admin Handler - Refactored for Security & Performance
  *
- * @package Starisian\Starmus\admin
+ * @package Starisian\Sparxstar\Starmus\admin
  * @version 0.7.6
  * @since 0.3.1
  */
 
-namespace Starisian\Starmus\admin;
+namespace Starisian\Sparxstar\Starmus\admin;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-use Starisian\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
+
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 
 /**
  * Secure and optimized admin settings class.
@@ -32,14 +35,19 @@ class StarmusAdmin {
 	/** Mapping of option keys to field types. */
 	private array $field_types         = array();
 	private ?StarmusSettings $settings = null;
+	private ?StarmusAudioRecorderDAL $dal = null;
 
 	/**
 	 * Constructor - initializes admin settings.
 	 *
 	 * @since 0.3.1
 	 */
-	public function __construct( ?StarmusSettings $settings ) {
-		$this->settings    = $settings;
+	public function __construct( ?StarmusAudioRecorderDAL $dal = null, ?StarmusSettings $settings = null ) {
+		if ( ! $dal instanceof StarmusAudioRecorderDALInterface ) {
+			throw new \RuntimeException( 'Invalid DAL: must implement StarmusAudioRecorderDALInterface' );
+		}
+		$this->settings    = $settings ?? new StarmusSettings();
+		$this->dal         = $dal ?? new StarmusAudioRecorderDAL();
 		$this->field_types = array(
 			'cpt_slug'              => 'text',
 			'file_size_limit'       => 'number',
@@ -168,8 +176,8 @@ class StarmusAdmin {
 		// Allowed languages
 		$allowed_langs = sanitize_text_field( $input['allowed_languages'] ?? '' );
 		if ( ! empty( $allowed_langs ) ) {
-			$langs = array_map( 'trim', explode( ',', $allowed_langs ) );
-			$langs = array_filter(
+			$langs                          = array_map( 'trim', explode( ',', $allowed_langs ) );
+			$langs                          = array_filter(
 				$langs,
 				function ( $l ) {
 					return preg_match( '/^[a-z]{2,4}$/', $l );
@@ -198,9 +206,8 @@ class StarmusAdmin {
 			$page_id    = 0;
 
 			if ( ! empty( $slug_input ) ) {
-				$page_object = get_page_by_path( $slug_input, OBJECT, 'page' );
-				if ( $page_object instanceof \WP_Post ) {
-					$page_id = $page_object->ID;
+				$page_id = $this->dal->get_page_id_by_slug( $slug_input );
+				if ( $page_id > 0 ) {
 				} else {
 					add_settings_error(
 						self::STARMUS_SETTINGS_GROUP,
@@ -362,7 +369,7 @@ class StarmusAdmin {
 		$type  = $args['type'] ?? 'text';
 		$value = $this->settings->get( $id ); // This value is the stored ID (from wp_options)
 		// CORRECTED: Field name uses the option key as parent for Settings API
-		$name  = StarmusSettings::STARMUS_OPTION_KEY . "[$id]";
+		$name = StarmusSettings::STARMUS_OPTION_KEY . "[$id]";
 
 		switch ( $type ) {
 			case 'textarea':
@@ -408,10 +415,7 @@ class StarmusAdmin {
 			case 'slug_input':
 				$current_slug = '';
 				if ( (int) $value > 0 ) {
-					$page_obj = get_post( (int) $value );
-					if ( $page_obj instanceof \WP_Post ) {
-						$current_slug = $page_obj->post_name;
-					}
+					$current_slug = $this->dal->get_page_slug_by_id( (int) $value );
 				}
 				printf(
 					'<input type="text" id="%s" name="%s" value="%s" class="regular-text" placeholder="e.g., starmus-audio-editor" />',
