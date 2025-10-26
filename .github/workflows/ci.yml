@@ -37,7 +37,7 @@ jobs:
 
       - name: Cache NPM packages
         # v3.3.2 commit pin keeps cache action immutable.
-        uses: actions/cache@95c1f4a8644e5904bde0c0025c2cb19cb86611ec
+        uses: actions/cache@v4.3.0
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('**/package-lock.json') }}
