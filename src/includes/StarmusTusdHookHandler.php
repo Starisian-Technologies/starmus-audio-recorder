@@ -23,7 +23,7 @@ class StarmusTusdHookHandler {
 	protected $rest_base = 'hook';
 
   // Add a property to hold the submission handler
-private ?StarmusSubmissionHandler $submission_handler;
+	private ?StarmusSubmissionHandler $submission_handler;
 
 // Use dependency injection in the constructor
 public function __construct( \Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler $submission_handler ) {
