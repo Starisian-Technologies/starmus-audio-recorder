@@ -96,6 +96,83 @@ final class StarmusSubmissionHandler {
 	 * CHUNKED UPLOAD HANDLER
 	 * ==================================================================== */
 
+  /**
+ * Processes a file that is already fully present on the local filesystem.
+ * This is the new entry point for post-upload processing (e.g., from tusd).
+ *
+ * @param string $file_path   Absolute path to the completed file.
+ * @param array  $form_data   Sanitized metadata from the client.
+ * @return array|WP_Error     Success array with IDs or WP_Error.
+ */
+public function process_completed_file( string $file_path, array $form_data ): array|WP_Error {
+    try {
+        StarmusLogger::timeStart( 'process_completed_file' );
+
+        // This logic is adapted directly from your finalize_submission() method.
+        if ( ! file_exists( $file_path ) ) {
+            return $this->err( 'file_missing', 'No file to process.', 400, array( 'path' => $file_path ) );
+        }
+
+        $filename   = $form_data['filename'] ?? pathinfo( $file_path, PATHINFO_BASENAME );
+        $upload_dir = wp_upload_dir();
+        $destination = trailingslashit( $upload_dir['path'] ) . wp_unique_filename( $upload_dir['path'], $filename );
+
+        // Validate the file before moving it
+        $mime  = (string) ( $form_data['filetype'] ?? mime_content_type( $file_path ) );
+        $size  = (int) @filesize( $file_path );
+        $valid = $this->validate_file_against_settings( $mime, $size );
+        if ( is_wp_error( $valid ) ) {
+            @unlink( $file_path );
+            return $valid;
+        }
+
+        if ( ! @rename( $file_path, $destination ) ) {
+            @unlink( $file_path );
+            return $this->err( 'move_failed', 'Failed to move upload into uploads path.', 500, array( 'dest' => $destination ) );
+        }
+
+        // Now, the rest is nearly identical to your existing logic...
+        $attachment_id = $this->dal->create_attachment_from_file( $destination, $filename );
+        if ( is_wp_error( $attachment_id ) ) {
+            @unlink( $destination );
+            return $attachment_id;
+        }
+
+        // Extract user ID from form_data metadata, fallback to 0 (anonymous) if not present or invalid.
+        $user_id = isset( $form_data['user_id'] ) ? absint( $form_data['user_id'] ) : 0;
+        if ( $user_id && ! get_userdata( $user_id ) ) {
+            $user_id = 0; // Invalid user ID, fallback to anonymous.
+        }
+        // For tusd uploads, user_id should be passed in metadata. Do not use get_current_user_id() as uploads may be processed asynchronously.
+        $cpt_post_id = $this->dal->create_audio_post(
+            $form_data['starmus_title'] ?? pathinfo( $filename, PATHINFO_FILENAME ),
+            $this->get_cpt_slug(),
+            $user_id
+        );
+        if ( is_wp_error( $cpt_post_id ) ) {
+            $this->dal->delete_attachment( (int) $attachment_id );
+            return $cpt_post_id;
+        }
+
+        $this->dal->save_post_meta( (int) $cpt_post_id, '_audio_attachment_id', (int) $attachment_id );
+        $this->dal->set_attachment_parent( (int) $attachment_id, (int) $cpt_post_id );
+        $this->save_all_metadata( (int) $cpt_post_id, (int) $attachment_id, $form_data );
+
+        StarmusLogger::timeEnd( 'process_completed_file', 'SubmissionHandler' );
+
+        return array(
+            'success'       => true,
+            'attachment_id' => (int) $attachment_id,
+            'post_id'       => (int) $cpt_post_id,
+            'url'           => wp_get_attachment_url( (int) $attachment_id ),
+        );
+
+    } catch ( Throwable $e ) {
+        StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'process_completed_file'));
+        return $this->err('server_error', 'Failed to process completed file.', 500);
+    }
+}
+
 	public function handle_upload_chunk_rest( WP_REST_Request $request ): array|WP_Error {
 		try {
 			StarmusLogger::setCorrelationId();
