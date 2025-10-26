@@ -124,17 +124,39 @@ final class StarmusAudioProcessingHandler {
 			return false;
 		}
 
-		// --- 3) DAL-managed attachment update ---
-		$this->dal->update_attachment_file_path( $attachment_id, $mp3_path );
-		$this->dal->update_attachment_metadata( $attachment_id, $mp3_path );
-		$this->dal->update_audio_post_fields(
-			$audio_post_id,
-			array(
-				'archival_wav' => $archival_path,
-				'mastered_mp3' => $mp3_path,
-			)
-		);
-		$this->dal->update_audio_post_meta( $attachment_id, '_starmus_archival_path', $archival_path );
+		// --- 3) DAL-managed attachment + recording post update ---
+		try {
+			// Update attachment stored file path and metadata
+			$this->dal->update_attachment_file_path( $attachment_id, $mp3_path );
+			$this->dal->update_attachment_metadata( $attachment_id, $mp3_path );
+
+			// Persist attachment-level output paths (attachment meta)
+			if ( method_exists( $this->dal, 'persist_audio_outputs' ) ) {
+				$this->dal->persist_audio_outputs( $attachment_id, $mp3_path, $archival_path );
+			} else {
+				// Fallback to direct meta updates
+				$this->dal->update_audio_post_meta( $attachment_id, '_audio_mp3_path', (string) $mp3_path );
+				$this->dal->update_audio_post_meta( $attachment_id, '_audio_wav_path', (string) $archival_path );
+				$this->dal->update_audio_post_meta( $attachment_id, '_starmus_archival_path', (string) $archival_path );
+			}
+
+			// Persist recording-level (parent post) fields using DAL helper
+			if ( method_exists( $this->dal, 'save_audio_outputs' ) ) {
+				// save_audio_outputs(post_id, waveform_json|null, mp3_url|null, wav_url|null)
+				$this->dal->save_audio_outputs( $audio_post_id, null, $mp3_path, $archival_path );
+			} else {
+				// Fallback: preserve previous behaviour using update_audio_post_fields
+				$this->dal->update_audio_post_fields(
+					$audio_post_id,
+					array(
+						'archival_wav' => $archival_path,
+						'mastered_mp3' => $mp3_path,
+					)
+				);
+			}
+		} catch ( \Throwable $e ) {
+			StarmusLogger::error( 'PostProcessingService', $e, array( 'phase' => 'persist_outputs', 'attachment_id' => $attachment_id, 'post_id' => $audio_post_id ) );
+		}
 
 		// --- 4) ID3 tagging ---
 		$this->audio_processing_service->process_attachment( $attachment_id );

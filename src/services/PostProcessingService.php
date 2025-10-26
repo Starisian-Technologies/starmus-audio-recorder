@@ -119,8 +119,13 @@ class PostProcessingService {
 			}
 
 			$this->setState( $attachment_id, self::STATE_PROCESSING );
-			// This is a transient diagnostic pointer; OK to write directly.
-			update_post_meta( $attachment_id, self::META_ORIGINAL_SOURCE, $original );
+			// Persist original source via DAL (keeps writes centralized).
+			try {
+				$this->dal->save_post_meta( $attachment_id, self::META_ORIGINAL_SOURCE, $original );
+			} catch ( \Throwable $e ) {
+				StarmusLogger::warning( 'PostProcessingService', 'Failed to persist original source via DAL; falling back to update_post_meta', array( 'attachment_id' => $attachment_id ) );
+				update_post_meta( $attachment_id, self::META_ORIGINAL_SOURCE, $original );
+			}
 
 			$is_temp_source = ( strpos( $original, sys_get_temp_dir() ) === 0 );
 			$upload_dir     = wp_get_upload_dir();
@@ -193,7 +198,15 @@ class PostProcessingService {
 
 			// 3) Attach MP3 as the definitive file (update attachment & metadata via DAL)
 			$this->dal->update_attachment_metadata( $attachment_id, $mp3_path );
-			$this->dal->persist_audio_output( $attachment_id, $mp3_path, $wav_path );
+			// Use correct DAL method name (plural) and provide robust fallback.
+			if ( method_exists( $this->dal, 'persist_audio_outputs' ) ) {
+				$this->dal->persist_audio_outputs( $attachment_id, $mp3_path, $wav_path );
+			} else {
+				// Best-effort fallback to attachment meta keys
+				$this->dal->update_audio_post_meta( $attachment_id, '_audio_mp3_path', (string) $mp3_path );
+				$this->dal->update_audio_post_meta( $attachment_id, '_audio_wav_path', (string) $wav_path );
+				$this->dal->update_audio_post_meta( $attachment_id, '_starmus_archival_path', (string) $wav_path );
+			}
 
 			// 4) ID3 tagging with detailed diagnostics
 			$this->setState( $attachment_id, self::STATE_ID3_WRITING );
@@ -212,7 +225,19 @@ class PostProcessingService {
 			$this->waveform->generate_waveform_data( $attachment_id );
 
 			// 6) Metadata persistence to CPT (ACF if present) via DAL
-			$this->dal->update_acf_fields( $audio_post_id, $wav_path, $mp3_path );
+			// Prefer save_audio_outputs(post_id, waveform_json|null, mp3_url|null, wav_url|null)
+			if ( method_exists( $this->dal, 'save_audio_outputs' ) ) {
+				$this->dal->save_audio_outputs( $audio_post_id, null, $mp3_path, $wav_path );
+			} else {
+				// Fallback to earlier behaviour
+				$this->dal->update_audio_post_fields(
+					$audio_post_id,
+					array(
+						self::ACF_ARCHIVAL_WAV => $wav_path,
+						self::ACF_MASTERED_MP3 => $mp3_path,
+					)
+				);
+			}
 
 			// 7) Optional cloud offload (no-op if FileService doesn’t replace)
 			$this->files->upload_and_replace_attachment( $attachment_id, $mp3_path );
@@ -300,7 +325,14 @@ class PostProcessingService {
 
 	/** Update processing state on attachment via DAL */
 	private function setState( int $attachment_id, string $state ): void {
-		$this->dal->set_audio_state( $attachment_id, $state );
+		// DAL does not currently implement set_audio_state universally; centralize via save_post_meta
+		try {
+			$this->dal->save_post_meta( $attachment_id, '_audio_processing_state', $state );
+		} catch ( \Throwable $e ) {
+			// Fallback to direct meta update if DAL fails
+			StarmusLogger::warning( 'PostProcessingService', 'Failed to persist processing state via DAL; falling back to update_post_meta', array( 'attachment_id' => $attachment_id, 'state' => $state ) );
+			update_post_meta( $attachment_id, '_audio_processing_state', $state );
+		}
 	}
 
 	/** Resolve and filter options (bitrate, samplerate, preserve_silence) */

@@ -31,6 +31,8 @@ define( 'STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder' );
 define( 'STARMUS_PLUGIN_PREFIX', 'starmus' );
 // Current plugin semantic version string. 
 define( 'STARMUS_VERSION', '0.7.4' );
+// DAL Override Key
+define( 'STARMUS_DAL_OVERRIDE_KEY', 'f+vUT~wAhjSo1jQx9nG|~J7@/*yDekC?yoRS4E/vSv]ea&aNM)o+O>So=%g>L{=D');
 // Starmus Logger default settings.
 if ( ! defined( 'STARMUS_LOG_LEVEL' ) ) {
 define( 'STARMUS_LOG_LEVEL', 'Warning' ); }

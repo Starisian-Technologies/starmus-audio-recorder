@@ -13,6 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
+use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
+
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 
 /**
@@ -32,7 +35,7 @@ class StarmusAdmin {
 	/** Mapping of option keys to field types. */
 	private array $field_types         = array();
 	private ?StarmusSettings $settings = null;
-	private StarmusAudioRecorderDAL $dal;
+	private ?StarmusAudioRecorderDAL $dal = null;
 
 	/**
 	 * Constructor - initializes admin settings.
@@ -40,6 +43,9 @@ class StarmusAdmin {
 	 * @since 0.3.1
 	 */
 	public function __construct( ?StarmusAudioRecorderDAL $dal = null, ?StarmusSettings $settings = null ) {
+		if ( ! $dal instanceof StarmusAudioRecorderDALInterface ) {
+			throw new \RuntimeException( 'Invalid DAL: must implement StarmusAudioRecorderDALInterface' );
+		}
 		$this->settings    = $settings ?? new StarmusSettings();
 		$this->dal         = $dal ?? new StarmusAudioRecorderDAL();
 		$this->field_types = array(

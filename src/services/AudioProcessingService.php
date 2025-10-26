@@ -73,9 +73,52 @@ class AudioProcessingService {
 				StarmusLogger::warning( 'AudioProcessingService', 'WAV conversion failed (continuing)', compact( 'attachment_id', 'wav_path' ) );
 			}
 
-			// Persist file metadata
-			$this->dal->update_attachment_metadata( $attachment_id, $mp3_path );
-			$this->dal->persist_audio_output( $attachment_id, $mp3_path, $wav_path );
+			// Persist file metadata on the attachment and via DAL helpers.
+			try {
+				$this->dal->update_attachment_metadata( $attachment_id, $mp3_path );
+				// Correct DAL method name (plural): persist_audio_outputs
+				if ( method_exists( $this->dal, 'persist_audio_outputs' ) ) {
+					$this->dal->persist_audio_outputs( $attachment_id, $mp3_path, $wav_path );
+					StarmusLogger::info( 'AudioProcessingService', 'Persisted audio outputs via DAL', compact( 'attachment_id', 'mp3_path', 'wav_path' ) );
+				} else {
+					// Fallback: attempt to use save_post_meta on attachment id directly
+					StarmusLogger::warning( 'AudioProcessingService', 'DAL missing persist_audio_outputs method; falling back to direct meta updates', compact( 'attachment_id' ) );
+					update_post_meta( $attachment_id, '_audio_mp3_path', $mp3_path );
+					update_post_meta( $attachment_id, '_audio_wav_path', $wav_path );
+					update_post_meta( $attachment_id, '_starmus_archival_path', $wav_path );
+				}
+			} catch ( \Throwable $e ) {
+				StarmusLogger::error( 'AudioProcessingService', $e, array( 'phase' => 'persist_outputs', 'attachment_id' => $attachment_id ) );
+			}
+			// Also persist URLs to the parent recording post (ACF fields in Recording Processing group).
+			try {
+				$recording_id = (int) get_post_meta( $attachment_id, '_parent_recording_id', true );
+				if ( $recording_id <= 0 ) {
+					$post = get_post( $attachment_id );
+					$recording_id = $post ? (int) $post->post_parent : 0;
+				}
+				if ( $recording_id > 0 ) {
+					// save_audio_outputs(post_id, waveform_json|null, mp3_url|null, wav_url|null)
+					if ( method_exists( $this->dal, 'save_audio_outputs' ) ) {
+						$this->dal->save_audio_outputs( $recording_id, null, $mp3_path ?: null, $wav_path ?: null );
+						StarmusLogger::info( 'AudioProcessingService', 'Saved audio outputs to recording post via DAL', array( 'recording_id' => $recording_id, 'attachment_id' => $attachment_id ) );
+					} else {
+						// Direct fallback to ACF/post_meta fields on the recording post
+						StarmusLogger::warning( 'AudioProcessingService', 'DAL missing save_audio_outputs; falling back to update_field/update_post_meta', array( 'recording_id' => $recording_id ) );
+						if ( function_exists( 'update_field' ) ) {
+							@update_field( 'mastered_mp3', $mp3_path ?: '', $recording_id );
+							@update_field( 'archival_wav', $wav_path ?: '', $recording_id );
+						} else {
+							update_post_meta( $recording_id, 'mastered_mp3', $mp3_path );
+							update_post_meta( $recording_id, 'archival_wav', $wav_path );
+						}
+					}
+				} else {
+					StarmusLogger::warning( 'AudioProcessingService', 'No parent recording found for attachment; cannot save outputs to recording post', compact( 'attachment_id' ) );
+				}
+			} catch ( \Throwable $e ) {
+				StarmusLogger::error( 'AudioProcessingService', $e, array( 'phase' => 'persist_to_recording', 'attachment_id' => $attachment_id ) );
+			}
 
 			// Write ID3
 			$id3_ok = $this->write_id3_tags( $attachment_id, $mp3_path );

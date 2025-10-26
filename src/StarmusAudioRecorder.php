@@ -109,6 +109,10 @@ final class StarmusAudioRecorder {
 		$this->init_settings_or_throw();
 		$this->instantiate_components();
 		$this->register_hooks();
+
+		if ( get_class( $this->DAL ) !== \Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL::class ) {
+			error_log( '[Starmus] DAL replaced by: ' . get_class( $this->DAL ) );
+		}
 	}
 
 	/**
@@ -168,16 +172,53 @@ final class StarmusAudioRecorder {
 		// If we reach here, settings is not available — fail loudly to avoid null downstream.
 		throw new \RuntimeException( 'StarmusSettings failed to initialize.' );
 	}
+	/**
+ * Filter: starmus_register_dal
+ *
+ * @param StarmusAudioRecorderDALInterface $current_dal The current DAL instance (default).
+ * @param string|null                      $override_key The expected handshake key (may be null).
+ * @return StarmusAudioRecorderDALInterface Replacement DAL instance.
+ *
+ * Security: Replacement must implement StarmusAudioRecorderDALInterface and
+ *           return the same key from get_registration_key() as STARMUS_DAL_OVERRIDE_KEY.
+ */
 
 	private function set_DAL(): void {
-		if ( $this->DAL === null ) {
-			$this->DAL = new StarmusAudioRecorderDAL();
-		}
+	if ( $this->DAL !== null ) {
+		return;
 	}
 
-	public function get_DAL(): StarmusAudioRecorderDAL {
-		return $this->DAL;
+	$default_dal = new StarmusAudioRecorderDAL();
+
+	// Run the filter inside a try/catch so a bad plugin can’t fatal the bootstrap.
+	try {
+		$override_key = defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
+		$filtered_dal = apply_filters( 'starmus_register_dal', $default_dal, $override_key );
+	} catch ( \Throwable $e ) {
+		error_log( '[Starmus] DAL filter threw: ' . $e->getMessage() );
+		$this->DAL = $default_dal;
+		return;
 	}
+
+	// Must implement our interface.
+	if ( ! $filtered_dal instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ) {
+		error_log( '[Starmus] Invalid DAL replacement: must implement StarmusAudioRecorderDALInterface.' );
+		$this->DAL = $default_dal;
+		return;
+	}
+
+	// Handshake: the replacement must present the same key we expect.
+	$provided = (string) $filtered_dal->get_registration_key();
+	$expected = (string) ( defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : '' );
+
+	if ( $expected === '' || $provided !== $expected ) {
+		error_log( '[Starmus] Unauthorized DAL replacement attempt rejected.' );
+		$this->DAL = $default_dal;
+		return;
+	}
+
+	$this->DAL = $filtered_dal;
+}
 
 	/**
 	 * Instantiate components that depend on settings and environment.

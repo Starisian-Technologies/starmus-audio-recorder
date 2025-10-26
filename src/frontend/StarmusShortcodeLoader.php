@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 
@@ -22,7 +23,10 @@ final class StarmusShortcodeLoader {
 	private StarmusSettings $settings;
 	private StarmusAudioRecorderDAL $dal;
 
-	public function __construct( ?StarmusSettings $settings = null, ?StarmusAudioRecorderDAL $dal = null ) {
+	public function __construct( ?StarmusAudioRecorderDAL $dal = null, ?StarmusSettings $settings = null ) {
+		if ( ! $dal instanceof StarmusAudioRecorderDALInterface ) {
+			throw new \RuntimeException( 'Invalid DAL: must implement StarmusAudioRecorderDALInterface' );
+		}
 		$this->settings = $settings ?? new StarmusSettings();
 		$this->dal      = $dal ?? new StarmusAudioRecorderDAL();
 		add_action( 'init', array( $this, 'register_shortcodes' ) );
