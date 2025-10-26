@@ -26,12 +26,12 @@ class StarmusTusdHookHandler {
 	private ?StarmusSubmissionHandler $submission_handler;
 
 // Use dependency injection in the constructor
-public function __construct( \Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler $submission_handler ) {
+	public function __construct( \Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler $submission_handler ) {
 
-     $this->submission_handler = $submission_handler;
-  $this->register_routes();
-  $this->register_hooks();
-}
+		$this->submission_handler = $submission_handler;
+		$this->register_routes();
+		$this->register_hooks();
+	}
 
 public function register_hooks(): void{
   add_action( 'rest_api_init', 'starmus_initialize_tusd_hook_handler' );
