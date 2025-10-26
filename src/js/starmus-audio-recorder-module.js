@@ -575,7 +575,7 @@
               .replace(/_+/g, "_")
               .replace(/^_+|_+$/g, "")
           : "recording";
-        const submissionUUID = typeof crypto.randomUUID === 'function'
+        const submissionUUID = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
           ? crypto.randomUUID()
           : generateUUIDv4();
         const fileName = applyFilters(
