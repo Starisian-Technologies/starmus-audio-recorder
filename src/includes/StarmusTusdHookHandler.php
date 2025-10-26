@@ -33,7 +33,7 @@ class StarmusTusdHookHandler {
 		$this->register_hooks();
 	}
 
-public function register_hooks(): void{
+public function register_hooks(): void {
   add_action( 'rest_api_init', 'starmus_initialize_tusd_hook_handler' );
 
 }
