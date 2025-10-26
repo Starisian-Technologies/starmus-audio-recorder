@@ -23,7 +23,7 @@ jobs:
           php-version: "8.2"
 
       - name: Cache Composer packages
-        # v3.3.2 commit pin keeps cache action immutable
+        # v4.3.0 version tag keeps cache action immutable
         uses: actions/cache@v4.3.0
 
         
