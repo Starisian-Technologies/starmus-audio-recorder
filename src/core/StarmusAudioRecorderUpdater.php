@@ -6,7 +6,7 @@ namespace Starisian\Sparxstar\Starmus\core;
  *
  * @file        StarmusAudioRecorderUpdater.php
  * @package     Starmus\core
- * @version 0.7.6
+ * @version 0.8.4
  * @since       0.7.2
  */
 class StarmusAudioRecorderUpdater {

@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
  *  - Alert hooks for external integrations
  *  - Log rotation & maintenance helpers
  *
- * @version 2.0.0
+ * @version 0.8.4
  */
 class StarmusLogger
 {

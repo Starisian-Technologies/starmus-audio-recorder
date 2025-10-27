@@ -10,7 +10,7 @@
  * - Supports external offloaders like WP Offload Media (AS3CF).
  *
  * @package Starisian\Sparxstar\Starmus\services
- * @version 1.6.0-dal
+ * @version 0.8.4-dal
  */
 
 namespace Starisian\Sparxstar\Starmus\services;

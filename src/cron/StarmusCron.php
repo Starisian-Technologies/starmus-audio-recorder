@@ -7,7 +7,7 @@
  * Handles waveform generation, post-processing, and temp cleanup via WP-Cron.
  *
  * @package   Starisian\Sparxstar\Starmus\cron
- * @version   1.1.0
+ * @version 0.8.4
  */
 
 namespace Starisian\Sparxstar\Starmus\cron;

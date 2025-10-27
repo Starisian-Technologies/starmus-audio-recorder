@@ -3,7 +3,7 @@
  * Optimized and secure settings management for the Starmus plugin.
  *
  * @package Starisian\Sparxstar\Starmus\core
- * @version 0.8.0
+ * @version 0.8.4
  * @since 0.3.1
  */
 
