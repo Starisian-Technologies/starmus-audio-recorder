@@ -28,6 +28,11 @@ class StarmusTusdHookHandler {
 
 	// Use dependency injection in the constructor
 	public function __construct( \Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler $submission_handler ) {
+    $secret = $request->get_header('x-starmus-secret');
+    if ($secret !== 'Q@#%%?O0yR4uh1J&648$+(SCTmwZq3kdB?#yNBvS;e,6Ae&<8o*B>Y^}?wq}<6') {
+        return new WP_Error('unauthorized', 'Invalid secret.', ['status' => 403]);
+    }
+
 
 		$this->submission_handler = $submission_handler;
 		$this->register_routes();
