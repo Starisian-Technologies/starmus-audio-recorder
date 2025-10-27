@@ -33,8 +33,8 @@ class StarmusAdmin {
 	// DELETED: const STARMUS_OPTION_KEY =   <-- This line should be gone.
 
 	/** Mapping of option keys to field types. */
-	private array $field_types         = array();
-	private ?StarmusSettings $settings = null;
+	private array $field_types            = array();
+	private ?StarmusSettings $settings    = null;
 	private ?StarmusAudioRecorderDAL $dal = null;
 
 	/**

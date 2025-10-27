@@ -183,14 +183,14 @@ final class StarmusCron {
 	/**
 	 * Optional: adds a 15-minute recurring schedule.
 	 */
-	public function register_custom_schedules(array $schedules): array {
+	public function register_custom_schedules( array $schedules ): array {
 		try {
-			$schedules['starmus_quarter_hour'] = [
+			$schedules['starmus_quarter_hour'] = array(
 				'interval' => 15 * MINUTE_IN_SECONDS,
-				'display'  => __('Every 15 Minutes (Starmus)', 'starmus-audio-recorder'),
-			];
-		} catch (\Throwable $e) {
-			error_log('[StarmusCron] Failed to register schedule: ' . $e->getMessage());
+				'display'  => __( 'Every 15 Minutes (Starmus)', 'starmus-audio-recorder' ),
+			);
+		} catch ( \Throwable $e ) {
+			error_log( '[StarmusCron] Failed to register schedule: ' . $e->getMessage() );
 		}
 		return $schedules;
 	}

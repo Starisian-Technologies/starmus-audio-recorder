@@ -88,20 +88,34 @@ class AudioProcessingService {
 					update_post_meta( $attachment_id, '_starmus_archival_path', $wav_path );
 				}
 			} catch ( \Throwable $e ) {
-				StarmusLogger::error( 'AudioProcessingService', $e, array( 'phase' => 'persist_outputs', 'attachment_id' => $attachment_id ) );
+				StarmusLogger::error(
+					'AudioProcessingService',
+					$e,
+					array(
+						'phase'         => 'persist_outputs',
+						'attachment_id' => $attachment_id,
+					)
+				);
 			}
 			// Also persist URLs to the parent recording post (ACF fields in Recording Processing group).
 			try {
 				$recording_id = (int) get_post_meta( $attachment_id, '_parent_recording_id', true );
 				if ( $recording_id <= 0 ) {
-					$post = get_post( $attachment_id );
+					$post         = get_post( $attachment_id );
 					$recording_id = $post ? (int) $post->post_parent : 0;
 				}
 				if ( $recording_id > 0 ) {
 					// save_audio_outputs(post_id, waveform_json|null, mp3_url|null, wav_url|null)
 					if ( method_exists( $this->dal, 'save_audio_outputs' ) ) {
 						$this->dal->save_audio_outputs( $recording_id, null, $mp3_path ?: null, $wav_path ?: null );
-						StarmusLogger::info( 'AudioProcessingService', 'Saved audio outputs to recording post via DAL', array( 'recording_id' => $recording_id, 'attachment_id' => $attachment_id ) );
+						StarmusLogger::info(
+							'AudioProcessingService',
+							'Saved audio outputs to recording post via DAL',
+							array(
+								'recording_id'  => $recording_id,
+								'attachment_id' => $attachment_id,
+							)
+						);
 					} else {
 						// Direct fallback to ACF/post_meta fields on the recording post
 						StarmusLogger::warning( 'AudioProcessingService', 'DAL missing save_audio_outputs; falling back to update_field/update_post_meta', array( 'recording_id' => $recording_id ) );
@@ -117,7 +131,14 @@ class AudioProcessingService {
 					StarmusLogger::warning( 'AudioProcessingService', 'No parent recording found for attachment; cannot save outputs to recording post', compact( 'attachment_id' ) );
 				}
 			} catch ( \Throwable $e ) {
-				StarmusLogger::error( 'AudioProcessingService', $e, array( 'phase' => 'persist_to_recording', 'attachment_id' => $attachment_id ) );
+				StarmusLogger::error(
+					'AudioProcessingService',
+					$e,
+					array(
+						'phase'         => 'persist_to_recording',
+						'attachment_id' => $attachment_id,
+					)
+				);
 			}
 
 			// Write ID3

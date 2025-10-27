@@ -91,10 +91,24 @@ final class WaveformService {
 		// Persist waveform JSON via DAL (DAL handles ACF update_field if available).
 		try {
 			$this->dal->save_post_meta( $recording_id, 'waveform_json', wp_json_encode( $data['data'] ) );
-			StarmusLogger::info( 'WaveformService', 'Waveform persisted via DAL', array( 'recording_id' => $recording_id, 'points' => count( $data['data'] ) ) );
+			StarmusLogger::info(
+				'WaveformService',
+				'Waveform persisted via DAL',
+				array(
+					'recording_id' => $recording_id,
+					'points'       => count( $data['data'] ),
+				)
+			);
 		} catch ( \Throwable $e ) {
 			// Log and attempt a direct ACF fallback to be extra-safe.
-			StarmusLogger::error( 'WaveformService', $e, array( 'phase' => 'persist_waveform', 'recording_id' => $recording_id ) );
+			StarmusLogger::error(
+				'WaveformService',
+				$e,
+				array(
+					'phase'        => 'persist_waveform',
+					'recording_id' => $recording_id,
+				)
+			);
 			if ( function_exists( 'update_field' ) ) {
 				@update_field( 'waveform_json', wp_json_encode( $data['data'] ), $recording_id );
 			}

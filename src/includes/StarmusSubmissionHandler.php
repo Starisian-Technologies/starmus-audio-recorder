@@ -84,94 +84,95 @@ final class StarmusSubmissionHandler {
 			// Scheduled cleanup of temp chunk files.
 			add_action( 'starmus_cleanup_temp_files', array( $this, 'cleanup_stale_temp_files' ) );
 
-			StarmusLogger::info('SubmissionHandler', 'Constructed successfully');
+			StarmusLogger::info( 'SubmissionHandler', 'Constructed successfully' );
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => '__construct'));
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => '__construct' ) );
 			// Let constructor throw in truly fatal cases:
 			throw $e;
 		}
 	}
 
-	/* ======================================================================
+	/*
+	======================================================================
 	 * CHUNKED UPLOAD HANDLER
 	 * ==================================================================== */
 
-  /**
- * Processes a file that is already fully present on the local filesystem.
- * This is the new entry point for post-upload processing (e.g., from tusd).
- *
- * @param string $file_path   Absolute path to the completed file.
- * @param array  $form_data   Sanitized metadata from the client.
- * @return array|WP_Error     Success array with IDs or WP_Error.
- */
-public function process_completed_file( string $file_path, array $form_data ): array|WP_Error {
-    try {
-        StarmusLogger::timeStart( 'process_completed_file' );
+	/**
+	 * Processes a file that is already fully present on the local filesystem.
+	 * This is the new entry point for post-upload processing (e.g., from tusd).
+	 *
+	 * @param string $file_path   Absolute path to the completed file.
+	 * @param array  $form_data   Sanitized metadata from the client.
+	 * @return array|WP_Error     Success array with IDs or WP_Error.
+	 */
+	public function process_completed_file( string $file_path, array $form_data ): array|WP_Error {
+		try {
+			StarmusLogger::timeStart( 'process_completed_file' );
 
-        // This logic is adapted directly from your finalize_submission() method.
-        if ( ! file_exists( $file_path ) ) {
-            return $this->err( 'file_missing', 'No file to process.', 400, array( 'path' => $file_path ) );
-        }
+			// This logic is adapted directly from your finalize_submission() method.
+			if ( ! file_exists( $file_path ) ) {
+				return $this->err( 'file_missing', 'No file to process.', 400, array( 'path' => $file_path ) );
+			}
 
-        $filename   = $form_data['filename'] ?? pathinfo( $file_path, PATHINFO_BASENAME );
-        $upload_dir = wp_upload_dir();
-        $destination = trailingslashit( $upload_dir['path'] ) . wp_unique_filename( $upload_dir['path'], $filename );
+			$filename    = $form_data['filename'] ?? pathinfo( $file_path, PATHINFO_BASENAME );
+			$upload_dir  = wp_upload_dir();
+			$destination = trailingslashit( $upload_dir['path'] ) . wp_unique_filename( $upload_dir['path'], $filename );
 
-        // Validate the file before moving it
-        $mime  = (string) ( $form_data['filetype'] ?? mime_content_type( $file_path ) );
-        $size  = (int) @filesize( $file_path );
-        $valid = $this->validate_file_against_settings( $mime, $size );
-        if ( is_wp_error( $valid ) ) {
-            @unlink( $file_path );
-            return $valid;
-        }
+			// Validate the file before moving it
+			$mime  = (string) ( $form_data['filetype'] ?? mime_content_type( $file_path ) );
+			$size  = (int) @filesize( $file_path );
+			$valid = $this->validate_file_against_settings( $mime, $size );
+			if ( is_wp_error( $valid ) ) {
+				@unlink( $file_path );
+				return $valid;
+			}
 
-        if ( ! @rename( $file_path, $destination ) ) {
-            @unlink( $file_path );
-            return $this->err( 'move_failed', 'Failed to move upload into uploads path.', 500, array( 'dest' => $destination ) );
-        }
+			if ( ! @rename( $file_path, $destination ) ) {
+				@unlink( $file_path );
+				return $this->err( 'move_failed', 'Failed to move upload into uploads path.', 500, array( 'dest' => $destination ) );
+			}
 
-        // Now, the rest is nearly identical to your existing logic...
-        $attachment_id = $this->dal->create_attachment_from_file( $destination, $filename );
-        if ( is_wp_error( $attachment_id ) ) {
-            @unlink( $destination );
-            return $attachment_id;
-        }
+			// Now, the rest is nearly identical to your existing logic...
+			$attachment_id = $this->dal->create_attachment_from_file( $destination, $filename );
+			if ( is_wp_error( $attachment_id ) ) {
+				@unlink( $destination );
+				return $attachment_id;
+			}
 
-        // Extract user ID from form_data metadata, fallback to 0 (anonymous) if not present or invalid.
-        $user_id = isset( $form_data['user_id'] ) ? absint( $form_data['user_id'] ) : 0;
-        if ( $user_id && ! get_userdata( $user_id ) ) {
-            $user_id = 0; // Invalid user ID, fallback to anonymous.
-        }
-        // For tusd uploads, user_id should be passed in metadata. Do not use get_current_user_id() as uploads may be processed asynchronously.
-        $cpt_post_id = $this->dal->create_audio_post(
-            $form_data['starmus_title'] ?? pathinfo( $filename, PATHINFO_FILENAME ),
-            $this->get_cpt_slug(),
-            $user_id
-        );
-        if ( is_wp_error( $cpt_post_id ) ) {
-            $this->dal->delete_attachment( (int) $attachment_id );
-            return $cpt_post_id;
-        }
+			// Extract user ID from form_data metadata, fallback to 0 (anonymous) if not present or invalid.
+			$user_id = isset( $form_data['user_id'] ) ? absint( $form_data['user_id'] ) : 0;
+			if ( $user_id && ! get_userdata( $user_id ) ) {
+				$user_id = 0; // Invalid user ID, fallback to anonymous.
+			}
+			// For tusd uploads, user_id should be passed in metadata. Do not use get_current_user_id() as uploads may be processed asynchronously.
+			$cpt_post_id = $this->dal->create_audio_post(
+				$form_data['starmus_title'] ?? pathinfo( $filename, PATHINFO_FILENAME ),
+				$this->get_cpt_slug(),
+				$user_id
+			);
+			if ( is_wp_error( $cpt_post_id ) ) {
+				$this->dal->delete_attachment( (int) $attachment_id );
+				return $cpt_post_id;
+			}
 
-        $this->dal->save_post_meta( (int) $cpt_post_id, '_audio_attachment_id', (int) $attachment_id );
-        $this->dal->set_attachment_parent( (int) $attachment_id, (int) $cpt_post_id );
-        $this->save_all_metadata( (int) $cpt_post_id, (int) $attachment_id, $form_data );
+			$this->dal->save_post_meta( (int) $cpt_post_id, '_audio_attachment_id', (int) $attachment_id );
+			$this->dal->set_attachment_parent( (int) $attachment_id, (int) $cpt_post_id );
+			$this->save_all_metadata( (int) $cpt_post_id, (int) $attachment_id, $form_data );
 
-        StarmusLogger::timeEnd( 'process_completed_file', 'SubmissionHandler' );
+			StarmusLogger::timeEnd( 'process_completed_file', 'SubmissionHandler' );
 
-        return array(
-            'success'       => true,
-            'attachment_id' => (int) $attachment_id,
-            'post_id'       => (int) $cpt_post_id,
-            'url'           => wp_get_attachment_url( (int) $attachment_id ),
-        );
+			return array(
+				'success'       => true,
+				'attachment_id' => (int) $attachment_id,
+				'post_id'       => (int) $cpt_post_id,
+				'url'           => wp_get_attachment_url( (int) $attachment_id ),
+			);
 
-    } catch ( Throwable $e ) {
-        StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'process_completed_file'));
-        return $this->err('server_error', 'Failed to process completed file.', 500);
-    }
-}
+		} catch ( Throwable $e ) {
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'process_completed_file' ) );
+			return $this->err( 'server_error', 'Failed to process completed file.', 500 );
+		}
+	}
 
 	public function handle_upload_chunk_rest( WP_REST_Request $request ): array|WP_Error {
 		try {
@@ -228,9 +229,9 @@ public function process_completed_file( string $file_path, array $form_data ): a
 			return array(
 				'success' => true,
 				'data'    => array(
-					'status'       => 'chunk_received',
-					'upload_id'    => $params['upload_id'] ?? null,
-					'chunk_index'  => $params['chunk_index'] ?? null,
+					'status'      => 'chunk_received',
+					'upload_id'   => $params['upload_id'] ?? null,
+					'chunk_index' => $params['chunk_index'] ?? null,
 				),
 			);
 		} catch ( Throwable $e ) {
@@ -239,7 +240,8 @@ public function process_completed_file( string $file_path, array $form_data ): a
 		}
 	}
 
-	/* ======================================================================
+	/*
+	======================================================================
 	 * FALLBACK FORM UPLOAD HANDLER (multipart/form-data)
 	 * ==================================================================== */
 
@@ -303,7 +305,8 @@ public function process_completed_file( string $file_path, array $form_data ): a
 		}
 	}
 
-	/* ======================================================================
+	/*
+	======================================================================
 	 * VALIDATION / IO HELPERS
 	 * ==================================================================== */
 
@@ -320,8 +323,8 @@ public function process_completed_file( string $file_path, array $form_data ): a
 			}
 			return true;
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'validate_chunk_data'));
-			return $this->err('server_error', 'Validation failed.', 500);
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'validate_chunk_data' ) );
+			return $this->err( 'server_error', 'Validation failed.', 500 );
 		}
 	}
 
@@ -346,8 +349,8 @@ public function process_completed_file( string $file_path, array $form_data ): a
 
 			return $file_path;
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'write_chunk_streamed'));
-			return $this->err('server_error', 'Could not persist chunk.', 500);
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'write_chunk_streamed' ) );
+			return $this->err( 'server_error', 'Could not persist chunk.', 500 );
 		}
 	}
 
@@ -428,8 +431,8 @@ public function process_completed_file( string $file_path, array $form_data ): a
 				),
 			);
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'finalize_submission'));
-			return $this->err('server_error', 'Finalize failed.', 500);
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'finalize_submission' ) );
+			return $this->err( 'server_error', 'Finalize failed.', 500 );
 		}
 	}
 
@@ -487,7 +490,8 @@ public function process_completed_file( string $file_path, array $form_data ): a
 		}
 	}
 
-	/* ======================================================================
+	/*
+	======================================================================
 	 * METADATA + POST-PROCESSING
 	 * ==================================================================== */
 
@@ -587,19 +591,27 @@ public function process_completed_file( string $file_path, array $form_data ): a
 					if ( ! wp_next_scheduled( 'starmus_cron_process_pending_audio', array( $audio_post_id, $attachment_id ) ) ) {
 						wp_schedule_single_event( time() + 300, 'starmus_cron_process_pending_audio', array( $audio_post_id, $attachment_id ) );
 					}
-					StarmusLogger::notice( 'SubmissionHandler', 'Post-processing deferred to cron', array( 'post_id' => $audio_post_id, 'attachment_id' => $attachment_id ) );
+					StarmusLogger::notice(
+						'SubmissionHandler',
+						'Post-processing deferred to cron',
+						array(
+							'post_id'       => $audio_post_id,
+							'attachment_id' => $attachment_id,
+						)
+					);
 				}
 			} catch ( Throwable $e ) {
 				StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'post_processing' ) );
 				wp_schedule_single_event( time() + 600, 'starmus_cron_process_pending_audio', array( $audio_post_id, $attachment_id ) );
 			}
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'save_all_metadata'));
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'save_all_metadata' ) );
 			// void method; swallow after logging
 		}
 	}
 
-	/* ======================================================================
+	/*
+	======================================================================
 	 * SETTINGS / STATE HELPERS
 	 * ==================================================================== */
 
@@ -613,7 +625,7 @@ public function process_completed_file( string $file_path, array $form_data ): a
 			}
 			return 'audio-recording';
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'get_cpt_slug'));
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'get_cpt_slug' ) );
 			return 'audio-recording';
 		}
 	}
@@ -622,7 +634,15 @@ public function process_completed_file( string $file_path, array $form_data ): a
 		try {
 			$this->dal->save_post_meta( $post_id, $field_key, $value );
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'update_acf_field', 'field' => $field_key, 'post_id' => $post_id));
+			StarmusLogger::error(
+				'SubmissionHandler',
+				$e,
+				array(
+					'phase'   => 'update_acf_field',
+					'field'   => $field_key,
+					'post_id' => $post_id,
+				)
+			);
 		}
 	}
 
@@ -630,7 +650,7 @@ public function process_completed_file( string $file_path, array $form_data ): a
 		try {
 			return StarmusSanitizer::sanitize_submission_data( $data );
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'sanitize_submission_data'));
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'sanitize_submission_data' ) );
 			// Fall back to shallow sanitization
 			foreach ( $data as $k => $v ) {
 				if ( is_string( $v ) ) {
@@ -645,7 +665,14 @@ public function process_completed_file( string $file_path, array $form_data ): a
 		try {
 			return $this->dal->is_rate_limited( $user_id );
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'is_rate_limited', 'user_id' => $user_id));
+			StarmusLogger::error(
+				'SubmissionHandler',
+				$e,
+				array(
+					'phase'   => 'is_rate_limited',
+					'user_id' => $user_id,
+				)
+			);
 			return false; // Fail-open to avoid blocking users due to a DAL fault.
 		}
 	}
@@ -658,7 +685,7 @@ public function process_completed_file( string $file_path, array $form_data ): a
 			}
 			return trailingslashit( $base ) . 'starmus_tmp/';
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'get_temp_dir'));
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'get_temp_dir' ) );
 			return trailingslashit( sys_get_temp_dir() ) . 'starmus_tmp/';
 		}
 	}
@@ -676,7 +703,7 @@ public function process_completed_file( string $file_path, array $form_data ): a
 			}
 			StarmusLogger::info( 'SubmissionHandler', 'Stale temp cleanup complete', array( 'dir' => $dir ) );
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'cleanup_stale_temp_files'));
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'cleanup_stale_temp_files' ) );
 		}
 	}
 
@@ -685,12 +712,13 @@ public function process_completed_file( string $file_path, array $form_data ): a
 			$redirect_page_id = $this->settings ? (int) $this->settings->get( 'redirect_page_id', 0 ) : 0;
 			return $redirect_page_id ? (string) get_permalink( $redirect_page_id ) : (string) home_url( '/my-submissions' );
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'get_redirect_url'));
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'get_redirect_url' ) );
 			return (string) home_url( '/my-submissions' );
 		}
 	}
 
-	/* ======================================================================
+	/*
+	======================================================================
 	 * INTERNAL UTILITIES
 	 * ==================================================================== */
 
@@ -703,9 +731,22 @@ public function process_completed_file( string $file_path, array $form_data ): a
 			StarmusLogger::warning(
 				'SubmissionHandler',
 				"{$code}: {$message}",
-				array_merge( $context, array( 'status' => $status, 'correlation_id' => $cid ) )
+				array_merge(
+					$context,
+					array(
+						'status'         => $status,
+						'correlation_id' => $cid,
+					)
+				)
 			);
-			return new WP_Error( $code, $message, array( 'status' => $status, 'correlation_id' => $cid ) );
+			return new WP_Error(
+				$code,
+				$message,
+				array(
+					'status'         => $status,
+					'correlation_id' => $cid,
+				)
+			);
 		} catch ( Throwable $e ) {
 			// As a last resort, ensure a WP_Error still returns even if logging fails.
 			return new WP_Error( $code, $message, array( 'status' => $status ) );
@@ -730,8 +771,8 @@ public function process_completed_file( string $file_path, array $form_data ): a
 			}
 			return true;
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'ensure_uploads_writable'));
-			return $this->err('server_error', 'Uploads not writable (internal error).', 500);
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'ensure_uploads_writable' ) );
+			return $this->err( 'server_error', 'Uploads not writable (internal error).', 500 );
 		}
 	}
 
@@ -752,7 +793,7 @@ public function process_completed_file( string $file_path, array $form_data ): a
 			}
 			return null;
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'detect_file_key'));
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'detect_file_key' ) );
 			return null;
 		}
 	}
@@ -780,20 +821,30 @@ public function process_completed_file( string $file_path, array $form_data ): a
 			foreach ( $allowed as $allowed_type ) {
 				$allowed_type = strtolower( (string) $allowed_type );
 				if ( $allowed_type === $mime_lc ) {
-					$ok = true; break;
+					$ok = true;
+					break;
 				}
 				if ( str_starts_with( $mime_lc, $allowed_type ) ) {
-					$ok = true; break;
+					$ok = true;
+					break;
 				}
 			}
 			if ( ! $ok ) {
-				return $this->err( 'mime_not_allowed', 'This file type is not allowed.', 415, array( 'mime' => $mime_lc, 'allowed' => $allowed ) );
+				return $this->err(
+					'mime_not_allowed',
+					'This file type is not allowed.',
+					415,
+					array(
+						'mime'    => $mime_lc,
+						'allowed' => $allowed,
+					)
+				);
 			}
 
 			return true;
 		} catch ( Throwable $e ) {
-			StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'validate_file_against_settings'));
-			return $this->err('server_error', 'File validation failed.', 500);
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => 'validate_file_against_settings' ) );
+			return $this->err( 'server_error', 'File validation failed.', 500 );
 		}
 	}
 }

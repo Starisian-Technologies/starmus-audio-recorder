@@ -34,7 +34,7 @@ define('STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder');
 /** Shared prefix applied to option keys, actions, and filters. */
 define('STARMUS_PLUGIN_PREFIX', 'starmus');
 /** Current plugin semantic version string. */
-define('STARMUS_VERSION', '0.7.4');
+define('STARMUS_VERSION', '0.7.6');
 /**
  * Default severity threshold used when the host environment does not define one.
  */
@@ -185,10 +185,10 @@ register_activation_hook(STARMUS_MAIN_FILE, 'starmus_activate');
 register_deactivation_hook(STARMUS_MAIN_FILE, 'starmus_deactivate');
 register_uninstall_hook(STARMUS_MAIN_FILE, 'starmus_uninstall');
 // Starmus Cron activation / deactivation
-register_activation_hook(__FILE__, [ \Starisian\Starmus\cron\StarmusCron::class, 'activate' ]);
-register_deactivation_hook(__FILE__, [ \Starisian\Starmus\cron\StarmusCron::class, 'deactivate' ]);
+register_activation_hook(__FILE__, [ \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'activate' ]);
+register_deactivation_hook(__FILE__, [ \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'deactivate' ]);
 // Initialize the plugin once all other plugins are loaded.
-add_action('plugins_loaded', [\Starisian\Starmus\StarmusAudioRecorder::class, 'starmus_run']);
+add_action('plugins_loaded', [\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class, 'starmus_run']);
 
 // Bootstrap plugin services during WordPress init lifecycle.
-add_action('init', [StarmusAudioRecorder::class, 'starmus_init_plugin']);
+add_action('init', [Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class, 'starmus_init_plugin']);

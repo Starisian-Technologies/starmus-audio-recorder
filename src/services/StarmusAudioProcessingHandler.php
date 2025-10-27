@@ -155,7 +155,15 @@ final class StarmusAudioProcessingHandler {
 				);
 			}
 		} catch ( \Throwable $e ) {
-			StarmusLogger::error( 'PostProcessingService', $e, array( 'phase' => 'persist_outputs', 'attachment_id' => $attachment_id, 'post_id' => $audio_post_id ) );
+			StarmusLogger::error(
+				'PostProcessingService',
+				$e,
+				array(
+					'phase'         => 'persist_outputs',
+					'attachment_id' => $attachment_id,
+					'post_id'       => $audio_post_id,
+				)
+			);
 		}
 
 		// --- 4) ID3 tagging ---

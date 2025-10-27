@@ -15,5 +15,4 @@ interface StarmusAudioRecorderDALInterface {
 	public function persist_audio_outputs( int $attachment_id, string $mp3, string $wav ): void;
 	public function save_audio_outputs( int $post_id, ?string $waveform_json, ?string $mp3_path, ?string $wav_path ): void;
 	public function set_audio_state( int $attachment_id, string $state ): void;
-
 }

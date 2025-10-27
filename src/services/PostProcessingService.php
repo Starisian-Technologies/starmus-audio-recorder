@@ -330,7 +330,14 @@ class PostProcessingService {
 			$this->dal->save_post_meta( $attachment_id, '_audio_processing_state', $state );
 		} catch ( \Throwable $e ) {
 			// Fallback to direct meta update if DAL fails
-			StarmusLogger::warning( 'PostProcessingService', 'Failed to persist processing state via DAL; falling back to update_post_meta', array( 'attachment_id' => $attachment_id, 'state' => $state ) );
+			StarmusLogger::warning(
+				'PostProcessingService',
+				'Failed to persist processing state via DAL; falling back to update_post_meta',
+				array(
+					'attachment_id' => $attachment_id,
+					'state'         => $state,
+				)
+			);
 			update_post_meta( $attachment_id, '_audio_processing_state', $state );
 		}
 	}

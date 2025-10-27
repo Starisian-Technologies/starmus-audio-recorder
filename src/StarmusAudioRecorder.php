@@ -128,44 +128,41 @@ final class StarmusAudioRecorder {
 	/**
 	 * Entry point called from main plugin file.
 	 */
-        public static function starmus_run(): void
-        {
-                self::starmus_get_instance();
-        }
+	public static function starmus_run(): void {
+			self::starmus_get_instance();
+	}
 
-        /**
-         * Verify that either Advanced Custom Fields or Smart Custom Fields is active.
-         *
-         * The recorder relies on one of these field frameworks to manage submission metadata.
-         * ACF exposes a global function and root-level class, while Smart Custom Fields uses
-         * a namespaced bootstrap class. Checking the various identifiers keeps the runtime guard
-         * resilient without loading extra files during activation.
-         *
-         * @return bool True when a supported field framework is available.
-         */
-        public static function check_field_plugin_dependency(): bool
-        {
-                if (class_exists('ACF') || function_exists('acf')) {
-                        return true;
-                }
+		/**
+		 * Verify that either Advanced Custom Fields or Smart Custom Fields is active.
+		 *
+		 * The recorder relies on one of these field frameworks to manage submission metadata.
+		 * ACF exposes a global function and root-level class, while Smart Custom Fields uses
+		 * a namespaced bootstrap class. Checking the various identifiers keeps the runtime guard
+		 * resilient without loading extra files during activation.
+		 *
+		 * @return bool True when a supported field framework is available.
+		 */
+	public static function check_field_plugin_dependency(): bool {
+		if ( class_exists( 'ACF' ) || function_exists( 'acf' ) ) {
+				return true;
+		}
 
-                if (
-                        class_exists('SCF')
-                        || function_exists('scf')
-                        || class_exists('Smart_Custom_Fields')
-                        || class_exists('\Smart_Custom_Fields\Bootstrap')
-                ) {
-                        return true;
-                }
+		if (
+					class_exists( 'SCF' )
+					|| function_exists( 'scf' )
+					|| class_exists( 'Smart_Custom_Fields' )
+					|| class_exists( '\Smart_Custom_Fields\Bootstrap' )
+			) {
+				return true;
+		}
 
-                return false;
-        }
+			return false;
+	}
 
-        /**
-         * Hook target for `init` to perform late initialization pieces.
-         */
-        public static function starmus_init_plugin(): void
-        {
+		/**
+		 * Hook target for `init` to perform late initialization pieces.
+		 */
+	public static function starmus_init_plugin(): void {
 
 		self::starmus_get_instance()->on_wp_init();
 	}
@@ -204,52 +201,51 @@ final class StarmusAudioRecorder {
 		throw new \RuntimeException( 'StarmusSettings failed to initialize.' );
 	}
 	/**
- * Filter: starmus_register_dal
- *
- * @param StarmusAudioRecorderDALInterface $current_dal The current DAL instance (default).
- * @param string|null                      $override_key The expected handshake key (may be null).
- * @return StarmusAudioRecorderDALInterface Replacement DAL instance.
- *
- * Security: Replacement must implement StarmusAudioRecorderDALInterface and
- *           return the same key from get_registration_key() as STARMUS_DAL_OVERRIDE_KEY.
- */
-
+	 * Filter: starmus_register_dal
+	 *
+	 * @param StarmusAudioRecorderDALInterface $current_dal The current DAL instance (default).
+	 * @param string|null                      $override_key The expected handshake key (may be null).
+	 * @return StarmusAudioRecorderDALInterface Replacement DAL instance.
+	 *
+	 * Security: Replacement must implement StarmusAudioRecorderDALInterface and
+	 *           return the same key from get_registration_key() as STARMUS_DAL_OVERRIDE_KEY.
+	 */
 	private function set_DAL(): void {
-	if ( $this->DAL !== null ) {
-		return;
+		if ( $this->DAL !== null ) {
+			return;
+		}
+
+		$default_dal = new StarmusAudioRecorderDAL();
+
+		// Run the filter inside a try/catch so a bad plugin can’t fatal the bootstrap.
+		try {
+			$override_key = defined( 'STARMUS_DAL_OVERRIDE_KEY' ) ? STARMUS_DAL_OVERRIDE_KEY : null;
+			$filtered_dal = apply_filters( 'starmus_register_dal', $default_dal, $override_key );
+		} catch ( \Throwable $e ) {
+			error_log( '[Starmus] DAL filter threw: ' . $e->getMessage() );
+			$this->DAL = $default_dal;
+			return;
+		}
+
+		// Must implement our interface.
+		if ( ! $filtered_dal instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ) {
+			error_log( '[Starmus] Invalid DAL replacement: must implement StarmusAudioRecorderDALInterface.' );
+			$this->DAL = $default_dal;
+			return;
+		}
+
+		// Handshake: the replacement must present the same key we expect.
+		$provided = (string) $filtered_dal->get_registration_key();
+		$expected = (string) ( defined( 'STARMUS_DAL_OVERRIDE_KEY' ) ? STARMUS_DAL_OVERRIDE_KEY : '' );
+
+		if ( $expected === '' || $provided !== $expected ) {
+			error_log( '[Starmus] Unauthorized DAL replacement attempt rejected.' );
+			$this->DAL = $default_dal;
+			return;
+		}
+
+		$this->DAL = $filtered_dal;
 	}
-
-	$default_dal = new StarmusAudioRecorderDAL();
-
-	// Run the filter inside a try/catch so a bad plugin can’t fatal the bootstrap.
-	try {
-		$override_key = defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
-		$filtered_dal = apply_filters( 'starmus_register_dal', $default_dal, $override_key );
-	} catch ( \Throwable $e ) {
-		error_log( '[Starmus] DAL filter threw: ' . $e->getMessage() );
-		$this->DAL = $default_dal;
-		return;
-	}
-
-	// Must implement our interface.
-	if ( ! $filtered_dal instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ) {
-		error_log( '[Starmus] Invalid DAL replacement: must implement StarmusAudioRecorderDALInterface.' );
-		$this->DAL = $default_dal;
-		return;
-	}
-
-	// Handshake: the replacement must present the same key we expect.
-	$provided = (string) $filtered_dal->get_registration_key();
-	$expected = (string) ( defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : '' );
-
-	if ( $expected === '' || $provided !== $expected ) {
-		error_log( '[Starmus] Unauthorized DAL replacement attempt rejected.' );
-		$this->DAL = $default_dal;
-		return;
-	}
-
-	$this->DAL = $filtered_dal;
-}
 
 	/**
 	 * Instantiate components that depend on settings and environment.
