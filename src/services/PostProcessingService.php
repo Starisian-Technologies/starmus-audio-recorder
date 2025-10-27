@@ -6,7 +6,7 @@
  * Post-save transcoding, mastering, archival, ID3, waveform generation.
  *
  * @package   Starisian\Sparxstar\Starmus\services
- * @version 0.8.4-dal
+ * @version 0.8.5-dal
  */
 
 namespace Starisian\Sparxstar\Starmus\services;

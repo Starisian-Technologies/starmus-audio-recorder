@@ -7,7 +7,7 @@
  * and the Tier C fallback for legacy browsers.
  *
  * @package Starisian\Sparxstar\Starmus\templates
- * @version 0.8.4
+ * @version 0.8.5
  * @since   0.4.5
  * @var string $form_id         Base ID for the form, passed from the shortcode.
  * @var string $consent_message The user consent message.

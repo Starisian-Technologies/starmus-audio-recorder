@@ -7,7 +7,7 @@
  *
  * @package   Starisian\Sparxstar\Starmus
  * @since     0.1.0
- * @version 0.8.4
+ * @version 0.8.5
  */
 
 namespace Starisian\Sparxstar\Starmus;

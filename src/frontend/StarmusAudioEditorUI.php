@@ -4,7 +4,7 @@
  * Starmus Audio Editor UI - Refactored for Security & Performance
  *
  * @package Starisian\Sparxstar\Starmus\frontend
- * @version 0.8.4
+ * @version 0.8.5
  * @since 0.3.1
  */
 

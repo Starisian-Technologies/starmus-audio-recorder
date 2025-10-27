@@ -5,7 +5,7 @@ namespace Starisian\Sparxstar\Starmus\includes;
  * PSR-4 compliant class to handle webhooks from a tusd server.
  *
  * @package    STARMUS
- * @version 0.8.4
+ * @version 0.8.5
  */
 
 // Exit if accessed directly.

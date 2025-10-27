@@ -1,7 +1,7 @@
 <?php
 /**
  * @package Starisian\Sparxstar\Starmus\tests\unit
- * @version 0.8.4
+ * @version 0.8.5
  * @since 0.3.1
  */
 

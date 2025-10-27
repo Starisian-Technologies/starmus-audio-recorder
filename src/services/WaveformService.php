@@ -9,7 +9,7 @@
  * and stores it via the DAL + ACF on the parent recording post.
  *
  * @package Starisian\Sparxstar\Starmus\services
- * @version 0.8.4-dal
+ * @version 0.8.5-dal
  */
 
 namespace Starisian\Sparxstar\Starmus\services;

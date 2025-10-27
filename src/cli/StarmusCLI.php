@@ -5,7 +5,7 @@
  * This is the final, consolidated class containing all commands and best practices.
  *
  * @package Starisian\Sparxstar\Starmus\cli
- * @version 0.8.4
+ * @version 0.8.5
  */
 
 namespace Starisian\Sparxstar\Starmus\cli;

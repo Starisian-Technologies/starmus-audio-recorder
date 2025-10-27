@@ -3,7 +3,7 @@
  * Unified asset loader for Starmus Audio.
  *
  * @package Starmus
- * @version 0.8.4
+ * @version 0.8.5
  * @since  0.7.5
  */
 
