@@ -52,7 +52,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-	const containerId = <?php echo wp_json_encode($container_id); ?>;
+	const containerId = <?php echo wp_json_encode( $container_id ); ?>;
 	const triggerContainer = document.getElementById(containerId);
 	if (!triggerContainer) return;
 
@@ -63,9 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	const recorderTarget = triggerContainer.querySelector('.aiwa-starmus-recorder-target');
 
 	const prefillData = {
-		title: <?php echo wp_json_encode($title); ?>,
-		language: <?php echo wp_json_encode($language); ?>,
-		recordingType: <?php echo wp_json_encode($recording_type); ?>,
+		title: <?php echo wp_json_encode( $title ); ?>,
+		language: <?php echo wp_json_encode( $language ); ?>,
+		recordingType: <?php echo wp_json_encode( $recording_type ); ?>,
 	};
 
 	startButton.addEventListener('click', () => {

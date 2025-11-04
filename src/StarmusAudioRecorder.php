@@ -24,6 +24,9 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderUpdater;
+use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler;
+
 
 // Admin/UI/Assets
 use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
@@ -303,6 +306,18 @@ final class StarmusAudioRecorder {
 		} catch ( Throwable $e ) {
 			error_log( $e );
 			$this->log_runtime_error( 'Cron', $e );
+		}
+
+		// tusd Hook Handler (webhook listener for upload completion events)
+		try {
+			if ( class_exists( StarmusSubmissionHandler::class ) && class_exists( StarmusTusdHookHandler::class ) ) {
+				$submission_handler = new StarmusSubmissionHandler( $this->DAL, $this->settings );
+				$tusd_hook_handler  = new StarmusTusdHookHandler( $submission_handler );
+				$tusd_hook_handler->register_hooks();
+			}
+		} catch ( Throwable $e ) {
+			error_log( '[Starmus] TUSD Hook Handler failed: ' . $e->getMessage() );
+			$this->log_runtime_error( 'TUSD Hook Handler', $e );
 		}
 	}
 

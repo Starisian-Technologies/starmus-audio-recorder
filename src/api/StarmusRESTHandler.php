@@ -43,9 +43,6 @@ final class StarmusRESTHandler {
 		StarmusSettings $settings,
 		?StarmusSubmissionHandler $submission_handler = null
 	) {
-		if ( ! $dal instanceof StarmusAudioRecorderDALInterface ) {
-			throw new \RuntimeException( 'Invalid DAL: must implement StarmusAudioRecorderDALInterface' );
-		}
 
 		$this->dal                = $dal;
 		$this->settings           = $settings;

@@ -71,7 +71,7 @@
   "engines": {
     "node": ">=18.17"
   },
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.20.0",
   "devDependencies": {
     "@babel/eslint-parser": "latest",
     "@eslint/js": "latest",

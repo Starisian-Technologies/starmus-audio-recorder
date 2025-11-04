@@ -261,6 +261,13 @@
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_process_completed_file">process_completed_file()</a>
+    <span>
+                                &nbsp;: array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr>    </span>
+</dt>
+<dd>Processes a file that is already fully present on the local filesystem.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_process_fallback_upload">process_fallback_upload()</a>
     <span>
                                 &nbsp;: array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr>    </span>
@@ -627,7 +634,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">589</span>
+    <span class="phpdocumentor-element-found-in__line">693</span>
 
     </aside>
 
@@ -661,7 +668,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">529</span>
+    <span class="phpdocumentor-element-found-in__line">618</span>
 
     </aside>
 
@@ -699,7 +706,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">169</span>
+    <span class="phpdocumentor-element-found-in__line">248</span>
 
     </aside>
 
@@ -747,7 +754,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">99</span>
+    <span class="phpdocumentor-element-found-in__line">177</span>
 
     </aside>
 
@@ -787,6 +794,72 @@
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_process_completed_file">
+        process_completed_file()
+        <a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_process_completed_file" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">108</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Processes a file that is already fully present on the local filesystem.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">process_completed_file</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$file_path</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$form_data</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><p>This is the new entry point for post-upload processing (e.g., from tusd).</p>
+</section>
+
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$file_path</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>Absolute path to the completed file.</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$form_data</span>
+                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>Sanitized metadata from the client.</p>
+</section>
+
+            </dd>
+            </dl>
+
+    
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;|<abbr title="\WP_Error">WP_Error</abbr></span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>Success array with IDs or WP_Error.</p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_process_fallback_upload">
         process_fallback_upload()
         <a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_process_fallback_upload" class="headerlink"><i class="fas fa-link"></i></a>
@@ -795,7 +868,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">366</span>
+    <span class="phpdocumentor-element-found-in__line">446</span>
 
     </aside>
 
@@ -864,7 +937,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">552</span>
+    <span class="phpdocumentor-element-found-in__line">649</span>
 
     </aside>
 
@@ -912,7 +985,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">417</span>
+    <span class="phpdocumentor-element-found-in__line">498</span>
 
     </aside>
 
@@ -970,7 +1043,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">664</span>
+    <span class="phpdocumentor-element-found-in__line">782</span>
 
     </aside>
 
@@ -1019,7 +1092,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">641</span>
+    <span class="phpdocumentor-element-found-in__line">759</span>
 
     </aside>
 
@@ -1058,7 +1131,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">623</span>
+    <span class="phpdocumentor-element-found-in__line">728</span>
 
     </aside>
 
@@ -1128,7 +1201,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">277</span>
+    <span class="phpdocumentor-element-found-in__line">357</span>
 
     </aside>
 
@@ -1183,7 +1256,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">606</span>
+    <span class="phpdocumentor-element-found-in__line">710</span>
 
     </aside>
 
@@ -1221,7 +1294,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">576</span>
+    <span class="phpdocumentor-element-found-in__line">680</span>
 
     </aside>
 
@@ -1259,7 +1332,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">567</span>
+    <span class="phpdocumentor-element-found-in__line">664</span>
 
     </aside>
 
@@ -1307,7 +1380,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">544</span>
+    <span class="phpdocumentor-element-found-in__line">633</span>
 
     </aside>
 
@@ -1365,7 +1438,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">233</span>
+    <span class="phpdocumentor-element-found-in__line">313</span>
 
     </aside>
 
@@ -1413,7 +1486,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">686</span>
+    <span class="phpdocumentor-element-found-in__line">804</span>
 
     </aside>
 
@@ -1469,7 +1542,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/includes/StarmusSubmissionHandler.php"><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">251</span>
+    <span class="phpdocumentor-element-found-in__line">331</span>
 
     </aside>
 
@@ -1640,6 +1713,7 @@
                                             <li class=""><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_get_cpt_slug">get_cpt_slug()</a></li>
                                             <li class=""><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_handle_fallback_upload_rest">handle_fallback_upload_rest()</a></li>
                                             <li class=""><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_handle_upload_chunk_rest">handle_upload_chunk_rest()</a></li>
+                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_process_completed_file">process_completed_file()</a></li>
                                             <li class=""><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_process_fallback_upload">process_fallback_upload()</a></li>
                                             <li class=""><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_sanitize_submission_data">sanitize_submission_data()</a></li>
                                             <li class=""><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_save_all_metadata">save_all_metadata()</a></li>

@@ -86,45 +86,45 @@ class StarmusAudioRecorderUI {
 		}
 	}
 
-  /**
- * Render the re-recorder (single-button variant).
- * Usage: [starmus_audio_re_recorder title="..." language="..." recording_type="..."]
- */
-public function render_re_recorder_shortcode( array $atts = [] ): string {
-	try {
-		$atts = shortcode_atts(
-			array(
-				'title'          => '',
-				'language'       => '',
-				'recording_type' => '',
-			),
-			$atts,
-			'starmus_audio_re_recorder'
-		);
+	/**
+	 * Render the re-recorder (single-button variant).
+	 * Usage: [starmus_audio_re_recorder title="..." language="..." recording_type="..."]
+	 */
+	public function render_re_recorder_shortcode( array $atts = array() ): string {
+		try {
+			$atts = shortcode_atts(
+				array(
+					'title'          => '',
+					'language'       => '',
+					'recording_type' => '',
+				),
+				$atts,
+				'starmus_audio_re_recorder'
+			);
 
-		$template_args = array(
-			'title'           => sanitize_text_field( $atts['title'] ),
-			'language'        => sanitize_text_field( $atts['language'] ),
-			'recording_type'  => sanitize_text_field( $atts['recording_type'] ),
-			'container_id'    => 'starmus-re-recorder-' . wp_generate_uuid4(),
-			'consent_message' => $this->settings
+			$template_args = array(
+				'title'           => sanitize_text_field( $atts['title'] ),
+				'language'        => sanitize_text_field( $atts['language'] ),
+				'recording_type'  => sanitize_text_field( $atts['recording_type'] ),
+				'container_id'    => 'starmus-re-recorder-' . wp_generate_uuid4(),
+				'consent_message' => $this->settings
 				? $this->settings->get( 'consent_message', 'I consent to the terms and conditions.' )
 				: 'I consent to the terms and conditions.',
-			'data_policy_url' => $this->settings
+				'data_policy_url' => $this->settings
 				? $this->settings->get( 'data_policy_url', '' )
 				: '',
-		);
+			);
 
-		return \Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper::secure_render_template(
-			'starmus-audio-re-recorder.php',
-			$template_args
-		);
+			return \Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper::secure_render_template(
+				'starmus-audio-re-recorder.php',
+				$template_args
+			);
 
-	} catch ( \Throwable $e ) {
-		\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log( 'UI:render_re_recorder_shortcode', $e );
-		return '<p>' . esc_html__( 'The re-recorder is temporarily unavailable.', 'starmus-audio-recorder' ) . '</p>';
+		} catch ( \Throwable $e ) {
+			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log( 'UI:render_re_recorder_shortcode', $e );
+			return '<p>' . esc_html__( 'The re-recorder is temporarily unavailable.', 'starmus-audio-recorder' ) . '</p>';
+		}
 	}
-}
 
 
 	/**
