@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-<<<<<<< HEAD
+<< << <<< HEAD
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\services\WaveformService;
 use Starisian\Sparxstar\Starmus\services\PostProcessingService;

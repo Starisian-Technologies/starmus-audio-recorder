@@ -27,10 +27,10 @@ if ( ! acf_get_setting( 'pro' ) ) {
 			<?php // translators: %1 plugin name, %2 version number ?>
 			<p><?php echo acf_esc_html( sprintf( __( 'Thank you for updating to %1$s v%2$s!', 'secure-custom-fields' ), acf_get_setting( 'name' ), acf_get_setting( 'version' ) ) ); ?><br />
 			<?php esc_html_e( 'This version contains improvements to your database and requires an upgrade.', 'secure-custom-fields' ); ?></p>
-			<?php if ( ! empty( $plugins ) ) { ?>
+			<?php if ( ! empty( $plugins ) ) : ?>
 				<?php // translators: %s a list of plugin ?>
 				<p><?php echo acf_esc_html( sprintf( __( 'Please also check all premium add-ons (%s) are updated to the latest version.', 'secure-custom-fields' ), implode( ', ', $plugins ) ) ); ?></p>
-			<?php } ?>
+			<?php endif; ?>
 		</div>
 		<div class="col-actions">
 			<a id="acf-upgrade-button" href="<?php echo esc_url( $button_url ); ?>" class="acf-btn"><?php echo esc_html( $button_text ); ?></a>
@@ -38,7 +38,7 @@ if ( ! acf_get_setting( 'pro' ) ) {
 		
 	</div>
 </div>
-<?php if ( $confirm ) { ?>
+<?php if ( $confirm ) : ?>
 <script type="text/javascript">
 (function($) {
 	
@@ -48,4 +48,4 @@ if ( ! acf_get_setting( 'pro' ) ) {
 		
 })(jQuery);	
 </script>
-<?php } ?>
+<?php endif; ?>

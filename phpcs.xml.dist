@@ -47,6 +47,10 @@
   <rule ref="Universal"/>
   <rule ref="VariableAnalysis"/>
 
+  <rule ref="WordPress">
+  <exclude name="VariableAnalysis.CodeAnalysis.VariableAnalysis" />
+</rule>
+
   <!-- Naming conventions -->
   <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
     <properties>

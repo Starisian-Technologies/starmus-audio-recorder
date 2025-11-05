@@ -23,10 +23,23 @@
   <arg name="extensions" value="php"/>
   <arg name="parallel" value="8"/>
 
-  <!-- Core WordPress formatting rules -->
+   <!-- Target PHP version -->
+  <config name="testVersion" value="8.2-"/>
+
+  <!-- Core standards -->
   <rule ref="WordPress-Core"/>
   <rule ref="WordPress-Extra"/>
   <rule ref="WordPress-Docs"/>
+  <rule ref="WordPressVIPMinimum"/>
+
+  <!-- Modernization and compatibility -->
+  <rule ref="PHPCompatibility"/>
+  <rule ref="PHPCompatibilityWP"/>
+  <rule ref="PHPCompatibilityParagonieRandomCompat"/>
+  <rule ref="PHPCompatibilityParagonieSodiumCompat"/>
+  <rule ref="Modernize"/>
+  <rule ref="Universal"/>
+  <rule ref="VariableAnalysis"/>
 
   <!-- VIP: only apply formatting-type sniffs -->
   <rule ref="WordPressVIPMinimum">
