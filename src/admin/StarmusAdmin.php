@@ -42,12 +42,9 @@ class StarmusAdmin {
 	 *
 	 * @since 0.3.1
 	 */
-	public function __construct( ?StarmusAudioRecorderDAL $dal = null, ?StarmusSettings $settings = null ) {
-		if ( ! $dal instanceof StarmusAudioRecorderDALInterface ) {
-			throw new \RuntimeException( 'Invalid DAL: must implement StarmusAudioRecorderDALInterface' );
-		}
-		$this->settings    = $settings ?? new StarmusSettings();
-		$this->dal         = $dal ?? new StarmusAudioRecorderDAL();
+	public function __construct( StarmusAudioRecorderDALInterface $DAL, StarmusSettings $settings ) {
+		$this->dal         = $DAL;
+		$this->settings    = $settings;
 		$this->field_types = array(
 			'cpt_slug'              => 'text',
 			'file_size_limit'       => 'number',

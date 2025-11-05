@@ -40,6 +40,8 @@ final class StarmusShortcodeLoader {
 		add_shortcode( 'starmus_audio_editor', fn() => $this->safe_render( fn() => ( new StarmusAudioEditorUI() )->render_audio_editor_shortcode(), 'starmus_audio_editor' ) );
 		add_shortcode( 'starmus_my_recordings', array( $this, 'render_my_recordings_shortcode' ) );
 		add_shortcode( 'starmus_recording_detail', array( $this, 'render_submission_detail_shortcode' ) );
+		add_shortcode( 'starmus_audio_re_recorder', fn( $atts = array() ) => $this->safe_render( fn() => ( new StarmusAudioRecorderUI( $this->settings ) )->render_re_recorder_shortcode( $atts ), 'starmus_audio_re_recorder' ) );
+
 		add_filter( 'the_content', array( $this, 'render_submission_detail_via_filter' ), 100 );
 	}
 

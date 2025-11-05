@@ -226,6 +226,26 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_get_registration_key"
         },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Asave_post_meta\u0028\u0029",
+            "name": "save_post_meta",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_save_post_meta"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Apersist_audio_outputs\u0028\u0029",
+            "name": "persist_audio_outputs",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_persist_audio_outputs"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Asave_audio_outputs\u0028\u0029",
+            "name": "save_audio_outputs",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_save_audio_outputs"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Aset_audio_state\u0028\u0029",
+            "name": "set_audio_state",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_set_audio_state"
+        },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader",
             "name": "StarmusAssetLoader",
             "summary": "",
@@ -365,6 +385,11 @@ Search.appendIndex(
             "name": "get_registration_key",
             "summary": "",
             "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_registration_key"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aset_audio_state\u0028\u0029",
+            "name": "set_audio_state",
+            "summary": "Set\u0020a\u0020short\u0020processing\u0020state\u0020on\u0020an\u0020attachment\u0020\u0028centralized\u0029.",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_set_audio_state"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderUpdater",
             "name": "StarmusAudioRecorderUpdater",
@@ -711,6 +736,11 @@ Search.appendIndex(
             "summary": "Render\u0020the\u0020recorder\u0020form\u0020shortcode.",
             "url": "classes/Starisian-Sparxstar-Starmus-frontend-StarmusAudioRecorderUI.html#method_render_recorder_shortcode"
         },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Arender_re_recorder_shortcode\u0028\u0029",
+            "name": "render_re_recorder_shortcode",
+            "summary": "Render\u0020the\u0020re\u002Drecorder\u0020\u0028single\u002Dbutton\u0020variant\u0029.",
+            "url": "classes/Starisian-Sparxstar-Starmus-frontend-StarmusAudioRecorderUI.html#method_render_re_recorder_shortcode"
+        },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\frontend\\StarmusAudioRecorderUI\u003A\u003Aget_cached_terms\u0028\u0029",
             "name": "get_cached_terms",
             "summary": "Get\u0020cached\u0020terms\u0020with\u0020transient\u0020support.",
@@ -1046,6 +1076,11 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method___construct"
         },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\u003A\u003Aprocess_completed_file\u0028\u0029",
+            "name": "process_completed_file",
+            "summary": "Processes\u0020a\u0020file\u0020that\u0020is\u0020already\u0020fully\u0020present\u0020on\u0020the\u0020local\u0020filesystem.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_process_completed_file"
+        },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\u003A\u003Ahandle_upload_chunk_rest\u0028\u0029",
             "name": "handle_upload_chunk_rest",
             "summary": "",
@@ -1160,6 +1195,56 @@ Search.appendIndex(
             "name": "default_allowed_mimes",
             "summary": "Default\u0020allowed\u0020mime\u0020types\u0020if\u0020settings\u0020are\u0020empty.",
             "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#property_default_allowed_mimes"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusTusdHookHandler",
+            "name": "StarmusTusdHookHandler",
+            "summary": "StarmusTusdHookHandler\u0020Class",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusTusdHookHandler\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "Constructor.\u0020Injects\u0020the\u0020submission\u0020handler\u0020dependency.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html#method___construct"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusTusdHookHandler\u003A\u003Aregister_hooks\u0028\u0029",
+            "name": "register_hooks",
+            "summary": "Registers\u0020the\u0020WordPress\u0020hooks.\u0020This\u0020is\u0020the\u0020entry\u0020point\u0020for\u0020the\u0020class.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html#method_register_hooks"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusTusdHookHandler\u003A\u003Aregister_routes\u0028\u0029",
+            "name": "register_routes",
+            "summary": "Registers\u0020the\u0020custom\u0020REST\u0020API\u0020route\u0020for\u0020the\u0020tusd\u0020webhook.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html#method_register_routes"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusTusdHookHandler\u003A\u003Ahandle_tusd_hook\u0028\u0029",
+            "name": "handle_tusd_hook",
+            "summary": "Primary\u0020callback\u0020for\u0020the\u0020REST\u0020route.\u0020It\u0020receives\u0020the\u0020webhook\u0020request.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html#method_handle_tusd_hook"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusTusdHookHandler\u003A\u003Aprocess_completed_upload\u0028\u0029",
+            "name": "process_completed_upload",
+            "summary": "Delegates\u0020the\u0020processing\u0020of\u0020the\u0020completed\u0020upload\u0020to\u0020the\u0020submission\u0020handler.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html#method_process_completed_upload"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusTusdHookHandler\u003A\u003Apermissions_check\u0028\u0029",
+            "name": "permissions_check",
+            "summary": "Permission\u0020check\u0020for\u0020the\u0020REST\u0020API\u0020endpoint.\u0020Hardened\u0020for\u0020production.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html#method_permissions_check"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusTusdHookHandler\u003A\u003A\u0024namespace",
+            "name": "namespace",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html#property_namespace"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusTusdHookHandler\u003A\u003A\u0024rest_base",
+            "name": "rest_base",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html#property_rest_base"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusTusdHookHandler\u003A\u003A\u0024submission_handler",
+            "name": "submission_handler",
+            "summary": "A\u0020dedicated\u0020handler\u0020for\u0020processing\u0020the\u0020submission\u0020data.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html#property_submission_handler"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\AudioProcessingService",
             "name": "AudioProcessingService",
@@ -1495,6 +1580,11 @@ Search.appendIndex(
             "name": "starmus_run",
             "summary": "Entry\u0020point\u0020called\u0020from\u0020main\u0020plugin\u0020file.",
             "url": "classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_starmus_run"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\StarmusAudioRecorder\u003A\u003Acheck_field_plugin_dependency\u0028\u0029",
+            "name": "check_field_plugin_dependency",
+            "summary": "Verify\u0020that\u0020either\u0020Advanced\u0020Custom\u0020Fields\u0020or\u0020Smart\u0020Custom\u0020Fields\u0020is\u0020active.",
+            "url": "classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_check_field_plugin_dependency"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\StarmusAudioRecorder\u003A\u003Astarmus_init_plugin\u0028\u0029",
             "name": "starmus_init_plugin",
