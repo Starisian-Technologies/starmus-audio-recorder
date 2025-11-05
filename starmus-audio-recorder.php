@@ -34,7 +34,7 @@ define('STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder');
 /** Shared prefix applied to option keys, actions, and filters. */
 define('STARMUS_PLUGIN_PREFIX', 'starmus');
 /** Current plugin semantic version string. */
-define('STARMUS_VERSION', '0.7.6');
+define('STARMUS_VERSION', '0.8.5');
 /**
  * Default severity threshold used when the host environment does not define one.
  */

@@ -73,7 +73,6 @@
   },
   "packageManager": "pnpm@10.20.0",
   "devDependencies": {
-<<<<<<< HEAD
     "@babel/eslint-parser": "latest",
     "@eslint/js": "latest",
     "@microsoft/tsdoc": "latest",
@@ -99,40 +98,6 @@
     "stylelint": "latest",
     "stylelint-config-standard": "latest",
     "terser": "latest"
-=======
-    "@babel/eslint-parser": "^7.25.7",
-    "@eslint/js": "^9.36.0",
-    "@microsoft/tsdoc": "^0.15.1",
-    "@playwright/test": "^1.55.0",
-    "@size-limit/file": "^11.2.0",
-    "@wordpress/a11y": "^4.31.0",
-    "@wordpress/components": "^30.4.0",
-    "@wordpress/create-block": "^4.74.0",
-    "@wordpress/dom": "^4.31.0",
-    "@wordpress/env": "^10.30.0",
-    "@wordpress/eslint-plugin": "^22.16.0",
-    "@wordpress/prettier-config": "^4.31.0",
-    "axe-playwright": "^2.2.1",
-    "cssnano": "^7.1.1",
-    "eslint": "^9.35.0",
-    "eslint-config-prettier": "^10.1.0",
-    "eslint-plugin-jsdoc": "^56.1.2",
-    "eslint-plugin-jsx-a11y": "^6.9.0",
-    "eslint-plugin-perf-standard": "^1.0.3",
-    "eslint-plugin-security": "^3.0.1",
-    "globals": "^16.3.0",
-    "jsdoc-to-markdown": "^9.0.0",
-    "latest": "^0.2.0",
-    "markdownlint-cli": "^0.45.0",
-    "phpcbf-cli": "^1.1.0",
-    "postcss": "^8.5.6",
-    "postcss-cli": "^11.0.1",
-    "prettier": "^3.6.2",
-    "size-limit": "^11.2.0",
-    "stylelint": "^16.24.0",
-    "stylelint-config-standard": "^39.0.0",
-    "terser": "^5.44.0"
->>>>>>> 571b925d (11042025MB3)
   },
   "dependencies": {
     "axios": "latest",
