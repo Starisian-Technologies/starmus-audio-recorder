@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if ( ! class_exists( 'acf_admin_tools' ) ) :
+if ( ! class_exists( 'acf_admin_tools' ) ) {
 	/**
 	 * Class AdminTools
 	 *
@@ -255,7 +255,7 @@ if ( ! class_exists( 'acf_admin_tools' ) ) :
 
 	// initialize
 	acf()->admin_tools = new acf_admin_tools();
-endif; // class_exists check
+} // class_exists check
 
 
 /**

@@ -37,7 +37,7 @@ $is_admin              = current_user_can( 'manage_options' );
 <div class="starmus-recorder-form">
 
 	<!-- The form ID is the UNIQUE instance ID that all JS modules will reference -->
-	<form id="<?php echo esc_attr( $instance_id ); ?>" class="starmus-audio-form" method="post"
+	<form id="<?php echo esc_attr( $instance_id ); ?>" class="starmus-audio-form sparxstar-glass-card" method="post"
 		enctype="multipart/form-data" novalidate>
 
 		<?php wp_nonce_field( 'starmus_audio_form', 'starmus_nonce_' . $instance_id ); ?>

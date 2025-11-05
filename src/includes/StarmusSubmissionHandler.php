@@ -73,7 +73,9 @@ final class StarmusSubmissionHandler {
 		'audio/wav',
 	);
 
-	ppublic function __construct( StarmusAudioRecorderDALInterface $DAL, StarmusSettings $settings ) {
+	public function __construct( StarmusAudioRecorderDALInterface $DAL, StarmusSettings $settings ) {
+	    try {
+
 			$this->dal      = $DAL;
 			$this->settings = $settings;
 
@@ -81,12 +83,12 @@ final class StarmusSubmissionHandler {
 			add_action( 'starmus_cleanup_temp_files', array( $this, 'cleanup_stale_temp_files' ) );
 
 			StarmusLogger::info( 'SubmissionHandler', 'Constructed successfully' );
-	} catch ( Throwable $e ) {
-		StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => '__construct' ) );
-		// Let constructor throw in truly fatal cases:
-		throw $e;
+		} catch ( Throwable $e ) {
+			StarmusLogger::error( 'SubmissionHandler', $e, array( 'phase' => '__construct' ) );
+			// Let constructor throw in truly fatal cases:
+			throw $e;
+		}
 	}
-}
 
 	/*
 	======================================================================

@@ -50,7 +50,7 @@ if ( empty( $field['conditional_logic'] ) ) {
 	?>
 	>
 		<?php
-		foreach ( $field['conditional_logic'] as $group_id => $group ) :
+		foreach ( $field['conditional_logic'] as $group_id => $group ) {
 
 			// validate
 			if ( empty( $group ) ) {
@@ -61,7 +61,7 @@ if ( empty( $field['conditional_logic'] ) ) {
 			// vars
 			// $group_id must be completely different to $rule_id to avoid JS issues
 			$group_id = "group_{$group_id}";
-			$h4       = ( $group_id == 'group_0' ) ? __( 'Show this field if', 'secure-custom-fields' ) : __( 'or', 'secure-custom-fields' );
+			$h4       = ( $group_id === 'group_0' ) ? __( 'Show this field if', 'secure-custom-fields' ) : __( 'or', 'secure-custom-fields' );
 
 			?>
 			<div class="rule-group" data-id="<?php echo esc_attr( $group_id ); ?>">
@@ -71,7 +71,7 @@ if ( empty( $field['conditional_logic'] ) ) {
 				<table class="acf-table -clear">
 					<tbody>
 					<?php
-					foreach ( $group as $rule_id => $rule ) :
+					foreach ( $group as $rule_id => $rule ) {
 
 						// valid rule
 						$rule = wp_parse_args(
@@ -172,12 +172,12 @@ if ( empty( $field['conditional_logic'] ) ) {
 								<a href="#" class="acf-icon -minus remove-conditional-rule"></a>
 							</td>
 							</tr>
-						<?php endforeach; ?>
+						<?php } ?>
 					</tbody>
 				</table>
 
 			</div>
-		<?php endforeach; ?>
+		<?php } ?>
 
 		<h4><?php esc_html_e( 'or', 'secure-custom-fields' ); ?></h4>
 

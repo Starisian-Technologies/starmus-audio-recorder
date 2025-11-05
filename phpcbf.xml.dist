@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         name="SPARXSTAR Sky (Auto-Fix)"
+         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
+
+  <description>
+    Auto-fix ruleset for SPARXSTAR Sky. Focuses on fixable issues (whitespace, formatting, docblocks),
+    and excludes modernization, compatibility, and risky sniffs.
+  </description>
+
+  <!-- Scan all plugin PHP files -->
+  <file>.</file>
+
+  <!-- Exclude vendor and build assets -->
+  <exclude-pattern>vendor/*</exclude-pattern>
+  <exclude-pattern>node_modules/*</exclude-pattern>
+  <exclude-pattern>*.min.js</exclude-pattern>
+  <exclude-pattern>tests/*</exclude-pattern>
+
+  <arg value="p"/> <!-- show progress only for speed -->
+  <arg name="basepath" value="./"/>
+  <arg name="colors"/>
+  <arg name="extensions" value="php"/>
+  <arg name="parallel" value="8"/>
+
+  <!-- Core WordPress formatting rules -->
+  <rule ref="WordPress-Core"/>
+  <rule ref="WordPress-Extra"/>
+  <rule ref="WordPress-Docs"/>
+
+  <!-- VIP: only apply formatting-type sniffs -->
+  <rule ref="WordPressVIPMinimum">
+    <exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions"/>
+    <exclude name="WordPressVIPMinimum.Constants.RestrictedConstants"/>
+    <exclude name="WordPressVIPMinimum.Variables.VariableAnalysis"/>
+  </rule>
+
+  <!-- Naming convention fixes -->
+  <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+    <properties>
+      <property name="prefixes" type="array" value="sparxstar,star"/>
+    </properties>
+  </rule>
+
+  <!-- Text domain formatting -->
+  <rule ref="WordPress.WP.I18n">
+    <properties>
+      <property name="text_domain" type="array" value="sparxstar"/>
+    </properties>
+  </rule>
+
+  <!-- Remove compatibility / modernization from fixer (too invasive) -->
+  <exclude-pattern>PHPCompatibility*</exclude-pattern>
+  <exclude-pattern>Modernize*</exclude-pattern>
+  <exclude-pattern>Universal*</exclude-pattern>
+
+</ruleset>

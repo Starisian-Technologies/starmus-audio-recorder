@@ -1,68 +1,68 @@
 <?xml version="1.0"?>
-<ruleset name="Starmus Audio Recorder Plugin">
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         name="SPARXSTAR Sky - Default Ruleset"
+         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
 
-  <description>Coding standards for the Starmus Audio Recorder WordPress plugin.</description>
-  <author>Starisian Technologies</author>
-  <license>proprietary</license>
+  <description>
+    Default strict coding standards for SPARXSTAR Sky.
+    Enforces WordPress VIP, PHP compatibility, modern PHP usage, naming conventions, and documentation.
+    This file is intended as the baseline for CI and contributors.
+    To override locally, create a `phpcs.xml` file (gitignored).
+  </description>
 
+  <!-- Scan plugin source -->
+ <!-- Scan all PHP source files -->
   <file>.</file>
+  <include-pattern>src/*</include-pattern>
+  <exclude-pattern>vendor/*</exclude-pattern>
+  <exclude-pattern>node_modules/*</exclude-pattern>
+  <exclude-pattern>*.min.js</exclude-pattern>
+  <exclude-pattern>tests/*</exclude-pattern>
 
-  <!-- Exclude unnecessary or irrelevant paths -->
-  <exclude-pattern>/(vendor|node_modules|tests|assets|dist|build|cache|logs|tmp)/*</exclude-pattern>
-  <exclude-pattern>*.min.(js|css)</exclude-pattern>
-  <exclude-pattern>*.map</exclude-pattern>
-  <exclude-pattern>*.json</exclude-pattern>
-  <exclude-pattern>*.lock</exclude-pattern>
-  <exclude-pattern>*.md</exclude-pattern>
-  <exclude-pattern>*.txt</exclude-pattern>
-  <exclude-pattern>*.xml</exclude-pattern>
-  <exclude-pattern>*.yml</exclude-pattern>
-  <exclude-pattern>*.yaml</exclude-pattern>
-  <exclude-pattern>*.log</exclude-pattern>
-  <exclude-pattern>*.html</exclude-pattern>
-
-  <arg name="basepath" value="."/>
+  <!-- PHPCS runtime args -->
+  <arg value="sp"/>
   <arg name="colors"/>
   <arg name="extensions" value="php"/>
   <arg name="parallel" value="8"/>
-  <arg value="p"/>
+  <arg name="basepath" value="./"/>
 
-  <!-- Rules -->
+  <!-- Installed standards -->
+  <config name="installed_paths" value="vendor/wp-coding-standards/wpcs,vendor/automattic/vipwpcs,vendor/phpcompatibility/php-compatibility,vendor/phpcompatibility/phpcompatibility-wp,vendor/phpcompatibility/phpcompatibility-paragonie,vendor/phpcsstandards/phpcsextra,vendor/phpcsstandards/phpcsutils,vendor/sirbrillig/phpcs-variable-analysis"/>
+
+  <!-- Target PHP version -->
+  <config name="testVersion" value="8.2-"/>
+
+  <!-- Core standards -->
+  <rule ref="WordPress-Core"/>
   <rule ref="WordPress-Extra"/>
   <rule ref="WordPress-Docs"/>
-  <rule ref="Generic.Commenting.Todo"/>
+  <rule ref="WordPressVIPMinimum"/>
+
+  <!-- Modernization and compatibility -->
+  <rule ref="PHPCompatibility"/>
   <rule ref="PHPCompatibilityWP"/>
-  <rule ref="WordPress.WP.I18n">
-    <properties>
-      <property name="text_domain" type="array">
-        <element value="starmus-audio-recorder"/>
-      </property>
-    </properties>
-  </rule>
+  <rule ref="PHPCompatibilityParagonieRandomCompat"/>
+  <rule ref="PHPCompatibilityParagonieSodiumCompat"/>
+  <rule ref="Modernize"/>
+  <rule ref="Universal"/>
+  <rule ref="VariableAnalysis"/>
+
+  <!-- Naming conventions -->
   <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
     <properties>
       <property name="prefixes" type="array">
-        <element value="starmus"/>
-        <element value="STARMUS"/>
-        <element value="Starmus"/>
+        <element value="sparxstar"/>
+        <element value="star"/>
       </property>
     </properties>
   </rule>
 
-  <!--
-	Now, exclude the specific sniff that checks for lowercase-and-hyphenated file names.
-	This is the key to allowing your PSR-4 CamelCase file names.
-	-->
-	<exclude name="WordPress.Files.FileName"/>
-  <rule ref="WordPress.Files.FileName">
-    <exclude-pattern>/tests/*Test\.php</exclude-pattern>
-  </rule>
-  <rule ref="WordPress">
-    <exclude name="Generic.Functions.CallTimePassByReference"/>
-    <exclude name="Squiz.PHP.NonExecutableCode"/>
-  </rule>
-
-  <!-- Compatibility -->
-  <config name="testVersion" value="8.0-8.4"/>
-  <config name="showProgress" value="true"/>
+  <!-- Text domain enforcement -->
+  <rule ref="WordPress.WP.I18n">
+    <properties>
+      <property name="text_domain" type="array">
+        <element value="sparxstar"/>
+      </property>
+    </properties>
+</rule>
 </ruleset>

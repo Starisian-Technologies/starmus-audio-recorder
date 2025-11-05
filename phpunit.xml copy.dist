@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<ruleset name="SparxStar Coding Standards">
+	<description>
+		PHPCS ruleset for WordPress VIP-compatible development.
+		Includes WPCS, VIP, Modernize, Universal, PHPCompatibility, PHPCSExtra, PHPCSUtils, and VariableAnalysis.
+	</description>
+
+	<!-- Show sniff codes in output -->
+	<arg value="sp"/>
+
+	<!-- Scan all PHP files -->
+	<file>src</file>
+	<file>code-engine</file>
+	<file>sparxstar-sky.php</file>
+
+	<!-- Report format -->
+	<arg name="report" value="full"/>
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+
+	<!-- Enable parallel processing -->
+	<arg name="parallel" value="8"/>
+
+	<!-- Exclude vendor/tests/node_modules from scanning -->
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
+
+	<!-- Core Standards -->
+	<rule ref="WordPressVIPMinimum"/>
+	<rule ref="WordPress-Extra"/>
+	<rule ref="WordPress-Docs"/>
+	<rule ref="PHPCompatibility"/>
+	<rule ref="PHPCompatibilityWP"/>
+	<rule ref="PHPCompatibilityParagonieSodiumCompat"/>
+	<rule ref="Modernize"/>
+	<rule ref="Universal"/>
+	<rule ref="PHPCSUtils"/>
+	<rule ref="VariableAnalysis"/>
+	<rule ref="NormalizedArrays"/>
+
+	<!-- Target minimum PHP version -->
+	<config name="testVersion" value="8.2-"/>
+
+	<!-- Allow modern control structure spacing -->
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing">
+		<properties>
+			<property name="blank_line_after_control_structure" value="false"/>
+		</properties>
+	</rule>
+
+	<!-- Inline comments: enforce punctuation but allow TODO/FIXME -->
+	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
+		<properties>
+			<property name="ignorePatterns" type="array">
+				<element value="^//\s*TODO"/>
+				<element value="^//\s*FIXME"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Function/array spacing & modern alignment -->
+	<rule ref="PEAR.Functions.FunctionCallSignature"/>
+	<rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
+	<rule ref="WordPress.Arrays.MultipleStatementAlignment"/>
+	<rule ref="NormalizedArrays.Arrays.CommaAfterLast"/>
+	<rule ref="Universal.Arrays.DisallowShortArraySyntax"/>
+
+	<!-- VariableAnalysis: flag undefined vars -->
+	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis"/>
+
+</ruleset>

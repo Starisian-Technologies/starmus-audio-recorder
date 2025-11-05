@@ -32,11 +32,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<input type="checkbox" class="aiwa-starmus-consent-checkbox" />
 			<span>
 				<?php echo esc_html( $consent_message ); ?>
-				<?php if ( ! empty( $data_policy_url ) ) : ?>
+				<?php if ( ! empty( $data_policy_url ) ) { ?>
 					<a href="<?php echo esc_url( $data_policy_url ); ?>" target="_blank" rel="noopener noreferrer">
 						<?php esc_html_e( 'Read Policy', 'starmus-audio-recorder' ); ?>
 					</a>
-				<?php endif; ?>
+				<?php } ?>
 			</span>
 		</label>
 	</div>

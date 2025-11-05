@@ -1,42 +1,28 @@
-# phpstan.neon.dist
+includes:
+  - vendor/szepeviktor/phpstan-wordpress/extension.neon
 
 parameters:
   level: 6
-  phpVersion: 80200
-
   paths:
     - src
-    - tests
     - starmus-audio-recorder.php
+    - uninstall.php
 
-  bootstrapFiles:
-    - vendor/autoload.php
+  tmpDir: .phpstan-cache
 
-  treatPhpDocTypesAsCertain: false
+  # Disable overly strict iterable checks for now — can tighten later
+  checkMissingIterableValueType: false
 
-  excludePaths:
-    analyse:
-      - tests/*
-      - vendor/*
-      - node_modules/*
-      - assets/*
-      - includes/lib/*
-      - tools/*
-      - wp-admin/*
-      - .vscode/*
-      - .git/*
-      - .github.*
-      - .phpdoc/*
-      - docs/*
-      - test-results/*
-      - scripts/*
-      - playwright-report/*
-
-  # You can now remove these lines. The phpstan-wordpress extension
-  # provides stubs for these functions, so PHPStan will understand them.
-  #
+  # Ignore common WordPress dynamic behavior warnings
   ignoreErrors:
-  #   - '#Call to an undefined (function|method) (apply_filters|do_action|get_option|update_option|get_post)(\(\))?#'
-  #   - '#Access to an undefined (property|variable|constant|class) .*#'
-  #   - '#Function get_(option|post|term)[A-Za-z_]* not found#'
-        - '#Parameter \#3 \$callback of function add_settings_section expects callable\(\): mixed, null given.#'
+    - '#Call to unknown function __(.*)#'
+    - '#Call to unknown function _e(.*)#'
+    - '#Call to unknown function esc_html__(.*)#'
+    - '#Call to unknown function wp_(.*)#'
+
+  # This helps PHPStan understand WordPress globals like $wpdb
+  bootstrapFiles:
+    - vendor/szepeviktor/phpstan-wordpress/bootstrap.php
+
+  # Optional: stricter type inference, can enable later
+  checkMissingTypehints: false

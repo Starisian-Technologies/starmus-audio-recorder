@@ -22,30 +22,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /** Absolute filesystem path to the plugin directory. */
-define('STARMUS_PATH', plugin_dir_path(__FILE__));
+define( 'STARMUS_PATH', plugin_dir_path( __FILE__ ) );
 /** Public URL to the plugin directory. */
-define('STARMUS_URL', plugin_dir_url(__FILE__));
+define( 'STARMUS_URL', plugin_dir_url( __FILE__ ) );
 /** Main plugin file reference used for WordPress hooks. */
-define('STARMUS_MAIN_FILE', __FILE__);
+define( 'STARMUS_MAIN_FILE', __FILE__ );
 /** Directory path alias kept for backward compatibility. */
-define('STARMUS_MAIN_DIR', plugin_dir_path(__FILE__));
+define( 'STARMUS_MAIN_DIR', plugin_dir_path( __FILE__ ) );
 /** Human readable plugin name displayed in WordPress admin. */
-define('STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder');
+define( 'STARMUS_PLUGIN_NAME', 'Starmus Audio Recorder' );
 /** Shared prefix applied to option keys, actions, and filters. */
-define('STARMUS_PLUGIN_PREFIX', 'starmus');
+define( 'STARMUS_PLUGIN_PREFIX', 'starmus' );
 /** Current plugin semantic version string. */
 define('STARMUS_VERSION', '0.8.5');
+
 /**
  * Default severity threshold used when the host environment does not define one.
  */
-if (!defined('STARMUS_LOG_LEVEL')) {
-        define('STARMUS_LOG_LEVEL', 'Warning');
+if ( ! defined( 'STARMUS_LOG_LEVEL' ) ) {
+		define( 'STARMUS_LOG_LEVEL', 'Warning' );
 }
 /**
  * Optional custom log file path honoured by the shared logger when configured.
  */
-if (!defined('STARMUS_LOG_FILE')) {
-        define('STARMUS_LOG_FILE', '');
+if ( ! defined( 'STARMUS_LOG_FILE' ) ) {
+		define( 'STARMUS_LOG_FILE', '' );
 }
 
 /**
@@ -76,32 +77,38 @@ if ( file_exists( $starmus_autoload_path ) ) {
  * This makes the plugin fully portable and removes the need for manual
  * import/export of field groups.
  */
-add_action('acf/init', 'starmus_acf_json_integration');
+add_action( 'acf/init', 'starmus_acf_json_integration' );
 function starmus_acf_json_integration() {
 
-    // Set the path for saving JSON files.
-    add_filter('acf/settings/save_json', function( $path ) {
-        // This forces ACF to save any UI changes back to this plugin's folder.
-        return plugin_dir_path( __FILE__ ) . 'acf-json';
-    });
+	// Set the path for saving JSON files.
+	add_filter(
+		'acf/settings/save_json',
+		function ( $path ) {
+			// This forces ACF to save any UI changes back to this plugin's folder.
+			return plugin_dir_path( __FILE__ ) . 'acf-json';
+		}
+	);
 
-    // Set the path for loading JSON files.
-    add_filter('acf/settings/load_json', function( $paths ) {
-        // Remove the default path (which is in the theme).
-        unset($paths[0]);
+	// Set the path for loading JSON files.
+	add_filter(
+		'acf/settings/load_json',
+		function ( $paths ) {
+			// Remove the default path (which is in the theme).
+			unset( $paths[0] );
 
-        // Add this plugin's folder as the new path.
-        $paths[] = plugin_dir_path( __FILE__ ) . 'acf-json';
+			// Add this plugin's folder as the new path.
+			$paths[] = plugin_dir_path( __FILE__ ) . 'acf-json';
 
-        return $paths;
-    });
+			return $paths;
+		}
+	);
 
-    // Hide the ACF admin menu.
-    // Since fields are managed in code (JSON), this prevents clients from
-    // making UI edits that would be out of sync with the version-controlled files.
-    if ( 'production' === wp_get_environment_type() ) {
-        add_filter( 'acf/settings/show_admin', '__return_false' );
-    }
+	// Hide the ACF admin menu.
+	// Since fields are managed in code (JSON), this prevents clients from
+	// making UI edits that would be out of sync with the version-controlled files.
+	if ( 'production' === wp_get_environment_type() ) {
+		add_filter( 'acf/settings/show_admin', '__return_false' );
+	}
 }
 
 // =========================================================================
@@ -131,9 +138,8 @@ if ( ! class_exists( 'ACF' ) ) {
  *
  * @since 0.1.0
  */
-
 function starmus_activate(): void {
-	if ( ! class_exists('ACF') ) {
+	if ( ! class_exists( 'ACF' ) ) {
 		deactivate_plugins( plugin_basename( STARMUS_MAIN_FILE ) );
 		wp_die( __( 'Starmus Audio Recorder requires Secure Custom Fields (or ACF PRO) to be installed and activated.', 'starmus-audio-recorder' ) );
 		return;
@@ -181,14 +187,14 @@ register_activation_hook( __FILE__, array( \Starisian\Sparxstar\Starmus\cron\Sta
 register_deactivation_hook( __FILE__, array( \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'deactivate' ) );
 
 // Register Plugin Lifecycle Hooks.
-register_activation_hook(STARMUS_MAIN_FILE, 'starmus_activate');
-register_deactivation_hook(STARMUS_MAIN_FILE, 'starmus_deactivate');
-register_uninstall_hook(STARMUS_MAIN_FILE, 'starmus_uninstall');
+register_activation_hook( STARMUS_MAIN_FILE, 'starmus_activate' );
+register_deactivation_hook( STARMUS_MAIN_FILE, 'starmus_deactivate' );
+register_uninstall_hook( STARMUS_MAIN_FILE, 'starmus_uninstall' );
 // Starmus Cron activation / deactivation
-register_activation_hook(__FILE__, [ \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'activate' ]);
-register_deactivation_hook(__FILE__, [ \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'deactivate' ]);
+register_activation_hook( __FILE__, array( \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'activate' ) );
+register_deactivation_hook( __FILE__, array( \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'deactivate' ) );
 // Initialize the plugin once all other plugins are loaded.
-add_action('plugins_loaded', [\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class, 'starmus_run']);
+add_action( 'plugins_loaded', array( \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class, 'starmus_run' ) );
 
 // Bootstrap plugin services during WordPress init lifecycle.
-add_action('init', [Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class, 'starmus_init_plugin']);
+add_action( 'init', array( Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class, 'starmus_init_plugin' ) );

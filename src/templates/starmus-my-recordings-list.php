@@ -27,7 +27,7 @@
 				$duration       = get_post_meta( $current_post_id, 'audio_duration', true );
 				?>
 
-				<div class="starmus-card">
+				<div class="starmus-card sparxstar-glass-card">
 					<div class="starmus-card__header">
 						<h3 class="starmus-card__title">
 							<a href="<?php the_permalink(); ?>" class="starmus-card__link">

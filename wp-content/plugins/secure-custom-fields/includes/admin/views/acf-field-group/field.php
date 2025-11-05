@@ -51,7 +51,7 @@ if ( isset( $field['conditional_logic'] ) && is_array( $field['conditional_logic
 			'menu_order' => $i,
 			'save'       => '',
 		);
-		foreach ( $meta_inputs as $k => $v ) :
+		foreach ( $meta_inputs as $k => $v ) {
 			acf_hidden_input(
 				array(
 					'name'  => $input_prefix . '[' . $k . ']',
@@ -59,7 +59,7 @@ if ( isset( $field['conditional_logic'] ) && is_array( $field['conditional_logic
 					'id'    => $input_id . '-' . $k,
 				)
 			);
-		endforeach;
+		}
 		?>
 	</div>
 
@@ -75,9 +75,9 @@ if ( isset( $field['conditional_logic'] ) && is_array( $field['conditional_logic
 				<div class="row-options">
 					<a class="edit-field" title="<?php esc_attr_e( 'Edit field', 'secure-custom-fields' ); ?>" href="#"><?php esc_html_e( 'Edit', 'secure-custom-fields' ); ?></a>
 					<a class="duplicate-field" title="<?php esc_attr_e( 'Duplicate field', 'secure-custom-fields' ); ?>" href="#"><?php esc_html_e( 'Duplicate', 'secure-custom-fields' ); ?></a>
-					<?php if ( $num_field_groups > 1 ) : ?>
+					<?php if ( $num_field_groups > 1 ) { ?>
 					<a class="move-field" title="<?php esc_attr_e( 'Move field to another group', 'secure-custom-fields' ); ?>" href="#"><?php esc_html_e( 'Move', 'secure-custom-fields' ); ?></a>
-					<?php endif; ?>
+					<?php } ?>
 					<a class="delete-field" title="<?php esc_attr_e( 'Delete field', 'secure-custom-fields' ); ?>" href="#"><?php esc_html_e( 'Delete', 'secure-custom-fields' ); ?></a>
 				</div>
 			</li>

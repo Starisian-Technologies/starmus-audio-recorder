@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         name="Starisian Plugin Standard"
+         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
+
+  <description>
+    Starisian Technologies strict coding standard.
+    Combines WordPress VIP, PHPCompatibility, Modern PHP (PHPCSExtra), and VariableAnalysis rules.
+    JS/CSS scanning is disabled to avoid PHP_CodeSniffer 4.0 deprecation warnings.
+  </description>
+
+  <!-- Scan all PHP source files -->
+  <file>.</file>
+
+  <!-- Exclude paths that should not be scanned -->
+  <exclude-pattern>vendor/*</exclude-pattern>
+  <exclude-pattern>node_modules/*</exclude-pattern>
+  <exclude-pattern>tests/*</exclude-pattern>
+  <exclude-pattern>*.min.js</exclude-pattern>
+  <exclude-pattern>wp-assets/*</exclude-pattern>
+  <exclude-pattern>build/*</exclude-pattern>
+
+  <!-- PHPCS runtime options -->
+  <arg value="sp"/> <!-- Show sniff codes + progress -->
+  <arg name="basepath" value="./"/>
+  <arg name="colors"/>
+  <arg name="extensions" value="php"/>
+  <arg name="parallel" value="8"/>
+  <arg name="ignore-annotations"/>
+
+  <!-- PHP Compatibility -->
+  <config name="testVersion" value="8.1-8.4"/>
+  <rule ref="PHPCompatibilityWP"/>
+
+  <!-- Core WordPress rules -->
+  <config name="minimum_supported_wp_version" value="6.4"/>
+  <rule ref="WordPress-Core"/>
+  <rule ref="WordPress-Extra"/>
+  <rule ref="WordPress-Docs"/>
+  <rule ref="WordPressVIPMinimum"/>
+
+  <!-- Modern PHP / PHPCSExtra rules -->
+  <rule ref="Modernize"/>
+  <rule ref="Universal"/>
+  <rule ref="NormalizedArrays"/>
+
+  <!-- Variable Analysis -->
+  <rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis"/>
+
+  <!-- Naming conventions -->
+  <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+    <properties>
+      <property name="prefixes" type="array">
+        <element value="sparxstar"/>
+        <element value="star"/>
+      </property>
+    </properties>
+  </rule>
+
+  <!-- i18n checks -->
+  <rule ref="WordPress.WP.I18n">
+    <properties>
+      <property name="text_domain" type="array">
+        <element value="sparxstar"/>
+      </property>
+    </properties>
+  </rule>
+
+  <!-- Optional: Disable JS/CSS sniff listeners entirely -->
+  <exclude name="WordPressVIPMinimum.JS.*"/>
+
+</ruleset>

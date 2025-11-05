@@ -2881,7 +2881,7 @@ function acf_get_valid_terms( $terms = false, $taxonomy = 'category' ) {
  *
  * @param   $attachment (array) attachment data. Changes based on context
  * @param   $field (array) field settings containing restrictions
- * @param   context (string)                                     $file is different when uploading / preparing
+ * @param   context (string) $file is different when uploading / preparing
  * @return  $errors (array)
  */
 function acf_validate_attachment( $attachment, $field, $context = 'prepare' ) {
