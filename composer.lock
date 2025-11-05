@@ -643,16 +643,16 @@
         },
         {
             "name": "php-stubs/wordpress-stubs",
-            "version": "v6.8.2",
+            "version": "v6.8.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-stubs.git",
-                "reference": "9c8e22e437463197c1ec0d5eaa9ddd4a0eb6d7f8"
+                "reference": "abeb5a8b58fda7ac21f15ee596f302f2959a7114"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/9c8e22e437463197c1ec0d5eaa9ddd4a0eb6d7f8",
-                "reference": "9c8e22e437463197c1ec0d5eaa9ddd4a0eb6d7f8",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/abeb5a8b58fda7ac21f15ee596f302f2959a7114",
+                "reference": "abeb5a8b58fda7ac21f15ee596f302f2959a7114",
                 "shasum": ""
             },
             "conflict": {
@@ -688,9 +688,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.8.2"
+                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.8.3"
             },
-            "time": "2025-07-16T06:41:00+00:00"
+            "time": "2025-09-30T20:58:47+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",
@@ -2624,16 +2624,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.13.4",
+            "version": "3.13.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "ad545ea9c1b7d270ce0fc9cbfb884161cd706119"
+                "reference": "0ca86845ce43291e8f5692c7356fccf3bcf02bf4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/ad545ea9c1b7d270ce0fc9cbfb884161cd706119",
-                "reference": "ad545ea9c1b7d270ce0fc9cbfb884161cd706119",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/0ca86845ce43291e8f5692c7356fccf3bcf02bf4",
+                "reference": "0ca86845ce43291e8f5692c7356fccf3bcf02bf4",
                 "shasum": ""
             },
             "require": {
@@ -2650,11 +2650,6 @@
                 "bin/phpcs"
             ],
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.x-dev"
-                }
-            },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
@@ -2704,7 +2699,7 @@
                     "type": "thanks_dev"
                 }
             ],
-            "time": "2025-09-05T05:47:09+00:00"
+            "time": "2025-11-04T16:30:35+00:00"
         },
         {
             "name": "szepeviktor/phpstan-wordpress",

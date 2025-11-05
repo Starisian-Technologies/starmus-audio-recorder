@@ -92,31 +92,30 @@ class StarmusAssetLoader {
 					'user_id'    => get_current_user_id(),
 				)
 			);
-            
-            // ====================================================================
-            // ADDED THIS BLOCK: Pass tusd configuration to the frontend.
-            // ====================================================================
-            $tus_config = array(
-                // This creates the public URL your JavaScript needs to talk to Apache.
-                // The '/files/' path MUST match your Apache reverse proxy <Location> block.
-                'endpoint'    => trailingslashit( home_url( '/files/' ) ),
-                
-                // You can define other tus-js-client options here.
-                'chunkSize'   => 5 * 1024 * 1024, // 5 MB
-                'retryDelays' => array( 0, 3000, 5000, 10000, 20000 ),
-                'headers'     => array(), // If using a shared secret, add it here. e.g., 'X-Starmus-Secret' => 'your-token'
-            );
 
-            // This makes the $tus_config array available in JavaScript as the global `window.starmusTus` object.
-            wp_localize_script(
-                'starmus-app',       // Attach the data to your main app script.
-                'starmusTus',        // The name of the JavaScript object.
-                $tus_config          // The data itself.
-            );
-            // ====================================================================
-            // END OF ADDED BLOCK
-            // ====================================================================
+			// ====================================================================
+			// ADDED THIS BLOCK: Pass tusd configuration to the frontend.
+			// ====================================================================
+			$tus_config = array(
+				// This creates the public URL your JavaScript needs to talk to Apache.
+				// The '/files/' path MUST match your Apache reverse proxy <Location> block.
+				'endpoint'    => trailingslashit( home_url( '/files/' ) ),
 
+				// You can define other tus-js-client options here.
+				'chunkSize'   => 5 * 1024 * 1024, // 5 MB
+				'retryDelays' => array( 0, 3000, 5000, 10000, 20000 ),
+				'headers'     => array(), // If using a shared secret, add it here. e.g., 'X-Starmus-Secret' => 'your-token'
+			);
+
+			// This makes the $tus_config array available in JavaScript as the global `window.starmusTus` object.
+			wp_localize_script(
+				'starmus-app',       // Attach the data to your main app script.
+				'starmusTus',        // The name of the JavaScript object.
+				$tus_config          // The data itself.
+			);
+			// ====================================================================
+			// END OF ADDED BLOCK
+			// ====================================================================
 
 			// --- CSS only when a Starmus UI is present (recorder, list, or editor)
 			if ( $has_recorder || $has_list || $has_editor ) {
@@ -136,7 +135,6 @@ class StarmusAssetLoader {
 					);
 				}
 			}
-
 		} catch ( \Throwable $e ) {
 			StarmusLogger::log( 'Assets:enqueue_frontend_assets', $e );
 		}
