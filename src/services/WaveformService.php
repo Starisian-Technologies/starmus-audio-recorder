@@ -1,3 +1,10 @@
+use function get_attached_file;
+namespace Starmus\services;
+
+use function get_attached_file;
+use function update_post_meta;
+use function delete_post_meta;
+use function get_post_meta;
 <?php
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
@@ -43,6 +50,7 @@ final class WaveformService {
 		return apply_filters( 'starmus_waveform_config', $defaults );
 	}
 
+<<<<<<< HEAD
 	/**
 	 * Verifies audiowaveform CLI availability.
 	 */
@@ -54,6 +62,26 @@ final class WaveformService {
 			return false;
 		}
 		StarmusLogger::info( 'WaveformService', 'audiowaveform found at ' . $path );
+=======
+		if ( ! $this->is_tool_available() ) {
+			error_log( 'Starmus Waveform Service: audiowaveform tool not available.' );
+			return false;
+		}
+	$file_path = \get_attached_file( $attachment_id );
+		if ( ! $file_path || ! file_exists( $file_path ) ) {
+			error_log( "Starmus Waveform Service: Source file not found for attachment ID {$attachment_id}." );
+			return false;
+		}
+
+		$waveform_peaks = $this->extract_waveform_from_file( $file_path );
+
+		if ( is_null( $waveform_peaks ) ) { // Check for null, as an empty array could be a valid (silent) waveform.
+			error_log( "Starmus Waveform Service: Failed to extract waveform data for file: {$file_path}." );
+			return false;
+		}
+
+	\update_post_meta( $attachment_id, '_waveform_data', $waveform_peaks );
+>>>>>>> 571b925d (11042025MB3)
 		return true;
 	}
 
@@ -132,6 +160,7 @@ final class WaveformService {
 	 * Deletes waveform JSON from ACF.
 	 */
 	public function delete_waveform_data( int $attachment_id ): bool {
+<<<<<<< HEAD
 		$recording_id = (int) get_post_meta( $attachment_id, '_parent_recording_id', true );
 		if ( $recording_id <= 0 ) {
 			return false;
@@ -145,6 +174,26 @@ final class WaveformService {
 
 	/**
 	 * Extract waveform JSON via audiowaveform with fail-safe temp handling.
+=======
+	return \delete_post_meta( $attachment_id, '_waveform_data' );
+	}
+
+	/**
+	 * Checks if waveform data exists for an audio attachment.
+	 *
+	 * @param int $attachment_id The WordPress attachment ID.
+	 * @return bool
+	 */
+	public function has_waveform_data( int $attachment_id ): bool {
+	return ! empty( \get_post_meta( $attachment_id, '_waveform_data', true ) );
+	}
+
+	/**
+	 * Extracts waveform data from an audio file using 'audiowaveform'.
+	 *
+	 * @param string $file_path Absolute path to the audio file.
+	 * @return array|null An array of float values, or null on failure.
+>>>>>>> 571b925d (11042025MB3)
 	 */
 	private function extract_waveform_from_file( string $file_path ): ?array {
 		$config = $this->get_config();
@@ -157,6 +206,7 @@ final class WaveformService {
 		wp_delete_file( $temp );
 		$temp_json = $temp . '.json';
 
+<<<<<<< HEAD
 		$cmd = sprintf(
 			'audiowaveform -i %s -o %s --pixels-per-second %d --bits %d --output-format %s',
 			escapeshellarg( $file_path ),
@@ -167,6 +217,13 @@ final class WaveformService {
 		);
 
 		$cmd = apply_filters( 'starmus_waveform_command', $cmd, $file_path, $temp_json );
+=======
+	$input_path  = escapeshellarg( $file_path );
+	$output_path = escapeshellarg( $temp_json_path );
+
+	$command = "audiowaveform -i {$input_path} -o {$output_path} --pixels-per-second 100 --bits 8";
+	exec( $command . ' 2>&1', $output_lines, $return_code );
+>>>>>>> 571b925d (11042025MB3)
 
 		register_shutdown_function(
 			static function () use ( $temp_json ) {

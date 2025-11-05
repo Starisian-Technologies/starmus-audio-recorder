@@ -53,10 +53,29 @@ class StarmusAudioRecorderUI {
 	 * @return void
 	 */
 	private function register_hooks(): void {
+<<<<<<< HEAD
 		// Cache hygiene for taxonomies.
 		add_action( 'create_language', array( $this, 'clear_taxonomy_transients' ) );
 		add_action( 'edit_language', array( $this, 'clear_taxonomy_transients' ) );
 		add_action( 'delete_language', array( $this, 'clear_taxonomy_transients' ) );
+=======
+		error_log( 'Starmus Plugin: Recorder component available, registering recorder hooks' );
+			add_shortcode( 'starmus_my_recordings', array( $this, 'render_my_recordings_shortcode' ) );
+			add_shortcode( 'starmus_audio_recorder_form', array( $this, 'render_recorder_shortcode' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+			add_action( 'starmus_after_audio_upload', array( $this, 'save_all_metadata' ), 10, 3 );
+			add_filter( 'starmus_audio_upload_success_response', array( $this, 'add_conditional_redirect' ), 10, 3 );
+			// Cron scheduling moved to activation to avoid performance issues
+			// Clear cache when a Language is added, edited, or deleted.
+			add_action( 'create_language', array( $this, 'clear_taxonomy_transients' ) );
+			add_action( 'edit_language', array( $this, 'clear_taxonomy_transients' ) );
+			add_action( 'delete_language', array( $this, 'clear_taxonomy_transients' ) );
+			// Clear cache when a Recording Type is added, edited, or deleted.
+			add_action( 'create_recording-type', array( $this, 'clear_taxonomy_transients' ) );
+			add_action( 'edit_recording-type', array( $this, 'clear_taxonomy_transients' ) );
+			add_action( 'delete_recording-type', array( $this, 'clear_taxonomy_transients' ) );
+>>>>>>> 571b925d (11042025MB3)
 
 		add_action( 'create_recording-type', array( $this, 'clear_taxonomy_transients' ) );
 		add_action( 'edit_recording-type', array( $this, 'clear_taxonomy_transients' ) );
