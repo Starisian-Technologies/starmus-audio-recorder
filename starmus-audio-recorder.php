@@ -181,15 +181,6 @@ function starmus_uninstall(): void {
 register_activation_hook( STARMUS_MAIN_FILE, 'starmus_activate' );
 register_deactivation_hook( STARMUS_MAIN_FILE, 'starmus_deactivate' );
 register_uninstall_hook( STARMUS_MAIN_FILE, 'starmus_uninstall' );
-
-// Your existing cron activation/deactivation hooks are good.
-register_activation_hook( __FILE__, array( \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'activate' ) );
-register_deactivation_hook( __FILE__, array( \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'deactivate' ) );
-
-// Register Plugin Lifecycle Hooks.
-register_activation_hook( STARMUS_MAIN_FILE, 'starmus_activate' );
-register_deactivation_hook( STARMUS_MAIN_FILE, 'starmus_deactivate' );
-register_uninstall_hook( STARMUS_MAIN_FILE, 'starmus_uninstall' );
 // Starmus Cron activation / deactivation
 register_activation_hook( __FILE__, array( \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'activate' ) );
 register_deactivation_hook( __FILE__, array( \Starisian\Sparxstar\Starmus\cron\StarmusCron::class, 'deactivate' ) );
