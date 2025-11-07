@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if ( ! class_exists( 'ACF_Legacy_Location' ) ) :
+if ( ! class_exists( 'ACF_Legacy_Location' ) ) {
 	abstract class ACF_Legacy_Location {
 
 		/**
@@ -65,4 +65,4 @@ if ( ! class_exists( 'ACF_Legacy_Location' ) ) :
 		}
 	}
 
-endif; // class_exists check
+} // class_exists check
