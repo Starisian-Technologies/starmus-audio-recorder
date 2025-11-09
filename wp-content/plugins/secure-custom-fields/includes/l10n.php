@@ -9,7 +9,7 @@
  *
  * @return string The determined locale.
  */
-if ( ! function_exists( 'determine_locale' ) ) :
+if ( ! function_exists( 'determine_locale' ) ) {
 	function determine_locale() {
 		/**
 		 * Filters the locale for the current request prior to the default determination process.
@@ -50,7 +50,7 @@ if ( ! function_exists( 'determine_locale' ) ) :
 		 */
 		return apply_filters( 'determine_locale', $determined_locale );
 	}
-endif;
+}
 
 /**
  * Returns the current locale.
