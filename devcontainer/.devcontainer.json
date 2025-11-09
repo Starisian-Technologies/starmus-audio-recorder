@@ -1,43 +1,10 @@
 {
   "name": "AiWA Starmus Workflow Manager - PHP 8.3",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
-
-  "features": {
-    "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/php:1": {
-      "version": "8.3",
-      "installComposer": true,
-      "extensions": [
-        "cli",
-        "common",
-        "curl",
-        "mbstring",
-        "xml",
-        "zip",
-        "mysql",
-        "intl",
-        "bcmath",
-        "gd",
-        "opcache",
-        "xdebug"
-      ],
-      "ini": {
-        "memory_limit": "1G",
-        "error_reporting": "E_ALL",
-        "display_errors": "On",
-        "zend_extension": "xdebug",
-        "xdebug.mode": "debug,develop",
-        "xdebug.start_with_request": "yes"
-      }
-    },
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20"
-    }
+  "image": "mcr.microsoft.com/devcontainers/php:8.3-bookworm",
+  "containerEnv": {
+    "PHP_MEMORY_LIMIT": "1G",
+    "XDEBUG_MODE": "off"
   },
-
-  "postCreateCommand": "composer install && composer rector-dry || true",
-
   "customizations": {
     "vscode": {
       "extensions": [
@@ -48,7 +15,7 @@
         "ms-azuretools.vscode-docker"
       ],
       "settings": {
-        "php.validate.executablePath": "/usr/local/php/current/bin/php",
+        "php.validate.executablePath": "/usr/local/bin/php",
         "php.suggest.basic": false,
         "intelephense.environment.phpVersion": "8.3.0",
         "intelephense.stubs": [
@@ -70,8 +37,10 @@
       }
     }
   },
-
-  "forwardPorts": [3000, 8080, 9003],
-
-  "remoteUser": "vscode"
+  "forwardPorts": [
+    8080,
+    9003
+  ],
+  "remoteUser": "vscode",
+  "postCreateCommand": "sudo chmod a+x \"$(pwd)\" && sudo rm -rf /var/www/html && sudo ln -s \"$(pwd)\" /var/www/html; echo 'memory_limit = 1G' | sudo tee /usr/local/etc/php/conf.d/memory-limit.ini && echo 'xdebug.mode = off' | sudo tee /usr/local/etc/php/conf.d/xdebug-off.ini; if [ -f composer.json ]; then composer install; fi"
 }
