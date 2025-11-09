@@ -1,0 +1,77 @@
+{
+  "name": "AiWA Starmus Workflow Manager - PHP 8.3",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/php:1": {
+      "version": "8.3",
+      "installComposer": true,
+      "extensions": [
+        "cli",
+        "common",
+        "curl",
+        "mbstring",
+        "xml",
+        "zip",
+        "mysql",
+        "intl",
+        "bcmath",
+        "gd",
+        "opcache",
+        "xdebug"
+      ],
+      "ini": {
+        "memory_limit": "1G",
+        "error_reporting": "E_ALL",
+        "display_errors": "On",
+        "zend_extension": "xdebug",
+        "xdebug.mode": "debug,develop",
+        "xdebug.start_with_request": "yes"
+      }
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+
+  "postCreateCommand": "composer install && composer rector-dry || true",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "junstyle.php-cs-fixer",
+        "neilbrayfield.php-docblocker",
+        "mikestead.dotenv",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "php.validate.executablePath": "/usr/local/php/current/bin/php",
+        "php.suggest.basic": false,
+        "intelephense.environment.phpVersion": "8.3.0",
+        "intelephense.stubs": [
+          "wordpress",
+          "woocommerce",
+          "acf-pro",
+          "wordpress-globals",
+          "wp-cli",
+          "genesis",
+          "polylang"
+        ],
+        "phpcs.enable": true,
+        "phpcs.standard": "WordPress-VIP-Go",
+        "editor.formatOnSave": true,
+        "[php]": {
+          "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
+          "editor.formatOnSave": true
+        }
+      }
+    }
+  },
+
+  "forwardPorts": [3000, 8080, 9003],
+
+  "remoteUser": "vscode"
+}
