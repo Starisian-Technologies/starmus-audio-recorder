@@ -15,7 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-<< << <<< HEAD
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
@@ -40,13 +39,7 @@ class PostProcessingService {
 	public const STATE_ID3_WRITING    = 'id3_writing';
 	public const STATE_WAVEFORM       = 'waveform';
 	public const STATE_COMPLETED      = 'completed';
-=======
-use Starmus\services\AudioProcessingService;
 
-class PostProcessingService {
-
-	private ?AudioProcessingService $audio_processing_service = null;
->>>>>>> 571b925d (11042025MB3)
 
 	public const STATE_ERR_FFMPEG_MISSING = 'error_ffmpeg_missing';
 	public const STATE_ERR_SOURCE_MISSING = 'error_source_missing';
@@ -56,7 +49,6 @@ class PostProcessingService {
 	public const STATE_ERR_ID3_FAILED     = 'error_id3_failed';
 	public const STATE_ERR_UNKNOWN        = 'error_unknown';
 
-<<<<<<< HEAD
 	/** Meta keys (attachment) kept for limited internal use */
 	private const META_ORIGINAL_SOURCE = '_audio_original_source';
 
@@ -84,12 +76,6 @@ class PostProcessingService {
 		$this->files    = $file_service ?: new FileService();
 		$this->waveform = $waveform_service ?: new WaveformService();
 		$this->dal      = $dal ?: new StarmusAudioRecorderDAL();
-=======
-		// This service now depends on the metadata service to write tags.
-		if ( class_exists( '\Starmus\services\AudioProcessingService' ) && ( ! is_object( $this->audio_processing_service ) ) ) {
-			$this->audio_processing_service = new \Starmus\services\AudioProcessingService();
-		}
->>>>>>> 571b925d (11042025MB3)
 	}
 
 	/** Back-compat alias */

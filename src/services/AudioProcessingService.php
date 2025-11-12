@@ -1,14 +1,3 @@
-use function get_attached_file;
-namespace Starmus\services;
-
-use function update_post_meta;
-use function do_action;
-use function get_post;
-use function get_the_author_meta;
-use function get_bloginfo;
-use function get_the_date;
-use function get_post_meta;
-use function apply_filters;
 <?php
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
@@ -40,7 +29,6 @@ class AudioProcessingService {
 	private StarmusAudioRecorderDAL $dal;
 	private FileService $files;
 
-<<<<<<< HEAD
 	public function __construct( ?StarmusAudioRecorderDAL $dal = null, ?FileService $file_service = null ) {
 		$this->dal   = $dal ?: new StarmusAudioRecorderDAL();
 		$this->files = $file_service ?: new FileService();
@@ -98,62 +86,6 @@ class AudioProcessingService {
 					update_post_meta( $attachment_id, '_audio_mp3_path', $mp3_path );
 					update_post_meta( $attachment_id, '_audio_wav_path', $wav_path );
 					update_post_meta( $attachment_id, '_starmus_archival_path', $wav_path );
-=======
-		// --- 1. Collect transcription data (delegated via filter) ---
-		$transcriptions = apply_filters(
-			'starmus_audio_transcribe',
-			array(), // Default is an empty array.
-			$attachment_id,
-			$file_path
-		);
-
-		// Sanitize transcription data
-		if ( ! empty( $transcriptions ) && is_array( $transcriptions ) ) {
-			$sanitized = array();
-			foreach ( $transcriptions as $t ) {
-				$sanitized[] = array(
-					'text' => isset( $t['text'] ) ? sanitize_text_field( $t['text'] ) : '',
-					'desc' => isset( $t['desc'] ) ? sanitize_text_field( $t['desc'] ) : '',
-					'lang' => isset( $t['lang'] ) ? sanitize_text_field( $t['lang'] ) : 'eng',
-				);
-			}
-			\update_post_meta( $attachment_id, 'audio_transcriptions', $sanitized );
-			\do_action( 'starmus_audio_transcribed', $attachment_id, $sanitized );
-		}
-
-		// --- 2. Write all available metadata to the file's ID3 tags ---
-		if ( $this->write_id3_tags( $attachment_id, $file_path ) ) {
-			\do_action( 'starmus_audio_id3_written', $attachment_id, $file_path );
-		}
-
-		return true;
-	}
-
-	/**
-	 * Writes ID3 tags (title, artist, transcriptions, etc.) to the audio file.
-	 */
-	private function write_id3_tags( int $attachment_id, string $file_path ): bool {
-	$attachment_post = \get_post( $attachment_id );
-		if ( ! $attachment_post ) {
-			return false;
-		}
-
-		// --- Step 1: Baseline tags ---
-		$tag_data = array(
-			'title'   => array( $attachment_post->post_title ),
-			'artist'  => array( \get_the_author_meta( 'display_name', $attachment_post->post_author ) ),
-			'album'   => array( \get_bloginfo( 'name' ) ),
-			'year'    => array( \get_the_date( 'Y', $attachment_post ) ),
-			'comment' => array( "Recorded via Starmus plugin. Attachment ID: {$attachment_id}." ),
-		);
-
-		// --- Step 2: Add transcription(s) as USLT frames ---
-	$stored_transcriptions = \get_post_meta( $attachment_id, 'audio_transcriptions', true );
-		if ( ! empty( $stored_transcriptions ) && is_array( $stored_transcriptions ) ) {
-			foreach ( $stored_transcriptions as $t ) {
-				if ( empty( $t['text'] ) ) {
-					continue;
->>>>>>> 571b925d (11042025MB3)
 				}
 			} catch ( \Throwable $e ) {
 				StarmusLogger::error(
@@ -283,7 +215,6 @@ class AudioProcessingService {
 			);
 		}
 
-<<<<<<< HEAD
 		exec( $cmd, $out, $code );
 		if ( $code !== 0 || ! file_exists( $output_path ) ) {
 			StarmusLogger::error(
@@ -344,30 +275,6 @@ class AudioProcessingService {
 			return false;
 		}
 		return true;
-=======
-		// --- Step 3: Allow external filters to add custom frames (e.g., TXXX for dialect) ---
-	$tag_data = \apply_filters( 'starmus_id3_tag_data', $tag_data, $attachment_id, $file_path );
 
-		// --- Step 4: Write tags to the file ---
-		if ( class_exists( 'getid3_writetags' ) ) {
-			$tagwriter                    = new \getid3_writetags();
-			$tagwriter->filename          = $file_path;
-			$tagwriter->tagformats        = array( 'id3v2.3' );
-			$tagwriter->overwrite_tags    = true;
-			$tagwriter->tag_encoding      = 'UTF-8';
-			$tagwriter->remove_other_tags = true;
-			$tagwriter->tag_data          = $tag_data;
-
-			if ( $tagwriter->WriteTags() ) {
-				return true;
-			}
-
-			error_log( 'Starmus Service: Failed to write ID3 tags. Errors: ' . implode( '; ', $tagwriter->errors ) );
-			return false;
-		} else {
-			error_log( 'Starmus Service: getid3_writetags class not found.' );
-			return false;
-		}
->>>>>>> 571b925d (11042025MB3)
 	}
 }

@@ -71,26 +71,23 @@ class StarmusAdmin {
 	 * @since 0.3.1
 	 */
 	public function add_admin_menu(): void {
-<<<<<<< HEAD
-		$cpt_slug = $this->settings->get( 'cpt_slug', 'audio-recording' );
-=======
-		$cpt_slug = \Starmus\includes\StarmusSettings::get( 'cpt_slug', 'audio-recording' );
->>>>>>> 571b925d (11042025MB3)
-		if ( empty( $cpt_slug ) || ! $this->is_valid_cpt_slug( $cpt_slug ) ) {
-			$cpt_slug = 'audio-recording';
-		}
+    $cpt_slug = $this->settings->get( 'cpt_slug', 'audio-recording' );
 
-		$parent_slug = 'edit.php?post_type=' . \sanitize_key( $cpt_slug );
+    if ( empty( $cpt_slug ) || ! $this->is_valid_cpt_slug( $cpt_slug ) ) {
+        $cpt_slug = 'audio-recording';
+    }
 
-		\add_submenu_page(
-			$parent_slug,
-			\__( 'Audio Recorder Settings', 'starmus-audio-recorder' ),
-			\__( 'Settings', 'starmus-audio-recorder' ),
-			'manage_options',
-			self::STARMUS_MENU_SLUG,
-			array( $this, 'render_settings_page' )
-		);
-	}
+    $parent_slug = 'edit.php?post_type=' . \sanitize_key( $cpt_slug );
+
+    \add_submenu_page(
+        $parent_slug,
+        \__( 'Audio Recorder Settings', 'starmus-audio-recorder' ),
+        \__( 'Settings', 'starmus-audio-recorder' ),
+        'manage_options',
+        self::STARMUS_MENU_SLUG,
+        array( $this, 'render_settings_page' )
+    );
+}
 
 	/**
 	 * Validate CPT slug format.

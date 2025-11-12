@@ -7,7 +7,7 @@
  * Handles waveform generation, post-processing, and temp cleanup via WP-Cron.
  *
  * @package   Starisian\Sparxstar\Starmus\cron
- * @version 0.8.5
+ * @version   0.8.5
  */
 
 namespace Starisian\Sparxstar\Starmus\cron;
@@ -16,7 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-<< << <<< HEAD
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\services\WaveformService;
 use Starisian\Sparxstar\Starmus\services\PostProcessingService;
@@ -46,94 +45,14 @@ final class StarmusCron {
 		?PostProcessingService $post_service = null
 	) {
 		$this->waveform = $waveform_service ?: new WaveformService();
-		$this->post     = $post_service ?: new PostProcessingService();
-=======
-use Starmus\services\WaveformService;
-use Starmus\services\PostProcessingService;
-
-class StarmusCron {
-
-	const PROCESS_AUDIO_HOOK      = 'starmus_process_audio_attachment';
-	const CLEANUP_TEMP_FILES_HOOK = 'starmus_cleanup_temp_files';
-	private $waveform_service;
-	private $post_proc_service;
-
-
-	public function __construct() {
-		$this->initialize_services();
-		$this->register_hooks();
-		$this->maybe_schedule_cleanup_cron();
->>>>>>> 571b925d (11042025MB3)
+		$this->post     = $post_service     ?: new PostProcessingService();
 	}
 
 	/** Registers WP hooks for both the processor and cleanup jobs. */
 	public function register_hooks(): void {
 		add_action( self::PROCESS_AUDIO_HOOK, array( $this, 'run_audio_processing_pipeline' ), 10, 1 );
 		add_action( self::CLEANUP_TEMP_FILES_HOOK, array( $this, 'cleanup_stale_temp_files' ) );
-<<<<<<< HEAD
 		add_filter( 'cron_schedules', array( $this, 'register_custom_schedules' ) );
-=======
-	}
-
-	private function initialize_services(): void {
-		// This service orchestrates the others, so it needs instances of them.
-		if ( $this->waveform_service === null ) {
-			$this->waveform_service = new WaveformService();
-		}
-		if ( $this->post_proc_service === null ) {
-			$this->post_proc_service = new PostProcessingService();
-		}
-	}
-
-	/**
-	 * Schedules the temp file cleanup cron job if not already scheduled.
-	 */
-	public function maybe_schedule_cleanup_cron(): void {
-		if ( function_exists( 'wp_next_scheduled' ) && ! wp_next_scheduled( self::CLEANUP_TEMP_FILES_HOOK ) ) {
-			wp_schedule_event( time(), 'hourly', self::CLEANUP_TEMP_FILES_HOOK );
-		}
-	}
-
-	/**
-	 * Clean up stale temporary files older than 24 hours.
-	 */
-	public function cleanup_stale_temp_files(): void {
-		$temp_dir = $this->get_temp_dir();
-		if ( is_wp_error( $temp_dir ) ) {
-			return;
-		}
-		global $wp_filesystem;
-		if ( empty( $wp_filesystem ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-			WP_Filesystem();
-		}
-		$files = $wp_filesystem->dirlist( $temp_dir );
-		if ( empty( $files ) ) {
-			return;
-		}
-		$cutoff = time() - DAY_IN_SECONDS;
-		foreach ( $files as $file ) {
-			if ( 'f' === $file['type'] && str_ends_with( $file['name'], '.part' ) && $file['lastmod'] < $cutoff ) {
-				$file_path = trailingslashit( $temp_dir ) . $file['name'];
-				wp_delete_file( $file_path );
-			}
-		}
-	}
-
-	/**
-	 * Get the temp directory for audio uploads.
-	 */
-	private function get_temp_dir() {
-		// This should match the logic from StarmusAudioRecorderUI
-		$upload_dir = wp_upload_dir();
-		$temp_dir   = trailingslashit( $upload_dir['basedir'] ) . 'starmus-temp';
-		if ( ! is_dir( $temp_dir ) ) {
-			if ( ! wp_mkdir_p( $temp_dir ) ) {
-				return new \WP_Error( 'temp_dir_fail', 'Could not create temp dir.' );
-			}
-		}
-		return $temp_dir;
->>>>>>> 571b925d (11042025MB3)
 	}
 
 	/**
@@ -155,7 +74,6 @@ class StarmusCron {
 
 	/**
 	 * Executes the full pipeline asynchronously.
-	 * This is what WP-Cron calls once the job is due.
 	 */
 	public function run_audio_processing_pipeline( int $attachment_id ): void {
 		$attachment_id = (int) $attachment_id;
@@ -175,7 +93,6 @@ class StarmusCron {
 			// === STEP 2: Full Transcoding + Archival ===
 			$parent_id = (int) wp_get_post_parent_id( $attachment_id );
 			if ( $parent_id <= 0 ) {
-				// fallback: try to infer parent from _aiwa_recording_post meta
 				$parent_id = (int) get_post_meta( $attachment_id, '_aiwa_recording_post', true );
 			}
 
@@ -216,7 +133,6 @@ class StarmusCron {
 
 	/**
 	 * Remove stale temp upload files (>24h old).
-	 * Runs hourly or every 15 minutes, depending on your schedule.
 	 */
 	public function cleanup_stale_temp_files(): void {
 		$dir = $this->get_temp_dir();
@@ -253,7 +169,7 @@ class StarmusCron {
 		}
 	}
 
-	/** Unschedule all cleanup jobs on plugin deactivation. */
+	/** Unschedule cleanup on deactivation. */
 	public static function deactivate(): void {
 		$timestamp = wp_next_scheduled( self::CLEANUP_TEMP_FILES_HOOK );
 		if ( $timestamp ) {
@@ -262,7 +178,7 @@ class StarmusCron {
 	}
 
 	/**
-	 * Optional: adds a 15-minute recurring schedule.
+	 * Optional 15-minute schedule.
 	 */
 	public function register_custom_schedules( array $schedules ): array {
 		try {
@@ -276,9 +192,8 @@ class StarmusCron {
 		return $schedules;
 	}
 
-
 	/**
-	 * Shared helper to ensure our temp upload directory exists and is protected.
+	 * Ensures the temp directory exists & is hardened.
 	 */
 	private function get_temp_dir(): string {
 		$upload_dir       = wp_get_upload_dir();
@@ -293,6 +208,7 @@ class StarmusCron {
 		if ( ! file_exists( $htaccess_path ) ) {
 			@file_put_contents( $htaccess_path, "Deny from all\n" );
 		}
+
 		$index_path = $default_temp_dir . 'index.html';
 		if ( ! file_exists( $index_path ) ) {
 			@file_put_contents( $index_path, '' );
