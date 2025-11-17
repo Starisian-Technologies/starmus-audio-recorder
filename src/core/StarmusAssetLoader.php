@@ -98,19 +98,26 @@ final class StarmusAssetLoader
     /**
      * Enqueues the single, bundled, and minified JavaScript file for production.
      */
-    private function enqueue_production_assets(): void
-    {
-        wp_enqueue_script(
-            self::HANDLE_PROD_BUNDLE,
-            STARMUS_URL . 'assets/js/starmus-app.bundle.min.js',
-            [self::HANDLE_VENDOR_TUS],
-            $this->resolve_version(),
-            true
-        );
+      private function enqueue_production_assets(): void
+      {
+          wp_enqueue_script(
+              self::HANDLE_PROD_BUNDLE,
+              STARMUS_URL . 'assets/js/starmus-app.bundle.min.js',
+              [ self::HANDLE_VENDOR_TUS ],
+              $this->resolve_version(),
+              true
+          );
+      
+          // Correct handle name
+          wp_script_add_data( self::HANDLE_PROD_BUNDLE, 'type', 'module' );
+      
+          wp_localize_script(
+              self::HANDLE_PROD_BUNDLE,
+              'starmusConfig',
+              $this->get_localization_data()
+          );
+      }
 
-        // Localize the main bundle.
-        wp_localize_script(self::HANDLE_PROD_BUNDLE, 'starmusConfig', $this->get_localization_data());
-    }
 
     /**
      * Enqueues all six individual Starmus modules with the correct dependency graph for development.
