@@ -23,7 +23,7 @@
     "build:js": "terser src/js/starmus-audio-recorder-hooks.js src/js/starmus-audio-recorder-module.js src/js/starmus-audio-recorder-submissions-handler.js src/js/starmus-audio-recorder-ui-controller.js -o assets/js/starmus-app.min.js --compress drop_console=true --mangle",
     "build:hash": "node build-starmus.cjs assets/css/starmus-styles.min.css assets/js/starmus-app.min.js",
     "version:sync": "node sync-version.js",
-    "build": "npm run clean && npm run build:vendor && npm run build:css && npm run build:js && npm run build:hash && npm run version:sync",
+    "build": "npm run clean && npm run build:vendor && npm run build:css && npm run build:js && npm run build:hash && npm run version:sync && rollup -c",
     "i18n-check": "grep -r \"__('\" src/ || echo 'No i18n strings found'",
     "docs:js": "mkdir -p docs && jsdoc2md 'src/js/**/*.js' > docs/js-api.md",
     "docs:php": "node scripts/fetch-phpdoc.cjs && mkdir -p docs/php && php tools/phpDocumentor.phar -d src -t docs/php",
@@ -38,7 +38,7 @@
     "env:stop": "wp-env stop",
     "size-check": "size-limit",
     "validate": "node validate-build.js",
-    "prebuild": "npm run validate"
+    "prebuild": "npm run validate",
   },
   "size-limit": [
     {
@@ -97,7 +97,12 @@
     "size-limit": "latest",
     "stylelint": "latest",
     "stylelint-config-standard": "latest",
-    "terser": "latest"
+    "terser": "latest",
+    "rollup": "^4.21.0",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-commonjs": "^26.0.0",
+    "@rollup/plugin-terser": "^0.4.4"
+    
   },
   "dependencies": {
     "axios": "latest",
