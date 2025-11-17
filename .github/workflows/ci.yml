@@ -16,17 +16,17 @@ jobs:
     steps:
       - # v4.1.6 commit pin to avoid supply-chain attacks.
         uses: actions/checkout@v5.0.0
-        
+
       - name: Setup PHP
         uses: shivammathur/setup-php@20529878ed81ef8e78ddf08b480401e6101a850f
         with:
-          php-version: "8.2"
+          php-version: "8.3"
 
       - name: Cache Composer packages
         # v4.3.0 version tag keeps cache action immutable
         uses: actions/cache@v4.3.0
 
-        
+
         with:
           path: vendor
           key: composer-${{ hashFiles('**/composer.lock') }}

@@ -5,9 +5,9 @@
   "type": "wordpress-plugin",
   "license": "proprietary",
   "require": {
-    "php": "^8.0",
+    "php": "^8.3",
     "james-heinrich/getid3": "^1.9",
-    "wpackagist-plugin/secure-custom-fields": "^6.4" 
+    "wpackagist-plugin/secure-custom-fields": "^6.4"
   },
    "autoload": {
     "psr-4": {
@@ -92,7 +92,7 @@
   },
   "config": {
     "platform": {
-      "php": "8.2.29"
+      "php": "8.3.0"
     },
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true,
