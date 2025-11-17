@@ -114,14 +114,14 @@ final class StarmusAudioRecorder {
 		$this->register_hooks();
 
 		if ( get_class( $this->DAL ) !== \Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL::class ) {
-			error_log( '[Starmus] DAL replaced by: ' . get_class( $this->DAL ) );
+			error_log( '[Starmus] DAL initialized to: ' . get_class( $this->DAL ) );
 		}
 	}
 
 	/**
 	 * Get singleton instance.
 	 */
-	public static function starmus_get_instance(): self {
+	public static function starmus_get_instance(): StarmusAudioRecorder {
 		if ( self::$instance === null ) {
 			self::$instance = new self();
 		}
@@ -146,9 +146,6 @@ final class StarmusAudioRecorder {
 		 * @return bool True when a supported field framework is available.
 		 */
 	public static function check_field_plugin_dependency(): bool {
-		if ( class_exists( 'ACF' ) || function_exists( 'acf' ) ) {
-				return true;
-		}
 
 		if (
 					class_exists( 'SCF' )
@@ -160,29 +157,6 @@ final class StarmusAudioRecorder {
 		}
 
 			return false;
-	}
-
-		/**
-		 * Hook target for `init` to perform late initialization pieces.
-		 */
-	public static function starmus_init_plugin(): void {
-
-		self::starmus_get_instance()->on_wp_init();
-	}
-
-	/**
-	 * Late init: translations, (optionally CPTs), anything that must run on `init`.
-	 */
-	private function on_wp_init(): void {
-		// Translations
-		load_plugin_textdomain(
-			'starmus-audio-recorder',
-			false,
-			dirname( plugin_basename( STARMUS_MAIN_FILE ) ) . '/languages/'
-		);
-
-		// If/when you restore CPT registration, do it here and wrap in try/catch.
-		// try { $this->load_cpt(); } catch (Throwable $e) { $this->log_runtime_error('CPT load', $e); }
 	}
 
 	/**
@@ -218,10 +192,10 @@ final class StarmusAudioRecorder {
 			return;
 		}
 
-		$default_dal = new StarmusAudioRecorderDAL();
-
 		// Run the filter inside a try/catch so a bad plugin can’t fatal the bootstrap.
 		try {
+			$default_dal = new StarmusAudioRecorderDAL();
+
 			$override_key = defined( 'STARMUS_DAL_OVERRIDE_KEY' ) ? STARMUS_DAL_OVERRIDE_KEY : null;
 			$filtered_dal = apply_filters( 'starmus_register_dal', $default_dal, $override_key );
 		} catch ( \Throwable $e ) {
@@ -332,6 +306,15 @@ final class StarmusAudioRecorder {
 		}
 
 		try {
+			// Load translations on the 'init' hook.
+			add_action( 'init', function() {
+				load_plugin_textdomain(
+					'starmus-audio-recorder',
+					false,
+					dirname( plugin_basename( STARMUS_MAIN_FILE ) ) . '/languages/'
+				);
+			});
+
 
 			// WP-CLI commands (optional). Load your CLI files and register commands here.
 			if ( defined( 'WP_CLI' ) && WP_CLI && class_exists( 'WP_CLI' ) ) {

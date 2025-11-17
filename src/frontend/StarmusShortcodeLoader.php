@@ -24,18 +24,23 @@ final class StarmusShortcodeLoader {
 	private StarmusAudioRecorderDAL $dal;
 
 	public function __construct( ?StarmusAudioRecorderDAL $dal = null, ?StarmusSettings $settings = null ) {
+		try{
 		if ( ! $dal instanceof StarmusAudioRecorderDALInterface ) {
 			throw new \RuntimeException( 'Invalid DAL: must implement StarmusAudioRecorderDALInterface' );
 		}
 		$this->settings = $settings ?? new StarmusSettings();
 		$this->dal      = $dal ?? new StarmusAudioRecorderDAL();
 		add_action( 'init', array( $this, 'register_shortcodes' ) );
+		} catch (Throwable $e){
+			error_log($e);
+		}
 	}
 
 	/**
 	 * Register shortcodes — but don't instantiate heavy UI classes yet.
 	 */
 	public function register_shortcodes(): void {
+		try{
 		add_shortcode( 'starmus_audio_recorder', fn() => $this->safe_render( fn() => ( new StarmusAudioRecorderUI( $this->settings ) )->render_recorder_shortcode(), 'starmus_audio_recorder' ) );
 		add_shortcode( 'starmus_audio_editor', fn() => $this->safe_render( fn() => ( new StarmusAudioEditorUI() )->render_audio_editor_shortcode(), 'starmus_audio_editor' ) );
 		add_shortcode( 'starmus_my_recordings', array( $this, 'render_my_recordings_shortcode' ) );
@@ -43,6 +48,9 @@ final class StarmusShortcodeLoader {
 		add_shortcode( 'starmus_audio_re_recorder', fn( $atts = array() ) => $this->safe_render( fn() => ( new StarmusAudioRecorderUI( $this->settings ) )->render_re_recorder_shortcode( $atts ), 'starmus_audio_re_recorder' ) );
 
 		add_filter( 'the_content', array( $this, 'render_submission_detail_via_filter' ), 100 );
+		} catch (Throwable $e){
+			error_log($e);
+		}
 	}
 
 	/**
