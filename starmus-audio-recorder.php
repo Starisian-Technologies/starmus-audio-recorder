@@ -78,8 +78,10 @@ if ( ! defined( 'AIWA_SWM_DELETE_ON_UNINSTALL' ) ) {
 // =========================================================================
 $autoloader = STARMUS_PATH . 'vendor/autoload.php';
 if ( ! file_exists( $autoloader ) ) {
+    // deactivate plugin and alert user.
+    deactivate_plugins( plugin_basename(__FILE__) );
     add_action( 'admin_notices', function() {
-        echo '<div class="notice notice-error"><p><strong>Starmus Audio Recorder Error:</strong> Dependencies are missing. Please run `composer install`.</p></div>';
+        echo '<div class="notice notice-error"><p><strong>Starmus Audio Recorder Error:</strong> Plugin deactivated as dependencies are missing. Please run `composer install`.</p></div>';
     });
     return;
 }
