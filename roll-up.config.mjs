@@ -4,16 +4,19 @@ import commonjs from '@rollup/plugin-commonjs';
 import { terser } from '@rollup/plugin-terser';
 
 export default {
-  input: resolve('src/js/starmus-integrator.js'),      // ES module entry
+  input: resolve('src/js/starmus-integrator.js'),
   output: {
-    file: resolve('assets/js/starmus-app.esm.js'),     // intermediate bundle
+    file: resolve('assets/js/starmus-app.bundle.min.js'),
     format: 'esm',
     sourcemap: true
   },
   plugins: [
     nodeResolve({ browser: true }),
     commonjs(),
-    terser()
+    terser({
+      compress: { drop_console: true },
+      mangle: true
+    })
   ],
   treeshake: { moduleSideEffects: false }
 };
