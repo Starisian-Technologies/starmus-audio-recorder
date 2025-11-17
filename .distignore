@@ -6,10 +6,19 @@ scripts/
 tools/
 .github/
 .phpdoc/
+.vscode/
+.devcontainer
 playwright-report/
 test-results/
 test.js
+scripts/
 
+
+# WordPress Dev-Related
+wp-admin/
+wp-content/
+wp-plugins/
+wordpress/
 
 # Build files
 build/
@@ -41,6 +50,11 @@ phpstan.neon*
 markdownlint.json
 prettierrc.json
 gl-codequality.yml
+*.yml
+*.xml
+*.cjs
+*.mjs
+*.dist
 
 # Documentation
 CHANGELOG.md
@@ -49,7 +63,6 @@ INSTRUCTIONS.md
 TESTING.md
 WORKSPACE.md
 AGENTS.md
-
 
 # Composer dev dependencies
 composer.lock
