@@ -14,6 +14,7 @@
 
 declare(strict_types=1);
 
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 // =========================================================================
@@ -92,7 +93,9 @@ require_once $autoloader;
  * Hooked early to ensure ACF is ready for other plugins and themes.
  */
 function starmus_load_bundled_scf(): void {
-    if ( class_exists('ACF') ) return;
+    if ( class_exists( 'ACF' ) ) {
+        return;
+    }
 
     $scf_main_file = STARMUS_PATH . 'vendor/wpackagist-plugin/secure-custom-fields/secure-custom-fields.php';
     if ( file_exists( $scf_main_file ) ) {

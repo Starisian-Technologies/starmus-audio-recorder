@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if ( ! class_exists( 'ACF_Location' ) ) {
+if ( ! class_exists( 'ACF_Location' ) ) :
 	abstract class ACF_Location extends ACF_Legacy_Location {
 
 		/**
@@ -169,7 +169,7 @@ if ( ! class_exists( 'ACF_Location' ) ) {
 		 * @return  boolean
 		 */
 		public function compare_to_rule( $value, $rule ) {
-			$result = ( $value === $rule['value'] );
+			$result = ( $value == $rule['value'] );
 
 			// Allow "all" to match any value.
 			if ( $rule['value'] === 'all' ) {
@@ -184,4 +184,4 @@ if ( ! class_exists( 'ACF_Location' ) ) {
 		}
 	}
 
-} // class_exists check
+endif; // class_exists check

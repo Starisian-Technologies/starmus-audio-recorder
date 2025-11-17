@@ -1,6 +1,10 @@
 <?php
 namespace Starisian\Sparxstar\Starmus\core\interfaces;
 
+if( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 interface StarmusAudioRecorderDALInterface {
 	public function create_audio_post( string $title, string $cpt_slug, int $author_id );
 	public function create_attachment_from_file( string $file_path, string $filename );
