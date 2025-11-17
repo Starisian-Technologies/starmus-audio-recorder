@@ -52,11 +52,9 @@ wordpress-installer/
 playwright-report/
 test-results/
 .playwright-cache/
-test-results/
 
 # ---- Release / packaging ----
 *.zip
 *.tar.gz
 *.tgz
-vendor/
 node_modules/
