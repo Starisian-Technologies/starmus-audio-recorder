@@ -615,8 +615,10 @@ final class StarmusSubmissionHandler
 			}
 
 			$processing_params = apply_filters('starmus_post_processing_params', array(
-				'bitrate'    => $ffmpeg_bitrate,
-				'samplerate' => $sample_rate,
+				'bitrate'      => $ffmpeg_bitrate,
+				'samplerate'   => $sample_rate,
+				'network_type' => $network_type,
+				'session_uuid' => $metadata['sessionUUID'] ?? ($metadata['submissionUUID'] ?? 'unknown'),
 			), $audio_post_id, $metadata);
 
 			StarmusLogger::info(

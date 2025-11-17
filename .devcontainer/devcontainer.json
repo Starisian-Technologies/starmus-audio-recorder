@@ -43,4 +43,8 @@
   ],
   "remoteUser": "vscode",
   "postCreateCommand": "sudo chmod a+x \"$(pwd)\" && sudo rm -rf /var/www/html && sudo ln -s \"$(pwd)\" /var/www/html; echo 'memory_limit = 1G' | sudo tee /usr/local/etc/php/conf.d/memory-limit.ini && echo 'xdebug.mode = off' | sudo tee /usr/local/etc/php/conf.d/xdebug-off.ini; if [ -f composer.json ]; then composer install; fi"
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> fe254bec (local changes before rebase)
