@@ -53,6 +53,47 @@
                 }
             }
 
+            /**
+             * UI controller for Step1 → Step2 flow
+             * Works with your existing PHP markup and form_id-based IDs.
+             */
+            export function initStepController(root) {
+                const step1 = root.querySelector('.starmus-step-1');
+                const step2 = root.querySelector('.starmus-step-2');
+                if (!step1 || !step2) return;
+            
+                const continueBtn = step1.querySelector('.starmus-btn-continue');
+                const msgBox = step1.querySelector('[id^="starmus_step1_usermsg_"]');
+            
+                continueBtn.addEventListener('click', () => {
+                    const title = step1.querySelector('[name="starmus_title"]');
+                    const lang = step1.querySelector('[name="starmus_language"]');
+                    const type = step1.querySelector('[name="starmus_recording_type"]');
+                    const consent = step1.querySelector('[name="agreement_to_terms"]');
+            
+                    const missing = [];
+                    if (!title.value.trim()) missing.push('Title');
+                    if (!lang.value.trim()) missing.push('Language');
+                    if (!type.value.trim()) missing.push('Recording Type');
+                    if (!consent.checked) missing.push('Consent');
+            
+                    if (missing.length > 0) {
+                        msgBox.textContent = 'Missing: ' + missing.join(', ');
+                        msgBox.style.color = '#c00';
+                        return;
+                    }
+            
+                    msgBox.textContent = '';
+                    step1.style.display = 'none';
+                    step2.style.display = 'block';
+            
+                    // Enable mic + file upload
+                    step2.querySelectorAll('[data-starmus-action]').forEach(btn => {
+                        btn.removeAttribute('disabled');
+                    });
+                });
+            }
+
             // Status text
             if (!statusEl) {
                 return;
