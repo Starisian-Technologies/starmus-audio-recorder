@@ -1,6 +1,3 @@
-includes:
-  - vendor/szepeviktor/phpstan-wordpress/extension.neon
-
 parameters:
   level: 6
   paths:
@@ -9,9 +6,6 @@ parameters:
     - uninstall.php
 
   tmpDir: .phpstan-cache
-
-  # Disable overly strict iterable checks for now — can tighten later
-  checkMissingIterableValueType: false
 
   # Ignore common WordPress dynamic behavior warnings
   ignoreErrors:
