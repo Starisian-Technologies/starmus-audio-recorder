@@ -106,6 +106,15 @@ jobs:
           rsync -a --exclude-from=.distignore ./ build/${SLUG}/
           (cd build && zip -r "../${SLUG}-${VERSION}.zip" "${SLUG}")
 
+      # NEW STEP: Ensure vendor exists and is packaged
+      - name: Ensure vendor directory is preserved for ZIP
+        run: |
+          if [ ! -d "vendor" ]; then
+            echo "Vendor directory missing — Composer install did not create it."
+            exit 1
+          fi
+          echo "Vendor directory found."
+
       # Step 10: Generate checksums for the ZIP file.
       - name: Generate checksums
         run: |

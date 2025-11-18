@@ -1,5 +1,18 @@
-# ---- Dependencies & builds ----
+# =====================================================================
+#  Starisian / Sparxstar / Starmus Unified .gitignore
+#  WordPress Plugin + Composer + Node + GitHub Actions
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# Node dependencies & build artifacts
+# ---------------------------------------------------------------------
 node_modules/
+pnpm-lock.yaml
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
 dist/
 build/
 coverage/
@@ -7,20 +20,36 @@ coverage/
 .parcel-cache/
 .eslintcache
 .stylelintcache
+
+# ---------------------------------------------------------------------
+# Composer dependencies
+# ---------------------------------------------------------------------
+vendor/
+composer.lock
+composer.phar
+
+# ---------------------------------------------------------------------
+# Temporary caches & analysis tools
+# ---------------------------------------------------------------------
 .phpunit.result.cache
 .php-cs-fixer.cache
 .phpstan-cache/
 .phpdoc/
 .phpdoc/cache/
-
-# ---- Logs & maps ----
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+phpdoc/
+phpdoc-cache/
 *.map
 
-# ---- OS / IDE ----
+# ---------------------------------------------------------------------
+# Logs
+# ---------------------------------------------------------------------
+*.log
+debug.log
+wp-content/debug.log
+
+# ---------------------------------------------------------------------
+# OS / IDE files
+# ---------------------------------------------------------------------
 .DS_Store
 Thumbs.db
 .vscode/
@@ -28,35 +57,56 @@ Thumbs.db
 *.swp
 *.swo
 
-# ---- Env & secrets ----
+# ---------------------------------------------------------------------
+# Env, secrets, credentials (never commit!)
+# ---------------------------------------------------------------------
 .env
 .env.*
 auth.json
+private/
+secrets/
 
-# ---- WordPress core (never commit) ----
+# ---------------------------------------------------------------------
+# WordPress core (keep plugin clean in any WP install)
+# ---------------------------------------------------------------------
 wp-admin/
 wp-includes/
-wp-content/advanced-cache.php
-wp-content/backup-db/
-wp-content/backups/
-wp-content/blogs.dir/
-wp-content/cache/
-wp-content/upgrade/
-wp-content/uploads/
-wp-content/mu-plugins/
-wp-content/wp-cache-config.php
 wordpress/
 wordpress-installer/
+*.sql
+*.sql.gz
 
-# ---- Test artifacts ----
+# ---------------------------------------------------------------------
+# WP content paths that should never be committed
+# ---------------------------------------------------------------------
+wp-content/advanced-cache.php
+wp-content/cache/
+wp-content/uploads/
+wp-content/upgrade/
+wp-content/mu-plugins/
+wp-content/blogs.dir/
+wp-content/backups/
+wp-content/backup-db/
+wp-content/wp-cache-config.php
+
+# ---------------------------------------------------------------------
+# Playwright, test artifacts
+# ---------------------------------------------------------------------
 playwright-report/
 test-results/
 .playwright-cache/
-test-results/
 
-# ---- Release / packaging ----
+# ---------------------------------------------------------------------
+# Release packages
+# ---------------------------------------------------------------------
 *.zip
 *.tar.gz
 *.tgz
-vendor/
-node_modules/
+
+# ---------------------------------------------------------------------
+# Ignore build-stamp or release metadata
+# ---------------------------------------------------------------------
+assets/build-hash.txt
+assets/*.zip
+assets/*.sha256
+assets/*.sha1

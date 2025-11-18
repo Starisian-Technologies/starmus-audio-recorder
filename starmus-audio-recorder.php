@@ -14,6 +14,7 @@
 
 declare(strict_types=1);
 
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 // =========================================================================
@@ -77,8 +78,10 @@ if ( ! defined( 'AIWA_SWM_DELETE_ON_UNINSTALL' ) ) {
 // =========================================================================
 $autoloader = STARMUS_PATH . 'vendor/autoload.php';
 if ( ! file_exists( $autoloader ) ) {
+    // deactivate plugin and alert user.
+    deactivate_plugins( plugin_basename(__FILE__) );
     add_action( 'admin_notices', function() {
-        echo '<div class="notice notice-error"><p><strong>Starmus Audio Recorder Error:</strong> Dependencies are missing. Please run `composer install`.</p></div>';
+        echo '<div class="notice notice-error"><p><strong>Starmus Audio Recorder Error:</strong> Plugin deactivated as dependencies are missing. Please run `composer install`.</p></div>';
     });
     return;
 }
@@ -92,7 +95,9 @@ require_once $autoloader;
  * Hooked early to ensure ACF is ready for other plugins and themes.
  */
 function starmus_load_bundled_scf(): void {
-    if ( class_exists('ACF') ) return;
+    if ( class_exists( 'ACF' ) ) {
+        return;
+    }
 
     $scf_main_file = STARMUS_PATH . 'vendor/wpackagist-plugin/secure-custom-fields/secure-custom-fields.php';
     if ( file_exists( $scf_main_file ) ) {
