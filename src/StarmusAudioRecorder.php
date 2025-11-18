@@ -145,19 +145,19 @@ final class StarmusAudioRecorder {
 		 *
 		 * @return bool True when a supported field framework is available.
 		 */
-	public static function check_field_plugin_dependency(): bool {
+/**
+ * Check whether Secure Custom Fields (SCF) is installed and active.
+ *
+ * SCF exposes ACF-style global utility functions such as acf_get_instance().
+ * That is the authoritative presence signal.
+ *
+ * @return bool
+ */
+  public static function check_field_plugin_dependency(): bool
+  {
+      return function_exists('acf_get_instance');
+  }
 
-		if (
-					class_exists( 'SCF' )
-					|| function_exists( 'scf' )
-					|| class_exists( 'Smart_Custom_Fields' )
-					|| class_exists( '\Smart_Custom_Fields\Bootstrap' )
-			) {
-				return true;
-		}
-
-			return false;
-	}
 
 	/**
 	 * Ensure settings are instantiated before anything else.
@@ -188,41 +188,63 @@ final class StarmusAudioRecorder {
 	 *           return the same key from get_registration_key() as STARMUS_DAL_OVERRIDE_KEY.
 	 */
 	private function set_DAL(): void {
-		if ( $this->DAL !== null ) {
-			return;
-		}
+    // This is the class property for this specific instance.
+    if ($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface) {
+        return; // Already set on this object.
+    }
 
-		// Run the filter inside a try/catch so a bad plugin can’t fatal the bootstrap.
-		try {
-			$default_dal = new StarmusAudioRecorderDAL();
+    // --- SINGLETON FIX STARTS HERE ---
+    // This is the static property that persists across the entire request.
+    // If it's already been created, reuse it and stop.
+    static $dal_singleton = null;
 
-			$override_key = defined( 'STARMUS_DAL_OVERRIDE_KEY' ) ? STARMUS_DAL_OVERRIDE_KEY : null;
-			$filtered_dal = apply_filters( 'starmus_register_dal', $default_dal, $override_key );
-		} catch ( \Throwable $e ) {
-			error_log( '[Starmus] DAL filter threw: ' . $e->getMessage() );
-			$this->DAL = $default_dal;
-			return;
-		}
+    if ($dal_singleton instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface) {
+        $this->DAL = $dal_singleton;
+        return;
+    }
+    // --- SINGLETON FIX ENDS HERE ---
 
-		// Must implement our interface.
-		if ( ! $filtered_dal instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ) {
-			error_log( '[Starmus] Invalid DAL replacement: must implement StarmusAudioRecorderDALInterface.' );
-			$this->DAL = $default_dal;
-			return;
-		}
+    // If we've reached here, the DAL has not been created yet in this request.
+    // We will now create it.
 
-		// Handshake: the replacement must present the same key we expect.
-		$provided = (string) $filtered_dal->get_registration_key();
-		$expected = (string) ( defined( 'STARMUS_DAL_OVERRIDE_KEY' ) ? STARMUS_DAL_OVERRIDE_KEY : '' );
+    try {
+        $default_dal = new StarmusAudioRecorderDAL();
 
-		if ( $expected === '' || $provided !== $expected ) {
-			error_log( '[Starmus] Unauthorized DAL replacement attempt rejected.' );
-			$this->DAL = $default_dal;
-			return;
-		}
+        $override_key = defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
+        $filtered_dal = apply_filters('starmus_register_dal', $default_dal, $override_key);
 
-		$this->DAL = $filtered_dal;
-	}
+    } catch (\Throwable $e) {
+        error_log('[Starmus] DAL filter threw: ' . $e->getMessage());
+        $dal_singleton = $default_dal; // Store the default DAL in the singleton
+        $this->DAL = $dal_singleton;
+        return;
+    }
+
+    // Must implement our interface.
+    if (!$filtered_dal instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface) {
+        error_log('[Starmus] Invalid DAL replacement: must implement StarmusAudioRecorderDALInterface.');
+        $dal_singleton = $default_dal; // Store the default DAL in the singleton
+        $this->DAL = $dal_singleton;
+        return;
+    }
+
+    // Handshake: the replacement must present the same key we expect.
+    $provided = (string) $filtered_dal->get_registration_key();
+    $expected = (string) (defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : '');
+
+    if ($expected !== '' && $provided === $expected) {
+        // Handshake successful. Use the filtered DAL.
+        $dal_singleton = $filtered_dal;
+    } else {
+        // Handshake failed or was not attempted. Use the default DAL.
+        if ($filtered_dal !== $default_dal) {
+             error_log('[Starmus] Unauthorized or misconfigured DAL replacement attempt rejected.');
+        }
+        $dal_singleton = $default_dal;
+    }
+
+    // Finally, assign the one true instance to our class property.
+    $this->DAL = $dal_singleton;
 
 	/**
 	 * Instantiate components that depend on settings and environment.
