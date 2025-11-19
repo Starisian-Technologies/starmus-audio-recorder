@@ -261,10 +261,60 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_frontend_assets"
         },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader\u003A\u003Ais_starmus_page\u0028\u0029",
+            "name": "is_starmus_page",
+            "summary": "Checks\u0020if\u0020the\u0020current\u0020page\u0020contains\u0020any\u0020Starmus\u0020shortcodes\u0020that\u0020require\u0020assets.",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_is_starmus_page"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader\u003A\u003Aenqueue_production_assets\u0028\u0029",
+            "name": "enqueue_production_assets",
+            "summary": "Enqueues\u0020the\u0020single,\u0020bundled,\u0020and\u0020minified\u0020JavaScript\u0020file\u0020for\u0020production.",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_production_assets"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader\u003A\u003Aenqueue_development_assets\u0028\u0029",
+            "name": "enqueue_development_assets",
+            "summary": "Enqueues\u0020the\u0020main\u0020integrator\u0020script\u0020as\u0020a\u0020native\u0020ES\u0020Module\u0020for\u0020development.",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_development_assets"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader\u003A\u003Aenqueue_styles\u0028\u0029",
+            "name": "enqueue_styles",
+            "summary": "Enqueues\u0020the\u0020stylesheet\u0020for\u0020the\u0020plugin.",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_styles"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader\u003A\u003Aget_localization_data\u0028\u0029",
+            "name": "get_localization_data",
+            "summary": "Gathers\u0020and\u0020prepares\u0020all\u0020necessary\u0020server\u002Dside\u0020data\u0020for\u0020the\u0020client\u002Dside\u0020app.",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_get_localization_data"
+        },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader\u003A\u003Aresolve_version\u0028\u0029",
             "name": "resolve_version",
-            "summary": "",
+            "summary": "Resolves\u0020the\u0020asset\u0020version\u0020number\u0020for\u0020cache\u002Dbusting.",
             "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_resolve_version"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader\u003A\u003AVERSION",
+            "name": "VERSION",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_VERSION"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader\u003A\u003AHANDLE_PROD_BUNDLE",
+            "name": "HANDLE_PROD_BUNDLE",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_HANDLE_PROD_BUNDLE"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader\u003A\u003AHANDLE_DEV_INTEGRATOR",
+            "name": "HANDLE_DEV_INTEGRATOR",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_HANDLE_DEV_INTEGRATOR"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader\u003A\u003AHANDLE_VENDOR_TUS",
+            "name": "HANDLE_VENDOR_TUS",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_HANDLE_VENDOR_TUS"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader\u003A\u003ASTYLE_HANDLE",
+            "name": "STYLE_HANDLE",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_STYLE_HANDLE"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL",
             "name": "StarmusAudioRecorderDAL",
@@ -568,17 +618,17 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\cron\\StarmusCron\u003A\u003Adeactivate\u0028\u0029",
             "name": "deactivate",
-            "summary": "Unschedule\u0020all\u0020cleanup\u0020jobs\u0020on\u0020plugin\u0020deactivation.",
+            "summary": "Unschedule\u0020cleanup\u0020on\u0020deactivation.",
             "url": "classes/Starisian-Sparxstar-Starmus-cron-StarmusCron.html#method_deactivate"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\cron\\StarmusCron\u003A\u003Aregister_custom_schedules\u0028\u0029",
             "name": "register_custom_schedules",
-            "summary": "Optional\u003A\u0020adds\u0020a\u002015\u002Dminute\u0020recurring\u0020schedule.",
+            "summary": "Optional\u002015\u002Dminute\u0020schedule.",
             "url": "classes/Starisian-Sparxstar-Starmus-cron-StarmusCron.html#method_register_custom_schedules"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\cron\\StarmusCron\u003A\u003Aget_temp_dir\u0028\u0029",
             "name": "get_temp_dir",
-            "summary": "Shared\u0020helper\u0020to\u0020ensure\u0020our\u0020temp\u0020upload\u0020directory\u0020exists\u0020and\u0020is\u0020protected.",
+            "summary": "Ensures\u0020the\u0020temp\u0020directory\u0020exists\u0020\u0026\u0020is\u0020hardened.",
             "url": "classes/Starisian-Sparxstar-Starmus-cron-StarmusCron.html#method_get_temp_dir"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\cron\\StarmusCron\u003A\u003APROCESS_AUDIO_HOOK",
@@ -1066,6 +1116,31 @@ Search.appendIndex(
             "summary": "Admin\u0020edit\u0020screen\u0020URL.",
             "url": "classes/Starisian-Sparxstar-Starmus-helpers-StarmusTemplateLoaderHelper.html#method_get_edit_page_url_admin"
         },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusAdaptiveAssetLoader",
+            "name": "StarmusAdaptiveAssetLoader",
+            "summary": "Handles\u0020adaptive\u0020loading\u0020of\u0020Starmus\u0020scripts\u0020and\u0020styles.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusAdaptiveAssetLoader.html"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusAdaptiveAssetLoader\u003A\u003Aregister_hooks\u0028\u0029",
+            "name": "register_hooks",
+            "summary": "Registers\u0020WordPress\u0020hooks\u0020for\u0020enqueuing\u0020assets.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusAdaptiveAssetLoader.html#method_register_hooks"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusAdaptiveAssetLoader\u003A\u003Aget_environment_profile\u0028\u0029",
+            "name": "get_environment_profile",
+            "summary": "Determines\u0020user\u0020environment\u0020profile\u0020based\u0020on\u0020server\u0020data.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusAdaptiveAssetLoader.html#method_get_environment_profile"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusAdaptiveAssetLoader\u003A\u003Aenqueue_starmus_scripts\u0028\u0029",
+            "name": "enqueue_starmus_scripts",
+            "summary": "Enqueues\u0020Starmus\u0020scripts\u0020with\u0020adaptive\u0020optimization\u0020profile.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusAdaptiveAssetLoader.html#method_enqueue_starmus_scripts"
+        },                {
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusAdaptiveAssetLoader\u003A\u003Aresolve_version\u0028\u0029",
+            "name": "resolve_version",
+            "summary": "Resolves\u0020the\u0020current\u0020plugin\u0020version\u0020for\u0020cache\u0020busting.",
+            "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusAdaptiveAssetLoader.html#method_resolve_version"
+        },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler",
             "name": "StarmusSubmissionHandler",
             "summary": "Handles\u0020validation\u0020and\u0020persistence\u0020for\u0020audio\u0020submissions\u0020\u0028DAL\u0020integrated\u0029.",
@@ -1328,33 +1403,18 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003Aprocess\u0028\u0029",
             "name": "process",
-            "summary": "Main\u0020entry\u0020point\u0020\u0028strict\u0029",
+            "summary": "Process\u0020an\u0020audio\u0020recording\u0020using\u0020adaptive\u0020settings.",
             "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_process"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003AresolveFfmpegPath\u0028\u0029",
-            "name": "resolveFfmpegPath",
-            "summary": "Resolve\u0020ffmpeg\u0020path\u0020via\u0020DAL\u003B\u0020allow\u0020external\u0020override\u0020through\u0020filter.",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_resolveFfmpegPath"
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003Aupdate_acf_field\u0028\u0029",
+            "name": "update_acf_field",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_update_acf_field"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003AexecFfmpeg\u0028\u0029",
-            "name": "execFfmpeg",
-            "summary": "Execute\u0020ffmpeg,\u0020return\u0020\u005Bsuccess\u0028bool\u0029,\u0020combined_output\u0028string\u0029\u005D",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_execFfmpeg"
-        },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ArestoreOriginal\u0028\u0029",
-            "name": "restoreOriginal",
-            "summary": "Restore\u0020original\u0020file\u0020on\u0020failure",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_restoreOriginal"
-        },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003AsetState\u0028\u0029",
-            "name": "setState",
-            "summary": "Update\u0020processing\u0020state\u0020on\u0020attachment\u0020via\u0020DAL",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_setState"
-        },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003AresolveOptions\u0028\u0029",
-            "name": "resolveOptions",
-            "summary": "Resolve\u0020and\u0020filter\u0020options\u0020\u0028bitrate,\u0020samplerate,\u0020preserve_silence\u0029",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_resolveOptions"
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003Aimport_attachment\u0028\u0029",
+            "name": "import_attachment",
+            "summary": "",
+            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_import_attachment"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_IDLE",
             "name": "STATE_IDLE",
@@ -1528,27 +1588,27 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003Aget_config\u0028\u0029",
             "name": "get_config",
-            "summary": "Returns\u0020configuration\u0020parameters\u0020for\u0020audiowaveform.",
+            "summary": "Configurable\u0020audiowaveform\u0020parameters",
             "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_get_config"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003Ais_tool_available\u0028\u0029",
             "name": "is_tool_available",
-            "summary": "Verifies\u0020audiowaveform\u0020CLI\u0020availability.",
+            "summary": "Check\u0020whether\u0020audiowaveform\u0020is\u0020installed",
             "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_is_tool_available"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003Agenerate_waveform_data\u0028\u0029",
             "name": "generate_waveform_data",
-            "summary": "Generates\u0020waveform\u0020JSON\u0020and\u0020stores\u0020in\u0020ACF\u0020field\u0020on\u0020parent\u0020recording.",
+            "summary": "MAIN\u0020ENTRYPOINT\nGenerates\u0020waveform\u0020JSON\u0020and\u0020stores\u0020it\u0020on\u0020the\u0020parent\u0020recording.",
             "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_generate_waveform_data"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003Adelete_waveform_data\u0028\u0029",
             "name": "delete_waveform_data",
-            "summary": "Deletes\u0020waveform\u0020JSON\u0020from\u0020ACF.",
+            "summary": "Deletes\u0020stored\u0020waveform\u0020JSON\u0020from\u0020ACF\/DAL.",
             "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_delete_waveform_data"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003Aextract_waveform_from_file\u0028\u0029",
             "name": "extract_waveform_from_file",
-            "summary": "Extract\u0020waveform\u0020JSON\u0020via\u0020audiowaveform\u0020with\u0020fail\u002Dsafe\u0020temp\u0020handling.",
+            "summary": "Extract\u0020waveform\u0020JSON\u0020using\u0020audiowaveform\u0020CLI.",
             "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_extract_waveform_from_file"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003A\u0024dal",
@@ -1583,18 +1643,8 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\StarmusAudioRecorder\u003A\u003Acheck_field_plugin_dependency\u0028\u0029",
             "name": "check_field_plugin_dependency",
-            "summary": "Verify\u0020that\u0020either\u0020Advanced\u0020Custom\u0020Fields\u0020or\u0020Smart\u0020Custom\u0020Fields\u0020is\u0020active.",
+            "summary": "Check\u0020whether\u0020Secure\u0020Custom\u0020Fields\u0020\u0028SCF\u0029\u0020is\u0020installed\u0020and\u0020active.",
             "url": "classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_check_field_plugin_dependency"
-        },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\StarmusAudioRecorder\u003A\u003Astarmus_init_plugin\u0028\u0029",
-            "name": "starmus_init_plugin",
-            "summary": "Hook\u0020target\u0020for\u0020\u0060init\u0060\u0020to\u0020perform\u0020late\u0020initialization\u0020pieces.",
-            "url": "classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_starmus_init_plugin"
-        },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\StarmusAudioRecorder\u003A\u003Aon_wp_init\u0028\u0029",
-            "name": "on_wp_init",
-            "summary": "Late\u0020init\u003A\u0020translations,\u0020\u0028optionally\u0020CPTs\u0029,\u0020anything\u0020that\u0020must\u0020run\u0020on\u0020\u0060init\u0060.",
-            "url": "classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_on_wp_init"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\StarmusAudioRecorder\u003A\u003Ainit_settings_or_throw\u0028\u0029",
             "name": "init_settings_or_throw",

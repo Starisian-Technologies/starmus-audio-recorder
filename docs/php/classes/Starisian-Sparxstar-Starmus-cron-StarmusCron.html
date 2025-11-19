@@ -77,6 +77,10 @@
                 <a href="packages/Starmus-core.html" class="">core</a>
                 
             </li>
+                    <li>
+                <a href="packages/Starmus-Includes.html" class="">Includes</a>
+                
+            </li>
             </ul>
 
                                     <h4 class="phpdocumentor-sidebar__root-namespace">
@@ -253,14 +257,14 @@ safely in the background after uploads.</p>
     <span>
                                 &nbsp;: void    </span>
 </dt>
-<dd>Unschedule all cleanup jobs on plugin deactivation.</dd>
+<dd>Unschedule cleanup on deactivation.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starisian-Sparxstar-Starmus-cron-StarmusCron.html#method_register_custom_schedules">register_custom_schedules()</a>
     <span>
                                 &nbsp;: array&lt;string|int, mixed&gt;    </span>
 </dt>
-<dd>Optional: adds a 15-minute recurring schedule.</dd>
+<dd>Optional 15-minute schedule.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starisian-Sparxstar-Starmus-cron-StarmusCron.html#method_register_hooks">register_hooks()</a>
@@ -288,7 +292,7 @@ safely in the background after uploads.</p>
     <span>
                                 &nbsp;: string    </span>
 </dt>
-<dd>Shared helper to ensure our temp upload directory exists and is protected.</dd>
+<dd>Ensures the temp directory exists &amp; is hardened.</dd>
 
     </dl>
 
@@ -523,7 +527,7 @@ safely in the background after uploads.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">169</span>
+    <span class="phpdocumentor-element-found-in__line">166</span>
 
     </aside>
 
@@ -558,7 +562,7 @@ safely in the background after uploads.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">140</span>
+    <span class="phpdocumentor-element-found-in__line">137</span>
 
     </aside>
 
@@ -571,9 +575,7 @@ safely in the background after uploads.</p>
     <div class="phpdocumentor-label-line">
         </div>
     
-        <section class="phpdocumentor-description"><p>Runs hourly or every 15 minutes, depending on your schedule.</p>
-</section>
-
+    
     
     
 
@@ -595,11 +597,11 @@ safely in the background after uploads.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">176</span>
+    <span class="phpdocumentor-element-found-in__line">173</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Unschedule all cleanup jobs on plugin deactivation.</p>
+        <p class="phpdocumentor-summary">Unschedule cleanup on deactivation.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -630,11 +632,11 @@ safely in the background after uploads.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">186</span>
+    <span class="phpdocumentor-element-found-in__line">183</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Optional: adds a 15-minute recurring schedule.</p>
+        <p class="phpdocumentor-summary">Optional 15-minute schedule.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -714,7 +716,7 @@ safely in the background after uploads.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">79</span>
+    <span class="phpdocumentor-element-found-in__line">78</span>
 
     </aside>
 
@@ -727,9 +729,7 @@ safely in the background after uploads.</p>
     <div class="phpdocumentor-label-line">
         </div>
     
-        <section class="phpdocumentor-description"><p>This is what WP-Cron calls once the job is due.</p>
-</section>
-
+    
         <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
     <dl class="phpdocumentor-argument-list">
                     <dt class="phpdocumentor-argument-list__entry">
@@ -806,11 +806,11 @@ safely in the background after uploads.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/cron/StarmusCron.php"><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">202</span>
+    <span class="phpdocumentor-element-found-in__line">198</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Shared helper to ensure our temp upload directory exists and is protected.</p>
+        <p class="phpdocumentor-summary">Ensures the temp directory exists &amp; is hardened.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>

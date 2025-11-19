@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Unified, build-process-aware, and ES-Module-aware asset loader for the Starmus Audio System.
  *
@@ -62,7 +63,6 @@ final class StarmusAssetLoader
             }
 
             $this->enqueue_styles($is_development);
-
         } catch (\Throwable $e) {
             StarmusLogger::log('Fatal Error in StarmusAssetLoader::enqueue_frontend_assets', $e);
         }
@@ -79,6 +79,7 @@ final class StarmusAssetLoader
         }
 
         return has_shortcode($post->post_content, 'starmus_audio_recorder')
+            || has_shortcode($post->post_content, 'starmus_audio_re_recorder')
             || has_shortcode($post->post_content, 'starmus_my_recordings')
             || has_shortcode($post->post_content, 'starmus_audio_editor');
     }
@@ -107,7 +108,7 @@ final class StarmusAssetLoader
     private function enqueue_development_assets(): void
     {
         $base_uri = STARMUS_URL . 'src/js/';
-        
+
         // 1. Enqueue ONLY the entry point script.
         wp_enqueue_script(
             self::HANDLE_DEV_INTEGRATOR,
@@ -132,7 +133,7 @@ final class StarmusAssetLoader
     {
         // ... (This function remains unchanged from the previous correct version) ...
     }
-    
+
     /**
      * Gathers and prepares all necessary server-side data for the client-side app.
      */

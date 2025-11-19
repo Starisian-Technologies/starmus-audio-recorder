@@ -68,7 +68,7 @@ export function initRecorder(store, instanceId) {
             store.dispatch({ type: 'starmus/mic-start' });
             mediaRecorder.start();
         } catch (error) {
-            // eslint-disable-next-line no-console
+             
             console.error(error);
             store.dispatch({
                 type: 'starmus/error',

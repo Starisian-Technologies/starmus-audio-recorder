@@ -65,7 +65,10 @@ function wireInstance(env, formEl) {
         payload: { instanceId, env: { ...env, speechSupported } },
     });
 
-    // --- Step 1 → Step 2 "Continue" button ---
+    // Detect if this is a re-recorder (single-step form)
+    const isRerecorder = formEl.dataset.starmusRerecord === 'true';
+
+    // --- Step 1 → Step 2 "Continue" button (only for two-step forms) ---
     if (elements.continueBtn && elements.step1 && elements.step2) {
         elements.continueBtn.addEventListener('click', (event) => {
             event.preventDefault();
@@ -107,6 +110,9 @@ function wireInstance(env, formEl) {
 
             store.dispatch({ type: 'starmus/ui/step-continue' });
         });
+    } else if (isRerecorder) {
+        // For re-recorder, automatically initialize as if we're on step 2
+        store.dispatch({ type: 'starmus/ui/step-continue' });
     }
 
     // --- Mic buttons via CommandBus ---

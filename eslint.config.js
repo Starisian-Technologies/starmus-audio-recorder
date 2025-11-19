@@ -6,9 +6,10 @@ export default [
   {
     ignores: [
       "node_modules/**",
-      "dist/**",
-      "assets/js/**/*.min.js",
       "vendor/**",
+      "dist/**",
+      "build/**",
+      "assets/js/**/*.min.js",
       "docs/**",
       "tests/**",
       "*.config.js",

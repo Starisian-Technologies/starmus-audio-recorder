@@ -77,6 +77,10 @@
                 <a href="packages/Starmus-core.html" class="">core</a>
                 
             </li>
+                    <li>
+                <a href="packages/Starmus-Includes.html" class="">Includes</a>
+                
+            </li>
             </ul>
 
                                     <h4 class="phpdocumentor-sidebar__root-namespace">
@@ -213,35 +217,36 @@
     <span>
                                 &nbsp;: bool    </span>
 </dt>
-<dd>Deletes waveform JSON from ACF.</dd>
+<dd>Deletes stored waveform JSON from ACF/DAL.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_generate_waveform_data">generate_waveform_data()</a>
     <span>
                                 &nbsp;: bool    </span>
 </dt>
-<dd>Generates waveform JSON and stores in ACF field on parent recording.</dd>
+<dd>MAIN ENTRYPOINT
+Generates waveform JSON and stores it on the parent recording.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_is_tool_available">is_tool_available()</a>
     <span>
                                 &nbsp;: bool    </span>
 </dt>
-<dd>Verifies audiowaveform CLI availability.</dd>
+<dd>Check whether audiowaveform is installed</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_extract_waveform_from_file">extract_waveform_from_file()</a>
     <span>
                                 &nbsp;: array&lt;string|int, mixed&gt;|null    </span>
 </dt>
-<dd>Extract waveform JSON via audiowaveform with fail-safe temp handling.</dd>
+<dd>Extract waveform JSON using audiowaveform CLI.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_get_config">get_config()</a>
     <span>
                                 &nbsp;: array&lt;string|int, mixed&gt;    </span>
 </dt>
-<dd>Returns configuration parameters for audiowaveform.</dd>
+<dd>Configurable audiowaveform parameters</dd>
 
     </dl>
 
@@ -405,11 +410,11 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/services/WaveformService.php"><a href="files/src-services-waveformservice.html"><abbr title="src/services/WaveformService.php">WaveformService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">134</span>
+    <span class="phpdocumentor-element-found-in__line">144</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Deletes waveform JSON from ACF.</p>
+        <p class="phpdocumentor-summary">Deletes stored waveform JSON from ACF/DAL.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -454,11 +459,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/services/WaveformService.php"><a href="files/src-services-waveformservice.html"><abbr title="src/services/WaveformService.php">WaveformService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">63</span>
+    <span class="phpdocumentor-element-found-in__line">62</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Generates waveform JSON and stores in ACF field on parent recording.</p>
+        <p class="phpdocumentor-summary">MAIN ENTRYPOINT
+Generates waveform JSON and stores it on the parent recording.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -510,11 +516,11 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/services/WaveformService.php"><a href="files/src-services-waveformservice.html"><abbr title="src/services/WaveformService.php">WaveformService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">49</span>
+    <span class="phpdocumentor-element-found-in__line">45</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Verifies audiowaveform CLI availability.</p>
+        <p class="phpdocumentor-summary">Check whether audiowaveform is installed</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -549,11 +555,11 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/services/WaveformService.php"><a href="files/src-services-waveformservice.html"><abbr title="src/services/WaveformService.php">WaveformService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">149</span>
+    <span class="phpdocumentor-element-found-in__line">167</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Extract waveform JSON via audiowaveform with fail-safe temp handling.</p>
+        <p class="phpdocumentor-summary">Extract waveform JSON using audiowaveform CLI.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
@@ -598,11 +604,11 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/services/WaveformService.php"><a href="files/src-services-waveformservice.html"><abbr title="src/services/WaveformService.php">WaveformService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">37</span>
+    <span class="phpdocumentor-element-found-in__line">35</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Returns configuration parameters for audiowaveform.</p>
+        <p class="phpdocumentor-summary">Configurable audiowaveform parameters</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>

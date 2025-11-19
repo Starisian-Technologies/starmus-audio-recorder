@@ -76,7 +76,7 @@ export function initCore(store, instanceId, env) {
 
             store.dispatch({ type: 'starmus/submit-complete' });
         } catch (error) {
-            // eslint-disable-next-line no-console
+             
             console.error(error);
             store.dispatch({
                 type: 'starmus/error',

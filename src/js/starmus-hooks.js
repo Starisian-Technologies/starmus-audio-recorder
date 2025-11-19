@@ -32,7 +32,7 @@ function dispatch(commandName, payload = {}, meta = {}) {
             handler(payload, meta);
         } catch (e) {
             // Hard fail is worse than logging here.
-            // eslint-disable-next-line no-console
+             
             console.error('[Starmus] Command handler error:', commandName, e);
         }
     }
@@ -45,7 +45,7 @@ export const CommandBus = {
 
 export function debugLog(...args) {
     if (typeof window !== 'undefined' && window.STARMUS_DEBUG) {
-        // eslint-disable-next-line no-console
+         
         console.log('[Starmus]', ...args);
     }
 }

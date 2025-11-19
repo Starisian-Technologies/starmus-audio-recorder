@@ -77,6 +77,10 @@
                 <a href="packages/Starmus-core.html" class="">core</a>
                 
             </li>
+                    <li>
+                <a href="packages/Starmus-Includes.html" class="">Includes</a>
+                
+            </li>
             </ul>
 
                                     <h4 class="phpdocumentor-sidebar__root-namespace">
@@ -138,13 +142,15 @@
 
 <div class="phpdocumentor-label-line">
 
+    <div class="phpdocumentor-label phpdocumentor-label--success"><span>Final</span><span>Yes</span></div>
+
 
 </div>
 
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">19</span>
+    <span class="phpdocumentor-element-found-in__line">25</span>
 
     </aside>
 
@@ -169,6 +175,43 @@
 
 
 
+<h4 id="toc-constants">
+    Constants
+    <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#toc-constants" class="headerlink"><i class="fas fa-link"></i></a>
+
+</h4>
+<dl class="phpdocumentor-table-of-contents">
+            <dt class="phpdocumentor-table-of-contents__entry -constant -private">
+    <a class="" href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_HANDLE_DEV_INTEGRATOR">HANDLE_DEV_INTEGRATOR</a>
+    <span>
+        &nbsp;= &#039;starmus-dev-integrator-module&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -private">
+    <a class="" href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_HANDLE_PROD_BUNDLE">HANDLE_PROD_BUNDLE</a>
+    <span>
+        &nbsp;= &#039;starmus-app-bundle&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -private">
+    <a class="" href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_HANDLE_VENDOR_TUS">HANDLE_VENDOR_TUS</a>
+    <span>
+        &nbsp;= &#039;tus-js&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -private">
+    <a class="" href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_STYLE_HANDLE">STYLE_HANDLE</a>
+    <span>
+        &nbsp;= &#039;starmus-audio-styles&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -private">
+    <a class="" href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_VERSION">VERSION</a>
+    <span>
+        &nbsp;= &#039;3.1.0&#039;                            </span>
+</dt>
+
+    </dl>
 
 
 
@@ -191,16 +234,214 @@
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_development_assets">enqueue_development_assets()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Enqueues the main integrator script as a native ES Module for development.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_production_assets">enqueue_production_assets()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Enqueues the single, bundled, and minified JavaScript file for production.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_styles">enqueue_styles()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Enqueues the stylesheet for the plugin.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_get_localization_data">get_localization_data()</a>
+    <span>
+                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
+</dt>
+<dd>Gathers and prepares all necessary server-side data for the client-side app.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_is_starmus_page">is_starmus_page()</a>
+    <span>
+                                &nbsp;: bool    </span>
+</dt>
+<dd>Checks if the current page contains any Starmus shortcodes that require assets.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_resolve_version">resolve_version()</a>
     <span>
                                 &nbsp;: string    </span>
 </dt>
+<dd>Resolves the asset version number for cache-busting.</dd>
 
     </dl>
 
 
 
         
+    <section class="phpdocumentor-constants">
+        <h3 class="phpdocumentor-elements__header" id="constants">
+            Constants
+            <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constants" class="headerlink"><i class="fas fa-link"></i></a>
+
+        </h3>
+                    <article class="phpdocumentor-element -constant -private ">
+    <h4 class="phpdocumentor-element__name" id="constant_HANDLE_DEV_INTEGRATOR">
+        HANDLE_DEV_INTEGRATOR
+        <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_HANDLE_DEV_INTEGRATOR" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">34</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">HANDLE_DEV_INTEGRATOR</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;starmus-dev-integrator-module&#039;</span>
+</code>
+
+
+    
+    
+    
+
+    
+
+</article>
+                    <article class="phpdocumentor-element -constant -private ">
+    <h4 class="phpdocumentor-element__name" id="constant_HANDLE_PROD_BUNDLE">
+        HANDLE_PROD_BUNDLE
+        <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_HANDLE_PROD_BUNDLE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">31</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">HANDLE_PROD_BUNDLE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;starmus-app-bundle&#039;</span>
+</code>
+
+
+    
+    
+    
+
+    
+
+</article>
+                    <article class="phpdocumentor-element -constant -private ">
+    <h4 class="phpdocumentor-element__name" id="constant_HANDLE_VENDOR_TUS">
+        HANDLE_VENDOR_TUS
+        <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_HANDLE_VENDOR_TUS" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">37</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">HANDLE_VENDOR_TUS</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;tus-js&#039;</span>
+</code>
+
+
+    
+    
+    
+
+    
+
+</article>
+                    <article class="phpdocumentor-element -constant -private ">
+    <h4 class="phpdocumentor-element__name" id="constant_STYLE_HANDLE">
+        STYLE_HANDLE
+        <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_STYLE_HANDLE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">38</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">STYLE_HANDLE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;starmus-audio-styles&#039;</span>
+</code>
+
+
+    
+    
+    
+
+    
+
+</article>
+                    <article class="phpdocumentor-element -constant -private ">
+    <h4 class="phpdocumentor-element__name" id="constant_VERSION">
+        VERSION
+        <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_VERSION" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">28</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">VERSION</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;3.1.0&#039;</span>
+</code>
+
+
+    
+    
+    
+
+    
+
+</article>
+            </section>
 
         
 
@@ -224,7 +465,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">21</span>
+    <span class="phpdocumentor-element-found-in__line">40</span>
 
     </aside>
 
@@ -258,7 +499,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">25</span>
+    <span class="phpdocumentor-element-found-in__line">45</span>
 
     </aside>
 
@@ -284,6 +525,203 @@
             -private
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_enqueue_development_assets">
+        enqueue_development_assets()
+        <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_development_assets" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">107</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Enqueues the main integrator script as a native ES Module for development.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">enqueue_development_assets</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><p>The browser will then handle fetching all imported dependencies.</p>
+</section>
+
+    
+    
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_enqueue_production_assets">
+        enqueue_production_assets()
+        <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_production_assets" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">90</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Enqueues the single, bundled, and minified JavaScript file for production.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">enqueue_production_assets</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><p>This is a standard script, as the build process resolves all modules.</p>
+</section>
+
+    
+    
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_enqueue_styles">
+        enqueue_styles()
+        <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_styles" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">131</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Enqueues the stylesheet for the plugin.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">enqueue_styles</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">bool&nbsp;</span><span class="phpdocumentor-signature__argument__name">$is_development</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$is_development</span>
+                : <span class="phpdocumentor-signature__argument__return-type">bool</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_get_localization_data">
+        get_localization_data()
+        <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_get_localization_data" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">139</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Gathers and prepares all necessary server-side data for the client-side app.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">get_localization_data</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_is_starmus_page">
+        is_starmus_page()
+        <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_is_starmus_page" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">74</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Checks if the current page contains any Starmus shortcodes that require assets.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">is_starmus_page</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">bool</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_resolve_version">
         resolve_version()
         <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_resolve_version" class="headerlink"><i class="fas fa-link"></i></a>
@@ -292,11 +730,12 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/core/StarmusAssetLoader.php"><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">143</span>
+    <span class="phpdocumentor-element-found-in__line">147</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Resolves the asset version number for cache-busting.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">private</span>
                     <span class="phpdocumentor-signature__name">resolve_version</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
@@ -423,9 +862,20 @@
             <li class="phpdocumentor-on-this-page-section__title">Table Of Contents</li>
             <li>
                 <ul class="phpdocumentor-list -clean">
+                                        <li><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#toc-constants">Constants</a></li>
                                                                                 <li><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#toc-methods">Methods</a></li>
                                     </ul>
             </li>
+                            <li class="phpdocumentor-on-this-page-section__title">Constants</li>
+                <li>
+                    <ul class="phpdocumentor-list -clean">
+                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_HANDLE_DEV_INTEGRATOR">HANDLE_DEV_INTEGRATOR</a></li>
+                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_HANDLE_PROD_BUNDLE">HANDLE_PROD_BUNDLE</a></li>
+                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_HANDLE_VENDOR_TUS">HANDLE_VENDOR_TUS</a></li>
+                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_STYLE_HANDLE">STYLE_HANDLE</a></li>
+                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_VERSION">VERSION</a></li>
+                                            </ul>
+                </li>
             
             
                         <li class="phpdocumentor-on-this-page-section__title">Methods</li>
@@ -433,6 +883,11 @@
                 <ul class="phpdocumentor-list -clean">
                                             <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method___construct">__construct()</a></li>
                                             <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_frontend_assets">enqueue_frontend_assets()</a></li>
+                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_development_assets">enqueue_development_assets()</a></li>
+                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_production_assets">enqueue_production_assets()</a></li>
+                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_enqueue_styles">enqueue_styles()</a></li>
+                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_get_localization_data">get_localization_data()</a></li>
+                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_is_starmus_page">is_starmus_page()</a></li>
                                             <li class=""><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#method_resolve_version">resolve_version()</a></li>
                                     </ul>
             </li>

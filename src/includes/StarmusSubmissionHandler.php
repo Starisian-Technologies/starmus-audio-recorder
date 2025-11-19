@@ -141,20 +141,33 @@ final class StarmusSubmissionHandler
 				return $attachment_id;
 			}
 
-			// Extract user ID from form_data metadata, fallback to 0 (anonymous) if not present or invalid.
-			$user_id = isset($form_data['user_id']) ? absint($form_data['user_id']) : 0;
-			if ($user_id && ! get_userdata($user_id)) {
-				$user_id = 0; // Invalid user ID, fallback to anonymous.
-			}
-			// For tusd uploads, user_id should be passed in metadata. Do not use get_current_user_id() as uploads may be processed asynchronously.
-			$cpt_post_id = $this->dal->create_audio_post(
-				$form_data['starmus_title'] ?? pathinfo($filename, PATHINFO_FILENAME),
-				$this->get_cpt_slug(),
-				$user_id
-			);
-			if (is_wp_error($cpt_post_id)) {
-				$this->dal->delete_attachment((int) $attachment_id);
-				return $cpt_post_id;
+			// Check if this is a re-recording (post_id provided in form_data)
+			$existing_post_id = isset($form_data['post_id']) ? absint($form_data['post_id']) : 0;
+
+			if ($existing_post_id > 0 && get_post_type($existing_post_id) === $this->get_cpt_slug()) {
+				// Re-recording: Update existing post with new attachment
+				$cpt_post_id = $existing_post_id;
+
+				// Delete old attachment if exists
+				$old_attachment_id = (int) get_post_meta($cpt_post_id, '_audio_attachment_id', true);
+				if ($old_attachment_id > 0) {
+					$this->dal->delete_attachment($old_attachment_id);
+				}
+			} else {
+				// New recording: Create new post
+				$user_id = isset($form_data['user_id']) ? absint($form_data['user_id']) : 0;
+				if ($user_id && ! get_userdata($user_id)) {
+					$user_id = 0; // Invalid user ID, fallback to anonymous.
+				}
+				$cpt_post_id = $this->dal->create_audio_post(
+					$form_data['starmus_title'] ?? pathinfo($filename, PATHINFO_FILENAME),
+					$this->get_cpt_slug(),
+					$user_id
+				);
+				if (is_wp_error($cpt_post_id)) {
+					$this->dal->delete_attachment((int) $attachment_id);
+					return $cpt_post_id;
+				}
 			}
 
 			$this->dal->save_post_meta((int) $cpt_post_id, '_audio_attachment_id', (int) $attachment_id);
@@ -552,10 +565,10 @@ final class StarmusSubmissionHandler
 				$this->update_acf_field('audio_files_originals', $attachment_id, $audio_post_id);
 			}
 			if (! empty($form_data['language'])) {
-				$this->dal->set_post_term($audio_post_id, (int) $form_data['language'], 'language');
+				wp_set_post_terms($audio_post_id, [(int) $form_data['language']], 'language');
 			}
 			if (! empty($form_data['recording_type'])) {
-				$this->dal->set_post_term($audio_post_id, (int) $form_data['recording_type'], 'recording-type');
+				wp_set_post_terms($audio_post_id, [(int) $form_data['recording_type']], 'recording-type');
 			}
 
 			do_action('starmus_after_save_submission_metadata', $audio_post_id, $form_data, $metadata);

@@ -77,6 +77,10 @@
                 <a href="packages/Starmus-core.html" class="">core</a>
                 
             </li>
+                    <li>
+                <a href="packages/Starmus-Includes.html" class="">Includes</a>
+                
+            </li>
             </ul>
 
                                     <h4 class="phpdocumentor-sidebar__root-namespace">
@@ -120,10 +124,18 @@
     <article class="phpdocumentor-element -file">
         <h2 class="phpdocumentor-content__title">StarmusAssetLoader.php</h2>
 
-            <p class="phpdocumentor-summary">Unified asset loader for Starmus Audio.</p>
+            <p class="phpdocumentor-summary">Unified, build-process-aware, and ES-Module-aware asset loader for the Starmus Audio System.</p>
 
         
-        
+            <section class="phpdocumentor-description"><p>This class is the sole authority for enqueuing all Starmus client-side assets.</p>
+<ul>
+<li>In production (WP_DEBUG is false), it loads a single, minified, bundled file for performance.</li>
+<li>In development (WP_DEBUG is true), it loads the 'starmus-integrator.js' as a native
+ES Module (<code class="prettyprint">type=&quot;module&quot;</code>), allowing the browser to handle the dependency tree for
+the best possible debugging experience.</li>
+</ul>
+</section>
+
         
     <h5 class="phpdocumentor-tag-list__heading" id="tags">
         Tags
@@ -135,15 +147,7 @@
                     <span class="phpdocumentor-tag__name">version</span>
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.8.5</span>
-                                                                                
-                                             
-                                    </dd>
-                                                <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.7.5</span>
+                                            <span class="phpdocumentor-tag-link">3.1.0</span>
                                                                                 
                                              
                                     </dd>

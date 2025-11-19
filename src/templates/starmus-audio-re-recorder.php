@@ -1,116 +1,189 @@
 <?php
+
 /**
- * AIWA Starmus Trigger – Re-record Template (via Shortcode Attributes)
+ * Starmus Audio Re-Recorder Template - Single-Step Re-recording Form
  *
- * This version uses shortcode attributes to prefill title, language, and recording type.
- * All other hidden fields are handled by Starmus’ native JavaScript workflow.
+ * This template is used for re-recording existing audio submissions.
+ * It shows only the consent checkbox and recorder UI - no title/language/type fields.
+ * All metadata is passed via hidden post_id field.
  *
- * @var string $container_id
- * @var string $title
- * @var string $language
- * @var string $recording_type
- * @var string $consent_message
- * @var string $data_policy_url
- *
- * @version 1.4
+ * @package Starisian\Sparxstar\Starmus\templates
+ * @version 0.9.0
+ * @since   0.8.5
+ * @var string $form_id         Base ID for the form, passed from the shortcode.
+ * @var int    $post_id         The existing audio-recording post ID being re-recorded.
+ * @var string $consent_message The user consent message.
+ * @var string $data_policy_url The URL to the data policy.
+ * @var string $allowed_file_types Comma-separated allowed file types.
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
+
+$instance_id = 'starmus_rerecord_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
+
+// Get allowed file types from settings
+$allowed_file_types = $allowed_file_types ?? 'webm';
+$allowed_types_arr     = array_filter(array_map('trim', explode(',', $allowed_file_types)));
+$show_file_type_select = count($allowed_types_arr) > 1;
 ?>
 
-<div id="<?php echo esc_attr( $container_id ); ?>" class="aiwa-starmus-trigger-container aiwa-starmus-rerecord">
-	<!-- Step 1: Re-record button -->
-	<button type="button" class="aiwa-starmus-start-button button button-primary button-large">
-		🎙️ Re-record Audio
-	</button>
+<div class="starmus-rerecorder-form">
+	<form
+		id="<?php echo esc_attr($instance_id); ?>"
+		class="starmus-audio-form starmus-rerecord-form sparxstar-glass-card"
+		method="post"
+		enctype="multipart/form-data"
+		novalidate
+		data-starmus="recorder"
+		data-starmus-instance="<?php echo esc_attr($instance_id); ?>"
+		data-starmus-rerecord="true">
+		<?php wp_nonce_field('starmus_audio_form', 'starmus_nonce_' . $instance_id); ?>
 
-	<!-- Step 2: Consent area (visible after clicking button) -->
-	<div class="aiwa-starmus-consent-area" style="margin-top:1rem; display:none;">
-		<label style="display:flex; align-items:center; gap:0.5rem;">
-			<input type="checkbox" class="aiwa-starmus-consent-checkbox" />
-			<span>
-				<?php echo esc_html( $consent_message ); ?>
-				<?php if ( ! empty( $data_policy_url ) ) { ?>
-					<a href="<?php echo esc_url( $data_policy_url ); ?>" target="_blank" rel="noopener noreferrer">
-						<?php esc_html_e( 'Read Policy', 'starmus-audio-recorder' ); ?>
-					</a>
-				<?php } ?>
-			</span>
-		</label>
-	</div>
+		<!-- Hidden post_id field for re-recording -->
+		<input type="hidden" name="post_id" value="<?php echo esc_attr((string) $post_id); ?>">
 
-	<!-- Step 3: Recorder appears here -->
-	<div class="aiwa-starmus-recorder-target"></div>
+		<!-- Single-step form: Consent + Recorder -->
+		<div class="starmus-rerecord-container">
 
-	<!-- Hidden original Starmus recorder form -->
-	<div class="aiwa-starmus-hidden-form" style="display:none !important;">
-		<?php echo do_shortcode( '[starmus_recorder]' ); ?>
-	</div>
+			<h2><?php esc_html_e('Re-record Your Audio', 'starmus-audio-recorder'); ?></h2>
+
+			<!-- Consent Checkbox -->
+			<fieldset class="starmus-consent-fieldset">
+				<legend class="screen-reader-text">
+					<?php esc_html_e('Consent Agreement', 'starmus-audio-recorder'); ?>
+				</legend>
+				<div class="starmus-checkbox-wrapper">
+					<input
+						type="checkbox"
+						id="starmus_agreement_<?php echo esc_attr($instance_id); ?>"
+						name="agreement_to_terms"
+						value="1"
+						required
+						aria-required="true"
+						aria-describedby="starmus_agreement_desc_<?php echo esc_attr($instance_id); ?>">
+					<label for="starmus_agreement_<?php echo esc_attr($instance_id); ?>">
+						<?php echo esc_html($consent_message); ?>
+						<?php if (! empty($data_policy_url)) : ?>
+							<a
+								href="<?php echo esc_url($data_policy_url); ?>"
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="<?php esc_attr_e('Read our data policy (opens in new tab)', 'starmus-audio-recorder'); ?>">
+								<?php esc_html_e('Learn more', 'starmus-audio-recorder'); ?>
+							</a>
+						<?php endif; ?>
+					</label>
+				</div>
+				<p
+					id="starmus_agreement_desc_<?php echo esc_attr($instance_id); ?>"
+					class="starmus-field-description">
+					<?php esc_html_e('You must agree to the terms before recording.', 'starmus-audio-recorder'); ?>
+				</p>
+			</fieldset>
+
+			<!-- File type selection (if multiple types allowed) -->
+			<?php if ($show_file_type_select) : ?>
+				<div class="starmus-field-group">
+					<label for="starmus_file_type_<?php echo esc_attr($instance_id); ?>">
+						<?php esc_html_e('Audio Format', 'starmus-audio-recorder'); ?>
+					</label>
+					<select
+						id="starmus_file_type_<?php echo esc_attr($instance_id); ?>"
+						name="audio_file_type"
+						class="starmus-select">
+						<?php foreach ($allowed_types_arr as $type) : ?>
+							<option value="audio/<?php echo esc_attr($type); ?>">
+								<?php echo esc_html(strtoupper($type)); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+			<?php else : ?>
+				<input type="hidden" name="audio_file_type" value="audio/<?php echo esc_attr($allowed_types_arr[0]); ?>">
+			<?php endif; ?>
+
+			<!-- Recorder Container -->
+			<div
+				id="starmus_recorder_container_<?php echo esc_attr($instance_id); ?>"
+				class="starmus-recorder-container"></div>
+
+			<!-- Fallback for unsupported browsers -->
+			<div
+				id="starmus_fallback_container_<?php echo esc_attr($instance_id); ?>"
+				class="starmus-fallback-container"
+				style="display:none;">
+				<p><?php esc_html_e('Live recording is not supported on this browser.', 'starmus-audio-recorder'); ?></p>
+				<label for="starmus_fallback_input_<?php echo esc_attr($instance_id); ?>">
+					<?php esc_html_e('Upload an audio file instead:', 'starmus-audio-recorder'); ?>
+				</label>
+				<input
+					type="file"
+					id="starmus_fallback_input_<?php echo esc_attr($instance_id); ?>"
+					name="audio_file"
+					accept="audio/*">
+			</div>
+
+			<!-- Upload loader -->
+			<div
+				id="starmus_loader_overlay_<?php echo esc_attr($instance_id); ?>"
+				class="starmus-loader"
+				style="display:none;">
+				<?php esc_html_e('Uploading...', 'starmus-audio-recorder'); ?>
+			</div>
+
+			<!-- Submit Button -->
+			<button
+				type="submit"
+				id="starmus_submit_btn_<?php echo esc_attr($instance_id); ?>"
+				class="starmus-btn starmus-btn--primary"
+				disabled>
+				<?php esc_html_e('Submit Re-recording', 'starmus-audio-recorder'); ?>
+			</button>
+
+			<!-- Manual upload option for privileged users -->
+			<?php if (current_user_can('author') || current_user_can('editor') || current_user_can('administrator')) : ?>
+				<div class="starmus-upload-audio-link" style="margin-top:24px;text-align:right;">
+					<button
+						type="button"
+						id="starmus_show_upload_<?php echo esc_attr($instance_id); ?>"
+						class="starmus-btn starmus-btn--link"
+						aria-controls="starmus_manual_upload_wrap_<?php echo esc_attr($instance_id); ?>"
+						aria-expanded="false"
+						style="font-size:0.95em;">
+						<?php esc_html_e('Upload audio file', 'starmus-audio-recorder'); ?>
+					</button>
+				</div>
+				<div
+					id="starmus_manual_upload_wrap_<?php echo esc_attr($instance_id); ?>"
+					style="display:none;margin-top:12px;">
+					<label for="starmus_manual_upload_input_<?php echo esc_attr($instance_id); ?>">
+						<?php esc_html_e('Select audio file to upload:', 'starmus-audio-recorder'); ?>
+					</label>
+					<input
+						type="file"
+						id="starmus_manual_upload_input_<?php echo esc_attr($instance_id); ?>"
+						name="audio_file"
+						accept="audio/*">
+				</div>
+				<script>
+					document.addEventListener('DOMContentLoaded', function() {
+						const instanceId = <?php echo wp_json_encode($instance_id); ?>;
+						const toggle = document.getElementById('starmus_show_upload_' + instanceId);
+						const wrapper = document.getElementById('starmus_manual_upload_wrap_' + instanceId);
+						if (toggle && wrapper) {
+							toggle.addEventListener('click', function(event) {
+								event.preventDefault();
+								const isHidden = wrapper.style.display === 'none' || wrapper.style.display === '';
+								wrapper.style.display = isHidden ? 'block' : 'none';
+								toggle.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+							});
+						}
+					});
+				</script>
+			<?php endif; ?>
+
+		</div>
+	</form>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-	const containerId = <?php echo wp_json_encode( $container_id ); ?>;
-	const triggerContainer = document.getElementById(containerId);
-	if (!triggerContainer) return;
-
-	const startButton = triggerContainer.querySelector('.aiwa-starmus-start-button');
-	const consentArea = triggerContainer.querySelector('.aiwa-starmus-consent-area');
-	const consentCheckbox = triggerContainer.querySelector('.aiwa-starmus-consent-checkbox');
-	const hiddenFormContainer = triggerContainer.querySelector('.aiwa-starmus-hidden-form');
-	const recorderTarget = triggerContainer.querySelector('.aiwa-starmus-recorder-target');
-
-	const prefillData = {
-		title: <?php echo wp_json_encode( $title ); ?>,
-		language: <?php echo wp_json_encode( $language ); ?>,
-		recordingType: <?php echo wp_json_encode( $recording_type ); ?>,
-	};
-
-	startButton.addEventListener('click', () => {
-		startButton.style.display = 'none';
-		consentArea.style.display = 'block';
-	});
-
-	consentCheckbox.addEventListener('change', () => {
-		if (!consentCheckbox.checked) return;
-
-		const starmusForm = hiddenFormContainer.querySelector('.starmus-audio-form');
-		if (!starmusForm) {
-			alert('Recorder unavailable. Please reload.');
-			return;
-		}
-
-		// --- Pre-fill user-facing fields only ---
-		const titleInput = starmusForm.querySelector('[name="starmus_title"]');
-		if (titleInput && prefillData.title) titleInput.value = prefillData.title;
-
-		const selectOptionByText = (select, text) => {
-			if (!select || !text) return;
-			const opt = Array.from(select.options).find(o => o.text.trim() === text.trim());
-			if (opt) opt.selected = true;
-		};
-		selectOptionByText(starmusForm.querySelector('[name="language"]'), prefillData.language);
-		selectOptionByText(starmusForm.querySelector('[name="recording_type"]'), prefillData.recordingType);
-
-		// --- Auto-agree to terms ---
-		const consent = starmusForm.querySelector('[name="agreement_to_terms"]');
-		if (consent) consent.checked = true;
-
-		// --- Trigger Step 2 ---
-		const continueBtn = starmusForm.querySelector('[id^="starmus_continue_btn_"]');
-		if (continueBtn) continueBtn.click();
-		else {
-			console.error('Continue button missing.');
-			return;
-		}
-
-		// --- Move visible recorder into container ---
-		const step2 = starmusForm.querySelector('[id^="starmus_step2_"]');
-		if (step2) recorderTarget.appendChild(step2);
-
-		consentArea.style.display = 'none';
-	});
-});
-</script>

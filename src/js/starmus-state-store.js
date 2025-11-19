@@ -184,7 +184,7 @@ export function createStore(initial = {}) {
             try {
                 listener(state);
             } catch (e) {
-                // eslint-disable-next-line no-console
+                 
                 console.error('[Starmus] Store listener error:', e);
             }
         });

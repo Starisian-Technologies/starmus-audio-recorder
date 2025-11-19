@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+namespace Starisian\Sparxstar\Starmus\services;
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
@@ -11,13 +14,8 @@
  * @version 1.5.0
  */
 
-declare(strict_types=1);
 
-namespace Starisian\Sparxstar\Starmus\services;
 
-use Throwable;
-// Ensure your logger's namespace is correct or it's globally available.
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -25,6 +23,8 @@ if (!defined('ABSPATH')) {
 
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Throwable;
+
 
 /**
  * PostProcessingService
