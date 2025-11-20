@@ -139,7 +139,35 @@ final class StarmusAssetLoader
      */
     private function get_localization_data(): array
     {
-        // ... (This function remains unchanged from the previous correct version) ...
+        // Get settings instance
+        $settings = new StarmusSettings();
+
+        // Get allowed file types from settings (comma-separated string like 'mp3,wav,webm')
+        $allowed_file_types = $settings->get('allowed_file_types', 'mp3,wav,webm');
+        $allowed_types_arr = \array_filter(\array_map('trim', \explode(',', $allowed_file_types)));
+
+        // Map extensions to MIME types
+        $allowed_mimes = [];
+        foreach ($allowed_types_arr as $ext) {
+            $mime = StarmusSettings::get_allowed_mimes()[$ext] ?? null;
+            if ($mime) {
+                $allowed_mimes[$ext] = $mime;
+            }
+        }
+
+        // TUS endpoint from settings
+        $tus_endpoint = \get_option('starmus_tus_endpoint', '');
+
+        return [
+            'endpoints' => [
+                'directUpload' => \esc_url_raw(\rest_url(StarmusSubmissionHandler::STARMUS_REST_NAMESPACE . '/upload-fallback')),
+                'tusUpload' => \esc_url_raw($tus_endpoint),
+            ],
+            'nonce' => \wp_create_nonce('wp_rest'),
+            'user_id' => \get_current_user_id(),
+            'allowedFileTypes' => $allowed_types_arr, // ['mp3', 'wav', 'webm']
+            'allowedMimeTypes' => $allowed_mimes,     // ['mp3' => 'audio/mpeg', ...]
+        ];
     }
 
     /**
@@ -147,6 +175,6 @@ final class StarmusAssetLoader
      */
     private function resolve_version(): string
     {
-        // ... (This function remains unchanged from the previous correct version) ...
+        return (\defined('STARMUS_VERSION') && STARMUS_VERSION) ? STARMUS_VERSION : '1.0.0';
     }
 }

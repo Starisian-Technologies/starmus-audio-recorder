@@ -9,6 +9,7 @@
 const DEFAULT_INITIAL_STATE = {
     instanceId: null,
     env: {},
+    tier: null, // 'A' (full), 'B' (degraded), 'C' (fallback)
     status: 'uninitialized', // 'idle', 'ready_to_record', 'recording', 'processing', 'ready_to_submit', 'submitting', 'complete'
     error: null,
     source: {
@@ -16,6 +17,17 @@ const DEFAULT_INITIAL_STATE = {
         blob: null,    // Blob from MediaRecorder
         file: null,    // File from <input>
         fileName: '',
+        transcript: '', // Speech recognition transcript for AI processing
+    },
+    calibration: {
+        phase: null,      // 'quiet' | 'speech' | 'validating'
+        message: '',
+        volumePercent: 0,
+        complete: false,
+        gain: 1.0,
+        snr: null,
+        noiseFloor: null,
+        speechLevel: null,
     },
     submission: {
         progress: 0,
@@ -41,12 +53,57 @@ function reducer(state, action) {
                 ...state,
                 instanceId: action.payload.instanceId || state.instanceId,
                 env: action.payload.env || state.env,
+                tier: action.payload.tier || state.tier,
                 status: 'idle',
                 error: null,
                 submission: {
                     progress: 0,
                     isQueued: false,
                 },
+            };
+
+        case 'starmus/calibration-start':
+            return {
+                ...state,
+                status: 'calibrating',
+                calibration: {
+                    phase: 'quiet',
+                    message: 'Preparing calibration...',
+                    volumePercent: 0,
+                    complete: false,
+                    gain: 1.0,
+                    snr: null,
+                    noiseFloor: null,
+                    speechLevel: null,
+                }
+            };
+
+        case 'starmus/calibration-update':
+            return {
+                ...state,
+                calibration: {
+                    ...state.calibration,
+                    message: action.message || state.calibration.message,
+                    volumePercent: action.volumePercent !== undefined ? action.volumePercent : state.calibration.volumePercent
+                }
+            };
+
+        case 'starmus/calibration-complete':
+            return {
+                ...state,
+                status: 'ready',
+                calibration: {
+                    ...state.calibration,
+                    ...action.calibration,
+                    complete: true,
+                    message: 'Calibration complete'
+                }
+            };
+
+        case 'starmus/set-tier':
+            return {
+                ...state,
+                tier: action.tier,
             };
 
         case 'starmus/ui/step-continue':
@@ -84,10 +141,20 @@ function reducer(state, action) {
                     blob: action.blob || null,
                     file: null,
                     fileName: action.fileName || 'recording.webm',
+                    transcript: action.transcript || state.source.transcript || '',
                 },
                 submission: {
                     progress: 0,
                     isQueued: false,
+                },
+            };
+
+        case 'starmus/transcript-update':
+            return {
+                ...state,
+                source: {
+                    ...state.source,
+                    transcript: action.transcript || '',
                 },
             };
 
@@ -127,6 +194,18 @@ function reducer(state, action) {
                 submission: {
                     ...state.submission,
                     progress: typeof action.progress === 'number' ? action.progress : state.submission.progress,
+                },
+            };
+
+        case 'starmus/submit-queued':
+            return {
+                ...state,
+                status: 'complete',
+                submission: {
+                    ...state.submission,
+                    progress: 0,
+                    isQueued: true,
+                    submissionId: action.submissionId,
                 },
             };
 

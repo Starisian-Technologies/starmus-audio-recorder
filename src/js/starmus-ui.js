@@ -13,7 +13,7 @@
  * @param {object} elements - A map of DOM elements for the instance.
  */
 function render(state, elements) {
-    const { status, error, source = {}, submission = {} } = state;
+    const { status, error, source = {}, submission = {}, calibration = {} } = state;
 
     // --- Step Visibility ---
     if (elements.step1 && elements.step2) {
@@ -39,6 +39,16 @@ function render(state, elements) {
         elements.progressEl.style.display = status === 'submitting' ? 'block' : 'none';
     }
 
+    // --- Calibration Volume Meter ---
+    if (elements.volumeMeter) {
+        if (status === 'calibrating') {
+            elements.volumeMeter.style.display = 'block';
+            elements.volumeMeter.style.width = `${calibration.volumePercent || 0}%`;
+        } else {
+            elements.volumeMeter.style.display = 'none';
+        }
+    }
+
     // --- Status & Error Messages ---
     const messageEl = elements.statusEl || elements.messageBox;
     if (messageEl) {
@@ -55,8 +65,14 @@ function render(state, elements) {
                 case 'idle':
                     message = 'Please fill out the details below to continue.';
                     break;
+                case 'calibrating':
+                    message = calibration.message || 'Calibrating microphone...';
+                    break;
+                case 'ready':
                 case 'ready_to_record':
-                    message = 'Ready to record or attach an audio file.';
+                    message = calibration.complete 
+                        ? `Calibration complete (Gain: ${(calibration.gain || 1.0).toFixed(1)}x). Ready to record.`
+                        : 'Ready to record or attach an audio file.';
                     break;
                 case 'recording':
                     message = 'Recording...';
@@ -66,14 +82,16 @@ function render(state, elements) {
                     break;
                 case 'ready_to_submit':
                     message = submission.isQueued
-                        ? 'Saved offline. Will submit automatically.'
+                        ? 'Saved offline. Will submit automatically when online.'
                         : `Ready to submit: ${source.fileName || 'audio file'}.`;
                     break;
                 case 'submitting':
                     message = `Uploading... ${Math.round((submission.progress || 0) * 100)}%`;
                     break;
                 case 'complete':
-                    message = 'Submission successful!';
+                    message = submission.isQueued
+                        ? 'Saved offline. Will submit automatically when online.'
+                        : 'Submission successful!';
                     break;
                 default:
                     message = 'Initializing...';
