@@ -37,7 +37,7 @@ class StarmusAdmin
 	/** Mapping of option keys to field types. */
 	private array $field_types            = array();
 	private ?StarmusSettings $settings    = null;
-	private ?StarmusAudioRecorderDAL $dal = null;
+	private ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface $dal = null;
 
 	/**
 	 * Constructor - initializes admin settings.
@@ -225,6 +225,7 @@ class StarmusAdmin
 						self::STARMUS_SETTINGS_GROUP,
 						"starmus_{$key}_not_found",
 						sprintf(
+							/* translators: 1: page slug, 2: setting title */
 							__('The page with slug "%1$s" for "%2$s" could not be found. Please ensure the page exists.', 'starmus-audio-recorder'),
 							esc_html($slug_input),
 							esc_html($title)

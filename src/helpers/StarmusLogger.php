@@ -1,4 +1,5 @@
 <?php
+
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 if (!defined('ABSPATH')) {
@@ -52,30 +53,36 @@ class StarmusLogger
      * CONFIGURATION
      *=============================================================*/
 
-    public static function setMinLogLevel(string $level_name): void {
+    public static function setMinLogLevel(string $level_name): void
+    {
         $level_name = strtolower($level_name);
         if (isset(self::$levels[$level_name])) {
             self::$min_log_level = self::$levels[$level_name];
         }
     }
 
-    public static function getMinLogLevel(): int {
+    public static function getMinLogLevel(): int
+    {
         return self::$min_log_level;
     }
 
-    public static function setLogFilePath(string $path): void {
+    public static function setLogFilePath(string $path): void
+    {
         self::$log_file_path = $path;
     }
 
-    public static function enableJsonMode(bool $enabled = true): void {
+    public static function enableJsonMode(bool $enabled = true): void
+    {
         self::$json_mode = $enabled;
     }
 
-    public static function setCorrelationId(?string $id = null): void {
+    public static function setCorrelationId(?string $id = null): void
+    {
         self::$correlation_id = $id ?? wp_generate_uuid4();
     }
 
-    public static function getCorrelationId(): ?string {
+    public static function getCorrelationId(): ?string
+    {
         return self::$correlation_id;
     }
 
@@ -83,7 +90,8 @@ class StarmusLogger
      * FILE HANDLING
      *=============================================================*/
 
-    protected static function getLogFilePath(): ?string {
+    protected static function getLogFilePath(): ?string
+    {
         if (self::$log_file_path === null) {
             if (!function_exists('wp_upload_dir')) {
                 return null;
@@ -109,11 +117,13 @@ class StarmusLogger
         return self::$log_file_path;
     }
 
-    public static function getCurrentLogFile(): ?string {
+    public static function getCurrentLogFile(): ?string
+    {
         return self::getLogFilePath();
     }
 
-    public static function clearOldLogs(int $days = 30): int {
+    public static function clearOldLogs(int $days = 30): int
+    {
         $upload_dir_info = wp_upload_dir();
         $log_dir = $upload_dir_info['basedir'] . '/starmus-logs';
         if (!is_dir($log_dir)) return 0;
@@ -132,11 +142,13 @@ class StarmusLogger
      * CORE LOGGING
      *=============================================================*/
 
-    protected static function getLevelInt(string $level_name): int {
+    protected static function getLevelInt(string $level_name): int
+    {
         return self::$levels[strtolower($level_name)] ?? self::ERROR;
     }
 
-    protected static function getLevelName(int $level_int): string {
+    protected static function getLevelName(int $level_int): string
+    {
         foreach (self::$levels as $name => $value) {
             if ($value === $level_int) {
                 return strtoupper($name);
@@ -145,7 +157,8 @@ class StarmusLogger
         return 'UNKNOWN';
     }
 
-    protected static function sanitizeData(array $data): array {
+    protected static function sanitizeData(array $data): array
+    {
         foreach ($data as $k => &$v) {
             if (is_string($v) && preg_match('/(ip|email|user|token|auth|fingerprint)/i', $k)) {
                 $v = '[REDACTED]';
@@ -156,7 +169,8 @@ class StarmusLogger
         return $data;
     }
 
-    public static function log(string $context, $msg, string $level = 'error', array $extra = []): void {
+    public static function log(string $context, $msg, string $level = 'error', array $extra = []): void
+    {
         $current_level_int = self::getLevelInt($level);
         if (!defined('WP_DEBUG_LOG') || !WP_DEBUG_LOG) {
             if ($current_level_int < self::ERROR) {
@@ -213,7 +227,8 @@ class StarmusLogger
         }
     }
 
-    protected static function formatMessageContent($msg): string {
+    protected static function formatMessageContent($msg): string
+    {
         if ($msg instanceof \Throwable) {
             return sprintf(
                 '%s: %s in %s:%d',
@@ -230,11 +245,13 @@ class StarmusLogger
      * TIMER UTILITIES
      *=============================================================*/
 
-    public static function timeStart(string $label): void {
+    public static function timeStart(string $label): void
+    {
         self::$timers[$label] = microtime(true);
     }
 
-    public static function timeEnd(string $label, string $context = 'Timer'): void {
+    public static function timeEnd(string $label, string $context = 'Timer'): void
+    {
         if (!isset(self::$timers[$label])) return;
         $duration = round((microtime(true) - self::$timers[$label]) * 1000, 2);
         unset(self::$timers[$label]);
@@ -245,44 +262,73 @@ class StarmusLogger
      * CONVENIENCE WRAPPERS (unchanged signatures)
      *=============================================================*/
 
-    public static function debug(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'debug', $extra); }
-    public static function info(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'info', $extra); }
-    public static function notice(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'notice', $extra); }
-    public static function warning(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'warning', $extra); }
-    public static function error(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'error', $extra); }
-    public static function critical(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'critical', $extra); }
-    public static function alert(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'alert', $extra); }
-    public static function emergency(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'emergency', $extra); }
+    public static function debug(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'debug', $extra);
+    }
+    public static function info(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'info', $extra);
+    }
+    public static function notice(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'notice', $extra);
+    }
+    public static function warning(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'warning', $extra);
+    }
+    public static function warn(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'warning', $extra);
+    }
+    public static function error(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'error', $extra);
+    }
+    public static function critical(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'critical', $extra);
+    }
+    public static function alert(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'alert', $extra);
+    }
+    public static function emergency(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'emergency', $extra);
+    }
 
 
     // Add this to your wp-config.php or your theme's functions.php,
-// or a custom plugin that you know is active early.
-// THIS IS FOR DIAGNOSTIC PURPOSES ONLY. Remove after finding the error.
+    // or a custom plugin that you know is active early.
+    // THIS IS FOR DIAGNOSTIC PURPOSES ONLY. Remove after finding the error.
 
-public function starmus_catch_callback_errors() {
-    $error = error_get_last();
-    if ( $error && $error['type'] === E_ERROR ) { // E_ERROR includes E_USER_ERROR
-        // Check if the error message matches the one we're looking for
-        if ( strpos( $error['message'], 'call_user_func_array(): Argument #1 ($callback) must be a valid callback' ) !== false ) {
-            $log_message = sprintf(
-                "Callback Error Caught: Type: %d, Message: %s in %s on line %d\n",
-                $error['type'],
-                $error['message'],
-                $error['file'],
-                $error['line']
-            );
-            error_log( $log_message );
+    public function starmus_catch_callback_errors()
+    {
+        $error = error_get_last();
+        if ($error && $error['type'] === E_ERROR) { // E_ERROR includes E_USER_ERROR
+            // Check if the error message matches the one we're looking for
+            if (strpos($error['message'], 'call_user_func_array(): Argument #1 ($callback) must be a valid callback') !== false) {
+                $log_message = sprintf(
+                    "Callback Error Caught: Type: %d, Message: %s in %s on line %d\n",
+                    $error['type'],
+                    $error['message'],
+                    $error['file'],
+                    $error['line']
+                );
+                error_log($log_message);
 
-            // You can also try to get more context from the hook system if possible,
-            // but this is advanced and might require modifying WP core or using
-            // very specific hooks that run *before* the error.
-            // The call stack provided by WordPress is usually sufficient.
+                // You can also try to get more context from the hook system if possible,
+                // but this is advanced and might require modifying WP core or using
+                // very specific hooks that run *before* the error.
+                // The call stack provided by WordPress is usually sufficient.
+            }
         }
     }
-}
 
-public function register_hooks(): void{
-    register_shutdown_function( 'starmus_catch_callback_errors' );
-
-}
+    public function register_hooks(): void
+    {
+        register_shutdown_function('starmus_catch_callback_errors');
+    }
 }

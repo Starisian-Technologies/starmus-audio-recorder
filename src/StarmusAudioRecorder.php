@@ -74,7 +74,7 @@ final class StarmusAudioRecorder
 	/** Whether we've registered WordPress hooks (guard). */
 	private bool $hooksRegistered = false;
 
-	private ?StarmusAudioRecorderDAL $DAL = null;
+	private ?core\interfaces\StarmusAudioRecorderDALInterface $DAL = null;
 
 	/** Settings service (must be ready before other deps). */
 	private ?StarmusSettings $settings = null;

@@ -60,7 +60,7 @@ final class StarmusSubmissionHandler
 	public const STARMUS_REST_NAMESPACE = 'star-starmus-audio-recorder/v1';
 
 	private ?StarmusSettings $settings;
-	private StarmusAudioRecorderDAL $dal;
+	private \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface $dal;
 
 	/** Allow a small list of safe upload keys the client might send. */
 	private array $fallback_file_keys = array('audio_file', 'file', 'upload');

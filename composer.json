@@ -9,12 +9,11 @@
     "james-heinrich/getid3": "^1.9",
     "wpackagist-plugin/secure-custom-fields": "^6.4"
   },
-   "autoload": {
+  "autoload": {
     "psr-4": {
       "Starisian\\Sparxstar\\Starmus\\": "src/"
     }
   },
-
   "autoload-dev": {
     "psr-4": {
       "Starmus\\Tests\\": "tests/"
@@ -54,7 +53,7 @@
     }
   ],
   "minimum-stability": "stable",
-   "require-dev": {
+  "require-dev": {
     "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
     "phpunit/phpunit": "^10.5",
     "wp-coding-standards/wpcs": "^3.2",
@@ -80,14 +79,16 @@
     "makepot": "wp i18n make-pot .",
     "lint": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full .",
     "lint:fix": "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php .",
-    "analyze": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=1G",
+    "analyze": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=2G",
     "test:unit": "vendor/bin/phpunit --configuration=phpunit-unit.xml.dist --colors=always",
     "test": "composer run lint && composer run analyze && composer run test:unit",
     "fix": "composer run lint:fix"
   },
   "extra": {
     "installer-paths": {
-      "wp-content/plugins/{$name}/": ["type:wordpress-plugin"]
+      "wp-content/plugins/{$name}/": [
+        "type:wordpress-plugin"
+      ]
     }
   },
   "config": {
@@ -99,5 +100,5 @@
       "phpstan/extension-installer": true,
       "composer/installers": true
     }
-    }
   }
+}
