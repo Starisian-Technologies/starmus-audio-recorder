@@ -1,26 +1,28 @@
 version: 2
-
+registries: {}
 updates:
-  # PHP dependencies via Composer
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
     allow:
       - dependency-type: "all"
     commit-message:
       prefix: "chore"
       include: "scope"
-    open-pull-requests-limit: 5
+    insecure-external-code-execution: allow
+    reviewers:
+      - MaximillianGroup
 
-  # JavaScript dependencies via NPM (if using ESLint, Stylelint, etc.)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
     allow:
       - dependency-type: "all"
     commit-message:
       prefix: "chore"
       include: "scope"
-    open-pull-requests-limit: 5
+    insecure-external-code-execution: allow
