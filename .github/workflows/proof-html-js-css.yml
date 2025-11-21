@@ -32,23 +32,27 @@ jobs:
         # v4.1.6 commit pin prevents tampering with checkout action.
         uses: actions/checkout@5a4ac9002afc2a3b8d9a0e327669c9fe749ac181
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
       - name: Set up Node.js
-        # v4.0.2 commit pin ensures Node setup action stays deterministic.
-        uses: actions/setup-node@8f1525dfb8c7b99f04f58f80ab1c2b74fdc6a051
+        uses: actions/setup-node@v6.0.0
         with:
           node-version: "18"
-          cache: "npm" # Use built-in caching for Node.js
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Lint JavaScript (Check only)
         # We run WITHOUT --fix here. The goal is to report errors, not hide them.
-        run: npx eslint "src/js/**/*.js"
+        run: pnpm exec eslint "src/js/**/*.js"
 
       - name: Lint CSS (Check only)
         # We run WITHOUT --fix here.
-        run: npx stylelint "src/css/**/*.css"
+        run: pnpm exec stylelint "src/css/**/*.css"
 
       - name: Proof HTML files
         # This action checks for issues like broken links, invalid tags, etc.
@@ -82,21 +86,25 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
       - name: Set up Node.js
-        # v4.0.2 commit pin ensures Node setup action stays deterministic.
-        uses: actions/setup-node@8f1525dfb8c7b99f04f58f80ab1c2b74fdc6a051
+        uses: actions/setup-node@v6.0.0
         with:
           node-version: "18"
-          cache: "npm"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Fix JavaScript and CSS issues
         # Run WITH --fix. The goal is to apply changes.
         run: |
-          npx eslint "src/js/**/*.js" --fix
-          npx stylelint "src/css/**/*.css" --fix
+          pnpm exec eslint "src/js/**/*.js" --fix
+          pnpm exec stylelint "src/css/**/*.css" --fix
 
       - name: Commit and push fixes
         # This dedicated action is the most reliable way to commit changes.

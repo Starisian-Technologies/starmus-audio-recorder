@@ -35,36 +35,38 @@ jobs:
       - name: Install PHP dependencies
         run: composer install --no-interaction
 
-      - name: Cache NPM packages
-        # v3.3.2 commit pin keeps cache action immutable.
-        uses: actions/cache@v4.3.0
-
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: npm-
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.0.0
+        with:
+          node-version: '18'
+          cache: 'pnpm'
 
       - name: Install JS dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run all linting with autofix
         run: |
-          npm run format
+          pnpm run format
           ./vendor/bin/phpcbf || true
 
       - name: Check bundle sizes
-        run: npm run size-check
+        run: pnpm run size-check
 
       - name: Validate STAR/AIWA compliance
         run: |
-          npm run i18n-check
+          pnpm run i18n-check
           grep -q "WordPress.*6\.4" starmus-audio-recorder.php || echo "⚠️ WordPress 6.4+ requirement not found"
           grep -q "star-" src/ || echo "⚠️ STAR prefix not found in source"
 
       - name: Run static analysis
         run: |
-          npm run lint:js
-          npm run lint:css
+          pnpm run lint:js
+          pnpm run lint:css
           composer analyze
           composer lint
 
@@ -76,18 +78,18 @@ jobs:
         if: github.event_name == 'push'
 
       - name: Start WordPress test environment
-        run: npm run env:start
+        run: pnpm run env:start
 
       - name: WordPress Integration Tests
-        run: npm run test:wp
+        run: pnpm run test:wp
 
       - name: Stop WordPress test environment
-        run: npm run env:stop
+        run: pnpm run env:stop
 
       - name: Install Playwright
-        run: npx playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium
 
       - name: E2E Tests (Offline & Accessibility)
         run: |
-          npm run test:e2e
-          npm run test:a11y
+          pnpm run test:e2e
+          pnpm run test:a11y

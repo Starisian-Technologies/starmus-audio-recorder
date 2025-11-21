@@ -28,19 +28,22 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
 
-      - name: Composer audit
-        run: composer audit || echo "Composer audit found vulnerabilities"
+      - name: Composer audit (exclude dev)
+        run: composer audit --no-dev || echo "Composer audit found vulnerabilities"
 
-      - name: Cache NPM packages
-        # v3.3.2 commit pin keeps cache action immutable.
-        uses: actions/cache@95c1f4a8644e5904bde0c0025c2cb19cb86611ec
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: npm-
+          version: 8
 
-      - name: Install NPM dependencies
-        run: npm ci
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.0.0
+        with:
+          node-version: '18'
+          cache: 'pnpm'
 
-      - name: NPM audit
-        run: npm audit --audit-level=moderate || echo "NPM audit found vulnerabilities"
+      - name: Install pnpm dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: pnpm audit
+        run: pnpm audit --audit-level=moderate || echo "pnpm audit found vulnerabilities"
