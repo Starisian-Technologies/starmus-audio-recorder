@@ -1,6 +1,7 @@
 version: 2
 registries: {}
 updates:
+  # Only monitor root composer.json dependencies (not bundled plugins)
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
@@ -8,6 +9,10 @@ updates:
     open-pull-requests-limit: 5
     allow:
       - dependency-type: "all"
+    ignore:
+      # Bundled SCF plugin - managed separately
+      - dependency-name: "secure-custom-fields/*"
+      - dependency-name: "wpackagist-plugin/*"
     commit-message:
       prefix: "chore"
       include: "scope"
@@ -15,6 +20,7 @@ updates:
     reviewers:
       - MaximillianGroup
 
+  # Only monitor root package.json dependencies
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
