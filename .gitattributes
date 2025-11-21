@@ -4,3 +4,11 @@
 /.vscode          export-ignore
 /.idea            export-ignore
 .DS_Store         export-ignore
+
+# Mark vendor/bundled code as vendored (exclude from language stats and security scanning)
+vendor/**                                      linguist-vendored
+wp-content/plugins/secure-custom-fields/**    linguist-vendored
+wp-admin/**                                    linguist-vendored
+wp-content/plugins/*/**                        linguist-vendored linguist-documentation=false
+node_modules/**                                linguist-vendored
+wordpress-installer/**                         linguist-vendored
