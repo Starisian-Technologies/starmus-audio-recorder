@@ -7,16 +7,16 @@ parameters:
 
   tmpDir: .phpstan-cache
 
+  excludePaths:
+    - vendor/*
+    - node_modules/*
+    - tests/*
+    - wp-admin/*
+    - wp-content/*
+    - wordpress-installer/*
+
   # Ignore common WordPress dynamic behavior warnings
   ignoreErrors:
-    - '#Call to unknown function __(.*)#'
-    - '#Call to unknown function _e(.*)#'
-    - '#Call to unknown function esc_html__(.*)#'
-    - '#Call to unknown function wp_(.*)#'
-
-  # This helps PHPStan understand WordPress globals like $wpdb
-  bootstrapFiles:
-    - vendor/szepeviktor/phpstan-wordpress/bootstrap.php
-
-  # Optional: stricter type inference, can enable later
-  checkMissingTypehints: false
+    - '#Call to an undefined method ACF#'
+    - '#Undefined variable: \$wpdb#'
+    - '#Access to an undefined property#'

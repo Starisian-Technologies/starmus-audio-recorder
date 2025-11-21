@@ -6,13 +6,13 @@
  * Plugin Name:       Secure Custom Fields
  * Plugin URI:        https://developer.wordpress.org/secure-custom-fields/
  * Description:       Secure Custom Fields (SCF) offers an intuitive way for developers to enhance WordPress content management by adding extra fields and options without coding requirements.
- * Version:           6.5.7
+ * Version:           6.6.0
  * Author:            WordPress.org
  * Author URI:        https://wordpress.org/
  * Text Domain:       secure-custom-fields
  * Domain Path:       /lang
  * Requires PHP:      7.4
- * Requires at least: 6.0
+ * Requires at least: 6.2
  *
  * @package wordpress/secure-custom-fields
  */
@@ -33,7 +33,7 @@ if ( ! class_exists( 'ACF' ) ) {
 		 *
 		 * @var string
 		 */
-		public $version = '6.5.7';
+		public $version = '6.6.0';
 
 		/**
 		 * The plugin settings array.
@@ -189,6 +189,8 @@ if ( ! class_exists( 'ACF' ) ) {
 			acf_include( 'includes/class-acf-internal-post-type.php' );
 			acf_include( 'includes/class-acf-options-page.php' );
 			acf_include( 'includes/class-acf-site-health.php' );
+			acf_include( 'includes/class-scf-json-schema-validator.php' );
+			acf_include( 'includes/abilities/abilities-integration.php' );
 			acf_include( 'includes/fields/class-acf-field.php' );
 			acf_include( 'includes/locations/abstract-acf-legacy-location.php' );
 			acf_include( 'includes/locations/abstract-acf-location.php' );
@@ -853,7 +855,6 @@ if ( ! function_exists( 'scf_deactivate_other_instances' ) ) {
 		} elseif ( is_plugin_active( 'advanced-custom-fields/acf.php' ) ) {
 			// Check if the plugin to deactivate is 'advanced-custom-fields/acf.php' but the title is 'Secure Custom Fields'.
 			if ( ! function_exists( 'get_plugin_data' ) ) {
-				/** @phpstan-ignore-next-line */ // phpcs:ignore
 				require_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_to_deactivate );
@@ -921,7 +922,6 @@ function scf_plugin_uninstall() {
 	// List of known beta features.
 	$beta_features = array(
 		'editor_sidebar',
-		'connect_fields',
 	);
 
 	foreach ( $beta_features as $beta_feature ) {

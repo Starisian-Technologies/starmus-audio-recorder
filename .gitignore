@@ -110,3 +110,5 @@ assets/build-hash.txt
 assets/*.zip
 assets/*.sha256
 assets/*.sha1
+.github-token
+wp-config.php

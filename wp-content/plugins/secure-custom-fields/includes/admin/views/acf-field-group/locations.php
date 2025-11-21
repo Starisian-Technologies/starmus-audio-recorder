@@ -2,7 +2,6 @@
 
 // global
 global $field_group;
-
 ?>
 <div class="acf-field">
 	<div class="acf-label">
@@ -13,7 +12,7 @@ global $field_group;
 		<div class="rule-groups">
 
 			<?php
-			foreach ( $field_group['location'] as $i => $group ) {
+			foreach ( $field_group['location'] as $i => $group ) :
 
 				// bail early if no group
 				if ( empty( $group ) ) {
@@ -29,7 +28,7 @@ global $field_group;
 						'group_id' => "group_{$i}",
 					)
 				);
-			}
+			endforeach;
 			?>
 
 			<h4><?php esc_html_e( 'or', 'secure-custom-fields' ); ?></h4>

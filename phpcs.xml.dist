@@ -1,23 +1,25 @@
 <?xml version="1.0"?>
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         name="SPARXSTAR Sky - Default Ruleset"
+         name="Starmus Audio Recorder - Code Standards"
          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
 
   <description>
-    Default strict coding standards for SPARXSTAR Sky.
+    Coding standards for Starmus Audio Recorder plugin.
     Enforces WordPress VIP, PHP compatibility, modern PHP usage, naming conventions, and documentation.
-    This file is intended as the baseline for CI and contributors.
-    To override locally, create a `phpcs.xml` file (gitignored).
   </description>
 
   <!-- Scan plugin source -->
- <!-- Scan all PHP source files -->
-  <file>.</file>
-  <include-pattern>src/*</include-pattern>
+  <file>starmus-audio-recorder.php</file>
+  <file>uninstall.php</file>
+  <file>src/</file>
+  
+  <!-- Exclude patterns -->
   <exclude-pattern>vendor/*</exclude-pattern>
   <exclude-pattern>node_modules/*</exclude-pattern>
-  <exclude-pattern>*.min.js</exclude-pattern>
   <exclude-pattern>tests/*</exclude-pattern>
+  <exclude-pattern>wp-admin/*</exclude-pattern>
+  <exclude-pattern>wp-content/*</exclude-pattern>
+  <exclude-pattern>wordpress-installer/*</exclude-pattern>
 
   <!-- PHPCS runtime args -->
   <arg value="sp"/>
@@ -36,7 +38,11 @@
   <rule ref="WordPress-Core"/>
   <rule ref="WordPress-Extra"/>
   <rule ref="WordPress-Docs"/>
-  <rule ref="WordPressVIPMinimum"/>
+  
+  <!-- VIP with JS scanning disabled (deprecated in PHPCS 4.0) -->
+  <rule ref="WordPressVIPMinimum">
+    <exclude name="WordPressVIPMinimum.JS"/>
+  </rule>
 
   <!-- Modernization and compatibility -->
   <rule ref="PHPCompatibility"/>
@@ -47,16 +53,13 @@
   <rule ref="Universal"/>
   <rule ref="VariableAnalysis"/>
 
-  <rule ref="WordPress">
-  <exclude name="VariableAnalysis.CodeAnalysis.VariableAnalysis" />
-</rule>
-
   <!-- Naming conventions -->
   <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
     <properties>
       <property name="prefixes" type="array">
         <element value="sparxstar"/>
         <element value="star"/>
+        <element value="starmus"/>
       </property>
     </properties>
   </rule>
@@ -65,8 +68,9 @@
   <rule ref="WordPress.WP.I18n">
     <properties>
       <property name="text_domain" type="array">
-        <element value="sparxstar"/>
+        <element value="starmus-audio-recorder"/>
       </property>
     </properties>
-</rule>
+  </rule>
+
 </ruleset>

@@ -2,9 +2,9 @@
 Contributors: wordpressdotorg
 Tags: fields, custom fields, meta, scf
 Requires at least: 6.0
-Tested up to: 6.8
+Tested up to: 6.8.3
 Requires PHP: 7.4
-Stable tag: 6.5.5
+Stable tag: 6.5.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,24 @@ This plugin builds upon and is a fork of the previous work done by the contribut
 
 
 == Changelog ==
+
+= 6.6.0 =
+*Release Date 19 Nov 2025*
+
+*Features*
+
+- Backported features up to 6.6.0.
+- Abilities API integration. Post Type abilities.
+- JSON schemas validation infrastructure.
+
+*Fixes*
+
+- Fixed Function in network.php
+- SCF label in "More" menu.
+- Get the formatted_value from the original field value.
+- Blocks V3: Fix flexible content not working in sidebar - modal.
+- Use specific entity prefixes for key generation when duplicating entities.
+
 
 = 6.5.7 =
 *Release Date 28 Aug 2025*

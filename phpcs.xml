@@ -10,7 +10,9 @@
   </description>
 
   <!-- Scan all PHP source files -->
-  <file>.</file>
+  <file>starmus-audio-recorder.php</file>
+  <file>uninstall.php</file>
+  <file>src/</file>
 
   <!-- Exclude paths that should not be scanned -->
   <exclude-pattern>vendor/*</exclude-pattern>
