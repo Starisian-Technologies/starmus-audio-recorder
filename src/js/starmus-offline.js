@@ -117,6 +117,12 @@ class OfflineQueue {
                 return;
             }
 
+            // Force-clone blob to detach underlying buffer
+            // On low-end Android, MediaRecorder and IDB share the same memory pointer
+            // When recorder releases buffer, Blob becomes detached → IDB commit fails silently
+            const safeBlob = new Blob([item.audioBlob], { type: item.audioBlob.type });
+            item.audioBlob = safeBlob;
+
             const request = store.add(item);
 
             // Resolve only on durability commit
@@ -127,8 +133,15 @@ class OfflineQueue {
             };
 
             transaction.onerror = (event) => {
-                debugLog('[Offline] Transaction Failed:', event.target.error);
-                reject(event.target.error);
+                const err = event.target.error;
+                // Detect quota exceeded explicitly to prevent retry loops
+                if (err?.name === 'QuotaExceededError') {
+                    debugLog('[Offline] IndexedDB quota exceeded');
+                    reject(new Error('IndexedDB quota exceeded — cannot save offline.'));
+                    return;
+                }
+                debugLog('[Offline] Transaction Failed:', err);
+                reject(err);
             };
 
             request.onerror = (e) => {
@@ -283,10 +296,22 @@ class OfflineQueue {
                     
                 } catch (error) {
                     console.error('[Offline] Upload failed:', error);
+                    
+                    // Don't retry on non-retryable errors (quota, client errors, malformed responses)
+                    const errorMsg = error?.message || '';
+                    if (errorMsg.includes('QuotaExceededError') ||
+                        errorMsg.includes('quota exceeded') ||
+                        errorMsg.includes('400') ||
+                        errorMsg.includes('Invalid JSON')) {
+                        debugLog('[Offline] Non-retryable error, leaving in queue for manual review:', item.id);
+                        // Don't increment retry count; leave for user intervention
+                        return;
+                    }
+                    
                     await this._updateRetryCount(
                         item.id,
                         item.retryCount + 1,
-                        error?.message || 'Upload failed (network instability)'
+                        errorMsg || 'Upload failed (network instability)'
                     );
                 }
             }
