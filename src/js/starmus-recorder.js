@@ -114,6 +114,11 @@ async function calibrateAudioLevels(stream, onUpdate) {
             // Clean up calibration nodes (but keep shared context alive)
             microphone.disconnect();
             
+            // Clean up calibration nodes (but keep shared context alive)
+            microphone.disconnect();
+            analyser.disconnect();
+            analyser.fftSize = 0; // frees internal buffers on Android WebView
+            
             const finalMessage = `Ready to record. Mic calibrated (gain ×${gain.toFixed(1)}, SNR: ${snr.toFixed(1)})`;
             if (onUpdate) {
                 onUpdate(finalMessage, null, true);
