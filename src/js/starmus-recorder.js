@@ -123,10 +123,14 @@ async function calibrateAudioLevels(stream, onUpdate) {
             // CLEANUP: Disconnect nodes to prevent memory leaks, but KEEP context open.
             try {
                 microphone.disconnect();
-            } catch(e) {}
+            } catch {
+                // Ignore if already disconnected
+            }
             try {
                 analyser.disconnect();
-            } catch(e) {}
+            } catch {
+                // Ignore if already disconnected
+            }
             
             const finalMessage = `Ready. Mic calibrated (gain ×${gain.toFixed(1)})`;
             if (onUpdate) {
@@ -293,7 +297,7 @@ export function initRecorder(store, instanceId) {
 
             // 4. Prepare MediaRecorder
             // Safari Safety: Check MIME support carefully before assigning bitrate
-            let recorderOptions = {};
+            const recorderOptions = {};
             if (MediaRecorder.isTypeSupported(audioSettings.options.mimeType)) {
                 recorderOptions.mimeType = audioSettings.options.mimeType;
                 recorderOptions.audioBitsPerSecond = audioSettings.options.audioBitsPerSecond;
@@ -368,7 +372,9 @@ export function initRecorder(store, instanceId) {
                 if (rec.recognition) {
                     try {
                         rec.recognition.stop();
-                    } catch (e) {}
+                    } catch {
+                        // Ignore if already stopped
+                    }
                 }
                 
                 const blob = new Blob(rec.chunks, { type: rec.mediaRecorder.mimeType || 'audio/webm' });
@@ -391,14 +397,18 @@ export function initRecorder(store, instanceId) {
                     rec.rawStream.getTracks().forEach(t => {
                         try {
                             t.stop();
-                        } catch(e) {}
+                        } catch {
+                            // Ignore if already stopped
+                        }
                     });
                 }
                 if (rec.processedStream) {
                     rec.processedStream.getTracks().forEach(t => {
                         try {
                             t.stop();
-                        } catch(e) {}
+                        } catch {
+                            // Ignore if already stopped
+                        }
                     });
                 }
 
@@ -407,11 +417,11 @@ export function initRecorder(store, instanceId) {
                     rec.audioNodes.forEach(node => {
                         try {
                             node.disconnect();
-                        } catch(e) {}
+                        } catch {
+                            // Ignore if already disconnected
+                        }
                     });
-                }
-
-                recorderRegistry.delete(instanceId);
+                }            recorderRegistry.delete(instanceId);
             });
 
             store.dispatch({ type: 'starmus/mic-start' });
@@ -470,14 +480,24 @@ export function initRecorder(store, instanceId) {
             if (rec.mediaRecorder && rec.mediaRecorder.state === 'recording') {
                 rec.mediaRecorder.stop();
             }
-            // Aggressive cleanup for reset
+            
+            // Aggressive cleanup for reset (Same order as stop)
             if (rec.rawStream) {
                 rec.rawStream.getTracks().forEach(t => t.stop());
             }
             if (rec.processedStream) {
                 rec.processedStream.getTracks().forEach(t => t.stop());
             }
-            // Shared context stays alive; do nothing with audioContext.close()
+
+            if (rec.audioNodes) {
+                rec.audioNodes.forEach(node => {
+                    try {
+                        node.disconnect();
+                    } catch {
+                        // Ignore if already disconnected
+                    }
+                });
+            }
             
             recorderRegistry.delete(instanceId);
         }
