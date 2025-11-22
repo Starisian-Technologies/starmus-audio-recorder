@@ -107,12 +107,9 @@ function starmus_load_bundled_scf(): void
         } else {
             error_log('Starmus Plugin: Bundled Secure Custom Fields file not found at: ' . $scf_main_file);
         }
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         error_log('Starmus Plugin: Failed to load bundled Secure Custom Fields: ' . $e->getMessage());
-        error_log('Starmus Plugin: Exception trace: ' . $e->getTraceAsString());
-    } catch (\Error $e) {
-        error_log('Starmus Plugin: Fatal error loading bundled Secure Custom Fields: ' . $e->getMessage());
-        error_log('Starmus Plugin: Error trace: ' . $e->getTraceAsString());
+        error_log('Starmus Plugin: Throwable trace: ' . $e->getTraceAsString());
     }
 }
 add_action('plugins_loaded', 'starmus_load_bundled_scf', 5);
@@ -137,8 +134,9 @@ function starmus_run_plugin(): void
     try {
         // This is now the single, reliable entry point for the plugin's logic.
         \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_run();
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         error_log('Starmus Plugin: Failed to initialize main plugin class: ' . $e->getMessage());
+        error_log('Starmus Plugin: Throwable trace: ' . $e->getTraceAsString());
     }
 }
 add_action('plugins_loaded', 'starmus_run_plugin', 20);
@@ -158,8 +156,9 @@ function starmus_acf_json_integration(): void
             $paths[] = STARMUS_PATH . 'acf-json';
             return $paths;
         });
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         error_log('Starmus Plugin: Failed to integrate ACF JSON fields: ' . $e->getMessage());
+        error_log('Starmus Plugin: Throwable trace: ' . $e->getTraceAsString());
     }
 }
 add_action('acf/init', 'starmus_acf_json_integration');
@@ -212,19 +211,9 @@ function starmus_on_activate(): void
         flush_rewrite_rules();
 
         error_log('Starmus Plugin: Activation successful');
-    } catch (\Exception $e) {
-        error_log('Starmus Plugin: Activation failed with exception: ' . $e->getMessage());
-        error_log('Starmus Plugin: Exception trace: ' . $e->getTraceAsString());
-        // Set transient for admin notice
-        set_transient('starmus_activation_error', $e->getMessage(), 60);
-        // Try to deactivate gracefully
-        deactivate_plugins(plugin_basename(STARMUS_MAIN_FILE));
-        if (isset($_GET['activate'])) {
-            unset($_GET['activate']);
-        }
-    } catch (\Error $e) {
-        error_log('Starmus Plugin: Activation failed with fatal error: ' . $e->getMessage());
-        error_log('Starmus Plugin: Error trace: ' . $e->getTraceAsString());
+    } catch (\Throwable $e) {
+        error_log('Starmus Plugin: Activation failed: ' . $e->getMessage());
+        error_log('Starmus Plugin: Throwable trace: ' . $e->getTraceAsString());
         // Set transient for admin notice
         set_transient('starmus_activation_error', $e->getMessage(), 60);
         // Try to deactivate gracefully
@@ -248,12 +237,9 @@ function starmus_on_deactivate(): void
         flush_rewrite_rules();
 
         error_log('Starmus Plugin: Deactivation successful');
-    } catch (\Exception $e) {
-        error_log('Starmus Plugin: Deactivation failed with exception: ' . $e->getMessage());
-        error_log('Starmus Plugin: Exception trace: ' . $e->getTraceAsString());
-    } catch (\Error $e) {
-        error_log('Starmus Plugin: Deactivation failed with fatal error: ' . $e->getMessage());
-        error_log('Starmus Plugin: Error trace: ' . $e->getTraceAsString());
+    } catch (\Throwable $e) {
+        error_log('Starmus Plugin: Deactivation failed: ' . $e->getMessage());
+        error_log('Starmus Plugin: Throwable trace: ' . $e->getTraceAsString());
     }
 }
 

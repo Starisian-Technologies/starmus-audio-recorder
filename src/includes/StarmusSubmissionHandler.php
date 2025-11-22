@@ -559,12 +559,10 @@ final class StarmusSubmissionHandler
 					$date = new \DateTime((string) $metadata['recordedAt']);
 					$this->update_acf_field('session_date', $date->format('Ymd'), $audio_post_id);
 					$this->update_acf_field('session_start_time', $date->format('H:i:s'), $audio_post_id);
-				} catch (\Exception $e) {
+				} catch (\Throwable $e) {
 					StarmusLogger::warning('SubmissionHandler', 'Invalid recordedAt format');
 				}
-			}
-
-			// 4. Handle user-submitted form fields.
+			}			// 4. Handle user-submitted form fields.
 			$this->update_acf_field('submission_ip', StarmusSanitizer::get_user_ip(), $audio_post_id);
 			foreach (array('project_collection_id', 'accession_number', 'location', 'usage_restrictions_rights', 'access_level') as $field) {
 				if (isset($form_data[$field])) {
