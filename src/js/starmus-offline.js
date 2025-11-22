@@ -44,7 +44,7 @@ class OfflineQueue {
             return Promise.resolve();
         }
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, _reject) => {
             const request = indexedDB.open(CONFIG.dbName, CONFIG.dbVersion);
 
             request.onerror = (event) => {
@@ -143,7 +143,9 @@ class OfflineQueue {
      * @returns {Promise<Array>}
      */
     async getAll() {
-        if (!this.db) return [];
+        if (!this.db) {
+            return [];
+        }
 
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction([CONFIG.storeName], 'readonly');
@@ -164,7 +166,9 @@ class OfflineQueue {
      * Remove a submission from queue.
      */
     async remove(submissionId) {
-        if (!this.db) return;
+        if (!this.db) {
+            return;
+        }
 
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction([CONFIG.storeName], 'readwrite');
@@ -187,7 +191,9 @@ class OfflineQueue {
      * Update retry count for a submission.
      */
     async _updateRetryCount(submissionId, retryCount, error) {
-        if (!this.db) return;
+        if (!this.db) {
+            return;
+        }
 
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction([CONFIG.storeName], 'readwrite');
