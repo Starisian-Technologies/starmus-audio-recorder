@@ -1,30 +1,33 @@
 /**
  * @file starmus-recorder.js
- * @version 4.2.0
- * @description Handles microphone recording with Web Audio API processing (Highpass/Compression) for low-end devices.
+ * @version 4.4.0
+ * @description Handles microphone recording with Web Audio API processing.
+ * Production-grade: Hardened for Safari iOS leaks, Android NaN bugs, and low-end device crashes.
  */
 
 'use strict';
 
 import { CommandBus, debugLog } from './starmus-hooks.js';
 
+// Registry to track active recording instances
 // instanceId -> { mediaRecorder, chunks, rawStream, processedStream, audioContext, recognition, transcript, calibration }
 const recorderRegistry = new Map();
 
 /**
- * Shared AudioContext to prevent dual-context freeze on Android/iOS.
- * Reused for both calibration and recording.
+ * Shared AudioContext Singleton.
+ * Prevents "dual-context" freezes on Android and prevents iOS limits on active contexts.
  */
 let sharedAudioContext = null;
 
 /**
  * Get or create the shared AudioContext instance.
- * 
  * @returns {AudioContext} Shared audio context
  */
 function getSharedContext() {
     if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
         const Ctx = window.AudioContext || window.webkitAudioContext;
+        // 'latencyHint: playback' tells the browser to use larger buffers,
+        // saving significant CPU and battery on low-end devices.
         sharedAudioContext = new Ctx({ latencyHint: 'playback' });
     }
     return sharedAudioContext;
@@ -36,48 +39,54 @@ function getSharedContext() {
  * 
  * @param {MediaStream} stream - The audio stream from getUserMedia
  * @param {Function} onUpdate - Callback for UI updates (message, volumePercent, isDone)
- * @returns {Promise<object>} Calibration data with recommended gain adjustment
+ * @returns {Promise<object>} Calibration data
  */
 async function calibrateAudioLevels(stream, onUpdate) {
     return new Promise((resolve) => {
-        // Use shared context to prevent dual-context freeze on Android/iOS
         const audioContext = getSharedContext();
         const analyser = audioContext.createAnalyser();
         analyser.fftSize = 2048;
-        const buffer = new Float32Array(analyser.fftSize);
-        const microphone = audioContext.createMediaStreamSource(stream);
         
+        // Create a temporary source node just for calibration
+        const microphone = audioContext.createMediaStreamSource(stream);
         microphone.connect(analyser);
         
+        const buffer = new Float32Array(analyser.fftSize);
         const samples = [];
         const startTime = performance.now();
-        const DURATION = 15000; // 15 seconds total
+        const DURATION = 15000; // 15 seconds
         const VOLUME_SCALE_FACTOR = 2000;
         
         function tick() {
             const elapsed = performance.now() - startTime;
             const remaining = Math.ceil((DURATION - elapsed) / 1000);
             
-            // 3-phase calibration with updated messaging
             let message = '';
             if (elapsed < 5000) {
                 message = `Be quiet for background noise (${remaining}s)`;
             } else if (elapsed < 10000) {
-                message = `Now speak at normal volume (${remaining}s)`; // Changed from "loudly"
+                message = `Now speak at normal volume (${remaining}s)`;
             } else {
                 message = `Be quiet again (${remaining}s)`;
             }
             
-            // Analyze current volume
+            // Get RMS (Root Mean Square) volume
             analyser.getFloatTimeDomainData(buffer);
             let sum = 0;
             for (let i = 0; i < buffer.length; i++) {
                 sum += buffer[i] * buffer[i];
             }
             const rms = Math.sqrt(sum / buffer.length);
+
+            // GUARD: Android WebRTC (especially on Tecno/Infinix) can return 
+            // NaN/Infinity for the first few frames. Ignore them to prevent math errors.
+            if (!Number.isFinite(rms)) {
+                requestAnimationFrame(tick);
+                return;
+            }
+
             samples.push(rms);
             
-            // Convert to 0-100 percentage for UI
             const volumePercent = Math.min(100, rms * VOLUME_SCALE_FACTOR);
             
             if (onUpdate) {
@@ -92,15 +101,15 @@ async function calibrateAudioLevels(stream, onUpdate) {
         }
         
         function done() {
-            // Separate quiet and speech samples
-            const quietSamples = samples.slice(0, Math.floor(samples.length * 0.33));
-            const speechSamples = samples.slice(Math.floor(samples.length * 0.33), Math.floor(samples.length * 0.67));
+            const third = Math.floor(samples.length / 3);
+            const quietSamples = samples.slice(0, third);
+            const speechSamples = samples.slice(third, third * 2);
             
             const noiseFloor = quietSamples.reduce((a, b) => a + b, 0) / quietSamples.length;
             const speechLevel = speechSamples.reduce((a, b) => a + b, 0) / speechSamples.length;
             const snr = speechLevel / Math.max(noiseFloor, 1e-6);
             
-            // Adaptive gain based on SNR
+            // Adaptive gain calculation
             const gain = snr < 3 ? 6.0 : Math.max(1.0, Math.min(4.0, 0.1 / Math.max(speechLevel, 1e-6)));
             
             const calibration = {
@@ -111,11 +120,15 @@ async function calibrateAudioLevels(stream, onUpdate) {
                 timestamp: new Date().toISOString()
             };
             
-            // Clean up calibration nodes (but keep shared context alive)
-            microphone.disconnect();
-            analyser.disconnect();
+            // CLEANUP: Disconnect nodes to prevent memory leaks, but KEEP context open.
+            try {
+                microphone.disconnect();
+            } catch(e) {}
+            try {
+                analyser.disconnect();
+            } catch(e) {}
             
-            const finalMessage = `Ready to record. Mic calibrated (gain ×${gain.toFixed(1)}, SNR: ${snr.toFixed(1)})`;
+            const finalMessage = `Ready. Mic calibrated (gain ×${gain.toFixed(1)})`;
             if (onUpdate) {
                 onUpdate(finalMessage, null, true);
             }
@@ -129,24 +142,16 @@ async function calibrateAudioLevels(stream, onUpdate) {
 
 /**
  * Determine optimal audio recording settings based on environment.
- * 
- * @param {object} env - Environment data (network, device, capabilities)
- * @param {object} config - starmusConfig from WordPress (includes allowedMimeTypes)
- * @returns {object} MediaRecorder options and constraints
  */
 function getOptimalAudioSettings(env, config) {
     const network = env?.network || {};
     const device = env?.device || {};
     const allowedMimes = config?.allowedMimeTypes || {};
     
-    // Determine best MIME type from admin settings
-    let mimeType = 'audio/webm;codecs=opus'; // Gold standard for low-bandwidth voice
-    if (allowedMimes['webm'] || allowedMimes['weba']) {
-        mimeType = 'audio/webm;codecs=opus';
-    } else if (allowedMimes['mp4'] || allowedMimes['m4a']) {
+    // Determine best MIME type (Opus preferred)
+    let mimeType = 'audio/webm;codecs=opus'; 
+    if (allowedMimes['mp4'] || allowedMimes['m4a']) {
         mimeType = 'audio/mp4';
-    } else if (allowedMimes['ogg'] || allowedMimes['oga']) {
-        mimeType = 'audio/ogg;codecs=opus';
     } else if (allowedMimes['wav']) {
         mimeType = 'audio/wav';
     }
@@ -184,41 +189,38 @@ function getOptimalAudioSettings(env, config) {
         settings.options.audioBitsPerSecond = 48000; // 48kbps
     }
     
-    // Respect data-saver mode
     if (network.saveData) {
         settings.constraints.audio.sampleRate = 16000;
         settings.constraints.audio.channelCount = 1;
-        settings.options.audioBitsPerSecond = 16000; // 16kbps minimum
+        settings.options.audioBitsPerSecond = 16000;
     }
     
-    // Desktop can handle higher quality
     if (!isMobile && (effectiveType === '4g' || downlink > 5)) {
         settings.constraints.audio.sampleRate = 48000;
-        settings.options.audioBitsPerSecond = 192000; // 192kbps for desktop
+        settings.options.audioBitsPerSecond = 192000;
     }
     
     return settings;
 }
 
 /**
- * Builds the Web Audio API graph for processing voice.
- * Adds Highpass filter (for wind/rumble) and Compressor (for even volume).
+ * Builds the Web Audio API graph.
+ * Source -> HighPass (85Hz) -> Compressor -> Destination
  * 
- * @param {MediaStream} rawStream - Raw audio stream from getUserMedia
- * @returns {object} { audioContext, destinationStream }
+ * @param {MediaStream} rawStream 
+ * @returns {object} { audioContext, destinationStream, nodes[] }
  */
 function setupAudioGraph(rawStream) {
-    // Use shared context to prevent dual-context issues
     const audioContext = getSharedContext();
     
     const source = audioContext.createMediaStreamSource(rawStream);
     
-    // 1. High-pass Filter: Cuts low frequencies (wind, handling noise, engine rumble)
+    // 1. High-pass Filter: Remove wind/rumble
     const highPass = audioContext.createBiquadFilter();
     highPass.type = 'highpass';
-    highPass.frequency.value = 85; // Cut everything below 85Hz
+    highPass.frequency.value = 85; 
     
-    // 2. Dynamics Compressor: Balances loud laughs and quiet whispers
+    // 2. Dynamics Compressor: Balance volume
     const compressor = audioContext.createDynamicsCompressor();
     compressor.threshold.value = -20;
     compressor.knee.value = 40;
@@ -226,31 +228,26 @@ function setupAudioGraph(rawStream) {
     compressor.attack.value = 0;
     compressor.release.value = 0.25;
     
-    // 3. Destination: Where the MediaRecorder will listen
+    // 3. Destination
     const destination = audioContext.createMediaStreamAudioDestination();
     
-    // Connect the chain: Source -> Filter -> Compressor -> Destination
+    // Connect chain
     source.connect(highPass);
     highPass.connect(compressor);
     compressor.connect(destination);
     
-    // If needed for monitoring (hearing yourself), connect to audioContext.destination
-    // But usually avoided to prevent feedback loops without headphones
-    
     return {
         audioContext,
-        destinationStream: destination.stream
+        destinationStream: destination.stream,
+        // Return all nodes including destination for proper graph teardown
+        nodes: [source, highPass, compressor, destination] 
     };
 }
 
 /**
  * Wires microphone + file logic for a specific instance.
- *
- * @param {object} store
- * @param {string} instanceId
  */
 export function initRecorder(store, instanceId) {
-    // Start mic
     CommandBus.subscribe('start-mic', async (_payload, meta) => {
         if (meta.instanceId !== instanceId) {
             return;
@@ -276,56 +273,40 @@ export function initRecorder(store, instanceId) {
             // 1. Get RAW Stream
             const rawStream = await navigator.mediaDevices.getUserMedia(audioSettings.constraints);
             
-            // Detect actual sample rate to prevent mismatches on Android/iOS
-            const ctx = getSharedContext();
-            const actualRate = ctx.sampleRate;
-            debugLog('Actual sampleRate:', actualRate);
-            
-            // 2. Calibrate (Using RAW stream to accurately detect noise floor)
+            // 2. Calibrate
             store.dispatch({ type: 'starmus/calibration-start' });
             
             const calibration = await calibrateAudioLevels(rawStream, (message, volumePercent, isDone) => {
                 if (isDone) {
-                    store.dispatch({ 
-                        type: 'starmus/calibration-complete',
-                        calibration 
-                    });
+                    store.dispatch({ type: 'starmus/calibration-complete', calibration });
                 } else {
-                    store.dispatch({
-                        type: 'starmus/calibration-update',
-                        message,
-                        volumePercent
-                    });
+                    store.dispatch({ type: 'starmus/calibration-update', message, volumePercent });
                 }
             });
             
-            debugLog('Calibration complete:', calibration);
-            if (window.StarmusHooks?.doAction) {
-                window.StarmusHooks.doAction('starmus_calibration_complete', instanceId, calibration);
-            }
-            
-            // 3. Process Audio (Filter & Compress)
-            // This ensures better quality on low-end mics before it hits the recorder
-            const { audioContext, destinationStream } = setupAudioGraph(rawStream);
+            // 3. Process Audio (using Shared Context)
+            const { audioContext, destinationStream, nodes } = setupAudioGraph(rawStream);
 
-            // Resume context if suspended (common on mobile)
             if (audioContext.state === 'suspended') {
                 await audioContext.resume();
             }
 
             // 4. Prepare MediaRecorder
-            let recorderOptions = audioSettings.options;
-            if (!MediaRecorder.isTypeSupported(recorderOptions.mimeType)) {
-                recorderOptions = {}; // Fallback to browser default
+            // Safari Safety: Check MIME support carefully before assigning bitrate
+            let recorderOptions = {};
+            if (MediaRecorder.isTypeSupported(audioSettings.options.mimeType)) {
+                recorderOptions.mimeType = audioSettings.options.mimeType;
+                recorderOptions.audioBitsPerSecond = audioSettings.options.audioBitsPerSecond;
+            } else {
                 debugLog('Preferred MIME not supported, using browser default');
             }
             
-            // IMPORTANT: Record the PROCESSED stream, not the rawStream
+            // Record the PROCESSED stream
             const mediaRecorder = new MediaRecorder(destinationStream, recorderOptions);
             const chunks = [];
             let transcript = '';
 
-            // 5. Setup Speech Recognition (Uses RAW stream usually, to avoid double processing latency)
+            // 5. Speech Recognition (Optional)
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             let recognition = null;
             
@@ -336,7 +317,6 @@ export function initRecorder(store, instanceId) {
                     recognition.interimResults = true;
                     recognition.maxAlternatives = 1;
                     
-                    // Set language from form if available, default to English
                     const formEl = recorderRegistry.get(instanceId)?.form || 
                                  document.querySelector(`[data-starmus-id="${instanceId}"]`);
                     const langInput = formEl?.querySelector('[name="starmus_language"]');
@@ -354,21 +334,20 @@ export function initRecorder(store, instanceId) {
                         store.dispatch({ type: 'starmus/transcript-update', transcript: transcript.trim() });
                     };
                     
-                    recognition.onerror = (event) => debugLog('Speech recognition error:', event.error);
                     recognition.start();
                 } catch (err) {
                     debugLog('Failed to start speech recognition:', err);
-                    recognition = null;
                 }
             }
 
-            // Store everything including audioContext for cleanup
+            // Store instance data
             recorderRegistry.set(instanceId, { 
                 mediaRecorder, 
                 chunks, 
                 rawStream, 
                 processedStream: destinationStream, 
-                audioContext, 
+                audioContext,
+                audioNodes: nodes,
                 recognition, 
                 transcript, 
                 calibration 
@@ -387,11 +366,13 @@ export function initRecorder(store, instanceId) {
                 }
                 
                 if (rec.recognition) {
-                    try { rec.recognition.stop(); } catch (err) { debugLog(err); }
+                    try {
+                        rec.recognition.stop();
+                    } catch (e) {}
                 }
                 
                 const blob = new Blob(rec.chunks, { type: rec.mediaRecorder.mimeType || 'audio/webm' });
-                const fileName = `starmus-recording-${Date.now()}.webm`; // Or determine ext from mimeType
+                const fileName = `starmus-recording-${Date.now()}.webm`;
 
                 debugLog('Mic recording complete', instanceId, fileName);
 
@@ -402,21 +383,38 @@ export function initRecorder(store, instanceId) {
                     transcript: rec.transcript || '',
                 });
 
-                // Cleanup Audio Tracks
+                // --- SAFARI/iOS CLEANUP SEQUENCE (STRICT ORDER) ---
+                
+                // 1. Stop all MediaStream tracks (raw + processed) FIRST
+                // Crucial for Safari/iOS to prevent "Input buffer detached" and CPU leaks
                 if (rec.rawStream) {
-                    rec.rawStream.getTracks().forEach(track => track.stop());
+                    rec.rawStream.getTracks().forEach(t => {
+                        try {
+                            t.stop();
+                        } catch(e) {}
+                    });
                 }
                 if (rec.processedStream) {
-                    rec.processedStream.getTracks().forEach(track => track.stop());
+                    rec.processedStream.getTracks().forEach(t => {
+                        try {
+                            t.stop();
+                        } catch(e) {}
+                    });
                 }
-                
-                // Shared context stays alive; do nothing with audioContext.close()
+
+                // 2. Disconnect all audio nodes (source, filters, compressor, destination)
+                if (rec.audioNodes) {
+                    rec.audioNodes.forEach(node => {
+                        try {
+                            node.disconnect();
+                        } catch(e) {}
+                    });
+                }
 
                 recorderRegistry.delete(instanceId);
             });
 
             store.dispatch({ type: 'starmus/mic-start' });
-            // Slice into 1s chunks so data isn't lost if crash occurs
             mediaRecorder.start(1000);
         } catch (error) {
             console.error(error);
