@@ -483,36 +483,47 @@ class StarmusLogger
         self::log($context, $msg, 'emergency', $extra);
     }
 
+    /*==============================================================
+     * DIAGNOSTIC UTILITIES
+     *=============================================================*/
 
-    // Add this to your wp-config.php or your theme's functions.php,
-    // or a custom plugin that you know is active early.
-    // THIS IS FOR DIAGNOSTIC PURPOSES ONLY. Remove after finding the error.
+    /**
+     * Bootstrap logger and register shutdown handler.
+     *
+     * Call this method early in plugin bootstrap to enable
+     * callback error detection.
+     *
+     * @return void
+     */
+    public static function boot(): void
+    {
+        register_shutdown_function([__CLASS__, 'catchCallbackErrors']);
+    }
 
-    public function starmus_catch_callback_errors()
+    /**
+     * Shutdown handler to catch fatal callback errors.
+     *
+     * Detects call_user_func_array() errors and logs them to debug.log.
+     * Registered automatically when boot() is called.
+     *
+     * @return void
+     */
+    public static function catchCallbackErrors(): void
     {
         $error = error_get_last();
-        if ($error && $error['type'] === E_ERROR) { // E_ERROR includes E_USER_ERROR
-            // Check if the error message matches the one we're looking for
-            if (strpos($error['message'], 'call_user_func_array(): Argument #1 ($callback) must be a valid callback') !== false) {
-                $log_message = sprintf(
-                    "Callback Error Caught: Type: %d, Message: %s in %s on line %d\n",
-                    $error['type'],
+        if (!$error) {
+            return;
+        }
+
+        if (strpos($error['message'], 'call_user_func_array') !== false) {
+            error_log(
+                sprintf(
+                    "Callback Error: %s in %s:%d",
                     $error['message'],
                     $error['file'],
                     $error['line']
-                );
-                error_log($log_message);
-
-                // You can also try to get more context from the hook system if possible,
-                // but this is advanced and might require modifying WP core or using
-                // very specific hooks that run *before* the error.
-                // The call stack provided by WordPress is usually sufficient.
-            }
+                )
+            );
         }
-    }
-
-    public function register_hooks(): void
-    {
-        register_shutdown_function('starmus_catch_callback_errors');
     }
 }

@@ -53,6 +53,9 @@ if (! file_exists($autoloader)) {
     // Do not return here; let the activation hook handle the hard stop if this is an activation attempt.
 } else {
     require_once $autoloader;
+
+    // Bootstrap logger (registers shutdown handler for callback error detection)
+    \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::boot();
 }
 
 // =========================================================================
@@ -100,7 +103,7 @@ function starmus_acf_json_integration(): void
     add_filter('acf/settings/load_json', function ($paths) {
         // Remove original path (optional)
         // unset($paths[0]); 
-        
+
         // Append our path
         $paths[] = STARMUS_PATH . 'acf-json';
         return $paths;
@@ -122,7 +125,7 @@ function starmus_run_plugin(): void
     if (! class_exists('ACF')) {
         // Only show error if we are NOT in the middle of activating/deactivating
         if (!isset($_GET['activate'])) {
-             add_action('admin_notices', function () {
+            add_action('admin_notices', function () {
                 echo '<div class="notice notice-error"><p><strong>Starmus Error:</strong> Secure Custom Fields failed to load.</p></div>';
             });
         }
@@ -131,13 +134,12 @@ function starmus_run_plugin(): void
 
     try {
         \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_run();
-        
+
         // Check if we need to flush rewrite rules (set during activation)
         if (get_transient('starmus_flush_rewrite_rules')) {
             flush_rewrite_rules();
             delete_transient('starmus_flush_rewrite_rules');
         }
-        
     } catch (\Throwable $e) {
         error_log('Starmus Plugin Init Error: ' . $e->getMessage());
     }
