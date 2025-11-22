@@ -63,7 +63,7 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
             // CRITICAL FIX: Custom fingerprinting. 
             // Default tus fingerprint uses blob properties that change on reload.
             // We bind the fingerprint to the 'instanceId' + 'size' which is stable across reloads.
-            fingerprint: function(file, options) {
+            fingerprint: function(file, _options) {
                 return ['starmus', instanceId, file.size].join('-');
             },
 
@@ -106,7 +106,7 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
  * Fallback to direct POST upload using XMLHttpRequest (XHR).
  * Switched from fetch() to support upload progress on slow networks.
  */
-export async function uploadDirect(blob, fileName, formFields, metadata, instanceId, onProgress) {
+export async function uploadDirect(blob, fileName, formFields, metadata, _instanceId, onProgress) {
     const config = window.starmusConfig || {};
     const endpoint = config.endpoints?.directUpload;
     const nonce = config.nonce || '';
@@ -153,7 +153,7 @@ export async function uploadDirect(blob, fileName, formFields, metadata, instanc
                 try {
                     const response = JSON.parse(xhr.responseText);
                     resolve(response);
-                } catch (e) {
+                } catch (_e) {
                     reject(new Error('Invalid JSON response from server'));
                 }
             } else {
