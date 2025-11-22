@@ -32,7 +32,7 @@ define('STARMUS_PLUGIN_PREFIX', 'starmus');
 
 // --- Logger Configuration ---
 if (! defined('STARMUS_LOG_LEVEL')) {
-    define('STARMUS_LOG_LEVEL', 'Warning');
+    define('STARMUS_LOG_LEVEL', 'debug');
 }
 if (! defined('STARMUS_LOG_FILE')) {
     define('STARMUS_LOG_FILE', '');
