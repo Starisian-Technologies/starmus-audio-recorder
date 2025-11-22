@@ -18,8 +18,12 @@ final class StarmusSettings
 {
 
 	/**
-	 * Whitelisted MIME types for audio/video.
-	 * Centralized in a constant for clarity and reuse.
+	 * Whitelisted MIME types for audio/video file uploads.
+	 *
+	 * Centralized in a constant for clarity and reuse across the plugin.
+	 * Maps file extensions to their corresponding MIME types.
+	 *
+	 * @var array<string, string>
 	 */
 	private const ALLOWED_MIMES = array(
 		'mp3'  => 'audio/mpeg',
@@ -43,22 +47,43 @@ final class StarmusSettings
 	);
 
 	/**
-	 * WP option key for storing settings.
+	 * WordPress option key for storing plugin settings.
+	 *
 	 * REVERTED: Back to OPTION_KEY, no transients.
+	 * All plugin settings are stored under this single option key in wp_options table.
+	 *
+	 * @var string
 	 */
 	public const STARMUS_OPTION_KEY = 'starmus_options';
 
 	/**
 	 * Cached plugin settings for current request.
+	 *
 	 * Using nullable type allows simple cache invalidation with `null`.
+	 * Reduces repeated database queries within a single request.
+	 *
+	 * @var array<string, mixed>|null
 	 */
 	private ?array $obj_cache = null;
 
 	/**
 	 * Cached default settings to avoid recomputation.
+	 *
+	 * Stores the default configuration values for all plugin settings.
+	 * Computed once and reused throughout the request lifecycle.
+	 *
+	 * @var array<string, mixed>|null
 	 */
 	private ?array $default_obj_cache = null;
 
+	/**
+	 * Constructor - Initializes settings and primes caches.
+	 *
+	 * Loads default settings, fetches current settings from database,
+	 * and registers WordPress hooks for MIME type validation.
+	 *
+	 * @return void
+	 */
 	public function __construct()
 	{
 		try {
@@ -75,7 +100,12 @@ final class StarmusSettings
 	}
 
 	/**
-	 * Register all filters related to MIME validation.
+	 * Register all WordPress filters related to MIME type validation.
+	 *
+	 * Hooks into WordPress upload filters to allow custom audio/video file types
+	 * that are configured in plugin settings.
+	 *
+	 * @return void
 	 */
 	private function register_hooks(): void
 	{
@@ -90,9 +120,12 @@ final class StarmusSettings
 	/**
 	 * Retrieve a single setting by key with default fallback.
 	 *
-	 * @param string $key
-	 * @param mixed  $default
-	 * @return mixed
+	 * Fetches a specific setting value from the cached settings array.
+	 * Returns the provided default value if the key doesn't exist.
+	 *
+	 * @param string $key     The setting key to retrieve.
+	 * @param mixed  $default Default value to return if setting doesn't exist.
+	 * @return mixed The setting value or default.
 	 */
 	public function get(string $key, $default = null)
 	{
@@ -106,8 +139,13 @@ final class StarmusSettings
 	}
 
 	/**
-	 * Retrieve all settings (from option, with cache).
-	 * REVERTED: Now pulls from wp_options.
+	 * Retrieve all settings from WordPress options with caching.
+	 *
+	 * REVERTED: Now pulls from wp_options instead of transients.
+	 * Merges saved settings with defaults to ensure all keys exist.
+	 * Results are cached in obj_cache for the duration of the request.
+	 *
+	 * @return array<string, mixed> Complete settings array with defaults merged.
 	 */
 	public function all(): array
 	{
@@ -131,8 +169,15 @@ final class StarmusSettings
 
 
 	/**
-	 * Set a single setting (into wp_options) with sanitization and cache clear.
-	 * REVERTED: Now sets option.
+	 * Set a single setting value with sanitization and cache invalidation.
+	 *
+	 * REVERTED: Now updates wp_options instead of transients.
+	 * Validates the key, sanitizes the value, updates the option,
+	 * and clears the cache on success.
+	 *
+	 * @param string $key   The setting key to update.
+	 * @param mixed  $value The new value to set.
+	 * @return bool True on successful update, false on failure or invalid key.
 	 */
 	public function set(string $key, $value): bool
 	{
@@ -156,8 +201,14 @@ final class StarmusSettings
 	}
 
 	/**
-	 * Bulk update settings (into wp_options) with validation and defaults merge.
-	 * REVERTED: Now updates option.
+	 * Bulk update multiple settings with validation and defaults merge.
+	 *
+	 * REVERTED: Now updates wp_options instead of transients.
+	 * Validates and sanitizes all provided settings, merges with defaults,
+	 * updates the option, and clears cache on success.
+	 *
+	 * @param array<string, mixed> $settings Associative array of setting keys and values.
+	 * @return bool True on successful update, false on failure.
 	 */
 	public function update_all(array $settings): bool
 	{
@@ -185,8 +236,14 @@ final class StarmusSettings
 	}
 
 	/**
-	 * Retrieve default settings with cache.
+	 * Retrieve default settings with caching.
+	 *
 	 * FIXED: Syntax error in consent_message.
+	 * Returns the default configuration values for all plugin settings.
+	 * Applies 'starmus_default_settings' filter to allow customization.
+	 * Results are cached in default_obj_cache for the request.
+	 *
+	 * @return array<string, mixed> Default settings array.
 	 */
 	public function get_defaults(): array
 	{
@@ -252,6 +309,15 @@ final class StarmusSettings
 	/**
 	 * Check if the provided key exists in defaults.
 	 */
+	/**
+	 * Validate that a setting key exists in default settings.
+	 *
+	 * Checks if the provided key is recognized as a valid setting
+	 * by checking against the default settings array.
+	 *
+	 * @param string $key The setting key to validate.
+	 * @return bool True if key is valid, false otherwise.
+	 */
 	private function is_valid_key(string $key): bool
 	{
 		return \array_key_exists($key, $this->get_defaults());
@@ -259,6 +325,19 @@ final class StarmusSettings
 
 	/**
 	 * Sanitize setting values based on their expected type.
+	 */
+	/**
+	 * Sanitize setting values based on their key/purpose.
+	 *
+	 * Applies appropriate sanitization based on setting type:
+	 * - Integers for file sizes and limits
+	 * - Sanitized text/textarea for user-facing content
+	 * - Boolean conversion for checkboxes
+	 * - Custom sanitization for file types and slugs
+	 *
+	 * @param string $key   The setting key being sanitized.
+	 * @param mixed  $value The raw value to sanitize.
+	 * @return mixed Sanitized value appropriate for the key type.
 	 */
 	private function sanitize_value(string $key, $value)
 	{

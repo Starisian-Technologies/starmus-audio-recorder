@@ -25,21 +25,52 @@ use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 
 final class StarmusAssetLoader
 {
-    // --- Version and Handles ---
+    /**
+     * Current version of the asset loader.
+     *
+     * @var string
+     */
     private const VERSION = '3.1.0';
 
-    // --- Production Handle ---
+    /**
+     * Handle for the production bundle script.
+     *
+     * @var string
+     */
     private const HANDLE_PROD_BUNDLE = 'starmus-app-bundle';
 
-    // --- Vendor & Style Handles ---
+    /**
+     * Handle for the TUS.js vendor library.
+     *
+     * @var string
+     */
     private const HANDLE_VENDOR_TUS = 'tus-js';
+
+    /**
+     * Handle for the main stylesheet.
+     *
+     * @var string
+     */
     private const STYLE_HANDLE = 'starmus-audio-styles';
 
+    /**
+     * Constructor - Registers WordPress hooks for asset enqueueing.
+     *
+     * @return void
+     */
     public function __construct()
     {
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
     }
 
+    /**
+     * Enqueues frontend assets for Starmus pages.
+     *
+     * Only loads assets on frontend pages that contain Starmus shortcodes.
+     * Always uses production-optimized bundled assets for performance.
+     *
+     * @return void
+     */
     public function enqueue_frontend_assets(): void
     {
         try {
@@ -61,6 +92,11 @@ final class StarmusAssetLoader
 
     /**
      * Checks if the current page contains any Starmus shortcodes that require assets.
+     *
+     * Scans the current post content for Starmus-specific shortcodes to determine
+     * if frontend assets should be loaded.
+     *
+     * @return bool True if page contains Starmus shortcodes, false otherwise.
      */
     private function is_starmus_page(): bool
     {
@@ -82,7 +118,12 @@ final class StarmusAssetLoader
 
     /**
      * Enqueues the single, bundled, and minified JavaScript file for production.
+     *
      * This is a standard script, as the build process resolves all modules.
+     * The bundle depends on the TUS.js vendor library for chunked uploads.
+     * Localizes the script with server-side configuration data.
+     *
+     * @return void
      */
     private function enqueue_production_assets(): void
     {
@@ -102,7 +143,11 @@ final class StarmusAssetLoader
     }
 
     /**
-     * Enqueues the stylesheet for the plugin.
+     * Enqueues the minified stylesheet for the plugin.
+     *
+     * Loads the production-optimized CSS bundle with cache-busting version.
+     *
+     * @return void
      */
     private function enqueue_styles(): void
     {
@@ -120,6 +165,15 @@ final class StarmusAssetLoader
 
     /**
      * Gathers and prepares all necessary server-side data for the client-side app.
+     *
+     * Builds the configuration object that's localized to JavaScript, including:
+     * - REST API endpoints for uploads
+     * - Authentication nonce
+     * - Current user ID
+     * - Allowed file types and MIME types from settings
+     *
+     * @return array<string, mixed> Configuration array with endpoints, nonce, user_id, and file type settings.
+     *                              Returns safe defaults on error.
      */
     private function get_localization_data(): array
     {
@@ -170,6 +224,11 @@ final class StarmusAssetLoader
 
     /**
      * Resolves the asset version number for cache-busting.
+     *
+     * Uses the STARMUS_VERSION constant if defined, otherwise falls back to 1.0.0.
+     * This version is appended to asset URLs to invalidate browser caches on updates.
+     *
+     * @return string Version string for cache-busting.
      */
     private function resolve_version(): string
     {
