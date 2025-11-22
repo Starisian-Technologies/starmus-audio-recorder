@@ -169,6 +169,8 @@ $show_file_type_select = count($allowed_types_arr) > 1;
 				</div>
 				<script>
 					document.addEventListener('DOMContentLoaded', function() {
+						// wp_json_encode is safe - it's a core WordPress function that escapes JSON
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						const instanceId = <?php echo wp_json_encode($instance_id); ?>;
 						const toggle = document.getElementById('starmus_show_upload_' + instanceId);
 						const wrapper = document.getElementById('starmus_manual_upload_wrap_' + instanceId);
