@@ -26,8 +26,8 @@ if (! defined('ABSPATH')) {
 $instance_id = 'starmus_rerecord_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 
 // Get allowed file types from settings
-$allowed_file_types    = isset($allowed_file_types) ? $allowed_file_types : 'webm';
-$allowed_types_arr     = array_filter(array_map('trim', explode(',', $allowed_file_types)));
+$allowed_file_types ??= 'webm';
+$allowed_types_arr     = array_filter(array_map(trim(...), explode(',', $allowed_file_types)));
 $show_file_type_select = count($allowed_types_arr) > 1;
 ?>
 
@@ -38,9 +38,9 @@ $show_file_type_select = count($allowed_types_arr) > 1;
         method="post"
         enctype="multipart/form-data"
         novalidate
+        data-starmus="recorder"
         data-starmus-instance="<?php echo esc_attr($instance_id); ?>"
-        data-starmus-mode="rerecord">
-        <?php wp_nonce_field('starmus_audio_form', 'starmus_nonce_' . $instance_id); ?>
+        data-starmus-rerecord="true">
 
         <!-- Hidden Fields: Pre-filled metadata from existing post -->
         <input type="hidden" name="post_id" value="<?php echo esc_attr($post_id); ?>">

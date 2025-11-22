@@ -20,21 +20,21 @@ if (! defined('ABSPATH')) {
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 
 // Get allowed file types from settings (comma-separated string)
-$allowed_file_types    = isset($allowed_file_types) ? $allowed_file_types : 'webm';
-$allowed_types_arr     = array_filter(array_map('trim', explode(',', $allowed_file_types)));
+$allowed_file_types ??= 'webm';
+$allowed_types_arr     = array_filter(array_map(trim(...), explode(',', $allowed_file_types)));
 $show_file_type_select = count($allowed_types_arr) > 1;
 $is_admin              = current_user_can('manage_options');
 ?>
 
 <div class="starmus-recorder-form">
 	<form
-		id="<?php echo esc_attr($instance_id); ?>"
-		class="starmus-audio-form sparxstar-glass-card"
-		method="post"
-		enctype="multipart/form-data"
-		novalidate
-		data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
-		<?php wp_nonce_field('starmus_audio_form', 'starmus_nonce_' . $instance_id); ?>
+    id="<?php echo esc_attr($instance_id); ?>"
+    class="starmus-audio-form sparxstar-glass-card"
+    method="post"
+    enctype="multipart/form-data"
+    novalidate
+    data-starmus="recorder"
+    data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
 
 		<!-- Step 1: Form Details -->
 		<div

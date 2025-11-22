@@ -78,15 +78,11 @@ class StarmusLogger
 
     /**
      * Path to the log file.
-     *
-     * @var string|null
      */
     protected static ?string $log_file_path = null;
 
     /**
      * Minimum log level to record.
-     *
-     * @var int
      */
     protected static int $min_log_level = self::INFO;
 
@@ -108,15 +104,11 @@ class StarmusLogger
 
     /**
      * Whether to output logs in JSON format.
-     *
-     * @var bool
      */
     protected static bool $json_mode = false;
 
     /**
      * Correlation ID for tracking related log entries.
-     *
-     * @var string|null
      */
     protected static ?string $correlation_id = null;
 
@@ -130,14 +122,12 @@ class StarmusLogger
     /*==============================================================
      * CONFIGURATION
      *=============================================================*/
-
     /**
      * Set the minimum log level to record.
      *
      * Only messages at or above this level will be logged.
      *
      * @param string $level_name Level name (debug, info, warning, error, etc.).
-     * @return void
      */
     public static function setMinLogLevel(string $level_name): void
     {
@@ -161,7 +151,6 @@ class StarmusLogger
      * Set custom log file path.
      *
      * @param string $path Absolute path to log file.
-     * @return void
      */
     public static function setLogFilePath(string $path): void
     {
@@ -172,7 +161,6 @@ class StarmusLogger
      * Enable or disable JSON output format.
      *
      * @param bool $enabled True to enable JSON mode, false for plain text.
-     * @return void
      */
     public static function enableJsonMode(bool $enabled = true): void
     {
@@ -183,7 +171,6 @@ class StarmusLogger
      * Set correlation ID for tracking related log entries.
      *
      * @param string|null $id Custom ID or null to auto-generate UUID.
-     * @return void
      */
     public static function setCorrelationId(?string $id = null): void
     {
@@ -231,12 +218,14 @@ class StarmusLogger
                     error_log('StarmusLogger: Failed to create log directory: ' . $log_dir);
                     return null;
                 }
+
                 file_put_contents($log_dir . '/.htaccess', 'Deny from all');
                 file_put_contents($log_dir . '/index.html', '');
             }
 
             self::$log_file_path = $log_dir . '/starmus-' . gmdate('Y-m-d') . '.log';
         }
+
         return self::$log_file_path;
     }
 
@@ -260,15 +249,18 @@ class StarmusLogger
     {
         $upload_dir_info = wp_upload_dir();
         $log_dir = $upload_dir_info['basedir'] . '/starmus-logs';
-        if (!is_dir($log_dir)) return 0;
+        if (!is_dir($log_dir)) {
+            return 0;
+        }
 
         $deleted = 0;
         foreach (glob($log_dir . '/starmus-*.log') as $file) {
-            if (filemtime($file) < strtotime("-{$days} days")) {
+            if (filemtime($file) < strtotime(sprintf('-%d days', $days))) {
                 wp_delete_file($file);
                 $deleted++;
             }
         }
+
         return $deleted;
     }
 
@@ -300,6 +292,7 @@ class StarmusLogger
                 return strtoupper($name);
             }
         }
+
         return 'UNKNOWN';
     }
 
@@ -321,6 +314,7 @@ class StarmusLogger
                 $v = self::sanitizeData($v);
             }
         }
+
         return $data;
     }
 
@@ -336,16 +330,14 @@ class StarmusLogger
      * @param string|\Throwable    $msg     Message string or Throwable exception.
      * @param string               $level   Log level name (default 'error').
      * @param array<string, mixed> $extra   Additional contextual data.
-     * @return void
      */
     public static function log(string $context, $msg, string $level = 'error', array $extra = []): void
     {
         $current_level_int = self::getLevelInt($level);
-        if (!defined('WP_DEBUG_LOG') || !WP_DEBUG_LOG) {
-            if ($current_level_int < self::ERROR) {
-                return;
-            }
+        if ((!defined('WP_DEBUG_LOG') || !WP_DEBUG_LOG) && $current_level_int < self::ERROR) {
+            return;
         }
+
         if ($current_level_int < self::$min_log_level) {
             return;
         }
@@ -378,7 +370,7 @@ class StarmusLogger
                 $level_name,
                 $context,
                 $message_content,
-                $trace_content ? "\nStack trace:\n" . $trace_content : ''
+                $trace_content !== '' && $trace_content !== '0' ? "\nStack trace:\n" . $trace_content : ''
             );
         }
 
@@ -410,24 +402,23 @@ class StarmusLogger
         if ($msg instanceof \Throwable) {
             return sprintf(
                 '%s: %s in %s:%d',
-                get_class($msg),
+                $msg::class,
                 $msg->getMessage(),
                 $msg->getFile(),
                 $msg->getLine()
             );
         }
+
         return (string) $msg;
     }
 
     /*==============================================================
      * TIMER UTILITIES
      *=============================================================*/
-
     /**
      * Start a named execution timer.
      *
      * @param string $label Timer label/identifier.
-     * @return void
      */
     public static function timeStart(string $label): void
     {
@@ -436,10 +427,13 @@ class StarmusLogger
 
     public static function timeEnd(string $label, string $context = 'Timer'): void
     {
-        if (!isset(self::$timers[$label])) return;
+        if (!isset(self::$timers[$label])) {
+            return;
+        }
+
         $duration = round((microtime(true) - self::$timers[$label]) * 1000, 2);
         unset(self::$timers[$label]);
-        self::debug($context, "$label completed in {$duration}ms");
+        self::debug($context, sprintf('%s completed in %sms', $label, $duration));
     }
 
     /*==============================================================
@@ -450,34 +444,42 @@ class StarmusLogger
     {
         self::log($context, $msg, 'debug', $extra);
     }
+
     public static function info(string $context, $msg, array $extra = []): void
     {
         self::log($context, $msg, 'info', $extra);
     }
+
     public static function notice(string $context, $msg, array $extra = []): void
     {
         self::log($context, $msg, 'notice', $extra);
     }
+
     public static function warning(string $context, $msg, array $extra = []): void
     {
         self::log($context, $msg, 'warning', $extra);
     }
+
     public static function warn(string $context, $msg, array $extra = []): void
     {
         self::log($context, $msg, 'warning', $extra);
     }
+
     public static function error(string $context, $msg, array $extra = []): void
     {
         self::log($context, $msg, 'error', $extra);
     }
+
     public static function critical(string $context, $msg, array $extra = []): void
     {
         self::log($context, $msg, 'critical', $extra);
     }
+
     public static function alert(string $context, $msg, array $extra = []): void
     {
         self::log($context, $msg, 'alert', $extra);
     }
+
     public static function emergency(string $context, $msg, array $extra = []): void
     {
         self::log($context, $msg, 'emergency', $extra);
@@ -486,18 +488,15 @@ class StarmusLogger
     /*==============================================================
      * DIAGNOSTIC UTILITIES
      *=============================================================*/
-
     /**
      * Bootstrap logger and register shutdown handler.
      *
      * Call this method early in plugin bootstrap to enable
      * callback error detection.
-     *
-     * @return void
      */
     public static function boot(): void
     {
-        register_shutdown_function([__CLASS__, 'catchCallbackErrors']);
+        register_shutdown_function([self::class, 'catchCallbackErrors']);
     }
 
     /**
@@ -505,8 +504,6 @@ class StarmusLogger
      *
      * Detects call_user_func_array() errors and logs them to debug.log.
      * Registered automatically when boot() is called.
-     *
-     * @return void
      */
     public static function catchCallbackErrors(): void
     {
@@ -515,7 +512,7 @@ class StarmusLogger
             return;
         }
 
-        if (strpos($error['message'], 'call_user_func_array') !== false) {
+        if (str_contains($error['message'], 'call_user_func_array')) {
             error_log(
                 sprintf(
                     "Callback Error: %s in %s:%d",

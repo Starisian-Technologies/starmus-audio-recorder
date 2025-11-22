@@ -1,0 +1,30 @@
+{
+    "source": {
+        "include": [
+            "src/js"
+        ],
+        "includePattern": ".+\\.js$",
+        "excludePattern": "(node_modules|vendor|tests)"
+    },
+    "opts": {
+        "encoding": "utf8",
+        "destination": "./docs/js",
+        "recurse": true,
+        "template": "default",
+        "readme": "none"
+    },
+    "plugins": [
+        "plugins/markdown"
+    ],
+    "markdown": {
+        "hardwrap": false,
+        "idInHeadings": true
+    },
+    "templates": {
+        "cleverLinks": true,
+        "monospaceLinks": false,
+        "default": {
+            "outputSourceFiles": false
+        }
+    }
+}

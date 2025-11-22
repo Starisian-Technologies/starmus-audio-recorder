@@ -30,7 +30,7 @@ use function trailingslashit;
  * Use this class when you want to run heavy audio post-processing
  * safely in the background after uploads.
  */
-final class StarmusCron
+final readonly class StarmusCron
 {
 
 	/** Single-run job for background mastering. */
@@ -40,6 +40,7 @@ final class StarmusCron
 	public const CLEANUP_TEMP_FILES_HOOK = 'starmus_cleanup_temp_files';
 
 	private StarmusWaveformService $waveform;
+
 	private StarmusPostProcessingService $post;
 
 	public function __construct(
@@ -53,26 +54,23 @@ final class StarmusCron
 	/** Registers WP hooks for both the processor and cleanup jobs. */
 	public function register_hooks(): void
 	{
-		add_action(self::PROCESS_AUDIO_HOOK, array($this, 'run_audio_processing_pipeline'), 10, 1);
-		add_action(self::CLEANUP_TEMP_FILES_HOOK, array($this, 'cleanup_stale_temp_files'));
-		add_filter('cron_schedules', array($this, 'register_custom_schedules'));
+		add_action(self::PROCESS_AUDIO_HOOK, $this->run_audio_processing_pipeline(...), 10, 1);
+		add_action(self::CLEANUP_TEMP_FILES_HOOK, $this->cleanup_stale_temp_files(...));
+		add_filter('cron_schedules', $this->register_custom_schedules(...));
 	}
 
 	/**
-	 * Queue a background mastering job for a given attachment.
-	 *
-	 * @param int $attachment_id
-	 */
-	public function schedule_audio_processing(int $attachment_id): void
+     * Queue a background mastering job for a given attachment.
+     */
+    public function schedule_audio_processing(int $attachment_id): void
 	{
-		$attachment_id = (int) $attachment_id;
 		if ($attachment_id <= 0) {
 			return;
 		}
 
-		if (! wp_next_scheduled(self::PROCESS_AUDIO_HOOK, array($attachment_id))) {
-			wp_schedule_single_event(time() + 60, self::PROCESS_AUDIO_HOOK, array($attachment_id));
-			StarmusLogger::info('Cron', 'Scheduled audio processing', array('attachment_id' => $attachment_id));
+		if (! wp_next_scheduled(self::PROCESS_AUDIO_HOOK, [$attachment_id])) {
+			wp_schedule_single_event(time() + 60, self::PROCESS_AUDIO_HOOK, [$attachment_id]);
+			StarmusLogger::info('Cron', 'Scheduled audio processing', ['attachment_id' => $attachment_id]);
 		}
 	}
 
@@ -81,13 +79,12 @@ final class StarmusCron
 	 */
 	public function run_audio_processing_pipeline(int $attachment_id): void
 	{
-		$attachment_id = (int) $attachment_id;
 		if ($attachment_id <= 0) {
 			return;
 		}
 
 		StarmusLogger::setCorrelationId();
-		StarmusLogger::info('Cron', 'Starting background pipeline', array('attachment_id' => $attachment_id));
+		StarmusLogger::info('Cron', 'Starting background pipeline', ['attachment_id' => $attachment_id]);
 		update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_PROCESSING);
 
 		try {
@@ -102,7 +99,7 @@ final class StarmusCron
 			}
 
 			if ($parent_id <= 0) {
-				StarmusLogger::warn('Cron', 'No parent post linked to attachment', array('attachment_id' => $attachment_id));
+				StarmusLogger::warn('Cron', 'No parent post linked to attachment', ['attachment_id' => $attachment_id]);
 			}
 
 			$success = $this->post->process_and_archive_audio($parent_id, $attachment_id);
@@ -113,26 +110,26 @@ final class StarmusCron
 				StarmusLogger::info(
 					'Cron',
 					'Background processing complete',
-					array(
+					[
 						'attachment_id' => $attachment_id,
 						'post_id'       => $parent_id,
-					)
+					]
 				);
 			} else {
 				update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN);
-				StarmusLogger::error('Cron', 'Background processing failed', array('attachment_id' => $attachment_id));
+				StarmusLogger::error('Cron', 'Background processing failed', ['attachment_id' => $attachment_id]);
 			}
-		} catch (\Throwable $e) {
+		} catch (\Throwable $throwable) {
 			update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN);
 			StarmusLogger::error(
 				'Cron',
 				'Fatal exception during cron pipeline',
-				array(
+				[
 					'attachment_id' => $attachment_id,
-					'error'         => $e->getMessage(),
-				)
+					'error'         => $throwable->getMessage(),
+				]
 			);
-			error_log("StarmusCron fatal error for attachment {$attachment_id}: {$e->getMessage()}");
+			error_log(sprintf('StarmusCron fatal error for attachment %d: %s', $attachment_id, $throwable->getMessage()));
 		}
 	}
 
@@ -147,7 +144,7 @@ final class StarmusCron
 		}
 
 		$files = glob($dir . '*.part');
-		if (empty($files)) {
+		if ($files === [] || $files === false) {
 			return;
 		}
 
@@ -161,10 +158,10 @@ final class StarmusCron
 		StarmusLogger::debug(
 			'Cron',
 			'Temp cleanup executed',
-			array(
+			[
 				'dir'           => $dir,
 				'removed_count' => count($files),
-			)
+			]
 		);
 	}
 
@@ -191,13 +188,14 @@ final class StarmusCron
 	public function register_custom_schedules(array $schedules): array
 	{
 		try {
-			$schedules['starmus_quarter_hour'] = array(
+			$schedules['starmus_quarter_hour'] = [
 				'interval' => 15 * MINUTE_IN_SECONDS,
 				'display'  => __('Every 15 Minutes (Starmus)', 'starmus-audio-recorder'),
-			);
-		} catch (\Throwable $e) {
-			error_log('[StarmusCron] Failed to register schedule: ' . $e->getMessage());
+			];
+		} catch (\Throwable $throwable) {
+			error_log('[StarmusCron] Failed to register schedule: ' . $throwable->getMessage());
 		}
+
 		return $schedules;
 	}
 

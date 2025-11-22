@@ -1,1733 +1,1340 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-            <title>Documentation</title>
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="../">
-    <link rel="icon" href="images/favicon.ico"/>
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/base.css">
-            <link rel="preconnect" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@100;200;300;400;600;700&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="css/template.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css" integrity="sha256-ybRkN9dBjhcS2qrW1z+hfCxq+1aBdwyQM5wlQoQVt/0=" crossorigin="anonymous" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-okaidia.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.css">
-                <script src="https://cdn.jsdelivr.net/npm/fuse.js@3.4.6"></script>
-        <script src="https://cdn.jsdelivr.net/npm/css-vars-ponyfill@2"></script>
-        <script src="js/template.js"></script>
-        <script src="js/search.js"></script>
-        <script defer src="js/searchIndex.js"></script>
-    </head>
-<body id="top">
-    <header class="phpdocumentor-header phpdocumentor-section">
-    <h1 class="phpdocumentor-title"><a href="" class="phpdocumentor-title__link">Documentation</a></h1>
-    <input class="phpdocumentor-header__menu-button" type="checkbox" id="menu-button" name="menu-button" />
-    <label class="phpdocumentor-header__menu-icon" for="menu-button">
-        <i class="fas fa-bars"></i>
-    </label>
-    <section data-search-form class="phpdocumentor-search">
-    <label>
-        <span class="visually-hidden">Search for</span>
-        <svg class="phpdocumentor-search__icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="2"/>
-            <line x1="12.4892" y1="12.2727" x2="19.1559" y2="18.9393" stroke="currentColor" stroke-width="3"/>
-        </svg>
-        <input type="search" class="phpdocumentor-field phpdocumentor-search__field" placeholder="Loading .." disabled />
-    </label>
-</section>
+<html lang="en" id="top-of-site">
+	<head>
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<meta charset="utf-8"/>
+		<title>
+							Documentation
+					</title>
+		<meta name="author" content=""/>
+		<meta name="description" content=""/>
+		<base href="../">
 
-    <nav class="phpdocumentor-topnav">
-    <ul class="phpdocumentor-topnav__menu">
-        </ul>
-</nav>
-</header>
+		<link href="resources/css/bootstrap.min.css" rel="stylesheet" media="all"/>
+		<link href="resources/css/bootstrap-responsive.min.css" rel="stylesheet" media="all"/>
+		<link href="resources/css/style.css" rel="stylesheet" media="all"/>
+		<link href="resources/css/prism.min.css" rel="stylesheet" media="all"/>
+		<link href="resources/font/css/all.min.css" rel="stylesheet" media="all"/>
+		
+		<link rel="shortcut icon" href="resources/images/favicon.ico"/>
+		<link rel="apple-touch-icon" href="resources/images/apple-touch-icon.png"/>
+		<link rel="apple-touch-icon" sizes="72x72" href="resources/images/apple-touch-icon-72x72.png"/>
+		<link rel="apple-touch-icon" sizes="114x114" href="resources/images/apple-touch-icon-114x114.png"/>
+	</head>
+	<body>
 
-    <main class="phpdocumentor">
-        <div class="phpdocumentor-section">
-            <input class="phpdocumentor-sidebar__menu-button" type="checkbox" id="sidebar-button" name="sidebar-button" />
-<label class="phpdocumentor-sidebar__menu-icon" for="sidebar-button">
-    Menu
-</label>
-<aside class="phpdocumentor-column -three phpdocumentor-sidebar">
-                    <section class="phpdocumentor-sidebar__category -namespaces">
-            <h2 class="phpdocumentor-sidebar__category-header">Namespaces</h2>
-                                    <h4 class="phpdocumentor-sidebar__root-namespace">
-    <a href="namespaces/starisian.html" class="">Starisian</a>
-</h4>
-    <ul class="phpdocumentor-list">
-                    <li>
-                <a href="namespaces/starisian-sparxstar.html" class="">Sparxstar</a>
-                
-            </li>
-            </ul>
+		<nav class="navbar navbar-fixed-top navbar-inverse">
+			<div class="navbar-inner">
+				<div class="container">
+					<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+						<i class="fa-solid fa-bars"></i>
+					</a>
+					<a class="brand" href="index.html">Documentation</a>
 
-                        </section>
-                <section class="phpdocumentor-sidebar__category -packages">
-            <h2 class="phpdocumentor-sidebar__category-header">Packages</h2>
-                                    <h4 class="phpdocumentor-sidebar__root-namespace">
-    <a href="packages/Starmus.html" class="">Starmus</a>
-</h4>
-    <ul class="phpdocumentor-list">
-                    <li>
-                <a href="packages/Starmus-core.html" class="">core</a>
-                
-            </li>
-                    <li>
-                <a href="packages/Starmus-Includes.html" class="">Includes</a>
-                
-            </li>
-            </ul>
+					<div class="nav-collapse navbar-responsive-collapse collapse">
+						<ul class="nav pull-right">
+															<li class="dropdown" id="api-menu">
+									<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-labelledby="api-menu">
+										API Documentation
+										<b class="caret"></b>
+									</a>
+									<ul class="dropdown-menu" role="menu" aria-labelledby="api-menu">
+																					<li><a href="namespaces/starisian.html"><abbr title="\Starisian">Starisian</abbr></a></li>
+																			</ul>
+								</li>
+																					<li class="dropdown">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+									Reports
+									<b class="caret"></b>
+								</a>
+								<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+									<li>
+										<a href="reports/errors.html">
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			<i class="fa-solid fa-bug"></i>&#160;Errors
+											<span class="label label-important pull-right">0</span>
+										</a>
+									</li>
+									<li>
+										<a href="reports/markers.html">
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			<i class="fa-solid fa-location-dot"></i>&#160;&#160;Markers
+											<span class="label label-warning pull-right">0</span>
+										</a>
+									</li>
+									<li>
+										<a href="reports/deprecated.html">
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																													<i class="fa-solid fa-file-circle-xmark"></i>&#160;Deprecated
+											<span class="label label-info pull-right">0</span>
+										</a>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="go_to_top">
+				<a href="#top-of-site" style="color: inherit">Back To Top&#160;&#160;<i class="fa-solid fa-chevron-up"></i></a>
+			</div>
+		</nav>
 
-                                    <h4 class="phpdocumentor-sidebar__root-namespace">
-    <a href="packages/Starisian.html" class="">Starisian</a>
-</h4>
-    <ul class="phpdocumentor-list">
-                    <li>
-                <a href="packages/Starisian-Sparxstar.html" class="">Sparxstar</a>
-                
-            </li>
-                    <li>
-                <a href="packages/Starisian-Starmus.html" class="">Starmus</a>
-                
-            </li>
-            </ul>
+		<div id="___" class="container-fluid"> 	<section class="row-fluid">
+		<div class="span2 sidebar">
+								<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1388531103"></a>
+								<a href="namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+			</div>
+			<div id="namespace-1388531103" class="accordion-body collapse in">
+				<div class="accordion-inner">
 
-                                    <h4 class="phpdocumentor-sidebar__root-namespace">
-    <a href="packages/Application.html" class="">Application</a>
-</h4>
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-2085154887"></a>
+								<a href="namespaces/starisian.html" style="margin-left: 30px; padding-left: 0">Starisian</a>
+			</div>
+			<div id="namespace-2085154887" class="accordion-body collapse ">
+				<div class="accordion-inner">
 
-                        </section>
-            
-    <section class="phpdocumentor-sidebar__category -reports">
-        <h2 class="phpdocumentor-sidebar__category-header">Reports</h2>
-                <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/deprecated.html">Deprecated</a></h3>
-        <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/errors.html">Errors</a></h3>
-        <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/markers.html">Markers</a></h3>
-    </section>
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-2052144425"></a>
+								<a href="namespaces/starisian-sparxstar.html" style="margin-left: 30px; padding-left: 0">Sparxstar</a>
+			</div>
+			<div id="namespace-2052144425" class="accordion-body collapse ">
+				<div class="accordion-inner">
 
-    <section class="phpdocumentor-sidebar__category -indices">
-        <h2 class="phpdocumentor-sidebar__category-header">Indices</h2>
-        <h3 class="phpdocumentor-sidebar__root-package"><a href="indices/files.html">Files</a></h3>
-    </section>
-</aside>
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-449872970"></a>
+								<a href="namespaces/starisian-sparxstar-starmus.html" style="margin-left: 30px; padding-left: 0">Starmus</a>
+			</div>
+			<div id="namespace-449872970" class="accordion-body collapse ">
+				<div class="accordion-inner">
 
-            <div class="phpdocumentor-column -nine phpdocumentor-content">
-                                <section>
-                                        <ul class="phpdocumentor-breadcrumbs">
-            <li class="phpdocumentor-breadcrumb"><a href="namespaces/starisian.html">Starisian</a></li>
-            <li class="phpdocumentor-breadcrumb"><a href="namespaces/starisian-sparxstar.html">Sparxstar</a></li>
-            <li class="phpdocumentor-breadcrumb"><a href="namespaces/starisian-sparxstar-starmus.html">Starmus</a></li>
-    </ul>
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1013256074"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-admin.html" style="margin-left: 30px; padding-left: 0">admin</a>
+			</div>
+			<div id="namespace-1013256074" class="accordion-body collapse ">
+				<div class="accordion-inner">
 
-    <article class="phpdocumentor-element -class">
-        <h2 class="phpdocumentor-content__title">
-    StarmusAudioRecorder
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><abbr title="\Starisian\Sparxstar\Starmus\admin\StarmusAdmin">StarmusAdmin</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 
-    
-            <div class="phpdocumentor-element__package">
-            in package
-            <ul class="phpdocumentor-breadcrumbs">
-                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Starisian.html">Starisian</a></li>
-                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Starisian-Sparxstar.html">Sparxstar</a></li>
-                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Starisian-Sparxstar-Starmus.html">Starmus</a></li>
-                            </ul>
-        </div>
-    
-    
-    </h2>
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-2097453903"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-api.html" style="margin-left: 30px; padding-left: 0">api</a>
+			</div>
+			<div id="namespace-2097453903" class="accordion-body collapse ">
+				<div class="accordion-inner">
 
-<div class="phpdocumentor-label-line">
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-api-StarmusRESTHandler.html"><abbr title="\Starisian\Sparxstar\Starmus\api\StarmusRESTHandler">StarmusRESTHandler</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 
-    <div class="phpdocumentor-label phpdocumentor-label--success"><span>Final</span><span>Yes</span></div>
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1165260497"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-cli.html" style="margin-left: 30px; padding-left: 0">cli</a>
+			</div>
+			<div id="namespace-1165260497" class="accordion-body collapse ">
+				<div class="accordion-inner">
 
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-cli-StarmusCLI.html"><abbr title="\Starisian\Sparxstar\Starmus\cli\StarmusCLI">StarmusCLI</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 
-</div>
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-646134997"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-core.html" style="margin-left: 30px; padding-left: 0">core</a>
+			</div>
+			<div id="namespace-646134997" class="accordion-body collapse ">
+				<div class="accordion-inner">
 
-        <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">60</span>
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-902745215"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-core-interfaces.html" style="margin-left: 30px; padding-left: 0">interfaces</a>
+			</div>
+			<div id="namespace-902745215" class="accordion-body collapse ">
+				<div class="accordion-inner">
 
-    </aside>
+					
+					<ul>
+													<li class="interface"><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr></a></li>
+																							</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 
-            <p class="phpdocumentor-summary">Main plugin bootstrapper.</p>
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAssetLoader">StarmusAssetLoader</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL">StarmusAudioRecorderDAL</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderUpdater.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderUpdater">StarmusAudioRecorderUpdater</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-931155829"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-cron.html" style="margin-left: 30px; padding-left: 0">cron</a>
+			</div>
+			<div id="namespace-931155829" class="accordion-body collapse ">
+				<div class="accordion-inner">
 
-    <section class="phpdocumentor-description"><p>Responsibilities:</p>
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-cron-StarmusCron.html"><abbr title="\Starisian\Sparxstar\Starmus\cron\StarmusCron">StarmusCron</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1290970250"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-frontend.html" style="margin-left: 30px; padding-left: 0">frontend</a>
+			</div>
+			<div id="namespace-1290970250" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-frontend-StarmusAudioEditorUI.html"><abbr title="\Starisian\Sparxstar\Starmus\frontend\StarmusAudioEditorUI">StarmusAudioEditorUI</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-frontend-StarmusAudioRecorderUI.html"><abbr title="\Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI">StarmusAudioRecorderUI</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-frontend-StarmusShortcodeLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\frontend\StarmusShortcodeLoader">StarmusShortcodeLoader</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-754325679"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-helpers.html" style="margin-left: 30px; padding-left: 0">helpers</a>
+			</div>
+			<div id="namespace-754325679" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-helpers-StarmusLogger.html"><abbr title="\Starisian\Sparxstar\Starmus\helpers\StarmusLogger">StarmusLogger</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-helpers-StarmusSanitizer.html"><abbr title="\Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer">StarmusSanitizer</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-helpers-StarmusTemplateLoaderHelper.html"><abbr title="\Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper">StarmusTemplateLoaderHelper</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1489359725"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-includes.html" style="margin-left: 30px; padding-left: 0">includes</a>
+			</div>
+			<div id="namespace-1489359725" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusAdaptiveAssetLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\includes\StarmusAdaptiveAssetLoader">StarmusAdaptiveAssetLoader</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html"><abbr title="\Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler">StarmusSubmissionHandler</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html"><abbr title="\Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler">StarmusTusdHookHandler</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-2107574595"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-services.html" style="margin-left: 30px; padding-left: 0">services</a>
+			</div>
+			<div id="namespace-2107574595" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-services-StarmusAudioProcessingHandler.html"><abbr title="\Starisian\Sparxstar\Starmus\services\StarmusAudioProcessingHandler">StarmusAudioProcessingHandler</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-services-StarmusAudioProcessingService.html"><abbr title="\Starisian\Sparxstar\Starmus\services\StarmusAudioProcessingService">StarmusAudioProcessingService</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-services-StarmusFileService.html"><abbr title="\Starisian\Sparxstar\Starmus\services\StarmusFileService">StarmusFileService</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html"><abbr title="\Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService">StarmusPostProcessingService</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-services-StarmusWaveformService.html"><abbr title="\Starisian\Sparxstar\Starmus\services\StarmusWaveformService">StarmusWaveformService</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><abbr title="\Starisian\Sparxstar\Starmus\StarmusAudioRecorder">StarmusAudioRecorder</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+					
+					<ul>
+																							</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+					
+					<ul>
+																							</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+					
+					<ul>
+																							</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+		</div>
+	</section>
+	<section class="row-fluid">
+		<div class="span10 offset2">
+			<div class="row-fluid">
+				<div class="span8 content class">
+					<nav>
+												<a href="namespaces/starisian-sparxstar-starmus.html"><abbr title="\Starisian\Sparxstar\Starmus">Starmus</abbr></a>
+						<i class="fa-solid fa-turn-up"></i>
+											</nav>
+					
+					<h1>
+						<small>\Starisian\Sparxstar\Starmus</small>
+						StarmusAudioRecorder</h1>
+					<p>
+						<em>Main plugin bootstrapper.</em>
+					</p>
+					<p>Responsibilities:</p>
 <ul>
 <li>Initialize settings early.</li>
 <li>Instantiate/wire dependent components (Admin, Assets, UI, REST).</li>
 <li>Register global hooks once.</li>
 <li>Defer heavy logic to dedicated classes.</li>
 </ul>
-</section>
 
-
-
-
-
-
-
-<h3 id="toc">
-    Table of Contents
-    <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#toc" class="headerlink"><i class="fas fa-link"></i></a>
-
-</h3>
-
-
-
-
-
-
-
-<h4 id="toc-constants">
-    Constants
-    <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#toc-constants" class="headerlink"><i class="fas fa-link"></i></a>
-
-</h4>
-<dl class="phpdocumentor-table-of-contents">
-            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#constant_STARMUS_CAP_EDIT_AUDIO">STARMUS_CAP_EDIT_AUDIO</a>
-    <span>
-        &nbsp;= &#039;starmus_edit_audio&#039;                            </span>
-</dt>
-<dd>Capability allowing users to edit uploaded audio.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#constant_STARMUS_CAP_RECORD_AUDIO">STARMUS_CAP_RECORD_AUDIO</a>
-    <span>
-        &nbsp;= &#039;starmus_record_audio&#039;                            </span>
-</dt>
-<dd>Capability allowing users to create new recordings.</dd>
-
-    </dl>
-
-
-<h4 id="toc-properties">
-    Properties
-    <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#toc-properties" class="headerlink"><i class="fas fa-link"></i></a>
-
-</h4>
-<dl class="phpdocumentor-table-of-contents">
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_admin">$admin</a>
-    <span>
-                        &nbsp;: <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><abbr title="\Starisian\Sparxstar\Starmus\admin\StarmusAdmin">StarmusAdmin</abbr></a>|null            </span>
-</dt>
-<dd>Admin controller.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_asset_loader">$asset_loader</a>
-    <span>
-                        &nbsp;: <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAssetLoader">StarmusAssetLoader</abbr></a>|null            </span>
-</dt>
-<dd>Asset loader (enqueue styles/scripts).</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_cron">$cron</a>
-    <span>
-                        &nbsp;: <a href="classes/Starisian-Sparxstar-Starmus-cron-StarmusCron.html"><abbr title="\Starisian\Sparxstar\Starmus\cron\StarmusCron">StarmusCron</abbr></a>|null            </span>
-</dt>
-<dd>Cron service (only in non-CLI contexts).</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_DAL">$DAL</a>
-    <span>
-                        &nbsp;: <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL">StarmusAudioRecorderDAL</abbr></a>|null            </span>
-</dt>
-
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_hooksRegistered">$hooksRegistered</a>
-    <span>
-                        &nbsp;: bool            </span>
-</dt>
-<dd>Whether we&#039;ve registered WordPress hooks (guard).</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_instance">$instance</a>
-    <span>
-                        &nbsp;: <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><abbr title="\Starisian\Sparxstar\Starmus\StarmusAudioRecorder">StarmusAudioRecorder</abbr></a>|null            </span>
-</dt>
-<dd>Singleton instance.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_rest_handler">$rest_handler</a>
-    <span>
-                        &nbsp;: <a href="classes/Starisian-Sparxstar-Starmus-api-StarmusRESTHandler.html"><abbr title="\Starisian\Sparxstar\Starmus\api\StarmusRESTHandler">StarmusRESTHandler</abbr></a>|null            </span>
-</dt>
-<dd>REST handler (bridges endpoints to SubmissionHandler).</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_runtimeErrors">$runtimeErrors</a>
-    <span>
-                        &nbsp;: array&lt;string|int, mixed&gt;            </span>
-</dt>
-<dd>Collected runtime errors for admin notice.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_settings">$settings</a>
-    <span>
-                        &nbsp;: <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a>|null            </span>
-</dt>
-<dd>Settings service (must be ready before other deps).</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_ui_loader">$ui_loader</a>
-    <span>
-                        &nbsp;: <a href="classes/Starisian-Sparxstar-Starmus-frontend-StarmusShortcodeLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\frontend\StarmusShortcodeLoader">StarmusShortcodeLoader</abbr></a>|null            </span>
-</dt>
-<dd>Frontend shortcode/UX loader (manages Recorder + Editor UI).</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_updater">$updater</a>
-    <span>
-                        &nbsp;: <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderUpdater.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderUpdater">StarmusAudioRecorderUpdater</abbr></a>|null            </span>
-</dt>
-<dd>Updater (optional; registers update filters).</dd>
-
-    </dl>
-
-<h4 id="toc-methods">
-    Methods
-    <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#toc-methods" class="headerlink"><i class="fas fa-link"></i></a>
-
-</h4>
-<dl class="phpdocumentor-table-of-contents">
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___clone">__clone()</a>
-    <span>
-                                &nbsp;: mixed    </span>
-</dt>
-<dd>Strictly prevent cloning.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___serialize">__serialize()</a>
-    <span>
-                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
-</dt>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___sleep">__sleep()</a>
-    <span>
-                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
-</dt>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___unserialize">__unserialize()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___wakeup">__wakeup()</a>
-    <span>
-                                &nbsp;: mixed    </span>
-</dt>
-<dd>Strictly prevent (un)serialization.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_check_field_plugin_dependency">check_field_plugin_dependency()</a>
-    <span>
-                                &nbsp;: bool    </span>
-</dt>
-<dd>Check whether Secure Custom Fields (SCF) is installed and active.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_displayRuntimeErrorNotice">displayRuntimeErrorNotice()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Admin notice for collected runtime errors.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_starmus_get_instance">starmus_get_instance()</a>
-    <span>
-                                &nbsp;: <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><abbr title="\Starisian\Sparxstar\Starmus\StarmusAudioRecorder">StarmusAudioRecorder</abbr></a>    </span>
-</dt>
-<dd>Get singleton instance.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_starmus_run">starmus_run()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Entry point called from main plugin file.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___construct">__construct()</a>
-    <span>
-                                &nbsp;: mixed    </span>
-</dt>
-<dd>Private constructor for singleton pattern.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_init_settings_or_throw">init_settings_or_throw()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Ensure settings are instantiated before anything else.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_instantiate_components">instantiate_components()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Instantiate components that depend on settings and environment.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_log_runtime_error">log_runtime_error()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Centralized error capture + log + user-visible storage.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_register_hooks">register_hooks()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Register cross-cutting hooks once.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_set_DAL">set_DAL()</a>
-    <span>
-                                &nbsp;: <abbr title="\Starisian\Sparxstar\Starmus\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr>    </span>
-</dt>
-<dd>Filter: starmus_register_dal</dd>
-
-    </dl>
-
-
-
-        
-    <section class="phpdocumentor-constants">
-        <h3 class="phpdocumentor-elements__header" id="constants">
-            Constants
-            <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#constants" class="headerlink"><i class="fas fa-link"></i></a>
-
-        </h3>
-                    <article class="phpdocumentor-element -constant -public ">
-    <h4 class="phpdocumentor-element__name" id="constant_STARMUS_CAP_EDIT_AUDIO">
-        STARMUS_CAP_EDIT_AUDIO
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#constant_STARMUS_CAP_EDIT_AUDIO" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">64</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Capability allowing users to edit uploaded audio.</p>
-
-    
-    <code class="phpdocumentor-signature phpdocumentor-code ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-        <span class="phpdocumentor-signature__type">mixed</span>
-    <span class="phpdocumentor-signature__name">STARMUS_CAP_EDIT_AUDIO</span>
-    = <span class="phpdocumentor-signature__default-value">&#039;starmus_edit_audio&#039;</span>
-</code>
-
-
-    
-    
-    
-
-    
-
-</article>
-                    <article class="phpdocumentor-element -constant -public ">
-    <h4 class="phpdocumentor-element__name" id="constant_STARMUS_CAP_RECORD_AUDIO">
-        STARMUS_CAP_RECORD_AUDIO
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#constant_STARMUS_CAP_RECORD_AUDIO" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">66</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Capability allowing users to create new recordings.</p>
-
-    
-    <code class="phpdocumentor-signature phpdocumentor-code ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-        <span class="phpdocumentor-signature__type">mixed</span>
-    <span class="phpdocumentor-signature__name">STARMUS_CAP_RECORD_AUDIO</span>
-    = <span class="phpdocumentor-signature__default-value">&#039;starmus_record_audio&#039;</span>
-</code>
-
-
-    
-    
-    
-
-    
-
-</article>
-            </section>
-
-        
-    <section class="phpdocumentor-properties">
-        <h3 class="phpdocumentor-elements__header" id="properties">
-            Properties
-            <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#properties" class="headerlink"><i class="fas fa-link"></i></a>
-
-        </h3>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_admin">
-        $admin
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_admin" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">83</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Admin controller.</p>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><abbr title="\Starisian\Sparxstar\Starmus\admin\StarmusAdmin">StarmusAdmin</abbr></a>|null</span>
-    <span class="phpdocumentor-signature__name">$admin</span>
-     = <span class="phpdocumentor-signature__default-value">null</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_asset_loader">
-        $asset_loader
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_asset_loader" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">89</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Asset loader (enqueue styles/scripts).</p>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAssetLoader">StarmusAssetLoader</abbr></a>|null</span>
-    <span class="phpdocumentor-signature__name">$asset_loader</span>
-     = <span class="phpdocumentor-signature__default-value">null</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_cron">
-        $cron
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_cron" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">98</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Cron service (only in non-CLI contexts).</p>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><a href="classes/Starisian-Sparxstar-Starmus-cron-StarmusCron.html"><abbr title="\Starisian\Sparxstar\Starmus\cron\StarmusCron">StarmusCron</abbr></a>|null</span>
-    <span class="phpdocumentor-signature__name">$cron</span>
-     = <span class="phpdocumentor-signature__default-value">null</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_DAL">
-        $DAL
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_DAL" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">77</span>
-
-    </aside>
-
-    
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL">StarmusAudioRecorderDAL</abbr></a>|null</span>
-    <span class="phpdocumentor-signature__name">$DAL</span>
-     = <span class="phpdocumentor-signature__default-value">null</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_hooksRegistered">
-        $hooksRegistered
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_hooksRegistered" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">75</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Whether we&#039;ve registered WordPress hooks (guard).</p>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type">bool</span>
-    <span class="phpdocumentor-signature__name">$hooksRegistered</span>
-     = <span class="phpdocumentor-signature__default-value">false</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-            -static                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="property_instance">
-        $instance
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_instance" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">69</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Singleton instance.</p>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-        <span class="phpdocumentor-signature__static">static</span>    <span class="phpdocumentor-signature__type"><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><abbr title="\Starisian\Sparxstar\Starmus\StarmusAudioRecorder">StarmusAudioRecorder</abbr></a>|null</span>
-    <span class="phpdocumentor-signature__name">$instance</span>
-     = <span class="phpdocumentor-signature__default-value">null</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_rest_handler">
-        $rest_handler
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_rest_handler" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">92</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">REST handler (bridges endpoints to SubmissionHandler).</p>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><a href="classes/Starisian-Sparxstar-Starmus-api-StarmusRESTHandler.html"><abbr title="\Starisian\Sparxstar\Starmus\api\StarmusRESTHandler">StarmusRESTHandler</abbr></a>|null</span>
-    <span class="phpdocumentor-signature__name">$rest_handler</span>
-     = <span class="phpdocumentor-signature__default-value">null</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_runtimeErrors">
-        $runtimeErrors
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_runtimeErrors" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">72</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Collected runtime errors for admin notice.</p>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type">array&lt;string|int, mixed&gt;</span>
-    <span class="phpdocumentor-signature__name">$runtimeErrors</span>
-     = <span class="phpdocumentor-signature__default-value">array()</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_settings">
-        $settings
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_settings" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">80</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Settings service (must be ready before other deps).</p>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a>|null</span>
-    <span class="phpdocumentor-signature__name">$settings</span>
-     = <span class="phpdocumentor-signature__default-value">null</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_ui_loader">
-        $ui_loader
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_ui_loader" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">86</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Frontend shortcode/UX loader (manages Recorder + Editor UI).</p>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><a href="classes/Starisian-Sparxstar-Starmus-frontend-StarmusShortcodeLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\frontend\StarmusShortcodeLoader">StarmusShortcodeLoader</abbr></a>|null</span>
-    <span class="phpdocumentor-signature__name">$ui_loader</span>
-     = <span class="phpdocumentor-signature__default-value">null</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_updater">
-        $updater
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_updater" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">95</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Updater (optional; registers update filters).</p>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderUpdater.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderUpdater">StarmusAudioRecorderUpdater</abbr></a>|null</span>
-    <span class="phpdocumentor-signature__name">$updater</span>
-     = <span class="phpdocumentor-signature__default-value">null</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-            </section>
-
-            <section class="phpdocumentor-methods">
-        <h3 class="phpdocumentor-elements__header" id="methods">
-            Methods
-            <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#methods" class="headerlink"><i class="fas fa-link"></i></a>
-
-        </h3>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method___clone">
-        __clone()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___clone" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">406</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Strictly prevent cloning.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">__clone</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___clone#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">throws</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                                                <span class="phpdocumentor-tag-link"><abbr title="\LogicException">LogicException</abbr></span>
-                                                            
-                                                 <section class="phpdocumentor-description"><p>Always.</p>
-</section>
-
-                                    </dd>
-                                            </dl>
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method___serialize">
-        __serialize()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___serialize" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">424</span>
-
-    </aside>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">__serialize</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method___sleep">
-        __sleep()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___sleep" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">420</span>
-
-    </aside>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">__sleep</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method___unserialize">
-        __unserialize()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___unserialize" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">428</span>
-
-    </aside>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">__unserialize</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$data</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$data</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
+																																<section id="summary">
+						<h2>Summary</h2>
+						<section class="row-fluid heading">
+							<section class="span4">
+								<a href="#methods">Methods</a>
+							</section>
+							<section class="span4">
+								<a href="#properties">Properties</a>
+							</section>
+							<section class="span4">
+								<a href="#constants">Constants</a>
+							</section>
+						</section>
+						<section class="row-fluid public">
+							<section class="span4">
+																																																																																																																																																																																																																																																																																																																																																																																																																																																										
+																											<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_starmus_get_instance" class="">starmus_get_instance</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_starmus_run" class="">starmus_run</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_check_field_plugin_dependency" class="">check_field_plugin_dependency</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_displayRuntimeErrorNotice" class="">displayRuntimeErrorNotice</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___clone" class="">__clone</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___wakeup" class="">__wakeup</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___sleep" class="">__sleep</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___serialize" class="">__serialize</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___unserialize" class="">__unserialize</a><br/>
+																								</section>
+							<section class="span4">
+																																																																																																					
+																	<em>No public properties found</em>
+															</section>
+							<section class="span4">
+																																																																																								
+																											<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#constant_STARMUS_CAP_EDIT_AUDIO" class="">STARMUS_CAP_EDIT_AUDIO</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#constant_STARMUS_CAP_RECORD_AUDIO" class="">STARMUS_CAP_RECORD_AUDIO</a><br/>
+																								</section>
+						</section>
+						<section class="row-fluid protected">
+							<section class="span4">
+																																																																																																																																																																																																																																																																															
+																	<em>No protected methods found</em>
+															</section>
+							<section class="span4">
+																																																																																																					
+																	<em>No protected properties found</em>
+															</section>
+							<section class="span4">
+																																																		
+																	<em>No protected constants found</em>
+															</section>
+						</section>
+						<section class="row-fluid private">
+							<section class="span4">
+																																																																																																																																																																																																																																																																																																																																																																																																	
+																											<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___construct" class="">__construct</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_init_settings_or_throw" class="">init_settings_or_throw</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_set_DAL" class="">set_DAL</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_instantiate_components" class="">instantiate_components</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_register_hooks" class="">register_hooks</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_log_runtime_error" class="">log_runtime_error</a><br/>
+																								</section>
+							<section class="span4">
+																																																																																																																																																																																																				
+																											<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_instance" class="">instance</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_runtimeErrors" class="">runtimeErrors</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_hooksRegistered" class="">hooksRegistered</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_DAL" class="">DAL</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_settings" class="">settings</a><br/>
+																								</section>
+							<section class="span4">
+																																																		
+																	<em>No private constants found</em>
+															</section>
+						</section>
+					</section>
+				</div>
+				<aside class="span4 detailsbar">
+																<span class="label label-info">final</span>
+					
+					
+					<dl>
+						<dt>File</dt>
+						<dd>
+							<a href="files/src-starmusaudiorecorder.html">
+								<div class="path-wrapper">src/StarmusAudioRecorder.php</div>
+							</a>
+						</dd>
+													<dt>Package</dt>
+							<dd>
+								<div class="namespace-wrapper">Sparxstar\Starmus</div>
+							</dd>
+												<dt>Class hierarchy</dt>
+						<dd class="hierarchy">
+																																				<div class="namespace-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div>
+						</dd>
+
+						
+						
+												
+																																																																																																																																																																																															
+																	</dl>
+					<h2>Tags</h2>
+					<table class="table table-condensed">
+																											<tr>
+									<th>
+										package
+									</th>
+									<td>
+																																<p>Starisian\Sparxstar\Starmus</p>
+
+																			</td>
+								</tr>
+															<tr>
+									<th>
+										uses
+									</th>
+									<td>
+																			</td>
+								</tr>
+															<tr>
+									<th>
+										method
+									</th>
+									<td>
+																			</td>
+								</tr>
+															<tr>
+									<th>
+										property
+									</th>
+									<td>
+																			</td>
+								</tr>
+															<tr>
+									<th>
+										property-read
+									</th>
+									<td>
+																			</td>
+								</tr>
+															<tr>
+									<th>
+										property-write
+									</th>
+									<td>
+																			</td>
+								</tr>
+																		</table>
+				</aside>
+			</div>
+
+										<a id="constants" name="constants"></a>
+				<div class="row-fluid">
+					<div class="span8 content class">
+						<h2>Constant</h2>
+					</div>
+					<aside class="span4 detailsbar"></aside>
+				</div>
+
+															    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_STARMUS_CAP_EDIT_AUDIO" name="constant_STARMUS_CAP_EDIT_AUDIO" class="anchor"></a>
+            <article id="constant_STARMUS_CAP_EDIT_AUDIO" class="constant">
+                <h3 class="public ">STARMUS_CAP_EDIT_AUDIO</h3>
+                <pre class="signature">STARMUS_CAP_EDIT_AUDIO = &#039;starmus_edit_audio&#039;</pre>
+                <p><em>Capability allowing users to edit uploaded audio.</em></p>
                 
-            </dd>
-            </dl>
-
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method___wakeup">
-        __wakeup()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___wakeup" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">416</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Strictly prevent (un)serialization.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">__wakeup</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
-
-    <div class="phpdocumentor-label-line">
+            </article>
         </div>
-    
-    
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___wakeup#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">throws</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                                                <span class="phpdocumentor-tag-link"><abbr title="\LogicException">LogicException</abbr></span>
-                                                            
-                                                 <section class="phpdocumentor-description"><p>Always.</p>
-</section>
-
-                                    </dd>
-                                            </dl>
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                    -static                    "
->
-    <h4 class="phpdocumentor-element__name" id="method_check_field_plugin_dependency">
-        check_field_plugin_dependency()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_check_field_plugin_dependency" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">161</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Check whether Secure Custom Fields (SCF) is installed and active.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">check_field_plugin_dependency</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><p>SCF exposes ACF-style global utility functions such as acf_get_instance().
-That is the authoritative presence signal.</p>
-</section>
-
-    
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">bool</span>
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_displayRuntimeErrorNotice">
-        displayRuntimeErrorNotice()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_displayRuntimeErrorNotice" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">374</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Admin notice for collected runtime errors.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">displayRuntimeErrorNotice</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                    -static                    "
->
-    <h4 class="phpdocumentor-element__name" id="method_starmus_get_instance">
-        starmus_get_instance()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_starmus_get_instance" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">127</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Get singleton instance.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">starmus_get_instance</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><abbr title="\Starisian\Sparxstar\Starmus\StarmusAudioRecorder">StarmusAudioRecorder</abbr></a></span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type"><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><abbr title="\Starisian\Sparxstar\Starmus\StarmusAudioRecorder">StarmusAudioRecorder</abbr></a></span>
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                    -static                    "
->
-    <h4 class="phpdocumentor-element__name" id="method_starmus_run">
-        starmus_run()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_starmus_run" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">138</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Entry point called from main plugin file.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">starmus_run</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method___construct">
-        __construct()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___construct" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">106</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Private constructor for singleton pattern.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><ul>
-<li>Initializes settings first.</li>
-<li>Instantiates components.</li>
-<li>Registers hooks.</li>
-</ul>
-</section>
-
-    
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_init_settings_or_throw">
-        init_settings_or_throw()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_init_settings_or_throw" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">171</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Ensure settings are instantiated before anything else.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">init_settings_or_throw</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><p>Throws if settings class cannot be created (prevents silent null returns).</p>
-</section>
-
-    
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_instantiate_components">
-        instantiate_components()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_instantiate_components" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">260</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Instantiate components that depend on settings and environment.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">instantiate_components</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><p>Each component is wrapped in a try/catch so one failure doesn't kill the plugin.</p>
-</section>
-
-    
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_log_runtime_error">
-        log_runtime_error()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_log_runtime_error" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">394</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Centralized error capture + log + user-visible storage.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">log_runtime_error</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$what</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type"><abbr title="\Throwable">Throwable</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$e</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$what</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$e</span>
-                : <span class="phpdocumentor-signature__argument__return-type"><abbr title="\Throwable">Throwable</abbr></span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-            </dl>
-
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_register_hooks">
-        register_hooks()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_register_hooks" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">332</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Register cross-cutting hooks once.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">register_hooks</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><p>Note: most components self-register inside their constructors.</p>
-</section>
-
-    
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_set_DAL">
-        set_DAL()
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_set_DAL" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/StarmusAudioRecorder.php"><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">196</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Filter: starmus_register_dal</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">set_DAL</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Starisian\Sparxstar\Starmus\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr></span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type"><abbr title="\Starisian\Sparxstar\Starmus\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr></span>
-                    &mdash;
-                <section class="phpdocumentor-description"><p>Replacement DAL instance.</p>
-<p>Security: Replacement must implement StarmusAudioRecorderDALInterface and
-return the same key from get_registration_key() as STARMUS_DAL_OVERRIDE_KEY.</p>
-</section>
-
-            </section>
-
-</article>
-            </section>
-
-        <div class="phpdocumentor-modal" id="source-view">
-    <div class="phpdocumentor-modal-bg" data-exit-button></div>
-    <div class="phpdocumentor-modal-container">
-        <div class="phpdocumentor-modal-content">
-            <pre style="max-height: 500px; overflow-y: scroll" data-src="files/src/StarmusAudioRecorder.php.txt" class="language-php line-numbers linkable-line-numbers"></pre>
-        </div>
-        <button data-exit-button class="phpdocumentor-modal__close">&times;</button>
-    </div>
-</div>
-
-    <script type="text/javascript">
-        (function () {
-            function loadExternalCodeSnippet(el, url, line) {
-                Array.prototype.slice.call(el.querySelectorAll('pre[data-src]')).forEach((pre) => {
-                    const src = url || pre.getAttribute('data-src').replace(/\\/g, '/');
-                    const language = 'php';
-
-                    const code = document.createElement('code');
-                    code.className = 'language-' + language;
-                    pre.textContent = '';
-                    pre.setAttribute('data-line', line)
-                    code.textContent = 'Loading…';
-                    pre.appendChild(code);
-
-                    var xhr = new XMLHttpRequest();
-
-                    xhr.open('GET', src, true);
-
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState !== 4) {
-                            return;
-                        }
-
-                        if (xhr.status < 400 && xhr.responseText) {
-                            code.textContent = xhr.responseText;
-                            Prism.highlightElement(code);
-                            d=document.getElementsByClassName("line-numbers");
-                            d[0].scrollTop = d[0].children[1].offsetTop;
-                            return;
-                        }
-
-                        if (xhr.status === 404) {
-                            code.textContent = '✖ Error: File could not be found';
-                            return;
-                        }
-
-                        if (xhr.status >= 400) {
-                            code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
-                            return;
-                        }
-
-                        code.textContent = '✖ Error: An unknown error occurred';
-                    };
-
-                    xhr.send(null);
-                });
-            }
-
-            const modalButtons = document.querySelectorAll("[data-modal]");
-            const openedAsLocalFile = window.location.protocol === 'file:';
-            if (modalButtons.length > 0 && openedAsLocalFile) {
-                console.warn(
-                    'Viewing the source code is unavailable because you are opening this page from the file:// scheme; ' +
-                    'browsers block XHR requests when a page is opened this way'
-                );
-            }
-
-            modalButtons.forEach(function (trigger) {
-                if (openedAsLocalFile) {
-                    trigger.setAttribute("hidden", "hidden");
-                }
-
-                trigger.addEventListener("click", function (event) {
-                    event.preventDefault();
-                    const modal = document.getElementById(trigger.dataset.modal);
-                    if (!modal) {
-                        console.error(`Modal with id "${trigger.dataset.modal}" could not be found`);
-                        return;
-                    }
-                    modal.classList.add("phpdocumentor-modal__open");
-
-                    loadExternalCodeSnippet(modal, trigger.dataset.src || null, trigger.dataset.line)
-                    const exits = modal.querySelectorAll("[data-exit-button]");
-                    exits.forEach(function (exit) {
-                        exit.addEventListener("click", function (event) {
-                            event.preventDefault();
-                            modal.classList.remove("phpdocumentor-modal__open");
-                        });
-                    });
-                });
-            });
-        })();
-    </script>
-
-    </article>
-                                </section>
-                <section class="phpdocumentor-on-this-page__sidebar">
+        <aside class="span4 detailsbar">
+            <h1><i class="fas-solid fa-arrow-down"></i></h1>
+                        <dl>
+                                <dt>File</dt>
+                <dd><a href="files/src-starmusaudiorecorder.html"><div class="path-wrapper">src/StarmusAudioRecorder.php</div></a></dd>
                                 
-    <section class="phpdocumentor-on-this-page__content">
-        <strong class="phpdocumentor-on-this-page__title">On this page</strong>
+                                                                                
+                                                            </dl>
 
-        <ul class="phpdocumentor-list -clean">
-            <li class="phpdocumentor-on-this-page-section__title">Table Of Contents</li>
-            <li>
-                <ul class="phpdocumentor-list -clean">
-                                        <li><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#toc-constants">Constants</a></li>
-                                                            <li><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#toc-properties">Properties</a></li>
-                                                            <li><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#toc-methods">Methods</a></li>
-                                    </ul>
-            </li>
-                            <li class="phpdocumentor-on-this-page-section__title">Constants</li>
-                <li>
-                    <ul class="phpdocumentor-list -clean">
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#constant_STARMUS_CAP_EDIT_AUDIO">STARMUS_CAP_EDIT_AUDIO</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#constant_STARMUS_CAP_RECORD_AUDIO">STARMUS_CAP_RECORD_AUDIO</a></li>
-                                            </ul>
-                </li>
-            
-                            <li class="phpdocumentor-on-this-page-section__title">Properties</li>
-                <li>
-                    <ul class="phpdocumentor-list -clean">
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_admin">$admin</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_asset_loader">$asset_loader</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_cron">$cron</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_DAL">$DAL</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_hooksRegistered">$hooksRegistered</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_instance">$instance</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_rest_handler">$rest_handler</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_runtimeErrors">$runtimeErrors</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_settings">$settings</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_ui_loader">$ui_loader</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#property_updater">$updater</a></li>
-                                            </ul>
-                </li>
-            
-                        <li class="phpdocumentor-on-this-page-section__title">Methods</li>
-            <li>
-                <ul class="phpdocumentor-list -clean">
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___clone">__clone()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___serialize">__serialize()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___sleep">__sleep()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___unserialize">__unserialize()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___wakeup">__wakeup()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_check_field_plugin_dependency">check_field_plugin_dependency()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_displayRuntimeErrorNotice">displayRuntimeErrorNotice()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_starmus_get_instance">starmus_get_instance()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_starmus_run">starmus_run()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method___construct">__construct()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_init_settings_or_throw">init_settings_or_throw()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_instantiate_components">instantiate_components()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_log_runtime_error">log_runtime_error()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_register_hooks">register_hooks()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#method_set_DAL">set_DAL()</a></li>
-                                    </ul>
-            </li>
-                    </ul>
-    </section>
+                        <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
 
-                </section>
-                            </div>
-            <section data-search-results class="phpdocumentor-search-results phpdocumentor-search-results--hidden">
-    <section class="phpdocumentor-search-results__dialog">
-        <header class="phpdocumentor-search-results__header">
-            <h2 class="phpdocumentor-search-results__title">Search results</h2>
-            <button class="phpdocumentor-search-results__close"><i class="fas fa-times"></i></button>
-        </header>
-        <section class="phpdocumentor-search-results__body">
-            <ul class="phpdocumentor-search-results__entries"></ul>
-        </section>
-    </section>
-</section>
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_STARMUS_CAP_RECORD_AUDIO" name="constant_STARMUS_CAP_RECORD_AUDIO" class="anchor"></a>
+            <article id="constant_STARMUS_CAP_RECORD_AUDIO" class="constant">
+                <h3 class="public ">STARMUS_CAP_RECORD_AUDIO</h3>
+                <pre class="signature">STARMUS_CAP_RECORD_AUDIO = &#039;starmus_record_audio&#039;</pre>
+                <p><em>Capability allowing users to create new recordings.</em></p>
+                
+            </article>
         </div>
-        <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html#top" class="phpdocumentor-back-to-top"><i class="fas fa-chevron-circle-up"></i></a>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas-solid fa-arrow-down"></i></h1>
+                        <dl>
+                                <dt>File</dt>
+                <dd><a href="files/src-starmusaudiorecorder.html"><div class="path-wrapper">src/StarmusAudioRecorder.php</div></a></dd>
+                                
+                                                                                
+                                                            </dl>
 
-    </main>
+                        <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
 
-    <script>
-        cssVars({});
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
-</body>
+									
+																						
+																									
+										<a id="properties" name="properties"></a>
+				<div class="row-fluid">
+					<div class="span8 content class">
+						<h2>Properties</h2>
+					</div>
+					<aside class="span4 detailsbar"></aside>
+				</div>
+
+																																																																																																																	    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_instance" name="property_instance" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$instance</h3>
+                <pre class="signature">$instance : ?\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</pre>
+                <p><em>Singleton instance.</em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><abbr title="\Starisian\Sparxstar\Starmus\StarmusAudioRecorder">StarmusAudioRecorder</abbr></a>|null
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas-solid fa-arrow-down"></i></h1>
+                        <dl>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_runtimeErrors" name="property_runtimeErrors" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$runtimeErrors</h3>
+                <pre class="signature">$runtimeErrors : array</pre>
+                <p><em>Collected runtime errors for admin notice.</em></p>
+                
+
+                                <h4>Type</h4>
+                array&lt;string|int, mixed&gt;
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas-solid fa-arrow-down"></i></h1>
+                        <dl>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_hooksRegistered" name="property_hooksRegistered" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$hooksRegistered</h3>
+                <pre class="signature">$hooksRegistered : bool</pre>
+                <p><em>Whether we&#039;ve registered WordPress hooks (guard).</em></p>
+                
+
+                                <h4>Type</h4>
+                bool
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas-solid fa-arrow-down"></i></h1>
+                        <dl>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_DAL" name="property_DAL" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$DAL</h3>
+                <pre class="signature">$DAL : ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr></a>|null
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas-solid fa-arrow-down"></i></h1>
+                        <dl>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_settings" name="property_settings" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$settings</h3>
+                <pre class="signature">$settings : ?\Starisian\Sparxstar\Starmus\core\StarmusSettings</pre>
+                <p><em>Settings service (must be ready before other deps).</em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a>|null
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas-solid fa-arrow-down"></i></h1>
+                        <dl>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+												
+										<a id="methods" name="methods"></a>
+				<div class="row-fluid">
+					<div class="span8 content class">
+						<h2>Methods</h2>
+					</div>
+					<aside class="span4 detailsbar"></aside>
+				</div>
+
+																								    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_starmus_get_instance" name="method_starmus_get_instance" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">starmus_get_instance()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">starmus_get_instance() : \Starisian\Sparxstar\Starmus\StarmusAudioRecorder</pre>
+                <p><em>Get singleton instance of the plugin.</em></p>
+                <p>Creates and returns the single instance of this class.
+Subsequent calls return the same instance.</p>
+
+
+                
+                
+                                    <h4>Returns</h4>
+                    \Starisian\Sparxstar\Starmus\StarmusAudioRecorder
+                                            &mdash; <p>The singleton instance.</p>
+
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_starmus_run" name="method_starmus_run" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">starmus_run()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">starmus_run() : void</pre>
+                <p><em>Entry point called from main plugin file.</em></p>
+                <p>Bootstraps the plugin by ensuring singleton instance is created.
+This is the method called by the 'plugins_loaded' action hook.</p>
+
+
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_check_field_plugin_dependency" name="method_check_field_plugin_dependency" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">check_field_plugin_dependency()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">check_field_plugin_dependency() : bool</pre>
+                <p><em>Check whether Secure Custom Fields (SCF) or Advanced Custom Fields (ACF) is active.</em></p>
+                <p>The recorder relies on one of these field frameworks to manage submission metadata.
+SCF exposes ACF-style global utility functions such as acf_get_instance().
+This is the authoritative presence signal.</p>
+
+
+                
+                
+                                    <h4>Returns</h4>
+                    bool
+                                            &mdash; <p>True when a supported field framework is available, false otherwise.</p>
+
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																																																								    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_displayRuntimeErrorNotice" name="method_displayRuntimeErrorNotice" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">displayRuntimeErrorNotice()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">displayRuntimeErrorNotice() : void</pre>
+                <p><em>Admin notice for collected runtime errors.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																													    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___clone" name="method___clone" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__clone()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__clone() : mixed</pre>
+                <p><em>Strictly prevent cloning.</em></p>
+                
+
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\LogicException</dt>
+                            <dd><p>Always.</p>
+</dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    mixed
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___wakeup" name="method___wakeup" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__wakeup()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__wakeup() : mixed</pre>
+                <p><em>Strictly prevent (un)serialization.</em></p>
+                
+
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\LogicException</dt>
+                            <dd><p>Always.</p>
+</dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    mixed
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___sleep" name="method___sleep" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__sleep()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__sleep() : array</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___serialize" name="method___serialize" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__serialize()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__serialize() : array</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___unserialize" name="method___unserialize" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__unserialize()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__unserialize(array  <span class="argument">$data</span>) : void</pre>
+                <p><em></em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$data </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																																																																																																																																																																			    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___construct" name="method___construct" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">__construct()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__construct() : void</pre>
+                <p><em>Private constructor for singleton pattern.</em></p>
+                <p>Initializes the plugin in the following order:</p>
+<ol>
+<li>Configures logger (minimum level and file path)</li>
+<li>Sets up DAL (Data Access Layer) instance</li>
+<li>Initializes settings or throws exception</li>
+<li>Instantiates component dependencies</li>
+<li>Registers WordPress hooks</li>
+</ol>
+
+
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\RuntimeException</dt>
+                            <dd><p>If settings initialization fails.</p>
+</dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																																															    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_init_settings_or_throw" name="method_init_settings_or_throw" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">init_settings_or_throw()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">init_settings_or_throw() : void</pre>
+                <p><em>Ensure settings are instantiated before anything else.</em></p>
+                <p>Validates that StarmusSettings class exists via autoloader,
+creates instance, and throws exception on failure to prevent
+silent null returns that could cause downstream issues.</p>
+
+
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\RuntimeException</dt>
+                            <dd><p>If StarmusSettings fails to initialize.</p>
+</dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_set_DAL" name="method_set_DAL" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">set_DAL()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">set_DAL() : void</pre>
+                <p><em>Initialize and set the Data Access Layer (DAL) with singleton pattern and filter support.</em></p>
+                <p>Applies 'starmus_register_dal' filter to allow DAL replacement.
+Implements handshake mechanism using STARMUS_DAL_OVERRIDE_KEY for security.
+Replacement DAL must implement StarmusAudioRecorderDALInterface and
+return the same key from get_registration_key().</p>
+<p>Uses static singleton to prevent duplicate instantiation across the request.</p>
+
+
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_instantiate_components" name="method_instantiate_components" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">instantiate_components()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">instantiate_components() : void</pre>
+                <p><em>Instantiate components that depend on settings and environment.</em></p>
+                <p>Each component is wrapped in a try/catch so one failure doesn't kill the plugin.</p>
+
+
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_register_hooks" name="method_register_hooks" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">register_hooks()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">register_hooks() : void</pre>
+                <p><em>Register cross-cutting hooks once.</em></p>
+                <p>Note: most components self-register inside their constructors.</p>
+
+
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																													    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_log_runtime_error" name="method_log_runtime_error" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">log_runtime_error()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">log_runtime_error(string  <span class="argument">$what</span>, \Throwable  <span class="argument">$e</span>) : void</pre>
+                <p><em>Centralized error capture + log + user-visible storage.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$what </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\Throwable</td>
+                                <td>$e </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\StarmusAudioRecorder</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																																																											</div>
+	</section>
+
+	<div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3 id="source-view-label">StarmusAudioRecorder.php</h3>
+		</div>
+		<div class="modal-body">
+			<pre data-src="files/src/StarmusAudioRecorder.php.txt" class="language-php line-numbers"></pre>
+		</div>
+	</div>
+
+			<footer class="row-fluid">
+				<section class="span10 offset2">
+					<section class="row-fluid">
+						<section class="span10 offset1">
+							<section class="row-fluid footer-sections">
+								<section
+									class="span4">
+																		<h1>
+										<i class="fa-solid fa-code"></i>
+									</h1>
+									<div>
+										<ul>
+																							<li><a href="namespaces/starisian.html"><abbr title="\Starisian">Starisian</abbr></a></li>
+																					</ul>
+									</div>
+								</section>
+								<section
+									class="span4">
+																		<h1>
+										<i class="fa-solid fa-project-diagram"></i>
+									</h1>
+									<div>
+										<ul>
+											<li><a href="graphs/class.html">Class Hierarchy Diagram</a></li>
+										</ul>
+									</div>
+								</section>
+								<section
+									class="span4">
+																		<h1>
+										<i class="fa-solid fa-thumbtack"></i>
+									</h1>
+									<div>
+										<ul>
+											<li><a href="reports/errors.html">Errors</a></li>
+											<li><a href="reports/markers.html">Markers</a></li>
+										</ul>
+									</div>
+								</section>
+							</section>
+						</section>
+					</section>
+					<section class="row-fluid">
+						<section class="span10 offset1">
+							<hr/>
+							Documentation is powered by
+							<a href="https://www.phpdoc.org/">phpDocumentor
+							</a>
+							and authored
+							                    on
+							November 22nd, 2025 at 22:43.
+						</section>
+					</section>
+				</section>
+			</footer>
+		</div>
+		<script src="resources/js/jquery-1.11.0.min.js"></script>
+		<script src="resources/js/ui/1.10.4/jquery-ui.min.js"></script>
+		<script src="resources/js/jquery.smooth-scroll.js"></script>
+		<script src="resources/js/prism.min.js"></script>
+		<script src="resources/js/bootstrap.js"></script>
+		<script src="resources/js/custom.js"></script>
+			</body>
 </html>

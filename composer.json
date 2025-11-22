@@ -69,22 +69,48 @@
     "phpstan/extension-installer": "^1.4",
     "szepeviktor/phpstan-wordpress": "^2.0",
     "phpcompatibility/php-compatibility": "^9.3",
-    "phpcompatibility/phpcompatibility-wp": "^2.1"
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "rector/rector": "^2.2"
   },
   "scripts": {
     "phpcs": "vendor/bin/phpcs --standard=phpcs.xml.dist",
-    "phpcbf": "vendor/bin/phpcbf --standard=phpcs.xml.dist",
+    "phpcbf": [
+      "@putenv COMPOSER_PROCESS_TIMEOUT=1200",
+      "vendor/bin/phpcbf --standard=phpcs.xml.dist"
+    ],
     "phpstan": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=2G",
+    "phpfix": [
+      "@putenv COMPOSER_PROCESS_TIMEOUT=1200",
+      "vendor/bin/php-cs-fixer fix --allow-risky=yes"
+    ],
+    "phpfix:dry": "vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff",
+    "rector": "vendor/bin/rector process",
+    "rector:dry": "vendor/bin/rector process --dry-run",
     "unittest": "vendor/bin/phpunit --colors=always",
     "makepot": "wp i18n make-pot .",
     "lint": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full .",
-    "lint:fix": "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php .",
+    "lint:fix": [
+      "@putenv COMPOSER_PROCESS_TIMEOUT=1200",
+      "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php ."
+    ],
     "lint:php": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php",
     "analyze": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=2G",
     "analyze:php": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=2G --no-progress",
     "test:unit": "vendor/bin/phpunit --configuration=phpunit-unit.xml.dist --colors=always",
     "test": "composer run lint && composer run analyze && composer run test:unit",
-    "fix": "composer run lint:fix"
+    "fix": [
+      "@putenv COMPOSER_PROCESS_TIMEOUT=1200",
+      "composer run lint:fix",
+      "composer run phpfix"
+    ],
+    "fix:all": [
+      "@putenv COMPOSER_PROCESS_TIMEOUT=1200",
+      "composer run rector",
+      "composer run phpfix",
+      "composer run lint:fix"
+    ],
+    "docs": "php bin/generate-docs.php",
+    "docs:unified": "@php bin/generate-docs.php && bash bin/generate-unified-docs.sh"
   },
   "extra": {
     "installer-paths": {

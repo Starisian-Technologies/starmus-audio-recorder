@@ -34,24 +34,22 @@ class StarmusTusdHookHandler
 {
 
 	protected string $namespace = 'starmus/v1';
-	protected string $rest_base = 'hook';
 
-	/**
-	 * A dedicated handler for processing the submission data.
-	 *
-	 * @var StarmusSubmissionHandler
-	 */
-	private StarmusSubmissionHandler $submission_handler;
+	protected string $rest_base = 'hook';
 
 	/**
 	 * Constructor. Injects the submission handler dependency.
 	 *
 	 * @param StarmusSubmissionHandler $submission_handler An instance of the class that processes uploads.
 	 */
-	public function __construct(StarmusSubmissionHandler $submission_handler)
-	{
-		$this->submission_handler = $submission_handler;
-	}
+	public function __construct(
+        /**
+         * A dedicated handler for processing the submission data.
+         */
+        private readonly StarmusSubmissionHandler $submission_handler
+    )
+    {
+    }
 
 	/**
 	 * Registers the WordPress hooks. This is the entry point for the class.
@@ -59,7 +57,7 @@ class StarmusTusdHookHandler
 	public function register_hooks(): void
 	{
 		// The REST API routes MUST be registered on the 'rest_api_init' hook.
-		add_action('rest_api_init', array($this, 'register_routes'));
+		add_action('rest_api_init', $this->register_routes(...));
 	}
 
 	/**
@@ -70,13 +68,13 @@ class StarmusTusdHookHandler
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
-			array(
-				array(
+			[
+				[
 					'methods'             => WP_REST_Server::CREATABLE, // Corresponds to POST
-					'callback'            => array($this, 'handle_tusd_hook'),
-					'permission_callback' => array($this, 'permissions_check'),
-				),
-			)
+					'callback'            => $this->handle_tusd_hook(...),
+					'permission_callback' => $this->permissions_check(...),
+				],
+			]
 		);
 	}
 
@@ -91,7 +89,7 @@ class StarmusTusdHookHandler
 		$data = $request->get_json_params();
 
 		if (empty($data['Type']) || empty($data['Event'])) {
-			return new WP_Error('invalid_payload', 'Invalid or empty payload from tusd.', array('status' => 400));
+			return new WP_Error('invalid_payload', 'Invalid or empty payload from tusd.', ['status' => 400]);
 		}
 
 		if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -100,12 +98,12 @@ class StarmusTusdHookHandler
 
 		// Optional Improvement: Allow other classes to hook into any tusd event.
 		$event_type = $data['Type'];
-		do_action("starmus_tusd_event_{$event_type}", $data['Event']);
+		do_action('starmus_tusd_event_' . $event_type, $data['Event']);
 
 		// We only perform file processing on the 'post-finish' event.
 		if ($event_type === 'post-finish') {
 			if (empty($data['Event']['Upload'])) {
-				return new WP_Error('invalid_post_finish_payload', 'post-finish event is missing Upload data.', array('status' => 400));
+				return new WP_Error('invalid_post_finish_payload', 'post-finish event is missing Upload data.', ['status' => 400]);
 			}
 
 			$result = $this->process_completed_upload($data['Event']['Upload']);
@@ -117,21 +115,21 @@ class StarmusTusdHookHandler
 
 			// Refinement: Return a more explicit success response with the attachment ID.
 			return new WP_REST_Response(
-				array(
+				[
 					'status'        => 'success',
 					'message'       => 'Upload processed successfully.',
 					'attachment_id' => $result['attachment_id'] ?? null,
-				),
+				],
 				200
 			);
 		}
 
 		// For all other hook types, acknowledge receipt without processing.
 		return new WP_REST_Response(
-			array(
+			[
 				'status'  => 'success',
 				'message' => 'Hook received and acknowledged.',
-			),
+			],
 			200
 		);
 	}
@@ -145,7 +143,7 @@ class StarmusTusdHookHandler
 	private function process_completed_upload(array $upload_info): array|WP_Error
 	{
 		$temp_path = $upload_info['Storage']['Path'] ?? '';
-		$metadata  = $upload_info['MetaData'] ?? array();
+		$metadata  = $upload_info['MetaData'] ?? [];
 
 		$sanitized_form_data = $this->submission_handler->sanitize_submission_data($metadata);
 		$result              = $this->submission_handler->process_completed_file($temp_path, $sanitized_form_data);
@@ -169,20 +167,20 @@ class StarmusTusdHookHandler
 
 		if (empty($expected_secret)) {
 			error_log('[TUSD HOOK SECURITY] Access denied. TUSD_WEBHOOK_SECRET is not defined in wp-config.php.');
-			return new WP_Error('unauthorized', 'Endpoint not configured.', array('status' => 500));
+			return new WP_Error('unauthorized', 'Endpoint not configured.', ['status' => 500]);
 		}
 
 		// Refinement: Harden security logic.
 		$provided_secret = trim((string) $request->get_header('x-starmus-secret'));
 
-		if (empty($provided_secret)) {
+		if ($provided_secret === '' || $provided_secret === '0') {
 			error_log('[TUSD HOOK SECURITY] Permission denied: Missing secret header.');
-			return new WP_Error('unauthorized', 'Missing secret header.', array('status' => 403));
+			return new WP_Error('unauthorized', 'Missing secret header.', ['status' => 403]);
 		}
 
 		if (! hash_equals($expected_secret, $provided_secret)) {
 			error_log('[TUSD HOOK SECURITY] Permission denied: Invalid secret provided.');
-			return new WP_Error('unauthorized', 'Invalid secret.', array('status' => 403));
+			return new WP_Error('unauthorized', 'Invalid secret.', ['status' => 403]);
 		}
 
 		return true;

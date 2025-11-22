@@ -15,7 +15,7 @@ $post_id = get_the_ID();
 
 // Get the audio URL correctly
 $audio_attachment_id = get_post_meta( $post_id, '_audio_attachment_id', true );
-$audio_url           = ! empty( $audio_attachment_id ) ? wp_get_attachment_url( (int) $audio_attachment_id ) : '';
+$audio_url           = empty( $audio_attachment_id ) ? '' : wp_get_attachment_url( (int) $audio_attachment_id );
 
 // Get other necessary data
 $recording_type  = get_the_terms( $post_id, 'recording_type' );
@@ -75,11 +75,11 @@ $meta_data       = $metadata ? json_decode( $metadata, true ) : null;
 					$count      = count( $waveform_peaks );
 					$max_points = 600; // limit for performance
 					$step       = max( 1, (int) floor( $count / $max_points ) );
-					$abs_vals   = array_map( 'abs', $waveform_peaks );
-					$max_val    = ! empty( $abs_vals ) ? max( $abs_vals ) : 1;
+					$abs_vals   = array_map( abs(...), $waveform_peaks );
+					$max_val    = $abs_vals === [] ? 1 : max( $abs_vals );
 					if ( $max_val <= 0 ) {
 						$max_val = 1; }
-					$points = array();
+					$points = [];
 					for ( $i = 0; $i < $count; $i += $step ) {
 						$v    = (float) $waveform_peaks[ $i ];
 						$norm = $v / $max_val; // roughly -1..1

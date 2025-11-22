@@ -26,13 +26,6 @@ use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 final class StarmusAssetLoader
 {
     /**
-     * Current version of the asset loader.
-     *
-     * @var string
-     */
-    private const VERSION = '3.1.0';
-
-    /**
      * Handle for the production bundle script.
      *
      * @var string
@@ -60,7 +53,7 @@ final class StarmusAssetLoader
      */
     public function __construct()
     {
-        add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
+        add_action('wp_enqueue_scripts', $this->enqueue_frontend_assets(...));
     }
 
     /**
@@ -68,8 +61,6 @@ final class StarmusAssetLoader
      *
      * Only loads assets on frontend pages that contain Starmus shortcodes.
      * Always uses production-optimized bundled assets for performance.
-     *
-     * @return void
      */
     public function enqueue_frontend_assets(): void
     {
@@ -79,14 +70,12 @@ final class StarmusAssetLoader
             }
 
             // Always use production assets - dev mode removed as unbundled modules don't function
-            // Enqueue vendor scripts first (standard scripts, not modules)
-            wp_enqueue_script(self::HANDLE_VENDOR_TUS, STARMUS_URL . 'assets/js/vendor/tus.min.js', [], '4.3.1', true);
-
+            // Vendor libraries (tus, peaks) are now bundled into main app bundle
             // Enqueue bundled production assets
             $this->enqueue_production_assets();
             $this->enqueue_styles();
-        } catch (\Throwable $e) {
-            StarmusLogger::log('Fatal Error in StarmusAssetLoader::enqueue_frontend_assets', $e);
+        } catch (\Throwable $throwable) {
+            StarmusLogger::log('Fatal Error in StarmusAssetLoader::enqueue_frontend_assets', $throwable);
         }
     }
 
@@ -110,8 +99,8 @@ final class StarmusAssetLoader
                 || has_shortcode($post->post_content, 'starmus_audio_re_recorder')
                 || has_shortcode($post->post_content, 'starmus_my_recordings')
                 || has_shortcode($post->post_content, 'starmus_audio_editor');
-        } catch (\Throwable $e) {
-            StarmusLogger::log('StarmusAssetLoader::is_starmus_page', $e);
+        } catch (\Throwable $throwable) {
+            StarmusLogger::log('StarmusAssetLoader::is_starmus_page', $throwable);
             return false;
         }
     }
@@ -122,8 +111,6 @@ final class StarmusAssetLoader
      * This is a standard script, as the build process resolves all modules.
      * The bundle depends on the TUS.js vendor library for chunked uploads.
      * Localizes the script with server-side configuration data.
-     *
-     * @return void
      */
     private function enqueue_production_assets(): void
     {
@@ -137,8 +124,8 @@ final class StarmusAssetLoader
             );
 
             wp_localize_script(self::HANDLE_PROD_BUNDLE, 'starmusConfig', $this->get_localization_data());
-        } catch (\Throwable $e) {
-            StarmusLogger::log('StarmusAssetLoader::enqueue_production_assets', $e);
+        } catch (\Throwable $throwable) {
+            StarmusLogger::log('StarmusAssetLoader::enqueue_production_assets', $throwable);
         }
     }
 
@@ -146,8 +133,6 @@ final class StarmusAssetLoader
      * Enqueues the minified stylesheet for the plugin.
      *
      * Loads the production-optimized CSS bundle with cache-busting version.
-     *
-     * @return void
      */
     private function enqueue_styles(): void
     {
@@ -158,8 +143,8 @@ final class StarmusAssetLoader
                 [],
                 $this->resolve_version()
             );
-        } catch (\Throwable $e) {
-            StarmusLogger::log('StarmusAssetLoader::enqueue_styles', $e);
+        } catch (\Throwable $throwable) {
+            StarmusLogger::log('StarmusAssetLoader::enqueue_styles', $throwable);
         }
     }
 
@@ -183,7 +168,7 @@ final class StarmusAssetLoader
 
             // Get allowed file types from settings (comma-separated string like 'mp3,wav,webm')
             $allowed_file_types = $settings->get('allowed_file_types', 'mp3,wav,webm');
-            $allowed_types_arr = \array_filter(\array_map('trim', \explode(',', $allowed_file_types)));
+            $allowed_types_arr = \array_filter(\array_map(trim(...), \explode(',', $allowed_file_types)));
 
             // Map extensions to MIME types
             $allowed_mimes = [];
@@ -207,8 +192,8 @@ final class StarmusAssetLoader
                 'allowedFileTypes' => $allowed_types_arr, // ['mp3', 'wav', 'webm']
                 'allowedMimeTypes' => $allowed_mimes,     // ['mp3' => 'audio/mpeg', ...]
             ];
-        } catch (\Throwable $e) {
-            StarmusLogger::log('StarmusAssetLoader::get_localization_data', $e);
+        } catch (\Throwable $throwable) {
+            StarmusLogger::log('StarmusAssetLoader::get_localization_data', $throwable);
             return [
                 'endpoints' => [
                     'directUpload' => '',
@@ -234,8 +219,8 @@ final class StarmusAssetLoader
     {
         try {
             return (\defined('STARMUS_VERSION') && STARMUS_VERSION) ? STARMUS_VERSION : '1.0.0';
-        } catch (\Throwable $e) {
-            StarmusLogger::log('StarmusAssetLoader::resolve_version', $e);
+        } catch (\Throwable $throwable) {
+            StarmusLogger::log('StarmusAssetLoader::resolve_version', $throwable);
             return '1.0.0';
         }
     }

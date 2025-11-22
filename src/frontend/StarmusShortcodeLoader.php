@@ -24,6 +24,7 @@ final class StarmusShortcodeLoader
 {
 
 	private StarmusSettings $settings;
+
 	private StarmusAudioRecorderDAL $dal;
 
 	public function __construct(?StarmusAudioRecorderDAL $dal = null, ?StarmusSettings $settings = null)
@@ -32,11 +33,12 @@ final class StarmusShortcodeLoader
 			if (! $dal instanceof StarmusAudioRecorderDALInterface) {
 				throw new \RuntimeException('Invalid DAL: must implement StarmusAudioRecorderDALInterface');
 			}
+
 			$this->settings = $settings ?? new StarmusSettings();
 			$this->dal      = $dal ?? new StarmusAudioRecorderDAL();
-			add_action('init', array($this, 'register_shortcodes'));
-		} catch (Throwable $e) {
-			error_log($e);
+			add_action('init', $this->register_shortcodes(...));
+		} catch (Throwable $throwable) {
+			error_log($throwable);
 		}
 	}
 
@@ -46,15 +48,15 @@ final class StarmusShortcodeLoader
 	public function register_shortcodes(): void
 	{
 		try {
-			add_shortcode('starmus_audio_recorder', fn() => $this->safe_render(fn() => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode(), 'starmus_audio_recorder'));
-			add_shortcode('starmus_audio_editor', fn() => $this->safe_render(fn() => (new StarmusAudioEditorUI())->render_audio_editor_shortcode(), 'starmus_audio_editor'));
-			add_shortcode('starmus_my_recordings', array($this, 'render_my_recordings_shortcode'));
-			add_shortcode('starmus_recording_detail', array($this, 'render_submission_detail_shortcode'));
-			add_shortcode('starmus_audio_re_recorder', fn($atts = array()) => $this->safe_render(fn() => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts), 'starmus_audio_re_recorder'));
+			add_shortcode('starmus_audio_recorder', fn(): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode(), 'starmus_audio_recorder'));
+			add_shortcode('starmus_audio_editor', fn(): string => $this->safe_render(fn(): string => (new StarmusAudioEditorUI())->render_audio_editor_shortcode(), 'starmus_audio_editor'));
+			add_shortcode('starmus_my_recordings', $this->render_my_recordings_shortcode(...));
+			add_shortcode('starmus_recording_detail', $this->render_submission_detail_shortcode(...));
+			add_shortcode('starmus_audio_re_recorder', fn(array $atts = []): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts), 'starmus_audio_re_recorder'));
 
-			add_filter('the_content', array($this, 'render_submission_detail_via_filter'), 100);
-		} catch (\Throwable $e) {
-			error_log($e);
+			add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);
+		} catch (\Throwable $throwable) {
+			error_log($throwable);
 		}
 	}
 
@@ -65,8 +67,8 @@ final class StarmusShortcodeLoader
 	{
 		try {
 			return $renderer();
-		} catch (\Throwable $e) {
-			StarmusLogger::log("Shortcode:$context", $e);
+		} catch (\Throwable $throwable) {
+			StarmusLogger::log('Shortcode:' . $context, $throwable);
 			return '<p>' . esc_html__('Component unavailable.', 'starmus-audio-recorder') . '</p>';
 		}
 	}
@@ -74,14 +76,14 @@ final class StarmusShortcodeLoader
 	/**
 	 * Render the "My Recordings" shortcode.
 	 */
-	public function render_my_recordings_shortcode(array $atts = array()): string
+	public function render_my_recordings_shortcode(array $atts = []): string
 	{
 		if (! is_user_logged_in()) {
 			return '<p>' . esc_html__('You must be logged in to view your recordings.', 'starmus-audio-recorder') . '</p>';
 		}
 
 		try {
-			$attributes     = shortcode_atts(array('posts_per_page' => 10), $atts);
+			$attributes     = shortcode_atts(['posts_per_page' => 10], $atts);
 			$posts_per_page = max(1, absint($attributes['posts_per_page']));
 			$paged          = get_query_var('paged') ? (int) get_query_var('paged') : 1;
 			$cpt_slug       = $this->settings->get('cpt_slug', 'audio-recording');
@@ -89,13 +91,13 @@ final class StarmusShortcodeLoader
 
 			return StarmusTemplateLoaderHelper::render_template(
 				'parts/starmus-my-recordings-list.php',
-				array(
+				[
 					'query'         => $query,
 					'edit_page_url' => $this->dal->get_edit_page_url_admin($cpt_slug),
-				)
+				]
 			);
-		} catch (\Throwable $e) {
-			StarmusLogger::log('UI:render_my_recordings', $e);
+		} catch (\Throwable $throwable) {
+			StarmusLogger::log('UI:render_my_recordings', $throwable);
 			return '<p>' . esc_html__('Unable to load recordings.', 'starmus-audio-recorder') . '</p>';
 		}
 	}
@@ -103,29 +105,28 @@ final class StarmusShortcodeLoader
 	/**
 	 * Render the single recording detail shortcode.
 	 */
-	public function render_submission_detail_shortcode(array $atts): string
-	{
-		if (! is_singular('audio-recording')) {
+	public function render_submission_detail_shortcode(): string
+    {
+        if (! is_singular('audio-recording')) {
 			return '<p><em>[starmus_recording_detail] can only be used on a single audio recording page.</em></p>';
 		}
 
-		$post_id          = get_the_ID();
-		$template_to_load = '';
-
-		if (current_user_can('edit_others_posts', $post_id)) {
+        $post_id          = get_the_ID();
+        $template_to_load = '';
+        if (current_user_can('edit_others_posts', $post_id)) {
 			$template_to_load = 'starmus-recording-detail-admin.php';
 		} elseif (is_user_logged_in() && get_current_user_id() === (int) get_post_field('post_author', $post_id)) {
 			$template_to_load = 'starmus-recording-detail-user.php';
 		}
 
-		if ($template_to_load) {
+        if ($template_to_load !== '' && $template_to_load !== '0') {
 			return StarmusTemplateLoaderHelper::render_template($template_to_load);
 		}
 
-		return is_user_logged_in()
+        return is_user_logged_in()
 			? '<p>You do not have permission to view this recording detail.</p>'
 			: '<p><em>You must be logged in to view this recording detail.</em></p>';
-	}
+    }
 
 	/**
 	 * Automatically inject recording detail template into single view.
@@ -145,7 +146,7 @@ final class StarmusShortcodeLoader
 			$template_to_load = 'parts/starmus-recording-detail-user.php';
 		}
 
-		if ($template_to_load) {
+		if ($template_to_load !== '' && $template_to_load !== '0') {
 			return StarmusTemplateLoaderHelper::render_template($template_to_load);
 		}
 

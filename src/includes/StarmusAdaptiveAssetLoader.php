@@ -38,11 +38,10 @@ final class StarmusAdaptiveAssetLoader
      * Registers WordPress hooks for enqueuing assets.
      *
      * @since 0.9.0
-     * @return void
      */
     public function register_hooks(): void
     {
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_starmus_scripts'));
+        add_action('wp_enqueue_scripts', $this->enqueue_starmus_scripts(...));
     }
 
     /**
@@ -63,12 +62,12 @@ final class StarmusAdaptiveAssetLoader
         $save_data_mode = isset($_SERVER['HTTP_SAVE_DATA']) && 'on' === $_SERVER['HTTP_SAVE_DATA'];
 
         if ($save_data_mode || ($network_speed && (float) $network_speed < 0.5)) {
-            StarmusLogger::debug('AdaptiveAssetLoader', 'Profile: very_low_spec (Client Hints)', array('downlink' => $network_speed));
+            StarmusLogger::debug('AdaptiveAssetLoader', 'Profile: very_low_spec (Client Hints)', ['downlink' => $network_speed]);
             return 'very_low_spec';
         }
 
         if ($network_speed && (float) $network_speed < 1.5) {
-            StarmusLogger::debug('AdaptiveAssetLoader', 'Profile: low_spec (Client Hints)', array('downlink' => $network_speed));
+            StarmusLogger::debug('AdaptiveAssetLoader', 'Profile: low_spec (Client Hints)', ['downlink' => $network_speed]);
             return 'low_spec';
         }
 
@@ -77,13 +76,13 @@ final class StarmusAdaptiveAssetLoader
             ? sanitize_text_field(wp_unslash($_COOKIE['sparxstar_network_profile']))
             : null;
 
-        if (in_array($sparxstar_cookie, array('2g', 'slow-2g'), true)) {
-            StarmusLogger::debug('AdaptiveAssetLoader', 'Profile: very_low_spec (Cookie)', array('cookie' => $sparxstar_cookie));
+        if (in_array($sparxstar_cookie, ['2g', 'slow-2g'], true)) {
+            StarmusLogger::debug('AdaptiveAssetLoader', 'Profile: very_low_spec (Cookie)', ['cookie' => $sparxstar_cookie]);
             return 'very_low_spec';
         }
 
         if ('3g' === $sparxstar_cookie) {
-            StarmusLogger::debug('AdaptiveAssetLoader', 'Profile: low_spec (Cookie)', array('cookie' => $sparxstar_cookie));
+            StarmusLogger::debug('AdaptiveAssetLoader', 'Profile: low_spec (Cookie)', ['cookie' => $sparxstar_cookie]);
             return 'low_spec';
         }
 
@@ -93,7 +92,7 @@ final class StarmusAdaptiveAssetLoader
             : '';
 
         if (preg_match('/(Android|iPhone|iPod|Mobile)/i', $user_agent)) {
-            StarmusLogger::debug('AdaptiveAssetLoader', 'Profile: low_spec (User-Agent)', array('ua' => substr($user_agent, 0, 50)));
+            StarmusLogger::debug('AdaptiveAssetLoader', 'Profile: low_spec (User-Agent)', ['ua' => substr($user_agent, 0, 50)]);
             return 'low_spec';
         }
 
@@ -108,7 +107,6 @@ final class StarmusAdaptiveAssetLoader
      * Passes server-determined profile to JavaScript optimizer.
      *
      * @since 0.9.0
-     * @return void
      */
     public function enqueue_starmus_scripts(): void
     {
@@ -136,7 +134,7 @@ final class StarmusAdaptiveAssetLoader
             wp_enqueue_script(
                 'starmus-hooks',
                 $base_url . 'assets/js/starmus-app.min.js',
-                array(),
+                [],
                 $version,
                 true
             );
@@ -149,7 +147,7 @@ final class StarmusAdaptiveAssetLoader
         wp_enqueue_script(
             'starmus-environment-optimizer',
             $base_url . 'assets/js/starmus-environment-optimizer.min.js',
-            array('starmus-hooks'), // Depends on StarmusHooks; sparxstar-main is optional
+            ['starmus-hooks'], // Depends on StarmusHooks; sparxstar-main is optional
             $version,
             true
         );
@@ -158,19 +156,19 @@ final class StarmusAdaptiveAssetLoader
         wp_localize_script(
             'starmus-environment-optimizer',
             'starmusServerConfig',
-            array(
+            [
                 'optimizationProfile' => $profile,
                 'debug'               => defined('WP_DEBUG') && WP_DEBUG,
-            )
+            ]
         );
 
         StarmusLogger::info(
             'AdaptiveAssetLoader',
             'Environment optimizer enqueued',
-            array(
+            [
                 'profile' => $profile,
                 'post_id' => $post->ID ?? 0,
-            )
+            ]
         );
     }
 

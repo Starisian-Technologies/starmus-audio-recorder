@@ -1,1185 +1,1163 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-            <title>Documentation</title>
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="../">
-    <link rel="icon" href="images/favicon.ico"/>
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/base.css">
-            <link rel="preconnect" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@100;200;300;400;600;700&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="css/template.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css" integrity="sha256-ybRkN9dBjhcS2qrW1z+hfCxq+1aBdwyQM5wlQoQVt/0=" crossorigin="anonymous" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-okaidia.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.css">
-                <script src="https://cdn.jsdelivr.net/npm/fuse.js@3.4.6"></script>
-        <script src="https://cdn.jsdelivr.net/npm/css-vars-ponyfill@2"></script>
-        <script src="js/template.js"></script>
-        <script src="js/search.js"></script>
-        <script defer src="js/searchIndex.js"></script>
-    </head>
-<body id="top">
-    <header class="phpdocumentor-header phpdocumentor-section">
-    <h1 class="phpdocumentor-title"><a href="" class="phpdocumentor-title__link">Documentation</a></h1>
-    <input class="phpdocumentor-header__menu-button" type="checkbox" id="menu-button" name="menu-button" />
-    <label class="phpdocumentor-header__menu-icon" for="menu-button">
-        <i class="fas fa-bars"></i>
-    </label>
-    <section data-search-form class="phpdocumentor-search">
-    <label>
-        <span class="visually-hidden">Search for</span>
-        <svg class="phpdocumentor-search__icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="2"/>
-            <line x1="12.4892" y1="12.2727" x2="19.1559" y2="18.9393" stroke="currentColor" stroke-width="3"/>
-        </svg>
-        <input type="search" class="phpdocumentor-field phpdocumentor-search__field" placeholder="Loading .." disabled />
-    </label>
-</section>
+<html lang="en" id="top-of-site">
+	<head>
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<meta charset="utf-8"/>
+		<title>
+							Documentation
+					</title>
+		<meta name="author" content=""/>
+		<meta name="description" content=""/>
+		<base href="../">
 
-    <nav class="phpdocumentor-topnav">
-    <ul class="phpdocumentor-topnav__menu">
-        </ul>
-</nav>
-</header>
+		<link href="resources/css/bootstrap.min.css" rel="stylesheet" media="all"/>
+		<link href="resources/css/bootstrap-responsive.min.css" rel="stylesheet" media="all"/>
+		<link href="resources/css/style.css" rel="stylesheet" media="all"/>
+		<link href="resources/css/prism.min.css" rel="stylesheet" media="all"/>
+		<link href="resources/font/css/all.min.css" rel="stylesheet" media="all"/>
+		
+		<link rel="shortcut icon" href="resources/images/favicon.ico"/>
+		<link rel="apple-touch-icon" href="resources/images/apple-touch-icon.png"/>
+		<link rel="apple-touch-icon" sizes="72x72" href="resources/images/apple-touch-icon-72x72.png"/>
+		<link rel="apple-touch-icon" sizes="114x114" href="resources/images/apple-touch-icon-114x114.png"/>
+	</head>
+	<body>
 
-    <main class="phpdocumentor">
-        <div class="phpdocumentor-section">
-            <input class="phpdocumentor-sidebar__menu-button" type="checkbox" id="sidebar-button" name="sidebar-button" />
-<label class="phpdocumentor-sidebar__menu-icon" for="sidebar-button">
-    Menu
-</label>
-<aside class="phpdocumentor-column -three phpdocumentor-sidebar">
-                    <section class="phpdocumentor-sidebar__category -namespaces">
-            <h2 class="phpdocumentor-sidebar__category-header">Namespaces</h2>
-                                    <h4 class="phpdocumentor-sidebar__root-namespace">
-    <a href="namespaces/starisian.html" class="">Starisian</a>
-</h4>
-    <ul class="phpdocumentor-list">
-                    <li>
-                <a href="namespaces/starisian-sparxstar.html" class="">Sparxstar</a>
+		<nav class="navbar navbar-fixed-top navbar-inverse">
+			<div class="navbar-inner">
+				<div class="container">
+					<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+						<i class="fa-solid fa-bars"></i>
+					</a>
+					<a class="brand" href="index.html">Documentation</a>
+
+					<div class="nav-collapse navbar-responsive-collapse collapse">
+						<ul class="nav pull-right">
+															<li class="dropdown" id="api-menu">
+									<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-labelledby="api-menu">
+										API Documentation
+										<b class="caret"></b>
+									</a>
+									<ul class="dropdown-menu" role="menu" aria-labelledby="api-menu">
+																					<li><a href="namespaces/starisian.html"><abbr title="\Starisian">Starisian</abbr></a></li>
+																			</ul>
+								</li>
+																					<li class="dropdown">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+									Reports
+									<b class="caret"></b>
+								</a>
+								<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+									<li>
+										<a href="reports/errors.html">
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			<i class="fa-solid fa-bug"></i>&#160;Errors
+											<span class="label label-important pull-right">0</span>
+										</a>
+									</li>
+									<li>
+										<a href="reports/markers.html">
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			<i class="fa-solid fa-location-dot"></i>&#160;&#160;Markers
+											<span class="label label-warning pull-right">0</span>
+										</a>
+									</li>
+									<li>
+										<a href="reports/deprecated.html">
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																													<i class="fa-solid fa-file-circle-xmark"></i>&#160;Deprecated
+											<span class="label label-info pull-right">0</span>
+										</a>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="go_to_top">
+				<a href="#top-of-site" style="color: inherit">Back To Top&#160;&#160;<i class="fa-solid fa-chevron-up"></i></a>
+			</div>
+		</nav>
+
+		<div id="___" class="container-fluid"> 	<section class="row-fluid">
+		<div class="span2 sidebar">
+								<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-163606226"></a>
+								<a href="namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+			</div>
+			<div id="namespace-163606226" class="accordion-body collapse in">
+				<div class="accordion-inner">
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-263058320"></a>
+								<a href="namespaces/starisian.html" style="margin-left: 30px; padding-left: 0">Starisian</a>
+			</div>
+			<div id="namespace-263058320" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-319294409"></a>
+								<a href="namespaces/starisian-sparxstar.html" style="margin-left: 30px; padding-left: 0">Sparxstar</a>
+			</div>
+			<div id="namespace-319294409" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1220080032"></a>
+								<a href="namespaces/starisian-sparxstar-starmus.html" style="margin-left: 30px; padding-left: 0">Starmus</a>
+			</div>
+			<div id="namespace-1220080032" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-36258780"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-admin.html" style="margin-left: 30px; padding-left: 0">admin</a>
+			</div>
+			<div id="namespace-36258780" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><abbr title="\Starisian\Sparxstar\Starmus\admin\StarmusAdmin">StarmusAdmin</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1057377390"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-api.html" style="margin-left: 30px; padding-left: 0">api</a>
+			</div>
+			<div id="namespace-1057377390" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-api-StarmusRESTHandler.html"><abbr title="\Starisian\Sparxstar\Starmus\api\StarmusRESTHandler">StarmusRESTHandler</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1913141824"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-cli.html" style="margin-left: 30px; padding-left: 0">cli</a>
+			</div>
+			<div id="namespace-1913141824" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-cli-StarmusCLI.html"><abbr title="\Starisian\Sparxstar\Starmus\cli\StarmusCLI">StarmusCLI</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-18754711"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-core.html" style="margin-left: 30px; padding-left: 0">core</a>
+			</div>
+			<div id="namespace-18754711" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-832505766"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-core-interfaces.html" style="margin-left: 30px; padding-left: 0">interfaces</a>
+			</div>
+			<div id="namespace-832505766" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+													<li class="interface"><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr></a></li>
+																							</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAssetLoader">StarmusAssetLoader</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL">StarmusAudioRecorderDAL</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderUpdater.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderUpdater">StarmusAudioRecorderUpdater</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-210855296"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-cron.html" style="margin-left: 30px; padding-left: 0">cron</a>
+			</div>
+			<div id="namespace-210855296" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-cron-StarmusCron.html"><abbr title="\Starisian\Sparxstar\Starmus\cron\StarmusCron">StarmusCron</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1779441255"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-frontend.html" style="margin-left: 30px; padding-left: 0">frontend</a>
+			</div>
+			<div id="namespace-1779441255" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-frontend-StarmusAudioEditorUI.html"><abbr title="\Starisian\Sparxstar\Starmus\frontend\StarmusAudioEditorUI">StarmusAudioEditorUI</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-frontend-StarmusAudioRecorderUI.html"><abbr title="\Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI">StarmusAudioRecorderUI</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-frontend-StarmusShortcodeLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\frontend\StarmusShortcodeLoader">StarmusShortcodeLoader</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-763114294"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-helpers.html" style="margin-left: 30px; padding-left: 0">helpers</a>
+			</div>
+			<div id="namespace-763114294" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-helpers-StarmusLogger.html"><abbr title="\Starisian\Sparxstar\Starmus\helpers\StarmusLogger">StarmusLogger</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-helpers-StarmusSanitizer.html"><abbr title="\Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer">StarmusSanitizer</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-helpers-StarmusTemplateLoaderHelper.html"><abbr title="\Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper">StarmusTemplateLoaderHelper</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1609961518"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-includes.html" style="margin-left: 30px; padding-left: 0">includes</a>
+			</div>
+			<div id="namespace-1609961518" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusAdaptiveAssetLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\includes\StarmusAdaptiveAssetLoader">StarmusAdaptiveAssetLoader</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html"><abbr title="\Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler">StarmusSubmissionHandler</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html"><abbr title="\Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler">StarmusTusdHookHandler</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+													<div class="accordion" style="margin-bottom: 0">
+		<div class="accordion-group">
+			<div class="accordion-heading">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1252735962"></a>
+								<a href="namespaces/starisian-sparxstar-starmus-services.html" style="margin-left: 30px; padding-left: 0">services</a>
+			</div>
+			<div id="namespace-1252735962" class="accordion-body collapse ">
+				<div class="accordion-inner">
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-services-StarmusAudioProcessingHandler.html"><abbr title="\Starisian\Sparxstar\Starmus\services\StarmusAudioProcessingHandler">StarmusAudioProcessingHandler</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-services-StarmusAudioProcessingService.html"><abbr title="\Starisian\Sparxstar\Starmus\services\StarmusAudioProcessingService">StarmusAudioProcessingService</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-services-StarmusFileService.html"><abbr title="\Starisian\Sparxstar\Starmus\services\StarmusFileService">StarmusFileService</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html"><abbr title="\Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService">StarmusPostProcessingService</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-services-StarmusWaveformService.html"><abbr title="\Starisian\Sparxstar\Starmus\services\StarmusWaveformService">StarmusWaveformService</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+					
+					<ul>
+																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-StarmusAudioRecorder.html"><abbr title="\Starisian\Sparxstar\Starmus\StarmusAudioRecorder">StarmusAudioRecorder</abbr></a></li>
+											</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+					
+					<ul>
+																							</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+					
+					<ul>
+																							</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+					
+					<ul>
+																							</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+		</div>
+	</section>
+	<section class="row-fluid">
+		<div class="span10 offset2">
+			<div class="row-fluid">
+				<div class="span8 content class">
+					<nav>
+												<a href="namespaces/starisian-sparxstar-starmus-admin.html"><abbr title="\Starisian\Sparxstar\Starmus\admin">admin</abbr></a>
+						<i class="fa-solid fa-turn-up"></i>
+											</nav>
+					
+					<h1>
+						<small>\Starisian\Sparxstar\Starmus\admin</small>
+						StarmusAdmin</h1>
+					<p>
+						<em>Secure and optimized admin settings class.</em>
+					</p>
+					
+																																<section id="summary">
+						<h2>Summary</h2>
+						<section class="row-fluid heading">
+							<section class="span4">
+								<a href="#methods">Methods</a>
+							</section>
+							<section class="span4">
+								<a href="#properties">Properties</a>
+							</section>
+							<section class="span4">
+								<a href="#constants">Constants</a>
+							</section>
+						</section>
+						<section class="row-fluid public">
+							<section class="span4">
+																																																																																																																																																																																																																																																																																																																													
+																											<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method___construct" class="">__construct</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_admin_menu" class="">add_admin_menu</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_render_settings_page" class="">render_settings_page</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_register_settings" class="">register_settings</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_sanitize_settings" class="">sanitize_settings</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_render_field" class="">render_field</a><br/>
+																								</section>
+							<section class="span4">
+																																																																			
+																	<em>No public properties found</em>
+															</section>
+							<section class="span4">
+																																																																																								
+																											<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#constant_STARMUS_MENU_SLUG" class="">STARMUS_MENU_SLUG</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#constant_STARMUS_SETTINGS_GROUP" class="">STARMUS_SETTINGS_GROUP</a><br/>
+																								</section>
+						</section>
+						<section class="row-fluid protected">
+							<section class="span4">
+																																																																																																																																																																																																											
+																	<em>No protected methods found</em>
+															</section>
+							<section class="span4">
+																																																																			
+																	<em>No protected properties found</em>
+															</section>
+							<section class="span4">
+																																																		
+																	<em>No protected constants found</em>
+															</section>
+						</section>
+						<section class="row-fluid private">
+							<section class="span4">
+																																																																																																																																																																																																																																																																																																										
+																											<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_register_hooks" class="">register_hooks</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_is_valid_cpt_slug" class="">is_valid_cpt_slug</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_settings_sections" class="">add_settings_sections</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_settings_fields" class="">add_settings_fields</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_is_valid_file_extension" class="">is_valid_file_extension</a><br/>
+																								</section>
+							<section class="span4">
+																																																																																																																												
+																											<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#property_field_types" class="">field_types</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#property_settings" class="">settings</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#property_dal" class="">dal</a><br/>
+																								</section>
+							<section class="span4">
+																																																		
+																	<em>No private constants found</em>
+															</section>
+						</section>
+					</section>
+				</div>
+				<aside class="span4 detailsbar">
+										
+					
+					<dl>
+						<dt>File</dt>
+						<dd>
+							<a href="files/src-admin-starmusadmin.html">
+								<div class="path-wrapper">src/admin/StarmusAdmin.php</div>
+							</a>
+						</dd>
+													<dt>Package</dt>
+							<dd>
+								<div class="namespace-wrapper">Starmus\admin</div>
+							</dd>
+												<dt>Class hierarchy</dt>
+						<dd class="hierarchy">
+																																				<div class="namespace-wrapper">\Starisian\Sparxstar\Starmus\admin\StarmusAdmin</div>
+						</dd>
+
+						
+						
+												
+																																																																																																																																																																																															
+																	</dl>
+					<h2>Tags</h2>
+					<table class="table table-condensed">
+																											<tr>
+									<th>
+										package
+									</th>
+									<td>
+																																<p>Starisian\Sparxstar\Starmus\admin</p>
+
+																			</td>
+								</tr>
+															<tr>
+									<th>
+										uses
+									</th>
+									<td>
+																			</td>
+								</tr>
+															<tr>
+									<th>
+										method
+									</th>
+									<td>
+																			</td>
+								</tr>
+															<tr>
+									<th>
+										property
+									</th>
+									<td>
+																			</td>
+								</tr>
+															<tr>
+									<th>
+										property-read
+									</th>
+									<td>
+																			</td>
+								</tr>
+															<tr>
+									<th>
+										property-write
+									</th>
+									<td>
+																			</td>
+								</tr>
+																		</table>
+				</aside>
+			</div>
+
+										<a id="constants" name="constants"></a>
+				<div class="row-fluid">
+					<div class="span8 content class">
+						<h2>Constant</h2>
+					</div>
+					<aside class="span4 detailsbar"></aside>
+				</div>
+
+															    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_STARMUS_MENU_SLUG" name="constant_STARMUS_MENU_SLUG" class="anchor"></a>
+            <article id="constant_STARMUS_MENU_SLUG" class="constant">
+                <h3 class="public ">STARMUS_MENU_SLUG</h3>
+                <pre class="signature">STARMUS_MENU_SLUG = &#039;starmus-admin&#039; : string</pre>
+                <p><em>Menu slug for the plugin settings page.</em></p>
                 
-            </li>
-            </ul>
-
-                        </section>
-                <section class="phpdocumentor-sidebar__category -packages">
-            <h2 class="phpdocumentor-sidebar__category-header">Packages</h2>
-                                    <h4 class="phpdocumentor-sidebar__root-namespace">
-    <a href="packages/Starmus.html" class="">Starmus</a>
-</h4>
-    <ul class="phpdocumentor-list">
-                    <li>
-                <a href="packages/Starmus-core.html" class="">core</a>
-                
-            </li>
-                    <li>
-                <a href="packages/Starmus-Includes.html" class="">Includes</a>
-                
-            </li>
-            </ul>
-
-                                    <h4 class="phpdocumentor-sidebar__root-namespace">
-    <a href="packages/Starisian.html" class="">Starisian</a>
-</h4>
-    <ul class="phpdocumentor-list">
-                    <li>
-                <a href="packages/Starisian-Sparxstar.html" class="">Sparxstar</a>
-                
-            </li>
-                    <li>
-                <a href="packages/Starisian-Starmus.html" class="">Starmus</a>
-                
-            </li>
-            </ul>
-
-                                    <h4 class="phpdocumentor-sidebar__root-namespace">
-    <a href="packages/Application.html" class="">Application</a>
-</h4>
-
-                        </section>
-            
-    <section class="phpdocumentor-sidebar__category -reports">
-        <h2 class="phpdocumentor-sidebar__category-header">Reports</h2>
-                <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/deprecated.html">Deprecated</a></h3>
-        <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/errors.html">Errors</a></h3>
-        <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/markers.html">Markers</a></h3>
-    </section>
-
-    <section class="phpdocumentor-sidebar__category -indices">
-        <h2 class="phpdocumentor-sidebar__category-header">Indices</h2>
-        <h3 class="phpdocumentor-sidebar__root-package"><a href="indices/files.html">Files</a></h3>
-    </section>
-</aside>
-
-            <div class="phpdocumentor-column -nine phpdocumentor-content">
-                                <section>
-                                        <ul class="phpdocumentor-breadcrumbs">
-            <li class="phpdocumentor-breadcrumb"><a href="namespaces/starisian.html">Starisian</a></li>
-            <li class="phpdocumentor-breadcrumb"><a href="namespaces/starisian-sparxstar.html">Sparxstar</a></li>
-            <li class="phpdocumentor-breadcrumb"><a href="namespaces/starisian-sparxstar-starmus.html">Starmus</a></li>
-            <li class="phpdocumentor-breadcrumb"><a href="namespaces/starisian-sparxstar-starmus-admin.html">admin</a></li>
-    </ul>
-
-    <article class="phpdocumentor-element -class">
-        <h2 class="phpdocumentor-content__title">
-    StarmusAdmin
-
-    
-            <div class="phpdocumentor-element__package">
-            in package
-            <ul class="phpdocumentor-breadcrumbs">
-                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Starisian.html">Starisian</a></li>
-                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Starisian-Sparxstar.html">Sparxstar</a></li>
-                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Starisian-Sparxstar-Starmus.html">Starmus</a></li>
-                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Starisian-Sparxstar-Starmus-admin.html">admin</a></li>
-                            </ul>
+            </article>
         </div>
-    
-    
-    </h2>
-
-<div class="phpdocumentor-label-line">
-
-
-</div>
-
-        <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">24</span>
-
-    </aside>
-
-            <p class="phpdocumentor-summary">Secure and optimized admin settings class.</p>
-
-
-
-
-
-
-
-
-
-<h3 id="toc">
-    Table of Contents
-    <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#toc" class="headerlink"><i class="fas fa-link"></i></a>
-
-</h3>
-
-
-
-
-
-
-
-<h4 id="toc-constants">
-    Constants
-    <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#toc-constants" class="headerlink"><i class="fas fa-link"></i></a>
-
-</h4>
-<dl class="phpdocumentor-table-of-contents">
-            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#constant_STARMUS_MENU_SLUG">STARMUS_MENU_SLUG</a>
-    <span>
-        &nbsp;= &#039;starmus-admin&#039;                            </span>
-</dt>
-<dd>Menu slug for the plugin settings page.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#constant_STARMUS_SETTINGS_GROUP">STARMUS_SETTINGS_GROUP</a>
-    <span>
-        &nbsp;= &#039;starmus_settings_group&#039;                            </span>
-</dt>
-<dd>Settings group identifier for WordPress options API.</dd>
-
-    </dl>
-
-
-<h4 id="toc-properties">
-    Properties
-    <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#toc-properties" class="headerlink"><i class="fas fa-link"></i></a>
-
-</h4>
-<dl class="phpdocumentor-table-of-contents">
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#property_dal">$dal</a>
-    <span>
-                        &nbsp;: <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL">StarmusAudioRecorderDAL</abbr></a>|null            </span>
-</dt>
-
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#property_field_types">$field_types</a>
-    <span>
-                        &nbsp;: array&lt;string|int, mixed&gt;            </span>
-</dt>
-<dd>Mapping of option keys to field types.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -property -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#property_settings">$settings</a>
-    <span>
-                        &nbsp;: <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a>|null            </span>
-</dt>
-
-    </dl>
-
-<h4 id="toc-methods">
-    Methods
-    <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#toc-methods" class="headerlink"><i class="fas fa-link"></i></a>
-
-</h4>
-<dl class="phpdocumentor-table-of-contents">
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method___construct">__construct()</a>
-    <span>
-                                &nbsp;: mixed    </span>
-</dt>
-<dd>Constructor - initializes admin settings.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_admin_menu">add_admin_menu()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Add admin menu with error handling.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_register_settings">register_settings()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Register settings with validation.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_render_field">render_field()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Render form field with validation.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_render_settings_page">render_settings_page()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Render settings page with CSRF protection.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_sanitize_settings">sanitize_settings()</a>
-    <span>
-                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
-</dt>
-<dd>Sanitize settings with comprehensive validation.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_settings_fields">add_settings_fields()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Add settings fields.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_settings_sections">add_settings_sections()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Add settings sections.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_is_valid_cpt_slug">is_valid_cpt_slug()</a>
-    <span>
-                                &nbsp;: bool    </span>
-</dt>
-<dd>Validate CPT slug format.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_is_valid_file_extension">is_valid_file_extension()</a>
-    <span>
-                                &nbsp;: bool    </span>
-</dt>
-<dd>Validate file extension.</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -private">
-    <a class="" href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_register_hooks">register_hooks()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-
-    </dl>
-
-
-
-        
-    <section class="phpdocumentor-constants">
-        <h3 class="phpdocumentor-elements__header" id="constants">
-            Constants
-            <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#constants" class="headerlink"><i class="fas fa-link"></i></a>
-
-        </h3>
-                    <article class="phpdocumentor-element -constant -public ">
-    <h4 class="phpdocumentor-element__name" id="constant_STARMUS_MENU_SLUG">
-        STARMUS_MENU_SLUG
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#constant_STARMUS_MENU_SLUG" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">28</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Menu slug for the plugin settings page.</p>
-
-    
-    <code class="phpdocumentor-signature phpdocumentor-code ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-        <span class="phpdocumentor-signature__type">mixed</span>
-    <span class="phpdocumentor-signature__name">STARMUS_MENU_SLUG</span>
-    = <span class="phpdocumentor-signature__default-value">&#039;starmus-admin&#039;</span>
-</code>
-
-
-    
-    
-    
-
-    
-
-</article>
-                    <article class="phpdocumentor-element -constant -public ">
-    <h4 class="phpdocumentor-element__name" id="constant_STARMUS_SETTINGS_GROUP">
-        STARMUS_SETTINGS_GROUP
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#constant_STARMUS_SETTINGS_GROUP" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">31</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Settings group identifier for WordPress options API.</p>
-
-    
-    <code class="phpdocumentor-signature phpdocumentor-code ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-        <span class="phpdocumentor-signature__type">mixed</span>
-    <span class="phpdocumentor-signature__name">STARMUS_SETTINGS_GROUP</span>
-    = <span class="phpdocumentor-signature__default-value">&#039;starmus_settings_group&#039;</span>
-</code>
-
-
-    
-    
-    
-
-    
-
-</article>
-            </section>
-
-        
-    <section class="phpdocumentor-properties">
-        <h3 class="phpdocumentor-elements__header" id="properties">
-            Properties
-            <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#properties" class="headerlink"><i class="fas fa-link"></i></a>
-
-        </h3>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_dal">
-        $dal
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#property_dal" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">38</span>
-
-    </aside>
-
-    
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL">StarmusAudioRecorderDAL</abbr></a>|null</span>
-    <span class="phpdocumentor-signature__name">$dal</span>
-     = <span class="phpdocumentor-signature__default-value">null</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_field_types">
-        $field_types
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#property_field_types" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">36</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Mapping of option keys to field types.</p>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type">array&lt;string|int, mixed&gt;</span>
-    <span class="phpdocumentor-signature__name">$field_types</span>
-     = <span class="phpdocumentor-signature__default-value">array()</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-                    <article
-        class="
-            phpdocumentor-element
-            -property
-            -private
-                                                                    "
->
-    <h4 class="phpdocumentor-element__name" id="property_settings">
-        $settings
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#property_settings" class="headerlink"><i class="fas fa-link"></i></a>
-
-        <span class="phpdocumentor-element__modifiers">
-                                            </span>
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">37</span>
-
-    </aside>
-
-    
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-        <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a>|null</span>
-    <span class="phpdocumentor-signature__name">$settings</span>
-     = <span class="phpdocumentor-signature__default-value">null</span></code>
-
-    
-    
-    
-
-    
-
-    
-
-</article>
-            </section>
-
-            <section class="phpdocumentor-methods">
-        <h3 class="phpdocumentor-elements__header" id="methods">
-            Methods
-            <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#methods" class="headerlink"><i class="fas fa-link"></i></a>
-
-        </h3>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method___construct">
-        __construct()
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method___construct" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">45</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Constructor - initializes admin settings.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$DAL</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$settings</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$DAL</span>
-                : <span class="phpdocumentor-signature__argument__return-type"><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr></a></span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$settings</span>
-                : <span class="phpdocumentor-signature__argument__return-type"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a></span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-            </dl>
-
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method___construct#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.3.1</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_add_admin_menu">
-        add_admin_menu()
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_admin_menu" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">73</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Add admin menu with error handling.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">add_admin_menu</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
-        Tags
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_admin_menu#tags" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h5>
-    <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">since</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
-                                            <span class="phpdocumentor-tag-link">0.3.1</span>
-                                                                                
-                                             
-                                    </dd>
-                                            </dl>
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_register_settings">
-        register_settings()
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_register_settings" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">129</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Register settings with validation.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">register_settings</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><p>REVERTED: This method is now back to its original purpose.</p>
-</section>
-
-    
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_render_field">
-        render_field()
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_render_field" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">361</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Render form field with validation.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">render_field</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$args</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><p>REVERTED: Field name is back to using STARMUS_OPTION_KEY for Settings API.</p>
-</section>
-
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$args</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-            </dl>
-
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_render_settings_page">
-        render_settings_page()
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_render_settings_page" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">103</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Render settings page with CSRF protection.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">render_settings_page</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><p>REVERTED: Back to standard settings page rendering.</p>
-</section>
-
-    
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -public
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_sanitize_settings">
-        sanitize_settings()
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_sanitize_settings" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">148</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Sanitize settings with comprehensive validation.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">sanitize_settings</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$input</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <section class="phpdocumentor-description"><p>REVERTED: This is the callback for register_setting.
-ADDED: The cache clear.</p>
-</section>
-
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$input</span>
-                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_add_settings_fields">
-        add_settings_fields()
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_settings_fields" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">277</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Add settings fields.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">add_settings_fields</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_add_settings_sections">
-        add_settings_sections()
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_settings_sections" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">238</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Add settings sections.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">add_settings_sections</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_is_valid_cpt_slug">
-        is_valid_cpt_slug()
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_is_valid_cpt_slug" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">95</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Validate CPT slug format.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">is_valid_cpt_slug</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$slug</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$slug</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">bool</span>
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_is_valid_file_extension">
-        is_valid_file_extension()
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_is_valid_file_extension" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">349</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Validate file extension.</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">is_valid_file_extension</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$ext</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$ext</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-            </dl>
-
-    
-
-    
-
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">bool</span>
-            </section>
-
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -private
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_register_hooks">
-        register_hooks()
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_register_hooks" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="src/admin/StarmusAdmin.php"><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">62</span>
-
-    </aside>
-
-    
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">private</span>
-                    <span class="phpdocumentor-signature__name">register_hooks</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-    
-    
-    
-
-    
-
-    
-</article>
-            </section>
-
-        <div class="phpdocumentor-modal" id="source-view">
-    <div class="phpdocumentor-modal-bg" data-exit-button></div>
-    <div class="phpdocumentor-modal-container">
-        <div class="phpdocumentor-modal-content">
-            <pre style="max-height: 500px; overflow-y: scroll" data-src="files/src/admin/StarmusAdmin.php.txt" class="language-php line-numbers linkable-line-numbers"></pre>
-        </div>
-        <button data-exit-button class="phpdocumentor-modal__close">&times;</button>
-    </div>
-</div>
-
-    <script type="text/javascript">
-        (function () {
-            function loadExternalCodeSnippet(el, url, line) {
-                Array.prototype.slice.call(el.querySelectorAll('pre[data-src]')).forEach((pre) => {
-                    const src = url || pre.getAttribute('data-src').replace(/\\/g, '/');
-                    const language = 'php';
-
-                    const code = document.createElement('code');
-                    code.className = 'language-' + language;
-                    pre.textContent = '';
-                    pre.setAttribute('data-line', line)
-                    code.textContent = 'Loading…';
-                    pre.appendChild(code);
-
-                    var xhr = new XMLHttpRequest();
-
-                    xhr.open('GET', src, true);
-
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState !== 4) {
-                            return;
-                        }
-
-                        if (xhr.status < 400 && xhr.responseText) {
-                            code.textContent = xhr.responseText;
-                            Prism.highlightElement(code);
-                            d=document.getElementsByClassName("line-numbers");
-                            d[0].scrollTop = d[0].children[1].offsetTop;
-                            return;
-                        }
-
-                        if (xhr.status === 404) {
-                            code.textContent = '✖ Error: File could not be found';
-                            return;
-                        }
-
-                        if (xhr.status >= 400) {
-                            code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
-                            return;
-                        }
-
-                        code.textContent = '✖ Error: An unknown error occurred';
-                    };
-
-                    xhr.send(null);
-                });
-            }
-
-            const modalButtons = document.querySelectorAll("[data-modal]");
-            const openedAsLocalFile = window.location.protocol === 'file:';
-            if (modalButtons.length > 0 && openedAsLocalFile) {
-                console.warn(
-                    'Viewing the source code is unavailable because you are opening this page from the file:// scheme; ' +
-                    'browsers block XHR requests when a page is opened this way'
-                );
-            }
-
-            modalButtons.forEach(function (trigger) {
-                if (openedAsLocalFile) {
-                    trigger.setAttribute("hidden", "hidden");
-                }
-
-                trigger.addEventListener("click", function (event) {
-                    event.preventDefault();
-                    const modal = document.getElementById(trigger.dataset.modal);
-                    if (!modal) {
-                        console.error(`Modal with id "${trigger.dataset.modal}" could not be found`);
-                        return;
-                    }
-                    modal.classList.add("phpdocumentor-modal__open");
-
-                    loadExternalCodeSnippet(modal, trigger.dataset.src || null, trigger.dataset.line)
-                    const exits = modal.querySelectorAll("[data-exit-button]");
-                    exits.forEach(function (exit) {
-                        exit.addEventListener("click", function (event) {
-                            event.preventDefault();
-                            modal.classList.remove("phpdocumentor-modal__open");
-                        });
-                    });
-                });
-            });
-        })();
-    </script>
-
-    </article>
-                                </section>
-                <section class="phpdocumentor-on-this-page__sidebar">
+        <aside class="span4 detailsbar">
+            <h1><i class="fas-solid fa-arrow-down"></i></h1>
+                        <dl>
+                                <dt>File</dt>
+                <dd><a href="files/src-admin-starmusadmin.html"><div class="path-wrapper">src/admin/StarmusAdmin.php</div></a></dd>
                                 
-    <section class="phpdocumentor-on-this-page__content">
-        <strong class="phpdocumentor-on-this-page__title">On this page</strong>
+                                                                                
+                                                            </dl>
 
-        <ul class="phpdocumentor-list -clean">
-            <li class="phpdocumentor-on-this-page-section__title">Table Of Contents</li>
-            <li>
-                <ul class="phpdocumentor-list -clean">
-                                        <li><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#toc-constants">Constants</a></li>
-                                                            <li><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#toc-properties">Properties</a></li>
-                                                            <li><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#toc-methods">Methods</a></li>
-                                    </ul>
-            </li>
-                            <li class="phpdocumentor-on-this-page-section__title">Constants</li>
-                <li>
-                    <ul class="phpdocumentor-list -clean">
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#constant_STARMUS_MENU_SLUG">STARMUS_MENU_SLUG</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#constant_STARMUS_SETTINGS_GROUP">STARMUS_SETTINGS_GROUP</a></li>
-                                            </ul>
-                </li>
-            
-                            <li class="phpdocumentor-on-this-page-section__title">Properties</li>
-                <li>
-                    <ul class="phpdocumentor-list -clean">
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#property_dal">$dal</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#property_field_types">$field_types</a></li>
-                                                    <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#property_settings">$settings</a></li>
-                                            </ul>
-                </li>
-            
-                        <li class="phpdocumentor-on-this-page-section__title">Methods</li>
-            <li>
-                <ul class="phpdocumentor-list -clean">
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method___construct">__construct()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_admin_menu">add_admin_menu()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_register_settings">register_settings()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_render_field">render_field()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_render_settings_page">render_settings_page()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_sanitize_settings">sanitize_settings()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_settings_fields">add_settings_fields()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_add_settings_sections">add_settings_sections()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_is_valid_cpt_slug">is_valid_cpt_slug()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_is_valid_file_extension">is_valid_file_extension()</a></li>
-                                            <li class=""><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#method_register_hooks">register_hooks()</a></li>
-                                    </ul>
-            </li>
-                    </ul>
-    </section>
+                        <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
 
-                </section>
-                            </div>
-            <section data-search-results class="phpdocumentor-search-results phpdocumentor-search-results--hidden">
-    <section class="phpdocumentor-search-results__dialog">
-        <header class="phpdocumentor-search-results__header">
-            <h2 class="phpdocumentor-search-results__title">Search results</h2>
-            <button class="phpdocumentor-search-results__close"><i class="fas fa-times"></i></button>
-        </header>
-        <section class="phpdocumentor-search-results__body">
-            <ul class="phpdocumentor-search-results__entries"></ul>
-        </section>
-    </section>
-</section>
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_STARMUS_SETTINGS_GROUP" name="constant_STARMUS_SETTINGS_GROUP" class="anchor"></a>
+            <article id="constant_STARMUS_SETTINGS_GROUP" class="constant">
+                <h3 class="public ">STARMUS_SETTINGS_GROUP</h3>
+                <pre class="signature">STARMUS_SETTINGS_GROUP = &#039;starmus_settings_group&#039; : string</pre>
+                <p><em>Settings group identifier for WordPress options API.</em></p>
+                
+            </article>
         </div>
-        <a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html#top" class="phpdocumentor-back-to-top"><i class="fas fa-chevron-circle-up"></i></a>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas-solid fa-arrow-down"></i></h1>
+                        <dl>
+                                <dt>File</dt>
+                <dd><a href="files/src-admin-starmusadmin.html"><div class="path-wrapper">src/admin/StarmusAdmin.php</div></a></dd>
+                                
+                                                                                
+                                                            </dl>
 
-    </main>
+                        <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
 
-    <script>
-        cssVars({});
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
-</body>
+									
+																						
+																									
+										<a id="properties" name="properties"></a>
+				<div class="row-fluid">
+					<div class="span8 content class">
+						<h2>Properties</h2>
+					</div>
+					<aside class="span4 detailsbar"></aside>
+				</div>
+
+																																																																													    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_field_types" name="property_field_types" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$field_types</h3>
+                <pre class="signature">$field_types : array<string,string></pre>
+                <p><em>Mapping of option keys to field types for rendering.</em></p>
+                
+
+                                <h4>Type</h4>
+                array&lt;string, string&gt;
+                &mdash;                             </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas-solid fa-arrow-down"></i></h1>
+                        <dl>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_settings" name="property_settings" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$settings</h3>
+                <pre class="signature">$settings : ?\Starisian\Sparxstar\Starmus\core\StarmusSettings</pre>
+                <p><em>Settings service instance.</em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a>|null
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas-solid fa-arrow-down"></i></h1>
+                        <dl>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_dal" name="property_dal" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$dal</h3>
+                <pre class="signature">$dal : ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface</pre>
+                <p><em>Data Access Layer instance.</em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr></a>|null
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas-solid fa-arrow-down"></i></h1>
+                        <dl>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+												
+										<a id="methods" name="methods"></a>
+				<div class="row-fluid">
+					<div class="span8 content class">
+						<h2>Methods</h2>
+					</div>
+					<aside class="span4 detailsbar"></aside>
+				</div>
+
+															    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___construct" name="method___construct" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__construct()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__construct(\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface  <span class="argument">$DAL</span>, \Starisian\Sparxstar\Starmus\core\StarmusSettings  <span class="argument">$settings</span>) : void</pre>
+                <p><em>Constructor - initializes admin settings and hooks.</em></p>
+                <p>Sets up DAL and Settings dependencies, defines field type mappings,
+and registers admin hooks for menu and settings registration.</p>
+
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface</td>
+                                <td>$DAL </td>
+                                <td><p>Data Access Layer instance.</p>
+</td>
+                            </tr>
+                                                    <tr>
+                                <td>\Starisian\Sparxstar\Starmus\core\StarmusSettings</td>
+                                <td>$settings </td>
+                                <td><p>Settings service instance.</p>
+</td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Throwable</dt>
+                            <dd><p>If initialization fails.</p>
+</dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\admin\StarmusAdmin</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                                            <tr>
+                            <th>
+                                since
+                            </th>
+                            <td>
+                                                                    0.3.1                                    
+                                                            </td>
+                        </tr>
+                                                </table>
+        </aside>
+    </div>
+
+																													    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_add_admin_menu" name="method_add_admin_menu" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">add_admin_menu()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">add_admin_menu() : void</pre>
+                <p><em>Add admin menu with error handling.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\admin\StarmusAdmin</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                                            <tr>
+                            <th>
+                                since
+                            </th>
+                            <td>
+                                                                    0.3.1                                    
+                                                            </td>
+                        </tr>
+                                                </table>
+        </aside>
+    </div>
+
+																													    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_render_settings_page" name="method_render_settings_page" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">render_settings_page()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">render_settings_page() : void</pre>
+                <p><em>Render admin settings page with CSRF protection.</em></p>
+                <p>REVERTED: Back to standard settings page rendering using WordPress Settings API.
+Checks user capabilities, displays settings form with nonce fields,
+and handles error display.</p>
+
+
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\admin\StarmusAdmin</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_register_settings" name="method_register_settings" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">register_settings()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">register_settings() : void</pre>
+                <p><em>Register plugin settings with WordPress Settings API.</em></p>
+                <p>REVERTED: This method is now back to its original purpose.
+Registers the main option, adds settings sections and fields.
+Called on 'admin_init' hook.</p>
+
+
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\admin\StarmusAdmin</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_sanitize_settings" name="method_sanitize_settings" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">sanitize_settings()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">sanitize_settings(array<string,mixed>  <span class="argument">$input</span>) : array&lt;string,mixed&gt;</pre>
+                <p><em>Sanitize and validate settings on save.</em></p>
+                <p>REVERTED: This is the callback for register_setting.
+ADDED: Cache clearing after sanitization.
+Validates all input fields, applies appropriate sanitization,
+converts page slugs to IDs, and returns sanitized array.</p>
+
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array<string,mixed></td>
+                                <td>$input </td>
+                                <td><p>Raw input from settings form.</p>
+</td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array<string,mixed>
+                                            &mdash; <p>Sanitized settings array.</p>
+
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\admin\StarmusAdmin</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																																															    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_render_field" name="method_render_field" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">render_field()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">render_field(array  <span class="argument">$args</span>) : void</pre>
+                <p><em>Render form field with validation.</em></p>
+                <p>REVERTED: Field name is back to using STARMUS_OPTION_KEY for Settings API.</p>
+
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$args </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\admin\StarmusAdmin</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																																																																																																																																								    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_register_hooks" name="method_register_hooks" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">register_hooks()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">register_hooks() : void</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\admin\StarmusAdmin</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																													    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_is_valid_cpt_slug" name="method_is_valid_cpt_slug" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">is_valid_cpt_slug()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">is_valid_cpt_slug(string  <span class="argument">$slug</span>) : bool</pre>
+                <p><em>Validate custom post type slug format.</em></p>
+                <p>Ensures slug contains only lowercase letters, numbers, hyphens, and underscores,
+and does not exceed 20 characters.</p>
+
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$slug </td>
+                                <td><p>The CPT slug to validate.</p>
+</td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    bool
+                                            &mdash; <p>True if valid, false otherwise.</p>
+
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\admin\StarmusAdmin</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																																															    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_add_settings_sections" name="method_add_settings_sections" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">add_settings_sections()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">add_settings_sections() : void</pre>
+                <p><em>Add settings sections.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\admin\StarmusAdmin</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_add_settings_fields" name="method_add_settings_fields" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">add_settings_fields()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">add_settings_fields() : void</pre>
+                <p><em>Add settings fields.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    void
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\admin\StarmusAdmin</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																				    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_is_valid_file_extension" name="method_is_valid_file_extension" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">is_valid_file_extension()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">is_valid_file_extension(string  <span class="argument">$ext</span>) : bool</pre>
+                <p><em>Validate file extension.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$ext </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    bool
+                                            &mdash; 
+                                                                                </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="fas fa-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-admin-StarmusAdmin.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\admin\StarmusAdmin</div></a></dd>
+                                                                                                
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+																							</div>
+	</section>
+
+	<div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3 id="source-view-label">StarmusAdmin.php</h3>
+		</div>
+		<div class="modal-body">
+			<pre data-src="files/src/admin/StarmusAdmin.php.txt" class="language-php line-numbers"></pre>
+		</div>
+	</div>
+
+			<footer class="row-fluid">
+				<section class="span10 offset2">
+					<section class="row-fluid">
+						<section class="span10 offset1">
+							<section class="row-fluid footer-sections">
+								<section
+									class="span4">
+																		<h1>
+										<i class="fa-solid fa-code"></i>
+									</h1>
+									<div>
+										<ul>
+																							<li><a href="namespaces/starisian.html"><abbr title="\Starisian">Starisian</abbr></a></li>
+																					</ul>
+									</div>
+								</section>
+								<section
+									class="span4">
+																		<h1>
+										<i class="fa-solid fa-project-diagram"></i>
+									</h1>
+									<div>
+										<ul>
+											<li><a href="graphs/class.html">Class Hierarchy Diagram</a></li>
+										</ul>
+									</div>
+								</section>
+								<section
+									class="span4">
+																		<h1>
+										<i class="fa-solid fa-thumbtack"></i>
+									</h1>
+									<div>
+										<ul>
+											<li><a href="reports/errors.html">Errors</a></li>
+											<li><a href="reports/markers.html">Markers</a></li>
+										</ul>
+									</div>
+								</section>
+							</section>
+						</section>
+					</section>
+					<section class="row-fluid">
+						<section class="span10 offset1">
+							<hr/>
+							Documentation is powered by
+							<a href="https://www.phpdoc.org/">phpDocumentor
+							</a>
+							and authored
+							                    on
+							November 22nd, 2025 at 22:43.
+						</section>
+					</section>
+				</section>
+			</footer>
+		</div>
+		<script src="resources/js/jquery-1.11.0.min.js"></script>
+		<script src="resources/js/ui/1.10.4/jquery-ui.min.js"></script>
+		<script src="resources/js/jquery.smooth-scroll.js"></script>
+		<script src="resources/js/prism.min.js"></script>
+		<script src="resources/js/bootstrap.js"></script>
+		<script src="resources/js/custom.js"></script>
+			</body>
 </html>

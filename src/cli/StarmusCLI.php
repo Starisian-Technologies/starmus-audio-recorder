@@ -47,7 +47,7 @@ class StarmusCLI extends \WP_CLI_Command
 	 *     # Delete waveform data for attachment ID 789.
 	 *     $ wp starmus waveform delete --attachment_ids=789
 	 */
-	public function waveform($args, $assoc_args)
+	public function waveform($args, array $assoc_args): void
 	{
 		if (empty($args[0])) {
 			WP_CLI::error("Please specify an action: 'generate' or 'delete'.");
@@ -55,16 +55,11 @@ class StarmusCLI extends \WP_CLI_Command
 
 		$action = $args[0];
 
-		switch ($action) {
-			case 'generate':
-				$this->generate_waveforms($assoc_args);
-				break;
-			case 'delete':
-				$this->delete_waveforms($assoc_args);
-				break;
-			default:
-				WP_CLI::error("Invalid action '{$action}'. Supported actions: generate, delete.");
-		}
+		match ($action) {
+            'generate' => $this->generate_waveforms($assoc_args),
+            'delete' => $this->delete_waveforms($assoc_args),
+            default => WP_CLI::error(sprintf("Invalid action '%s'. Supported actions: generate, delete.", $action)),
+        };
 	}
 
 	/**
@@ -75,7 +70,7 @@ class StarmusCLI extends \WP_CLI_Command
 	 *     # Flush taxonomy caches
 	 *     $ wp starmus cache flush
 	 */
-	public function cache($args, $assoc_args)
+	public function cache($args, $assoc_args): void
 	{
 		if (empty($args[0])) {
 			WP_CLI::error("Please specify an action: 'flush'.");
@@ -84,9 +79,9 @@ class StarmusCLI extends \WP_CLI_Command
 		$action = $args[0];
 
 		if ('flush' === $action) {
-			$this->flush_cache($assoc_args);
+			$this->flush_cache();
 		} else {
-			WP_CLI::error("Invalid action '{$action}'. Supported actions: flush.");
+			WP_CLI::error(sprintf("Invalid action '%s'. Supported actions: flush.", $action));
 		}
 	}
 
@@ -101,12 +96,12 @@ class StarmusCLI extends \WP_CLI_Command
 	 * default: 1
 	 * ---
 	 */
-	public function cleanup_temp_files($args, $assoc_args)
+	public function cleanup_temp_files($args, array $assoc_args): void
 	{
 		$days   = absint($assoc_args['days'] ?? 1);
-		$cutoff = strtotime("-{$days} days");
+		$cutoff = strtotime(sprintf('-%s days', $days));
 
-		WP_CLI::line("Cleaning temporary files older than {$days} day(s)...");
+		WP_CLI::line(sprintf('Cleaning temporary files older than %s day(s)...', $days));
 
 		$recorder_ui = new StarmusAudioRecorderUI();
 
@@ -132,26 +127,26 @@ class StarmusCLI extends \WP_CLI_Command
 	 *   - json
 	 * ---
 	 */
-	public function export($args, $assoc_args)
+	public function export($args, array $assoc_args): void
 	{
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'audio-recording',
 				'post_status'    => 'any',
 				'posts_per_page' => -1,
-			)
+			]
 		);
 
 		if (! $query->have_posts()) {
 			WP_CLI::error('No recordings found to export.');
 		}
 
-		$items   = array();
-		$headers = array('ID', 'Title', 'Date', 'Author ID', 'Audio URL', 'Language', 'Recording Type');
+		$items   = [];
+		$headers = ['ID', 'Title', 'Date', 'Author ID', 'Audio URL', 'Language', 'Recording Type'];
 
 		foreach ($query->posts as $post) {
 			$attachment_id = get_post_meta($post->ID, '_audio_attachment_id', true);
-			$items[]       = array(
+			$items[]       = [
 				'ID'             => $post->ID,
 				'Title'          => $post->post_title,
 				'Date'           => $post->post_date,
@@ -159,7 +154,7 @@ class StarmusCLI extends \WP_CLI_Command
 				'Audio URL'      => $attachment_id ? wp_get_attachment_url($attachment_id) : '',
 				'Language'       => wp_strip_all_tags(get_the_term_list($post->ID, 'language', '', ', ')),
 				'Recording Type' => wp_strip_all_tags(get_the_term_list($post->ID, 'recording-type', '', ', ')),
-			);
+			];
 		}
 
 		$format = $assoc_args['format'] ?? 'csv';
@@ -173,6 +168,7 @@ class StarmusCLI extends \WP_CLI_Command
 				foreach ($items as $item) {
 					fputcsv($output, $item);
 				}
+
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- CLI context requires direct stdout access
 				fclose($output);
 			}
@@ -190,7 +186,7 @@ class StarmusCLI extends \WP_CLI_Command
 	 * [--dry-run]
 	 * : Preview the import without creating posts or attachments.
 	 */
-	public function import($args, $assoc_args)
+	public function import($args, $assoc_args): void
 	{
 		if (empty($args[0])) {
 			WP_CLI::error('Please provide a path to the CSV file.');
@@ -198,7 +194,7 @@ class StarmusCLI extends \WP_CLI_Command
 
 		$csv_file = $args[0];
 		if (! file_exists($csv_file) || ! is_readable($csv_file)) {
-			WP_CLI::error("CSV file not found or is not readable at: {$csv_file}");
+			WP_CLI::error('CSV file not found or is not readable at: ' . $csv_file);
 		}
 
 		WP_CLI::error('The import command is not yet implemented.');
@@ -207,7 +203,7 @@ class StarmusCLI extends \WP_CLI_Command
 	/**
 	 * Private handler for generating waveforms.
 	 */
-	private function generate_waveforms($assoc_args)
+	private function generate_waveforms(array $assoc_args): void
 	{
 		// PRE-FLIGHT CHECK: Verify the tool is available before doing anything else.
 		if (! $this->waveform_service->is_tool_available()) {
@@ -218,16 +214,16 @@ class StarmusCLI extends \WP_CLI_Command
 			return; // Exit immediately.
 		}
 
-		$query_args = array(
+		$query_args = [
 			'post_type'      => 'audio-recording',
 			'post_status'    => 'publish',
 			'posts_per_page' => (int) ($assoc_args['chunk_size'] ?? 100),
 			'fields'         => 'ids',
 			'paged'          => 1,
-		);
+		];
 
 		if (! empty($assoc_args['post_ids'])) {
-			$query_args['post__in']       = array_map('absint', explode(',', $assoc_args['post_ids']));
+			$query_args['post__in']       = array_map(absint(...), explode(',', (string) $assoc_args['post_ids']));
 			$query_args['posts_per_page'] = count($query_args['post__in']);
 		}
 
@@ -265,6 +261,7 @@ class StarmusCLI extends \WP_CLI_Command
 					++$failed;
 					WP_CLI::warning("\nFailed for Post ID {$post_id} (Attachment ID: {$attachment_id}). Check server logs.");
 				}
+
 				$progress->tick();
 			}
 
@@ -274,48 +271,47 @@ class StarmusCLI extends \WP_CLI_Command
 		} while ($query_args['paged'] <= $query->max_num_pages);
 
 		$progress->finish();
-		WP_CLI::success("Processing complete. Generated: {$processed}, Skipped: {$skipped}, Failed: {$failed}.");
+		WP_CLI::success(sprintf('Processing complete. Generated: %d, Skipped: %d, Failed: %d.', $processed, $skipped, $failed));
 	}
 
 	/**
 	 * Private handler for deleting waveforms.
 	 */
-	private function delete_waveforms($assoc_args)
+	private function delete_waveforms(array $assoc_args): void
 	{
 		if (empty($assoc_args['attachment_ids'])) {
 			WP_CLI::error('Please provide one or more attachment IDs using --attachment_ids=<ids>.');
 		}
 
-		$attachment_ids = array_map('absint', explode(',', $assoc_args['attachment_ids']));
+		$attachment_ids = array_map(absint(...), explode(',', (string) $assoc_args['attachment_ids']));
 		$deleted        = 0;
 		$skipped        = 0;
 
 		foreach ($attachment_ids as $attachment_id) {
 			if ($this->waveform_service->delete_waveform_data($attachment_id)) {
-				WP_CLI::log("Deleted waveform data for attachment ID: {$attachment_id}");
+				WP_CLI::log('Deleted waveform data for attachment ID: ' . $attachment_id);
 				++$deleted;
 			} else {
-				WP_CLI::log("No waveform data to delete for attachment ID: {$attachment_id}");
+				WP_CLI::log('No waveform data to delete for attachment ID: ' . $attachment_id);
 				++$skipped;
 			}
 		}
-		WP_CLI::success("Deletion complete. Deleted: {$deleted}, Skipped: {$skipped}.");
+
+		WP_CLI::success(sprintf('Deletion complete. Deleted: %d, Skipped: %d.', $deleted, $skipped));
 	}
 
 	/**
 	 * Private handler for flushing caches.
 	 */
-	private function flush_cache($assoc_args)
-	{
-		WP_CLI::line('Flushing Starmus taxonomy caches...');
-
-		$recorder_ui = new StarmusAudioRecorderUI();
-
-		if (method_exists($recorder_ui, 'clear_taxonomy_transients')) {
+	private function flush_cache(): void
+    {
+        WP_CLI::line('Flushing Starmus taxonomy caches...');
+        $recorder_ui = new StarmusAudioRecorderUI();
+        if (method_exists($recorder_ui, 'clear_taxonomy_transients')) {
 			$recorder_ui->clear_taxonomy_transients();
 			WP_CLI::success('Starmus caches have been flushed.');
 		} else {
 			WP_CLI::error('Required method clear_taxonomy_transients() not found.');
 		}
-	}
+    }
 }

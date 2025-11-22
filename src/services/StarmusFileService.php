@@ -22,7 +22,7 @@ if (! defined('ABSPATH')) {
 
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 
-final class StarmusFileService
+final readonly class StarmusFileService
 {
 
 	private StarmusAudioRecorderDAL $dal;
@@ -49,6 +49,7 @@ final class StarmusFileService
 		if (! $remote_url) {
 			return null;
 		}
+
 		$remote_url = \esc_url_raw($remote_url);
 
 		if (! function_exists('download_url')) {
@@ -59,6 +60,7 @@ final class StarmusFileService
 		if (is_wp_error($temp)) {
 			return null;
 		}
+
 		return $temp;
 	}
 
@@ -73,12 +75,9 @@ final class StarmusFileService
 
 		// Delegate to offloader if present
 		if (function_exists('as3cf_upload_attachment')) {
-			$result = as3cf_upload_attachment($attachment_id, null, $local_file_path);
-			if (is_wp_error($result)) {
-				return false;
-			}
-			return true;
-		}
+            $result = as3cf_upload_attachment($attachment_id, null, $local_file_path);
+            return !is_wp_error($result);
+        }
 
 		// DAL-managed fallback
 		$upload_dir = wp_get_upload_dir();
@@ -94,6 +93,7 @@ final class StarmusFileService
 			$this->dal->update_attachment_metadata($attachment_id, $new_path);
 			return true;
 		}
+
 		return false;
 	}
 }

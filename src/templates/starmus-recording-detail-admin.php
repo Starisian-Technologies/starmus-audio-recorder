@@ -12,7 +12,7 @@ $post_id = get_the_ID();
 $uploads = wp_get_upload_dir();
 
 $audio_attachment_id = (int) get_post_meta($post_id, '_audio_attachment_id', true);
-$audio_url           = $audio_attachment_id ? wp_get_attachment_url($audio_attachment_id) : '';
+$audio_url           = $audio_attachment_id !== 0 ? wp_get_attachment_url($audio_attachment_id) : '';
 
 $language        = get_the_terms($post_id, 'language');
 $type            = get_the_terms($post_id, 'recording-type');
@@ -33,7 +33,7 @@ $archival_mp3_meta = get_post_meta($audio_attachment_id, '_starmus_mp3_path', tr
 $archival_wav_meta = get_post_meta($audio_attachment_id, '_starmus_archival_path', true);
 $waveform_meta     = get_post_meta($audio_attachment_id, '_waveform_data', true);
 
-$waveform_data = array();
+$waveform_data = [];
 if (! empty($waveform_json)) {
 	$waveform_data = json_decode($waveform_json, true);
 } elseif (! empty($waveform_meta)) {
@@ -46,19 +46,19 @@ function starmus_local_time($post_id)
 	return get_date_from_gmt(get_post_time('Y-m-d H:i:s', true, $post_id), 'F j, Y \a\t g:i A');
 }
 
-function starmus_language_label($lang_code)
+function starmus_language_label($lang_code): string
 {
-	$map = array(
+	$map = [
 		'en'    => 'English',
 		'en-US' => 'English (US)',
 		'mnk'   => 'Mandinka',
 		'wo'    => 'Wolof',
 		'fr'    => 'French',
-	);
-	return $map[$lang_code] ?? strtoupper($lang_code);
+	];
+	return $map[$lang_code] ?? strtoupper((string) $lang_code);
 }
 
-function starmus_fs_to_url($path, $uploads)
+function starmus_fs_to_url($path, array $uploads): string|array
 {
 	if (! $path) {
 		return '';
@@ -132,16 +132,16 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 		$count      = count($waveform_data);
 		$max_points = 600;
 		$step       = max(1, floor($count / $max_points));
-		$max_val    = max(array_map('abs', $waveform_data));
+		$max_val    = max(array_map(abs(...), $waveform_data));
 		if ($max_val <= 0) {
 			$max_val = 1;
 		}
-		$points = array();
+		$points = [];
 		for ($i = 0; $i < $count; $i += $step) {
 			$v        = (float) $waveform_data[$i];
 			$x        = ($i / max(1, $count - 1)) * $width;
 			$y        = $height - (($v / $max_val) * $height);
-			$points[] = "$x,$y";
+			$points[] = sprintf('%s,%s', $x, $y);
 		}
 	?>
 		<section class="starmus-detail__section">
@@ -158,7 +158,7 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 		<h2>Archival Metadata</h2>
 		<dl class="starmus-info-list">
 			<?php
-			$fields = array(
+			$fields = [
 				'session_date'          => 'Session Date',
 				'session_start_time'    => 'Start Time',
 				'session_end_time'      => 'End Time',
@@ -168,7 +168,7 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 				'media_condition_notes' => 'Media Condition Notes',
 				'device_fingerprint'    => 'Device Fingerprint',
 				'environment_data'      => 'Environment Data',
-			);
+			];
 			foreach ($fields as $k => $label) {
 				$val = get_post_meta($post_id, $k, true) ?: ($k === 'device_fingerprint' ? $device_fingerprint : ($k === 'environment_data' ? $environment_data : ''));
 				if (! empty($val)) {

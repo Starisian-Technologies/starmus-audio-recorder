@@ -7,6 +7,23 @@
 
 'use strict';
 
+// ============================
+// VENDOR LIBRARIES (BUNDLED)
+// These MUST be imported here for Rollup to bundle them.
+// WordPress loads a single bundle containing all dependencies.
+// ============================
+
+// 1. TUS resumable upload library (from node_modules)
+import * as tus from 'tus-js-client';
+window.tus = tus;
+
+// 2. Peaks.js waveform editor (from node_modules)
+import Peaks from 'peaks.js';
+window.Peaks = Peaks;
+
+// ============================
+// CORE STARMUS MODULES
+// ============================
 import { CommandBus } from './starmus-hooks.js';
 import { createStore } from './starmus-state-store.js';
 import { initInstance as initUI } from './starmus-ui.js';

@@ -22,7 +22,7 @@ class StarmusTemplateLoaderHelper {
 	 *
 	 * @return string Rendered HTML output.
 	 */
-	public static function secure_render_template( string $template, array $args = array(), string $user_group = 'admin' ): string {
+	public static function secure_render_template( string $template, array $args = [], string $user_group = 'admin' ): string {
 		if ( ! is_user_logged_in() ) {
 			return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus-audio-recorder' ) . '</p>';
 		}
@@ -45,18 +45,17 @@ class StarmusTemplateLoaderHelper {
 	}
 
 	/**
-	 * Render a PHP template file with variables.
-	 *
-	 * @param string $template Full template path.
-	 * @param array  $args     Variables.
-	 *
-	 * @return string
-	 */
-	private static function render( string $template, array $args ): string {
+     * Render a PHP template file with variables.
+     *
+     * @param string $template Full template path.
+     * @param array  $args     Variables.
+     */
+    private static function render( string $template, array $args ): string {
 		ob_start();
 		if ( is_array( $args ) ) {
 			extract( $args, EXTR_SKIP );
 		}
+
 		include $template;
 		return ob_get_clean();
 	}
@@ -69,7 +68,7 @@ class StarmusTemplateLoaderHelper {
 	 *
 	 * @return string Rendered markup or error notice.
 	 */
-	public static function render_template( string $template, array $args = array() ): string {
+	public static function render_template( string $template, array $args = [] ): string {
 		try {
 			$template_path = self::locate_template( $template );
 
@@ -86,8 +85,8 @@ class StarmusTemplateLoaderHelper {
 
 			return self::post_template_render( self::render( $template_path, $args ) );
 
-		} catch ( \Throwable $e ) {
-			StarmusLogger::log( 'UI:render_template', 'Starmus Template Loader Error: ' . $e->getMessage() );
+		} catch ( \Throwable $throwable ) {
+			StarmusLogger::log( 'UI:render_template', 'Starmus Template Loader Error: ' . $throwable->getMessage() );
 			return '<div class="notice notice-error"><p>' . esc_html__( 'Template loading failed.', 'starmus-audio-recorder' ) . '</p></div>';
 		}
 	}
@@ -101,11 +100,11 @@ class StarmusTemplateLoaderHelper {
 	 */
 	public static function locate_template( string $template ): ?string {
 		$template_name = basename( $template );
-		$locations     = array(
+		$locations     = [
 			trailingslashit( get_stylesheet_directory() ) . 'starmus/' . $template_name,
 			trailingslashit( get_template_directory() ) . 'starmus/' . $template_name,
 			trailingslashit( STARMUS_PATH ) . 'src/templates/' . $template_name,
-		);
+		];
 
 		foreach ( $locations as $location ) {
 			if ( file_exists( $location ) ) {
