@@ -64,15 +64,20 @@ final class StarmusAssetLoader
      */
     private function is_starmus_page(): bool
     {
-        global $post;
-        if (!($post instanceof \WP_Post) || empty($post->post_content)) {
+        try {
+            global $post;
+            if (!($post instanceof \WP_Post) || empty($post->post_content)) {
+                return false;
+            }
+
+            return has_shortcode($post->post_content, 'starmus_audio_recorder')
+                || has_shortcode($post->post_content, 'starmus_audio_re_recorder')
+                || has_shortcode($post->post_content, 'starmus_my_recordings')
+                || has_shortcode($post->post_content, 'starmus_audio_editor');
+        } catch (\Throwable $e) {
+            StarmusLogger::log('StarmusAssetLoader::is_starmus_page', $e);
             return false;
         }
-
-        return has_shortcode($post->post_content, 'starmus_audio_recorder')
-            || has_shortcode($post->post_content, 'starmus_audio_re_recorder')
-            || has_shortcode($post->post_content, 'starmus_my_recordings')
-            || has_shortcode($post->post_content, 'starmus_audio_editor');
     }
 
     /**
@@ -81,15 +86,19 @@ final class StarmusAssetLoader
      */
     private function enqueue_production_assets(): void
     {
-        wp_enqueue_script(
-            self::HANDLE_PROD_BUNDLE,
-            STARMUS_URL . 'assets/js/starmus-app.bundle.min.js',
-            [self::HANDLE_VENDOR_TUS], // The bundle depends on the TUS global.
-            $this->resolve_version(),
-            true
-        );
+        try {
+            wp_enqueue_script(
+                self::HANDLE_PROD_BUNDLE,
+                STARMUS_URL . 'assets/js/starmus-app.bundle.min.js',
+                [self::HANDLE_VENDOR_TUS], // The bundle depends on the TUS global.
+                $this->resolve_version(),
+                true
+            );
 
-        wp_localize_script(self::HANDLE_PROD_BUNDLE, 'starmusConfig', $this->get_localization_data());
+            wp_localize_script(self::HANDLE_PROD_BUNDLE, 'starmusConfig', $this->get_localization_data());
+        } catch (\Throwable $e) {
+            StarmusLogger::log('StarmusAssetLoader::enqueue_production_assets', $e);
+        }
     }
 
     /**
@@ -97,12 +106,16 @@ final class StarmusAssetLoader
      */
     private function enqueue_styles(): void
     {
-        wp_enqueue_style(
-            self::STYLE_HANDLE,
-            STARMUS_URL . 'assets/css/starmus-styles.min.css',
-            [],
-            $this->resolve_version()
-        );
+        try {
+            wp_enqueue_style(
+                self::STYLE_HANDLE,
+                STARMUS_URL . 'assets/css/starmus-styles.min.css',
+                [],
+                $this->resolve_version()
+            );
+        } catch (\Throwable $e) {
+            StarmusLogger::log('StarmusAssetLoader::enqueue_styles', $e);
+        }
     }
 
     /**
@@ -110,35 +123,49 @@ final class StarmusAssetLoader
      */
     private function get_localization_data(): array
     {
-        // Get settings instance
-        $settings = new StarmusSettings();
+        try {
+            // Get settings instance
+            $settings = new StarmusSettings();
 
-        // Get allowed file types from settings (comma-separated string like 'mp3,wav,webm')
-        $allowed_file_types = $settings->get('allowed_file_types', 'mp3,wav,webm');
-        $allowed_types_arr = \array_filter(\array_map('trim', \explode(',', $allowed_file_types)));
+            // Get allowed file types from settings (comma-separated string like 'mp3,wav,webm')
+            $allowed_file_types = $settings->get('allowed_file_types', 'mp3,wav,webm');
+            $allowed_types_arr = \array_filter(\array_map('trim', \explode(',', $allowed_file_types)));
 
-        // Map extensions to MIME types
-        $allowed_mimes = [];
-        foreach ($allowed_types_arr as $ext) {
-            $mime = StarmusSettings::get_allowed_mimes()[$ext] ?? null;
-            if ($mime) {
-                $allowed_mimes[$ext] = $mime;
+            // Map extensions to MIME types
+            $allowed_mimes = [];
+            foreach ($allowed_types_arr as $ext) {
+                $mime = StarmusSettings::get_allowed_mimes()[$ext] ?? null;
+                if ($mime) {
+                    $allowed_mimes[$ext] = $mime;
+                }
             }
+
+            // TUS endpoint from settings
+            $tus_endpoint = \get_option('starmus_tus_endpoint', '');
+
+            return [
+                'endpoints' => [
+                    'directUpload' => \esc_url_raw(\rest_url(StarmusSubmissionHandler::STARMUS_REST_NAMESPACE . '/upload-fallback')),
+                    'tusUpload' => \esc_url_raw($tus_endpoint),
+                ],
+                'nonce' => \wp_create_nonce('wp_rest'),
+                'user_id' => \get_current_user_id(),
+                'allowedFileTypes' => $allowed_types_arr, // ['mp3', 'wav', 'webm']
+                'allowedMimeTypes' => $allowed_mimes,     // ['mp3' => 'audio/mpeg', ...]
+            ];
+        } catch (\Throwable $e) {
+            StarmusLogger::log('StarmusAssetLoader::get_localization_data', $e);
+            return [
+                'endpoints' => [
+                    'directUpload' => '',
+                    'tusUpload' => '',
+                ],
+                'nonce' => '',
+                'user_id' => 0,
+                'allowedFileTypes' => [],
+                'allowedMimeTypes' => [],
+            ];
         }
-
-        // TUS endpoint from settings
-        $tus_endpoint = \get_option('starmus_tus_endpoint', '');
-
-        return [
-            'endpoints' => [
-                'directUpload' => \esc_url_raw(\rest_url(StarmusSubmissionHandler::STARMUS_REST_NAMESPACE . '/upload-fallback')),
-                'tusUpload' => \esc_url_raw($tus_endpoint),
-            ],
-            'nonce' => \wp_create_nonce('wp_rest'),
-            'user_id' => \get_current_user_id(),
-            'allowedFileTypes' => $allowed_types_arr, // ['mp3', 'wav', 'webm']
-            'allowedMimeTypes' => $allowed_mimes,     // ['mp3' => 'audio/mpeg', ...]
-        ];
     }
 
     /**
@@ -146,6 +173,11 @@ final class StarmusAssetLoader
      */
     private function resolve_version(): string
     {
-        return (\defined('STARMUS_VERSION') && STARMUS_VERSION) ? STARMUS_VERSION : '1.0.0';
+        try {
+            return (\defined('STARMUS_VERSION') && STARMUS_VERSION) ? STARMUS_VERSION : '1.0.0';
+        } catch (\Throwable $e) {
+            StarmusLogger::log('StarmusAssetLoader::resolve_version', $e);
+            return '1.0.0';
+        }
     }
 }
