@@ -31,9 +31,6 @@ final class StarmusAssetLoader
     // --- Production Handle ---
     private const HANDLE_PROD_BUNDLE = 'starmus-app-bundle';
 
-    // --- Development Handle (The ES Module Entry Point) ---
-    private const HANDLE_DEV_INTEGRATOR = 'starmus-dev-integrator-module';
-
     // --- Vendor & Style Handles ---
     private const HANDLE_VENDOR_TUS = 'tus-js';
     private const STYLE_HANDLE = 'starmus-audio-styles';
@@ -50,19 +47,13 @@ final class StarmusAssetLoader
                 return;
             }
 
-            $is_development = defined('WP_DEBUG') && WP_DEBUG;
-
-            // Enqueue vendor scripts. These are standard scripts, not modules.
-            // The ES modules will assume these globals (like `tus`) are available.
+            // Always use production assets - dev mode removed as unbundled modules don't function
+            // Enqueue vendor scripts first (standard scripts, not modules)
             wp_enqueue_script(self::HANDLE_VENDOR_TUS, STARMUS_URL . 'assets/js/vendor/tus.min.js', [], '4.3.1', true);
 
-            if (!$is_development) {
-                $this->enqueue_production_assets();
-            } else {
-                $this->enqueue_development_assets();
-            }
-
-            $this->enqueue_styles($is_development);
+            // Enqueue bundled production assets
+            $this->enqueue_production_assets();
+            $this->enqueue_styles();
         } catch (\Throwable $e) {
             StarmusLogger::log('Fatal Error in StarmusAssetLoader::enqueue_frontend_assets', $e);
         }
@@ -102,34 +93,9 @@ final class StarmusAssetLoader
     }
 
     /**
-     * Enqueues the main integrator script as a native ES Module for development.
-     * The browser will then handle fetching all imported dependencies.
-     */
-    private function enqueue_development_assets(): void
-    {
-        $base_uri = STARMUS_URL . 'src/js/';
-
-        // 1. Enqueue ONLY the entry point script.
-        wp_enqueue_script(
-            self::HANDLE_DEV_INTEGRATOR,
-            "{$base_uri}starmus-integrator.js",
-            [self::HANDLE_VENDOR_TUS], // It still depends on vendor scripts to be loaded first.
-            $this->resolve_version(),
-            true
-        );
-
-        // 2. THIS IS THE CRITICAL STEP: Add the 'type' => 'module' attribute.
-        // This tells WordPress to render <script type="module">.
-        wp_script_add_data(self::HANDLE_DEV_INTEGRATOR, 'type', 'module');
-
-        // 3. Localize the data to the main module entry point.
-        wp_localize_script(self::HANDLE_DEV_INTEGRATOR, 'starmusConfig', $this->get_localization_data());
-    }
-
-    /**
      * Enqueues the stylesheet for the plugin.
      */
-    private function enqueue_styles(bool $is_development): void
+    private function enqueue_styles(): void
     {
         wp_enqueue_style(
             self::STYLE_HANDLE,
