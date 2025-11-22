@@ -125,19 +125,25 @@ final class StarmusSubmissionHandler
 			$size  = (int) @filesize($file_path);
 			$valid = $this->validate_file_against_settings($mime, $size);
 			if (is_wp_error($valid)) {
-				@unlink($file_path);
+				wp_delete_file($file_path);
 				return $valid;
 			}
 
-			if (! @rename($file_path, $destination)) {
-				@unlink($file_path);
+			global $wp_filesystem;
+			if (empty($wp_filesystem)) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+				WP_Filesystem();
+			}
+
+			if (! $wp_filesystem->move($file_path, $destination, true)) {
+				wp_delete_file($file_path);
 				return $this->err('move_failed', 'Failed to move upload into uploads path.', 500, array('dest' => $destination));
 			}
 
 			// Now, the rest is nearly identical to your existing logic...
 			$attachment_id = $this->dal->create_attachment_from_file($destination, $filename);
 			if (is_wp_error($attachment_id)) {
-				@unlink($destination);
+				wp_delete_file($destination);
 				return $attachment_id;
 			}
 
@@ -392,12 +398,18 @@ final class StarmusSubmissionHandler
 			$size  = (int) @filesize($file_path);
 			$valid = $this->validate_file_against_settings($mime, $size);
 			if (is_wp_error($valid)) {
-				@unlink($file_path);
+				wp_delete_file($file_path);
 				return $valid;
 			}
 
-			if (! @rename($file_path, $destination)) {
-				@unlink($file_path);
+			global $wp_filesystem;
+			if (empty($wp_filesystem)) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+				WP_Filesystem();
+			}
+
+			if (! $wp_filesystem->move($file_path, $destination, true)) {
+				wp_delete_file($file_path);
 				return $this->err('move_failed', 'Failed to move upload into uploads path.', 500, array('dest' => $destination));
 			}
 
@@ -405,11 +417,11 @@ final class StarmusSubmissionHandler
 				$attachment_id = $this->dal->create_attachment_from_file($destination, $filename);
 			} catch (Throwable $e) {
 				StarmusLogger::error('SubmissionHandler', $e, array('phase' => 'create_attachment'));
-				@unlink($destination);
+				wp_delete_file($destination);
 				return $this->err('attachment_create_failed', 'Could not create attachment.', 500);
 			}
 			if (is_wp_error($attachment_id)) {
-				@unlink($destination);
+				wp_delete_file($destination);
 				return $attachment_id;
 			}
 
@@ -756,7 +768,7 @@ final class StarmusSubmissionHandler
 			}
 			foreach (glob($dir . '*.part') as $file) {
 				if (@filemtime($file) < time() - DAY_IN_SECONDS) {
-					@unlink($file);
+					wp_delete_file($file);
 				}
 			}
 			StarmusLogger::info('SubmissionHandler', 'Stale temp cleanup complete', array('dir' => $dir));
@@ -827,7 +839,14 @@ final class StarmusSubmissionHandler
 			if (! is_dir($base) && ! @wp_mkdir_p($base)) {
 				return $this->err('uploads_unwritable', 'Failed to create uploads directory.', 500, array('basedir' => $base));
 			}
-			if (! is_writable($base)) {
+
+			global $wp_filesystem;
+			if (empty($wp_filesystem)) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+				WP_Filesystem();
+			}
+
+			if (! $wp_filesystem->is_writable($base)) {
 				return $this->err('uploads_unwritable', 'Uploads directory not writable.', 500, array('basedir' => $base));
 			}
 			return true;

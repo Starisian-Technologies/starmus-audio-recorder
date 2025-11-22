@@ -112,7 +112,7 @@ class StarmusLogger
                 file_put_contents($log_dir . '/index.html', '');
             }
 
-            self::$log_file_path = $log_dir . '/starmus-' . date('Y-m-d') . '.log';
+            self::$log_file_path = $log_dir . '/starmus-' . gmdate('Y-m-d') . '.log';
         }
         return self::$log_file_path;
     }
