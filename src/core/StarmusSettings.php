@@ -61,10 +61,17 @@ final class StarmusSettings
 
 	public function __construct()
 	{
-		// Prime the caches for immediate use.
-		$this->default_obj_cache = $this->get_defaults();
-		$this->obj_cache         = $this->all(); // This will now fetch from options
-		$this->register_hooks();
+		try {
+			// Prime the caches for immediate use.
+			$this->default_obj_cache = $this->get_defaults();
+			$this->obj_cache         = $this->all(); // This will now fetch from options
+			$this->register_hooks();
+		} catch (\Throwable $e) {
+			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::__construct', $e);
+			// Initialize with defaults on error
+			$this->default_obj_cache = array();
+			$this->obj_cache = array();
+		}
 	}
 
 	/**
@@ -72,8 +79,12 @@ final class StarmusSettings
 	 */
 	private function register_hooks(): void
 	{
-		add_filter('wp_check_filetype_and_ext', array($this, 'filter_filetype_and_ext'), 10, 5);
-		add_filter('upload_mimes', array($this, 'filter_upload_mimes'));
+		try {
+			add_filter('wp_check_filetype_and_ext', array($this, 'filter_filetype_and_ext'), 10, 5);
+			add_filter('upload_mimes', array($this, 'filter_upload_mimes'));
+		} catch (\Throwable $e) {
+			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::register_hooks', $e);
+		}
 	}
 
 	/**
@@ -85,8 +96,13 @@ final class StarmusSettings
 	 */
 	public function get(string $key, $default = null)
 	{
-		$settings = $this->all();
-		return $settings[$key] ?? $default;
+		try {
+			$settings = $this->all();
+			return $settings[$key] ?? $default;
+		} catch (\Throwable $e) {
+			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::get', $e);
+			return $default;
+		}
 	}
 
 	/**
@@ -95,17 +111,22 @@ final class StarmusSettings
 	 */
 	public function all(): array
 	{
-		if ($this->obj_cache === null) {
-			$saved = \get_option(self::STARMUS_OPTION_KEY, array());
+		try {
+			if ($this->obj_cache === null) {
+				$saved = \get_option(self::STARMUS_OPTION_KEY, array());
 
-			// --- ADD THIS DEBUGGING LINE ---
-			error_log('StarmusSettings::all() - RAW result from get_option(' . self::STARMUS_OPTION_KEY . '): ' . print_r($saved, true));
-			// --- END DEBUGGING LINE ---
+				// --- ADD THIS DEBUGGING LINE ---
+				error_log('StarmusSettings::all() - RAW result from get_option(' . self::STARMUS_OPTION_KEY . '): ' . print_r($saved, true));
+				// --- END DEBUGGING LINE ---
 
-			$merged          = \wp_parse_args($saved, $this->get_defaults());
-			$this->obj_cache = $merged;
+				$merged          = \wp_parse_args($saved, $this->get_defaults());
+				$this->obj_cache = $merged;
+			}
+			return $this->obj_cache;
+		} catch (\Throwable $e) {
+			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::all', $e);
+			return $this->get_defaults();
 		}
-		return $this->obj_cache;
 	}
 
 
@@ -115,18 +136,23 @@ final class StarmusSettings
 	 */
 	public function set(string $key, $value): bool
 	{
-		if (! $this->is_valid_key($key)) {
+		try {
+			if (! $this->is_valid_key($key)) {
+				return false;
+			}
+
+			$current_settings         = $this->all(); // Get current (merged) settings
+			$current_settings[$key] = $this->sanitize_value($key, $value);
+
+			$updated = \update_option(self::STARMUS_OPTION_KEY, $current_settings); // Update the entire option
+			if ($updated) {
+				$this->clear_cache();
+			}
+			return $updated;
+		} catch (\Throwable $e) {
+			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::set', $e);
 			return false;
 		}
-
-		$current_settings         = $this->all(); // Get current (merged) settings
-		$current_settings[$key] = $this->sanitize_value($key, $value);
-
-		$updated = \update_option(self::STARMUS_OPTION_KEY, $current_settings); // Update the entire option
-		if ($updated) {
-			$this->clear_cache();
-		}
-		return $updated;
 	}
 
 	/**
@@ -135,22 +161,27 @@ final class StarmusSettings
 	 */
 	public function update_all(array $settings): bool
 	{
-		$sanitized = array();
-		foreach ($settings as $key => $value) {
-			if ($this->is_valid_key($key)) {
-				$sanitized[$key] = $this->sanitize_value($key, $value);
+		try {
+			$sanitized = array();
+			foreach ($settings as $key => $value) {
+				if ($this->is_valid_key($key)) {
+					$sanitized[$key] = $this->sanitize_value($key, $value);
+				}
 			}
-		}
 
-		// Ensure that the update preserves existing settings not explicitly passed
-		$current_settings       = $this->all(); // Get current effective settings
-		$final_settings_to_save = \wp_parse_args($sanitized, $current_settings); // New values take precedence
+			// Ensure that the update preserves existing settings not explicitly passed
+			$current_settings       = $this->all(); // Get current effective settings
+			$final_settings_to_save = \wp_parse_args($sanitized, $current_settings); // New values take precedence
 
-		$updated = \update_option(self::STARMUS_OPTION_KEY, $final_settings_to_save); // Update the entire option
-		if ($updated) {
-			$this->clear_cache();
+			$updated = \update_option(self::STARMUS_OPTION_KEY, $final_settings_to_save); // Update the entire option
+			if ($updated) {
+				$this->clear_cache();
+			}
+			return $updated;
+		} catch (\Throwable $e) {
+			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::update_all', $e);
+			return false;
 		}
-		return $updated;
 	}
 
 	/**
@@ -159,13 +190,33 @@ final class StarmusSettings
 	 */
 	public function get_defaults(): array
 	{
-		if ($this->default_obj_cache === null) {
-			$this->default_obj_cache = array(
+		try {
+			if ($this->default_obj_cache === null) {
+				$this->default_obj_cache = array(
+					'cpt_slug'              => 'audio-recording',
+					'file_size_limit'       => 10,
+					'recording_time_limit'  => 300,
+					'allowed_file_types'    => '',
+					'consent_message'       => 'I consent to having this audio recording stored and used.', // FIXED SYNTAX
+					'collect_ip_ua'         => 0,
+					'delete_on_uninstall'   => 0,
+					'data_policy_url'       => '',
+					'edit_page_id'          => 0,
+					'recorder_page_id'      => 0,
+					'my_recordings_page_id' => 0,
+				);
+				$this->default_obj_cache = \apply_filters('starmus_default_settings', $this->default_obj_cache);
+			}
+			return $this->default_obj_cache;
+		} catch (\Throwable $e) {
+			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::get_defaults', $e);
+			// Return hardcoded minimal defaults on error
+			return array(
 				'cpt_slug'              => 'audio-recording',
 				'file_size_limit'       => 10,
 				'recording_time_limit'  => 300,
 				'allowed_file_types'    => '',
-				'consent_message'       => 'I consent to having this audio recording stored and used.', // FIXED SYNTAX
+				'consent_message'       => 'I consent to having this audio recording stored and used.',
 				'collect_ip_ua'         => 0,
 				'delete_on_uninstall'   => 0,
 				'data_policy_url'       => '',
@@ -173,9 +224,7 @@ final class StarmusSettings
 				'recorder_page_id'      => 0,
 				'my_recordings_page_id' => 0,
 			);
-			$this->default_obj_cache = \apply_filters('starmus_default_settings', $this->default_obj_cache);
 		}
-		return $this->default_obj_cache;
 	}
 
 	/**
@@ -184,16 +233,20 @@ final class StarmusSettings
 	 */
 	public function add_defaults_on_activation(): void
 	{
-		$existing_options = \get_option(self::STARMUS_OPTION_KEY, false);
-		if (false === $existing_options) {
-			// Option doesn't exist, so add it with defaults.
-			\add_option(self::STARMUS_OPTION_KEY, $this->get_defaults(), '', 'yes'); // 'yes' for autoload
-		} else {
-			// Option exists, ensure it's merged with current defaults (for new settings in updates).
-			$merged = \wp_parse_args($existing_options, $this->get_defaults());
-			\update_option(self::STARMUS_OPTION_KEY, $merged);
+		try {
+			$existing_options = \get_option(self::STARMUS_OPTION_KEY, false);
+			if (false === $existing_options) {
+				// Option doesn't exist, so add it with defaults.
+				\add_option(self::STARMUS_OPTION_KEY, $this->get_defaults(), '', 'yes'); // 'yes' for autoload
+			} else {
+				// Option exists, ensure it's merged with current defaults (for new settings in updates).
+				$merged = \wp_parse_args($existing_options, $this->get_defaults());
+				\update_option(self::STARMUS_OPTION_KEY, $merged);
+			}
+			$this->clear_cache(); // Clear internal cache to ensure new default is used immediately
+		} catch (\Throwable $e) {
+			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::add_defaults_on_activation', $e);
 		}
-		$this->clear_cache(); // Clear internal cache to ensure new default is used immediately
 	}
 
 	/**
@@ -255,8 +308,13 @@ final class StarmusSettings
 	 */
 	public function delete_all(): bool
 	{
-		$this->clear_cache();
-		return \delete_option(self::STARMUS_OPTION_KEY);
+		try {
+			$this->clear_cache();
+			return \delete_option(self::STARMUS_OPTION_KEY);
+		} catch (\Throwable $e) {
+			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::delete_all', $e);
+			return false;
+		}
 	}
 
 	/**
@@ -272,20 +330,25 @@ final class StarmusSettings
 	 */
 	public function filter_filetype_and_ext($types, $file, $filename, $mimes_allowed, $real_mime): array
 	{
-		unset($file, $mimes_allowed, $real_mime);
+		try {
+			unset($file, $mimes_allowed, $real_mime);
 
-		$ext       = strtolower((string) pathinfo($filename, PATHINFO_EXTENSION));
-		$whitelist = self::get_allowed_mimes();
+			$ext       = strtolower((string) pathinfo($filename, PATHINFO_EXTENSION));
+			$whitelist = self::get_allowed_mimes();
 
-		if (isset($whitelist[$ext])) {
-			return array(
-				'ext'             => $ext,
-				'type'            => $whitelist[$ext],
-				'proper_filename' => $filename,
-			);
+			if (isset($whitelist[$ext])) {
+				return array(
+					'ext'             => $ext,
+					'type'            => $whitelist[$ext],
+					'proper_filename' => $filename,
+				);
+			}
+
+			return is_array($types) ? $types : array();
+		} catch (\Throwable $e) {
+			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::filter_filetype_and_ext', $e);
+			return is_array($types) ? $types : array();
 		}
-
-		return is_array($types) ? $types : array();
 	}
 
 	/**
@@ -293,10 +356,15 @@ final class StarmusSettings
 	 */
 	public function filter_upload_mimes(array $mimes): array
 	{
-		foreach (self::get_allowed_mimes() as $ext => $mime) {
-			$mimes[$ext] = $mime;
+		try {
+			foreach (self::get_allowed_mimes() as $ext => $mime) {
+				$mimes[$ext] = $mime;
+			}
+			return $mimes;
+		} catch (\Throwable $e) {
+			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::filter_upload_mimes', $e);
+			return $mimes;
 		}
-		return $mimes;
 	}
 
 	/**
