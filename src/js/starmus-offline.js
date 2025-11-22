@@ -127,6 +127,9 @@ class OfflineQueue {
 
             // Resolve only on durability commit
             transaction.oncomplete = () => {
+                if (!store) {
+                    return; // prevents phantom commits on Chrome < 92
+                }
                 debugLog('[Offline] Transaction Committed:', item.id);
                 this._notifyQueueUpdate();
                 resolve(item.id);
@@ -354,14 +357,18 @@ class OfflineQueue {
             });
         }
     }
-}
+} // END class OfflineQueue
 
-// Global singleton instance
+// Export a singleton so state persists across modules
+const offlineQueue = new OfflineQueue();
+export default offlineQueue;
+
+// Legacy exports for backward compatibility
 let queueInstance = null;
 
 export async function getOfflineQueue() {
     if (!queueInstance) {
-        queueInstance = new OfflineQueue();
+        queueInstance = offlineQueue;
         await queueInstance.init();
         queueInstance.setupNetworkListeners();
     }
