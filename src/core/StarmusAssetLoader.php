@@ -54,7 +54,7 @@ final class StarmusAssetLoader
 
             // Enqueue vendor scripts. These are standard scripts, not modules.
             // The ES modules will assume these globals (like `tus`) are available.
-            wp_enqueue_script(self::HANDLE_VENDOR_TUS, STARMUS_URL . 'vendor/js/tus.min.js', [], '4.3.1', true);
+            wp_enqueue_script(self::HANDLE_VENDOR_TUS, STARMUS_URL . 'assets/js/vendor/tus.min.js', [], '4.3.1', true);
 
             if (!$is_development) {
                 $this->enqueue_production_assets();
@@ -131,7 +131,12 @@ final class StarmusAssetLoader
      */
     private function enqueue_styles(bool $is_development): void
     {
-        // ... (This function remains unchanged from the previous correct version) ...
+        wp_enqueue_style(
+            self::STYLE_HANDLE,
+            STARMUS_URL . 'assets/css/starmus-styles.min.css',
+            [],
+            $this->resolve_version()
+        );
     }
 
     /**
