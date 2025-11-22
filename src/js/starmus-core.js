@@ -1,7 +1,8 @@
 /**
  * @file starmus-core.js
- * @version 4.2.0
- * @description Handles submission (upload) and reset business logic with TUS support and offline queue.
+ * @version 4.5.0
+ * @description Handles submission logic.
+ * Production-grade: Final release with UI state resets and memory optimizations.
  */
 
 'use strict';
@@ -15,12 +16,20 @@ import { queueSubmission, getPendingCount } from './starmus-offline.js';
  *
  * @param {object} store
  * @param {string} instanceId
- * @param {object} env - Environment payload from sparxstar-user-environment-check.
+ * @param {object} env - Environment payload from init (fallback if state is empty).
  */
 export function initCore(store, instanceId, env) {
     async function handleSubmit(formFields) {
         const state = store.getState();
-        const { source, calibration, env } = state;
+        
+        // Prevent variable shadowing (state.env vs arg env)
+        const { source, calibration, env: stateEnv } = state;
+
+        // Double-submit guard (prevents Android tap-bounce)
+        if (state.status === 'submitting') {
+            debugLog('[Upload] Ignored duplicate submit');
+            return;
+        }
 
         if (!source || (!source.blob && !source.file)) {
             store.dispatch({
@@ -31,33 +40,49 @@ export function initCore(store, instanceId, env) {
             return;
         }
 
-        // Prepare audio blob and filename
         const audioBlob = source.blob || source.file;
         const fileName = source.fileName || source.file?.name || 'recording.webm';
 
-        // Build metadata payload
-        const metadata = {
-            transcript: source.transcript?.trim() || null,
-            calibration: calibration.complete ? {
-                gain: calibration.gain,
-                snr: calibration.snr,
-                noiseFloor: calibration.noiseFloor,
-                speechLevel: calibration.speechLevel,
-                timestamp: calibration.timestamp || new Date().toISOString()
-            } : null,
-            env: env || {},
-        };
+        // Calibration Data Integrity Check
+        const calibrationData = (calibration && calibration.complete) ? {
+            gain: calibration.gain,
+            snr: calibration.snr,
+            noiseFloor: calibration.noiseFloor,
+            speechLevel: calibration.speechLevel,
+            timestamp: calibration.timestamp || new Date().toISOString()
+        } : null;
 
-        // Estimate upload time for user feedback
-        const estimatedSeconds = estimateUploadTime(audioBlob.size, env.network);
+        // OPTIMIZATION: Freeze metadata to reduce GC churn and mutation risks on low-end devices
+        const metadata = Object.freeze({
+            transcript: source.transcript?.trim() || null,
+            calibration: calibrationData,
+            env: stateEnv || env || {}, 
+        });
+
+        // UI Feedback: Time Estimate
+        const estimatedSeconds = estimateUploadTime(audioBlob.size, (stateEnv || env).network);
         const estimateText = formatUploadEstimate(estimatedSeconds);
         debugLog(`[Upload] File size: ${(audioBlob.size / 1024 / 1024).toFixed(2)}MB, estimated time: ${estimateText}`);
 
         store.dispatch({ type: 'starmus/submit-start' });
 
+        // Shared Progress Callback
+        const onProgress = (bytesUploaded, bytesTotal) => {
+            const progress = bytesUploaded / bytesTotal;
+            store.dispatch({ 
+                type: 'starmus/submit-progress', 
+                progress 
+            });
+        };
+
         try {
-            // Decide whether to use TUS or direct upload
-            const useTus = isTusAvailable() && audioBlob.size > 1024 * 1024; // Use TUS for files > 1MB
+            // OPTIMIZATION: Offline Fast-Path
+            if (!navigator.onLine) {
+                debugLog('[Upload] Device is offline, skipping directly to queue');
+                throw new Error('OFFLINE_FAST_PATH');
+            }
+
+            const useTus = isTusAvailable() && audioBlob.size > 1024 * 1024; // 1MB threshold
             
             if (useTus) {
                 debugLog('[Upload] Using TUS resumable upload for', fileName);
@@ -68,17 +93,14 @@ export function initCore(store, instanceId, env) {
                     formFields,
                     metadata,
                     instanceId,
-                    (bytesUploaded, bytesTotal) => {
-                        const progress = bytesUploaded / bytesTotal;
-                        store.dispatch({ 
-                            type: 'starmus/submit-progress', 
-                            progress 
-                        });
-                    }
+                    onProgress
                 );
                 
                 debugLog('[Upload] TUS upload complete:', uploadUrl);
                 store.dispatch({ type: 'starmus/submit-complete', uploadUrl });
+                
+                // CRITICAL FIX: Reset state to unlock UI
+                store.dispatch({ type: 'starmus/ready' });
                 
             } else {
                 debugLog('[Upload] Using direct POST upload for', fileName);
@@ -88,24 +110,28 @@ export function initCore(store, instanceId, env) {
                     fileName,
                     formFields,
                     metadata,
-                    instanceId
+                    instanceId,
+                    onProgress
                 );
                 
                 debugLog('[Upload] Direct upload complete:', response);
                 store.dispatch({ type: 'starmus/submit-complete', response });
+                
+                // CRITICAL FIX: Reset state to unlock UI
+                store.dispatch({ type: 'starmus/ready' });
             }
             
         } catch (error) {
-            console.error('[Upload] Failed:', error);
+            if (error.message === 'OFFLINE_FAST_PATH') {
+                debugLog('[Upload] Processing offline save...');
+            } else {
+                console.error('[Upload] Failed:', error);
+            }
             
-            // Determine if error is retryable
-            const isRetryable = error.message !== 'TUS_ENDPOINT_NOT_CONFIGURED' && 
-                               error.message !== 'Direct upload endpoint not configured';
+            const isConfigError = error.message === 'TUS_ENDPOINT_NOT_CONFIGURED' || 
+                                  error.message === 'Direct upload endpoint not configured';
             
-            // If retryable, save to offline queue for later
-            if (isRetryable) {
-                debugLog('[Upload] Saving to offline queue for retry');
-                
+            if (!isConfigError) {
                 try {
                     const submissionId = await queueSubmission(
                         instanceId,
@@ -117,46 +143,44 @@ export function initCore(store, instanceId, env) {
                     
                     debugLog('[Upload] Saved to offline queue:', submissionId);
                     
-                    // Update UI to show queued status
                     store.dispatch({
                         type: 'starmus/submit-queued',
                         submissionId,
                     });
                     
-                    // Check pending count for user feedback
-                    const pendingCount = await getPendingCount();
-                    debugLog(`[Upload] ${pendingCount} submission(s) in offline queue`);
+                    // CRITICAL FIX: Reset state to unlock UI after queuing
+                    store.dispatch({ type: 'starmus/ready' });
+                    
+                    getPendingCount().then(count => {
+                        debugLog(`[Upload] Queue depth: ${count}`);
+                    });
                     
                 } catch (queueError) {
-                    console.error('[Upload] Failed to save to offline queue:', queueError);
+                    console.error('[Upload] Offline save failed:', queueError);
                     
+                    let msg = 'Upload failed and could not be saved.';
+                    if (queueError.message && queueError.message.includes('too large')) {
+                        msg = 'File too large to save offline.';
+                    } else if (queueError.message === 'STORAGE_QUOTA_EXCEEDED') {
+                        msg = 'Storage full. Cannot save offline.';
+                    }
+
                     store.dispatch({
                         type: 'starmus/error',
-                        error: { 
-                            message: 'Upload failed and could not be saved for retry. ' + 
-                                    (queueError.message === 'STORAGE_QUOTA_EXCEEDED' 
-                                        ? 'Storage quota exceeded.' 
-                                        : 'Please try again.'),
-                            retryable: false 
-                        },
+                        error: { message: msg, retryable: false },
                         status: 'ready_to_submit',
                     });
                 }
             } else {
-                // Non-retryable error (configuration issue)
                 store.dispatch({
                     type: 'starmus/error',
-                    error: { 
-                        message: error.message || 'Upload failed.', 
-                        retryable: false 
-                    },
+                    error: { message: error.message || 'Upload failed.', retryable: false },
                     status: 'ready_to_submit',
                 });
             }
         }
     }
 
-    // CommandBus hook
     CommandBus.subscribe('submit', (payload, meta) => {
         if (meta.instanceId !== instanceId) {
             return;
@@ -171,7 +195,5 @@ export function initCore(store, instanceId, env) {
         store.dispatch({ type: 'starmus/reset' });
     });
 
-    return {
-        handleSubmit,
-    };
+    return { handleSubmit };
 }
