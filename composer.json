@@ -72,14 +72,16 @@
     "phpcompatibility/phpcompatibility-wp": "^2.1"
   },
   "scripts": {
-    "phpcs": "phpcs --standard=phpcs.xml",
-    "phpcbf": "phpcbf --standard=phpcs.xml.dist",
-    "phpstan": "phpstan analyse",
-    "unittest": "phpunit --colors=always",
+    "phpcs": "vendor/bin/phpcs --standard=phpcs.xml.dist",
+    "phpcbf": "vendor/bin/phpcbf --standard=phpcs.xml.dist",
+    "phpstan": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=2G",
+    "unittest": "vendor/bin/phpunit --colors=always",
     "makepot": "wp i18n make-pot .",
     "lint": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full .",
     "lint:fix": "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php .",
+    "lint:php": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php",
     "analyze": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=2G",
+    "analyze:php": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=2G --no-progress",
     "test:unit": "vendor/bin/phpunit --configuration=phpunit-unit.xml.dist --colors=always",
     "test": "composer run lint && composer run analyze && composer run test:unit",
     "fix": "composer run lint:fix"
