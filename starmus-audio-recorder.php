@@ -77,15 +77,15 @@ function starmus_load_bundled_scf(): void
     }
 
     try {
-        $scf_main_file = STARMUS_PATH . 'vendor/wpackagist-plugin/secure-custom-fields/secure-custom-fields.php';
+        $scf_main_file = STARMUS_PATH . 'vendor/secure-custom-fields/secure-custom-fields.php';
 
         if (file_exists($scf_main_file)) {
             // Define constants to identify your bundled version
             if (!defined('STARMUS_ACF_PATH')) {
-                define('STARMUS_ACF_PATH', STARMUS_PATH . 'vendor/wpackagist-plugin/secure-custom-fields/');
+                define('STARMUS_ACF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
             }
             if (!defined('STARMUS_ACF_URL')) {
-                define('STARMUS_ACF_URL', STARMUS_URL . 'vendor/wpackagist-plugin/secure-custom-fields/');
+                define('STARMUS_ACF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
             }
 
             // Set the path for ACF to load from (recommended by ACF)

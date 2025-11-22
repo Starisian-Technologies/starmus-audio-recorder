@@ -5,7 +5,7 @@
   "type": "wordpress-plugin",
   "license": "proprietary",
   "require": {
-    "php": "^8.3",
+    "php": "^8.2",
     "james-heinrich/getid3": "^1.9",
     "wpackagist-plugin/secure-custom-fields": "^6.4"
   },
@@ -86,7 +86,7 @@
   },
   "extra": {
     "installer-paths": {
-      "wp-content/plugins/{$name}/": [
+      "vendor/{$name}/": [
         "type:wordpress-plugin"
       ]
     }
