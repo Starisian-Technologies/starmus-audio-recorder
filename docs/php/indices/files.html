@@ -1,202 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
-            <title>Documentation</title>
-    
+    <title>Documentation</title>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="../">
-    <link rel="icon" href="images/favicon.ico"/>
+    <link rel="icon" href="images/favicon.ico" />
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/base.css">
-            <link rel="preconnect" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@100;200;300;400;600;700&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="css/template.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css" integrity="sha256-ybRkN9dBjhcS2qrW1z+hfCxq+1aBdwyQM5wlQoQVt/0=" crossorigin="anonymous" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-okaidia.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.css">
-                <script src="https://cdn.jsdelivr.net/npm/fuse.js@3.4.6"></script>
-        <script src="https://cdn.jsdelivr.net/npm/css-vars-ponyfill@2"></script>
-        <script src="js/template.js"></script>
-        <script src="js/search.js"></script>
-        <script defer src="js/searchIndex.js"></script>
-    </head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@100;200;300;400;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/template.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css"
+        integrity="sha256-ybRkN9dBjhcS2qrW1z+hfCxq+1aBdwyQM5wlQoQVt/0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-okaidia.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.css">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@3.4.6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/css-vars-ponyfill@2"></script>
+    <script src="js/template.js"></script>
+    <script src="js/search.js"></script>
+    <script defer src="js/searchIndex.js"></script>
+</head>
+
 <body id="top">
     <header class="phpdocumentor-header phpdocumentor-section">
-    <h1 class="phpdocumentor-title"><a href="" class="phpdocumentor-title__link">Documentation</a></h1>
-    <input class="phpdocumentor-header__menu-button" type="checkbox" id="menu-button" name="menu-button" />
-    <label class="phpdocumentor-header__menu-icon" for="menu-button">
-        <i class="fas fa-bars"></i>
-    </label>
-    <section data-search-form class="phpdocumentor-search">
-    <label>
-        <span class="visually-hidden">Search for</span>
-        <svg class="phpdocumentor-search__icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="2"/>
-            <line x1="12.4892" y1="12.2727" x2="19.1559" y2="18.9393" stroke="currentColor" stroke-width="3"/>
-        </svg>
-        <input type="search" class="phpdocumentor-field phpdocumentor-search__field" placeholder="Loading .." disabled />
-    </label>
-</section>
+        <h1 class="phpdocumentor-title"><a href="" class="phpdocumentor-title__link">Documentation</a></h1>
+        <input class="phpdocumentor-header__menu-button" type="checkbox" id="menu-button" name="menu-button" />
+        <label class="phpdocumentor-header__menu-icon" for="menu-button">
+            <i class="fas fa-bars"></i>
+        </label>
+        <section data-search-form class="phpdocumentor-search">
+            <label>
+                <span class="visually-hidden">Search for</span>
+                <svg class="phpdocumentor-search__icon" width="21" height="20" viewBox="0 0 21 20" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="2" />
+                    <line x1="12.4892" y1="12.2727" x2="19.1559" y2="18.9393" stroke="currentColor" stroke-width="3" />
+                </svg>
+                <input type="search" class="phpdocumentor-field phpdocumentor-search__field" placeholder="Loading .."
+                    disabled />
+            </label>
+        </section>
 
-    <nav class="phpdocumentor-topnav">
-    <ul class="phpdocumentor-topnav__menu">
-        </ul>
-</nav>
-</header>
+        <nav class="phpdocumentor-topnav">
+            <ul class="phpdocumentor-topnav__menu">
+            </ul>
+        </nav>
+    </header>
 
     <main class="phpdocumentor">
         <div class="phpdocumentor-section">
-            <input class="phpdocumentor-sidebar__menu-button" type="checkbox" id="sidebar-button" name="sidebar-button" />
-<label class="phpdocumentor-sidebar__menu-icon" for="sidebar-button">
-    Menu
-</label>
-<aside class="phpdocumentor-column -three phpdocumentor-sidebar">
-                    <section class="phpdocumentor-sidebar__category -namespaces">
-            <h2 class="phpdocumentor-sidebar__category-header">Namespaces</h2>
-                                    <h4 class="phpdocumentor-sidebar__root-namespace">
-    <a href="namespaces/starisian.html" class="">Starisian</a>
-</h4>
-    <ul class="phpdocumentor-list">
-                    <li>
-                <a href="namespaces/starisian-sparxstar.html" class="">Sparxstar</a>
-                
-            </li>
-            </ul>
+            <input class="phpdocumentor-sidebar__menu-button" type="checkbox" id="sidebar-button"
+                name="sidebar-button" />
+            <label class="phpdocumentor-sidebar__menu-icon" for="sidebar-button">
+                Menu
+            </label>
+            <aside class="phpdocumentor-column -three phpdocumentor-sidebar">
+                <section class="phpdocumentor-sidebar__category -namespaces">
+                    <h2 class="phpdocumentor-sidebar__category-header">Namespaces</h2>
+                    <h4 class="phpdocumentor-sidebar__root-namespace">
+                        <a href="namespaces/starisian.html" class="">Starisian</a>
+                    </h4>
+                    <ul class="phpdocumentor-list">
+                        <li>
+                            <a href="namespaces/starisian-sparxstar.html" class="">Sparxstar</a>
 
-                        </section>
+                        </li>
+                    </ul>
+
+                </section>
                 <section class="phpdocumentor-sidebar__category -packages">
-            <h2 class="phpdocumentor-sidebar__category-header">Packages</h2>
-                                    <h4 class="phpdocumentor-sidebar__root-namespace">
-    <a href="packages/Starmus.html" class="">Starmus</a>
-</h4>
-    <ul class="phpdocumentor-list">
-                    <li>
-                <a href="packages/Starmus-core.html" class="">core</a>
-                
-            </li>
-                    <li>
-                <a href="packages/Starmus-Includes.html" class="">Includes</a>
-                
-            </li>
-            </ul>
+                    <h2 class="phpdocumentor-sidebar__category-header">Packages</h2>
+                    <h4 class="phpdocumentor-sidebar__root-namespace">
+                        <a href="packages/Starmus.html" class="">Starmus</a>
+                    </h4>
+                    <ul class="phpdocumentor-list">
+                        <li>
+                            <a href="packages/Starmus-core.html" class="">core</a>
 
-                                    <h4 class="phpdocumentor-sidebar__root-namespace">
-    <a href="packages/Starisian.html" class="">Starisian</a>
-</h4>
-    <ul class="phpdocumentor-list">
-                    <li>
-                <a href="packages/Starisian-Sparxstar.html" class="">Sparxstar</a>
-                
-            </li>
-                    <li>
-                <a href="packages/Starisian-Starmus.html" class="">Starmus</a>
-                
-            </li>
-            </ul>
+                        </li>
+                        <li>
+                            <a href="packages/Starmus-Includes.html" class="">Includes</a>
 
-                                    <h4 class="phpdocumentor-sidebar__root-namespace">
-    <a href="packages/Application.html" class="">Application</a>
-</h4>
+                        </li>
+                    </ul>
 
-                        </section>
-            
-    <section class="phpdocumentor-sidebar__category -reports">
-        <h2 class="phpdocumentor-sidebar__category-header">Reports</h2>
-                <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/deprecated.html">Deprecated</a></h3>
-        <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/errors.html">Errors</a></h3>
-        <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/markers.html">Markers</a></h3>
-    </section>
+                    <h4 class="phpdocumentor-sidebar__root-namespace">
+                        <a href="packages/Starisian.html" class="">Starisian</a>
+                    </h4>
+                    <ul class="phpdocumentor-list">
+                        <li>
+                            <a href="packages/Starisian-Sparxstar.html" class="">Sparxstar</a>
 
-    <section class="phpdocumentor-sidebar__category -indices">
-        <h2 class="phpdocumentor-sidebar__category-header">Indices</h2>
-        <h3 class="phpdocumentor-sidebar__root-package"><a href="indices/files.html">Files</a></h3>
-    </section>
-</aside>
+                        </li>
+                        <li>
+                            <a href="packages/Starisian-Starmus.html" class="">Starmus</a>
+
+                        </li>
+                    </ul>
+
+                    <h4 class="phpdocumentor-sidebar__root-namespace">
+                        <a href="packages/Application.html" class="">Application</a>
+                    </h4>
+
+                </section>
+
+                <section class="phpdocumentor-sidebar__category -reports">
+                    <h2 class="phpdocumentor-sidebar__category-header">Reports</h2>
+                    <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/deprecated.html">Deprecated</a>
+                    </h3>
+                    <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/errors.html">Errors</a></h3>
+                    <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/markers.html">Markers</a></h3>
+                </section>
+
+                <section class="phpdocumentor-sidebar__category -indices">
+                    <h2 class="phpdocumentor-sidebar__category-header">Indices</h2>
+                    <h3 class="phpdocumentor-sidebar__root-package"><a href="indices/files.html">Files</a></h3>
+                </section>
+            </aside>
 
             <div class="phpdocumentor-column -nine phpdocumentor-content">
-                                        <section>
-        
-        <h2 class="phpdocumentor-content__title">Files</h2>
-                                            <h3>A</h3>
-            <ul class="phpdocumentor-list">
-                            <li><a href="files/src-services-audioprocessingservice.html"><abbr title="src/services/AudioProcessingService.php">AudioProcessingService.php</abbr></a></li>
-                            <li><a href="files/src-templates-archive-audio-recording.html"><abbr title="src/templates/archive-audio-recording.php">archive-audio-recording.php</abbr></a></li>
-                        </ul>
-                                                                                                                                                                                        <h3>F</h3>
-            <ul class="phpdocumentor-list">
-                            <li><a href="files/src-services-fileservice.html"><abbr title="src/services/FileService.php">FileService.php</abbr></a></li>
-                        </ul>
-                                                                                                                        <h3>I</h3>
-            <ul class="phpdocumentor-list">
-                            <li><a href="files/src-admin-index.html"><abbr title="src/admin/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-api-index.html"><abbr title="src/api/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-cli-index.html"><abbr title="src/cli/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-core-index.html"><abbr title="src/core/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-core-interfaces-index.html"><abbr title="src/core/interfaces/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-cron-index.html"><abbr title="src/cron/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-css-index.html"><abbr title="src/css/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-frontend-index.html"><abbr title="src/frontend/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-helpers-index.html"><abbr title="src/helpers/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-includes-index.html"><abbr title="src/includes/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-index.html"><abbr title="src/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-js-index.html"><abbr title="src/js/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-services-index.html"><abbr title="src/services/index.php">index.php</abbr></a></li>
-                            <li><a href="files/src-templates-index.html"><abbr title="src/templates/index.php">index.php</abbr></a></li>
-                        </ul>
-                                                                                                                                                                                                                                                        <h3>P</h3>
-            <ul class="phpdocumentor-list">
-                            <li><a href="files/src-services-postprocessingservice.html"><abbr title="src/services/PostProcessingService.php">PostProcessingService.php</abbr></a></li>
-                        </ul>
-                                                                                                                        <h3>S</h3>
-            <ul class="phpdocumentor-list">
-                            <li><a href="files/src-includes-starmusadaptiveassetloader.html"><abbr title="src/includes/StarmusAdaptiveAssetLoader.php">StarmusAdaptiveAssetLoader.php</abbr></a></li>
-                            <li><a href="files/src-admin-starmusadmin.html"><abbr title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></li>
-                            <li><a href="files/src-core-starmusassetloader.html"><abbr title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></li>
-                            <li><a href="files/src-frontend-starmusaudioeditorui.html"><abbr title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a></li>
-                            <li><a href="files/src-services-starmusaudioprocessinghandler.html"><abbr title="src/services/StarmusAudioProcessingHandler.php">StarmusAudioProcessingHandler.php</abbr></a></li>
-                            <li><a href="files/src-starmusaudiorecorder.html"><abbr title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></li>
-                            <li><a href="files/src-core-starmusaudiorecorderdal.html"><abbr title="src/core/StarmusAudioRecorderDAL.php">StarmusAudioRecorderDAL.php</abbr></a></li>
-                            <li><a href="files/src-core-interfaces-starmusaudiorecorderdalinterface.html"><abbr title="src/core/interfaces/StarmusAudioRecorderDALInterface.php">StarmusAudioRecorderDALInterface.php</abbr></a></li>
-                            <li><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a></li>
-                            <li><a href="files/src-core-starmusaudiorecorderupdater.html"><abbr title="src/core/StarmusAudioRecorderUpdater.php">StarmusAudioRecorderUpdater.php</abbr></a></li>
-                            <li><a href="files/src-cli-starmuscli.html"><abbr title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></li>
-                            <li><a href="files/src-cron-starmuscron.html"><abbr title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></li>
-                            <li><a href="files/src-helpers-starmuslogger.html"><abbr title="src/helpers/StarmusLogger.php">StarmusLogger.php</abbr></a></li>
-                            <li><a href="files/src-api-starmusresthandler.html"><abbr title="src/api/StarmusRESTHandler.php">StarmusRESTHandler.php</abbr></a></li>
-                            <li><a href="files/src-helpers-starmussanitizer.html"><abbr title="src/helpers/StarmusSanitizer.php">StarmusSanitizer.php</abbr></a></li>
-                            <li><a href="files/src-core-starmussettings.html"><abbr title="src/core/StarmusSettings.php">StarmusSettings.php</abbr></a></li>
-                            <li><a href="files/src-frontend-starmusshortcodeloader.html"><abbr title="src/frontend/StarmusShortcodeLoader.php">StarmusShortcodeLoader.php</abbr></a></li>
-                            <li><a href="files/src-includes-starmussubmissionhandler.html"><abbr title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a></li>
-                            <li><a href="files/src-helpers-starmustemplateloaderhelper.html"><abbr title="src/helpers/StarmusTemplateLoaderHelper.php">StarmusTemplateLoaderHelper.php</abbr></a></li>
-                            <li><a href="files/src-includes-starmustusdhookhandler.html"><abbr title="src/includes/StarmusTusdHookHandler.php">StarmusTusdHookHandler.php</abbr></a></li>
-                            <li><a href="files/src-templates-single-audio-recording.html"><abbr title="src/templates/single-audio-recording.php">single-audio-recording.php</abbr></a></li>
-                            <li><a href="files/src-templates-starmus-audio-editor-ui.html"><abbr title="src/templates/starmus-audio-editor-ui.php">starmus-audio-editor-ui.php</abbr></a></li>
-                            <li><a href="files/src-templates-starmus-audio-re-recorder.html"><abbr title="src/templates/starmus-audio-re-recorder.php">starmus-audio-re-recorder.php</abbr></a></li>
-                            <li><a href="files/src-templates-starmus-audio-recorder-ui.html"><abbr title="src/templates/starmus-audio-recorder-ui.php">starmus-audio-recorder-ui.php</abbr></a></li>
-                            <li><a href="files/src-templates-starmus-my-recordings-list.html"><abbr title="src/templates/starmus-my-recordings-list.php">starmus-my-recordings-list.php</abbr></a></li>
-                            <li><a href="files/src-templates-starmus-recording-detail-admin.html"><abbr title="src/templates/starmus-recording-detail-admin.php">starmus-recording-detail-admin.php</abbr></a></li>
-                            <li><a href="files/src-templates-starmus-recording-detail-user.html"><abbr title="src/templates/starmus-recording-detail-user.php">starmus-recording-detail-user.php</abbr></a></li>
-                        </ul>
-                                                                                                                                                        <h3>W</h3>
-            <ul class="phpdocumentor-list">
-                            <li><a href="files/src-services-waveformservice.html"><abbr title="src/services/WaveformService.php">WaveformService.php</abbr></a></li>
-                        </ul>
-                                                                                                                        </section>
-                            </div>
+                <section>
+
+                    <h2 class="phpdocumentor-content__title">Files</h2>
+                    <h3>A</h3>
+                    <ul class="phpdocumentor-list">
+                        <li><a href="files/src-services-audioprocessingservice.html"><abbr
+                                    title="src/services/StarmusAudioProcessingService.php">StarmusAudioProcessingService.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-templates-archive-audio-recording.html"><abbr
+                                    title="src/templates/archive-audio-recording.php">archive-audio-recording.php</abbr></a>
+                        </li>
+                    </ul>
+                    <h3>F</h3>
+                    <ul class="phpdocumentor-list">
+                        <li><a href="files/src-services-fileservice.html"><abbr
+                                    title="src/services/StarmusFileService.php">StarmusFileService.php</abbr></a></li>
+                    </ul>
+                    <h3>I</h3>
+                    <ul class="phpdocumentor-list">
+                        <li><a href="files/src-admin-index.html"><abbr title="src/admin/index.php">index.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-api-index.html"><abbr title="src/api/index.php">index.php</abbr></a></li>
+                        <li><a href="files/src-cli-index.html"><abbr title="src/cli/index.php">index.php</abbr></a></li>
+                        <li><a href="files/src-core-index.html"><abbr title="src/core/index.php">index.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-core-interfaces-index.html"><abbr
+                                    title="src/core/interfaces/index.php">index.php</abbr></a></li>
+                        <li><a href="files/src-cron-index.html"><abbr title="src/cron/index.php">index.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-css-index.html"><abbr title="src/css/index.php">index.php</abbr></a></li>
+                        <li><a href="files/src-frontend-index.html"><abbr
+                                    title="src/frontend/index.php">index.php</abbr></a></li>
+                        <li><a href="files/src-helpers-index.html"><abbr
+                                    title="src/helpers/index.php">index.php</abbr></a></li>
+                        <li><a href="files/src-includes-index.html"><abbr
+                                    title="src/includes/index.php">index.php</abbr></a></li>
+                        <li><a href="files/src-index.html"><abbr title="src/index.php">index.php</abbr></a></li>
+                        <li><a href="files/src-js-index.html"><abbr title="src/js/index.php">index.php</abbr></a></li>
+                        <li><a href="files/src-services-index.html"><abbr
+                                    title="src/services/index.php">index.php</abbr></a></li>
+                        <li><a href="files/src-templates-index.html"><abbr
+                                    title="src/templates/index.php">index.php</abbr></a></li>
+                    </ul>
+                    <h3>P</h3>
+                    <ul class="phpdocumentor-list">
+                        <li><a href="files/src-services-postprocessingservice.html"><abbr
+                                    title="src/services/StarmusPostProcessingService.php">StarmusPostProcessingService.php</abbr></a>
+                        </li>
+                    </ul>
+                    <h3>S</h3>
+                    <ul class="phpdocumentor-list">
+                        <li><a href="files/src-includes-starmusadaptiveassetloader.html"><abbr
+                                    title="src/includes/StarmusAdaptiveAssetLoader.php">StarmusAdaptiveAssetLoader.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-admin-starmusadmin.html"><abbr
+                                    title="src/admin/StarmusAdmin.php">StarmusAdmin.php</abbr></a></li>
+                        <li><a href="files/src-core-starmusassetloader.html"><abbr
+                                    title="src/core/StarmusAssetLoader.php">StarmusAssetLoader.php</abbr></a></li>
+                        <li><a href="files/src-frontend-starmusaudioeditorui.html"><abbr
+                                    title="src/frontend/StarmusAudioEditorUI.php">StarmusAudioEditorUI.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-services-starmusaudioprocessinghandler.html"><abbr
+                                    title="src/services/StarmusAudioProcessingHandler.php">StarmusAudioProcessingHandler.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-starmusaudiorecorder.html"><abbr
+                                    title="src/StarmusAudioRecorder.php">StarmusAudioRecorder.php</abbr></a></li>
+                        <li><a href="files/src-core-starmusaudiorecorderdal.html"><abbr
+                                    title="src/core/StarmusAudioRecorderDAL.php">StarmusAudioRecorderDAL.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-core-interfaces-starmusaudiorecorderdalinterface.html"><abbr
+                                    title="src/core/interfaces/StarmusAudioRecorderDALInterface.php">StarmusAudioRecorderDALInterface.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-frontend-starmusaudiorecorderui.html"><abbr
+                                    title="src/frontend/StarmusAudioRecorderUI.php">StarmusAudioRecorderUI.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-core-starmusaudiorecorderupdater.html"><abbr
+                                    title="src/core/StarmusAudioRecorderUpdater.php">StarmusAudioRecorderUpdater.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-cli-starmuscli.html"><abbr
+                                    title="src/cli/StarmusCLI.php">StarmusCLI.php</abbr></a></li>
+                        <li><a href="files/src-cron-starmuscron.html"><abbr
+                                    title="src/cron/StarmusCron.php">StarmusCron.php</abbr></a></li>
+                        <li><a href="files/src-helpers-starmuslogger.html"><abbr
+                                    title="src/helpers/StarmusLogger.php">StarmusLogger.php</abbr></a></li>
+                        <li><a href="files/src-api-starmusresthandler.html"><abbr
+                                    title="src/api/StarmusRESTHandler.php">StarmusRESTHandler.php</abbr></a></li>
+                        <li><a href="files/src-helpers-starmussanitizer.html"><abbr
+                                    title="src/helpers/StarmusSanitizer.php">StarmusSanitizer.php</abbr></a></li>
+                        <li><a href="files/src-core-starmussettings.html"><abbr
+                                    title="src/core/StarmusSettings.php">StarmusSettings.php</abbr></a></li>
+                        <li><a href="files/src-frontend-starmusshortcodeloader.html"><abbr
+                                    title="src/frontend/StarmusShortcodeLoader.php">StarmusShortcodeLoader.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-includes-starmussubmissionhandler.html"><abbr
+                                    title="src/includes/StarmusSubmissionHandler.php">StarmusSubmissionHandler.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-helpers-starmustemplateloaderhelper.html"><abbr
+                                    title="src/helpers/StarmusTemplateLoaderHelper.php">StarmusTemplateLoaderHelper.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-includes-starmustusdhookhandler.html"><abbr
+                                    title="src/includes/StarmusTusdHookHandler.php">StarmusTusdHookHandler.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-templates-single-audio-recording.html"><abbr
+                                    title="src/templates/single-audio-recording.php">single-audio-recording.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-templates-starmus-audio-editor-ui.html"><abbr
+                                    title="src/templates/starmus-audio-editor-ui.php">starmus-audio-editor-ui.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-templates-starmus-audio-re-recorder.html"><abbr
+                                    title="src/templates/starmus-audio-re-recorder.php">starmus-audio-re-recorder.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-templates-starmus-audio-recorder-ui.html"><abbr
+                                    title="src/templates/starmus-audio-recorder-ui.php">starmus-audio-recorder-ui.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-templates-starmus-my-recordings-list.html"><abbr
+                                    title="src/templates/starmus-my-recordings-list.php">starmus-my-recordings-list.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-templates-starmus-recording-detail-admin.html"><abbr
+                                    title="src/templates/starmus-recording-detail-admin.php">starmus-recording-detail-admin.php</abbr></a>
+                        </li>
+                        <li><a href="files/src-templates-starmus-recording-detail-user.html"><abbr
+                                    title="src/templates/starmus-recording-detail-user.php">starmus-recording-detail-user.php</abbr></a>
+                        </li>
+                    </ul>
+                    <h3>W</h3>
+                    <ul class="phpdocumentor-list">
+                        <li><a href="files/src-services-waveformservice.html"><abbr
+                                    title="src/services/StarmusWaveformService.php">StarmusWaveformService.php</abbr></a>
+                        </li>
+                    </ul>
+                </section>
+            </div>
             <section data-search-results class="phpdocumentor-search-results phpdocumentor-search-results--hidden">
-    <section class="phpdocumentor-search-results__dialog">
-        <header class="phpdocumentor-search-results__header">
-            <h2 class="phpdocumentor-search-results__title">Search results</h2>
-            <button class="phpdocumentor-search-results__close"><i class="fas fa-times"></i></button>
-        </header>
-        <section class="phpdocumentor-search-results__body">
-            <ul class="phpdocumentor-search-results__entries"></ul>
-        </section>
-    </section>
-</section>
+                <section class="phpdocumentor-search-results__dialog">
+                    <header class="phpdocumentor-search-results__header">
+                        <h2 class="phpdocumentor-search-results__title">Search results</h2>
+                        <button class="phpdocumentor-search-results__close"><i class="fas fa-times"></i></button>
+                    </header>
+                    <section class="phpdocumentor-search-results__body">
+                        <ul class="phpdocumentor-search-results__entries"></ul>
+                    </section>
+                </section>
+            </section>
         </div>
         <a href="indices/files.html#top" class="phpdocumentor-back-to-top"><i class="fas fa-chevron-circle-up"></i></a>
 
@@ -208,6 +282,8 @@
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
 </body>
+
 </html>

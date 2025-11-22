@@ -23,7 +23,7 @@ use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
-use Starisian\Sparxstar\Starmus\services\PostProcessingService;
+use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 
 use function is_wp_error;
 use function wp_upload_dir;
@@ -658,7 +658,7 @@ final class StarmusSubmissionHandler
 			);
 
 			try {
-				$post_processing = new PostProcessingService();
+				$post_processing = new StarmusPostProcessingService();
 				$ok              = $post_processing->process($audio_post_id, $attachment_id, $processing_params);
 				if (! $ok && ! wp_next_scheduled('starmus_cron_process_pending_audio', array($audio_post_id, $attachment_id))) {
 					wp_schedule_single_event(time() + 300, 'starmus_cron_process_pending_audio', array($audio_post_id, $attachment_id));

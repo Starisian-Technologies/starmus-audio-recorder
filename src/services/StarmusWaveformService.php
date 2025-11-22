@@ -4,7 +4,7 @@
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * WaveformService (DAL-integrated)
+ * StarmusWaveformService (DAL-integrated)
  * --------------------------------
  * Generates waveform JSON data using the audiowaveform CLI tool
  * and stores it via the DAL + ACF on the parent recording post.
@@ -22,16 +22,16 @@ if (! defined('ABSPATH')) {
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 
-final class WaveformService
+final class StarmusWaveformService
 {
 
 	private StarmusAudioRecorderDAL $dal;
-	private FileService $files;
+	private StarmusFileService $files;
 
-	public function __construct(?StarmusAudioRecorderDAL $dal = null, ?FileService $file_service = null)
+	public function __construct(?StarmusAudioRecorderDAL $dal = null, ?StarmusFileService $file_service = null)
 	{
 		$this->dal   = $dal ?: new StarmusAudioRecorderDAL();
-		$this->files = $file_service ?: new FileService();
+		$this->files = $file_service ?: new StarmusFileService();
 	}
 
 	/** Configurable audiowaveform parameters */
@@ -48,15 +48,15 @@ final class WaveformService
 	/** Check whether audiowaveform is installed */
 	public function is_tool_available(): bool
 	{
-		StarmusLogger::debug('WaveformService', 'Checking audiowaveform availability...');
+		StarmusLogger::debug('StarmusWaveformService', 'Checking audiowaveform availability...');
 		$path = trim((string) shell_exec('command -v audiowaveform'));
 
 		if ($path === '') {
-			StarmusLogger::error('WaveformService', 'audiowaveform binary not found.');
+			StarmusLogger::error('StarmusWaveformService', 'audiowaveform binary not found.');
 			return false;
 		}
 
-		StarmusLogger::info('WaveformService', 'audiowaveform found at ' . $path);
+		StarmusLogger::info('StarmusWaveformService', 'audiowaveform found at ' . $path);
 		return true;
 	}
 
@@ -70,7 +70,7 @@ final class WaveformService
 		StarmusLogger::timeStart('waveform_generate');
 
 		StarmusLogger::info(
-			'WaveformService',
+			'StarmusWaveformService',
 			'Starting waveform generation',
 			array('attachment_id' => $attachment_id)
 		);
@@ -78,27 +78,27 @@ final class WaveformService
 		// Parent Recording
 		$recording_id = (int) get_post_meta($attachment_id, '_parent_recording_id', true);
 		if ($recording_id <= 0) {
-			StarmusLogger::error('WaveformService', 'Missing parent recording reference.', array('attachment_id' => $attachment_id));
+			StarmusLogger::error('StarmusWaveformService', 'Missing parent recording reference.', array('attachment_id' => $attachment_id));
 			return false;
 		}
 
 		// Skip if waveform exists
 		if (! $force && ! empty(get_field('waveform_json', $recording_id))) {
-			StarmusLogger::notice('WaveformService', 'Waveform already exists; skipping regeneration.', array('recording_id' => $recording_id));
+			StarmusLogger::notice('StarmusWaveformService', 'Waveform already exists; skipping regeneration.', array('recording_id' => $recording_id));
 			return true;
 		}
 
 		// Get audio file
 		$file_path = $this->files::get_local_copy($attachment_id);
 		if (! $file_path || ! file_exists($file_path)) {
-			StarmusLogger::error('WaveformService', 'Audio file not found.', array('attachment_id' => $attachment_id));
+			StarmusLogger::error('StarmusWaveformService', 'Audio file not found.', array('attachment_id' => $attachment_id));
 			return false;
 		}
 
 		// Extract waveform data
 		$data = $this->extract_waveform_from_file($file_path);
 		if (empty($data)) {
-			StarmusLogger::error('WaveformService', 'Waveform extraction failed.', array('attachment_id' => $attachment_id));
+			StarmusLogger::error('StarmusWaveformService', 'Waveform extraction failed.', array('attachment_id' => $attachment_id));
 			return false;
 		}
 
@@ -106,7 +106,7 @@ final class WaveformService
 		try {
 			$this->dal->save_post_meta($recording_id, 'waveform_json', wp_json_encode($data['data']));
 			StarmusLogger::info(
-				'WaveformService',
+				'StarmusWaveformService',
 				'Waveform persisted via DAL',
 				array(
 					'recording_id' => $recording_id,
@@ -115,7 +115,7 @@ final class WaveformService
 			);
 		} catch (\Throwable $e) {
 			StarmusLogger::error(
-				'WaveformService',
+				'StarmusWaveformService',
 				$e,
 				array(
 					'phase'        => 'persist_waveform',
@@ -131,7 +131,7 @@ final class WaveformService
 		do_action('starmus_waveform_stored', $recording_id, $data);
 
 		StarmusLogger::info(
-			'WaveformService',
+			'StarmusWaveformService',
 			'Waveform stored successfully.',
 			array(
 				'recording_id' => $recording_id,
@@ -139,7 +139,7 @@ final class WaveformService
 			)
 		);
 
-		StarmusLogger::timeEnd('waveform_generate', 'WaveformService');
+		StarmusLogger::timeEnd('waveform_generate', 'StarmusWaveformService');
 		return true;
 	}
 
@@ -159,7 +159,7 @@ final class WaveformService
 		}
 
 		StarmusLogger::notice(
-			'WaveformService',
+			'StarmusWaveformService',
 			'Waveform JSON removed from recording.',
 			array('recording_id' => $recording_id)
 		);
@@ -176,7 +176,7 @@ final class WaveformService
 
 		$temp = tempnam(sys_get_temp_dir(), 'waveform-');
 		if (! $temp) {
-			StarmusLogger::error('WaveformService', 'Failed to create temp file.');
+			StarmusLogger::error('StarmusWaveformService', 'Failed to create temp file.');
 			return null;
 		}
 
@@ -222,7 +222,7 @@ final class WaveformService
 			);
 		} catch (\Throwable $e) {
 			StarmusLogger::error(
-				'WaveformService',
+				'StarmusWaveformService',
 				'Waveform extraction error',
 				array(
 					'error'   => $e->getMessage(),

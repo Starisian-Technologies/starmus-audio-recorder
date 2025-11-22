@@ -18,8 +18,8 @@ if (! defined('ABSPATH')) {
 }
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\services\WaveformService;
-use Starisian\Sparxstar\Starmus\services\PostProcessingService;
+use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
+use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 
 use function trailingslashit;
 
@@ -39,15 +39,15 @@ final class StarmusCron
 	/** Recurring hourly cleanup for stale temp upload chunks. */
 	public const CLEANUP_TEMP_FILES_HOOK = 'starmus_cleanup_temp_files';
 
-	private WaveformService $waveform;
-	private PostProcessingService $post;
+	private StarmusWaveformService $waveform;
+	private StarmusPostProcessingService $post;
 
 	public function __construct(
-		?WaveformService $waveform_service = null,
-		?PostProcessingService $post_service = null
+		?StarmusWaveformService $waveform_service = null,
+		?StarmusPostProcessingService $post_service = null
 	) {
-		$this->waveform = $waveform_service ?: new WaveformService();
-		$this->post     = $post_service     ?: new PostProcessingService();
+		$this->waveform = $waveform_service ?: new StarmusWaveformService();
+		$this->post     = $post_service     ?: new StarmusPostProcessingService();
 	}
 
 	/** Registers WP hooks for both the processor and cleanup jobs. */
@@ -88,12 +88,12 @@ final class StarmusCron
 
 		StarmusLogger::setCorrelationId();
 		StarmusLogger::info('Cron', 'Starting background pipeline', array('attachment_id' => $attachment_id));
-		update_post_meta($attachment_id, '_audio_processing_status', PostProcessingService::STATE_PROCESSING);
+		update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_PROCESSING);
 
 		try {
 			// === STEP 1: Waveform Generation ===
 			$this->waveform->generate_waveform_data($attachment_id);
-			update_post_meta($attachment_id, '_audio_processing_status', PostProcessingService::STATE_WAVEFORM);
+			update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_WAVEFORM);
 
 			// === STEP 2: Full Transcoding + Archival ===
 			$parent_id = (int) wp_get_post_parent_id($attachment_id);
@@ -108,7 +108,7 @@ final class StarmusCron
 			$success = $this->post->process_and_archive_audio($parent_id, $attachment_id);
 
 			if ($success) {
-				update_post_meta($attachment_id, '_audio_processing_status', PostProcessingService::STATE_COMPLETED);
+				update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_COMPLETED);
 				do_action('starmus_audio_pipeline_complete', $attachment_id);
 				StarmusLogger::info(
 					'Cron',
@@ -119,11 +119,11 @@ final class StarmusCron
 					)
 				);
 			} else {
-				update_post_meta($attachment_id, '_audio_processing_status', PostProcessingService::STATE_ERR_UNKNOWN);
+				update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN);
 				StarmusLogger::error('Cron', 'Background processing failed', array('attachment_id' => $attachment_id));
 			}
 		} catch (\Throwable $e) {
-			update_post_meta($attachment_id, '_audio_processing_status', PostProcessingService::STATE_ERR_UNKNOWN);
+			update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN);
 			StarmusLogger::error(
 				'Cron',
 				'Fatal exception during cron pipeline',

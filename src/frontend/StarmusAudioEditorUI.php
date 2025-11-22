@@ -232,11 +232,11 @@ class StarmusAudioEditorUI
 				return $this->cached_context;
 			}
 			$post_id = absint($_GET['post_id'] ?? 0);
-			
+
 			// Accept both custom 'nonce' and WordPress-native '_wpnonce' parameters
 			$raw_nonce = $_GET['nonce'] ?? ($_GET['_wpnonce'] ?? '');
 			$nonce     = is_string($raw_nonce) ? sanitize_text_field(wp_unslash($raw_nonce)) : '';
-			
+
 			// Only require nonce validation when accessing via link with post_id
 			if ($post_id > 0) {
 				if (! $nonce || ! wp_verify_nonce($nonce, 'starmus_edit_audio_' . $post_id)) {

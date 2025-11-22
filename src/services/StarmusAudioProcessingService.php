@@ -4,7 +4,7 @@
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * AudioProcessingService (DAL-integrated)
+ * StarmusAudioProcessingService (DAL-integrated)
  * ---------------------------------------
  * - WEBA/WEBM → MP3 (distribution) + WAV (archival)
  * - Robust FFmpeg path resolution (via DAL)
@@ -25,16 +25,16 @@ use getid3_writetags;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 
-class AudioProcessingService
+class StarmusAudioProcessingService
 {
 
 	private StarmusAudioRecorderDAL $dal;
-	private FileService $files;
+	private StarmusFileService $files;
 
-	public function __construct(?StarmusAudioRecorderDAL $dal = null, ?FileService $file_service = null)
+	public function __construct(?StarmusAudioRecorderDAL $dal = null, ?StarmusFileService $file_service = null)
 	{
 		$this->dal   = $dal ?: new StarmusAudioRecorderDAL();
-		$this->files = $file_service ?: new FileService();
+		$this->files = $file_service ?: new StarmusFileService();
 	}
 
 	/** Main entry — returns a structured result for higher-level orchestration. */
@@ -51,7 +51,7 @@ class AudioProcessingService
 			$source_path = $this->files::get_local_copy($attachment_id);
 			if (! $source_path || ! file_exists($source_path)) {
 				$this->dal->set_audio_state($attachment_id, 'error_source_missing');
-				StarmusLogger::error('AudioProcessingService', 'Missing source file', compact('attachment_id', 'source_path'));
+				StarmusLogger::error('StarmusAudioProcessingService', 'Missing source file', compact('attachment_id', 'source_path'));
 				return $result;
 			}
 
@@ -74,7 +74,7 @@ class AudioProcessingService
 			$wav_path = $this->convert_audio($ffmpeg, $source_path, 'wav', $args, $attachment_id);
 			if (! $wav_path || ! file_exists($wav_path)) {
 				$this->dal->set_audio_state($attachment_id, 'error_wav_failed');
-				StarmusLogger::warning('AudioProcessingService', 'WAV conversion failed (continuing)', compact('attachment_id', 'wav_path'));
+				StarmusLogger::warning('StarmusAudioProcessingService', 'WAV conversion failed (continuing)', compact('attachment_id', 'wav_path'));
 			}
 
 			// Persist file metadata on the attachment and via DAL helpers.
@@ -83,17 +83,17 @@ class AudioProcessingService
 				// Correct DAL method name (plural): persist_audio_outputs
 				if (method_exists($this->dal, 'persist_audio_outputs')) {
 					$this->dal->persist_audio_outputs($attachment_id, $mp3_path, $wav_path);
-					StarmusLogger::info('AudioProcessingService', 'Persisted audio outputs via DAL', compact('attachment_id', 'mp3_path', 'wav_path'));
+					StarmusLogger::info('StarmusAudioProcessingService', 'Persisted audio outputs via DAL', compact('attachment_id', 'mp3_path', 'wav_path'));
 				} else {
 					// Fallback: attempt to use save_post_meta on attachment id directly
-					StarmusLogger::warning('AudioProcessingService', 'DAL missing persist_audio_outputs method; falling back to direct meta updates', compact('attachment_id'));
+					StarmusLogger::warning('StarmusAudioProcessingService', 'DAL missing persist_audio_outputs method; falling back to direct meta updates', compact('attachment_id'));
 					update_post_meta($attachment_id, '_audio_mp3_path', $mp3_path);
 					update_post_meta($attachment_id, '_audio_wav_path', $wav_path);
 					update_post_meta($attachment_id, '_starmus_archival_path', $wav_path);
 				}
 			} catch (\Throwable $e) {
 				StarmusLogger::error(
-					'AudioProcessingService',
+					'StarmusAudioProcessingService',
 					$e,
 					array(
 						'phase'         => 'persist_outputs',
@@ -113,7 +113,7 @@ class AudioProcessingService
 					if (method_exists($this->dal, 'save_audio_outputs')) {
 						$this->dal->save_audio_outputs($recording_id, null, $mp3_path ?: null, $wav_path ?: null);
 						StarmusLogger::info(
-							'AudioProcessingService',
+							'StarmusAudioProcessingService',
 							'Saved audio outputs to recording post via DAL',
 							array(
 								'recording_id'  => $recording_id,
@@ -122,7 +122,7 @@ class AudioProcessingService
 						);
 					} else {
 						// Direct fallback to ACF/post_meta fields on the recording post
-						StarmusLogger::warning('AudioProcessingService', 'DAL missing save_audio_outputs; falling back to update_field/update_post_meta', array('recording_id' => $recording_id));
+						StarmusLogger::warning('StarmusAudioProcessingService', 'DAL missing save_audio_outputs; falling back to update_field/update_post_meta', array('recording_id' => $recording_id));
 						if (function_exists('update_field')) {
 							@update_field('mastered_mp3', $mp3_path ?: '', $recording_id);
 							@update_field('archival_wav', $wav_path ?: '', $recording_id);
@@ -132,11 +132,11 @@ class AudioProcessingService
 						}
 					}
 				} else {
-					StarmusLogger::warning('AudioProcessingService', 'No parent recording found for attachment; cannot save outputs to recording post', compact('attachment_id'));
+					StarmusLogger::warning('StarmusAudioProcessingService', 'No parent recording found for attachment; cannot save outputs to recording post', compact('attachment_id'));
 				}
 			} catch (\Throwable $e) {
 				StarmusLogger::error(
-					'AudioProcessingService',
+					'StarmusAudioProcessingService',
 					$e,
 					array(
 						'phase'         => 'persist_to_recording',
@@ -158,7 +158,7 @@ class AudioProcessingService
 			$result['ok'] = true;
 
 			StarmusLogger::info(
-				'AudioProcessingService',
+				'StarmusAudioProcessingService',
 				'Processing completed',
 				array(
 					'attachment_id' => $attachment_id,
@@ -170,7 +170,7 @@ class AudioProcessingService
 		} catch (\Throwable $e) {
 			$this->dal->set_audio_state($attachment_id, 'error_unknown');
 			StarmusLogger::error(
-				'AudioProcessingService',
+				'StarmusAudioProcessingService',
 				'Unhandled exception',
 				array(
 					'attachment_id' => $attachment_id,
@@ -179,7 +179,7 @@ class AudioProcessingService
 			);
 			return $result;
 		} finally {
-			StarmusLogger::timeEnd('audio_process', 'AudioProcessingService');
+			StarmusLogger::timeEnd('audio_process', 'StarmusAudioProcessingService');
 		}
 	}
 
@@ -222,7 +222,7 @@ class AudioProcessingService
 		exec($cmd, $out, $code);
 		if ($code !== 0 || ! file_exists($output_path)) {
 			StarmusLogger::error(
-				'AudioProcessingService',
+				'StarmusAudioProcessingService',
 				'ffmpeg conversion failed',
 				array(
 					'format'        => $format,
@@ -241,7 +241,7 @@ class AudioProcessingService
 	{
 		$post = get_post($attachment_id);
 		if (! $post) {
-			StarmusLogger::warning('AudioProcessingService', 'Attachment not found for ID3', compact('attachment_id'));
+			StarmusLogger::warning('StarmusAudioProcessingService', 'Attachment not found for ID3', compact('attachment_id'));
 			return false;
 		}
 
@@ -269,7 +269,7 @@ class AudioProcessingService
 		$ok = $writer->WriteTags();
 		if (! $ok) {
 			StarmusLogger::error(
-				'AudioProcessingService',
+				'StarmusAudioProcessingService',
 				'ID3 tag write failed',
 				array(
 					'attachment_id' => $attachment_id,

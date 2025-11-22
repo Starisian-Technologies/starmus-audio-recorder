@@ -1,7 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\services;
+
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
@@ -27,17 +29,18 @@ use Throwable;
 
 
 /**
- * PostProcessingService
+ * StarmusPostProcessingService
  *
  * Responsibilities:
  *  - Resolve ffmpeg path (via DAL → filters)
  *  - Transcode original → WAV (archival), MP3 (distribution)
- *  - Apply ID3 via AudioProcessingService
- *  - Generate waveform via WaveformService
+ *  - Apply ID3 via StarmusAudioProcessingService
+ *  - Generate waveform via StarmusWaveformService
  *  - Persist paths & state via DAL
- *  - Optional cloud offload via FileService
+ *  - Optional cloud offload via StarmusFileService
  */
-class PostProcessingService {
+class StarmusPostProcessingService
+{
 
 	/** Status/state codes written for observability */
 	public const STATE_IDLE           = 'idle';
@@ -68,32 +71,34 @@ class PostProcessingService {
 	private const FILTER_FFMPEG_PATH     = 'starmus_ffmpeg_path';
 	private const FILTER_PROCESS_OPTIONS = 'starmus_postprocess_options';
 
-	private AudioProcessingService $id3;
-	private FileService $files;
-	private WaveformService $waveform;
+	private StarmusAudioProcessingService $id3;
+	private StarmusFileService $files;
+	private StarmusWaveformService $waveform;
 	private StarmusAudioRecorderDAL $dal;
 
 	/** DI-friendly constructor (falls back to internal instantiation if omitted) */
 	public function __construct(
-		?AudioProcessingService $audio_processing_service = null,
-		?FileService $file_service = null,
-		?WaveformService $waveform_service = null,
+		?StarmusAudioProcessingService $audio_processing_service = null,
+		?StarmusFileService $file_service = null,
+		?StarmusWaveformService $waveform_service = null,
 		?StarmusAudioRecorderDAL $dal = null
 	) {
-		$this->id3      = $audio_processing_service ?: new AudioProcessingService();
-		$this->files    = $file_service ?: new FileService();
-		$this->waveform = $waveform_service ?: new WaveformService();
+		$this->id3      = $audio_processing_service ?: new StarmusAudioProcessingService();
+		$this->files    = $file_service ?: new StarmusFileService();
+		$this->waveform = $waveform_service ?: new StarmusWaveformService();
 		$this->dal      = $dal ?: new StarmusAudioRecorderDAL();
 	}
 
 	/** Back-compat alias */
-	public function process_and_archive_audio( int $audio_post_id, int $attachment_id, array $options = array() ): bool {
-		return $this->process( $audio_post_id, $attachment_id, $options );
+	public function process_and_archive_audio(int $audio_post_id, int $attachment_id, array $options = array()): bool
+	{
+		return $this->process($audio_post_id, $attachment_id, $options);
 	}
 
 	/** Back-compat alias (kept to avoid touching older callers) */
-	public function star_process_and_archive_audio( int $audio_post_id, int $attachment_id, array $options = array() ): bool {
-		return $this->process( $audio_post_id, $attachment_id, $options );
+	public function star_process_and_archive_audio(int $audio_post_id, int $attachment_id, array $options = array()): bool
+	{
+		return $this->process($audio_post_id, $attachment_id, $options);
 	}
 
 
@@ -128,14 +133,14 @@ class PostProcessingService {
 				'3g'            => 'highpass=f=80,lowpass=f=7000',
 				default         => 'highpass=f=60',
 			};
-            
+
 			// --- 2. EBU R128 Loudness Normalization (Two-Pass) ---
 			$cmd_loudness_scan = sprintf(
 				'ffmpeg -hide_banner -nostats -i %s -af "loudnorm=I=-23:LRA=7:tp=-2:print_format=json" -f null - 2>&1',
 				escapeshellarg($attachment_path)
 			);
 			$loudness_stats_raw = shell_exec($cmd_loudness_scan);
-            
+
 			$json_start = strpos($loudness_stats_raw, '{');
 			$json_end = strrpos($loudness_stats_raw, '}');
 			$stats_json = ($json_start !== false && $json_end !== false) ? substr($loudness_stats_raw, $json_start, $json_end - $json_start + 1) : '{}';
@@ -143,8 +148,10 @@ class PostProcessingService {
 
 			$normalization_filter = sprintf(
 				'loudnorm=I=-23:LRA=7:tp=-2:measured_I=%s:measured_LRA=%s:measured_tp=%s:measured_thresh=%s:offset=%s',
-				$loudness_params['input_i'] ?? -23, $loudness_params['input_lra'] ?? 7,
-				$loudness_params['input_tp'] ?? -2, $loudness_params['input_thresh'] ?? -70,
+				$loudness_params['input_i'] ?? -23,
+				$loudness_params['input_lra'] ?? 7,
+				$loudness_params['input_tp'] ?? -2,
+				$loudness_params['input_thresh'] ?? -70,
 				$loudness_params['target_offset'] ?? 0
 			);
 			$full_filter_chain = $ffmpeg_filters . ',' . $normalization_filter;
@@ -161,13 +168,20 @@ class PostProcessingService {
 
 			$cmd_mp3 = sprintf(
 				'ffmpeg -hide_banner -y -i %s -ar %d -b:a %s -ac 1 -af "%s" %s %s 2>&1',
-				escapeshellarg($attachment_path), $sample_rate, escapeshellarg($bitrate),
-				$full_filter_chain, $metadata_tags, escapeshellarg($output_mp3)
+				escapeshellarg($attachment_path),
+				$sample_rate,
+				escapeshellarg($bitrate),
+				$full_filter_chain,
+				$metadata_tags,
+				escapeshellarg($output_mp3)
 			);
 			$cmd_wav = sprintf(
 				'ffmpeg -hide_banner -y -i %s -ar %d -ac 1 -sample_fmt s16 -af "%s" %s %s 2>&1',
-				escapeshellarg($attachment_path), $sample_rate,
-				$full_filter_chain, $metadata_tags, escapeshellarg($output_wav)
+				escapeshellarg($attachment_path),
+				$sample_rate,
+				$full_filter_chain,
+				$metadata_tags,
+				escapeshellarg($output_wav)
 			);
 
 			$log = [];
@@ -184,13 +198,15 @@ class PostProcessingService {
 			do_action('starmus_generate_waveform', $post_id, $output_wav);
 			$this->update_acf_field('processing_log', implode("\n---\n", $log), $post_id);
 
-			StarmusLogger::info('PostProcessingService', 'Adaptive encoding and normalization completed', [
-				'post_id' => $post_id, 'bitrate' => $bitrate, 'samplerate' => $sample_rate,
+			StarmusLogger::info('StarmusPostProcessingService', 'Adaptive encoding and normalization completed', [
+				'post_id' => $post_id,
+				'bitrate' => $bitrate,
+				'samplerate' => $sample_rate,
 			]);
 
 			return true;
 		} catch (Throwable $e) {
-			StarmusLogger::error('PostProcessingService', $e, ['post_id' => $post_id, 'params' => $params]);
+			StarmusLogger::error('StarmusPostProcessingService', $e, ['post_id' => $post_id, 'params' => $params]);
 			$this->update_acf_field('processing_log', "ERROR: " . $e->getMessage() . "\n" . $e->getTraceAsString(), $post_id);
 			return false;
 		}
@@ -208,7 +224,7 @@ class PostProcessingService {
 	private function import_attachment(string $path, int $post_id): int
 	{
 		if (!file_exists($path) || filesize($path) === 0) return 0;
-        
+
 		$filetype = wp_check_filetype(basename($path), null);
 		$attachment = [
 			'post_mime_type' => $filetype['type'] ?? 'application/octet-stream',
@@ -219,13 +235,13 @@ class PostProcessingService {
 
 		$attach_id = wp_insert_attachment($attachment, $path, $post_id);
 		if (is_wp_error($attach_id)) {
-			StarmusLogger::error('PostProcessingService', 'Failed to insert attachment', ['path' => $path, 'error' => $attach_id->get_error_message()]);
+			StarmusLogger::error('StarmusPostProcessingService', 'Failed to insert attachment', ['path' => $path, 'error' => $attach_id->get_error_message()]);
 			return 0;
 		}
-        
+
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 		wp_update_attachment_metadata($attach_id, wp_generate_attachment_metadata($attach_id, $path));
-        
+
 		return $attach_id;
 	}
 }

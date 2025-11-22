@@ -12,7 +12,7 @@
 namespace Starisian\Sparxstar\Starmus\cli;
 
 use WP_Query;
-use Starisian\Sparxstar\Starmus\services\WaveformService;
+use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
 
 // WP_CLI guard removed: always define the class, only register commands when WP_CLI is present.
@@ -26,11 +26,11 @@ class StarmusCLI extends \WP_CLI_Command
 
 
 
-	private ?WaveformService $waveform_service = null;
+	private ?StarmusWaveformService $waveform_service = null;
 
 	public function __construct()
 	{
-		$this->waveform_service = new WaveformService();
+		$this->waveform_service = new StarmusWaveformService();
 	}
 
 	/**

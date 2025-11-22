@@ -1321,215 +1321,215 @@ Search.appendIndex(
             "summary": "A\u0020dedicated\u0020handler\u0020for\u0020processing\u0020the\u0020submission\u0020data.",
             "url": "classes/Starisian-Sparxstar-Starmus-includes-StarmusTusdHookHandler.html#property_submission_handler"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\AudioProcessingService",
-            "name": "AudioProcessingService",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusAudioProcessingService",
+            "name": "StarmusAudioProcessingService",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-AudioProcessingService.html"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusAudioProcessingService.html"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\AudioProcessingService\u003A\u003A__construct\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusAudioProcessingService\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-AudioProcessingService.html#method___construct"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusAudioProcessingService.html#method___construct"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\AudioProcessingService\u003A\u003Aprocess_attachment\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusAudioProcessingService\u003A\u003Aprocess_attachment\u0028\u0029",
             "name": "process_attachment",
             "summary": "Main\u0020entry\u0020\u2014\u0020returns\u0020a\u0020structured\u0020result\u0020for\u0020higher\u002Dlevel\u0020orchestration.",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-AudioProcessingService.html#method_process_attachment"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusAudioProcessingService.html#method_process_attachment"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\AudioProcessingService\u003A\u003Aconvert_audio\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusAudioProcessingService\u003A\u003Aconvert_audio\u0028\u0029",
             "name": "convert_audio",
             "summary": "Convert\u0020audio\u0020to\u0020given\u0020format\u0020\u0028mp3\u007Cwav\u0029.",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-AudioProcessingService.html#method_convert_audio"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusAudioProcessingService.html#method_convert_audio"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\AudioProcessingService\u003A\u003Awrite_id3_tags\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusAudioProcessingService\u003A\u003Awrite_id3_tags\u0028\u0029",
             "name": "write_id3_tags",
             "summary": "Write\u0020ID3\u0020tags\u0020via\u0020getID3\u003B\u0020persist\u0020results\u0020via\u0020DAL.",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-AudioProcessingService.html#method_write_id3_tags"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusAudioProcessingService.html#method_write_id3_tags"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\AudioProcessingService\u003A\u003A\u0024dal",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusAudioProcessingService\u003A\u003A\u0024dal",
             "name": "dal",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-AudioProcessingService.html#property_dal"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusAudioProcessingService.html#property_dal"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\AudioProcessingService\u003A\u003A\u0024files",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusAudioProcessingService\u003A\u003A\u0024files",
             "name": "files",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-AudioProcessingService.html#property_files"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusAudioProcessingService.html#property_files"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\FileService",
-            "name": "FileService",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusFileService",
+            "name": "StarmusFileService",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-FileService.html"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusFileService.html"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\FileService\u003A\u003A__construct\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusFileService\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-FileService.html#method___construct"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusFileService.html#method___construct"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\FileService\u003A\u003Aget_local_copy\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusFileService\u003A\u003Aget_local_copy\u0028\u0029",
             "name": "get_local_copy",
             "summary": "Guarantees\u0020a\u0020local\u0020copy\u0020of\u0020an\u0020attachment\u0027s\u0020file\u0020is\u0020available\u0020for\u0020processing.",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-FileService.html#method_get_local_copy"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusFileService.html#method_get_local_copy"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\FileService\u003A\u003Aupload_and_replace_attachment\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusFileService\u003A\u003Aupload_and_replace_attachment\u0028\u0029",
             "name": "upload_and_replace_attachment",
             "summary": "Uploads\u0020or\u0020re\u002Dattaches\u0020a\u0020local\u0020file\u0020via\u0020offloader\u0020or\u0020DAL\u0020fallback.",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-FileService.html#method_upload_and_replace_attachment"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusFileService.html#method_upload_and_replace_attachment"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\FileService\u003A\u003A\u0024dal",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusFileService\u003A\u003A\u0024dal",
             "name": "dal",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-FileService.html#property_dal"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusFileService.html#property_dal"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService",
-            "name": "PostProcessingService",
-            "summary": "PostProcessingService",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html"
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService",
+            "name": "StarmusPostProcessingService",
+            "summary": "StarmusPostProcessingService",
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003A__construct\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
             "summary": "DI\u002Dfriendly\u0020constructor\u0020\u0028falls\u0020back\u0020to\u0020internal\u0020instantiation\u0020if\u0020omitted\u0029",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method___construct"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#method___construct"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003Aprocess_and_archive_audio\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003Aprocess_and_archive_audio\u0028\u0029",
             "name": "process_and_archive_audio",
             "summary": "Back\u002Dcompat\u0020alias",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_process_and_archive_audio"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#method_process_and_archive_audio"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003Astar_process_and_archive_audio\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003Astar_process_and_archive_audio\u0028\u0029",
             "name": "star_process_and_archive_audio",
             "summary": "Back\u002Dcompat\u0020alias\u0020\u0028kept\u0020to\u0020avoid\u0020touching\u0020older\u0020callers\u0029",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_star_process_and_archive_audio"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#method_star_process_and_archive_audio"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003Aprocess\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003Aprocess\u0028\u0029",
             "name": "process",
             "summary": "Process\u0020an\u0020audio\u0020recording\u0020using\u0020adaptive\u0020settings.",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_process"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#method_process"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003Aupdate_acf_field\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003Aupdate_acf_field\u0028\u0029",
             "name": "update_acf_field",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_update_acf_field"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#method_update_acf_field"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003Aimport_attachment\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003Aimport_attachment\u0028\u0029",
             "name": "import_attachment",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#method_import_attachment"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#method_import_attachment"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_IDLE",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_IDLE",
             "name": "STATE_IDLE",
             "summary": "Status\/state\u0020codes\u0020written\u0020for\u0020observability",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_IDLE"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_IDLE"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_PROCESSING",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_PROCESSING",
             "name": "STATE_PROCESSING",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_PROCESSING"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_PROCESSING"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_CONVERTING_WAV",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_CONVERTING_WAV",
             "name": "STATE_CONVERTING_WAV",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_CONVERTING_WAV"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_CONVERTING_WAV"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_CONVERTING_MP3",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_CONVERTING_MP3",
             "name": "STATE_CONVERTING_MP3",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_CONVERTING_MP3"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_CONVERTING_MP3"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_ID3_WRITING",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_ID3_WRITING",
             "name": "STATE_ID3_WRITING",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_ID3_WRITING"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_ID3_WRITING"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_WAVEFORM",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_WAVEFORM",
             "name": "STATE_WAVEFORM",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_WAVEFORM"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_WAVEFORM"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_COMPLETED",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_COMPLETED",
             "name": "STATE_COMPLETED",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_COMPLETED"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_COMPLETED"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_ERR_FFMPEG_MISSING",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_ERR_FFMPEG_MISSING",
             "name": "STATE_ERR_FFMPEG_MISSING",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_ERR_FFMPEG_MISSING"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_ERR_FFMPEG_MISSING"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_ERR_SOURCE_MISSING",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_ERR_SOURCE_MISSING",
             "name": "STATE_ERR_SOURCE_MISSING",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_ERR_SOURCE_MISSING"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_ERR_SOURCE_MISSING"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_ERR_BACKUP_FAILED",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_ERR_BACKUP_FAILED",
             "name": "STATE_ERR_BACKUP_FAILED",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_ERR_BACKUP_FAILED"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_ERR_BACKUP_FAILED"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_ERR_WAV_FAILED",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_ERR_WAV_FAILED",
             "name": "STATE_ERR_WAV_FAILED",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_ERR_WAV_FAILED"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_ERR_WAV_FAILED"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_ERR_MP3_FAILED",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_ERR_MP3_FAILED",
             "name": "STATE_ERR_MP3_FAILED",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_ERR_MP3_FAILED"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_ERR_MP3_FAILED"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_ERR_ID3_FAILED",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_ERR_ID3_FAILED",
             "name": "STATE_ERR_ID3_FAILED",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_ERR_ID3_FAILED"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_ERR_ID3_FAILED"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003ASTATE_ERR_UNKNOWN",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003ASTATE_ERR_UNKNOWN",
             "name": "STATE_ERR_UNKNOWN",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_STATE_ERR_UNKNOWN"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_STATE_ERR_UNKNOWN"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003AMETA_ORIGINAL_SOURCE",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003AMETA_ORIGINAL_SOURCE",
             "name": "META_ORIGINAL_SOURCE",
             "summary": "Meta\u0020keys\u0020\u0028attachment\u0029\u0020kept\u0020for\u0020limited\u0020internal\u0020use",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_META_ORIGINAL_SOURCE"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_META_ORIGINAL_SOURCE"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003AACF_ARCHIVAL_WAV",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003AACF_ARCHIVAL_WAV",
             "name": "ACF_ARCHIVAL_WAV",
             "summary": "ACF\u0020keys\u0020\u0028used\u0020only\u0020if\u0020ACF\u0020is\u0020present,\u0020via\u0020DAL\u0020method\u0029",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_ACF_ARCHIVAL_WAV"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_ACF_ARCHIVAL_WAV"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003AACF_MASTERED_MP3",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003AACF_MASTERED_MP3",
             "name": "ACF_MASTERED_MP3",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_ACF_MASTERED_MP3"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_ACF_MASTERED_MP3"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003AFILTER_FFMPEG_PATH",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003AFILTER_FFMPEG_PATH",
             "name": "FILTER_FFMPEG_PATH",
             "summary": "Filters",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_FILTER_FFMPEG_PATH"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_FILTER_FFMPEG_PATH"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003AFILTER_PROCESS_OPTIONS",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003AFILTER_PROCESS_OPTIONS",
             "name": "FILTER_PROCESS_OPTIONS",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#constant_FILTER_PROCESS_OPTIONS"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#constant_FILTER_PROCESS_OPTIONS"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003A\u0024id3",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003A\u0024id3",
             "name": "id3",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#property_id3"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#property_id3"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003A\u0024files",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003A\u0024files",
             "name": "files",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#property_files"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#property_files"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003A\u0024waveform",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003A\u0024waveform",
             "name": "waveform",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#property_waveform"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#property_waveform"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\PostProcessingService\u003A\u003A\u0024dal",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\u003A\u003A\u0024dal",
             "name": "dal",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-PostProcessingService.html#property_dal"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusPostProcessingService.html#property_dal"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusAudioProcessingHandler",
             "name": "StarmusAudioProcessingHandler",
@@ -1576,50 +1576,50 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusAudioProcessingHandler.html#property_dal"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService",
-            "name": "WaveformService",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusWaveformService",
+            "name": "StarmusWaveformService",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusWaveformService.html"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003A__construct\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusWaveformService\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method___construct"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusWaveformService.html#method___construct"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003Aget_config\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusWaveformService\u003A\u003Aget_config\u0028\u0029",
             "name": "get_config",
             "summary": "Configurable\u0020audiowaveform\u0020parameters",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_get_config"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusWaveformService.html#method_get_config"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003Ais_tool_available\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusWaveformService\u003A\u003Ais_tool_available\u0028\u0029",
             "name": "is_tool_available",
             "summary": "Check\u0020whether\u0020audiowaveform\u0020is\u0020installed",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_is_tool_available"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusWaveformService.html#method_is_tool_available"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003Agenerate_waveform_data\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusWaveformService\u003A\u003Agenerate_waveform_data\u0028\u0029",
             "name": "generate_waveform_data",
             "summary": "MAIN\u0020ENTRYPOINT\nGenerates\u0020waveform\u0020JSON\u0020and\u0020stores\u0020it\u0020on\u0020the\u0020parent\u0020recording.",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_generate_waveform_data"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusWaveformService.html#method_generate_waveform_data"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003Adelete_waveform_data\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusWaveformService\u003A\u003Adelete_waveform_data\u0028\u0029",
             "name": "delete_waveform_data",
             "summary": "Deletes\u0020stored\u0020waveform\u0020JSON\u0020from\u0020ACF\/DAL.",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_delete_waveform_data"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusWaveformService.html#method_delete_waveform_data"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003Aextract_waveform_from_file\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusWaveformService\u003A\u003Aextract_waveform_from_file\u0028\u0029",
             "name": "extract_waveform_from_file",
             "summary": "Extract\u0020waveform\u0020JSON\u0020using\u0020audiowaveform\u0020CLI.",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#method_extract_waveform_from_file"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusWaveformService.html#method_extract_waveform_from_file"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003A\u0024dal",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusWaveformService\u003A\u003A\u0024dal",
             "name": "dal",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#property_dal"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusWaveformService.html#property_dal"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\WaveformService\u003A\u003A\u0024files",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\services\\StarmusWaveformService\u003A\u003A\u0024files",
             "name": "files",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-services-WaveformService.html#property_files"
+            "url": "classes/Starisian-Sparxstar-Starmus-services-StarmusWaveformService.html#property_files"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\StarmusAudioRecorder",
             "name": "StarmusAudioRecorder",

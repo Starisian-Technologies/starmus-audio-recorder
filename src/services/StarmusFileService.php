@@ -4,7 +4,7 @@
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * FileService (DAL-integrated)
+ * StarmusFileService (DAL-integrated)
  * ----------------------------
  * - Guarantees local access for offloaded files.
  * - Routes all persistence and attachment updates through DAL.
@@ -22,7 +22,7 @@ if (! defined('ABSPATH')) {
 
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 
-final class FileService
+final class StarmusFileService
 {
 
 	private StarmusAudioRecorderDAL $dal;

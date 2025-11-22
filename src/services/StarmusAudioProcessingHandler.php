@@ -19,17 +19,17 @@ if (! defined('ABSPATH')) {
 final class StarmusAudioProcessingHandler
 {
 
-	private AudioProcessingService $audio_processing_service;
-	private FileService $file_service;
-	private WaveformService $waveform_service;
+	private StarmusAudioProcessingService $audio_processing_service;
+	private StarmusFileService $file_service;
+	private StarmusWaveformService $waveform_service;
 	private StarmusAudioRecorderDAL $dal;
 
 	public function __construct()
 	{
 		$this->dal                      = new StarmusAudioRecorderDAL();
-		$this->audio_processing_service = new AudioProcessingService($this->dal);
-		$this->file_service             = new FileService($this->dal);
-		$this->waveform_service         = new WaveformService();
+		$this->audio_processing_service = new StarmusAudioProcessingService($this->dal);
+		$this->file_service             = new StarmusFileService($this->dal);
+		$this->waveform_service         = new StarmusWaveformService();
 	}
 
 	public function star_is_tool_available(): bool
@@ -52,7 +52,7 @@ final class StarmusAudioProcessingHandler
 		StarmusLogger::timeStart('audio_postprocess');
 
 		if (! $this->star_is_tool_available()) {
-			StarmusLogger::error('PostProcessingService', 'FFmpeg not available');
+			StarmusLogger::error('StarmusPostProcessingService', 'FFmpeg not available');
 			return false;
 		}
 
@@ -65,7 +65,7 @@ final class StarmusAudioProcessingHandler
 
 		$original_path = $this->file_service->get_local_copy($attachment_id);
 		if (! $original_path || ! file_exists($original_path)) {
-			StarmusLogger::error('PostProcessingService', 'Missing local source', array('attachment_id' => $attachment_id));
+			StarmusLogger::error('StarmusPostProcessingService', 'Missing local source', array('attachment_id' => $attachment_id));
 			return false;
 		}
 
@@ -81,7 +81,7 @@ final class StarmusAudioProcessingHandler
 		}
 
 		if (! $wp_filesystem->move($original_path, $backup_path, true)) {
-			StarmusLogger::error('PostProcessingService', 'Backup creation failed');
+			StarmusLogger::error('StarmusPostProcessingService', 'Backup creation failed');
 			return false;
 		}
 
@@ -106,7 +106,7 @@ final class StarmusAudioProcessingHandler
 		exec($cmd_wav . ' 2>&1', $out_wav, $ret_wav);
 		if ($ret_wav !== 0 || ! file_exists($archival_path)) {
 			$wp_filesystem->move($backup_path, $original_path, true);
-			StarmusLogger::error('PostProcessingService', 'WAV generation failed', array('cmd' => $cmd_wav));
+			StarmusLogger::error('StarmusPostProcessingService', 'WAV generation failed', array('cmd' => $cmd_wav));
 			return false;
 		}
 
@@ -132,7 +132,7 @@ final class StarmusAudioProcessingHandler
 			if (file_exists($archival_path)) {
 				wp_delete_file($archival_path);
 			}
-			StarmusLogger::error('PostProcessingService', 'MP3 generation failed', array('cmd' => $cmd_mp3));
+			StarmusLogger::error('StarmusPostProcessingService', 'MP3 generation failed', array('cmd' => $cmd_mp3));
 			return false;
 		}
 
@@ -168,7 +168,7 @@ final class StarmusAudioProcessingHandler
 			}
 		} catch (\Throwable $e) {
 			StarmusLogger::error(
-				'PostProcessingService',
+				'StarmusPostProcessingService',
 				$e,
 				array(
 					'phase'         => 'persist_outputs',
@@ -209,9 +209,9 @@ final class StarmusAudioProcessingHandler
 			)
 		);
 
-		StarmusLogger::timeEnd('audio_postprocess', 'PostProcessingService');
+		StarmusLogger::timeEnd('audio_postprocess', 'StarmusPostProcessingService');
 		StarmusLogger::info(
-			'PostProcessingService',
+			'StarmusPostProcessingService',
 			'Post-processing complete',
 			array(
 				'attachment_id' => $attachment_id,
