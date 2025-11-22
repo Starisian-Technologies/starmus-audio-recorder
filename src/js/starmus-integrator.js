@@ -357,15 +357,24 @@ function initWithFallback() {
     onEnvironmentReady({ detail: fallbackEnv });
 }
 
-// Listen once
+// Listen for environment ready event (can fire multiple times safely)
 let environmentReady = false;
+let fallbackTimer = null;
+
 document.addEventListener('sparxstar:environment-ready', (event) => {
     environmentReady = true;
+    
+    // Cancel fallback if real event arrives (even if late)
+    if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+        fallbackTimer = null;
+    }
+    
     onEnvironmentReady(event);
-}, { once: true });
+});
 
 // Fallback safety net (2s)
-setTimeout(() => {
+fallbackTimer = setTimeout(() => {
     if (!environmentReady) {
         console.warn('[Starmus] Using fallback initialization');
         initWithFallback();
