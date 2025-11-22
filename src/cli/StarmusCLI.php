@@ -166,12 +166,16 @@ class StarmusCLI extends \WP_CLI_Command
 		if ('json' === $format) {
 			WP_CLI::line(json_encode($items, JSON_PRETTY_PRINT));
 		} else {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- CLI context requires direct stdout access
 			$output = fopen('php://stdout', 'w');
-			fputcsv($output, $headers);
-			foreach ($items as $item) {
-				fputcsv($output, $item);
+			if ($output) {
+				fputcsv($output, $headers);
+				foreach ($items as $item) {
+					fputcsv($output, $item);
+				}
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- CLI context requires direct stdout access
+				fclose($output);
 			}
-			fclose($output);
 		}
 	}
 

@@ -234,8 +234,12 @@ class StarmusAudioEditorUI
 			$post_id = absint($_GET['post_id'] ?? 0);
 
 			// Accept both custom 'nonce' and WordPress-native '_wpnonce' parameters
-			$raw_nonce = $_GET['nonce'] ?? ($_GET['_wpnonce'] ?? '');
-			$nonce     = is_string($raw_nonce) ? sanitize_text_field(wp_unslash($raw_nonce)) : '';
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotUnslashed
+			$get_nonce = isset($_GET['nonce']) ? wp_unslash($_GET['nonce']) : '';
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotUnslashed
+			$get_wpnonce = isset($_GET['_wpnonce']) ? wp_unslash($_GET['_wpnonce']) : '';
+			$raw_nonce = $get_nonce ?: $get_wpnonce;
+			$nonce     = is_string($raw_nonce) ? sanitize_text_field($raw_nonce) : '';
 
 			// Only require nonce validation when accessing via link with post_id
 			if ($post_id > 0) {

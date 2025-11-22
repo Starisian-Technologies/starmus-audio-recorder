@@ -265,7 +265,7 @@ class StarmusLogger
         $deleted = 0;
         foreach (glob($log_dir . '/starmus-*.log') as $file) {
             if (filemtime($file) < strtotime("-{$days} days")) {
-                @unlink($file);
+                wp_delete_file($file);
                 $deleted++;
             }
         }
