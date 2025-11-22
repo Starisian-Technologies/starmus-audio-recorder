@@ -231,13 +231,27 @@ class StarmusAudioEditorUI
 			if ($this->cached_context !== null) {
 				return $this->cached_context;
 			}
-			$nonce = sanitize_key($_GET['nonce'] ?? '');
-			if (empty($nonce) || ! wp_verify_nonce($nonce, 'starmus_edit_audio')) {
-				return new WP_Error('invalid_nonce', __('Security check failed.', 'starmus-audio-recorder'));
-			}
 			$post_id = absint($_GET['post_id'] ?? 0);
-			if (! $post_id || ! get_post($post_id)) {
+			// Only require nonce when accessing via link with post_id
+			if ($post_id > 0) {
+				$nonce = sanitize_key($_GET['nonce'] ?? '');
+				if (empty($nonce) || ! wp_verify_nonce($nonce, 'starmus_edit_audio')) {
+					return new WP_Error('invalid_nonce', __('Security check failed.', 'starmus-audio-recorder'));
+				}
+			}
+			if ($post_id && ! get_post($post_id)) {
 				return new WP_Error('invalid_id', __('Invalid submission ID.', 'starmus-audio-recorder'));
+			}
+			// If no post_id, return minimal context for editor demo/preview
+			if (! $post_id) {
+				$this->cached_context = array(
+					'post_id'          => 0,
+					'attachment_id'    => 0,
+					'audio_url'        => '',
+					'waveform_url'     => '',
+					'annotations_json' => '[]',
+				);
+				return $this->cached_context;
 			}
 			if (! current_user_can('edit_post', $post_id)) {
 				return new WP_Error('permission_denied', __('Permission denied.', 'starmus-audio-recorder'));
