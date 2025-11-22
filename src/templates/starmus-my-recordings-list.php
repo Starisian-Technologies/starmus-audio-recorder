@@ -67,15 +67,15 @@
 						<a href="<?php the_permalink(); ?>" class="starmus-btn starmus-btn--outline">
 							<?php esc_html_e( 'View Details', 'starmus-audio-recorder' ); ?>
 						</a>
-						<?php if ( ! empty( $edit_page_url ) && current_user_can( 'edit_post', $current_post_id ) ) : ?>
-							<?php
-							$edit_link        = add_query_arg( 'post_id', $current_post_id, $edit_page_url );
-							$secure_edit_link = wp_nonce_url( $edit_link, 'starmus_edit_audio', 'nonce' );
-							?>
-							<a href="<?php echo esc_url( $secure_edit_link ); ?>" class="starmus-btn starmus-btn--primary">
-								<?php esc_html_e( 'Edit Audio', 'starmus-audio-recorder' ); ?>
-							</a>
-						<?php endif; ?>
+					<?php if ( ! empty( $edit_page_url ) && current_user_can( 'edit_post', $current_post_id ) ) : ?>
+						<?php
+						$edit_link        = add_query_arg( 'post_id', $current_post_id, $edit_page_url );
+						$secure_edit_link = wp_nonce_url( $edit_link, 'starmus_edit_audio_' . $current_post_id, 'nonce' );
+						?>
+						<a href="<?php echo esc_url( $secure_edit_link ); ?>" class="starmus-btn starmus-btn--primary">
+							<?php esc_html_e( 'Edit Audio', 'starmus-audio-recorder' ); ?>
+						</a>
+					<?php endif; ?>
 					</div>
 				</div>
 

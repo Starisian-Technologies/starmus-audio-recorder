@@ -203,7 +203,7 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 		$edit_id  = (int) $settings->get('edit_page_id', 0);
 		if ($edit_id && current_user_can('edit_post', $post_id)) {
 			$edit_url = add_query_arg('post_id', $post_id, get_permalink($edit_id));
-			$edit_url = wp_nonce_url($edit_url, 'starmus_edit_audio', 'nonce');
+			$edit_url = wp_nonce_url($edit_url, 'starmus_edit_audio_' . $post_id, 'nonce');
 			echo '<a href="' . esc_url($edit_url) . '" class="starmus-btn starmus-btn--primary">Edit Audio Submission</a>';
 		}
 		?>
