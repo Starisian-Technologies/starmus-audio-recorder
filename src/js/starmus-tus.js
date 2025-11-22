@@ -153,7 +153,7 @@ export async function uploadDirect(blob, fileName, formFields, metadata, _instan
                 try {
                     const response = JSON.parse(xhr.responseText);
                     resolve(response);
-                } catch (_e) {
+                } catch {
                     reject(new Error('Invalid JSON response from server'));
                 }
             } else {
