@@ -99,9 +99,16 @@ final class StarmusAudioRecorder
 
 	/**
 	 * Private constructor for singleton pattern.
-	 * - Initializes settings first.
-	 * - Instantiates components.
-	 * - Registers hooks.
+	 *
+	 * Initializes the plugin in the following order:
+	 * 1. Configures logger (minimum level and file path)
+	 * 2. Sets up DAL (Data Access Layer) instance
+	 * 3. Initializes settings or throws exception
+	 * 4. Instantiates component dependencies
+	 * 5. Registers WordPress hooks
+	 *
+	 * @return void
+	 * @throws \RuntimeException If settings initialization fails.
 	 */
 	private function __construct()
 	{
@@ -122,7 +129,12 @@ final class StarmusAudioRecorder
 	}
 
 	/**
-	 * Get singleton instance.
+	 * Get singleton instance of the plugin.
+	 *
+	 * Creates and returns the single instance of this class.
+	 * Subsequent calls return the same instance.
+	 *
+	 * @return StarmusAudioRecorder The singleton instance.
 	 */
 	public static function starmus_get_instance(): StarmusAudioRecorder
 	{
@@ -134,6 +146,11 @@ final class StarmusAudioRecorder
 
 	/**
 	 * Entry point called from main plugin file.
+	 *
+	 * Bootstraps the plugin by ensuring singleton instance is created.
+	 * This is the method called by the 'plugins_loaded' action hook.
+	 *
+	 * @return void
 	 */
 	public static function starmus_run(): void
 	{
@@ -141,22 +158,13 @@ final class StarmusAudioRecorder
 	}
 
 	/**
-	 * Verify that either Advanced Custom Fields or Smart Custom Fields is active.
+	 * Check whether Secure Custom Fields (SCF) or Advanced Custom Fields (ACF) is active.
 	 *
 	 * The recorder relies on one of these field frameworks to manage submission metadata.
-	 * ACF exposes a global function and root-level class, while Smart Custom Fields uses
-	 * a namespaced bootstrap class. Checking the various identifiers keeps the runtime guard
-	 * resilient without loading extra files during activation.
-	 *
-	 * @return bool True when a supported field framework is available.
-	 */
-	/**
-	 * Check whether Secure Custom Fields (SCF) is installed and active.
-	 *
 	 * SCF exposes ACF-style global utility functions such as acf_get_instance().
-	 * That is the authoritative presence signal.
+	 * This is the authoritative presence signal.
 	 *
-	 * @return bool
+	 * @return bool True when a supported field framework is available, false otherwise.
 	 */
 	public static function check_field_plugin_dependency(): bool
 	{
@@ -166,7 +174,13 @@ final class StarmusAudioRecorder
 
 	/**
 	 * Ensure settings are instantiated before anything else.
-	 * Throws if settings class cannot be created (prevents silent null returns).
+	 *
+	 * Validates that StarmusSettings class exists via autoloader,
+	 * creates instance, and throws exception on failure to prevent
+	 * silent null returns that could cause downstream issues.
+	 *
+	 * @return void
+	 * @throws \RuntimeException If StarmusSettings fails to initialize.
 	 */
 	private function init_settings_or_throw(): void
 	{
@@ -184,14 +198,16 @@ final class StarmusAudioRecorder
 		throw new \RuntimeException('StarmusSettings failed to initialize.');
 	}
 	/**
-	 * Filter: starmus_register_dal
+	 * Initialize and set the Data Access Layer (DAL) with singleton pattern and filter support.
 	 *
-	 * @param StarmusAudioRecorderDALInterface $current_dal The current DAL instance (default).
-	 * @param string|null                      $override_key The expected handshake key (may be null).
-	 * @return StarmusAudioRecorderDALInterface Replacement DAL instance.
+	 * Applies 'starmus_register_dal' filter to allow DAL replacement.
+	 * Implements handshake mechanism using STARMUS_DAL_OVERRIDE_KEY for security.
+	 * Replacement DAL must implement StarmusAudioRecorderDALInterface and
+	 * return the same key from get_registration_key().
 	 *
-	 * Security: Replacement must implement StarmusAudioRecorderDALInterface and
-	 *           return the same key from get_registration_key() as STARMUS_DAL_OVERRIDE_KEY.
+	 * Uses static singleton to prevent duplicate instantiation across the request.
+	 *
+	 * @return void
 	 */
 	private function set_DAL(): void
 	{

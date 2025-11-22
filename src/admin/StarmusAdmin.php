@@ -26,22 +26,53 @@ class StarmusAdmin
 {
 
 
-	/** Menu slug for the plugin settings page. */
+	/**
+	 * Menu slug for the plugin settings page.
+	 *
+	 * @var string
+	 */
 	const STARMUS_MENU_SLUG = 'starmus-admin';
 
-	/** Settings group identifier for WordPress options API. */
+	/**
+	 * Settings group identifier for WordPress options API.
+	 *
+	 * @var string
+	 */
 	const STARMUS_SETTINGS_GROUP = 'starmus_settings_group';
 
 	// DELETED: const STARMUS_OPTION_KEY =   <-- This line should be gone.
 
-	/** Mapping of option keys to field types. */
+	/**
+	 * Mapping of option keys to field types for rendering.
+	 *
+	 * @var array<string, string>
+	 */
 	private array $field_types            = array();
+
+	/**
+	 * Settings service instance.
+	 *
+	 * @var StarmusSettings|null
+	 */
 	private ?StarmusSettings $settings    = null;
+
+	/**
+	 * Data Access Layer instance.
+	 *
+	 * @var StarmusAudioRecorderDALInterface|null
+	 */
 	private ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface $dal = null;
 
 	/**
-	 * Constructor - initializes admin settings.
+	 * Constructor - initializes admin settings and hooks.
 	 *
+	 * Sets up DAL and Settings dependencies, defines field type mappings,
+	 * and registers admin hooks for menu and settings registration.
+	 *
+	 * @param StarmusAudioRecorderDALInterface $DAL      Data Access Layer instance.
+	 * @param StarmusSettings                  $settings Settings service instance.
+	 * @return void
+	 * @throws \Throwable If initialization fails.
 	 * @since 0.3.1
 	 */
 	public function __construct(StarmusAudioRecorderDALInterface $DAL, StarmusSettings $settings)
@@ -105,7 +136,13 @@ class StarmusAdmin
 	}
 
 	/**
-	 * Validate CPT slug format.
+	 * Validate custom post type slug format.
+	 *
+	 * Ensures slug contains only lowercase letters, numbers, hyphens, and underscores,
+	 * and does not exceed 20 characters.
+	 *
+	 * @param string $slug The CPT slug to validate.
+	 * @return bool True if valid, false otherwise.
 	 */
 	private function is_valid_cpt_slug(string $slug): bool
 	{
@@ -113,8 +150,13 @@ class StarmusAdmin
 	}
 
 	/**
-	 * Render settings page with CSRF protection.
-	 * REVERTED: Back to standard settings page rendering.
+	 * Render admin settings page with CSRF protection.
+	 *
+	 * REVERTED: Back to standard settings page rendering using WordPress Settings API.
+	 * Checks user capabilities, displays settings form with nonce fields,
+	 * and handles error display.
+	 *
+	 * @return void
 	 */
 	public function render_settings_page(): void
 	{
@@ -146,8 +188,13 @@ class StarmusAdmin
 	}
 
 	/**
-	 * Register settings with validation.
+	 * Register plugin settings with WordPress Settings API.
+	 *
 	 * REVERTED: This method is now back to its original purpose.
+	 * Registers the main option, adds settings sections and fields.
+	 * Called on 'admin_init' hook.
+	 *
+	 * @return void
 	 */
 	public function register_settings(): void
 	{
@@ -169,9 +216,15 @@ class StarmusAdmin
 	}
 
 	/**
-	 * Sanitize settings with comprehensive validation.
+	 * Sanitize and validate settings on save.
+	 *
 	 * REVERTED: This is the callback for register_setting.
-	 * ADDED: The cache clear.
+	 * ADDED: Cache clearing after sanitization.
+	 * Validates all input fields, applies appropriate sanitization,
+	 * converts page slugs to IDs, and returns sanitized array.
+	 *
+	 * @param array<string, mixed> $input Raw input from settings form.
+	 * @return array<string, mixed> Sanitized settings array.
 	 */
 	public function sanitize_settings(array $input): array
 	{

@@ -20,19 +20,81 @@ if (!defined('ABSPATH')) {
  */
 class StarmusLogger
 {
-    // --- Existing log level constants ---
+    /**
+     * Debug log level - Detailed diagnostic information.
+     *
+     * @var int
+     */
     public const DEBUG = 100;
+
+    /**
+     * Info log level - Informational messages.
+     *
+     * @var int
+     */
     public const INFO = 200;
+
+    /**
+     * Notice log level - Normal but significant condition.
+     *
+     * @var int
+     */
     public const NOTICE = 250;
+
+    /**
+     * Warning log level - Warning conditions.
+     *
+     * @var int
+     */
     public const WARNING = 300;
+
+    /**
+     * Error log level - Error conditions.
+     *
+     * @var int
+     */
     public const ERROR = 400;
+
+    /**
+     * Critical log level - Critical conditions.
+     *
+     * @var int
+     */
     public const CRITICAL = 500;
+
+    /**
+     * Alert log level - Action must be taken immediately.
+     *
+     * @var int
+     */
     public const ALERT = 550;
+
+    /**
+     * Emergency log level - System is unusable.
+     *
+     * @var int
+     */
     public const EMERGENCY = 600;
 
+    /**
+     * Path to the log file.
+     *
+     * @var string|null
+     */
     protected static ?string $log_file_path = null;
+
+    /**
+     * Minimum log level to record.
+     *
+     * @var int
+     */
     protected static int $min_log_level = self::INFO;
 
+    /**
+     * Mapping of level names to integer values.
+     *
+     * @var array<string, int>
+     */
     protected static array $levels = [
         'debug'     => self::DEBUG,
         'info'      => self::INFO,
@@ -44,15 +106,39 @@ class StarmusLogger
         'emergency' => self::EMERGENCY,
     ];
 
-    // --- New features ---
+    /**
+     * Whether to output logs in JSON format.
+     *
+     * @var bool
+     */
     protected static bool $json_mode = false;
+
+    /**
+     * Correlation ID for tracking related log entries.
+     *
+     * @var string|null
+     */
     protected static ?string $correlation_id = null;
+
+    /**
+     * Execution timers for performance tracking.
+     *
+     * @var array<string, float>
+     */
     protected static array $timers = [];
 
     /*==============================================================
      * CONFIGURATION
      *=============================================================*/
 
+    /**
+     * Set the minimum log level to record.
+     *
+     * Only messages at or above this level will be logged.
+     *
+     * @param string $level_name Level name (debug, info, warning, error, etc.).
+     * @return void
+     */
     public static function setMinLogLevel(string $level_name): void
     {
         $level_name = strtolower($level_name);
@@ -61,26 +147,54 @@ class StarmusLogger
         }
     }
 
+    /**
+     * Get the current minimum log level.
+     *
+     * @return int The minimum log level integer value.
+     */
     public static function getMinLogLevel(): int
     {
         return self::$min_log_level;
     }
 
+    /**
+     * Set custom log file path.
+     *
+     * @param string $path Absolute path to log file.
+     * @return void
+     */
     public static function setLogFilePath(string $path): void
     {
         self::$log_file_path = $path;
     }
 
+    /**
+     * Enable or disable JSON output format.
+     *
+     * @param bool $enabled True to enable JSON mode, false for plain text.
+     * @return void
+     */
     public static function enableJsonMode(bool $enabled = true): void
     {
         self::$json_mode = $enabled;
     }
 
+    /**
+     * Set correlation ID for tracking related log entries.
+     *
+     * @param string|null $id Custom ID or null to auto-generate UUID.
+     * @return void
+     */
     public static function setCorrelationId(?string $id = null): void
     {
         self::$correlation_id = $id ?? wp_generate_uuid4();
     }
 
+    /**
+     * Get the current correlation ID.
+     *
+     * @return string|null Current correlation ID or null if not set.
+     */
     public static function getCorrelationId(): ?string
     {
         return self::$correlation_id;
@@ -90,6 +204,15 @@ class StarmusLogger
      * FILE HANDLING
      *=============================================================*/
 
+    /**
+     * Get or create the log file path.
+     *
+     * Creates log directory in WordPress uploads folder if it doesn't exist.
+     * Generates daily log files with format: starmus-YYYY-MM-DD.log
+     * Adds .htaccess and index.html for security.
+     *
+     * @return string|null Log file path or null on failure.
+     */
     protected static function getLogFilePath(): ?string
     {
         if (self::$log_file_path === null) {
@@ -117,11 +240,22 @@ class StarmusLogger
         return self::$log_file_path;
     }
 
+    /**
+     * Get the current log file path.
+     *
+     * @return string|null Current log file path.
+     */
     public static function getCurrentLogFile(): ?string
     {
         return self::getLogFilePath();
     }
 
+    /**
+     * Delete log files older than specified days.
+     *
+     * @param int $days Number of days to keep logs (default 30).
+     * @return int Number of files deleted.
+     */
     public static function clearOldLogs(int $days = 30): int
     {
         $upload_dir_info = wp_upload_dir();
@@ -142,11 +276,23 @@ class StarmusLogger
      * CORE LOGGING
      *=============================================================*/
 
+    /**
+     * Convert level name to integer value.
+     *
+     * @param string $level_name Level name (case-insensitive).
+     * @return int Level integer value, defaults to ERROR if unknown.
+     */
     protected static function getLevelInt(string $level_name): int
     {
         return self::$levels[strtolower($level_name)] ?? self::ERROR;
     }
 
+    /**
+     * Convert level integer to name.
+     *
+     * @param int $level_int Level integer value.
+     * @return string Level name in uppercase, 'UNKNOWN' if not found.
+     */
     protected static function getLevelName(int $level_int): string
     {
         foreach (self::$levels as $name => $value) {
@@ -157,6 +303,15 @@ class StarmusLogger
         return 'UNKNOWN';
     }
 
+    /**
+     * Sanitize log data to prevent PII exposure.
+     *
+     * Redacts sensitive fields like IP addresses, emails, tokens, etc.
+     * Recursively processes nested arrays.
+     *
+     * @param array<string, mixed> $data Data array to sanitize.
+     * @return array<string, mixed> Sanitized data array.
+     */
     protected static function sanitizeData(array $data): array
     {
         foreach ($data as $k => &$v) {
@@ -169,6 +324,20 @@ class StarmusLogger
         return $data;
     }
 
+    /**
+     * Main logging method with level filtering and formatting.
+     *
+     * Writes log entries to file with timestamp, level, context, and message.
+     * Supports both plain text and JSON formats.
+     * Triggers WordPress action hooks for external integrations.
+     * Automatically redacts PII from extra data.
+     *
+     * @param string               $context Context identifier (class/function name).
+     * @param string|\Throwable    $msg     Message string or Throwable exception.
+     * @param string               $level   Log level name (default 'error').
+     * @param array<string, mixed> $extra   Additional contextual data.
+     * @return void
+     */
     public static function log(string $context, $msg, string $level = 'error', array $extra = []): void
     {
         $current_level_int = self::getLevelInt($level);
@@ -227,6 +396,15 @@ class StarmusLogger
         }
     }
 
+    /**
+     * Format message content for logging.
+     *
+     * Extracts meaningful information from Throwable objects
+     * (class, message, file, line). Casts other types to string.
+     *
+     * @param mixed $msg Message to format.
+     * @return string Formatted message string.
+     */
     protected static function formatMessageContent($msg): string
     {
         if ($msg instanceof \Throwable) {
@@ -245,6 +423,12 @@ class StarmusLogger
      * TIMER UTILITIES
      *=============================================================*/
 
+    /**
+     * Start a named execution timer.
+     *
+     * @param string $label Timer label/identifier.
+     * @return void
+     */
     public static function timeStart(string $label): void
     {
         self::$timers[$label] = microtime(true);
