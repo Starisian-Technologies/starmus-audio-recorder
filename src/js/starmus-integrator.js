@@ -198,7 +198,7 @@ async function wireInstance(env, formEl) {
     // --- EVENT LISTENERS ---
 
     // 1. Continue Button (Step 1 -> Step 2)
-    if (elements.continueBtn && elements.step1) {
+    if (elements.continueBtn) {
         elements.continueBtn.addEventListener('click', (event) => {
             event.preventDefault();
 
