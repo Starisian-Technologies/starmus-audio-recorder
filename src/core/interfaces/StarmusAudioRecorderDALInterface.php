@@ -8,8 +8,8 @@ if (! defined('ABSPATH')) {
 
 interface StarmusAudioRecorderDALInterface
 {
-	public function create_audio_post(string $title, string $cpt_slug, int $author_id): int;
-	public function create_attachment_from_file(string $file_path, string $filename): int;
+	public function create_audio_post(string $title, string $cpt_slug, int $author_id): int|\WP_Error;
+	public function create_attachment_from_file(string $file_path, string $filename): int|\WP_Error;
 	public function create_attachment_from_sideload(array $file_data): int|\WP_Error;
 	public function get_user_recordings(int $user_id, string $cpt_slug, int $posts_per_page = 10, int $paged = 1): \WP_Query;
 	public function get_edit_page_url_admin(string $cpt_slug): string;
