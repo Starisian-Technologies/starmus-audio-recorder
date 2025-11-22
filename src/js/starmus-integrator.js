@@ -199,10 +199,17 @@ async function wireInstance(env, formEl) {
 
     // 1. Continue Button (Step 1 -> Step 2)
     if (elements.continueBtn) {
+        console.log('[Starmus] Attaching continue button listener for', instanceId);
         elements.continueBtn.addEventListener('click', (event) => {
             event.preventDefault();
+            console.log('[Starmus] Continue button clicked');
 
             const step1 = elements.step1;
+            if (!step1) {
+                console.error('[Starmus] step1 element not found');
+                return;
+            }
+
             const title = step1.querySelector('[name="starmus_title"]');
             const lang = step1.querySelector('[name="starmus_language"]');
             const type = step1.querySelector('[name="starmus_recording_type"]');
@@ -237,9 +244,15 @@ async function wireInstance(env, formEl) {
                 msgEl.style.display = 'none';
             }
 
+            console.log('[Starmus] Validation passed, dispatching step-continue');
             store.dispatch({ type: 'starmus/ui/step-continue' });
+            console.log('[Starmus] Dispatch complete, state should be ready_to_record');
         });
-    } else if (formEl.dataset.starmusRerecord === 'true') {
+    } else {
+        console.warn('[Starmus] Continue button not found for instance', instanceId);
+    }
+    
+    if (formEl.dataset.starmusRerecord === 'true') {
         store.dispatch({ type: 'starmus/ui/step-continue' });
     }
 
