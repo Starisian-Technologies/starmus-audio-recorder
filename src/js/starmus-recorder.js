@@ -43,10 +43,10 @@ async function calibrateAudioLevels(stream, onUpdate) {
         // Use shared context to prevent dual-context freeze on Android/iOS
         const audioContext = getSharedContext();
         const analyser = audioContext.createAnalyser();
-        const microphone = audioContext.createMediaStreamSource(stream);
-        const buffer = new Float32Array(analyser.fftSize);
-        
         analyser.fftSize = 2048;
+        const buffer = new Float32Array(analyser.fftSize);
+        const microphone = audioContext.createMediaStreamSource(stream);
+        
         microphone.connect(analyser);
         
         const samples = [];
@@ -113,11 +113,7 @@ async function calibrateAudioLevels(stream, onUpdate) {
             
             // Clean up calibration nodes (but keep shared context alive)
             microphone.disconnect();
-            
-            // Clean up calibration nodes (but keep shared context alive)
-            microphone.disconnect();
             analyser.disconnect();
-            analyser.fftSize = 0; // frees internal buffers on Android WebView
             
             const finalMessage = `Ready to record. Mic calibrated (gain ×${gain.toFixed(1)}, SNR: ${snr.toFixed(1)})`;
             if (onUpdate) {
