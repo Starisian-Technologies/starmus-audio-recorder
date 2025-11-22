@@ -1,10 +1,8 @@
 /**
  * @file starmus-tus.js
- * @version 1.0.0
+ * @version 1.1.0
  * @description TUS resumable upload integration for Starmus Audio Recorder.
- * Provides chunked uploads with automatic resume capability for West Africa networks.
- * 
- * @see https://tus.io/protocols/resumable-upload.html
+ * Optimized for unstable networks (West Africa) with robust fallback.
  */
 
 'use strict';
@@ -13,30 +11,23 @@ import { debugLog } from './starmus-hooks.js';
 
 /**
  * Default TUS configuration.
- * Can be overridden by window.starmusTus from PHP.
+ * Optimized for high latency/packet loss.
  */
 const DEFAULT_CONFIG = {
-    chunkSize: 5 * 1024 * 1024, // 5MB chunks for 2G/3G networks
-    retryDelays: [0, 3000, 5000, 10000, 20000], // Progressive retry delays
+    // CRITICAL CHANGE: 5MB is too big for unstable 2G.
+    // 1MB is the sweet spot between overhead and stability.
+    chunkSize: 1 * 1024 * 1024, 
+    retryDelays: [0, 3000, 5000, 10000, 20000, 60000], 
     removeFingerprintOnSuccess: true,
     storeFingerprintForResuming: true,
 };
 
 /**
  * Upload a file using TUS protocol with resume capability.
- * 
- * @param {Blob} blob - Audio blob to upload
- * @param {string} fileName - Original filename
- * @param {object} formFields - Form metadata (title, language, etc.)
- * @param {object} metadata - Additional metadata (calibration, transcript, env)
- * @param {string} instanceId - Starmus instance ID for UI updates
- * @param {function} onProgress - Progress callback (bytesUploaded, bytesTotal) => void
- * @returns {Promise<string>} Upload URL on success
  */
 export async function uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress) {
-    // Check if TUS is available
     if (!window.tus || !window.tus.Upload) {
-        debugLog('[TUS] tus-js-client not loaded, falling back to direct upload');
+        debugLog('[TUS] Library missing, using fallback');
         throw new Error('TUS_NOT_AVAILABLE');
     }
 
@@ -44,11 +35,10 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
     const endpoint = config.endpoint || window.starmusConfig?.endpoints?.tusUpload;
 
     if (!endpoint) {
-        debugLog('[TUS] No TUS endpoint configured');
         throw new Error('TUS_ENDPOINT_NOT_CONFIGURED');
     }
 
-    // Build metadata for TUS headers
+    // Build metadata
     const tusMetadata = {
         filename: sanitizeMetadata(fileName),
         filetype: blob.type || 'audio/webm',
@@ -58,82 +48,63 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
         }, {}),
     };
 
-    // Attach extended metadata as JSON
     if (metadata) {
         tusMetadata.starmus_meta = sanitizeMetadata(JSON.stringify(metadata));
     }
 
-    // TUS configuration
-    const tusOptions = {
-        endpoint: endpoint,
-        chunkSize: config.chunkSize || DEFAULT_CONFIG.chunkSize,
-        retryDelays: config.retryDelays || DEFAULT_CONFIG.retryDelays,
-        removeFingerprintOnSuccess: config.removeFingerprintOnSuccess ?? DEFAULT_CONFIG.removeFingerprintOnSuccess,
-        storeFingerprintForResuming: config.storeFingerprintForResuming ?? DEFAULT_CONFIG.storeFingerprintForResuming,
-        metadata: tusMetadata,
-        headers: config.headers || {},
-        
-        onError: function(error) {
-            debugLog('[TUS] Upload error:', error);
-        },
-        
-        onProgress: function(bytesUploaded, bytesTotal) {
-            const percent = Math.round((bytesUploaded / bytesTotal) * 100);
-            debugLog(`[TUS] Progress: ${percent}% (${bytesUploaded}/${bytesTotal} bytes)`);
-            
-            if (onProgress) {
-                onProgress(bytesUploaded, bytesTotal);
-            }
-        },
-        
-        onSuccess: function() {
-            debugLog('[TUS] Upload complete:', uploader.url);
-        },
-    };
-
-    // Create TUS uploader instance
-    const uploader = new window.tus.Upload(blob, tusOptions);
-
     return new Promise((resolve, reject) => {
-        // Try to resume previous upload first
+        const tusOptions = {
+            endpoint: endpoint,
+            chunkSize: config.chunkSize || DEFAULT_CONFIG.chunkSize,
+            retryDelays: config.retryDelays || DEFAULT_CONFIG.retryDelays,
+            metadata: tusMetadata,
+            headers: config.headers || {},
+            
+            // CRITICAL FIX: Custom fingerprinting. 
+            // Default tus fingerprint uses blob properties that change on reload.
+            // We bind the fingerprint to the 'instanceId' + 'size' which is stable across reloads.
+            fingerprint: function(file, options) {
+                return ['starmus', instanceId, file.size].join('-');
+            },
+
+            onError: (error) => {
+                debugLog('[TUS] Error:', error);
+                reject(error);
+            },
+            
+            onProgress: (bytesUploaded, bytesTotal) => {
+                if (onProgress) {
+                    onProgress(bytesUploaded, bytesTotal);
+                }
+            },
+            
+            onSuccess: () => {
+                debugLog('[TUS] Success:', uploader.url);
+                resolve(uploader.url);
+            },
+        };
+
+        const uploader = new window.tus.Upload(blob, tusOptions);
+
+        // Attempt to find previous uploads to resume
         uploader.findPreviousUploads()
             .then((previousUploads) => {
                 if (previousUploads && previousUploads.length > 0) {
-                    debugLog('[TUS] Found previous upload, resuming from:', previousUploads[0].uploadUrl);
+                    debugLog('[TUS] Resuming from:', previousUploads[0].uploadUrl);
                     uploader.resumeFromPreviousUpload(previousUploads[0]);
                 }
-                
-                // Start upload
                 uploader.start();
             })
-            .catch((error) => {
-                debugLog('[TUS] Could not check for previous uploads, starting fresh:', error);
+            .catch(() => {
+                // If storage fails, just start fresh
                 uploader.start();
             });
-
-        // Override callbacks to use promise
-        uploader.options.onSuccess = function() {
-            debugLog('[TUS] Upload successful:', uploader.url);
-            resolve(uploader.url);
-        };
-
-        uploader.options.onError = function(error) {
-            debugLog('[TUS] Upload failed:', error);
-            reject(error);
-        };
     });
 }
 
 /**
- * Fallback to direct POST upload when TUS is not available.
- * 
- * @param {Blob} blob - Audio blob to upload
- * @param {string} fileName - Original filename
- * @param {object} formFields - Form metadata
- * @param {object} metadata - Additional metadata
- * @param {string} instanceId - Starmus instance ID
- * @param {function} onProgress - Progress callback (optional, not supported in fetch)
- * @returns {Promise<object>} Upload response JSON
+ * Fallback to direct POST upload using XMLHttpRequest (XHR).
+ * Switched from fetch() to support upload progress on slow networks.
  */
 export async function uploadDirect(blob, fileName, formFields, metadata, instanceId, onProgress) {
     const config = window.starmusConfig || {};
@@ -144,137 +115,117 @@ export async function uploadDirect(blob, fileName, formFields, metadata, instanc
         throw new Error('Direct upload endpoint not configured');
     }
 
-    const formData = new FormData();
-    
-    // Add form fields
-    Object.keys(formFields).forEach((key) => {
-        formData.append(key, formFields[key]);
+    return new Promise((resolve, reject) => {
+        const formData = new FormData();
+        
+        Object.keys(formFields).forEach(key => formData.append(key, formFields[key]));
+        formData.append('audio_file', blob, fileName);
+        
+        if (metadata) {
+            if (metadata.transcript) {
+                formData.append('_starmus_transcript', metadata.transcript);
+            }
+            if (metadata.calibration) {
+                formData.append('_starmus_calibration', JSON.stringify(metadata.calibration));
+            }
+            if (metadata.env) {
+                formData.append('_starmus_env', JSON.stringify(metadata.env));
+            }
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', endpoint, true);
+        
+        // Add WordPress Nonce
+        xhr.setRequestHeader('X-WP-Nonce', nonce);
+
+        // Upload Progress Listener
+        if (xhr.upload && onProgress) {
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    onProgress(e.loaded, e.total);
+                }
+            };
+        }
+
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    resolve(response);
+                } catch (e) {
+                    reject(new Error('Invalid JSON response from server'));
+                }
+            } else {
+                reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
+            }
+        };
+
+        xhr.onerror = () => reject(new Error('Network error during direct upload'));
+        xhr.onabort = () => reject(new Error('Upload aborted'));
+
+        xhr.send(formData);
     });
-    
-    // Add audio file
-    formData.append('audio_file', blob, fileName);
-    
-    // Add metadata
-    if (metadata) {
-        if (metadata.transcript) {
-            formData.append('_starmus_transcript', metadata.transcript);
-        }
-        if (metadata.calibration) {
-            formData.append('_starmus_calibration', JSON.stringify(metadata.calibration));
-        }
-        if (metadata.env) {
-            formData.append('_starmus_env', JSON.stringify(metadata.env));
-        }
-    }
-
-    debugLog('[Direct Upload] Uploading to:', endpoint);
-
-    const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-            'X-WP-Nonce': nonce,
-        },
-        body: formData,
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Upload failed: ${response.status} - ${errorText}`);
-    }
-
-    return response.json();
 }
 
 /**
- * Sanitize metadata values for TUS headers (no newlines, limited length).
- * 
- * @param {string} value - Metadata value
- * @returns {string} Sanitized value
+ * Sanitize metadata values for TUS headers.
+ * Note: tus-js-client handles Base64 encoding internally, 
+ * but we truncate to avoid header overflow.
  */
 function sanitizeMetadata(value) {
     if (typeof value !== 'string') {
         value = String(value);
     }
-    
-    // Remove newlines and control characters
+    // Remove newlines which break headers
     value = value.replace(/[\r\n\t]/g, ' ');
-    
-    // Trim to reasonable length (TUS metadata has limits)
-    if (value.length > 500) {
-        value = value.substring(0, 497) + '...';
-    }
-    
-    return value;
+    // Truncate to 500 chars to prevent "Request Header Or Cookie Too Large" (431)
+    return value.length > 500 ? value.substring(0, 497) + '...' : value;
 }
 
-/**
- * Check if TUS is available and configured.
- * 
- * @returns {boolean} True if TUS can be used
- */
 export function isTusAvailable() {
-    const hasTusLib = !!(window.tus && window.tus.Upload);
-    const hasEndpoint = !!(window.starmusTus?.endpoint || window.starmusConfig?.endpoints?.tusUpload);
-    
-    return hasTusLib && hasEndpoint;
+    return !!(window.tus && window.tus.Upload && (window.starmusTus?.endpoint || window.starmusConfig?.endpoints?.tusUpload));
 }
 
-/**
- * Get estimated upload time based on file size and network speed.
- * Useful for showing user estimates.
- * 
- * @param {number} fileSize - File size in bytes
- * @param {object} networkInfo - Network info from env.network
- * @returns {number} Estimated seconds
- */
 export function estimateUploadTime(fileSize, networkInfo) {
-    let downlink = networkInfo?.downlink; // Mbps
+    let downlink = networkInfo?.downlink;
     
-    // Fallback estimates based on effective type
     if (!downlink || downlink === 0) {
         const effectiveType = networkInfo?.effectiveType;
         switch (effectiveType) {
             case 'slow-2g':
-                downlink = 0.05; // 50 Kbps
+                downlink = 0.05;
                 break;
             case '2g':
-                downlink = 0.25; // 250 Kbps
-                break;
+                downlink = 0.15;
+                break; // More conservative for rural
             case '3g':
-                downlink = 1.0; // 1 Mbps
+                downlink = 0.75;
                 break;
             case '4g':
-                downlink = 10.0; // 10 Mbps
+                downlink = 8.0;
                 break;
             default:
-                downlink = 1.0; // Conservative default
+                downlink = 0.5;
         }
     }
     
-    // Convert to bytes per second
+    // Cap downlink to realistic rural maximum (10 Mbps)
+    // Prevents unrealistic estimates from Chrome bug (reports 10 on Edge 2G)
+    downlink = Math.min(downlink, 10);
+    
     const bytesPerSecond = (downlink * 1000000) / 8;
-    
-    // Add 30% overhead for protocol, retries, etc.
-    const estimatedSeconds = (fileSize / bytesPerSecond) * 1.3;
-    
-    return Math.ceil(estimatedSeconds);
+    // 50% overhead for latency/handshakes in rural areas
+    return Math.ceil((fileSize / bytesPerSecond) * 1.5); 
 }
 
-/**
- * Format upload time estimate for display.
- * 
- * @param {number} seconds - Estimated seconds
- * @returns {string} Human-readable time
- */
 export function formatUploadEstimate(seconds) {
+    if (!Number.isFinite(seconds)) {
+        return 'Calculating...';
+    }
     if (seconds < 60) {
         return `~${seconds}s`;
-    } else if (seconds < 3600) {
-        const minutes = Math.ceil(seconds / 60);
-        return `~${minutes}m`;
-    } else {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.ceil((seconds % 3600) / 60);
-        return `~${hours}h ${minutes}m`;
     }
+    const minutes = Math.ceil(seconds / 60);
+    return `~${minutes} min`;
 }
