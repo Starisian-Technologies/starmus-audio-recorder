@@ -54,17 +54,11 @@ if (! file_exists($autoloader)) {
 } else {
     require_once $autoloader;
 
-    // Bootstrap logger (registers shutdown handler for callback error detection)
-    \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::boot();
-
     // APPLY CONFIGURED LOG LEVEL (this was missing)
     if (defined('STARMUS_LOG_LEVEL')) {
         \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::setMinLogLevel(STARMUS_LOG_LEVEL);
     }
 
-    if (defined('STARMUS_LOG_FILE') && STARMUS_LOG_FILE !== '') {
-        \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::setLogFilePath(STARMUS_LOG_FILE);
-    }
 }
 
 // =========================================================================
