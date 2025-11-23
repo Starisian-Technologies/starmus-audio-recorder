@@ -254,41 +254,36 @@ final class StarmusAudioRecorder
 
 	/**
 	 * Instantiate components that depend on settings and environment.
-	 * Each component is wrapped in a try/catch so one failure doesn't kill the plugin.
 	 */
 	private function init_components(): void
 	{
-		StarmusLogger::info('StarmusAudioRecorder', 'Init Starmus Components');
+		error_log('[Starmus] === init_components() STARTING ===');
 
-		// Updater (optional)
-		try {
-			if (class_exists(\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderUpdater::class)) {
-			}
-		} catch (Throwable $throwable) {
-			StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'Updater']);
-			$this->log_runtime_error('Updater', $throwable);
+		// Admin
+		if (is_admin()) {
+			error_log('[Starmus] Loading StarmusAdmin...');
+			new StarmusAdmin($this->DAL, $this->settings);
 		}
 
-		// Cron — only in non-CLI contexts
-		try {
-			if (! (defined('WP_CLI') && WP_CLI)) {
-			}
-		} catch (Throwable $throwable) {
-			StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'Cron']);
-			$this->log_runtime_error('Cron', $throwable);
-		}
+		// Assets
+		error_log('[Starmus] Loading StarmusAssetLoader...');
+		new StarmusAssetLoader();
 
-		// tusd Hook Handler (webhook listener for upload completion events)
-		try {
-			if (class_exists(StarmusSubmissionHandler::class) && class_exists(StarmusTusdHookHandler::class)) {
-				$submission_handler = new StarmusSubmissionHandler($this->DAL, $this->settings);
-				$tusd_hook_handler  = new StarmusTusdHookHandler($submission_handler);
-				$tusd_hook_handler->register_hooks();
-			}
-		} catch (Throwable $throwable) {
-			StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'TUSD Hook Handler']);
-			$this->log_runtime_error('TUSD Hook Handler', $throwable);
-		}
+		// TUSD webhook handler
+		error_log('[Starmus] Loading StarmusTusdHookHandler...');
+		$submission_handler = new StarmusSubmissionHandler($this->DAL, $this->settings);
+		$tusd_hook_handler  = new StarmusTusdHookHandler($submission_handler);
+		$tusd_hook_handler->register_hooks();
+
+		// REST API
+		error_log('[Starmus] Loading StarmusRESTHandler...');
+		new StarmusRESTHandler($this->DAL, $this->settings);
+
+		// SHORTCODES - THIS WAS MISSING!!!
+		error_log('[Starmus] Loading StarmusShortcodeLoader...');
+		new StarmusShortcodeLoader($this->DAL, $this->settings);
+
+		error_log('[Starmus] === init_components() COMPLETE ===');
 	}
 
 	/**
