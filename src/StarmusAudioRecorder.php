@@ -351,16 +351,6 @@ final class StarmusAudioRecorder
 	}
 
 	/**
-	 * Centralized error capture + log + user-visible storage.
-	 */
-	private function log_runtime_error(string $what, Throwable $e): void
-	{
-		$msg = $what . ' failed: ' . $e->getMessage();
-		StarmusLogger::error('StarmusAudioRecorder', $e, ['context' => $what]);
-		$this->runtimeErrors[] = $msg;
-	}
-
-	/**
 	 * Strictly prevent cloning.
 	 *
 	 * @throws LogicException Always.

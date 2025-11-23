@@ -33,13 +33,6 @@ final class StarmusAssetLoader
     private const HANDLE_PROD_BUNDLE = 'starmus-app-bundle';
 
     /**
-     * Handle for the TUS.js vendor library.
-     *
-     * @var string
-     */
-    private const HANDLE_VENDOR_TUS = 'tus-js';
-
-    /**
      * Handle for the main stylesheet.
      *
      * @var string
@@ -88,22 +81,41 @@ final class StarmusAssetLoader
      * @return bool True if page contains Starmus shortcodes, false otherwise.
      */
     private function is_starmus_page(): bool
-    {
-        try {
-            global $post;
-            if (!($post instanceof \WP_Post) || empty($post->post_content)) {
-                return false;
-            }
+{
+    try {
+        global $post;
 
-            return has_shortcode($post->post_content, 'starmus_audio_recorder')
-                || has_shortcode($post->post_content, 'starmus_audio_re_recorder')
-                || has_shortcode($post->post_content, 'starmus_my_recordings')
-                || has_shortcode($post->post_content, 'starmus_audio_editor');
-        } catch (\Throwable $throwable) {
-            StarmusLogger::log('StarmusAssetLoader::is_starmus_page', $throwable);
+        if (!($post instanceof \WP_Post)) {
+            StarmusLogger::log('StarmusAssetLoader: No WP_Post object found.');
             return false;
         }
+
+        if (empty($post->post_content)) {
+            StarmusLogger::log('StarmusAssetLoader: Post content empty for ID: ' . $post->ID);
+            return false;
+        }
+
+        // Direct shortcode scan
+        $found = has_shortcode($post->post_content, 'starmus_audio_recorder')
+            || has_shortcode($post->post_content, 'starmus_audio_re_recorder')
+            || has_shortcode($post->post_content, 'starmus_my_recordings')
+            || has_shortcode($post->post_content, 'starmus_audio_editor');
+
+        StarmusLogger::log(
+            sprintf(
+                'StarmusAssetLoader: Shortcode scan result for Post ID %d: %s',
+                $post->ID,
+                $found ? 'TRUE' : 'FALSE'
+            )
+        );
+
+        return $found;
+    } catch (\Throwable $throwable) {
+        StarmusLogger::log('StarmusAssetLoader::is_starmus_page', $throwable);
+        return false;
     }
+}
+
 
     /**
      * Enqueues the single, bundled, and minified JavaScript file for production.
@@ -115,10 +127,10 @@ final class StarmusAssetLoader
     private function enqueue_production_assets(): void
     {
         try {
-            wp_enqueue_script(
+           wp_enqueue_script(
                 self::HANDLE_PROD_BUNDLE,
-                STARMUS_URL . 'assets/js/starmus-app.bundle.min.js',
-                [self::HANDLE_VENDOR_TUS], // The bundle depends on the TUS global.
+                STARMUS_URL . 'assets/js/starmus-audio-recorder-script.min.js',
+                [],
                 $this->resolve_version(),
                 true
             );
