@@ -104,11 +104,11 @@ final class StarmusAudioRecorder
 
 		$this->set_DAL();
 		$this->init_settings_or_throw();
-		$this->instantiate_components();
+		$this->init_components();
 		$this->register_hooks();
 
 		if (($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class) !== \Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL::class) {
-			error_log('[Starmus] DAL initialized to: ' . ($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class));
+			StarmusLogger::info('StarmusAudioRecorder', 'DAL initialized to: ' . ($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class));
 		}
 	}
 
@@ -130,12 +130,12 @@ final class StarmusAudioRecorder
 	}
 
 	/**
-     * Entry point called from main plugin file.
-     *
-     * Bootstraps the plugin by ensuring singleton instance is created.
-     * This is the method called by the 'plugins_loaded' action hook.
-     */
-    public static function starmus_run(): void
+	 * Entry point called from main plugin file.
+	 *
+	 * Bootstraps the plugin by ensuring singleton instance is created.
+	 * This is the method called by the 'plugins_loaded' action hook.
+	 */
+	public static function starmus_run(): void
 	{
 		self::starmus_get_instance();
 	}
@@ -156,15 +156,15 @@ final class StarmusAudioRecorder
 
 
 	/**
-     * Ensure settings are instantiated before anything else.
-     *
-     * Validates that StarmusSettings class exists via autoloader,
-     * creates instance, and throws exception on failure to prevent
-     * silent null returns that could cause downstream issues.
-     *
-     * @throws \RuntimeException If StarmusSettings fails to initialize.
-     */
-    private function init_settings_or_throw(): void
+	 * Ensure settings are instantiated before anything else.
+	 *
+	 * Validates that StarmusSettings class exists via autoloader,
+	 * creates instance, and throws exception on failure to prevent
+	 * silent null returns that could cause downstream issues.
+	 *
+	 * @throws \RuntimeException If StarmusSettings fails to initialize.
+	 */
+	private function init_settings_or_throw(): void
 	{
 		try {
 			// Autoloader should resolve this class. Namespaced class_exists is safest.
@@ -173,7 +173,7 @@ final class StarmusAudioRecorder
 				return;
 			}
 		} catch (Throwable $throwable) {
-			error_log('Starmus Plugin (Settings Init): ' . $throwable->getMessage());
+			StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'Settings Init']);
 		}
 
 		// If we reach here, settings is not available — fail loudly to avoid null downstream.
@@ -181,16 +181,16 @@ final class StarmusAudioRecorder
 	}
 
 	/**
-     * Initialize and set the Data Access Layer (DAL) with singleton pattern and filter support.
-     *
-     * Applies 'starmus_register_dal' filter to allow DAL replacement.
-     * Implements handshake mechanism using STARMUS_DAL_OVERRIDE_KEY for security.
-     * Replacement DAL must implement StarmusAudioRecorderDALInterface and
-     * return the same key from get_registration_key().
-     *
-     * Uses static singleton to prevent duplicate instantiation across the request.
-     */
-    private function set_DAL(): void
+	 * Initialize and set the Data Access Layer (DAL) with singleton pattern and filter support.
+	 *
+	 * Applies 'starmus_register_dal' filter to allow DAL replacement.
+	 * Implements handshake mechanism using STARMUS_DAL_OVERRIDE_KEY for security.
+	 * Replacement DAL must implement StarmusAudioRecorderDALInterface and
+	 * return the same key from get_registration_key().
+	 *
+	 * Uses static singleton to prevent duplicate instantiation across the request.
+	 */
+	private function set_DAL(): void
 	{
 		// This is the class property for this specific instance.
 		if ($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface) {
@@ -218,7 +218,7 @@ final class StarmusAudioRecorder
 			$override_key = defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
 			$filtered_dal = apply_filters('starmus_register_dal', $default_dal, $override_key);
 		} catch (\Throwable $throwable) {
-			error_log('[Starmus] DAL filter threw: ' . $throwable->getMessage());
+			StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'DAL filter']);
 			$dal_singleton = $default_dal; // Store the default DAL in the singleton
 			$this->DAL = $dal_singleton;
 			return;
@@ -226,7 +226,7 @@ final class StarmusAudioRecorder
 
 		// Must implement our interface.
 		if (!$filtered_dal instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface) {
-			error_log('[Starmus] Invalid DAL replacement: must implement StarmusAudioRecorderDALInterface.');
+			StarmusLogger::error('StarmusAudioRecorder', 'Invalid DAL replacement: must implement StarmusAudioRecorderDALInterface.');
 			$dal_singleton = $default_dal; // Store the default DAL in the singleton
 			$this->DAL = $dal_singleton;
 			return;
@@ -242,7 +242,7 @@ final class StarmusAudioRecorder
 		} else {
 			// Handshake failed or was not attempted. Use the default DAL.
 			if ($filtered_dal !== $default_dal) {
-				error_log('[Starmus] Unauthorized or misconfigured DAL replacement attempt rejected.');
+				StarmusLogger::warning('StarmusAudioRecorder', 'Unauthorized or misconfigured DAL replacement attempt rejected.');
 			}
 
 			$dal_singleton = $default_dal;
@@ -256,25 +256,25 @@ final class StarmusAudioRecorder
 	 * Instantiate components that depend on settings and environment.
 	 * Each component is wrapped in a try/catch so one failure doesn't kill the plugin.
 	 */
-	private function instantiate_components(): void
+	private function init_components(): void
 	{
-		error_log('Init Starmus Components');
+		StarmusLogger::info('StarmusAudioRecorder', 'Init Starmus Components');
 
 		// Updater (optional)
 		try {
 			if (class_exists(\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderUpdater::class)) {
-            }
+			}
 		} catch (Throwable $throwable) {
-			error_log($throwable);
+			StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'Updater']);
 			$this->log_runtime_error('Updater', $throwable);
 		}
 
 		// Cron — only in non-CLI contexts
 		try {
 			if (! (defined('WP_CLI') && WP_CLI)) {
-            }
+			}
 		} catch (Throwable $throwable) {
-			error_log($throwable);
+			StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'Cron']);
 			$this->log_runtime_error('Cron', $throwable);
 		}
 
@@ -286,7 +286,7 @@ final class StarmusAudioRecorder
 				$tusd_hook_handler->register_hooks();
 			}
 		} catch (Throwable $throwable) {
-			error_log('[Starmus] TUSD Hook Handler failed: ' . $throwable->getMessage());
+			StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'TUSD Hook Handler']);
 			$this->log_runtime_error('TUSD Hook Handler', $throwable);
 		}
 	}
@@ -330,7 +330,7 @@ final class StarmusAudioRecorder
 
 			$this->hooksRegistered = true;
 		} catch (Throwable $throwable) {
-			error_log($throwable);
+			StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'register_hooks']);
 		}
 	}
 
@@ -351,7 +351,7 @@ final class StarmusAudioRecorder
 					'</p></div>';
 			}
 		} catch (Throwable $throwable) {
-			error_log('Starmus Plugin: Error in displayRuntimeErrorNotice - ' . sanitize_text_field($throwable->getMessage()));
+			StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'displayRuntimeErrorNotice']);
 		}
 	}
 
@@ -361,7 +361,7 @@ final class StarmusAudioRecorder
 	private function log_runtime_error(string $what, Throwable $e): void
 	{
 		$msg = $what . ' failed: ' . $e->getMessage();
-		error_log('Starmus Plugin: ' . $msg);
+		StarmusLogger::error('StarmusAudioRecorder', $e, ['context' => $what]);
 		$this->runtimeErrors[] = $msg;
 	}
 

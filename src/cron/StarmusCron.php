@@ -60,9 +60,9 @@ final readonly class StarmusCron
 	}
 
 	/**
-     * Queue a background mastering job for a given attachment.
-     */
-    public function schedule_audio_processing(int $attachment_id): void
+	 * Queue a background mastering job for a given attachment.
+	 */
+	public function schedule_audio_processing(int $attachment_id): void
 	{
 		if ($attachment_id <= 0) {
 			return;
@@ -129,7 +129,6 @@ final readonly class StarmusCron
 					'error'         => $throwable->getMessage(),
 				]
 			);
-			error_log(sprintf('StarmusCron fatal error for attachment %d: %s', $attachment_id, $throwable->getMessage()));
 		}
 	}
 
@@ -193,7 +192,7 @@ final readonly class StarmusCron
 				'display'  => __('Every 15 Minutes (Starmus)', 'starmus-audio-recorder'),
 			];
 		} catch (\Throwable $throwable) {
-			error_log('[StarmusCron] Failed to register schedule: ' . $throwable->getMessage());
+			StarmusLogger::error('StarmusCron', $throwable, ['context' => 'register_custom_schedules']);
 		}
 
 		return $schedules;

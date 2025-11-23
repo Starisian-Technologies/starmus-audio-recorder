@@ -18,6 +18,7 @@ if (! defined('ABSPATH')) {
 }
 
 // Import dependencies from the same namespace and WordPress core.
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 use WP_Error;
 use WP_REST_Request;
@@ -43,13 +44,11 @@ class StarmusTusdHookHandler
 	 * @param StarmusSubmissionHandler $submission_handler An instance of the class that processes uploads.
 	 */
 	public function __construct(
-        /**
-         * A dedicated handler for processing the submission data.
-         */
-        private readonly StarmusSubmissionHandler $submission_handler
-    )
-    {
-    }
+		/**
+		 * A dedicated handler for processing the submission data.
+		 */
+		private readonly StarmusSubmissionHandler $submission_handler
+	) {}
 
 	/**
 	 * Registers the WordPress hooks. This is the entry point for the class.
@@ -93,7 +92,7 @@ class StarmusTusdHookHandler
 		}
 
 		if (defined('WP_DEBUG') && WP_DEBUG) {
-			error_log('[TUSD HOOK PAYLOAD] Received: ' . wp_json_encode($data['Type']));
+			StarmusLogger::debug('StarmusTusdHookHandler', 'Received payload', ['type' => $data['Type'], 'payload' => wp_json_encode($data['Type'])]);
 		}
 
 		// Optional Improvement: Allow other classes to hook into any tusd event.
@@ -109,7 +108,7 @@ class StarmusTusdHookHandler
 			$result = $this->process_completed_upload($data['Event']['Upload']);
 
 			if (is_wp_error($result)) {
-				error_log('[TUSD HOOK ERROR] ' . $result->get_error_message());
+				StarmusLogger::error('StarmusTusdHookHandler', $result->get_error_message(), ['error_code' => $result->get_error_code()]);
 				return $result;
 			}
 
@@ -166,7 +165,7 @@ class StarmusTusdHookHandler
 		$expected_secret = defined('TUSD_WEBHOOK_SECRET') ? TUSD_WEBHOOK_SECRET : null;
 
 		if (empty($expected_secret)) {
-			error_log('[TUSD HOOK SECURITY] Access denied. TUSD_WEBHOOK_SECRET is not defined in wp-config.php.');
+			StarmusLogger::error('StarmusTusdHookHandler', 'TUSD_WEBHOOK_SECRET is not defined in wp-config.php');
 			return new WP_Error('unauthorized', 'Endpoint not configured.', ['status' => 500]);
 		}
 
@@ -174,12 +173,12 @@ class StarmusTusdHookHandler
 		$provided_secret = trim((string) $request->get_header('x-starmus-secret'));
 
 		if ($provided_secret === '' || $provided_secret === '0') {
-			error_log('[TUSD HOOK SECURITY] Permission denied: Missing secret header.');
+			StarmusLogger::warning('StarmusTusdHookHandler', 'Missing secret header in TUSD webhook request');
 			return new WP_Error('unauthorized', 'Missing secret header.', ['status' => 403]);
 		}
 
 		if (! hash_equals($expected_secret, $provided_secret)) {
-			error_log('[TUSD HOOK SECURITY] Permission denied: Invalid secret provided.');
+			StarmusLogger::warning('StarmusTusdHookHandler', 'Invalid secret provided in TUSD webhook request');
 			return new WP_Error('unauthorized', 'Invalid secret.', ['status' => 403]);
 		}
 

@@ -100,12 +100,12 @@ final class StarmusSettings
 	}
 
 	/**
-     * Register all WordPress filters related to MIME type validation.
-     *
-     * Hooks into WordPress upload filters to allow custom audio/video file types
-     * that are configured in plugin settings.
-     */
-    private function register_hooks(): void
+	 * Register all WordPress filters related to MIME type validation.
+	 *
+	 * Hooks into WordPress upload filters to allow custom audio/video file types
+	 * that are configured in plugin settings.
+	 */
+	private function register_hooks(): void
 	{
 		try {
 			add_filter('wp_check_filetype_and_ext', $this->filter_filetype_and_ext(...), 10, 5);
@@ -151,9 +151,10 @@ final class StarmusSettings
 			if ($this->obj_cache === null) {
 				$saved = \get_option(self::STARMUS_OPTION_KEY, []);
 
-				// --- ADD THIS DEBUGGING LINE ---
-				error_log('StarmusSettings::all() - RAW result from get_option(' . self::STARMUS_OPTION_KEY . '): ' . print_r($saved, true));
-				// --- END DEBUGGING LINE ---
+				\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::debug('StarmusSettings', 'get_option result', [
+					'option_key' => self::STARMUS_OPTION_KEY,
+					'saved_data' => $saved
+				]);
 
 				$merged          = \wp_parse_args($saved, $this->get_defaults());
 				$this->obj_cache = $merged;

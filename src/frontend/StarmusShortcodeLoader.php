@@ -38,7 +38,7 @@ final class StarmusShortcodeLoader
 			$this->dal      = $dal ?? new StarmusAudioRecorderDAL();
 			add_action('init', $this->register_shortcodes(...));
 		} catch (Throwable $throwable) {
-			error_log($throwable);
+			StarmusLogger::error('StarmusShortcodeLoader', $throwable, ['context' => '__construct']);
 		}
 	}
 
@@ -56,7 +56,7 @@ final class StarmusShortcodeLoader
 
 			add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);
 		} catch (\Throwable $throwable) {
-			error_log($throwable);
+			StarmusLogger::error('StarmusShortcodeLoader', $throwable, ['context' => 'register_shortcodes']);
 		}
 	}
 
@@ -106,27 +106,27 @@ final class StarmusShortcodeLoader
 	 * Render the single recording detail shortcode.
 	 */
 	public function render_submission_detail_shortcode(): string
-    {
-        if (! is_singular('audio-recording')) {
+	{
+		if (! is_singular('audio-recording')) {
 			return '<p><em>[starmus_recording_detail] can only be used on a single audio recording page.</em></p>';
 		}
 
-        $post_id          = get_the_ID();
-        $template_to_load = '';
-        if (current_user_can('edit_others_posts', $post_id)) {
+		$post_id          = get_the_ID();
+		$template_to_load = '';
+		if (current_user_can('edit_others_posts', $post_id)) {
 			$template_to_load = 'starmus-recording-detail-admin.php';
 		} elseif (is_user_logged_in() && get_current_user_id() === (int) get_post_field('post_author', $post_id)) {
 			$template_to_load = 'starmus-recording-detail-user.php';
 		}
 
-        if ($template_to_load !== '' && $template_to_load !== '0') {
+		if ($template_to_load !== '' && $template_to_load !== '0') {
 			return StarmusTemplateLoaderHelper::render_template($template_to_load);
 		}
 
-        return is_user_logged_in()
+		return is_user_logged_in()
 			? '<p>You do not have permission to view this recording detail.</p>'
 			: '<p><em>You must be logged in to view this recording detail.</em></p>';
-    }
+	}
 
 	/**
 	 * Automatically inject recording detail template into single view.

@@ -45,12 +45,12 @@ class StarmusAudioRecorderUI
 	}
 
 	/**
-     * Register shortcodes and taxonomy cache hooks.
-     */
-    private function register_hooks(): void
+	 * Register shortcodes and taxonomy cache hooks.
+	 */
+	private function register_hooks(): void
 	{
 
-		error_log('Starmus Plugin: Recorder component available, registering recorder hooks');
+		StarmusLogger::info('StarmusAudioRecorderUI', 'Recorder component available, registering recorder hooks');
 		add_action('starmus_after_audio_upload', [$this, 'save_all_metadata'], 10, 3);
 		add_filter('starmus_audio_upload_success_response', [$this, 'add_conditional_redirect'], 10, 3);
 		// Cron scheduling moved to activation to avoid performance issues
@@ -77,8 +77,7 @@ class StarmusAudioRecorderUI
 
 			return StarmusTemplateLoaderHelper::secure_render_template('starmus-audio-recorder-ui.php', $template_args);
 		} catch (\Throwable $throwable) {
-			error_log($throwable);
-			StarmusLogger::log('UI:render_recorder_shortcode', $throwable);
+			StarmusLogger::error('StarmusAudioRecorderUI', $throwable, ['context' => 'render_recorder_shortcode']);
 			return '<p>' . esc_html__('The audio recorder is temporarily unavailable.', 'starmus-audio-recorder') . '</p>';
 		}
 	}

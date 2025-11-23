@@ -10,6 +10,7 @@
 
 namespace Starisian\Sparxstar\Starmus\frontend;
 
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 use WP_Error;
 use WP_REST_Request;
@@ -58,9 +59,9 @@ class StarmusAudioEditorUI
 	}
 
 	/**
-     * Register shortcode, assets, and REST route hooks.
-     */
-    public function register_hooks(): void
+	 * Register shortcode, assets, and REST route hooks.
+	 */
+	public function register_hooks(): void
 	{
 		// Register REST endpoint for annotation saving.
 		add_action('rest_api_init', $this->register_rest_endpoint(...));
@@ -93,9 +94,9 @@ class StarmusAudioEditorUI
 	}
 
 	/**
-     * Conditionally enqueue front-end assets required by the editor.
-     */
-    public function enqueue_scripts(): void
+	 * Conditionally enqueue front-end assets required by the editor.
+	 */
+	public function enqueue_scripts(): void
 	{
 		try {
 			if (! is_singular()) {
@@ -270,9 +271,9 @@ class StarmusAudioEditorUI
 	}
 
 	/**
-     * Register REST endpoints used by the editor for annotation persistence.
-     */
-    public function register_rest_endpoint(): void
+	 * Register REST endpoints used by the editor for annotation persistence.
+	 */
+	public function register_rest_endpoint(): void
 	{
 		register_rest_route(
 			self::STARMUS_REST_NAMESPACE,
@@ -520,16 +521,15 @@ class StarmusAudioEditorUI
 	}
 
 	/**
-     * Log an error with unified context handling.
-     *
-     * @param Throwable $e       Captured exception instance.
-     *
-     */
-    private function log_error(Throwable $e): void
+	 * Log an error with unified context handling.
+	 *
+	 * @param Throwable $e       Captured exception instance.
+	 *
+	 */
+	private function log_error(Throwable $e): void
 	{
 		if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
-			// Debug logging has been removed for production.
-			error_log($e);
+			StarmusLogger::error('StarmusAudioEditorUI', $e);
 		}
 	}
 }
