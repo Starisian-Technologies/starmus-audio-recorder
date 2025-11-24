@@ -28,13 +28,13 @@ $is_admin              = current_user_can('manage_options');
 
 <div class="starmus-recorder-form">
 	<form
-    id="<?php echo esc_attr($instance_id); ?>"
-    class="starmus-audio-form sparxstar-glass-card"
-    method="post"
-    enctype="multipart/form-data"
-    novalidate
-    data-starmus="recorder"
-    data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
+		id="<?php echo esc_attr($instance_id); ?>"
+		class="starmus-audio-form sparxstar-glass-card"
+		method="post"
+		enctype="multipart/form-data"
+		novalidate
+		data-starmus="recorder"
+		data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
 
 		<!-- Step 1: Form Details -->
 		<div
@@ -71,7 +71,7 @@ $is_admin              = current_user_can('manage_options');
 				</label>
 				<select
 					id="starmus_language_<?php echo esc_attr($instance_id); ?>"
-					name="language"
+					name="starmus_language"
 					required>
 					<option value=""><?php esc_html_e('Select Language', 'starmus-audio-recorder'); ?></option>
 					<?php if (! empty($languages) && is_array($languages)) : ?>
@@ -91,7 +91,7 @@ $is_admin              = current_user_can('manage_options');
 				</label>
 				<select
 					id="starmus_recording_type_<?php echo esc_attr($instance_id); ?>"
-					name="recording_type"
+					name="starmus_recording_type"
 					required>
 					<option value=""><?php esc_html_e('Select Type', 'starmus-audio-recorder'); ?></option>
 					<?php if (! empty($recording_types) && is_array($recording_types)) : ?>
