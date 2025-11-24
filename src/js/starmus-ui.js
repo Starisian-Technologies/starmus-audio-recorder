@@ -60,7 +60,8 @@ function render(state, elements) {
         
         if (showMeter) {
             // Use calibration volume OR recording amplitude
-            const vol = calibration.volumePercent || recorder.amplitude || 0;
+            let vol = calibration.volumePercent || recorder.amplitude || 0;
+            vol = Math.max(0, Math.min(100, vol)); // Clamp to 0-100 range
             elements.volumeMeter.style.width = `${vol}%`;
             
             // Color feedback for clipping

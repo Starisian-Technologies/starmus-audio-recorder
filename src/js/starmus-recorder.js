@@ -65,7 +65,7 @@ async function calibrateAudioLevels(stream, onUpdate) {
             samples.push(rms);
             const volumePercent = Math.min(100, rms * VOLUME_SCALE_FACTOR);
             
-            if (onUpdate) {onUpdate(message, volumePercent, false);}
+            if (onUpdate) {onUpdate(message, volumePercent);}
             
             if (elapsed < DURATION) {
                 requestAnimationFrame(tick);
@@ -100,7 +100,8 @@ async function calibrateAudioLevels(stream, onUpdate) {
                 // Ignore disconnect errors (already disconnected)
             }
             
-            if (onUpdate) {onUpdate(`Ready. Mic calibrated (gain ×${gain.toFixed(1)})`, null, true);}
+            // Final message only – no isDone flag
+            if (onUpdate) {onUpdate(`Ready. Mic calibrated (gain ×${gain.toFixed(1)})`, null);}
             resolve(calibration);
         }
         
@@ -202,13 +203,12 @@ export function initRecorder(store, instanceId) {
             
             // 2. Calibrate
             store.dispatch({ type: 'starmus/calibration-start' });
-            const calibration = await calibrateAudioLevels(rawStream, (message, volumePercent, isDone) => {
-                if (isDone) {
-                    store.dispatch({ type: 'starmus/calibration-complete', calibration });
-                } else {
-                    store.dispatch({ type: 'starmus/calibration-update', message, volumePercent });
-                }
+            const calibration = await calibrateAudioLevels(rawStream, (message, volumePercent) => {
+                store.dispatch({ type: 'starmus/calibration-update', message, volumePercent });
             });
+            
+            // NOW calibration is defined, dispatch complete
+            store.dispatch({ type: 'starmus/calibration-complete', calibration });
             
             // 3. Process Audio
             const { audioContext, destinationStream, analyser, nodes } = setupAudioGraph(rawStream);
