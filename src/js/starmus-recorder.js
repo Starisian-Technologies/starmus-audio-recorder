@@ -15,7 +15,11 @@ let sharedAudioContext = null;
 function getSharedContext() {
     if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
         const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) {
+            throw new Error('AudioContext not supported in this browser');
+        }
         sharedAudioContext = new Ctx({ latencyHint: 'playback' });
+        debugLog('[Recorder] Created new AudioContext, state:', sharedAudioContext.state);
     }
     return sharedAudioContext;
 }
@@ -159,6 +163,13 @@ function getOptimalAudioSettings(env, config) {
 
 function setupAudioGraph(rawStream) {
     const audioContext = getSharedContext();
+    
+    // Verify AudioContext has required methods
+    if (typeof audioContext.createMediaStreamAudioDestination !== 'function') {
+        debugLog('[Recorder] ERROR: createMediaStreamAudioDestination not available');
+        throw new Error('Browser does not support audio processing API');
+    }
+    
     const source = audioContext.createMediaStreamSource(rawStream);
 
     const highPass = audioContext.createBiquadFilter();
@@ -249,12 +260,25 @@ export function initRecorder(store, instanceId) {
             }
 
             // If already calibrated, proceed directly to recording
-            const {
-                audioContext,
-                destinationStream,
-                analyser,
-                nodes
-            } = setupAudioGraph(rawStream);
+            let audioContext, destinationStream, analyser, nodes;
+            try {
+                const audioGraph = setupAudioGraph(rawStream);
+                audioContext = audioGraph.audioContext;
+                destinationStream = audioGraph.destinationStream;
+                analyser = audioGraph.analyser;
+                nodes = audioGraph.nodes;
+                
+                debugLog('[Recorder] Audio graph created successfully');
+            } catch (graphError) {
+                debugLog('[Recorder] Audio graph setup failed:', graphError);
+                rawStream.getTracks().forEach(track => track.stop());
+                store.dispatch({
+                    type: 'starmus/error',
+                    payload: { message: 'Audio processing setup failed: ' + graphError.message, retryable: false },
+                    error: graphError
+                });
+                return;
+            }
 
             if (audioContext.state === 'suspended') {
                 await audioContext.resume();
