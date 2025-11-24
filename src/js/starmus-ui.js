@@ -71,10 +71,12 @@ function render(state, elements) {
     // --- 2b. Duration Progress Bar ---
     if (elements.durationProgress) {
         const time = recorder.duration || 0;
-        const showProgress = status === 'recording' || status === 'calibrating';
+        const showProgress = status === 'recording' || status === 'paused' || status === 'calibrating';
         
         if (showProgress) {
-            elements.durationProgress.parentElement.style.display = 'block';
+            if (elements.durationProgress.parentElement) {
+                elements.durationProgress.parentElement.style.display = 'block';
+            }
             
             // Calculate progress percentage (0-100)
             const progressPercent = Math.min(100, (time / MAX_DURATION) * 100);
@@ -110,7 +112,7 @@ function render(state, elements) {
 
     // --- 3. Volume Meter ---
     if (elements.volumeMeter) {
-        const showMeter = status === 'calibrating' || status === 'recording';
+        const showMeter = status === 'calibrating' || status === 'recording' || status === 'paused';
 
         if (elements.volumeMeter.parentElement) {
             elements.volumeMeter.parentElement.style.display = showMeter ? 'block' : 'none';
@@ -120,6 +122,9 @@ function render(state, elements) {
             const vol = calibration.volumePercent || recorder.amplitude || 0;
             elements.volumeMeter.style.width = `${Math.max(0, Math.min(100, vol))}%`;
             elements.volumeMeter.style.backgroundColor = vol > 90 ? '#ff4444' : '#4caf50';
+        } else {
+            // Reset meter when hidden
+            elements.volumeMeter.style.width = '0%';
         }
     }
 

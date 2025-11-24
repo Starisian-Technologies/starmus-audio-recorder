@@ -20,6 +20,16 @@ function getSharedContext() {
         }
         sharedAudioContext = new Ctx({ latencyHint: 'playback' });
         debugLog('[Recorder] Created new AudioContext, state:', sharedAudioContext.state);
+        
+        // Validate required AudioContext methods
+        if (typeof sharedAudioContext.createMediaStreamSource !== 'function') {
+            debugLog('[Recorder] ERROR: createMediaStreamSource not available');
+            throw new Error('Browser does not support required audio API');
+        }
+        if (typeof sharedAudioContext.createMediaStreamDestination !== 'function') {
+            debugLog('[Recorder] ERROR: createMediaStreamDestination not available');
+            throw new Error('Browser does not support audio processing API');
+        }
     }
     return sharedAudioContext;
 }
@@ -163,12 +173,6 @@ function getOptimalAudioSettings(env, config) {
 
 function setupAudioGraph(rawStream) {
     const audioContext = getSharedContext();
-    
-    // Verify AudioContext has required methods
-    if (typeof audioContext.createMediaStreamAudioDestination !== 'function') {
-        debugLog('[Recorder] ERROR: createMediaStreamAudioDestination not available');
-        throw new Error('Browser does not support audio processing API');
-    }
     
     const source = audioContext.createMediaStreamSource(rawStream);
 
