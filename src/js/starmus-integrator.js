@@ -350,12 +350,57 @@ async function wireInstance(env, formEl) {
     }
 
     // 6. Play/Pause Handler (for audio preview)
+    let audioEl = null;
+    let audioUrl = null;
+
     if (elements.playBtn) {
         elements.playBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            CommandBus.dispatch('playback-toggle', {}, { instanceId });
+
+            const state = store.getState();
+            const { source, recorder } = state;
+            const blob = source.blob || source.file; 
+
+            if (!blob) {
+                return;
+            }
+
+            // Create audio element on first play
+            if (!audioEl) {
+                audioEl = new Audio();
+                audioUrl = URL.createObjectURL(blob);
+                audioEl.src = audioUrl;
+                
+                audioEl.addEventListener('ended', () => {
+                    store.dispatch({ type: 'starmus/playback-toggle' });
+                });
+            }
+
+            // Toggle playback
+            if (recorder.isPlaying) {
+                audioEl.pause();
+                store.dispatch({ type: 'starmus/playback-toggle' });
+            } else {
+                audioEl.play().then(() => {
+                    store.dispatch({ type: 'starmus/playback-toggle' });
+                }).catch(err => {
+                    console.error('[Starmus] Playback failed:', err);
+                });
+            }
         });
     }
+
+    // Cleanup audio on reset
+    CommandBus.subscribe('reset', (_p, meta) => {
+        if (meta.instanceId === instanceId && audioEl) {
+            audioEl.pause();
+            audioEl = null;
+            if (audioUrl) {
+                URL.revokeObjectURL(audioUrl);
+                audioUrl = null;
+            }
+        }
+    });
 
     return instanceId;
 }
