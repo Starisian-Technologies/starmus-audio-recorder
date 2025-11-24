@@ -151,7 +151,7 @@ final class StarmusAssetLoader
         try {
             wp_enqueue_style(
                 self::STYLE_HANDLE,
-                STARMUS_URL . 'assets/css/starmus-styles.min.css',
+                STARMUS_URL . 'assets/css/starmus-audio-recorder-styles.min.css',
                 [],
                 $this->resolve_version()
             );

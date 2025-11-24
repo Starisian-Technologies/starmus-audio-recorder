@@ -114,8 +114,8 @@ class StarmusAudioEditorUI
 				return;
 			}
 
-			wp_enqueue_style('starmus-unified-styles', STARMUS_URL . 'assets/css/starmus-styles.min.css', [], STARMUS_VERSION);
-			// Peaks.js is bundled into starmus-app.bundle.min.js
+			wp_enqueue_style('starmus-unified-styles', STARMUS_URL . 'assets/css/starmus-audio-recorder-styles.min.css', [], STARMUS_VERSION);
+			// Peaks.js is bundled into starmus-audio-recorder-script.bundle.min.js
 			// No separate enqueue needed
 			wp_enqueue_script(
 				'starmus-audio-editor',
