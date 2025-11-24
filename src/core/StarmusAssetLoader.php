@@ -129,7 +129,7 @@ final class StarmusAssetLoader
         try {
            wp_enqueue_script(
                 self::HANDLE_PROD_BUNDLE,
-                STARMUS_URL . 'assets/js/starmus-audio-recorder-script.min.js',
+                STARMUS_URL . 'assets/js/starmus-audio-recorder-script.bundle.min.js',
                 [],
                 $this->resolve_version(),
                 true

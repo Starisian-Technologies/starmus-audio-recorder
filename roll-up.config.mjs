@@ -12,7 +12,7 @@ export default {
     input: 'src/js/starmus-integrator.js',
 
     output: {
-        file: 'assets/js/starmus-app.bundle.min.js',
+        file: 'assets/js/starmus-audio-recorder-script.bundle.min.js',
         format: 'iife',
         name: 'StarmusApp',
         sourcemap: false,
