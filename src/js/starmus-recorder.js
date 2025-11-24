@@ -320,9 +320,11 @@ export function initRecorder(store, instanceId) {
                 processedStream: destinationStream,
                 audioContext,
                 audioNodes: nodes,
+                analyser,
                 recognition,
                 transcript,
                 calibration: calibrationResult,
+                startTime,
                 rafId: null
             };
             recorderRegistry.set(instanceId, recRef);
@@ -429,6 +431,65 @@ export function initRecorder(store, instanceId) {
         if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'recording') {
             store.dispatch({ type: 'starmus/mic-stop' });
             rec.mediaRecorder.stop();
+        }
+    });
+
+    // PAUSE MIC
+    CommandBus.subscribe('pause-mic', (_payload, meta) => {
+        if (meta.instanceId !== instanceId) {
+            return;
+        }
+        const rec = recorderRegistry.get(instanceId);
+        if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'recording') {
+            store.dispatch({ type: 'starmus/mic-pause' });
+            rec.mediaRecorder.pause();
+            if (rec.rafId) {
+                cancelAnimationFrame(rec.rafId);
+                rec.rafId = null;
+            }
+        }
+    });
+
+    // RESUME MIC
+    CommandBus.subscribe('resume-mic', (_payload, meta) => {
+        if (meta.instanceId !== instanceId) {
+            return;
+        }
+        const rec = recorderRegistry.get(instanceId);
+        if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'paused') {
+            store.dispatch({ type: 'starmus/mic-resume' });
+            rec.mediaRecorder.resume();
+            
+            // Restart the meter loop
+            function resumeMeterLoop() {
+                const active = recorderRegistry.get(instanceId);
+                if (!active || active.mediaRecorder.state !== 'recording') {
+                    return;
+                }
+                
+                const meterBuffer = new Float32Array(active.analyser.fftSize);
+                active.analyser.getFloatTimeDomainData(meterBuffer);
+                let sum = 0;
+                for (let i = 0; i < meterBuffer.length; i++) {
+                    sum += meterBuffer[i] * meterBuffer[i];
+                }
+                const rms = Math.sqrt(sum / meterBuffer.length);
+                const amplitude = Math.min(100, Math.max(0, rms * 4000));
+                
+                // Calculate elapsed time from original startTime
+                const elapsed = (performance.now() - active.startTime) / 1000;
+                
+                store.dispatch({
+                    type: 'starmus/recorder-tick',
+                    payload: { duration: elapsed, amplitude },
+                    duration: elapsed,
+                    amplitude
+                });
+                
+                active.rafId = requestAnimationFrame(resumeMeterLoop);
+            }
+            
+            rec.rafId = requestAnimationFrame(resumeMeterLoop);
         }
     });
 

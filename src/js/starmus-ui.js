@@ -127,11 +127,12 @@ function render(state, elements) {
     const isRecording = status === 'recording';
     const isCalibrating = status === 'calibrating';
     const isReady = status === 'ready';
+    const isPaused = status === 'paused';
     const showStopBtn = isRecording || isCalibrating;
 
     if (elements.recordBtn) {
         // Show Record button when: ready after calibration, ready_to_record, or idle (not during recording/submit/processing)
-        const showRecordBtn = (isReady || status === 'ready_to_record') && !isRecorded && !showStopBtn && status !== 'submitting' && status !== 'processing';
+        const showRecordBtn = (isReady || status === 'ready_to_record') && !isRecorded && !showStopBtn && !isPaused && status !== 'submitting' && status !== 'processing';
         elements.recordBtn.style.display = showRecordBtn ? 'inline-flex' : 'none';
         
         // Update button text based on calibration state
@@ -140,8 +141,21 @@ function render(state, elements) {
         }
     }
 
+    // Pause button - show during recording only
+    if (elements.pauseBtn) {
+        elements.pauseBtn.style.display = isRecording ? 'inline-flex' : 'none';
+    }
+
+    // Resume button - show when paused
+    if (elements.resumeBtn) {
+        elements.resumeBtn.style.display = isPaused ? 'inline-flex' : 'none';
+    }
+
     if (elements.stopBtn) {
-        elements.stopBtn.style.display = showStopBtn ? 'inline-flex' : 'none';
+        // Show stop button during recording, calibrating, or paused states
+        const showStop = isRecording || isCalibrating || isPaused;
+        elements.stopBtn.style.display = showStop ? 'inline-flex' : 'none';
+        
         if (isCalibrating) {
             elements.stopBtn.innerHTML = '<span class="dashicons dashicons-update"></span> Calibrating...';
             elements.stopBtn.disabled = true;
@@ -151,8 +165,9 @@ function render(state, elements) {
         }
     }
 
+    // Review controls - show when paused or ready to submit
     if (elements.reviewControls) {
-        elements.reviewControls.style.display = isRecorded ? 'flex' : 'none';
+        elements.reviewControls.style.display = (isRecorded || isPaused) ? 'flex' : 'none';
     }
 
     if (elements.playBtn) {
@@ -234,6 +249,10 @@ function render(state, elements) {
                 case 'recording':
                     message = 'Recording in progress...';
                     msgClass += ' starmus-status--recording';
+                    break;
+                case 'paused':
+                    message = 'Recording paused. Click Resume to continue or Stop to finish.';
+                    msgClass += ' starmus-status--info';
                     break;
                 case 'processing':
                     message = 'Processing audio... Please wait.';

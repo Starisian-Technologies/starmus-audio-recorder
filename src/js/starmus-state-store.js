@@ -13,7 +13,7 @@ const DEFAULT_INITIAL_STATE = {
     error: null,
     source: { kind: null, blob: null, file: null, fileName: '', transcript: '' },
     calibration: { phase: null, message: '', volumePercent: 0, complete: false, gain: 1.0 },
-    recorder: { duration: 0, amplitude: 0, isPlaying: false },
+    recorder: { duration: 0, amplitude: 0, isPlaying: false, isPaused: false },
     submission: { progress: 0, isQueued: false },
 };
 
@@ -41,7 +41,13 @@ function reducer(state, action) {
             };
 
         case 'starmus/mic-start':
-            return { ...state, status: 'recording', error: null, recorder: { duration: 0, amplitude: 0 } };
+            return { ...state, status: 'recording', error: null, recorder: { ...state.recorder, duration: 0, amplitude: 0, isPaused: false } };
+
+        case 'starmus/mic-pause':
+            return { ...state, status: 'paused', recorder: { ...state.recorder, isPaused: true } };
+
+        case 'starmus/mic-resume':
+            return { ...state, status: 'recording', recorder: { ...state.recorder, isPaused: false } };
 
         case 'starmus/mic-stop':
             return { ...state, status: 'processing' };

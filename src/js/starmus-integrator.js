@@ -148,6 +148,8 @@ async function wireInstance(env, formEl) {
         continueBtn: formEl.querySelector('[data-starmus-action="continue"]'),
         messageBox: formEl.querySelector('[data-starmus-message-box]'),
         recordBtn: formEl.querySelector('[data-starmus-action="record"]'),
+        pauseBtn: formEl.querySelector('[data-starmus-action="pause"]'),
+        resumeBtn: formEl.querySelector('[data-starmus-action="resume"]'),
         stopBtn: formEl.querySelector('[data-starmus-action="stop"]'),
         submitBtn: formEl.querySelector('[data-starmus-action="submit"]'),
         resetBtn: formEl.querySelector('[data-starmus-action="reset"]'),
@@ -256,6 +258,18 @@ async function wireInstance(env, formEl) {
             elements.recordBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 CommandBus.dispatch('start-mic', {}, { instanceId });
+            });
+        }
+        if (elements.pauseBtn) {
+            elements.pauseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                CommandBus.dispatch('pause-mic', {}, { instanceId });
+            });
+        }
+        if (elements.resumeBtn) {
+            elements.resumeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                CommandBus.dispatch('resume-mic', {}, { instanceId });
             });
         }
         if (elements.stopBtn) {
