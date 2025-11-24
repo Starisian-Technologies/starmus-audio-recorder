@@ -50,14 +50,14 @@ class StarmusAdmin
 	private array $field_types            = [];
 
 	/**
-     * Settings service instance.
-     */
-    private ?StarmusSettings $settings    = null;
+	 * Settings service instance.
+	 */
+	private ?StarmusSettings $settings    = null;
 
 	/**
-     * Data Access Layer instance.
-     */
-    private ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface $dal = null;
+	 * Data Access Layer instance.
+	 */
+	private ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface $dal = null;
 
 	/**
 	 * Constructor - initializes admin settings and hooks.
@@ -81,6 +81,7 @@ class StarmusAdmin
 				'file_size_limit'       => 'number',
 				'allowed_file_types'    => 'textarea',
 				'allowed_languages'     => 'text',
+				'speech_recognition_lang' => 'text',
 				'consent_message'       => 'textarea',
 				'collect_ip_ua'         => 'checkbox',
 				'delete_on_uninstall'   => 'checkbox',
@@ -146,13 +147,13 @@ class StarmusAdmin
 	}
 
 	/**
-     * Render admin settings page with CSRF protection.
-     *
-     * REVERTED: Back to standard settings page rendering using WordPress Settings API.
-     * Checks user capabilities, displays settings form with nonce fields,
-     * and handles error display.
-     */
-    public function render_settings_page(): void
+	 * Render admin settings page with CSRF protection.
+	 *
+	 * REVERTED: Back to standard settings page rendering using WordPress Settings API.
+	 * Checks user capabilities, displays settings form with nonce fields,
+	 * and handles error display.
+	 */
+	public function render_settings_page(): void
 	{
 		try {
 			if (! current_user_can('manage_options')) {
@@ -182,13 +183,13 @@ class StarmusAdmin
 	}
 
 	/**
-     * Register plugin settings with WordPress Settings API.
-     *
-     * REVERTED: This method is now back to its original purpose.
-     * Registers the main option, adds settings sections and fields.
-     * Called on 'admin_init' hook.
-     */
-    public function register_settings(): void
+	 * Register plugin settings with WordPress Settings API.
+	 *
+	 * REVERTED: This method is now back to its original purpose.
+	 * Registers the main option, adds settings sections and fields.
+	 * Called on 'admin_init' hook.
+	 */
+	public function register_settings(): void
 	{
 		try {
 			register_setting(
@@ -259,6 +260,11 @@ class StarmusAdmin
 				$sanitized['allowed_languages'] = '';
 			}
 
+			// Speech recognition language (BCP 47 format: en-US, fr-FR, ha-NG, etc.)
+			$speech_lang                            = sanitize_text_field($input['speech_recognition_lang'] ?? 'en-US');
+			$speech_lang                            = preg_replace('/[^a-zA-Z0-9\-]/', '', $speech_lang);
+			$sanitized['speech_recognition_lang'] = ! empty($speech_lang) ? $speech_lang : 'en-US';
+
 			// Consent message
 			$sanitized['consent_message'] = wp_kses_post($input['consent_message'] ?? $defaults['consent_message'] ?? '');
 
@@ -282,7 +288,7 @@ class StarmusAdmin
 				if (! empty($slug_input)) {
 					$page_id = $this->dal->get_page_id_by_slug($slug_input);
 					if ($page_id <= 0) {
-                        add_settings_error(
+						add_settings_error(
 							self::STARMUS_SETTINGS_GROUP,
 							sprintf('starmus_%s_not_found', $key),
 							sprintf(
@@ -293,7 +299,7 @@ class StarmusAdmin
 							),
 							'error'
 						);
-                    }
+					}
 				}
 				$sanitized[$key] = $page_id;
 			}
@@ -383,6 +389,11 @@ class StarmusAdmin
 					'title'       => __('Allowed Languages (ISO codes)', 'starmus-audio-recorder'),
 					'section'     => 'starmus_language_section',
 					'description' => __('Comma-separated list of allowed language ISO codes (e.g., en, fr, de). Leave blank to allow any language.', 'starmus-audio-recorder'),
+				],
+				'speech_recognition_lang' => [
+					'title'       => __('Speech Recognition Language', 'starmus-audio-recorder'),
+					'section'     => 'starmus_language_section',
+					'description' => __('Default language for speech recognition in BCP 47 format (e.g., en-US, fr-FR, ha-NG for Hausa-Nigeria). Used to generate live transcripts during recording.', 'starmus-audio-recorder'),
 				],
 				'consent_message'       => [
 					'title'       => __('Consent Checkbox Message', 'starmus-audio-recorder'),

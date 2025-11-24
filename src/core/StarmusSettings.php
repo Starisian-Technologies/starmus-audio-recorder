@@ -256,6 +256,8 @@ final class StarmusSettings
 					'file_size_limit'       => 10,
 					'recording_time_limit'  => 300,
 					'allowed_file_types'    => '',
+					'allowed_languages'     => '',
+					'speech_recognition_lang' => 'en-US',
 					'consent_message'       => 'I consent to having this audio recording stored and used.', // FIXED SYNTAX
 					'collect_ip_ua'         => 0,
 					'delete_on_uninstall'   => 0,
@@ -276,6 +278,8 @@ final class StarmusSettings
 				'file_size_limit'       => 10,
 				'recording_time_limit'  => 300,
 				'allowed_file_types'    => '',
+				'allowed_languages'     => '',
+				'speech_recognition_lang' => 'en-US',
 				'consent_message'       => 'I consent to having this audio recording stored and used.',
 				'collect_ip_ua'         => 0,
 				'delete_on_uninstall'   => 0,
@@ -367,6 +371,16 @@ final class StarmusSettings
 				$list = array_map(static fn($s) => preg_replace('/[^a-z0-9\.\-+\/]/', '', $s), $list);
 				$list = array_unique($list);
 				return implode(',', $list);
+			case 'allowed_languages':
+				$list = \is_array($value) ? $value : explode(',', (string) $value);
+				$list = array_map(static fn($s) => trim(strtolower((string) $s)), $list);
+				$list = array_filter($list, static fn($s): bool => $s !== '');
+				$list = array_map(static fn($s) => preg_replace('/[^a-z0-9\-]/', '', $s), $list);
+				$list = array_unique($list);
+				return implode(',', $list);
+			case 'speech_recognition_lang':
+				$sanitized = preg_replace('/[^a-zA-Z0-9\-]/', '', (string) $value);
+				return ! empty($sanitized) ? $sanitized : 'en-US';
 			case 'consent_message':
 				return \wp_kses_post((string) $value);
 			case 'data_policy_url':

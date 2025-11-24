@@ -277,14 +277,12 @@ export function initRecorder(store, instanceId) {
 
             const speechSupported = !!(SpeechRecognition && env.speechSupported);
 
-            if (speechSupported) {
-                try {
-                    recognition = new SpeechRecognition();
-                    recognition.continuous = true;
-                    recognition.interimResults = true;
-                    recognition.lang = 'en-US';
-
-                    recognition.onresult = (event) => {
+			if (speechSupported) {
+				try {
+					recognition = new SpeechRecognition();
+					recognition.continuous = true;
+					recognition.interimResults = true;
+					recognition.lang = config.speechRecognitionLang || 'en-US';                    recognition.onresult = (event) => {
                         let currentTranscript = '';
                         for (let i = 0; i < event.results.length; i++) {
                             if (event.results[i].isFinal) {

@@ -164,6 +164,9 @@ final class StarmusAssetLoader
             // TUS endpoint from settings
             $tus_endpoint = \get_option('starmus_tus_endpoint', '');
 
+            // Speech recognition language from settings
+            $speech_lang = $settings->get('speech_recognition_lang', 'en-US');
+
             return [
                 'endpoints' => [
                     'directUpload' => \esc_url_raw(\rest_url(StarmusSubmissionHandler::STARMUS_REST_NAMESPACE . '/upload-fallback')),
@@ -173,6 +176,7 @@ final class StarmusAssetLoader
                 'user_id' => \get_current_user_id(),
                 'allowedFileTypes' => $allowed_types_arr, // ['mp3', 'wav', 'webm']
                 'allowedMimeTypes' => $allowed_mimes,     // ['mp3' => 'audio/mpeg', ...]
+                'speechRecognitionLang' => \sanitize_text_field($speech_lang), // BCP 47 language code
             ];
         } catch (\Throwable $throwable) {
             StarmusLogger::log('StarmusAssetLoader::get_localization_data', $throwable);
@@ -185,6 +189,7 @@ final class StarmusAssetLoader
                 'user_id' => 0,
                 'allowedFileTypes' => [],
                 'allowedMimeTypes' => [],
+                'speechRecognitionLang' => 'en-US',
             ];
         }
     }
