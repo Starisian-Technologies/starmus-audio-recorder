@@ -349,6 +349,14 @@ async function wireInstance(env, formEl) {
         });
     }
 
+    // 6. Play/Pause Handler (for audio preview)
+    if (elements.playBtn) {
+        elements.playBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            CommandBus.dispatch('playback-toggle', {}, { instanceId });
+        });
+    }
+
     return instanceId;
 }
 

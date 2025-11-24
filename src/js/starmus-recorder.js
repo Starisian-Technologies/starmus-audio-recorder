@@ -354,7 +354,9 @@ export function initRecorder(store, instanceId) {
                 audioNodes: nodes,
                 recognition, 
                 transcript, 
-                calibration 
+                calibration,
+                startTime: null, // Will be set when recording starts
+                monitorInterval: null, // For duration/amplitude tracking
             });
 
             mediaRecorder.addEventListener('dataavailable', (event) => {
@@ -367,6 +369,12 @@ export function initRecorder(store, instanceId) {
                 const rec = recorderRegistry.get(instanceId);
                 if (!rec) {
                     return;
+                }
+                
+                // Clear monitoring interval
+                if (rec.monitorInterval) {
+                    clearInterval(rec.monitorInterval);
+                    rec.monitorInterval = null;
                 }
                 
                 if (rec.recognition) {
@@ -426,6 +434,40 @@ export function initRecorder(store, instanceId) {
 
             store.dispatch({ type: 'starmus/mic-start' });
             mediaRecorder.start(1000);
+            
+            // Track recording duration and amplitude
+            const rec = recorderRegistry.get(instanceId);
+            if (rec) {
+                rec.startTime = Date.now();
+                
+                // Create analyzer for amplitude monitoring
+                const amplitudeAnalyser = audioContext.createAnalyser();
+                amplitudeAnalyser.fftSize = 256;
+                const amplitudeSource = audioContext.createMediaStreamSource(rawStream);
+                amplitudeSource.connect(amplitudeAnalyser);
+                
+                const amplitudeBuffer = new Uint8Array(amplitudeAnalyser.frequencyBinCount);
+                
+                rec.monitorInterval = setInterval(() => {
+                    // Update duration
+                    const duration = (Date.now() - rec.startTime) / 1000;
+                    
+                    // Get amplitude (0-100)
+                    amplitudeAnalyser.getByteFrequencyData(amplitudeBuffer);
+                    let sum = 0;
+                    for (let i = 0; i < amplitudeBuffer.length; i++) {
+                        sum += amplitudeBuffer[i];
+                    }
+                    const avgAmplitude = sum / amplitudeBuffer.length;
+                    const amplitude = Math.min(100, (avgAmplitude / 255) * 100);
+                    
+                    store.dispatch({ 
+                        type: 'starmus/recorder-update', 
+                        duration, 
+                        amplitude 
+                    });
+                }, 100); // Update 10x per second
+            }
         } catch (error) {
             console.error(error);
             store.dispatch({

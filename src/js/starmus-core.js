@@ -195,5 +195,32 @@ export function initCore(store, instanceId, env) {
         store.dispatch({ type: 'starmus/reset' });
     });
 
+    CommandBus.subscribe('playback-toggle', (_payload, meta) => {
+        if (meta.instanceId !== instanceId) {
+            return;
+        }
+        
+        const state = store.getState();
+        const audioElement = playbackRegistry.get(instanceId);
+        
+        // Create audio element if it doesn't exist
+        if (!audioElement && state.source.blob) {
+            const audio = new Audio(URL.createObjectURL(state.source.blob));
+            audio.addEventListener('ended', () => {
+                store.dispatch({ type: 'starmus/playback-toggle' }); // Toggle to paused
+            });
+            playbackRegistry.set(instanceId, audio);
+            audio.play();
+            store.dispatch({ type: 'starmus/playback-toggle' });
+        } else if (audioElement) {
+            if (state.recorder.isPlaying) {
+                audioElement.pause();
+            } else {
+                audioElement.play();
+            }
+            store.dispatch({ type: 'starmus/playback-toggle' });
+        }
+    });
+
     return { handleSubmit };
 }

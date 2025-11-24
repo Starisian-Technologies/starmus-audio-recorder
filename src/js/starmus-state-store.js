@@ -29,6 +29,11 @@ const DEFAULT_INITIAL_STATE = {
         noiseFloor: null,
         speechLevel: null,
     },
+    recorder: {
+        duration: 0,      // Current recording duration in seconds
+        amplitude: 0,     // Current audio amplitude (0-100)
+        isPlaying: false, // Playback state for preview
+    },
     submission: {
         progress: 0,
         isQueued: false,
@@ -122,6 +127,30 @@ function reducer(state, action) {
                     ...state.source,
                     kind: 'mic',
                     // blob will be filled when recording finishes
+                },
+                recorder: {
+                    duration: 0,
+                    amplitude: 0,
+                    isPlaying: false,
+                },
+            };
+
+        case 'starmus/recorder-update':
+            return {
+                ...state,
+                recorder: {
+                    ...state.recorder,
+                    duration: action.duration !== undefined ? action.duration : state.recorder.duration,
+                    amplitude: action.amplitude !== undefined ? action.amplitude : state.recorder.amplitude,
+                },
+            };
+
+        case 'starmus/playback-toggle':
+            return {
+                ...state,
+                recorder: {
+                    ...state.recorder,
+                    isPlaying: !state.recorder.isPlaying,
                 },
             };
 
@@ -231,6 +260,7 @@ function reducer(state, action) {
                 ...DEFAULT_INITIAL_STATE,
                 instanceId: state.instanceId,
                 env: state.env,
+                tier: state.tier,
                 status: 'idle',
             };
 
