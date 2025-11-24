@@ -36,13 +36,15 @@ function reducer(state, action) {
         case 'starmus/calibration-complete':
             return { 
                 ...state, 
-                // Auto-start recording after calibration
-                status: 'recording', 
+                status: 'ready', 
                 calibration: { ...state.calibration, ...action.calibration, complete: true } 
             };
 
         case 'starmus/mic-start':
             return { ...state, status: 'recording', error: null, recorder: { duration: 0, amplitude: 0 } };
+
+        case 'starmus/mic-stop':
+            return { ...state, status: 'processing' };
 
         case 'starmus/recorder-tick':
             return { 
