@@ -71,11 +71,21 @@ function getConnection() {
 /**
  * Detect device tier for progressive degradation.
  */
+/**
+ * Detect device tier for progressive degradation.
+ * Patched to support Chromebooks (2 threads) and treat them as valid recorders.
+ */
 function detectTier(env) {
     const caps = env.capabilities || {};
     const network = env.network || {};
     
-    // TIER C: Critical failures
+    // 1. CHROMEBOOK OVERRIDE (Force Tier A)
+    // This specifically fixes your issue where ChromeOS was getting flagged as C.
+    if (/\bCrOS\b|Chrome OS/i.test(navigator.userAgent)) {
+        return 'A';
+    }
+
+    // 2. Capability check (true Tier C: cannot record at all)
     if (!caps.mediaRecorder || !caps.webrtc) {
         return 'C';
     }
@@ -83,27 +93,39 @@ function detectTier(env) {
     const deviceMemory = getDeviceMemory();
     const hardwareConcurrency = getHardwareConcurrency();
     
+    // 3. Memory check — < 1GB is truly unusable for audio processing
     if (deviceMemory && deviceMemory < 1) {
         return 'C';
     }
-    if (hardwareConcurrency && hardwareConcurrency < 2) {
-        return 'C';
+
+    // 4. Concurrency check (Patched)
+    if (hardwareConcurrency) {
+        if (hardwareConcurrency === 1) {
+            // Real low-end devices
+            return 'C';
+        }
+        if (hardwareConcurrency === 2) {
+            // Dual-core Chromebooks + older laptops: Allow MIC but treat as degraded.
+            return 'B';
+        }
     }
     
-    // WebView check (unreliable WebRTC implementation on older Android)
+    // 5. WebView / unsupported WebRTC
     if (/wv|Crosswalk|Android WebView|Opera Mini/i.test(navigator.userAgent)) {
         return 'C';
     }
     
-    // TIER B: Degraded mode
+    // 6. Network degradation
     if (network.effectiveType === '2g' || network.effectiveType === 'slow-2g') {
         return 'B';
     }
+
+    // 7. Memory slightly low (<2GB) but functional
     if (deviceMemory && deviceMemory < 2) {
         return 'B';
     }
-    
-    // TIER A: Full features
+
+    // 8. Default to Tier A (Full features)
     return 'A';
 }
 
