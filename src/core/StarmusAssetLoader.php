@@ -30,14 +30,14 @@ final class StarmusAssetLoader
      *
      * @var string
      */
-    private const HANDLE_PROD_BUNDLE = 'starmus-app-bundle';
+    private const HANDLE_PROD_BUNDLE = 'starmus-audio-recorder-script.bundle';
 
     /**
      * Handle for the main stylesheet.
      *
      * @var string
      */
-    private const STYLE_HANDLE = 'starmus-audio-styles';
+    private const STYLE_HANDLE = 'starmus-audio-recorder-styles';
 
     /**
      * Constructor - Registers WordPress hooks for asset enqueueing.
