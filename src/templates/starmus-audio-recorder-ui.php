@@ -4,13 +4,7 @@
  * Starmus Audio Recorder UI Template - Final, Secure, and Accessible
  *
  * @package Starisian\Sparxstar\Starmus\templates
- * @version 0.9.0
- * @since   0.4.5
- * @var string $form_id         Base ID for the form, passed from the shortcode.
- * @var string $consent_message The user consent message.
- * @var string $data_policy_url The URL to the data policy.
- * @var array  $recording_types An array of recording type terms.
- * @var array  $languages       An array of language terms.
+ * @version 1.1.0
  */
 
 if (! defined('ABSPATH')) {
@@ -146,7 +140,7 @@ $is_admin              = current_user_can('manage_options');
 				</div>
 			</fieldset>
 
-			<!-- Hidden fields … (unchanged) -->
+			<!-- Hidden fields -->
 			<input type="hidden" name="project_collection_id" value="">
 			<input type="hidden" name="accession_number" value="">
 			<input type="hidden" name="session_date" value="">
@@ -309,12 +303,30 @@ $is_admin              = current_user_can('manage_options');
 			
 			<!-- Manual Upload Toggle (Admin/Editor Only) -->
 			<?php if (current_user_can('upload_files')) : ?>
+				<div class="starmus-upload-audio-link" style="margin-top:24px;text-align:right;">
+					<button
+						type="button"
+						id="starmus_show_upload_<?php echo esc_attr($instance_id); ?>"
+						class="starmus-btn starmus-btn--link"
+						aria-controls="starmus_manual_upload_wrap_<?php echo esc_attr($instance_id); ?>"
+						aria-expanded="false">
+						<?php esc_html_e('Switch to File Upload', 'starmus-audio-recorder'); ?>
+					</button>
+				</div>
+				<div
+					id="starmus_manual_upload_wrap_<?php echo esc_attr($instance_id); ?>"
+					style="display:none;margin-top:12px;">
+					<label for="starmus_manual_upload_input_<?php echo esc_attr($instance_id); ?>">
+						<?php esc_html_e('Select audio file to upload:', 'starmus-audio-recorder'); ?>
+					</label>
+					<input
+						type="file"
+						id="starmus_manual_upload_input_<?php echo esc_attr($instance_id); ?>"
+						name="audio_file"
 						accept="audio/*">
 				</div>
 				<script>
 					document.addEventListener('DOMContentLoaded', function() {
-						// wp_json_encode is safe - it's a core WordPress function that escapes JSON
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						const instanceId = <?php echo wp_json_encode($instance_id); ?>;
 						const toggle = document.getElementById('starmus_show_upload_' + instanceId);
 						const wrapper = document.getElementById('starmus_manual_upload_wrap_' + instanceId);
@@ -323,7 +335,6 @@ $is_admin              = current_user_can('manage_options');
 								event.preventDefault();
 								const isHidden = wrapper.style.display === 'none' || wrapper.style.display === '';
 								wrapper.style.display = isHidden ? 'block' : 'none';
-								toggle.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
 							});
 						}
 					});

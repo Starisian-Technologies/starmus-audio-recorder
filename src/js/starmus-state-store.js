@@ -1,7 +1,7 @@
 /**
  * @file starmus-state-store.js
- * @version 4.0.0
- * @description Tiny Redux-style store and Starmus reducer.
+ * @version 4.1.0
+ * @description Tiny Redux-style store. Aligned for Visualizer/Timer updates.
  */
 
 'use strict';
@@ -9,18 +9,18 @@
 const DEFAULT_INITIAL_STATE = {
     instanceId: null,
     env: {},
-    tier: null, // 'A' (full), 'B' (degraded), 'C' (fallback)
-    status: 'uninitialized', // 'idle', 'ready_to_record', 'recording', 'processing', 'ready_to_submit', 'submitting', 'complete'
+    tier: null, 
+    status: 'uninitialized', 
     error: null,
     source: {
-        kind: null,    // 'mic' | 'file'
-        blob: null,    // Blob from MediaRecorder
-        file: null,    // File from <input>
+        kind: null,    // 'mic' | 'file' | 'blob'
+        blob: null,    
+        file: null,    
         fileName: '',
-        transcript: '', // Speech recognition transcript for AI processing
+        transcript: '', 
     },
     calibration: {
-        phase: null,      // 'quiet' | 'speech' | 'validating'
+        phase: null,
         message: '',
         volumePercent: 0,
         complete: false,
@@ -30,9 +30,9 @@ const DEFAULT_INITIAL_STATE = {
         speechLevel: null,
     },
     recorder: {
-        duration: 0,      // Current recording duration in seconds
-        amplitude: 0,     // Current audio amplitude (0-100)
-        isPlaying: false, // Playback state for preview
+        duration: 0,      
+        amplitude: 0,     
+        isPlaying: false, 
     },
     submission: {
         progress: 0,
@@ -40,17 +40,8 @@ const DEFAULT_INITIAL_STATE = {
     },
 };
 
-/**
- * Pure reducer for Starmus state.
- *
- * @param {object} state
- * @param {object} action
- * @returns {object}
- */
 function reducer(state, action) {
-    if (!action || !action.type) {
-        return state;
-    }
+    if (!action || !action.type) return state;
 
     switch (action.type) {
         case 'starmus/init':
@@ -61,130 +52,57 @@ function reducer(state, action) {
                 tier: action.payload.tier || state.tier,
                 status: 'idle',
                 error: null,
-                submission: {
-                    progress: 0,
-                    isQueued: false,
-                },
-            };
-
-        case 'starmus/calibration-start':
-            return {
-                ...state,
-                status: 'calibrating',
-                calibration: {
-                    phase: 'quiet',
-                    message: 'Preparing calibration...',
-                    volumePercent: 0,
-                    complete: false,
-                    gain: 1.0,
-                    snr: null,
-                    noiseFloor: null,
-                    speechLevel: null,
-                }
-            };
-
-        case 'starmus/calibration-update':
-            return {
-                ...state,
-                calibration: {
-                    ...state.calibration,
-                    message: action.message || state.calibration.message,
-                    volumePercent: action.volumePercent !== undefined ? action.volumePercent : state.calibration.volumePercent
-                }
-            };
-
-        case 'starmus/calibration-complete':
-            return {
-                ...state,
-                status: 'ready',
-                calibration: {
-                    ...state.calibration,
-                    ...action.calibration,
-                    complete: true,
-                    message: 'Calibration complete'
-                }
-            };
-
-        case 'starmus/set-tier':
-            return {
-                ...state,
-                tier: action.tier,
+                submission: { progress: 0, isQueued: false },
             };
 
         case 'starmus/ui/step-continue':
-            return {
-                ...state,
-                status: 'ready_to_record',
-                error: null,
-            };
+            return { ...state, status: 'ready_to_record', error: null };
 
         case 'starmus/mic-start':
             return {
                 ...state,
                 status: 'recording',
                 error: null,
-                source: {
-                    ...state.source,
-                    kind: 'mic',
-                    // blob will be filled when recording finishes
-                },
-                recorder: {
-                    duration: 0,
-                    amplitude: 0,
-                    isPlaying: false,
-                },
+                source: { ...state.source, kind: 'mic' },
+                recorder: { duration: 0, amplitude: 0, isPlaying: false },
             };
 
-        case 'starmus/recorder-update':
+        // --- FIXED: Matches starmus-recorder.js ---
+        case 'starmus/recorder-tick':
             return {
                 ...state,
                 recorder: {
                     ...state.recorder,
-                    duration: action.duration !== undefined ? action.duration : state.recorder.duration,
-                    amplitude: action.amplitude !== undefined ? action.amplitude : state.recorder.amplitude,
+                    duration: typeof action.duration === 'number' ? action.duration : state.recorder.duration,
+                    amplitude: typeof action.amplitude === 'number' ? action.amplitude : state.recorder.amplitude,
                 },
             };
 
-        case 'starmus/playback-toggle':
+        // --- FIXED: Matches starmus-integrator.js ---
+        case 'starmus/recorder-playback-state':
             return {
                 ...state,
                 recorder: {
                     ...state.recorder,
-                    isPlaying: !state.recorder.isPlaying,
+                    isPlaying: !!action.isPlaying,
                 },
             };
 
         case 'starmus/mic-stop':
-            return {
-                ...state,
-                status: 'processing',
-            };
+            return { ...state, status: 'processing' };
 
-        case 'starmus/mic-complete':
+        case 'starmus/recording-available': // Replaced 'mic-complete' for consistency
             return {
                 ...state,
                 status: 'ready_to_submit',
                 error: null,
                 source: {
-                    kind: 'mic',
-                    blob: action.blob || null,
-                    file: null,
-                    fileName: action.fileName || 'recording.webm',
-                    transcript: action.transcript || state.source.transcript || '',
-                },
-                submission: {
-                    progress: 0,
-                    isQueued: false,
-                },
-            };
-
-        case 'starmus/transcript-update':
-            return {
-                ...state,
-                source: {
                     ...state.source,
-                    transcript: action.transcript || '',
+                    kind: 'blob',
+                    blob: action.payload.blob,
+                    fileName: 'microphone-recording.webm',
                 },
+                submission: { progress: 0, isQueued: false },
             };
 
         case 'starmus/file-attached':
@@ -193,15 +111,12 @@ function reducer(state, action) {
                 status: 'ready_to_submit',
                 error: null,
                 source: {
+                    ...state.source,
                     kind: 'file',
-                    blob: null,
-                    file: action.file || null,
-                    fileName: action.file ? action.file.name : '',
+                    file: action.payload.file,
+                    fileName: action.payload.file.name,
                 },
-                submission: {
-                    progress: 0,
-                    isQueued: false,
-                },
+                submission: { progress: 0, isQueued: false },
             };
 
         case 'starmus/submit-start':
@@ -209,50 +124,33 @@ function reducer(state, action) {
                 ...state,
                 status: 'submitting',
                 error: null,
-                submission: {
-                    ...state.submission,
-                    progress: 0,
-                    isQueued: !!action.isQueued,
-                },
+                submission: { ...state.submission, progress: 0, isQueued: false },
             };
 
         case 'starmus/submit-progress':
             return {
                 ...state,
-                status: 'submitting',
-                submission: {
-                    ...state.submission,
-                    progress: typeof action.progress === 'number' ? action.progress : state.submission.progress,
-                },
+                submission: { ...state.submission, progress: action.progress },
             };
 
         case 'starmus/submit-queued':
             return {
                 ...state,
                 status: 'complete',
-                submission: {
-                    ...state.submission,
-                    progress: 0,
-                    isQueued: true,
-                    submissionId: action.submissionId,
-                },
+                submission: { ...state.submission, progress: 0, isQueued: true },
             };
 
         case 'starmus/submit-complete':
             return {
                 ...state,
                 status: 'complete',
-                submission: {
-                    ...state.submission,
-                    progress: 1,
-                },
+                submission: { ...state.submission, progress: 1, isQueued: false },
             };
 
         case 'starmus/error':
             return {
                 ...state,
-                status: action.status || state.status || 'idle',
-                error: action.error || { message: 'Unknown error', retryable: true },
+                error: action.payload || { message: 'Unknown error' },
             };
 
         case 'starmus/reset':
@@ -269,46 +167,19 @@ function reducer(state, action) {
     }
 }
 
-/**
- * Creates a minimal store with getState, dispatch, subscribe.
- *
- * @param {object} [initial]
- * @returns {{getState: function, dispatch: function, subscribe: function}}
- */
 export function createStore(initial = {}) {
-    let state = {
-        ...DEFAULT_INITIAL_STATE,
-        ...initial,
-    };
-
+    let state = { ...DEFAULT_INITIAL_STATE, ...initial };
     const listeners = new Set();
 
-    function getState() {
-        return state;
-    }
-
-    function dispatch(action) {
-        state = reducer(state, action);
-        listeners.forEach((listener) => {
-            try {
-                listener(state);
-            } catch (e) {
-                 
-                console.error('[Starmus] Store listener error:', e);
-            }
-        });
-    }
-
-    function subscribe(listener) {
-        listeners.add(listener);
-        return () => {
-            listeners.delete(listener);
-        };
-    }
-
     return {
-        getState,
-        dispatch,
-        subscribe,
+        getState: () => state,
+        dispatch: (action) => {
+            state = reducer(state, action);
+            listeners.forEach((listener) => { try { listener(state); } catch (e) { console.error(e); } });
+        },
+        subscribe: (listener) => {
+            listeners.add(listener);
+            return () => listeners.delete(listener);
+        },
     };
 }

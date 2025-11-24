@@ -53,7 +53,10 @@ function render(state, elements) {
     if (elements.volumeMeter) {
         // Show meter during calibration OR recording
         const showMeter = status === 'calibrating' || status === 'recording';
-        elements.volumeMeter.style.display = showMeter ? 'block' : 'none';
+        // Hide the whole container so borders don't show when empty
+        if (elements.volumeMeter.parentElement) {
+            elements.volumeMeter.parentElement.style.display = showMeter ? 'block' : 'none';
+        }
         
         if (showMeter) {
             // Use calibration volume OR recording amplitude
