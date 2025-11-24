@@ -1,11 +1,23 @@
 /**
  * @file starmus-ui.js
- * @version 4.1.0 (ES Module)
+ * @version 4.2.0 (ES Module)
  * @description Pure view layer. Maps store state to DOM elements.
- * Updated to support Transcripts, Reset logic, and Offline Queue feedback.
+ * Updated to support Timer, Volume Meter, Waveform, and Review Controls.
  */
 
 'use strict';
+
+/**
+ * Helper: Format seconds into MM:SS
+ */
+function formatTime(seconds) {
+    if (!seconds || isNaN(seconds)) {
+        return '00:00';
+    }
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
 
 /**
  * Renders the current state of a Starmus instance to the DOM.
@@ -13,56 +25,102 @@
  * @param {object} elements - A map of DOM elements for the instance.
  */
 function render(state, elements) {
-    const { status, error, source = {}, submission = {}, calibration = {} } = state;
+    const { status, error, source = {}, submission = {}, calibration = {}, recorder = {} } = state;
 
-    // --- Step Visibility ---
+    // --- 1. Step Visibility ---
     if (elements.step1 && elements.step2) {
-        // If we have a recording/file, or we are recording, force Step 2
+        // Step 1 is hidden if we are recording, reviewing, or submitting
         const isActive = status !== 'idle' && status !== 'ready'; 
         elements.step1.style.display = isActive ? 'none' : 'block';
         elements.step2.style.display = isActive ? 'block' : 'none';
     }
 
-    // --- Button States ---
-    if (elements.recordBtn) {
-        // Disable record button if we already have content or are submitting
-        elements.recordBtn.disabled = status === 'recording' || status === 'submitting' || status === 'ready_to_submit';
+    // --- 2. Timer Update ---
+    if (elements.timer) {
+        // If recording, use current duration. If playing back, use current time.
+        const time = recorder.duration || 0;
+        elements.timer.textContent = formatTime(time);
         
-        // Visual cue: Add 'recording' class for CSS pulsing effects
+        // Visual cue: Red text while recording
         if (status === 'recording') {
-            elements.recordBtn.classList.add('starmus-btn--recording');
-            elements.recordBtn.textContent = 'Recording...';
+            elements.timer.classList.add('starmus-timer--recording');
         } else {
-            elements.recordBtn.classList.remove('starmus-btn--recording');
-            elements.recordBtn.textContent = elements.recordBtn.getAttribute('data-original-text') || 'Record';
+            elements.timer.classList.remove('starmus-timer--recording');
         }
     }
 
-    if (elements.stopBtn) {
-        elements.stopBtn.disabled = status !== 'recording';
+    // --- 3. Volume Meter ---
+    if (elements.volumeMeter) {
+        // Show meter during calibration OR recording
+        const showMeter = status === 'calibrating' || status === 'recording';
+        elements.volumeMeter.style.display = showMeter ? 'block' : 'none';
+        
+        if (showMeter) {
+            // Use calibration volume OR recording amplitude
+            const vol = calibration.volumePercent || recorder.amplitude || 0;
+            elements.volumeMeter.style.width = `${vol}%`;
+            
+            // Color feedback for clipping
+            if (vol > 90) {
+                elements.volumeMeter.style.backgroundColor = '#ff4444'; // Red
+            } else {
+                elements.volumeMeter.style.backgroundColor = '#4caf50'; // Green
+            }
+        }
     }
 
+    // --- 4. Control Visibility Logic ---
+    const isRecorded = status === 'ready_to_submit';
+    const isRecording = status === 'recording';
+
+    // Record Button
+    if (elements.recordBtn) {
+        // Only show Record if we haven't recorded yet and aren't currently recording
+        elements.recordBtn.style.display = (!isRecorded && !isRecording && status !== 'submitting') ? 'inline-flex' : 'none';
+    }
+
+    // Stop Button
+    if (elements.stopBtn) {
+        elements.stopBtn.style.display = isRecording ? 'inline-flex' : 'none';
+    }
+
+    // Review Controls (Play/Pause/Retake)
+    if (elements.reviewControls) {
+        elements.reviewControls.style.display = isRecorded ? 'flex' : 'none';
+    }
+
+    // Play/Pause Button Text
+    if (elements.playBtn) {
+        const isPlaying = recorder.isPlaying; // Assuming state tracks playback
+        elements.playBtn.textContent = isPlaying ? 'Pause' : 'Play Preview';
+        elements.playBtn.setAttribute('aria-label', isPlaying ? 'Pause audio' : 'Play recorded audio');
+    }
+
+    // --- 5. Submit Button ---
     if (elements.submitBtn) {
-        // Only enable submit if we have content and aren't currently uploading
         elements.submitBtn.disabled = status !== 'ready_to_submit';
         
         if (status === 'submitting') {
+            elements.submitBtn.innerHTML = '<span class="starmus-spinner"></span> Uploading...';
             elements.submitBtn.classList.add('starmus-btn--loading');
         } else {
+            elements.submitBtn.textContent = 'Submit Recording';
             elements.submitBtn.classList.remove('starmus-btn--loading');
         }
     }
 
-    // --- Reset Button Logic (New) ---
-    if (elements.resetBtn) {
-        // Allow reset if we have a file/recording, or if an error occurred
-        const canReset = (status === 'ready_to_submit' || status === 'complete' || !!error);
-        elements.resetBtn.style.display = canReset ? 'inline-block' : 'none';
-        elements.resetBtn.disabled = status === 'submitting';
+    // --- 6. Progress Bar (Upload) ---
+    if (elements.progressEl && elements.progressWrap) {
+        if (status === 'submitting') {
+            elements.progressWrap.style.display = 'block';
+            const pct = (submission.progress || 0) * 100;
+            elements.progressEl.style.width = `${pct}%`;
+        } else {
+            elements.progressWrap.style.display = 'none';
+        }
     }
 
-    // --- Live Transcript (New) ---
-    // Shows speech-to-text results in real-time with focus animation
+    // --- 7. Live Transcript (New) ---
     if (elements.transcriptBox) {
         if (source.transcript) {
             elements.transcriptBox.style.display = 'block';
@@ -78,43 +136,15 @@ function render(state, elements) {
         }
     }
 
-    // --- Progress Bar ---
-    if (elements.progressEl) {
-        const pct = (submission.progress || 0) * 100;
-        elements.progressEl.style.width = `${pct}%`;
-        // Show progress bar during upload OR calibration (reusing the bar if volumeMeter is missing)
-        elements.progressEl.style.display = (status === 'submitting' || status === 'calibrating') ? 'block' : 'none';
-    }
-
-    // --- Calibration Volume Meter ---
-    if (elements.volumeMeter) {
-        if (status === 'calibrating') {
-            elements.volumeMeter.style.display = 'block';
-            elements.volumeMeter.style.width = `${calibration.volumePercent || 0}%`;
-        } else {
-            elements.volumeMeter.style.display = 'none';
-        }
-    }
-
-    // --- File Input Feedback (Tier C Support) ---
-    if (elements.fileInput && (source.file || source.fileName)) {
-        // Visual feedback that file is selected
-        const fileName = source.fileName || source.file.name;
-        const label = elements.form?.querySelector(`label[for="${elements.fileInput.id}"]`);
-        if (label) {
-            label.textContent = `Selected: ${fileName}`;
-        }
-    }
-
-    // --- Status & Error Messages ---
-    const messageEl = elements.statusEl || elements.messageBox;
+    // --- 8. Status Messages ---
+    const messageEl = elements.statusEl;
     if (messageEl) {
         let message = '';
         let msgClass = 'starmus-status';
 
         if (error) {
             msgClass += ' starmus-status--error';
-            message = `Error: ${error.message || 'An unknown error occurred.'}`;
+            message = error.message || 'An error occurred.';
             if (error.retryable) {
                 message += ' Please try again.';
             }
@@ -128,7 +158,6 @@ function render(state, elements) {
                     break;
                 case 'ready':
                 case 'ready_to_record':
-                    // Show calibration results if available
                     message = calibration.complete 
                         ? `Mic ready (Gain: ${(calibration.gain || 1.0).toFixed(1)}x).`
                         : 'Ready to record.';
@@ -145,7 +174,8 @@ function render(state, elements) {
                         message = 'Network offline. Recording saved to queue.';
                         msgClass += ' starmus-status--warning';
                     } else {
-                        message = `Recorded: ${source.fileName || 'Audio File'}. Ready to submit.`;
+                        message = 'Recording complete. Review or Submit.';
+                        msgClass += ' starmus-status--success';
                     }
                     break;
                 case 'submitting':
@@ -156,7 +186,7 @@ function render(state, elements) {
                         message = 'Saved to offline queue. Will upload automatically when online.';
                         msgClass += ' starmus-status--warning';
                     } else {
-                        message = 'Submission successful! Thank you.';
+                        message = 'Upload successful!';
                         msgClass += ' starmus-status--success';
                     }
                     break;
@@ -178,11 +208,6 @@ function render(state, elements) {
  * @returns {function} An unsubscribe function.
  */
 export function initInstance(store, elements) {
-    // Store original button text for restoring state
-    if (elements.recordBtn && !elements.recordBtn.getAttribute('data-original-text')) {
-        elements.recordBtn.setAttribute('data-original-text', elements.recordBtn.textContent);
-    }
-
     const unsubscribe = store.subscribe((nextState) => render(nextState, elements));
     render(store.getState(), elements); // Initial render
     return unsubscribe;

@@ -195,8 +195,16 @@ async function wireInstance(env, formEl) {
         fileInput: formEl.querySelector('input[type="file"]'),
         statusEl: formEl.querySelector('[data-starmus-status]'),
         progressEl: formEl.querySelector('[data-starmus-progress]'),
+        progressWrap: formEl.querySelector('.starmus-progress-wrap'),
         recorderContainer: formEl.querySelector('[data-starmus-recorder-container]'),
         fallbackContainer: formEl.querySelector('[data-starmus-fallback-container]'),
+        // NEW SELECTORS for enhanced UI
+        timer: formEl.querySelector('[data-starmus-timer]'),
+        volumeMeter: formEl.querySelector('[data-starmus-volume-meter]'),
+        waveformBox: formEl.querySelector('[data-starmus-waveform]'),
+        reviewControls: formEl.querySelector('.starmus-review-controls'),
+        playBtn: formEl.querySelector('[data-starmus-action="play"]'),
+        transcriptBox: formEl.querySelector('[data-starmus-transcript]'),
     };
 
     // --- TIER C UI HANDLING ---
