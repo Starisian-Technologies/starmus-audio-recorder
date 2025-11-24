@@ -48,6 +48,26 @@
   /* Consistent rounded corners */
 }
 
+/* --- Glassmorphic Card Styling (Purple Theme) --- */
+.sparxstar-glass-card {
+  background: rgba(86, 78, 229, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(86, 78, 229, 0.3);
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .sparxstar-glass-card {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+}
+
 /* --- Dark Theme Overrides --- */
 .has-background[style*="background-color: rgb(55, 1, 44)"] .starmus-recorder-form,
 .has-background[style*="background-color: #37012c"] .starmus-recorder-form {
@@ -678,4 +698,80 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   margin-bottom: 0.5rem;
   color: var(--starmus-text-muted);
   margin-left: 0;
+}
+
+/* ========================================================================
+   IMMERSIVE MOBILE MODE
+   ======================================================================== */
+@media (max-width: 768px) {
+  .starmus-recorder-form.starmus-immersive {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    /* Dynamic viewport height for mobile browsers */
+    z-index: 99999;
+    /* On top of everything, including WP Admin bar */
+    background: linear-gradient(135deg, rgba(86, 78, 229, 0.95) 0%, rgba(67, 56, 202, 0.95) 100%);
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    transition: all 0.3s ease-in-out;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .starmus-recorder-form.starmus-immersive .sparxstar-glass-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Hide website scrollbar when form is in immersive mode */
+  body.starmus-lock-scroll {
+    overflow: hidden;
+  }
+
+  /* Adjust header spacing in immersive mode */
+  .starmus-immersive .starmus-step h2 {
+    margin-top: 0;
+    padding-top: 20px;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Close button for immersive mode */
+  .starmus-close-immersive {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 2rem;
+    color: #fff;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: all 0.2s ease;
+    z-index: 100000;
+  }
+
+  .starmus-close-immersive:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+  }
 }

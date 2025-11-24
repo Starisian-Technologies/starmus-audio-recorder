@@ -245,6 +245,54 @@ async function wireInstance(env, formEl) {
             }
 
             store.dispatch({ type: 'starmus/ui/step-continue' });
+
+            // === IMMERSIVE MOBILE MODE ===
+            if (window.innerWidth < 768) {
+                const formContainer = formEl.closest('.starmus-recorder-form') || formEl;
+                
+                // Add CSS Classes for fullscreen mode
+                formContainer.classList.add('starmus-immersive');
+                document.body.classList.add('starmus-lock-scroll');
+
+                // Push state to browser history (enables back button handling)
+                history.pushState(
+                    { starmusMode: 'immersive', instanceId: instanceId }, 
+                    '', 
+                    '#recording-mode'
+                );
+
+                // Handle Back Button
+                const handlePopState = () => {
+                    formContainer.classList.remove('starmus-immersive');
+                    document.body.classList.remove('starmus-lock-scroll');
+                    
+                    // Remove close button if exists
+                    const closeBtn = formContainer.querySelector('.starmus-close-immersive');
+                    if (closeBtn) {
+                        closeBtn.remove();
+                    }
+
+                    window.removeEventListener('popstate', handlePopState);
+                };
+
+                window.addEventListener('popstate', handlePopState);
+
+                // Create floating close button
+                if (!formContainer.querySelector('.starmus-close-immersive')) {
+                    const closeBtn = document.createElement('button');
+                    closeBtn.innerHTML = '&times;';
+                    closeBtn.className = 'starmus-close-immersive';
+                    closeBtn.setAttribute('aria-label', 'Close fullscreen mode');
+                    
+                    closeBtn.onclick = (e) => {
+                        e.preventDefault();
+                        history.back(); // Triggers the popstate event
+                    };
+                    
+                    formContainer.style.position = 'relative';
+                    formContainer.insertBefore(closeBtn, formContainer.firstChild);
+                }
+            }
         });
     }
 
