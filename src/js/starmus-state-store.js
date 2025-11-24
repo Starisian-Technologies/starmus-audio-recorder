@@ -41,7 +41,7 @@ const DEFAULT_INITIAL_STATE = {
 };
 
 function reducer(state, action) {
-    if (!action || !action.type) return state;
+    if (!action || !action.type) {return state;}
 
     switch (action.type) {
         case 'starmus/init':

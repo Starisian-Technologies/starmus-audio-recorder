@@ -7,15 +7,15 @@
 'use strict';
 
 import { CommandBus, debugLog } from './starmus-hooks.js';
-import { uploadWithTus, uploadDirect, isTusAvailable, estimateUploadTime, formatUploadEstimate } from './starmus-tus.js';
-import { queueSubmission, getPendingCount } from './starmus-offline.js';
+import { uploadWithTus, uploadDirect, isTusAvailable } from './starmus-tus.js';
+import { queueSubmission } from './starmus-offline.js';
 
 export function initCore(store, instanceId, env) {
     async function handleSubmit(formFields) {
         const state = store.getState();
         const { source, calibration, env: stateEnv } = state;
 
-        if (state.status === 'submitting') return;
+        if (state.status === 'submitting') {return;}
 
         if (!source || (!source.blob && !source.file)) {
             store.dispatch({
@@ -46,7 +46,7 @@ export function initCore(store, instanceId, env) {
 
         try {
             // Offline check
-            if (!navigator.onLine) throw new Error('OFFLINE_FAST_PATH');
+            if (!navigator.onLine) {throw new Error('OFFLINE_FAST_PATH');}
 
             const useTus = isTusAvailable() && audioBlob.size > 1024 * 1024;
             
@@ -85,11 +85,11 @@ export function initCore(store, instanceId, env) {
     }
 
     CommandBus.subscribe('submit', (payload, meta) => {
-        if (meta.instanceId === instanceId) handleSubmit(payload.formFields || {});
+        if (meta.instanceId === instanceId) {handleSubmit(payload.formFields || {});}
     });
 
     CommandBus.subscribe('reset', (_payload, meta) => {
-        if (meta.instanceId === instanceId) store.dispatch({ type: 'starmus/reset' });
+        if (meta.instanceId === instanceId) {store.dispatch({ type: 'starmus/reset' });}
     });
 
     return { handleSubmit };

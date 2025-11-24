@@ -38,7 +38,7 @@ const instances = new Map();
 // Safe navigators
 function getDeviceMemory() { try { return navigator.deviceMemory || null; } catch { return null; } }
 function getHardwareConcurrency() { try { return navigator.hardwareConcurrency || null; } catch { return null; } }
-function getConnection() { try { return navigator.connection || navigator.mozConnection || navigator.webkitConnection || null; } catch { return null; } }
+function _getConnection() { try { return navigator.connection || navigator.mozConnection || navigator.webkitConnection || null; } catch { return null; } }
 
 /**
  * Detect Tier - FIXED FOR CHROMEBOOKS
@@ -53,49 +53,53 @@ function detectTier(env) {
     }
 
     // 2. Critical Failures
-    if (!caps.mediaRecorder || !caps.webrtc) return 'C';
+    if (!caps.mediaRecorder || !caps.webrtc) {return 'C';}
     
     const mem = getDeviceMemory();
     const threads = getHardwareConcurrency();
 
     // 3. Memory Check
-    if (mem && mem < 1) return 'C';
+    if (mem && mem < 1) {return 'C';}
 
     // 4. Thread Check (Relaxed for Chromebooks/Mid-range)
     if (threads) {
-        if (threads === 1) return 'C';
-        if (threads === 2) return 'B'; // Allow dual-core
+        if (threads === 1) {return 'C';}
+        if (threads === 2) {return 'B';} // Allow dual-core
     }
     
     // 5. Blocklist
-    if (/wv|Crosswalk|Android WebView|Opera Mini/i.test(navigator.userAgent)) return 'C';
+    if (/wv|Crosswalk|Android WebView|Opera Mini/i.test(navigator.userAgent)) {return 'C';}
     
     // 6. Network
-    if (network.effectiveType === '2g' || network.effectiveType === 'slow-2g') return 'B';
+    if (network.effectiveType === '2g' || network.effectiveType === 'slow-2g') {return 'B';}
 
     // 7. Low Memory Degrade
-    if (mem && mem < 2) return 'B';
+    if (mem && mem < 2) {return 'B';}
 
     return 'A';
 }
 
 async function refineTierAsync(tier) {
-    if (tier === 'C') return 'C';
+    if (tier === 'C') {return 'C';}
     
     // Optional: Check storage quota
     if (navigator.storage && navigator.storage.estimate) {
         try {
             const estimate = await navigator.storage.estimate();
-            if ((estimate.quota || 0) / 1024 / 1024 < 80) return 'C';
-        } catch {}
+            if ((estimate.quota || 0) / 1024 / 1024 < 80) {return 'C';}
+        } catch {
+            // Ignore storage estimate failures (not critical)
+        }
     }
     
     // Optional: Check Permissions (don't block, just downgrade if denied)
     if (navigator.permissions && navigator.permissions.query) {
         try {
             const status = await navigator.permissions.query({ name: 'microphone' });
-            if (status.state === 'denied') return 'C';
-        } catch {}
+            if (status.state === 'denied') {return 'C';}
+        } catch {
+            // Ignore permission query failures (not supported on all browsers)
+        }
     }
     
     return tier;
@@ -108,7 +112,7 @@ async function wireInstance(env, formEl) {
         formEl.setAttribute('data-starmus-id', instanceId);
     }
 
-    if (instances.has(instanceId)) return instanceId;
+    if (instances.has(instanceId)) {return instanceId;}
 
     let tier = detectTier(env);
     tier = await refineTierAsync(tier);
@@ -145,15 +149,15 @@ async function wireInstance(env, formEl) {
 
     // --- TIER C UI HANDLING ---
     if (tier === 'C') {
-        if (elements.recorderContainer) elements.recorderContainer.style.display = 'none';
-        if (elements.fallbackContainer) elements.fallbackContainer.style.display = 'block';
-        if (window.StarmusHooks?.doAction) window.StarmusHooks.doAction('starmus_tier_c_revealed', instanceId, env);
+        if (elements.recorderContainer) {elements.recorderContainer.style.display = 'none';}
+        if (elements.fallbackContainer) {elements.fallbackContainer.style.display = 'block';}
+        if (window.StarmusHooks?.doAction) {window.StarmusHooks.doAction('starmus_tier_c_revealed', instanceId, env);}
     }
 
     // --- INIT ---
     initUI(store, elements);
     initCore(store, instanceId, env);
-    if (tier !== 'C') initRecorder(store, instanceId);
+    if (tier !== 'C') {initRecorder(store, instanceId);}
 
     instances.set(instanceId, { store, form: formEl, elements, tier });
 
@@ -181,11 +185,11 @@ async function wireInstance(env, formEl) {
     }
 
     if (tier !== 'C') {
-        if (elements.recordBtn) elements.recordBtn.addEventListener('click', (e) => { e.preventDefault(); CommandBus.dispatch('start-mic', {}, { instanceId }); });
-        if (elements.stopBtn) elements.stopBtn.addEventListener('click', (e) => { e.preventDefault(); CommandBus.dispatch('stop-mic', {}, { instanceId }); });
+        if (elements.recordBtn) {elements.recordBtn.addEventListener('click', (e) => { e.preventDefault(); CommandBus.dispatch('start-mic', {}, { instanceId }); });}
+        if (elements.stopBtn) {elements.stopBtn.addEventListener('click', (e) => { e.preventDefault(); CommandBus.dispatch('stop-mic', {}, { instanceId }); });}
     }
 
-    if (elements.fileInput) elements.fileInput.addEventListener('change', () => { if(elements.fileInput.files[0]) CommandBus.dispatch('attach-file', { file: elements.fileInput.files[0] }, { instanceId }); });
+    if (elements.fileInput) {elements.fileInput.addEventListener('change', () => { if(elements.fileInput.files[0]) {CommandBus.dispatch('attach-file', { file: elements.fileInput.files[0] }, { instanceId });} });}
 
     formEl.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -195,7 +199,7 @@ async function wireInstance(env, formEl) {
         CommandBus.dispatch('submit', { formFields }, { instanceId });
     });
 
-    if (elements.resetBtn) elements.resetBtn.addEventListener('click', (e) => { e.preventDefault(); CommandBus.dispatch('reset', {}, { instanceId }); });
+    if (elements.resetBtn) {elements.resetBtn.addEventListener('click', (e) => { e.preventDefault(); CommandBus.dispatch('reset', {}, { instanceId }); });}
 
     // --- PLAYBACK LOGIC (Fixed to sync with Store) ---
     let audioEl = null;
@@ -209,7 +213,7 @@ async function wireInstance(env, formEl) {
             const { source, recorder } = state;
             const blob = source.blob || source.file; 
 
-            if (!blob) return;
+            if (!blob) {return;}
 
             if (!audioEl) {
                 audioEl = new Audio();
@@ -239,7 +243,7 @@ async function wireInstance(env, formEl) {
         if (meta.instanceId === instanceId && audioEl) {
             audioEl.pause();
             audioEl = null;
-            if (audioUrl) URL.revokeObjectURL(audioUrl);
+            if (audioUrl) {URL.revokeObjectURL(audioUrl);}
         }
     });
 
@@ -271,7 +275,7 @@ let fallbackTimer = null;
 
 document.addEventListener('sparxstar:environment-ready', (event) => {
     environmentReady = true;
-    if (fallbackTimer) clearTimeout(fallbackTimer);
+    if (fallbackTimer) {clearTimeout(fallbackTimer);}
     onEnvironmentReady(event);
 });
 

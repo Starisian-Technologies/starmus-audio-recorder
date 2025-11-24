@@ -73,50 +73,6 @@ final class StarmusAssetLoader
         error_log('[Starmus AssetLoader] Assets enqueued successfully');
     }
 
-    /**
-     * Checks if the current page contains any Starmus shortcodes that require assets.
-     *
-     * Scans the current post content for Starmus-specific shortcodes to determine
-     * if frontend assets should be loaded.
-     *
-     * @return bool True if page contains Starmus shortcodes, false otherwise.
-     */
-    private function is_starmus_page(): bool
-    {
-        try {
-            global $post;
-
-            if (!($post instanceof \WP_Post)) {
-                StarmusLogger::log('StarmusAssetLoader: No WP_Post object found.');
-                return false;
-            }
-
-            if (empty($post->post_content)) {
-                StarmusLogger::log('StarmusAssetLoader: Post content empty for ID: ' . $post->ID);
-                return false;
-            }
-
-            // Direct shortcode scan
-            $found = has_shortcode($post->post_content, 'starmus_audio_recorder')
-                || has_shortcode($post->post_content, 'starmus_audio_re_recorder')
-                || has_shortcode($post->post_content, 'starmus_my_recordings')
-                || has_shortcode($post->post_content, 'starmus_audio_editor');
-
-            StarmusLogger::log(
-                sprintf(
-                    'StarmusAssetLoader: Shortcode scan result for Post ID %d: %s',
-                    $post->ID,
-                    $found ? 'TRUE' : 'FALSE'
-                )
-            );
-
-            return $found;
-        } catch (\Throwable $throwable) {
-            StarmusLogger::log('StarmusAssetLoader::is_starmus_page', $throwable);
-            return false;
-        }
-    }
-
 
     /**
      * Enqueues the single, bundled, and minified JavaScript file for production.
@@ -149,6 +105,7 @@ final class StarmusAssetLoader
             StarmusLogger::log('StarmusAssetLoader::enqueue_production_assets', $throwable);
         }
     }
+
     /**
      * Enqueues the minified stylesheet for the plugin.
      *
