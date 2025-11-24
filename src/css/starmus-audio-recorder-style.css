@@ -664,6 +664,19 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   margin-bottom: 0.5rem;
 }
 
+/* --- Live Transcript Styling --- */
+.starmus-transcript--final {
+  color: var(--starmus-text-color);
+  font-weight: 500;
+}
+
+.starmus-transcript--interim {
+  color: var(--starmus-text-muted);
+  font-weight: 400;
+  opacity: 0.7;
+  font-style: italic;
+}
+
 /* --- Submission Status --- */
 .starmus-detail__status {
   margin-top: 2rem;

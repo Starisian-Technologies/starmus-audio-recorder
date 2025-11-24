@@ -211,16 +211,32 @@ function render(state, elements) {
 
     // --- 7. Live Transcript ---
     if (elements.transcriptBox) {
-        if (source.transcript) {
+        const hasFinal = source.transcript && source.transcript.length > 0;
+        const hasInterim = source.interimTranscript && source.interimTranscript.length > 0;
+        
+        if (hasFinal || hasInterim) {
             elements.transcriptBox.style.display = 'block';
-            elements.transcriptBox.textContent = source.transcript;
+            
+            // Show final transcript with interim in dimmed style
+            elements.transcriptBox.innerHTML = hasFinal
+                ? `<span class="starmus-transcript--final">${escapeHtml(source.transcript)}</span>${hasInterim ? ' <span class="starmus-transcript--interim">' + escapeHtml(source.interimTranscript) + '</span>' : ''}`
+                : `<span class="starmus-transcript--interim">${escapeHtml(source.interimTranscript)}</span>`;
 
-            elements.transcriptBox.classList.remove('starmus-transcript--pulse');
-            void elements.transcriptBox.offsetWidth;
-            elements.transcriptBox.classList.add('starmus-transcript--pulse');
+            if (hasFinal) {
+                elements.transcriptBox.classList.remove('starmus-transcript--pulse');
+                void elements.transcriptBox.offsetWidth;
+                elements.transcriptBox.classList.add('starmus-transcript--pulse');
+            }
         } else {
             elements.transcriptBox.style.display = 'none';
         }
+    }
+
+    // Helper function for HTML escaping
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     // --- 8. Status Messages ---

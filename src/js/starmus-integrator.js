@@ -191,6 +191,22 @@ async function wireInstance(env, formEl) {
 
     instances.set(instanceId, { store, form: formEl, elements, tier });
 
+    // Subscribe to tier changes at runtime (e.g., audio graph failures)
+    store.subscribe(() => {
+        const state = store.getState();
+        if (state.tier === 'C' && tier !== 'C') {
+            // Runtime tier downgrade - show fallback UI
+            tier = 'C';
+            if (elements.recorderContainer) {
+                elements.recorderContainer.style.display = 'none';
+            }
+            if (elements.fallbackContainer) {
+                elements.fallbackContainer.style.display = 'block';
+            }
+            console.log(`[Starmus] Instance ${instanceId} downgraded to Tier C`);
+        }
+    });
+
     const speechSupported =
         tier === 'A'
             ? !!(window.SpeechRecognition || window.webkitSpeechRecognition)

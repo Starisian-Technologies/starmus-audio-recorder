@@ -71,6 +71,12 @@ function reducer(state, action) {
         case 'starmus/transcript-update':
             return { ...state, source: { ...state.source, transcript: action.transcript } };
 
+        case 'starmus/transcript-interim':
+            return { ...state, source: { ...state.source, interimTranscript: action.interim } };
+
+        case 'starmus/env-update':
+            return { ...state, env: { ...state.env, ...action.payload }, tier: action.tier || state.tier };
+
         case 'starmus/file-attached':
             return {
                 ...state,

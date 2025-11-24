@@ -276,9 +276,17 @@ export function initRecorder(store, instanceId) {
             } catch (graphError) {
                 debugLog('[Recorder] Audio graph setup failed:', graphError);
                 rawStream.getTracks().forEach(track => track.stop());
+                
+                // Set tier to C and reveal fallback UI
+                store.dispatch({
+                    type: 'starmus/env-update',
+                    payload: { tier: 'C' },
+                    tier: 'C'
+                });
+                
                 store.dispatch({
                     type: 'starmus/error',
-                    payload: { message: 'Audio processing setup failed: ' + graphError.message, retryable: false },
+                    payload: { message: 'Audio processing not supported. Please upload a file.', retryable: false },
                     error: graphError
                 });
                 return;
@@ -305,21 +313,35 @@ export function initRecorder(store, instanceId) {
 
             const speechSupported = !!(SpeechRecognition && env.speechSupported);
 
-			if (speechSupported) {
-				try {
-					recognition = new SpeechRecognition();
-					recognition.continuous = true;
-					recognition.interimResults = true;
-					recognition.lang = config.speechRecognitionLang || 'en-US';                    recognition.onresult = (event) => {
-                        let currentTranscript = '';
+				if (speechSupported) {
+					try {
+						recognition = new SpeechRecognition();
+						recognition.continuous = true;
+						recognition.interimResults = true;
+						recognition.lang = config.speechRecognitionLang || 'en-US';                    recognition.onresult = (event) => {
+                        let finalTranscript = '';
+                        let interimTranscript = '';
+                        
                         for (let i = 0; i < event.results.length; i++) {
+                            const transcriptPiece = event.results[i][0].transcript;
                             if (event.results[i].isFinal) {
-                                currentTranscript +=
-                                    event.results[i][0].transcript + ' ';
+                                finalTranscript += transcriptPiece + ' ';
+                            } else {
+                                interimTranscript += transcriptPiece;
                             }
                         }
-                        if (currentTranscript) {
-                            transcript += currentTranscript;
+                        
+                        // Fix 5: Dispatch interim results for real-time UX
+                        if (interimTranscript) {
+                            store.dispatch({
+                                type: 'starmus/transcript-interim',
+                                payload: { interim: interimTranscript },
+                                interim: interimTranscript
+                            });
+                        }
+                        
+                        if (finalTranscript) {
+                            transcript += finalTranscript;
                             const normalized = transcript.trim();
                             store.dispatch({
                                 type: 'starmus/transcript-update',
@@ -435,7 +457,22 @@ export function initRecorder(store, instanceId) {
             };
 
             store.dispatch({ type: 'starmus/mic-start' });
-            mediaRecorder.start(1000);
+            mediaRecorder.start(3000); // 3-second chunks reduce memory pressure and offline queue size
+
+            // Initial amplitude sample to avoid flat meter at start
+            analyser.getFloatTimeDomainData(meterBuffer);
+            let initialSum = 0;
+            for (let i = 0; i < meterBuffer.length; i++) {
+                initialSum += meterBuffer[i] * meterBuffer[i];
+            }
+            const initialRms = Math.sqrt(initialSum / meterBuffer.length);
+            const initialAmplitude = Math.min(100, Math.max(0, initialRms * 4000));
+            store.dispatch({
+                type: 'starmus/recorder-tick',
+                payload: { duration: 0, amplitude: initialAmplitude },
+                duration: 0,
+                amplitude: initialAmplitude
+            });
 
             recRef.rafId = requestAnimationFrame(meterLoop);
         } catch (error) {
