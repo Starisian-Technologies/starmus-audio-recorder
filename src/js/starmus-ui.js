@@ -41,15 +41,69 @@ function render(state, elements) {
         elements.step2.style.display = isActive ? 'block' : 'none';
     }
 
-    // --- 2. Timer Update ---
-    if (elements.timer) {
+    // --- 2. Timer & Duration Progress Update ---
+    const MAX_DURATION = 1200; // 20 minutes in seconds
+    const ORANGE_THRESHOLD = 900; // 15 minutes (5 min remaining)
+    const RED_THRESHOLD = 1020; // 17 minutes (3 min remaining)
+    
+    if (elements.timer || elements.timerElapsed) {
         const time = recorder.duration || 0;
-        elements.timer.textContent = formatTime(time);
+        const formattedTime = formatTime(time);
+        
+        // Update timer display
+        if (elements.timerElapsed) {
+            elements.timerElapsed.textContent = formattedTime;
+        } else if (elements.timer) {
+            elements.timer.textContent = formattedTime;
+        }
 
-        if (status === 'recording') {
-            elements.timer.classList.add('starmus-timer--recording');
+        // Add recording class for visual feedback
+        if (elements.timer) {
+            if (status === 'recording') {
+                elements.timer.classList.add('starmus-timer--recording');
+            } else {
+                elements.timer.classList.remove('starmus-timer--recording');
+            }
+        }
+    }
+    
+    // --- 2b. Duration Progress Bar ---
+    if (elements.durationProgress) {
+        const time = recorder.duration || 0;
+        const showProgress = status === 'recording' || status === 'calibrating';
+        
+        if (showProgress) {
+            elements.durationProgress.parentElement.style.display = 'block';
+            
+            // Calculate progress percentage (0-100)
+            const progressPercent = Math.min(100, (time / MAX_DURATION) * 100);
+            elements.durationProgress.style.width = `${progressPercent}%`;
+            elements.durationProgress.setAttribute('aria-valuenow', Math.floor(time));
+            
+            // Color thresholds: green -> orange (15min) -> red (17min)
+            if (time >= RED_THRESHOLD) {
+                elements.durationProgress.style.backgroundColor = '#e74c3c'; // Red
+                elements.durationProgress.classList.add('starmus-duration-progress--danger');
+                elements.durationProgress.classList.remove('starmus-duration-progress--warning');
+            } else if (time >= ORANGE_THRESHOLD) {
+                elements.durationProgress.style.backgroundColor = '#f39c12'; // Orange
+                elements.durationProgress.classList.add('starmus-duration-progress--warning');
+                elements.durationProgress.classList.remove('starmus-duration-progress--danger');
+            } else {
+                elements.durationProgress.style.backgroundColor = '#27ae60'; // Green
+                elements.durationProgress.classList.remove('starmus-duration-progress--warning', 'starmus-duration-progress--danger');
+            }
+            
+            // Auto-stop at 20 minutes
+            if (time >= MAX_DURATION && status === 'recording') {
+                // Dispatch stop command
+                if (window.CommandBus) {
+                    window.CommandBus.dispatch('stop-mic', {}, { instanceId: state.instanceId });
+                }
+            }
         } else {
-            elements.timer.classList.remove('starmus-timer--recording');
+            elements.durationProgress.parentElement.style.display = 'none';
+            elements.durationProgress.style.width = '0%';
         }
     }
 

@@ -160,6 +160,8 @@ async function wireInstance(env, formEl) {
 
         // New UI elements
         timer: formEl.querySelector('[data-starmus-timer]'),
+        timerElapsed: formEl.querySelector('.starmus-timer-elapsed'),
+        durationProgress: formEl.querySelector('[data-starmus-duration-progress]'),
         volumeMeter: formEl.querySelector('[data-starmus-volume-meter]'),
         waveformBox: formEl.querySelector('[data-starmus-waveform]'),
         reviewControls: formEl.querySelector('.starmus-review-controls'),

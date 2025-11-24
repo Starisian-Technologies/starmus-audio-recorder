@@ -178,7 +178,7 @@ $is_admin              = current_user_can('manage_options');
 			class="starmus-step starmus-step-2"
 			data-starmus-step="2"
 			style="display:none;">
-			
+
 			<h2 id="starmus_audioRecorderHeading_<?php echo esc_attr($instance_id); ?>" tabindex="-1">
 				<?php esc_html_e('Record Your Audio', 'starmus-audio-recorder'); ?>
 			</h2>
@@ -211,9 +211,25 @@ $is_admin              = current_user_can('manage_options');
 
 				<!-- VISUALIZER STAGE -->
 				<div class="starmus-visualizer-stage">
-					<!-- Timer -->
-					<div id="starmus_timer_<?php echo esc_attr($instance_id); ?>" class="starmus-timer" data-starmus-timer>00:00</div>
-					
+					<!-- Timer with Duration Progress -->
+					<div class="starmus-timer-wrapper">
+						<div id="starmus_timer_<?php echo esc_attr($instance_id); ?>" class="starmus-timer" data-starmus-timer>
+							<span class="starmus-timer-elapsed">00:00</span>
+							<span class="starmus-timer-separator">/</span>
+							<span class="starmus-timer-max">20:00</span>
+						</div>
+						<div class="starmus-duration-progress-wrapper">
+							<div id="starmus_duration_progress_<?php echo esc_attr($instance_id); ?>"
+								class="starmus-duration-progress"
+								data-starmus-duration-progress
+								role="progressbar"
+								aria-valuemin="0"
+								aria-valuemax="1200"
+								aria-valuenow="0"
+								aria-label="Recording duration progress"></div>
+						</div>
+					</div>
+
 					<!-- Waveform Container (Peaks.js) -->
 					<div id="starmus_waveform_<?php echo esc_attr($instance_id); ?>" class="starmus-waveform-view" data-starmus-waveform></div>
 
@@ -253,7 +269,7 @@ $is_admin              = current_user_can('manage_options');
 							data-starmus-action="play">
 							<?php esc_html_e('Play / Pause', 'starmus-audio-recorder'); ?>
 						</button>
-						
+
 						<button
 							type="button"
 							id="starmus_reset_btn_<?php echo esc_attr($instance_id); ?>"
@@ -299,8 +315,8 @@ $is_admin              = current_user_can('manage_options');
 				data-starmus-action="submit"
 				disabled>
 				<?php esc_html_e('Submit Recording', 'starmus-audio-recorder'); ?>
-			</button> 
-			
+			</button>
+
 			<!-- Manual Upload Toggle (Admin/Editor Only) -->
 			<?php if (current_user_can('upload_files')) : ?>
 				<div class="starmus-upload-audio-link" style="margin-top:24px;text-align:right;">

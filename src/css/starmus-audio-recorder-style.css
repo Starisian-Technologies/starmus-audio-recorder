@@ -13,25 +13,25 @@
    1. FOUNDATION, THEME & NEW GLASS VARIABLES
    ======================================================================== */
 :root {
-    /* --- Core Theme Variables --- */
-    --starmus-primary-color: var(--wp--preset--color--primary, #8a2be2);
-    --starmus-text-color: var(--wp--preset--color--foreground, #111827);
-    --starmus-text-muted: var(--wp--preset--color--secondary, #6b7280);
-    --starmus-border-color: var(--wp--preset--color--contrast, #d1d5db);
-    --starmus-bg-light: var(--wp--preset--color--base-2, #f9fafb);
-    --starmus-bg-card: var(--wp--preset--color--background, #fff);
-    --starmus-danger-color: #dc3545;
-    --starmus-success-color: #28a745;
+  /* --- Core Theme Variables --- */
+  --starmus-primary-color: var(--wp--preset--color--primary, #8a2be2);
+  --starmus-text-color: var(--wp--preset--color--foreground, #111827);
+  --starmus-text-muted: var(--wp--preset--color--secondary, #6b7280);
+  --starmus-border-color: var(--wp--preset--color--contrast, #d1d5db);
+  --starmus-bg-light: var(--wp--preset--color--base-2, #f9fafb);
+  --starmus-bg-card: var(--wp--preset--color--background, #fff);
+  --starmus-danger-color: #dc3545;
+  --starmus-success-color: #28a745;
 
-    /* --- Color Mix Fallbacks --- */
-    --starmus-primary-hover: #6e2491;
-    --starmus-danger-hover: #b02a37;
-    
-    /* --- Glassmorphism Variables --- */
-    --starmus-glass-bg: rgba(255, 255, 255, 0.1);
-    --starmus-glass-border-color: rgba(255, 255, 255, 0.2);
-    --starmus-glass-blur: 10px;
-    --starmus-glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  /* --- Color Mix Fallbacks --- */
+  --starmus-primary-hover: #6e2491;
+  --starmus-danger-hover: #b02a37;
+
+  /* --- Glassmorphism Variables --- */
+  --starmus-glass-bg: rgba(255, 255, 255, 0.1);
+  --starmus-glass-border-color: rgba(255, 255, 255, 0.2);
+  --starmus-glass-blur: 10px;
+  --starmus-glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* ========================================================================
@@ -39,27 +39,28 @@
    ======================================================================== */
 
 .starmus-glass {
-    background: var(--starmus-glass-bg);
-    -webkit-backdrop-filter: blur(var(--starmus-glass-blur));
-    backdrop-filter: blur(var(--starmus-glass-blur));
-    border: 1px solid var(--starmus-glass-border-color);
-    box-shadow: var(--starmus-glass-shadow);
-    border-radius: 1rem; /* Consistent rounded corners */
+  background: var(--starmus-glass-bg);
+  -webkit-backdrop-filter: blur(var(--starmus-glass-blur));
+  backdrop-filter: blur(var(--starmus-glass-blur));
+  border: 1px solid var(--starmus-glass-border-color);
+  box-shadow: var(--starmus-glass-shadow);
+  border-radius: 1rem;
+  /* Consistent rounded corners */
 }
 
 /* --- Dark Theme Overrides --- */
 .has-background[style*="background-color: rgb(55, 1, 44)"] .starmus-recorder-form,
 .has-background[style*="background-color: #37012c"] .starmus-recorder-form {
-    --starmus-primary-color: #c4b5fd;
-    --starmus-text-color: #f9fafb;
-    --starmus-text-muted: #9ca3af;
-    --starmus-border-color: #4b5563;
-    --starmus-bg-light: #374151;
-    --starmus-bg-card: #1f2937;
+  --starmus-primary-color: #c4b5fd;
+  --starmus-text-color: #f9fafb;
+  --starmus-text-muted: #9ca3af;
+  --starmus-border-color: #4b5563;
+  --starmus-bg-light: #374151;
+  --starmus-bg-card: #1f2937;
 
-    /* Adjust glass for dark mode */
-    --starmus-glass-bg: rgba(31, 41, 55, 0.25);
-    --starmus-glass-border-color: rgba(255, 255, 255, 0.15);
+  /* Adjust glass for dark mode */
+  --starmus-glass-bg: rgba(31, 41, 55, 0.25);
+  --starmus-glass-border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* ========================================================================
@@ -70,78 +71,84 @@
 .starmus-recorder-form input[type="text"],
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
-    width: 100%;
-    min-height: 48px;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--starmus-border-color);
-    border-radius: 0.5rem;
-    background-color: rgba(255, 255, 255, 0.5);
-    color: var(--starmus-text-color);
-    font: inherit;
-    font-size: 1rem;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--starmus-border-color);
+  border-radius: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.5);
+  color: var(--starmus-text-color);
+  font: inherit;
+  font-size: 1rem;
 }
+
 .has-background[style*="background-color: #37012c"] .starmus-recorder-form input,
 .has-background[style*="background-color: #37012c"] .starmus-recorder-form select,
 .has-background[style*="background-color: #37012c"] .starmus-recorder-form textarea {
-    background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .starmus-recorder-form input:focus,
 .starmus-recorder-form select:focus,
 .starmus-recorder-form textarea:focus {
-    outline: 3px solid var(--starmus-primary-color) !important;
-    outline-offset: 1px;
-    border-color: var(--starmus-primary-color) !important;
-    box-shadow: none !important;
+  outline: 3px solid var(--starmus-primary-color) !important;
+  outline-offset: 1px;
+  border-color: var(--starmus-primary-color) !important;
+  box-shadow: none !important;
 }
 
 .starmus-recorder-form label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--starmus-text-color);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--starmus-text-color);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* --- Buttons --- */
 .starmus-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    border: 2px solid transparent;
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.15s ease, transform 0.05s ease;
-    -webkit-tap-highlight-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 2px solid transparent;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.05s ease;
+  -webkit-tap-highlight-color: transparent;
 }
-.starmus-btn:active:not(:disabled) { transform: translateY(1px); }
+
+.starmus-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
 
 /* Apply primary styles to these specific buttons */
 button[id*="starmus_submit_btn_"],
 button[id*="starmus_continue_btn_"] {
-    background-color: var(--starmus-primary-color);
-    color: #fff;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+  background-color: var(--starmus-primary-color);
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
+
 button[id*="starmus_submit_btn_"]:hover:not(:disabled),
 button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
-    background-color: var(--starmus-primary-hover);
+  background-color: var(--starmus-primary-hover);
 }
+
 .has-background[style*="background-color: #37012c"] button[id*="starmus_submit_btn_"],
 .has-background[style*="background-color: #37012c"] button[id*="starmus_continue_btn_"] {
-    color: #1f2937;
+  color: #1f2937;
 }
 
 .starmus-btn:disabled {
-    background-color: var(--starmus-border-color) !important;
-    color: var(--starmus-text-muted) !important;
-    border-color: var(--starmus-border-color) !important;
-    cursor: not-allowed;
-    opacity: 0.6;
+  background-color: var(--starmus-border-color) !important;
+  color: var(--starmus-text-muted) !important;
+  border-color: var(--starmus-border-color) !important;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* ========================================================================
@@ -150,75 +157,171 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 
 /* APPLY GLASS: Add 'starmus-glass' class to this container in your HTML/PHP */
 .starmus-recorder-container {
-    padding: 1.5rem;
-    margin: 1rem 0;
+  padding: 1.5rem;
+  margin: 1rem 0;
 }
 
 .starmus-recorder-status,
 .starmus-volume-meter {
-    border: 1px solid var(--starmus-border-color);
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    text-align: center;
-    font-weight: 500;
-    background-color: var(--starmus-bg-card);
-    color: var(--starmus-text-color);
-    position: relative; /* For volume meter text */
+  border: 1px solid var(--starmus-border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 500;
+  background-color: var(--starmus-bg-card);
+  color: var(--starmus-text-color);
+  position: relative;
+  /* For volume meter text */
 }
 
 .starmus-volume-meter {
-    height: 28px;
-    padding: 0;
-    overflow: hidden;
+  height: 28px;
+  padding: 0;
+  overflow: hidden;
 }
+
 .starmus-volume-meter::after {
-    content: "Volume Level";
-    position: absolute;
-    top: 50%;
-    left: 14px;
-    transform: translateY(-50%);
-    font-size: 0.75rem;
-    color: var(--starmus-text-muted);
+  content: "Volume Level";
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: var(--starmus-text-muted);
 }
+
 .starmus-volume-level {
-    height: 100%;
-    background: linear-gradient(to right, #4caf50, #ffeb3b 70%, var(--starmus-danger-color));
-    width: 0%;
-    transition: width 0.1s ease;
-    border-radius: 0.5rem;
+  height: 100%;
+  background: linear-gradient(to right, #4caf50, #ffeb3b 70%, var(--starmus-danger-color));
+  width: 0%;
+  transition: width 0.1s ease;
+  border-radius: 0.5rem;
 }
 
 .starmus-recorder-timer {
-    font-size: 1.5rem;
-    font-weight: 700;
-    text-align: center;
-    margin: 1rem 0;
-    color: var(--starmus-text-color);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 1rem 0;
+  color: var(--starmus-text-color);
 }
 
 .starmus-recorder-controls {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin: 1.5rem 0;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 1.5rem 0;
+}
+
+.starmus-timer-wrapper {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.starmus-timer {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 0.5rem;
+}
+
+.starmus-timer-elapsed {
+  color: #2c3e50;
+}
+
+.starmus-timer-separator {
+  color: #95a5a6;
+  margin: 0 0.25rem;
+}
+
+.starmus-timer-max {
+  color: #7f8c8d;
+  font-size: 1.2rem;
+}
+
+.starmus-timer--recording .starmus-timer-elapsed {
+  color: #e74c3c;
+  animation: pulse-timer 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-timer {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.starmus-duration-progress-wrapper {
+  width: 100%;
+  height: 10px;
+  background: #ecf0f1;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.starmus-duration-progress {
+  height: 100%;
+  width: 0;
+  background: #27ae60;
+  transition: width 0.3s ease-out, background-color 0.5s ease;
+  border-radius: 5px;
+}
+
+.starmus-duration-progress--warning {
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+.starmus-duration-progress--danger {
+  animation: pulse-danger 1s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse-danger {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .starmus-timer-progress-bar-wrapper {
-    width: 100%;
-    height: 8px;
-    background: #eee;
-    border-radius: 4px;
-    margin-top: 4px;
-    overflow: hidden;
+  width: 100%;
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  margin-top: 4px;
+  overflow: hidden;
 }
 
 .starmus-timer-progress-bar {
-    height: 100%;
-    width: 0;
-    background: #27ae60;
-    transition: width 0.3s, background 0.3s;
+  height: 100%;
+  width: 0;
+  background: #27ae60;
+  transition: width 0.3s, background 0.3s;
 }
 
 /* ========================================================================
@@ -226,54 +329,71 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
    ======================================================================== */
 
 .starmus-my-recordings-container {
-    color: var(--starmus-text-color);
-    display: grid;
-    grid-template-columns: 1fr; /* Mobile-first default */
-    gap: 1.5rem;
+  color: var(--starmus-text-color);
+  display: grid;
+  grid-template-columns: 1fr;
+  /* Mobile-first default */
+  gap: 1.5rem;
 }
 
 /* APPLY GLASS: Add 'starmus-glass' class to each card in your HTML/PHP */
 .starmus-recording {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* Important for border-radius */
-    transition: transform 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Important for border-radius */
+  transition: transform 0.2s ease-in-out;
 }
+
 .starmus-recording:hover {
-    transform: translateY(-5px);
+  transform: translateY(-5px);
 }
 
 .starmus-recording__header,
 .starmus-recording__content,
 .starmus-recording__footer {
-    padding: 1.25rem;
-    background: transparent;
-    position: relative; /* Ensure content stays above glass background */
+  padding: 1.25rem;
+  background: transparent;
+  position: relative;
+  /* Ensure content stays above glass background */
 }
-.starmus-recording__header { border-bottom: 1px solid var(--starmus-glass-border-color); }
-.starmus-recording__footer { border-top: 1px solid var(--starmus-glass-border-color); }
-.starmus-recording__content { flex-grow: 1; }
+
+.starmus-recording__header {
+  border-bottom: 1px solid var(--starmus-glass-border-color);
+}
+
+.starmus-recording__footer {
+  border-top: 1px solid var(--starmus-glass-border-color);
+}
+
+.starmus-recording__content {
+  flex-grow: 1;
+}
 
 .starmus-recording__title {
-    margin: 0 0 0.25rem;
-    font-size: 1.25rem;
-    font-weight: 600;
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
+
 .starmus-recording__title a {
-    text-decoration: none;
-    color: inherit;
+  text-decoration: none;
+  color: inherit;
 }
+
 .starmus-recording__title a:hover {
-    color: var(--starmus-primary-color);
+  color: var(--starmus-primary-color);
 }
+
 .starmus-recording__meta {
-    font-size: 0.875rem;
-    color: var(--starmus-text-muted);
+  font-size: 0.875rem;
+  color: var(--starmus-text-muted);
 }
+
 .starmus-recording__content audio {
-    width: 100%;
-    border-radius: 9999px;
-    border: 1px solid var(--starmus-border-color);
+  width: 100%;
+  border-radius: 9999px;
+  border: 1px solid var(--starmus-border-color);
 }
 
 /* ========================================================================
@@ -283,40 +403,43 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 /* ... other accessibility rules like .starmus_visually_hidden ... */
 
 @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @media (prefers-contrast: more) {
-    .starmus-glass {
-        background: var(--starmus-bg-card);
-        border: 2px solid var(--starmus-text-color);
-        -webkit-backdrop-filter: none;
-        backdrop-filter: none;
-    }
+  .starmus-glass {
+    background: var(--starmus-bg-card);
+    border: 2px solid var(--starmus-text-color);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 @media (max-width: 480px) {
-    .starmus-recorder-controls {
-        flex-direction: column;
-        align-items: stretch;
-    }
+  .starmus-recorder-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 @media (min-width: 768px) {
-    .starmus-my-recordings-container {
-        grid-template-columns: repeat(2, 1fr);
-    }
+  .starmus-my-recordings-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (min-width: 1024px) {
-    .starmus-my-recordings-container {
-        grid-template-columns: repeat(3, 1fr);
-    }
+  .starmus-my-recordings-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 /* ========================================================================
@@ -327,26 +450,28 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 /* For brevity, they are omitted, but you should paste them back in. */
 
 .starmus-btn[aria-busy="true"] {
-    position: relative;
-    color: transparent !important;
+  position: relative;
+  color: transparent !important;
 }
 
 .starmus-btn[aria-busy="true"]::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 16px;
-    height: 16px;
-    margin: -8px 0 0 -8px;
-    border: 2px solid var(--starmus-bg-card, #fff);
-    border-radius: 50%;
-    border-top-color: transparent;
-    animation: spin 0.8s linear infinite;
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid var(--starmus-bg-card, #fff);
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /*
@@ -486,7 +611,7 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   gap: 2rem;
 }
 
-@media (width >= 1024px) {
+@media (width >=1024px) {
   .starmus-admin-detail__grid {
     grid-template-columns: 2fr 1fr;
     align-items: start;
@@ -517,7 +642,8 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 }
 
 .starmus-confidence[data-confidence^="0.5"] {
-  color: #f59e0b; /* amber for mid confidence */
+  color: #f59e0b;
+  /* amber for mid confidence */
 }
 
 .starmus-confidence[data-confidence^="0.3"],
