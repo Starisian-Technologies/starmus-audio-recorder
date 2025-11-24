@@ -36,9 +36,10 @@ function render(state, elements) {
 
     // --- 1. Step Visibility ---
     if (elements.step1 && elements.step2) {
-        const isActive = status !== 'idle' && status !== 'ready';
-        elements.step1.style.display = isActive ? 'none' : 'block';
-        elements.step2.style.display = isActive ? 'block' : 'none';
+        // Show step 2 when user continues from step 1, including 'ready' status after calibration
+        const isRecorderActive = status !== 'idle';
+        elements.step1.style.display = isRecorderActive ? 'none' : 'block';
+        elements.step2.style.display = isRecorderActive ? 'block' : 'none';
     }
 
     // --- 2. Timer & Duration Progress Update ---
