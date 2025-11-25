@@ -12,6 +12,26 @@ import { CommandBus, debugLog } from './starmus-hooks.js';
 const recorderRegistry = new Map();
 let sharedAudioContext = null;
 
+/**
+ * Emit telemetry events via StarmusHooks.
+ */
+function emitStarmusEvent(instanceId, event, payload = {}) {
+    try {
+        if (window.StarmusHooks && typeof window.StarmusHooks.doAction === 'function') {
+            window.StarmusHooks.doAction('starmus_event', {
+                instanceId,
+                event,
+                severity: payload.severity || 'info',
+                message: payload.message || '',
+                data: payload.data || {}
+            });
+        }
+    } catch (e) {
+        console.warn('[Starmus] Telemetry emit failed:', e);
+    }
+}
+
+
 function getSharedContext() {
     if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
         const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -213,10 +233,15 @@ export function initRecorder(store, instanceId) {
         }
 
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            const msg = 'Microphone not supported.';
+            emitStarmusEvent(instanceId, 'E_RECORDER_UNSUPPORTED', {
+                severity: 'error',
+                message: msg
+            });
             store.dispatch({
                 type: 'starmus/error',
-                payload: { message: 'Microphone not supported.', retryable: false },
-                error: { message: 'Microphone not supported.', retryable: false }
+                payload: { message: msg, retryable: false },
+                error: { message: msg, retryable: false }
             });
             return;
         }
@@ -275,6 +300,12 @@ export function initRecorder(store, instanceId) {
                 debugLog('[Recorder] Audio graph created successfully');
             } catch (graphError) {
                 debugLog('[Recorder] Audio graph setup failed:', graphError);
+                
+                emitStarmusEvent(instanceId, 'E_AUDIO_GRAPH_FAIL', {
+                    severity: 'error',
+                    message: graphError?.message || 'Audio graph setup failed'
+                });
+                
                 rawStream.getTracks().forEach(track => track.stop());
                 
                 // Set tier to C and reveal fallback UI
@@ -354,6 +385,10 @@ export function initRecorder(store, instanceId) {
                     recognition.start();
                 } catch (err) {
                     debugLog('Speech Rec failed:', err);
+                    emitStarmusEvent(instanceId, 'E_SPEECH_FAIL', {
+                        severity: 'warning',
+                        message: err?.message || 'Speech recognition initialization failed'
+                    });
                 }
             }
 
@@ -381,6 +416,16 @@ export function initRecorder(store, instanceId) {
                 const active = recorderRegistry.get(instanceId);
                 if (!active || active.mediaRecorder.state !== 'recording') {
                     return;
+                }
+
+                // AudioContext suspension recovery
+                if (active.audioContext && active.audioContext.state === 'suspended') {
+                    active.audioContext.resume().catch(e => {
+                        emitStarmusEvent(instanceId, 'E_CTX_SUSPEND', {
+                            severity: 'warning',
+                            message: e?.message || 'AudioContext resume failed after suspension'
+                        });
+                    });
                 }
 
                 analyser.getFloatTimeDomainData(meterBuffer);
@@ -432,6 +477,15 @@ export function initRecorder(store, instanceId) {
                 });
                 const fileName = `starmus-recording-${Date.now()}.webm`;
 
+                emitStarmusEvent(instanceId, 'REC_COMPLETE', {
+                    severity: 'info',
+                    message: 'Recording stopped and blob created',
+                    data: {
+                        mimeType: mediaRecorder.mimeType || 'audio/webm',
+                        chunkCount: chunks.length
+                    }
+                });
+
                 store.dispatch({
                     type: 'starmus/recording-available',
                     payload: { blob, fileName }
@@ -477,6 +531,10 @@ export function initRecorder(store, instanceId) {
             recRef.rafId = requestAnimationFrame(meterLoop);
         } catch (error) {
             console.error(error);
+            emitStarmusEvent(instanceId, 'E_MIC_ACCESS', {
+                severity: 'error',
+                message: error?.message || 'Could not access microphone.'
+            });
             store.dispatch({
                 type: 'starmus/error',
                 payload: { message: 'Could not access microphone.' },

@@ -22,6 +22,25 @@ import { initCore } from './starmus-core.js';
 import './starmus-tus.js';
 import { getOfflineQueue } from './starmus-offline.js';
 
+/**
+ * Emit global telemetry events via StarmusHooks.
+ */
+function emitStarmusEventGlobal(event, payload = {}) {
+    try {
+        if (window.StarmusHooks && typeof window.StarmusHooks.doAction === 'function') {
+            window.StarmusHooks.doAction('starmus_event', {
+                instanceId: payload.instanceId || null,
+                event,
+                severity: payload.severity || 'info',
+                message: payload.message || '',
+                data: payload.data || {}
+            });
+        }
+    } catch (e) {
+        console.warn('[Starmus] Global telemetry emit failed:', e);
+    }
+}
+
 getOfflineQueue()
     .then(() => console.log('[Starmus] Offline queue initialized'))
     .catch((err) => console.error('[Starmus] Offline queue init failed:', err));
@@ -139,6 +158,13 @@ async function wireInstance(env, formEl) {
     tier = await refineTierAsync(tier);
 
     console.log(`[Starmus] Instance ${instanceId} -> Tier ${tier}`);
+    
+    emitStarmusEventGlobal('TIER_ASSIGN', {
+        instanceId,
+        severity: 'info',
+        message: `Tier ${tier} assigned`,
+        data: { tier }
+    });
 
     const store = createStore({ instanceId, env, tier });
 
@@ -490,6 +516,12 @@ function initWithFallback() {
         },
         network: networkInfo
     };
+
+    emitStarmusEventGlobal('E_ENV_FALLBACK_INIT', {
+        severity: 'warning',
+        message: 'Environment-ready event not fired; using fallback env',
+        data: { fallbackEnv }
+    });
 
     onEnvironmentReady({ detail: fallbackEnv });
 }
