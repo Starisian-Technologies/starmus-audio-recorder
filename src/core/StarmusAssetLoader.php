@@ -78,7 +78,8 @@ final class StarmusAssetLoader
      * Enqueues the single, bundled, and minified JavaScript file for production.
      *
      * This is a standard script, as the build process resolves all modules.
-     * The bundle depends on the TUS.js vendor library for chunked uploads.
+     * Optionally depends on SPARXSTAR environment checker if available for optimal
+     * device detection, but gracefully falls back to internal detection after 2s timeout.
      * Localizes the script with server-side configuration data.
      */
     private function enqueue_production_assets(): void
@@ -86,10 +87,19 @@ final class StarmusAssetLoader
         try {
             error_log('[Starmus AssetLoader] Enqueueing JS: ' . STARMUS_URL . 'assets/js/starmus-audio-recorder-script.bundle.min.js');
 
+            // Check if SPARXSTAR environment checker is registered (optional dependency)
+            $dependencies = [];
+            if (wp_script_is('sparxstar-user-environment-check-app', 'registered')) {
+                $dependencies[] = 'sparxstar-user-environment-check-app';
+                error_log('[Starmus AssetLoader] SPARXSTAR environment checker detected - adding as dependency');
+            } else {
+                error_log('[Starmus AssetLoader] SPARXSTAR not available - will use fallback environment detection');
+            }
+
             wp_enqueue_script(
                 self::HANDLE_PROD_BUNDLE,
                 STARMUS_URL . 'assets/js/starmus-audio-recorder-script.bundle.min.js',
-                [],
+                $dependencies,
                 $this->resolve_version(),
                 true
             );
