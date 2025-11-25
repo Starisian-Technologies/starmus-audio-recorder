@@ -177,6 +177,10 @@ final class StarmusAssetLoader
             // Speech recognition language from settings
             $speech_lang = $settings->get('speech_recognition_lang', 'en-US');
 
+            // Get my-recordings page URL from settings
+            $my_recordings_slug = $settings->get('my_recordings_page_slug', 'my-submissions');
+            $my_recordings_url = \home_url('/' . $my_recordings_slug . '/');
+
             return [
                 'endpoints' => [
                     'directUpload' => \esc_url_raw(\rest_url(StarmusSubmissionHandler::STARMUS_REST_NAMESPACE . '/upload-fallback')),
@@ -187,6 +191,7 @@ final class StarmusAssetLoader
                 'allowedFileTypes' => $allowed_types_arr, // ['mp3', 'wav', 'webm']
                 'allowedMimeTypes' => $allowed_mimes,     // ['mp3' => 'audio/mpeg', ...]
                 'speechRecognitionLang' => \sanitize_text_field($speech_lang), // BCP 47 language code
+                'myRecordingsUrl' => \esc_url_raw($my_recordings_url), // Redirect URL after successful submission
             ];
         } catch (\Throwable $throwable) {
             StarmusLogger::log('StarmusAssetLoader::get_localization_data', $throwable);
@@ -200,6 +205,7 @@ final class StarmusAssetLoader
                 'allowedFileTypes' => [],
                 'allowedMimeTypes' => [],
                 'speechRecognitionLang' => 'en-US',
+                'myRecordingsUrl' => \home_url('/my-submissions/'),
             ];
         }
     }

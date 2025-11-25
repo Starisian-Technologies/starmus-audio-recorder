@@ -8,15 +8,15 @@
 'use strict';
 
 /**
- * Helper: Format seconds into MM:SS
+ * Helper: Format seconds into MM:SS with units
  */
 function formatTime(seconds) {
     if (seconds === undefined || seconds === null || isNaN(seconds)) {
-        return '00:00';
+        return '00m 00s';
     }
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    return `${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`;
 }
 
 /**
@@ -142,7 +142,7 @@ function render(state, elements) {
         }
     }
 
-    // --- 3. Volume Meter ---
+    // --- 3. Volume Meter (FIXED: separate calibration vs recording data sources) ---
     if (elements.volumeMeter) {
         const showMeter = status === 'calibrating' || status === 'recording' || status === 'paused';
 
@@ -151,7 +151,15 @@ function render(state, elements) {
         }
 
         if (showMeter) {
-            const vol = calibration.volumePercent || recorder.amplitude || 0;
+            // FIX: Explicitly choose source based on current status
+            let vol = 0;
+            if (status === 'calibrating') {
+                vol = calibration.volumePercent || 0;
+            } else {
+                // During recording/pause, strictly use recorder amplitude
+                vol = recorder.amplitude || 0;
+            }
+            
             elements.volumeMeter.style.width = `${Math.max(0, Math.min(100, vol))}%`;
             elements.volumeMeter.style.backgroundColor = vol > 90 ? '#ff4444' : '#4caf50';
         } else {
@@ -329,8 +337,14 @@ function render(state, elements) {
                         message = 'Saved to offline queue. Will upload automatically when online.';
                         msgClass += ' starmus-status--warning';
                     } else {
-                        message = 'Upload successful!';
+                        message = 'Upload successful! Redirecting...';
                         msgClass += ' starmus-status--success';
+                        
+                        // Redirect to my-recordings page after 2 seconds
+                        setTimeout(() => {
+                            const redirectUrl = window.starmusConfig?.myRecordingsUrl || '/my-submissions/';
+                            window.location.href = redirectUrl;
+                        }, 2000);
                     }
                     break;
                 default:

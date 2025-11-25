@@ -231,12 +231,14 @@ $is_admin              = current_user_can('manage_options');
 				<div class="starmus-visualizer-stage">
 					<!-- Timer with Duration Progress -->
 					<div class="starmus-timer-wrapper">
+						<label for="starmus_timer_<?php echo esc_attr($instance_id); ?>" class="starmus-timer-label"><?php esc_html_e('Recording Time:', 'starmus-audio-recorder'); ?></label>
 						<div id="starmus_timer_<?php echo esc_attr($instance_id); ?>" class="starmus-timer" data-starmus-timer>
-							<span class="starmus-timer-elapsed">00:00</span>
+							<span class="starmus-timer-elapsed">00m 00s</span>
 							<span class="starmus-timer-separator">/</span>
-							<span class="starmus-timer-max">20:00</span>
+							<span class="starmus-timer-max">20m 00s</span>
 						</div>
 						<div class="starmus-duration-progress-wrapper">
+							<label class="starmus-progress-label"><?php esc_html_e('Recording Length:', 'starmus-audio-recorder'); ?></label>
 							<div id="starmus_duration_progress_<?php echo esc_attr($instance_id); ?>"
 								class="starmus-duration-progress"
 								data-starmus-duration-progress
@@ -253,11 +255,10 @@ $is_admin              = current_user_can('manage_options');
 
 					<!-- Volume Meter -->
 					<div class="starmus-meter-wrap">
+						<label for="starmus_vol_meter_<?php echo esc_attr($instance_id); ?>" class="starmus-meter-label"><?php esc_html_e('Microphone Volume:', 'starmus-audio-recorder'); ?></label>
 						<div id="starmus_vol_meter_<?php echo esc_attr($instance_id); ?>" class="starmus-meter-bar" data-starmus-volume-meter></div>
 					</div>
-				</div>
-
-				<!-- CONTROLS DECK -->
+				</div> <!-- CONTROLS DECK -->
 				<div class="starmus-recorder-controls">
 					<!-- 1. IDLE STATE -->
 					<button
