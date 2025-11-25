@@ -649,16 +649,13 @@ export function initRecorder(store, instanceId) {
             function meterLoop() {
                 const active = recorderRegistry.get(instanceId);
                 if (!active) {
-                    console.log('[Recorder] meterLoop: No active recorder found');
                     return;
                 }
                 
                 // Only stop the loop if recording is completely stopped
                 const recState = active.mediaRecorder?.state;
-                console.log('[Recorder] meterLoop: mediaRecorder state =', recState);
                 
                 if (recState !== 'recording' && recState !== 'paused') {
-                    console.log('[Recorder] meterLoop: Stopping loop, invalid state');
                     return;
                 }
 

@@ -260,13 +260,6 @@ async function wireInstance(env, formEl) {
         playBtn: formEl.querySelector('[data-starmus-action="play"]'),
         transcriptBox: formEl.querySelector('[data-starmus-transcript]')
     };
-    
-    console.log('[Starmus] Elements found:', {
-        continueBtn: !!elements.continueBtn,
-        step1: !!elements.step1,
-        step2: !!elements.step2,
-        setupMicBtn: !!elements.setupMicBtn
-    });
 
     if (tier === 'C') {
         if (elements.recorderContainer) {
@@ -330,14 +323,11 @@ async function wireInstance(env, formEl) {
 
     // CONTINUE (Step 1 -> Step 2) with full validation
     if (elements.continueBtn) {
-        console.log('[Starmus] Continue button found, attaching event listener');
         elements.continueBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('[Starmus] Continue button clicked');
 
             const step1 = elements.step1;
             if (!step1) {
-                console.error('[Starmus] Step 1 element not found');
                 return;
             }
 
@@ -346,13 +336,6 @@ async function wireInstance(env, formEl) {
             const type = step1.querySelector('[name="starmus_recording_type"]');
             const consent = step1.querySelector('[name="agreement_to_terms"]');
             const msgEl = elements.messageBox;
-
-            console.log('[Starmus] Form fields:', {
-                title: title?.value,
-                lang: lang?.value,
-                type: type?.value,
-                consent: consent?.checked
-            });
 
             const missing = [];
             if (!title || !title.value.trim()) {
@@ -369,15 +352,12 @@ async function wireInstance(env, formEl) {
             }
 
             if (missing.length > 0) {
-                console.warn('[Starmus] Validation failed, missing:', missing);
                 if (msgEl) {
                     msgEl.textContent = 'Missing: ' + missing.join(', ');
                     msgEl.style.display = 'block';
                 }
                 return;
             }
-
-            console.log('[Starmus] Validation passed, dispatching step-continue');
 
             if (msgEl) {
                 msgEl.textContent = '';
@@ -434,8 +414,6 @@ async function wireInstance(env, formEl) {
                 }
             }
         });
-    } else {
-        console.warn('[Starmus] Continue button NOT found in DOM');
     }
 
     if (formEl.dataset.starmusRerecord === 'true') {

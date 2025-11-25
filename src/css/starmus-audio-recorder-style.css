@@ -479,7 +479,7 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 
 /* Card Header */
 .starmus-card__header {
-  padding: 1.5rem 1.5rem 1rem;
+  padding: 0.75rem 0.75rem 0.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -528,7 +528,7 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 
 /* Card Audio Section */
 .starmus-card__audio {
-  padding: 1.25rem 1.5rem;
+  padding: 0.625rem 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -551,7 +551,7 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 
 /* Card Actions */
 .starmus-card__actions {
-  padding: 1rem 1.5rem 1.5rem;
+  padding: 0.5rem 0.75rem 0.75rem;
   display: flex;
   gap: 0.75rem;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
