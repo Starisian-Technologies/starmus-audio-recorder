@@ -89,7 +89,7 @@
 
 /* --- Form Field Groups --- */
 .starmus-field-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 /* --- Form Controls --- */
@@ -97,8 +97,11 @@
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
   width: 100%;
+  height: 44px;
   min-height: 44px;
+  max-height: 44px;
   padding: 0.625rem 0.875rem;
+  margin: 0;
   border: 1px solid var(--starmus-border-color);
   border-radius: 0.5rem;
   background-color: rgba(255, 255, 255, 0.7);
@@ -106,7 +109,14 @@
   font: inherit;
   font-size: 0.9375rem;
   line-height: 1.5;
+  box-sizing: border-box;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.starmus-recorder-form textarea {
+  height: auto;
+  max-height: none;
+  min-height: 88px;
 }
 
 .has-background[style*="background-color: #37012c"] .starmus-recorder-form input,
@@ -443,20 +453,125 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
    5. COMPONENT: My Recordings List & Cards
    ======================================================================== */
 
+/* Recordings Grid Container */
+.starmus-recordings-grid {
+  color: var(--starmus-text-color);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+/* Individual Recording Card */
+.starmus-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.starmus-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Header */
+.starmus-card__header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.starmus-card__title {
+  margin: 0 0 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--starmus-text-color);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.starmus-card__link {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.15s ease;
+}
+
+.starmus-card__link:hover,
+.starmus-card__link:focus {
+  color: var(--starmus-primary-color);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.starmus-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--starmus-text-muted);
+  font-weight: 500;
+}
+
+.starmus-card__date,
+.starmus-card__type,
+.starmus-card__language {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 0.375rem;
+  backdrop-filter: blur(5px);
+}
+
+/* Card Audio Section */
+.starmus-card__audio {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.starmus-audio-player {
+  width: 100%;
+  height: 40px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+}
+
+.starmus-card__duration {
+  font-size: 0.8125rem;
+  color: var(--starmus-text-muted);
+  text-align: right;
+}
+
+/* Card Actions */
+.starmus-card__actions {
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.starmus-card__actions .starmus-btn {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Old class names for backwards compatibility */
 .starmus-my-recordings-container {
   color: var(--starmus-text-color);
   display: grid;
   grid-template-columns: 1fr;
-  /* Mobile-first default */
   gap: 1.5rem;
 }
 
-/* APPLY GLASS: Add 'starmus-glass' class to each card in your HTML/PHP */
 .starmus-recording {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  /* Important for border-radius */
   transition: transform 0.2s ease-in-out;
 }
 
@@ -470,7 +585,6 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   padding: 1.25rem;
   background: transparent;
   position: relative;
-  /* Ensure content stays above glass background */
 }
 
 .starmus-recording__header {
@@ -545,15 +659,30 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
+
+  .starmus-recordings-grid,
   .starmus-my-recordings-container {
     grid-template-columns: repeat(2, 1fr);
+    padding: 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
+
+  .starmus-recordings-grid,
   .starmus-my-recordings-container {
     grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+
+  .starmus-recordings-grid,
+  .starmus-my-recordings-container {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   }
 }
 
@@ -723,7 +852,52 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 
 /*
  * ========================================================================
- *   6. COMPONENT: Admin / Editor Detail View
+ *   6. COMPONENT: Re-Recorder Info & Empty States
+ * ========================================================================
+ */
+
+/* Re-recorder info message in Step 1 */
+.starmus-rerecord-info {
+  padding: 1rem 1.25rem;
+  margin: 0 0 1.5rem;
+  background: var(--starmus-glass-bg, rgba(86, 78, 229, 0.1));
+  border: 1px solid var(--starmus-glass-border, rgba(255, 255, 255, 0.15));
+  border-radius: var(--starmus-radius-md, 8px);
+  backdrop-filter: blur(5px);
+  color: var(--starmus-text-color);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.starmus-rerecord-info strong {
+  color: var(--starmus-primary-color, #564eea);
+  font-weight: 700;
+}
+
+/* No recordings empty state */
+.starmus-no-recordings {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 3rem 1.5rem;
+  background: var(--starmus-glass-bg, rgba(86, 78, 229, 0.05));
+  border: 2px dashed var(--starmus-glass-border, rgba(255, 255, 255, 0.2));
+  border-radius: var(--starmus-radius-lg, 12px);
+  backdrop-filter: blur(3px);
+  text-align: center;
+}
+
+.starmus-no-recordings p {
+  margin: 0;
+  color: var(--starmus-text-muted, rgba(255, 255, 255, 0.6));
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/*
+ * ========================================================================
+ *   7. COMPONENT: Admin / Editor Detail View
  * ========================================================================
  */
 .starmus-admin-detail {

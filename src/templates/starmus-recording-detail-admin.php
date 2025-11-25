@@ -55,12 +55,12 @@ function starmus_language_label(string $lang_code): string
 		'wo'    => 'Wolof',
 		'fr'    => 'French',
 	];
-	return $map[$lang_code] ?? strtoupper((string) $lang_code);
+	return $map[$lang_code] ?? strtoupper($lang_code);
 }
 
 function starmus_fs_to_url(string $path, array $uploads): string
 {
-	if (! $path) {
+	if ($path === '' || $path === '0') {
 		return '';
 	}
 	$real = realpath($path);

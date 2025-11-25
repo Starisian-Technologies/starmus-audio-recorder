@@ -11,7 +11,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-$form_id = $form_id ?? 'default';
+$form_id ??= 'default';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 
 // Get allowed file types from settings (comma-separated string)
