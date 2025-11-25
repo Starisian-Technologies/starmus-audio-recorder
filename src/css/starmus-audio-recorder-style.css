@@ -458,8 +458,9 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   color: var(--starmus-text-color);
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
-  padding: 1rem;
+  gap: 1rem;
+  padding: 0.5rem;
+  margin: 0;
 }
 
 /* Individual Recording Card */
@@ -468,6 +469,7 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   flex-direction: column;
   overflow: hidden;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  max-width: 100%;
 }
 
 .starmus-card:hover {
@@ -664,7 +666,8 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   .starmus-recordings-grid,
   .starmus-my-recordings-container {
     grid-template-columns: repeat(2, 1fr);
-    padding: 1.5rem;
+    gap: 1rem;
+    padding: 1rem;
   }
 }
 
@@ -673,8 +676,8 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   .starmus-recordings-grid,
   .starmus-my-recordings-container {
     grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-    padding: 2rem;
+    gap: 1.25rem;
+    padding: 1rem;
   }
 }
 
@@ -682,7 +685,8 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 
   .starmus-recordings-grid,
   .starmus-my-recordings-container {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.25rem;
   }
 }
 

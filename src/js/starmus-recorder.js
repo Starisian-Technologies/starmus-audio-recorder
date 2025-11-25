@@ -539,12 +539,16 @@ export function initRecorder(store, instanceId) {
             function meterLoop() {
                 const active = recorderRegistry.get(instanceId);
                 if (!active) {
+                    console.log('[Recorder] meterLoop: No active recorder found');
                     return;
                 }
                 
                 // Only stop the loop if recording is completely stopped
                 const recState = active.mediaRecorder?.state;
+                console.log('[Recorder] meterLoop: mediaRecorder state =', recState);
+                
                 if (recState !== 'recording' && recState !== 'paused') {
+                    console.log('[Recorder] meterLoop: Stopping loop, invalid state');
                     return;
                 }
 
@@ -579,6 +583,7 @@ export function initRecorder(store, instanceId) {
                     amplitude
                 });
 
+                // Schedule next frame
                 active.rafId = requestAnimationFrame(meterLoop);
             }
 
@@ -644,8 +649,12 @@ export function initRecorder(store, instanceId) {
                 recorderRegistry.delete(instanceId);
             };
 
+            console.log('[Recorder] Starting MediaRecorder, state before start:', mediaRecorder.state);
+            
             store.dispatch({ type: 'starmus/mic-start' });
             mediaRecorder.start(3000); // 3-second chunks reduce memory pressure and offline queue size
+            
+            console.log('[Recorder] MediaRecorder.start() called, state after start:', mediaRecorder.state);
 
             // Initial amplitude sample to avoid flat meter at start
             analyser.getFloatTimeDomainData(meterBuffer);
