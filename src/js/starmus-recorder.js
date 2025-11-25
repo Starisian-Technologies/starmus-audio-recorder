@@ -538,7 +538,13 @@ export function initRecorder(store, instanceId) {
 
             function meterLoop() {
                 const active = recorderRegistry.get(instanceId);
-                if (!active || active.mediaRecorder.state !== 'recording') {
+                if (!active) {
+                    return;
+                }
+                
+                // Only stop the loop if recording is completely stopped
+                const recState = active.mediaRecorder?.state;
+                if (recState !== 'recording' && recState !== 'paused') {
                     return;
                 }
 
@@ -552,13 +558,17 @@ export function initRecorder(store, instanceId) {
                     });
                 }
 
-                analyser.getFloatTimeDomainData(meterBuffer);
-                let sum = 0;
-                for (let i = 0; i < meterBuffer.length; i++) {
-                    sum += meterBuffer[i] * meterBuffer[i];
+                // Only read amplitude if actively recording (not paused)
+                let amplitude = 0;
+                if (recState === 'recording') {
+                    analyser.getFloatTimeDomainData(meterBuffer);
+                    let sum = 0;
+                    for (let i = 0; i < meterBuffer.length; i++) {
+                        sum += meterBuffer[i] * meterBuffer[i];
+                    }
+                    const rms = Math.sqrt(sum / meterBuffer.length);
+                    amplitude = Math.min(100, Math.max(0, rms * 4000));
                 }
-                const rms = Math.sqrt(sum / meterBuffer.length);
-                const amplitude = Math.min(100, Math.max(0, rms * 4000));
 
                 const elapsed = (performance.now() - startTime) / 1000;
 
@@ -688,10 +698,7 @@ export function initRecorder(store, instanceId) {
         if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'recording') {
             store.dispatch({ type: 'starmus/mic-pause' });
             rec.mediaRecorder.pause();
-            if (rec.rafId) {
-                cancelAnimationFrame(rec.rafId);
-                rec.rafId = null;
-            }
+            // Don't cancel rafId - let the meter loop continue for duration updates
         }
     });
 
@@ -704,37 +711,7 @@ export function initRecorder(store, instanceId) {
         if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'paused') {
             store.dispatch({ type: 'starmus/mic-resume' });
             rec.mediaRecorder.resume();
-            
-            // Restart the meter loop
-            function resumeMeterLoop() {
-                const active = recorderRegistry.get(instanceId);
-                if (!active || active.mediaRecorder.state !== 'recording') {
-                    return;
-                }
-                
-                const meterBuffer = new Float32Array(active.analyser.fftSize);
-                active.analyser.getFloatTimeDomainData(meterBuffer);
-                let sum = 0;
-                for (let i = 0; i < meterBuffer.length; i++) {
-                    sum += meterBuffer[i] * meterBuffer[i];
-                }
-                const rms = Math.sqrt(sum / meterBuffer.length);
-                const amplitude = Math.min(100, Math.max(0, rms * 4000));
-                
-                // Calculate elapsed time from original startTime
-                const elapsed = (performance.now() - active.startTime) / 1000;
-                
-                store.dispatch({
-                    type: 'starmus/recorder-tick',
-                    payload: { duration: elapsed, amplitude },
-                    duration: elapsed,
-                    amplitude
-                });
-                
-                active.rafId = requestAnimationFrame(resumeMeterLoop);
-            }
-            
-            rec.rafId = requestAnimationFrame(resumeMeterLoop);
+            // The meter loop is already running - it will pick up the new state
         }
     });
 
