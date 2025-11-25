@@ -223,9 +223,6 @@ class StarmusAdmin
 	{
 		try {
 			$defaults = $this->settings->get_defaults();
-			if (! is_array($defaults)) {
-				$defaults = []; // Should be fixed now
-			}
 
 			$sanitized = [];
 

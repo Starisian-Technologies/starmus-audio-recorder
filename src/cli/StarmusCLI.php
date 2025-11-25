@@ -104,13 +104,16 @@ class StarmusCLI extends \WP_CLI_Command
 
 		WP_CLI::line(sprintf('Cleaning temporary files older than %s day(s)...', $days));
 
-		$recorder_ui = new StarmusAudioRecorderUI();
-
-		if (method_exists($recorder_ui, 'cleanup_stale_temp_files')) {
-			$recorder_ui->cleanup_stale_temp_files($cutoff);
+		// Cleanup is handled by StarmusSubmissionHandler, not UI
+		$handler = new \Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler(
+			new \Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL(),
+			new \Starisian\Sparxstar\Starmus\core\StarmusSettings()
+		);
+		if (method_exists($handler, 'cleanup_stale_temp_files')) {
+			$handler->cleanup_stale_temp_files();
 			WP_CLI::success('Cleanup process complete.');
 		} else {
-			WP_CLI::error('Required method cleanup_stale_temp_files() not found on StarmusAudioRecorderUI.');
+			WP_CLI::error('Required method cleanup_stale_temp_files() not found.');
 		}
 	}
 
@@ -308,12 +311,8 @@ class StarmusCLI extends \WP_CLI_Command
 	{
 		WP_CLI::line('Flushing Starmus taxonomy caches...');
 		$recorder_ui = new StarmusAudioRecorderUI(null);
-		if (method_exists($recorder_ui, 'clear_taxonomy_transients')) {
-			$recorder_ui->clear_taxonomy_transients();
-			WP_CLI::success('Starmus caches have been flushed.');
-		} else {
-			WP_CLI::error('Required method clear_taxonomy_transients() not found.');
-		}
+		$recorder_ui->clear_taxonomy_transients();
+		WP_CLI::success('Starmus caches have been flushed.');
 	}
 
 	/**
@@ -332,7 +331,7 @@ class StarmusCLI extends \WP_CLI_Command
 	 */
 	public function regen(array $args): void
 	{
-		list($id) = $args;
+		[$id] = $args;
 
 		$id = (int) $id;
 		if ($id <= 0) {
@@ -342,16 +341,16 @@ class StarmusCLI extends \WP_CLI_Command
 
 		$attachment = get_post($id);
 		if (! $attachment || $attachment->post_type !== 'attachment') {
-			\WP_CLI::error("Attachment {$id} not found.");
+			\WP_CLI::error(sprintf('Attachment %d not found.', $id));
 			return;
 		}
 
-		\WP_CLI::log("Regenerating waveform and audio pipeline for attachment {$id}...");
+		\WP_CLI::log(sprintf('Regenerating waveform and audio pipeline for attachment %d...', $id));
 
 		$cron = new StarmusCron();
 		$cron->run_audio_processing_pipeline($id);
 
-		\WP_CLI::success("Rebuilt waveform and audio pipeline for attachment {$id}.");
+		\WP_CLI::success(sprintf('Rebuilt waveform and audio pipeline for attachment %d.', $id));
 	}
 
 	/**
@@ -502,7 +501,7 @@ class StarmusCLI extends \WP_CLI_Command
 	 */
 	public function queue(array $args): void
 	{
-		list($id) = $args;
+		[$id] = $args;
 
 		$id = (int) $id;
 		if ($id <= 0) {
@@ -512,15 +511,15 @@ class StarmusCLI extends \WP_CLI_Command
 
 		$attachment = get_post($id);
 		if (! $attachment || $attachment->post_type !== 'attachment') {
-			\WP_CLI::error("Attachment {$id} not found.");
+			\WP_CLI::error(sprintf('Attachment %d not found.', $id));
 			return;
 		}
 
-		\WP_CLI::log("Queueing waveform regeneration for attachment {$id}...");
+		\WP_CLI::log(sprintf('Queueing waveform regeneration for attachment %d...', $id));
 
 		$cron = new StarmusCron();
 		$cron->schedule_audio_processing($id);
 
-		\WP_CLI::success("Queued attachment {$id} for cron processing.");
+		\WP_CLI::success(sprintf('Queued attachment %d for cron processing.', $id));
 	}
 }

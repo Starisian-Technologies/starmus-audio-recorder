@@ -1,0 +1,13 @@
+
+# Copilot Coding Agent Setup Steps
+# This file configures the environment for the GitHub Copilot coding agent
+# See: https://docs.github.com/en/copilot/tutorials/coding-agent/customizing-agent-environment
+
+steps:
+  # Install PHP dependencies using Composer
+  - name: Install Composer dependencies
+    run: composer install --no-interaction --prefer-dist
+
+  # Verify autoloader is present (required by plugin bootstrap)
+  - name: Verify autoloader
+    run: test -f vendor/autoload.php && echo "Autoloader installed successfully"

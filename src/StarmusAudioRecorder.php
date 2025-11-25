@@ -70,6 +70,7 @@ final class StarmusAudioRecorder
 	private static ?StarmusAudioRecorder $instance = null;
 
 	/** Collected runtime errors for admin notice. */
+	/** @var array<string, mixed> */
 	private array $runtimeErrors = [];
 
 	/** Whether we've registered WordPress hooks (guard). */
@@ -97,7 +98,7 @@ final class StarmusAudioRecorder
 	{
 		// Example: Only log messages of WARNING level or higher
 		StarmusLogger::setMinLogLevel(STARMUS_LOG_LEVEL);
-		if (! empty(STARMUS_LOG_FILE)) {
+		if (STARMUS_LOG_FILE !== '') {
 			// Example: Log to a specific file (overrides the default daily file in uploads)
 			StarmusLogger::setLogFilePath(ABSPATH . STARMUS_LOG_FILE);
 		}
@@ -225,7 +226,7 @@ final class StarmusAudioRecorder
 		}
 
 		// Must implement our interface.
-		if (!$filtered_dal instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface) {
+		if (!($filtered_dal instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface)) {
 			StarmusLogger::error('StarmusAudioRecorder', 'Invalid DAL replacement: must implement StarmusAudioRecorderDALInterface.');
 			$dal_singleton = $default_dal; // Store the default DAL in the singleton
 			$this->DAL = $dal_singleton;
@@ -310,7 +311,7 @@ final class StarmusAudioRecorder
 
 			// WP-CLI commands (optional). Load your CLI files and register commands here.
 			if (defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
-				$cli_path = \STARMUS_PATH . 'src/cli/';
+				$cli_path = STARMUS_PLUGIN_DIR . 'src/cli/';
 				if (file_exists($cli_path . 'StarmusCLI.php') && file_exists($cli_path . 'StarmusCacheCommand.php')) {
 					require_once $cli_path . 'StarmusCLI.php';
 					\WP_CLI::add_command('starmus', 'Starmus\\cli\\StarmusCLI');
@@ -380,6 +381,9 @@ final class StarmusAudioRecorder
 		throw new LogicException('Serialization of ' . self::class . ' is not allowed.');
 	}
 
+	/**
+	 * @param array<string, mixed> $data
+	 */
 	public function __unserialize(array $data): void
 	{
 		throw new LogicException('Unserialization of ' . self::class . ' is not allowed.');
