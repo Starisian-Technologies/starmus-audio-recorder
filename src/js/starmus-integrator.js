@@ -222,14 +222,25 @@ async function wireInstance(env, formEl) {
         const state = store.getState();
         if (state.tier === 'C' && tier !== 'C') {
             // Runtime tier downgrade - show fallback UI
+            const previousTier = tier;
             tier = 'C';
+            
             if (elements.recorderContainer) {
                 elements.recorderContainer.style.display = 'none';
             }
             if (elements.fallbackContainer) {
                 elements.fallbackContainer.style.display = 'block';
             }
+            
             console.log(`[Starmus] Instance ${instanceId} downgraded to Tier C`);
+            
+            // Emit telemetry for runtime tier downgrade
+            emitStarmusEventGlobal('TIER_DOWNGRADE', {
+                instanceId,
+                severity: 'warning',
+                message: `Runtime tier downgrade from ${previousTier} to C`,
+                data: { previousTier, currentTier: 'C', reason: 'audio_graph_failure' }
+            });
         }
     });
 
