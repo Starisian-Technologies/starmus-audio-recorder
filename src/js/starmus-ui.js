@@ -65,11 +65,11 @@ function render(state, elements) {
             return;
         }
         
-        // Show step 2 when user continues from step 1, including 'ready' status after calibration
-        // Keep Step 1 visible for 'idle' and 'ready_to_record' (before user presses Continue)
-        const isRecorderActive = status !== 'idle' && status !== 'ready_to_record';
-        elements.step1.style.display = isRecorderActive ? 'none' : 'block';
-        elements.step2.style.display = isRecorderActive ? 'block' : 'none';
+        // Show step 2 when user continues from step 1 (ready_to_record or any active status)
+        // Only keep Step 1 visible for 'idle' (initial state before Continue button clicked)
+        const showStep2 = status !== 'idle' && status !== 'uninitialized';
+        elements.step1.style.display = showStep2 ? 'none' : 'block';
+        elements.step2.style.display = showStep2 ? 'block' : 'none';
     }
 
     // --- 2. Timer & Duration Progress Update ---
