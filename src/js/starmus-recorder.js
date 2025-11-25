@@ -644,7 +644,14 @@ export function initRecorder(store, instanceId) {
             const startTime = performance.now();
             const meterBuffer = new Float32Array(analyser.fftSize);
 
-            const recRef = {
+            const recRef = {};
+            
+            // PATCH 9: 2-STEP INIT - Register empty object immediately to prevent ReferenceError
+            recorderRegistry.set(instanceId, recRef);
+            debugLog('[Recorder] Registry entry created (step 1/2 - object allocated)');
+            
+            // PATCH 9: 2-STEP INIT - Step 2: Safely populate properties using Object.assign
+            Object.assign(recRef, {
                 mediaRecorder,
                 chunks,
                 rawStream,
@@ -657,14 +664,10 @@ export function initRecorder(store, instanceId) {
                 calibration: calibrationResult,
                 startTime,
                 rafId: null
-            };
-            
-            // PATCH 2: Populate registry BEFORE dispatching mic-start
-            // This ensures UI never shows "recording" without a recorder existing
-            recorderRegistry.set(instanceId, recRef);
+            });
             
             // PATCH 7: Add telemetry on registry population
-            debugLog('[Recorder] Registry populated', {
+            debugLog('[Recorder] Registry populated (step 2/2)', {
                 instanceId,
                 hasRecorder: !!mediaRecorder,
                 streamTracks: destinationStream.getTracks().length,

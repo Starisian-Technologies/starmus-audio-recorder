@@ -64,7 +64,7 @@
 					<?php endif; ?>
 
 					<div class="starmus-card__actions">
-						<a href="<?php the_permalink(); ?>" class="starmus-btn starmus-btn--outline">
+						<a href="<?php echo esc_url(get_permalink($current_post_id)); ?>" class="starmus-btn starmus-btn--outline">
 							<?php esc_html_e('View Details', 'starmus-audio-recorder'); ?>
 						</a>
 						<?php if (! empty($edit_page_url) && current_user_can('edit_post', $current_post_id)) : ?>
