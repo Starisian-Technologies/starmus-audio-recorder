@@ -210,7 +210,7 @@ function setupAudioGraph(rawStream) {
     const analyser = audioContext.createAnalyser();
     analyser.fftSize = 2048;
 
-    const destination = audioContext.createMediaStreamAudioDestination();
+    const destination = audioContext.createMediaStreamDestination();
 
     source.connect(highPass);
     highPass.connect(compressor);
