@@ -43,8 +43,28 @@ function render(state, elements) {
         recorder = {}
     } = state;
 
+    // --- Runtime Tier C Guard ---
+    // If tier downgrades to C at runtime (audio graph failure, telemetry-triggered), hide all recording controls
+    if (state.tier === 'C' || state.fallbackActive === true) {
+        if (elements.recordBtn) elements.recordBtn.style.display = 'none';
+        if (elements.pauseBtn) elements.pauseBtn.style.display = 'none';
+        if (elements.resumeBtn) elements.resumeBtn.style.display = 'none';
+        if (elements.stopBtn) elements.stopBtn.style.display = 'none';
+
+        if (elements.recorderContainer) elements.recorderContainer.style.display = 'none';
+        if (elements.fallbackContainer) elements.fallbackContainer.style.display = 'block';
+        return;
+    }
+
     // --- 1. Step Visibility ---
     if (elements.step1 && elements.step2) {
+        // Handle uninitialized state (first load before init action)
+        if (status === 'uninitialized') {
+            elements.step1.style.display = 'block';
+            elements.step2.style.display = 'none';
+            return;
+        }
+        
         // Show step 2 when user continues from step 1, including 'ready' status after calibration
         // Keep Step 1 visible for 'idle' and 'ready_to_record' (before user presses Continue)
         const isRecorderActive = status !== 'idle' && status !== 'ready_to_record';
@@ -118,7 +138,7 @@ function render(state, elements) {
             if (elements.durationProgress.parentElement) {
                 elements.durationProgress.parentElement.style.display = 'none';
             }
-            elements.durationProgress.style.width = '0%';
+            // Do NOT reset width here; let processing keep the last known width
         }
     }
 
@@ -234,7 +254,7 @@ function render(state, elements) {
                 ? `<span class="starmus-transcript--final">${escapeHtml(source.transcript)}</span>${hasInterim ? ' <span class="starmus-transcript--interim">' + escapeHtml(source.interimTranscript) + '</span>' : ''}`
                 : `<span class="starmus-transcript--interim">${escapeHtml(source.interimTranscript)}</span>`;
 
-            if (hasFinal) {
+            if (hasFinal && status !== 'calibrating') {
                 elements.transcriptBox.classList.remove('starmus-transcript--pulse');
                 void elements.transcriptBox.offsetWidth;
                 elements.transcriptBox.classList.add('starmus-transcript--pulse');
