@@ -1062,26 +1062,6 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   margin: 0;
 }
 
-.starmus-detail__section details {
-  margin-top: 0.5rem;
-}
-
-.starmus-detail__section summary {
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  background: var(--starmus-glass-bg, rgba(86, 78, 229, 0.1));
-  border: 1px solid var(--starmus-glass-border, rgba(255, 255, 255, 0.15));
-  border-radius: 6px;
-  font-weight: 600;
-  color: var(--starmus-primary-color, #564eea);
-  transition: all 0.2s ease;
-}
-
-.starmus-detail__section summary:hover {
-  background: var(--starmus-glass-bg, rgba(86, 78, 229, 0.15));
-  transform: translateX(4px);
-}
-
 /* Actions card */
 .starmus-detail__actions-card {
   position: sticky;
@@ -1115,6 +1095,77 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
   background: var(--starmus-primary-hover, #6e2491);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(86, 78, 229, 0.3);
+}
+
+.starmus-btn--secondary {
+  background: var(--starmus-bg-card, #fff);
+  color: var(--starmus-primary-color, #564eea);
+  border: 2px solid var(--starmus-primary-color, #564eea);
+}
+
+.starmus-btn--secondary:hover {
+  background: var(--starmus-primary-color, #564eea);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(86, 78, 229, 0.3);
+}
+
+/* Accordion/Collapsible sections */
+.starmus-accordion {
+  margin-top: 1rem;
+}
+
+.starmus-accordion__summary {
+  cursor: pointer;
+  padding: 0.875rem 1.25rem;
+  background: var(--starmus-glass-bg, rgba(86, 78, 229, 0.1));
+  border: 1px solid var(--starmus-glass-border, rgba(255, 255, 255, 0.15));
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--starmus-primary-color, #564eea);
+  transition: all 0.2s ease;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.starmus-accordion__summary::-webkit-details-marker {
+  display: none;
+}
+
+.starmus-accordion__summary::before {
+  content: '▶';
+  display: inline-block;
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+.starmus-accordion[open] .starmus-accordion__summary::before {
+  transform: rotate(90deg);
+}
+
+.starmus-accordion__summary:hover {
+  background: var(--starmus-glass-bg, rgba(86, 78, 229, 0.15));
+  transform: translateX(4px);
+}
+
+.starmus-accordion__content {
+  padding: 1rem 0 0;
+  animation: starmus-accordion-open 0.2s ease-out;
+}
+
+@keyframes starmus-accordion-open {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Waveform visualization */

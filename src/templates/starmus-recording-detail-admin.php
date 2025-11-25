@@ -10,6 +10,13 @@ use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 
 $post_id = get_the_ID();
 $uploads = wp_get_upload_dir();
+$settings = new StarmusSettings();
+
+// Get page URLs for actions
+$edit_page_slug = $settings->get('edit_page_id', '');
+$recorder_page_slug = $settings->get('recorder_page_id', '');
+$edit_page_url = $edit_page_slug ? get_permalink(get_page_by_path($edit_page_slug)) : '';
+$recorder_page_url = $recorder_page_slug ? get_permalink(get_page_by_path($recorder_page_slug)) : '';
 
 $audio_attachment_id = (int) get_post_meta($post_id, '_audio_attachment_id', true);
 $audio_url           = $audio_attachment_id !== 0 ? wp_get_attachment_url($audio_attachment_id) : '';
@@ -229,16 +236,21 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 			<?php if ($processing_log) : ?>
 				<section class="starmus-detail__section starmus-glass">
 					<h2><?php esc_html_e('Processing Log', 'starmus-audio-recorder'); ?></h2>
-					<pre class="starmus-processing-log"><code><?php echo esc_html($processing_log); ?></code></pre>
+					<details class="starmus-accordion">
+						<summary class="starmus-accordion__summary"><?php esc_html_e('View Processing Log', 'starmus-audio-recorder'); ?></summary>
+						<div class="starmus-accordion__content">
+							<pre class="starmus-processing-log"><code><?php echo esc_html($processing_log); ?></code></pre>
+						</div>
+					</details>
 				</section>
-			<?php endif; ?>
-
-			<?php if ($metadata_json) : ?>
+			<?php endif; ?> <?php if ($metadata_json) : ?>
 				<section class="starmus-detail__section starmus-glass">
 					<h2><?php esc_html_e('Raw Recording Metadata', 'starmus-audio-recorder'); ?></h2>
-					<details>
-						<summary><?php esc_html_e('Show JSON', 'starmus-audio-recorder'); ?></summary>
-						<pre class="starmus-json-data"><code><?php echo esc_html(json_encode(json_decode($metadata_json), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></code></pre>
+					<details class="starmus-accordion">
+						<summary class="starmus-accordion__summary"><?php esc_html_e('Show JSON', 'starmus-audio-recorder'); ?></summary>
+						<div class="starmus-accordion__content">
+							<pre class="starmus-json-data"><code><?php echo esc_html(json_encode(json_decode($metadata_json), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></code></pre>
+						</div>
 					</details>
 				</section>
 			<?php endif; ?>
@@ -246,9 +258,11 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 			<?php if ($transcript_json) : ?>
 				<section class="starmus-detail__section starmus-glass">
 					<h2><?php esc_html_e('Transcription Data', 'starmus-audio-recorder'); ?></h2>
-					<details>
-						<summary><?php esc_html_e('Show JSON', 'starmus-audio-recorder'); ?></summary>
-						<pre class="starmus-json-data"><code><?php echo esc_html(json_encode(json_decode($transcript_json), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></code></pre>
+					<details class="starmus-accordion">
+						<summary class="starmus-accordion__summary"><?php esc_html_e('Show JSON', 'starmus-audio-recorder'); ?></summary>
+						<div class="starmus-accordion__content">
+							<pre class="starmus-json-data"><code><?php echo esc_html(json_encode(json_decode($transcript_json), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></code></pre>
+						</div>
 					</details>
 				</section>
 			<?php endif; ?>
@@ -267,18 +281,25 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 				</div>
 			</section>
 
-			<section class="starmus-detail__section starmus-glass">
-				<h2><?php esc_html_e('Re-Record Audio', 'starmus-audio-recorder'); ?></h2>
-				<p class="starmus-section-description"><?php esc_html_e('Replace this recording with a new one:', 'starmus-audio-recorder'); ?></p>
-				<?php echo do_shortcode('[starmus_audio_re_recorder post_id="' . $post_id . '"]'); ?>
-			</section>
+			<?php if ($recorder_page_url) : ?>
+				<section class="starmus-detail__section starmus-glass">
+					<h2><?php esc_html_e('Re-Record Audio', 'starmus-audio-recorder'); ?></h2>
+					<p class="starmus-section-description"><?php esc_html_e('Replace this recording with a new one', 'starmus-audio-recorder'); ?></p>
+					<a href="<?php echo esc_url(add_query_arg('post_id', $post_id, $recorder_page_url)); ?>" class="starmus-btn starmus-btn--secondary">
+						<?php esc_html_e('Go to Re-Recorder', 'starmus-audio-recorder'); ?>
+					</a>
+				</section>
+			<?php endif; ?>
 
-			<section class="starmus-detail__section starmus-glass">
-				<h2><?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?></h2>
-				<p class="starmus-section-description"><?php esc_html_e('Edit annotations and segments:', 'starmus-audio-recorder'); ?></p>
-				<?php echo do_shortcode('[starmus_audio_editor]'); ?>
-			</section>
+			<?php if ($edit_page_url) : ?>
+				<section class="starmus-detail__section starmus-glass">
+					<h2><?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?></h2>
+					<p class="starmus-section-description"><?php esc_html_e('Edit annotations and waveform segments', 'starmus-audio-recorder'); ?></p>
+					<a href="<?php echo esc_url(add_query_arg('post_id', $post_id, $edit_page_url)); ?>" class="starmus-btn starmus-btn--secondary">
+						<?php esc_html_e('Open in Editor', 'starmus-audio-recorder'); ?>
+					</a>
+				</section>
+			<?php endif; ?>
 		</div>
 	</div>
-
-</article></article>
+</article>
