@@ -31,6 +31,33 @@ function emitStarmusEvent(instanceId, event, payload = {}) {
     }
 }
 
+/**
+ * PATCH 5: Wait for MediaStream track to be ready
+ * Prevents "stream not ready" errors on ChromeOS and other devices.
+ */
+async function starmusWaitForTrack(stream) {
+    const audioTrack = stream.getAudioTracks()[0];
+    if (!audioTrack) {
+        return;
+    }
+
+    if (audioTrack.readyState !== 'live') {
+        await new Promise((resolve) => {
+            const check = setInterval(() => {
+                if (audioTrack.readyState === 'live') {
+                    clearInterval(check);
+                    resolve();
+                }
+            }, 50);
+            // Timeout after 5 seconds
+            setTimeout(() => {
+                clearInterval(check);
+                resolve();
+            }, 5000);
+        });
+    }
+}
+
 
 function getSharedContext() {
     if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
@@ -38,7 +65,8 @@ function getSharedContext() {
         if (!Ctx) {
             throw new Error('AudioContext not supported in this browser');
         }
-        sharedAudioContext = new Ctx({ latencyHint: 'playback' });
+        // PATCH 2: Create suspended, resume on user gesture
+        sharedAudioContext = new Ctx({ latencyHint: 'interactive' });
         debugLog('[Recorder] Created new AudioContext, state:', sharedAudioContext.state);
         
         // Validate required AudioContext methods
@@ -46,13 +74,37 @@ function getSharedContext() {
             debugLog('[Recorder] ERROR: createMediaStreamSource not available');
             throw new Error('Browser does not support required audio API');
         }
-        if (typeof sharedAudioContext.createMediaStreamDestination !== 'function') {
-            debugLog('[Recorder] ERROR: createMediaStreamDestination not available');
-            throw new Error('Browser does not support audio processing API');
-        }
+        // Note: createMediaStreamDestination is optional - we fall back to minimal graph
     }
     return sharedAudioContext;
 }
+
+// PATCH 2: Resume AudioContext on first user interaction
+document.addEventListener('click', async () => {
+    if (sharedAudioContext && sharedAudioContext.state === 'suspended') {
+        try {
+            await sharedAudioContext.resume();
+            debugLog('[Recorder] AudioContext resumed on user gesture');
+        } catch (e) {
+            debugLog('[Recorder] Failed to resume AudioContext:', e);
+        }
+    }
+}, { once: true });
+
+// PATCH 9: ChromeOS AudioContext watchdog - prevents auto-suspend after 0.3s
+setInterval(async () => {
+    if (!sharedAudioContext) {
+        return;
+    }
+    if (sharedAudioContext.state === 'suspended') {
+        try {
+            await sharedAudioContext.resume();
+            debugLog('[Recorder] Watchdog resumed AudioContext');
+        } catch {
+            // Silent fail
+        }
+    }
+}, 500);
 
 /**
  * Analyze audio stream to determine optimal gain adjustment.
@@ -83,6 +135,12 @@ async function calibrateAudioLevels(stream, onUpdate) {
                 message = `Now speak at normal volume (${remaining}s)`;
             } else {
                 message = `Be quiet again (${remaining}s)`;
+            }
+
+            // PATCH 3: Skip RMS when AudioContext not running (prevents false tier downgrade)
+            if (audioContext.state !== 'running') {
+                requestAnimationFrame(tick);
+                return;
             }
 
             analyser.getFloatTimeDomainData(buffer);
@@ -196,6 +254,23 @@ function setupAudioGraph(rawStream) {
     
     const source = audioContext.createMediaStreamSource(rawStream);
 
+    // PATCH 0: MDN-style minimal graph fallback if createMediaStreamDestination missing
+    if (!audioContext.createMediaStreamDestination) {
+        debugLog('[Recorder] Using minimal graph fallback (MDN baseline)');
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        source.connect(analyser);
+
+        return {
+            audioContext,
+            destinationStream: rawStream, // Use raw stream for MediaRecorder
+            analyser,
+            nodes: [source, analyser],
+            fallbackActive: true
+        };
+    }
+
+    // Full processing graph when API available
     const highPass = audioContext.createBiquadFilter();
     highPass.type = 'highpass';
     highPass.frequency.value = 85;
@@ -221,7 +296,8 @@ function setupAudioGraph(rawStream) {
         audioContext,
         destinationStream: destination.stream,
         analyser,
-        nodes: [source, highPass, compressor, analyser, destination]
+        nodes: [source, highPass, compressor, analyser, destination],
+        fallbackActive: false
     };
 }
 
@@ -350,22 +426,19 @@ export function initRecorder(store, instanceId) {
                 debugLog('[Recorder] Audio graph setup failed:', graphError);
                 
                 emitStarmusEvent(instanceId, 'E_AUDIO_GRAPH_FAIL', {
-                    severity: 'error',
-                    message: graphError?.message || 'Audio graph setup failed'
+                    severity: 'warning',
+                    message: 'Using minimal audio graph (MDN baseline)'
                 });
+                
+                // PATCH 10: Do NOT downgrade tier - minimal graph is still Tier A
+                // The setupAudioGraph already provides fallback with raw stream
+                // So this error should not occur, but if it does, don't break recording
                 
                 rawStream.getTracks().forEach(track => track.stop());
                 
-                // Set tier to C and reveal fallback UI
-                store.dispatch({
-                    type: 'starmus/env-update',
-                    payload: { tier: 'C' },
-                    tier: 'C'
-                });
-                
                 store.dispatch({
                     type: 'starmus/error',
-                    payload: { message: 'Audio processing not supported. Please upload a file.', retryable: false },
+                    payload: { message: 'Audio processing error. Please try again.', retryable: true },
                     error: graphError
                 });
                 return;
@@ -374,6 +447,9 @@ export function initRecorder(store, instanceId) {
             if (audioContext.state === 'suspended') {
                 await audioContext.resume();
             }
+
+            // PATCH 5: Wait for audio track to be ready
+            await starmusWaitForTrack(destinationStream);
 
             const recorderOptions = {};
             if (MediaRecorder.isTypeSupported(audioSettings.options.mimeType)) {

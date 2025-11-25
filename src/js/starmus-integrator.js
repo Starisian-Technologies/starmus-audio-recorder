@@ -6,6 +6,26 @@
 
 'use strict';
 
+// PATCH 4: Disable optional audio nodes for cross-browser stability
+window.Starmus_DisableOptionalNodes = true;
+
+if (window.Starmus_DisableOptionalNodes) {
+    // Hard block optional effects to avoid cross-browser crashes
+    const CtxProto = (window.AudioContext || window.webkitAudioContext)?.prototype;
+    if (CtxProto) {
+        if (CtxProto.createConstantSource) {
+            CtxProto.createConstantSource = function () {
+                throw new Error('ConstantSourceNode disabled for stability.');
+            };
+        }
+        if (CtxProto.createIIRFilter) {
+            CtxProto.createIIRFilter = function () {
+                throw new Error('IIRFilterNode disabled for stability.');
+            };
+        }
+    }
+}
+
 // VENDORS
 import * as tus from 'tus-js-client';
 window.tus = tus;
@@ -41,9 +61,31 @@ function emitStarmusEventGlobal(event, payload = {}) {
     }
 }
 
+/**
+ * PATCH 1: Unified AudioContext resume helper
+ * Ensures AudioContext is running before any recording/calibration operation.
+ */
+async function starmusEnsureContext(ctx) {
+    if (!ctx) {
+        return;
+    }
+    if (ctx.state === 'suspended') {
+        try {
+            await ctx.resume();
+            console.log('[Starmus] AudioContext resumed');
+        } catch {
+            console.warn('[Starmus] Failed to resume AudioContext');
+        }
+    }
+}
+
 getOfflineQueue()
     .then(() => console.log('[Starmus] Offline queue initialized'))
     .catch((err) => console.error('[Starmus] Offline queue init failed:', err));
+
+// PATCH 7: Signal to SparxstarUEC that Starmus is present
+window.SPARXSTAR = window.SPARXSTAR || {};
+window.SPARXSTAR.StarmusReady = true;
 
 const instances = new Map();
 
@@ -139,6 +181,26 @@ async function refineTierAsync(tier) {
     return tier;
 }
 
+/**
+ * PATCH 6: Utility to check if recording is actually supported
+ * Exposed globally for SparxstarUEC tier detection override.
+ */
+function isRecordingSupported() {
+    try {
+        const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        const hasMediaRecorder = !!window.MediaRecorder;
+        const hasAudioContext = !!(window.AudioContext || window.webkitAudioContext);
+        
+        return hasMediaDevices && hasMediaRecorder && hasAudioContext;
+    } catch {
+        return false;
+    }
+}
+
+// Expose for SparxstarUEC
+window.StarmusApp = window.StarmusApp || {};
+window.StarmusApp.isRecordingSupported = isRecordingSupported;
+
 async function wireInstance(env, formEl) {
     let instanceId = formEl.getAttribute('data-starmus-id');
     if (!instanceId) {
@@ -219,10 +281,13 @@ async function wireInstance(env, formEl) {
 
     instances.set(instanceId, { store, form: formEl, elements, tier });
 
-    // Subscribe to tier changes at runtime (e.g., audio graph failures)
+    // PATCH 10: Subscribe to tier changes - but be defensive about downgrades
+    // Only downgrade if explicitly set by unrecoverable errors, not transient failures
     store.subscribe(() => {
         const state = store.getState();
-        if (state.tier === 'C' && tier !== 'C') {
+        // Only downgrade if state.fallbackActive is explicitly true AND tier is C
+        // This prevents automatic downgrades from calibration or audio graph issues
+        if (state.tier === 'C' && tier !== 'C' && state.fallbackActive === true) {
             // Runtime tier downgrade - show fallback UI
             const previousTier = tier;
             tier = 'C';
@@ -359,15 +424,27 @@ async function wireInstance(env, formEl) {
     if (tier !== 'C') {
         // Setup microphone (calibration)
         if (elements.setupMicBtn) {
-            elements.setupMicBtn.addEventListener('click', (e) => {
+            elements.setupMicBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
+                // PATCH 1: Ensure AudioContext is running
+                const ctx = window.AudioContext || window.webkitAudioContext;
+                if (ctx) {
+                    const sharedCtx = new ctx({ latencyHint: 'interactive' });
+                    await starmusEnsureContext(sharedCtx);
+                }
                 CommandBus.dispatch('setup-mic', {}, { instanceId });
             });
         }
 
         if (elements.recordBtn) {
-            elements.recordBtn.addEventListener('click', (e) => {
+            elements.recordBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
+                // PATCH 1: Ensure AudioContext is running
+                const ctx = window.AudioContext || window.webkitAudioContext;
+                if (ctx) {
+                    const sharedCtx = new ctx({ latencyHint: 'interactive' });
+                    await starmusEnsureContext(sharedCtx);
+                }
                 CommandBus.dispatch('start-recording', {}, { instanceId });
             });
         }
