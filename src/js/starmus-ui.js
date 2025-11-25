@@ -20,6 +20,15 @@ function formatTime(seconds) {
 }
 
 /**
+ * Helper: Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
  * Renders the current state of a Starmus instance to the DOM.
  * @param {object} state - The current state from the store.
  * @param {object} elements - A map of DOM elements for the instance.
@@ -37,7 +46,8 @@ function render(state, elements) {
     // --- 1. Step Visibility ---
     if (elements.step1 && elements.step2) {
         // Show step 2 when user continues from step 1, including 'ready' status after calibration
-        const isRecorderActive = status !== 'idle';
+        // Keep Step 1 visible for 'idle' and 'ready_to_record' (before user presses Continue)
+        const isRecorderActive = status !== 'idle' && status !== 'ready_to_record';
         elements.step1.style.display = isRecorderActive ? 'none' : 'block';
         elements.step2.style.display = isRecorderActive ? 'block' : 'none';
     }
@@ -105,7 +115,9 @@ function render(state, elements) {
                 }
             }
         } else {
-            elements.durationProgress.parentElement.style.display = 'none';
+            if (elements.durationProgress.parentElement) {
+                elements.durationProgress.parentElement.style.display = 'none';
+            }
             elements.durationProgress.style.width = '0%';
         }
     }
@@ -230,13 +242,6 @@ function render(state, elements) {
         } else {
             elements.transcriptBox.style.display = 'none';
         }
-    }
-
-    // Helper function for HTML escaping
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
     }
 
     // --- 8. Status Messages ---

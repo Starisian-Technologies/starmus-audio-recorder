@@ -11,7 +11,7 @@ const DEFAULT_INITIAL_STATE = {
     tier: null, 
     status: 'uninitialized', 
     error: null,
-    source: { kind: null, blob: null, file: null, fileName: '', transcript: '' },
+    source: { kind: null, blob: null, file: null, fileName: '', transcript: '', interimTranscript: '' },
     calibration: { phase: null, message: '', volumePercent: 0, complete: false, gain: 1.0 },
     recorder: { duration: 0, amplitude: 0, isPlaying: false, isPaused: false },
     submission: { progress: 0, isQueued: false },
@@ -19,6 +19,11 @@ const DEFAULT_INITIAL_STATE = {
 
 function reducer(state, action) {
     if (!action || !action.type) return state;
+
+    // Ensure instanceId is set from action if not already in state
+    if (!state.instanceId && action.payload && action.payload.instanceId) {
+        state = { ...state, instanceId: action.payload.instanceId };
+    }
 
     switch (action.type) {
         case 'starmus/init':
@@ -37,7 +42,7 @@ function reducer(state, action) {
             return { 
                 ...state, 
                 status: 'ready', 
-                calibration: { ...state.calibration, ...action.calibration, complete: true } 
+                calibration: { ...state.calibration, ...(action.calibration || {}), complete: true } 
             };
 
         case 'starmus/mic-start':
@@ -100,7 +105,14 @@ function reducer(state, action) {
             return { ...state, error: action.error || action.payload };
 
         case 'starmus/reset':
-            return { ...DEFAULT_INITIAL_STATE, instanceId: state.instanceId, env: state.env, tier: state.tier, status: 'idle' };
+            return { 
+                ...DEFAULT_INITIAL_STATE, 
+                instanceId: state.instanceId, 
+                env: state.env, 
+                tier: state.tier, 
+                status: 'idle',
+                source: { kind: null, blob: null, file: null, fileName: '', transcript: '', interimTranscript: '' }
+            };
 
         default:
             return state;
