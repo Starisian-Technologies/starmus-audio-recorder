@@ -173,6 +173,8 @@ async function wireInstance(env, formEl) {
         step2: formEl.querySelector('.starmus-step-2'),
         continueBtn: formEl.querySelector('[data-starmus-action="continue"]'),
         messageBox: formEl.querySelector('[data-starmus-message-box]'),
+        setupMicBtn: formEl.querySelector('[data-starmus-action="setup-mic"]'),
+        setupContainer: formEl.querySelector('[data-starmus-setup-container]'),
         recordBtn: formEl.querySelector('[data-starmus-action="record"]'),
         pauseBtn: formEl.querySelector('[data-starmus-action="pause"]'),
         resumeBtn: formEl.querySelector('[data-starmus-action="resume"]'),
@@ -355,10 +357,18 @@ async function wireInstance(env, formEl) {
 
     // Recording controls
     if (tier !== 'C') {
+        // Setup microphone (calibration)
+        if (elements.setupMicBtn) {
+            elements.setupMicBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                CommandBus.dispatch('setup-mic', {}, { instanceId });
+            });
+        }
+
         if (elements.recordBtn) {
             elements.recordBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                CommandBus.dispatch('start-mic', {}, { instanceId });
+                CommandBus.dispatch('start-recording', {}, { instanceId });
             });
         }
         if (elements.pauseBtn) {

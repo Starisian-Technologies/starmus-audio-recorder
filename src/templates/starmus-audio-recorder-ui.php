@@ -184,6 +184,23 @@ $is_admin              = current_user_can('manage_options');
 				<?php esc_html_e('Record Your Audio', 'starmus-audio-recorder'); ?>
 			</h2>
 
+			<!-- Microphone Setup Button -->
+			<div
+				id="starmus_setup_container_<?php echo esc_attr($instance_id); ?>"
+				class="starmus-setup-container"
+				data-starmus-setup-container>
+				<button
+					type="button"
+					id="starmus_setup_mic_btn_<?php echo esc_attr($instance_id); ?>"
+					class="starmus-btn starmus-btn--primary starmus-btn--large"
+					data-starmus-action="setup-mic">
+					<span class="dashicons dashicons-microphone"></span> <?php esc_html_e('Setup Microphone', 'starmus-audio-recorder'); ?>
+				</button>
+				<p class="starmus-setup-instruction">
+					<?php esc_html_e('Click the button above to test your microphone and adjust audio levels.', 'starmus-audio-recorder'); ?>
+				</p>
+			</div>
+
 			<!-- TIER C FALLBACK (Displayed if browser cannot record) -->
 			<div
 				id="starmus_fallback_container_<?php echo esc_attr($instance_id); ?>"

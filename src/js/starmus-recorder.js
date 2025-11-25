@@ -226,8 +226,8 @@ function setupAudioGraph(rawStream) {
 }
 
 export function initRecorder(store, instanceId) {
-    // START MIC
-    CommandBus.subscribe('start-mic', async (_payload, meta) => {
+    // SETUP MIC (Calibration only)
+    CommandBus.subscribe('setup-mic', async (_payload, meta) => {
         if (meta.instanceId !== instanceId) {
             return;
         }
@@ -257,38 +257,86 @@ export function initRecorder(store, instanceId) {
                 audioSettings.constraints
             );
 
-            const needsCalibration = !state.calibration || !state.calibration.complete;
-            
-            let calibrationResult = state.calibration || {};
-            
-            if (needsCalibration) {
-                store.dispatch({ type: 'starmus/calibration-start' });
+            emitStarmusEvent(instanceId, 'E_MIC_ACCESS', {
+                severity: 'info',
+                message: 'Microphone access granted, starting calibration'
+            });
 
-                calibrationResult = await calibrateAudioLevels(
-                    rawStream,
-                    (message, volumePercent, isDone) => {
-                        if (!isDone) {
-                            store.dispatch({
-                                type: 'starmus/calibration-update',
-                                payload: { message, volumePercent },
-                                message,
-                                volumePercent
-                            });
-                        }
+            store.dispatch({ type: 'starmus/calibration-start' });
+
+            const calibrationResult = await calibrateAudioLevels(
+                rawStream,
+                (message, volumePercent, isDone) => {
+                    if (!isDone) {
+                        store.dispatch({
+                            type: 'starmus/calibration-update',
+                            payload: { message, volumePercent },
+                            message,
+                            volumePercent
+                        });
                     }
-                );
+                }
+            );
 
-                // Dispatch calibration complete AFTER await
-                store.dispatch({
-                    type: 'starmus/calibration-complete',
-                    payload: calibrationResult,
-                    calibration: calibrationResult
-                });                // Stop the calibration stream - user will click Record again
-                rawStream.getTracks().forEach(track => track.stop());
-                return;
-            }
+            // Stop calibration stream
+            rawStream.getTracks().forEach(track => track.stop());
 
-            // If already calibrated, proceed directly to recording
+            store.dispatch({
+                type: 'starmus/calibration-complete',
+                payload: { calibration: calibrationResult },
+                calibration: calibrationResult
+            });
+
+        } catch (error) {
+            const errorMsg = error.name === 'NotAllowedError'
+                ? 'Microphone permission denied.'
+                : 'Failed to access microphone.';
+            
+            emitStarmusEvent(instanceId, 'E_MIC_ACCESS', {
+                severity: 'error',
+                message: errorMsg,
+                error: error.message
+            });
+
+            store.dispatch({
+                type: 'starmus/error',
+                payload: { message: errorMsg, retryable: true },
+                error: { message: errorMsg, retryable: true }
+            });
+        }
+    });
+
+    // START RECORDING (after calibration)
+    CommandBus.subscribe('start-recording', async (_payload, meta) => {
+        if (meta.instanceId !== instanceId) {
+            return;
+        }
+
+        const state = store.getState();
+        
+        // Ensure calibration was completed
+        if (!state.calibration || !state.calibration.complete) {
+            store.dispatch({
+                type: 'starmus/error',
+                payload: { message: 'Please setup your microphone first.', retryable: true },
+                error: { message: 'Please setup your microphone first.', retryable: true }
+            });
+            return;
+        }
+
+        try {
+            const env = state.env || {};
+            const config = window.starmusConfig || {};
+
+            const audioSettings = getOptimalAudioSettings(env, config);
+
+            const rawStream = await navigator.mediaDevices.getUserMedia(
+                audioSettings.constraints
+            );
+
+            const calibrationResult = state.calibration;
+
+            // Proceed directly to recording (calibration already done)
             let audioContext, destinationStream, analyser, nodes;
             try {
                 const audioGraph = setupAudioGraph(rawStream);

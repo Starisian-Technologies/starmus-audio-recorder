@@ -165,16 +165,23 @@ function render(state, elements) {
     const isRecording = status === 'recording';
     const isCalibrating = status === 'calibrating';
     const isReady = status === 'ready';
+    const isCalibrated = calibration && calibration.complete === true;
     const isPaused = status === 'paused';
     const showStopBtn = isRecording || isCalibrating;
 
+    // --- 4a. Setup Button (appears first, before calibration) ---
+    if (elements.setupMicBtn && elements.setupContainer) {
+        const showSetup = status === 'ready_to_record' && !isCalibrated;
+        elements.setupContainer.style.display = showSetup ? 'block' : 'none';
+    }
+
+    // --- 4b. Record Button (appears after calibration) ---
     if (elements.recordBtn) {
-        // Show Record button when: ready after calibration, ready_to_record, or idle (not during recording/submit/processing)
-        const showRecordBtn = (isReady || status === 'ready_to_record') && !isRecorded && !showStopBtn && !isPaused && status !== 'submitting' && status !== 'processing';
+        // Show Record button ONLY when calibrated and ready (not before calibration)
+        const showRecordBtn = isReady && isCalibrated && !isRecorded && !showStopBtn && !isPaused && status !== 'submitting' && status !== 'processing';
         elements.recordBtn.style.display = showRecordBtn ? 'inline-flex' : 'none';
         
-        // Update button text based on calibration state
-        if (isReady && calibration.complete) {
+        if (isReady && isCalibrated) {
             elements.recordBtn.innerHTML = '<span class="dashicons dashicons-microphone"></span> Start Recording';
         }
     }
