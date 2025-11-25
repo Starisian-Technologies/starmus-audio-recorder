@@ -702,8 +702,8 @@ export function initRecorder(store, instanceId) {
 
                 // Only read amplitude if actively recording (not paused)
                 let amplitude = 0;
-                if (recState === 'recording') {
-                    analyser.getFloatTimeDomainData(meterBuffer);
+                if (recState === 'recording' && active.analyser) {
+                    active.analyser.getFloatTimeDomainData(meterBuffer);
                     let sum = 0;
                     for (let i = 0; i < meterBuffer.length; i++) {
                         sum += meterBuffer[i] * meterBuffer[i];
