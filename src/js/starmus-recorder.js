@@ -79,6 +79,32 @@ function getSharedContext() {
     return sharedAudioContext;
 }
 
+/**
+ * PATCH 8: Safe wrapper for createMediaStreamDestination with legacy fallback.
+ * Fixes method name typo (createMediaStreamAudioDestination doesn't exist).
+ */
+function createMediaStreamDestinationSafe(audioContext) {
+    if (!audioContext) {
+        throw new Error('No AudioContext provided');
+    }
+
+    const fn =
+        audioContext.createMediaStreamDestination ||
+        audioContext.createMediaStreamAudioDestination; // legacy fallback if it ever exists
+
+    if (typeof fn !== 'function') {
+        throw new Error('MediaStreamDestination not supported on this AudioContext');
+    }
+
+    const destNode = fn.call(audioContext);
+
+    if (!destNode || !destNode.stream) {
+        throw new Error('MediaStreamDestination node has no stream');
+    }
+
+    return destNode;
+}
+
 // PATCH 2: Resume AudioContext on first user interaction
 document.addEventListener('click', async () => {
     if (sharedAudioContext && sharedAudioContext.state === 'suspended') {
@@ -254,8 +280,12 @@ function setupAudioGraph(rawStream) {
     
     const source = audioContext.createMediaStreamSource(rawStream);
 
-    // PATCH 0: MDN-style minimal graph fallback if createMediaStreamDestination missing
-    if (!audioContext.createMediaStreamDestination) {
+    // PATCH 8: Try createMediaStreamDestinationSafe first, fallback to minimal graph
+    let destination;
+    try {
+        destination = createMediaStreamDestinationSafe(audioContext);
+    } catch (err) {
+        debugLog('[Recorder] createMediaStreamDestination not available:', err.message);
         debugLog('[Recorder] Using minimal graph fallback (MDN baseline)');
         const analyser = audioContext.createAnalyser();
         analyser.fftSize = 2048;
@@ -284,8 +314,6 @@ function setupAudioGraph(rawStream) {
 
     const analyser = audioContext.createAnalyser();
     analyser.fftSize = 2048;
-
-    const destination = audioContext.createMediaStreamDestination();
 
     source.connect(highPass);
     highPass.connect(compressor);
