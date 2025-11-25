@@ -388,10 +388,29 @@ export function initRecorder(store, instanceId) {
             return;
         }
 
+        console.log('[Recorder] start-recording command received for instance:', instanceId);
+
         const state = store.getState();
+        console.log('[Recorder] Current state:', {
+            status: state.status,
+            calibrationComplete: state.calibration?.complete,
+            tier: state.tier
+        });
+        
+        // PATCH 4: Prevent recording during calibration
+        if (state.status === 'calibrating') {
+            console.warn('[Recorder] Cannot start recording while calibrating');
+            store.dispatch({
+                type: 'starmus/error',
+                payload: { message: 'Please wait for calibration to complete.', retryable: true },
+                error: { message: 'Cannot start recording during calibration', retryable: true }
+            });
+            return;
+        }
         
         // Ensure calibration was completed
         if (!state.calibration || !state.calibration.complete) {
+            console.error('[Recorder] Calibration not complete, cannot start recording');
             store.dispatch({
                 type: 'starmus/error',
                 payload: { message: 'Please setup your microphone first.', retryable: true },
@@ -401,28 +420,39 @@ export function initRecorder(store, instanceId) {
         }
 
         try {
+            console.log('[Recorder] Getting audio settings...');
             const env = state.env || {};
             const config = window.starmusConfig || {};
 
             const audioSettings = getOptimalAudioSettings(env, config);
+            console.log('[Recorder] Audio settings:', audioSettings);
 
+            console.log('[Recorder] Requesting microphone access...');
             const rawStream = await navigator.mediaDevices.getUserMedia(
                 audioSettings.constraints
             );
+            console.log('[Recorder] Got rawStream:', rawStream, 'tracks:', rawStream.getTracks());
 
             const calibrationResult = state.calibration;
 
             // Proceed directly to recording (calibration already done)
             let audioContext, destinationStream, analyser, nodes;
             try {
+                console.log('[Recorder] Setting up audio graph...');
                 const audioGraph = setupAudioGraph(rawStream);
                 audioContext = audioGraph.audioContext;
                 destinationStream = audioGraph.destinationStream;
                 analyser = audioGraph.analyser;
                 nodes = audioGraph.nodes;
                 
-                debugLog('[Recorder] Audio graph created successfully');
+                console.log('[Recorder] Audio graph created successfully:', {
+                    hasContext: !!audioContext,
+                    hasDestStream: !!destinationStream,
+                    hasAnalyser: !!analyser,
+                    contextState: audioContext?.state
+                });
             } catch (graphError) {
+                console.error('[Recorder] Audio graph setup FAILED:', graphError);
                 debugLog('[Recorder] Audio graph setup failed:', graphError);
                 
                 emitStarmusEvent(instanceId, 'E_AUDIO_GRAPH_FAIL', {
@@ -451,6 +481,36 @@ export function initRecorder(store, instanceId) {
             // PATCH 5: Wait for audio track to be ready
             await starmusWaitForTrack(destinationStream);
 
+            // PATCH 3: Validate stream before creating MediaRecorder
+            if (!destinationStream || typeof destinationStream.getTracks !== 'function') {
+                console.error('[Recorder] No valid audio stream available before MediaRecorder');
+                rawStream.getTracks().forEach(t => t.stop());
+                store.dispatch({
+                    type: 'starmus/error',
+                    payload: { message: 'Microphone stream unavailable.', retryable: true },
+                    error: { message: 'Invalid destination stream', retryable: true }
+                });
+                return;
+            }
+
+            const audioTracks = destinationStream.getAudioTracks();
+            if (!audioTracks.length) {
+                console.error('[Recorder] No audio tracks on stream');
+                rawStream.getTracks().forEach(t => t.stop());
+                store.dispatch({
+                    type: 'starmus/error',
+                    payload: { message: 'No audio tracks available.', retryable: true },
+                    error: { message: 'Stream has no audio tracks', retryable: true }
+                });
+                return;
+            }
+
+            console.log('[Recorder] Stream validation passed:', {
+                hasStream: !!destinationStream,
+                trackCount: audioTracks.length,
+                trackStates: audioTracks.map(t => ({ kind: t.kind, enabled: t.enabled, readyState: t.readyState }))
+            });
+
             const recorderOptions = {};
             if (MediaRecorder.isTypeSupported(audioSettings.options.mimeType)) {
                 recorderOptions.mimeType = audioSettings.options.mimeType;
@@ -458,7 +518,43 @@ export function initRecorder(store, instanceId) {
                     audioSettings.options.audioBitsPerSecond;
             }
 
-            const mediaRecorder = new MediaRecorder(destinationStream, recorderOptions);
+            // PATCH 1: Harden MediaRecorder creation with try/catch
+            let mediaRecorder = null;
+            try {
+                mediaRecorder = new MediaRecorder(destinationStream, recorderOptions);
+                console.log('[Recorder] MediaRecorder created successfully, state:', mediaRecorder.state);
+            } catch (err) {
+                console.error('[Recorder] MediaRecorder constructor failed:', err);
+                rawStream.getTracks().forEach(t => t.stop());
+                if (destinationStream !== rawStream) {
+                    destinationStream.getTracks().forEach(t => t.stop());
+                }
+                store.dispatch({
+                    type: 'starmus/error',
+                    payload: { message: 'MediaRecorder could not be created: ' + (err.message || 'Unknown error'), retryable: true },
+                    error: err
+                });
+                emitStarmusEvent(instanceId, 'E_RECORDER_CREATE_FAIL', {
+                    severity: 'error',
+                    message: 'MediaRecorder constructor failed',
+                    error: err.message
+                });
+                return;
+            }
+
+            if (!mediaRecorder || mediaRecorder.state !== 'inactive') {
+                console.error('[Recorder] MediaRecorder did not initialize properly, state:', mediaRecorder?.state);
+                rawStream.getTracks().forEach(t => t.stop());
+                if (destinationStream !== rawStream) {
+                    destinationStream.getTracks().forEach(t => t.stop());
+                }
+                store.dispatch({
+                    type: 'starmus/error',
+                    payload: { message: 'MediaRecorder initialization failed.', retryable: true },
+                    error: { message: 'MediaRecorder state invalid after creation', retryable: true }
+                });
+                return;
+            }
             const chunks = [];
             let transcript = '';
 
@@ -534,7 +630,21 @@ export function initRecorder(store, instanceId) {
                 startTime,
                 rafId: null
             };
+            
+            // PATCH 2: Populate registry BEFORE dispatching mic-start
+            // This ensures UI never shows "recording" without a recorder existing
             recorderRegistry.set(instanceId, recRef);
+            
+            // PATCH 7: Add telemetry on registry population
+            debugLog('[Recorder] Registry populated', {
+                instanceId,
+                hasRecorder: !!mediaRecorder,
+                streamTracks: destinationStream.getTracks().length,
+                recorderState: mediaRecorder.state,
+                hasAnalyser: !!analyser,
+                hasContext: !!audioContext,
+                contextState: audioContext.state
+            });
 
             function meterLoop() {
                 const active = recorderRegistry.get(instanceId);
@@ -649,12 +759,73 @@ export function initRecorder(store, instanceId) {
                 recorderRegistry.delete(instanceId);
             };
 
-            console.log('[Recorder] Starting MediaRecorder, state before start:', mediaRecorder.state);
-            
+            // PATCH 2: Now that registry is populated, change UI state
+            console.log('[Recorder] Registry populated, now dispatching mic-start');
             store.dispatch({ type: 'starmus/mic-start' });
-            mediaRecorder.start(3000); // 3-second chunks reduce memory pressure and offline queue size
             
-            console.log('[Recorder] MediaRecorder.start() called, state after start:', mediaRecorder.state);
+            // PATCH 2: Only then start the underlying recorder
+            console.log('[Recorder] About to call mediaRecorder.start()');
+            console.log('[Recorder] Pre-start state check:', {
+                recorderExists: !!mediaRecorder,
+                recorderState: mediaRecorder?.state,
+                streamActive: destinationStream?.active,
+                trackCount: destinationStream?.getTracks()?.length
+            });
+            
+            try {
+                mediaRecorder.start(3000); // 3-second chunks reduce memory pressure and offline queue size
+                console.log('[Recorder] mediaRecorder.start() completed successfully');
+                console.log('[Recorder] MediaRecorder state after start:', mediaRecorder.state);
+            } catch (startError) {
+                console.error('[Recorder] CRITICAL ERROR: mediaRecorder.start() failed:', startError);
+                console.error('[Recorder] Error details:', {
+                    name: startError.name,
+                    message: startError.message,
+                    recorderState: mediaRecorder?.state,
+                    streamActive: destinationStream?.active
+                });
+                
+                // Clean up the registry entry since recording failed
+                recorderRegistry.delete(instanceId);
+                
+                // Stop all streams
+                if (rawStream) {
+                    rawStream.getTracks().forEach(t => t.stop());
+                }
+                if (destinationStream !== rawStream && destinationStream) {
+                    destinationStream.getTracks().forEach(t => t.stop());
+                }
+                
+                // Clean up audio nodes
+                if (nodes) {
+                    nodes.forEach(n => {
+                        try { 
+                            n.disconnect(); 
+                        // eslint-disable-next-line no-empty
+                        } catch {
+                            // Node may already be disconnected
+                        }
+                    });
+                }
+                
+                // Dispatch error to UI
+                store.dispatch({
+                    type: 'starmus/error',
+                    payload: { 
+                        message: 'Failed to start recording: ' + (startError.message || 'Unknown error'),
+                        retryable: true 
+                    },
+                    error: startError
+                });
+                
+                emitStarmusEvent(instanceId, 'E_RECORDER_START_FAIL', {
+                    severity: 'error',
+                    message: 'MediaRecorder.start() failed',
+                    error: startError.message
+                });
+                
+                return;
+            }
 
             // Initial amplitude sample to avoid flat meter at start
             analyser.getFloatTimeDomainData(meterBuffer);
