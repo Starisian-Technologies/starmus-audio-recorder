@@ -154,58 +154,131 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 		</section>
 	<?php endif; ?>
 
-	<section class="starmus-detail__section">
-		<h2>Archival Metadata</h2>
-		<dl class="starmus-info-list">
-			<?php
-			$fields = [
-				'session_date'          => 'Session Date',
-				'session_start_time'    => 'Start Time',
-				'session_end_time'      => 'End Time',
-				'location'              => 'Location',
-				'submission_ip'         => 'Submission IP',
-				'recording_equipment'   => 'Recording Equipment',
-				'media_condition_notes' => 'Media Condition Notes',
-				'device_fingerprint'    => 'Device Fingerprint',
-				'environment_data'      => 'Environment Data',
-			];
-			foreach ($fields as $k => $label) {
-				$val = get_post_meta($post_id, $k, true) ?: ($k === 'device_fingerprint' ? $device_fingerprint : ($k === 'environment_data' ? $environment_data : ''));
-				if (! empty($val)) {
-					echo '<dt>' . esc_html($label) . '</dt><dd>' . wp_kses_post(nl2br($val)) . '</dd>';
-				}
-			}
-			?>
-		</dl>
-	</section>
+	<div class="starmus-admin-detail__grid">
+		<!-- Left Column: Metadata -->
+		<div class="starmus-detail__left">
+			<section class="starmus-detail__section starmus-glass">
+				<h2><?php esc_html_e('Recording Metadata', 'starmus-audio-recorder'); ?></h2>
+				<dl class="starmus-info-list">
+					<?php
+					$session_fields = [
+						'session_date'          => 'Session Date',
+						'session_start_time'    => 'Start Time',
+						'session_end_time'      => 'End Time',
+						'duration'              => 'Duration',
+						'location'              => 'Location',
+						'recording_equipment'   => 'Recording Equipment',
+						'media_condition_notes' => 'Media Condition Notes',
+					];
+					foreach ($session_fields as $k => $label) {
+						$val = get_post_meta($post_id, $k, true);
+						if (! empty($val)) {
+							echo '<dt>' . esc_html($label) . '</dt><dd>' . wp_kses_post(nl2br($val)) . '</dd>';
+						}
+					}
+					?>
+				</dl>
+			</section>
 
-	<section class="starmus-detail__section">
-		<h2>Raw Transcription JSON</h2>
-		<?php if ($transcript_json) : ?>
-			<pre><code><?php echo esc_html(json_encode(json_decode($transcript_json), JSON_PRETTY_PRINT)); ?></code></pre>
-		<?php else : ?>
-			<p><em>No transcription available.</em></p>
-		<?php endif; ?>
-	</section>
+			<section class="starmus-detail__section starmus-glass">
+				<h2><?php esc_html_e('Submission Data', 'starmus-audio-recorder'); ?></h2>
+				<dl class="starmus-info-list">
+					<?php
+					$submission_ip = get_post_meta($post_id, 'submission_ip', true);
+					if ($submission_ip) {
+						echo '<dt>' . esc_html__('IP Address', 'starmus-audio-recorder') . '</dt><dd>' . esc_html($submission_ip) . '</dd>';
+					}
 
-	<section class="starmus-detail__section">
-		<h2>Raw Recording Metadata JSON</h2>
-		<?php if ($metadata_json) : ?>
-			<pre><code><?php echo esc_html(json_encode(json_decode($metadata_json), JSON_PRETTY_PRINT)); ?></code></pre>
-		<?php else : ?>
-			<p><em>No metadata found.</em></p>
-		<?php endif; ?>
-	</section>
+					// Device fingerprint
+					if ($device_fingerprint) {
+						$device_data = is_string($device_fingerprint) ? json_decode($device_fingerprint, true) : $device_fingerprint;
+						if (is_array($device_data)) {
+							echo '<dt>' . esc_html__('Device Information', 'starmus-audio-recorder') . '</dt><dd>';
+							echo '<ul class="starmus-nested-list">';
+							foreach ($device_data as $key => $value) {
+								echo '<li><strong>' . esc_html(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . esc_html($value) . '</li>';
+							}
+							echo '</ul></dd>';
+						} else {
+							echo '<dt>' . esc_html__('Device Fingerprint', 'starmus-audio-recorder') . '</dt><dd>' . esc_html($device_fingerprint) . '</dd>';
+						}
+					}
 
-	<footer class="starmus-detail__footer-actions">
-		<?php
-		$settings = new StarmusSettings();
-		$edit_id  = (int) $settings->get('edit_page_id', 0);
-		if ($edit_id && current_user_can('edit_post', $post_id)) {
-			$edit_url = add_query_arg('post_id', $post_id, get_permalink($edit_id));
-			$edit_url = wp_nonce_url($edit_url, 'starmus_edit_audio_' . $post_id, 'nonce');
-			echo '<a href="' . esc_url($edit_url) . '" class="starmus-btn starmus-btn--primary">Edit Audio Submission</a>';
-		}
-		?>
-	</footer>
-</article>
+					// Environment data
+					if ($environment_data) {
+						$env_data = is_string($environment_data) ? json_decode($environment_data, true) : $environment_data;
+						if (is_array($env_data)) {
+							echo '<dt>' . esc_html__('Environment Data', 'starmus-audio-recorder') . '</dt><dd>';
+							echo '<ul class="starmus-nested-list">';
+							foreach ($env_data as $key => $value) {
+								if (is_array($value)) {
+									echo '<li><strong>' . esc_html(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . esc_html(wp_json_encode($value)) . '</li>';
+								} else {
+									echo '<li><strong>' . esc_html(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . esc_html($value) . '</li>';
+								}
+							}
+							echo '</ul></dd>';
+						} else {
+							echo '<dt>' . esc_html__('Environment Data', 'starmus-audio-recorder') . '</dt><dd>' . esc_html($environment_data) . '</dd>';
+						}
+					}
+					?>
+				</dl>
+			</section>
+
+			<?php if ($processing_log) : ?>
+				<section class="starmus-detail__section starmus-glass">
+					<h2><?php esc_html_e('Processing Log', 'starmus-audio-recorder'); ?></h2>
+					<pre class="starmus-processing-log"><code><?php echo esc_html($processing_log); ?></code></pre>
+				</section>
+			<?php endif; ?>
+
+			<?php if ($metadata_json) : ?>
+				<section class="starmus-detail__section starmus-glass">
+					<h2><?php esc_html_e('Raw Recording Metadata', 'starmus-audio-recorder'); ?></h2>
+					<details>
+						<summary><?php esc_html_e('Show JSON', 'starmus-audio-recorder'); ?></summary>
+						<pre class="starmus-json-data"><code><?php echo esc_html(json_encode(json_decode($metadata_json), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></code></pre>
+					</details>
+				</section>
+			<?php endif; ?>
+
+			<?php if ($transcript_json) : ?>
+				<section class="starmus-detail__section starmus-glass">
+					<h2><?php esc_html_e('Transcription Data', 'starmus-audio-recorder'); ?></h2>
+					<details>
+						<summary><?php esc_html_e('Show JSON', 'starmus-audio-recorder'); ?></summary>
+						<pre class="starmus-json-data"><code><?php echo esc_html(json_encode(json_decode($transcript_json), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></code></pre>
+					</details>
+				</section>
+			<?php endif; ?>
+		</div>
+
+		<!-- Right Column: Actions -->
+		<div class="starmus-detail__right">
+			<section class="starmus-detail__section starmus-glass starmus-detail__actions-card">
+				<h2><?php esc_html_e('Actions', 'starmus-audio-recorder'); ?></h2>
+				<div class="starmus-action-buttons">
+					<?php if (current_user_can('edit_post', $post_id)) : ?>
+						<a href="<?php echo esc_url(get_edit_post_link($post_id)); ?>" class="starmus-btn starmus-btn--primary">
+							<?php esc_html_e('Edit Post', 'starmus-audio-recorder'); ?>
+						</a>
+					<?php endif; ?>
+				</div>
+			</section>
+
+			<section class="starmus-detail__section starmus-glass">
+				<h2><?php esc_html_e('Re-Record Audio', 'starmus-audio-recorder'); ?></h2>
+				<p class="starmus-section-description"><?php esc_html_e('Replace this recording with a new one:', 'starmus-audio-recorder'); ?></p>
+				<?php echo do_shortcode('[starmus_audio_re_recorder post_id="' . $post_id . '"]'); ?>
+			</section>
+
+			<section class="starmus-detail__section starmus-glass">
+				<h2><?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?></h2>
+				<p class="starmus-section-description"><?php esc_html_e('Edit annotations and segments:', 'starmus-audio-recorder'); ?></p>
+				<?php echo do_shortcode('[starmus_audio_editor]'); ?>
+			</section>
+		</div>
+	</div>
+
+</article></article>
