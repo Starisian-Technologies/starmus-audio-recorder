@@ -11,11 +11,12 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+$form_id = $form_id ?? 'default';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 
 // Get allowed file types from settings (comma-separated string)
 $allowed_file_types ??= 'webm';
-$allowed_types_arr     = array_filter(array_map('trim', explode(',', $allowed_file_types)));
+$allowed_types_arr     = array_filter(array_map(trim(...), explode(',', $allowed_file_types)));
 $show_file_type_select = count($allowed_types_arr) > 1;
 $is_admin              = current_user_can('manage_options');
 ?>

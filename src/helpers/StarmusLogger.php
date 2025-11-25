@@ -33,6 +33,9 @@ class StarmusLogger
      */
     protected static int $min_log_level = self::INFO;
 
+    /**
+     * @var array<string, int>
+     */
     protected static array $levels = [
         'debug'     => self::DEBUG,
         'info'      => self::INFO,
@@ -48,6 +51,9 @@ class StarmusLogger
 
     protected static ?string $correlation_id = null;
 
+    /**
+     * @var array<string, float>
+     */
     protected static array $timers = [];
 
     /*==============================================================
@@ -90,6 +96,10 @@ class StarmusLogger
         return self::$levels[strtolower($level_name)] ?? self::ERROR;
     }
 
+    /**
+     * @param array<string|int, mixed> $data
+     * @return array<string|int, mixed>
+     */
     protected static function sanitizeData(array $data): array
     {
         foreach ($data as $k => &$v) {
@@ -106,6 +116,8 @@ class StarmusLogger
     /**
      * Main logging method.
      * Writes directly to PHP error_log (standard WP debug.log).
+     * 
+     * @param array<string|int, mixed> $extra
      */
     public static function log(string $context, $msg, string $level = 'error', array $extra = []): void
     {
@@ -193,23 +205,53 @@ class StarmusLogger
     /*==============================================================
      * CONVENIENCE WRAPPERS
      *=============================================================*/
-    public static function debug(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'debug', $extra); }
+    /**
+     * @param array<string|int, mixed> $extra
+     */
+    public static function debug(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'debug', $extra);
+    }
 
-    public static function info(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'info', $extra); }
+    public static function info(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'info', $extra);
+    }
 
-    public static function notice(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'notice', $extra); }
+    public static function notice(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'notice', $extra);
+    }
 
-    public static function warning(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'warning', $extra); }
+    public static function warning(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'warning', $extra);
+    }
 
-    public static function warn(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'warning', $extra); }
+    public static function warn(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'warning', $extra);
+    }
 
-    public static function error(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'error', $extra); }
+    public static function error(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'error', $extra);
+    }
 
-    public static function critical(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'critical', $extra); }
+    public static function critical(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'critical', $extra);
+    }
 
-    public static function alert(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'alert', $extra); }
+    public static function alert(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'alert', $extra);
+    }
 
-    public static function emergency(string $context, $msg, array $extra = []): void { self::log($context, $msg, 'emergency', $extra); }
+    public static function emergency(string $context, $msg, array $extra = []): void
+    {
+        self::log($context, $msg, 'emergency', $extra);
+    }
 
     /*==============================================================
      * BOOTSTRAP

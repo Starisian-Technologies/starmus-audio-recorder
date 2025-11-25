@@ -43,7 +43,7 @@ $show_file_type_select = count($allowed_types_arr) > 1;
         data-starmus-rerecord="true">
 
         <!-- Hidden Fields: Pre-filled metadata from existing post -->
-        <input type="hidden" name="post_id" value="<?php echo esc_attr($post_id); ?>">
+        <input type="hidden" name="post_id" value="<?php echo esc_attr((string) $post_id); ?>">
         <input type="hidden" name="starmus_title" value="<?php echo esc_attr($title); ?>">
         <input type="hidden" name="language" value="<?php echo esc_attr($language); ?>">
         <input type="hidden" name="recording_type" value="<?php echo esc_attr($recording_type); ?>">
@@ -72,7 +72,7 @@ $show_file_type_select = count($allowed_types_arr) > 1;
         <input type="hidden" name="user_agent" value="">
 
         <?php if ($show_file_type_select) : ?>
-            <input type="hidden" name="audio_file_type" value="audio/<?php echo esc_attr($allowed_types_arr[0]); ?>">
+            <input type="hidden" name="audio_file_type" value="audio/<?php echo esc_attr((string) $allowed_types_arr[0]); ?>">
         <?php else : ?>
             <input type="hidden" name="audio_file_type" value="audio/<?php echo esc_attr($allowed_file_types); ?>">
         <?php endif; ?>

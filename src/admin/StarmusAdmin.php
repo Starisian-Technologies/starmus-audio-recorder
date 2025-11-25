@@ -263,7 +263,7 @@ class StarmusAdmin
 			// Speech recognition language (BCP 47 format: en-US, fr-FR, ha-NG, etc.)
 			$speech_lang                            = sanitize_text_field($input['speech_recognition_lang'] ?? 'en-US');
 			$speech_lang                            = preg_replace('/[^a-zA-Z0-9\-]/', '', $speech_lang);
-			$sanitized['speech_recognition_lang'] = ! empty($speech_lang) ? $speech_lang : 'en-US';
+			$sanitized['speech_recognition_lang'] = empty($speech_lang) ? 'en-US' : $speech_lang;
 
 			// Consent message
 			$sanitized['consent_message'] = wp_kses_post($input['consent_message'] ?? $defaults['consent_message'] ?? '');

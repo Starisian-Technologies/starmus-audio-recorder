@@ -22,7 +22,7 @@ get_header(); ?>
 					if ( $attachment_id ) {
 						// wp_audio_shortcode is safe - it's a core WordPress function that outputs HTML
 						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						echo wp_audio_shortcode( array( 'src' => wp_get_attachment_url( $attachment_id ) ) );
+						echo wp_audio_shortcode( [ 'src' => wp_get_attachment_url( $attachment_id ) ] );
 					}
 					the_content();
 					?>

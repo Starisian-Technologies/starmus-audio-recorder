@@ -41,12 +41,12 @@ if (! empty($waveform_json)) {
 }
 
 // === Utility functions ===
-function starmus_local_time($post_id)
+function starmus_local_time(int $post_id): string
 {
 	return get_date_from_gmt(get_post_time('Y-m-d H:i:s', true, $post_id), 'F j, Y \a\t g:i A');
 }
 
-function starmus_language_label($lang_code): string
+function starmus_language_label(string $lang_code): string
 {
 	$map = [
 		'en'    => 'English',
@@ -58,7 +58,7 @@ function starmus_language_label($lang_code): string
 	return $map[$lang_code] ?? strtoupper((string) $lang_code);
 }
 
-function starmus_fs_to_url($path, array $uploads): string|array
+function starmus_fs_to_url(string $path, array $uploads): string
 {
 	if (! $path) {
 		return '';
@@ -147,7 +147,7 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 		<section class="starmus-detail__section">
 			<h2>Waveform Visualization</h2>
 			<div class="starmus-waveform">
-				<svg viewBox="0 0 <?php echo esc_attr($width); ?> <?php echo esc_attr($height); ?>" width="100%" height="<?php echo esc_attr($height); ?>" role="img" aria-label="Waveform preview">
+				<svg viewBox="0 0 <?php echo esc_attr((string) $width); ?> <?php echo esc_attr((string) $height); ?>" width="100%" height="<?php echo esc_attr((string) $height); ?>" role="img" aria-label="Waveform preview">
 					<polyline fill="none" stroke="#0073aa" stroke-width="1" points="<?php echo esc_attr(implode(' ', $points)); ?>" />
 				</svg>
 			</div>
