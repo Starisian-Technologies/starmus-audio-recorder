@@ -45,8 +45,8 @@ $show_file_type_select = count($allowed_types_arr) > 1;
         <!-- Hidden Fields: Pre-filled metadata from existing post -->
         <input type="hidden" name="post_id" value="<?php echo esc_attr((string) $post_id); ?>">
         <input type="hidden" name="starmus_title" value="<?php echo esc_attr($title); ?>">
-        <input type="hidden" name="language" value="<?php echo esc_attr($language); ?>">
-        <input type="hidden" name="recording_type" value="<?php echo esc_attr($recording_type); ?>">
+        <input type="hidden" name="starmus_language" value="<?php echo esc_attr($language); ?>">
+        <input type="hidden" name="starmus_recording_type" value="<?php echo esc_attr($recording_type); ?>">
 
         <!-- Other hidden fields (same as main recorder) -->
         <input type="hidden" name="project_collection_id" value="">
@@ -104,28 +104,23 @@ $show_file_type_select = count($allowed_types_arr) > 1;
 
             <fieldset class="starmus-consent-fieldset">
                 <legend class="starmus-fieldset-legend">
-                    <?php esc_html_e('Consent', 'starmus-audio-recorder'); ?>
+                    <?php esc_html_e('Consent Agreement', 'starmus-audio-recorder'); ?>
                 </legend>
                 <div class="starmus-consent-field">
+                    <input
+                        type="checkbox"
+                        id="starmus_consent_<?php echo esc_attr($instance_id); ?>"
+                        name="agreement_to_terms"
+                        value="1"
+                        required>
                     <label for="starmus_consent_<?php echo esc_attr($instance_id); ?>">
-                        <input
-                            type="checkbox"
-                            id="starmus_consent_<?php echo esc_attr($instance_id); ?>"
-                            name="agreement_to_terms"
-                            value="1"
-                            required>
-                        <span>
-                            <?php echo esc_html($consent_message); ?>
-                            <?php if (! empty($data_policy_url)) : ?>
-                                <a
-                                    href="<?php echo esc_url($data_policy_url); ?>"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="starmus-policy-link">
-                                    <?php esc_html_e('Read our data policy', 'starmus-audio-recorder'); ?>
-                                </a>
-                            <?php endif; ?>
-                        </span>
+                        <?php echo wp_kses_post($consent_message); ?>
+                        <?php if (! empty($data_policy_url)) : ?>
+                            <a
+                                href="<?php echo esc_url($data_policy_url); ?>"
+                                target="_blank"
+                                rel="noopener noreferrer"><?php esc_html_e('Privacy Policy', 'starmus-audio-recorder'); ?></a>
+                        <?php endif; ?>
                     </label>
                 </div>
             </fieldset>
@@ -134,53 +129,153 @@ $show_file_type_select = count($allowed_types_arr) > 1;
                 type="button"
                 id="starmus_continue_btn_<?php echo esc_attr($instance_id); ?>"
                 class="starmus-btn starmus-btn--primary"
-                data-starmus-role="continue">
+                data-starmus-action="continue">
                 <?php esc_html_e('Continue to Recording', 'starmus-audio-recorder'); ?>
             </button>
         </div>
 
-        <!-- Step 2: Audio Recording (identical to main recorder) -->
+        <!-- Step 2: Audio Recording -->
         <div
             id="starmus_step2_<?php echo esc_attr($instance_id); ?>"
             class="starmus-step starmus-step-2"
             data-starmus-step="2"
             style="display:none;">
+
             <h2 id="starmus_audioRecorderHeading_<?php echo esc_attr($instance_id); ?>" tabindex="-1">
                 <?php esc_html_e('Record Your Audio', 'starmus-audio-recorder'); ?>
             </h2>
 
+            <!-- Microphone Setup Button -->
+            <div
+                id="starmus_setup_container_<?php echo esc_attr($instance_id); ?>"
+                class="starmus-setup-container"
+                data-starmus-setup-container>
+                <button
+                    type="button"
+                    id="starmus_setup_mic_btn_<?php echo esc_attr($instance_id); ?>"
+                    class="starmus-btn starmus-btn--primary starmus-btn--large"
+                    data-starmus-action="setup-mic">
+                    <span class="dashicons dashicons-microphone"></span> <?php esc_html_e('Setup Microphone', 'starmus-audio-recorder'); ?>
+                </button>
+                <p class="starmus-setup-instruction">
+                    <?php esc_html_e('Click the button above to test your microphone and adjust audio levels.', 'starmus-audio-recorder'); ?>
+                </p>
+            </div>
+
+            <!-- TIER C FALLBACK (Displayed if browser cannot record) -->
+            <div
+                id="starmus_fallback_container_<?php echo esc_attr($instance_id); ?>"
+                class="starmus-fallback-container"
+                style="display:none;"
+                data-starmus-fallback-container>
+                <p class="starmus-alert starmus-alert--warning">
+                    <?php esc_html_e('Live recording is not supported on this browser.', 'starmus-audio-recorder'); ?>
+                </p>
+                <label for="starmus_fallback_input_<?php echo esc_attr($instance_id); ?>" class="starmus-btn starmus-btn--secondary">
+                    <?php esc_html_e('Click to Upload Audio File', 'starmus-audio-recorder'); ?>
+                </label>
+                <input
+                    type="file"
+                    id="starmus_fallback_input_<?php echo esc_attr($instance_id); ?>"
+                    name="audio_file"
+                    accept="audio/*"
+                    style="display:none;">
+            </div>
+
+            <!-- TIER A/B RECORDER UI -->
             <div
                 id="starmus_recorder_container_<?php echo esc_attr($instance_id); ?>"
                 class="starmus-recorder-container"
                 data-starmus-recorder-container>
 
-                <!-- Recording Controls -->
+                <!-- VISUALIZER STAGE -->
+                <div class="starmus-visualizer-stage">
+                    <!-- Timer with Duration Progress -->
+                    <div class="starmus-timer-wrapper">
+                        <div id="starmus_timer_<?php echo esc_attr($instance_id); ?>" class="starmus-timer" data-starmus-timer>
+                            <span class="starmus-timer-elapsed">00:00</span>
+                            <span class="starmus-timer-separator">/</span>
+                            <span class="starmus-timer-max">20:00</span>
+                        </div>
+                        <div class="starmus-duration-progress-wrapper">
+                            <div id="starmus_duration_progress_<?php echo esc_attr($instance_id); ?>"
+                                class="starmus-duration-progress"
+                                data-starmus-duration-progress
+                                role="progressbar"
+                                aria-valuemin="0"
+                                aria-valuemax="1200"
+                                aria-valuenow="0"
+                                aria-label="Recording duration progress"></div>
+                        </div>
+                    </div>
+
+                    <!-- Waveform Container (Peaks.js) -->
+                    <div id="starmus_waveform_<?php echo esc_attr($instance_id); ?>" class="starmus-waveform-view" data-starmus-waveform></div>
+
+                    <!-- Volume Meter -->
+                    <div class="starmus-meter-wrap">
+                        <div id="starmus_vol_meter_<?php echo esc_attr($instance_id); ?>" class="starmus-meter-bar" data-starmus-volume-meter></div>
+                    </div>
+                </div>
+
+                <!-- CONTROLS DECK -->
                 <div class="starmus-recorder-controls">
+                    <!-- 1. IDLE STATE -->
                     <button
                         type="button"
                         id="starmus_record_btn_<?php echo esc_attr($instance_id); ?>"
-                        class="starmus-btn starmus-btn--record"
+                        class="starmus-btn starmus-btn--record starmus-btn--large"
                         data-starmus-action="record">
-                        <?php esc_html_e('Record', 'starmus-audio-recorder'); ?>
+                        <span class="dashicons dashicons-microphone"></span> <?php esc_html_e('Start Recording', 'starmus-audio-recorder'); ?>
+                    </button>
+
+                    <!-- 2. RECORDING STATE -->
+                    <button
+                        type="button"
+                        id="starmus_pause_btn_<?php echo esc_attr($instance_id); ?>"
+                        class="starmus-btn starmus-btn--pause starmus-btn--large"
+                        data-starmus-action="pause"
+                        style="display:none;">
+                        <span class="dashicons dashicons-controls-pause"></span> <?php esc_html_e('Pause', 'starmus-audio-recorder'); ?>
                     </button>
 
                     <button
                         type="button"
                         id="starmus_stop_btn_<?php echo esc_attr($instance_id); ?>"
-                        class="starmus-btn starmus-btn--stop"
+                        class="starmus-btn starmus-btn--stop starmus-btn--large"
                         data-starmus-action="stop"
                         style="display:none;">
-                        <?php esc_html_e('Stop', 'starmus-audio-recorder'); ?>
+                        <span class="dashicons dashicons-media-default"></span> <?php esc_html_e('Stop', 'starmus-audio-recorder'); ?>
                     </button>
 
+                    <!-- 2b. PAUSED STATE -->
                     <button
                         type="button"
-                        id="starmus_reset_btn_<?php echo esc_attr($instance_id); ?>"
-                        class="starmus-btn starmus-btn--secondary"
-                        data-starmus-action="reset"
+                        id="starmus_resume_btn_<?php echo esc_attr($instance_id); ?>"
+                        class="starmus-btn starmus-btn--resume starmus-btn--large"
+                        data-starmus-action="resume"
                         style="display:none;">
-                        <?php esc_html_e('Reset', 'starmus-audio-recorder'); ?>
+                        <span class="dashicons dashicons-controls-play"></span> <?php esc_html_e('Resume Recording', 'starmus-audio-recorder'); ?>
                     </button>
+
+                    <!-- 3. REVIEW STATE -->
+                    <div id="starmus_review_controls_<?php echo esc_attr($instance_id); ?>" class="starmus-review-controls" style="display:none;">
+                        <button
+                            type="button"
+                            id="starmus_play_btn_<?php echo esc_attr($instance_id); ?>"
+                            class="starmus-btn starmus-btn--secondary"
+                            data-starmus-action="play">
+                            <?php esc_html_e('Play / Pause', 'starmus-audio-recorder'); ?>
+                        </button>
+
+                        <button
+                            type="button"
+                            id="starmus_reset_btn_<?php echo esc_attr($instance_id); ?>"
+                            class="starmus-btn starmus-btn--outline"
+                            data-starmus-action="reset">
+                            <?php esc_html_e('Retake', 'starmus-audio-recorder'); ?>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Live Transcript Display -->
@@ -189,43 +284,18 @@ $show_file_type_select = count($allowed_types_arr) > 1;
                     class="starmus-transcript"
                     data-starmus-transcript
                     style="display:none;"
-                    role="log"
-                    aria-live="polite"
-                    aria-label="<?php esc_attr_e('Live transcript', 'starmus-audio-recorder'); ?>"></div>
+                    role="log"></div>
             </div>
 
-            <div
-                id="starmus_fallback_container_<?php echo esc_attr($instance_id); ?>"
-                class="starmus-fallback-container"
-                style="display:none;"
-                data-starmus-fallback-container>
-                <p><?php esc_html_e('Live recording is not supported on this browser.', 'starmus-audio-recorder'); ?></p>
-                <label for="starmus_fallback_input_<?php echo esc_attr($instance_id); ?>">
-                    <?php esc_html_e('Upload an audio file instead:', 'starmus-audio-recorder'); ?>
-                </label>
-                <input
-                    type="file"
-                    id="starmus_fallback_input_<?php echo esc_attr($instance_id); ?>"
-                    name="audio_file"
-                    accept="audio/*">
-            </div>
-
-            <div
-                id="starmus_loader_overlay_<?php echo esc_attr($instance_id); ?>"
-                class="starmus-loader"
-                style="display:none;">
-                <?php esc_html_e('Uploading...', 'starmus-audio-recorder'); ?>
-            </div>
-
-            <!-- Status and Progress Elements -->
+            <!-- SUBMISSION AREA -->
             <div
                 id="starmus_status_<?php echo esc_attr($instance_id); ?>"
                 class="starmus-status"
                 data-starmus-status
                 role="status"
-                aria-live="polite"
                 style="display:none;"></div>
 
+            <!-- Upload Progress -->
             <div
                 id="starmus_progress_wrap_<?php echo esc_attr($instance_id); ?>"
                 class="starmus-progress-wrap"
@@ -233,18 +303,13 @@ $show_file_type_select = count($allowed_types_arr) > 1;
                 <div
                     id="starmus_progress_<?php echo esc_attr($instance_id); ?>"
                     class="starmus-progress"
-                    data-starmus-progress
-                    role="progressbar"
-                    aria-valuenow="0"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    style="width:0%;"></div>
+                    data-starmus-progress></div>
             </div>
 
             <button
                 type="submit"
                 id="starmus_submit_btn_<?php echo esc_attr($instance_id); ?>"
-                class="starmus-btn starmus-btn--primary"
+                class="starmus-btn starmus-btn--primary starmus-btn--full"
                 data-starmus-action="submit"
                 disabled>
                 <?php esc_html_e('Submit Recording', 'starmus-audio-recorder'); ?>
