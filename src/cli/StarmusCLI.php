@@ -14,6 +14,7 @@ namespace Starisian\Sparxstar\Starmus\cli;
 use WP_Query;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
+use Starisian\Sparxstar\Starmus\cron\StarmusCron;
 
 // WP_CLI guard removed: always define the class, only register commands when WP_CLI is present.
 
@@ -56,10 +57,10 @@ class StarmusCLI extends \WP_CLI_Command
 		$action = $args[0];
 
 		match ($action) {
-            'generate' => $this->generate_waveforms($assoc_args),
-            'delete' => $this->delete_waveforms($assoc_args),
-            default => WP_CLI::error(sprintf("Invalid action '%s'. Supported actions: generate, delete.", $action)),
-        };
+			'generate' => $this->generate_waveforms($assoc_args),
+			'delete' => $this->delete_waveforms($assoc_args),
+			default => WP_CLI::error(sprintf("Invalid action '%s'. Supported actions: generate, delete.", $action)),
+		};
 	}
 
 	/**
@@ -304,14 +305,222 @@ class StarmusCLI extends \WP_CLI_Command
 	 * Private handler for flushing caches.
 	 */
 	private function flush_cache(): void
-    {
-        WP_CLI::line('Flushing Starmus taxonomy caches...');
-        $recorder_ui = new StarmusAudioRecorderUI();
-        if (method_exists($recorder_ui, 'clear_taxonomy_transients')) {
+	{
+		WP_CLI::line('Flushing Starmus taxonomy caches...');
+		$recorder_ui = new StarmusAudioRecorderUI(null);
+		if (method_exists($recorder_ui, 'clear_taxonomy_transients')) {
 			$recorder_ui->clear_taxonomy_transients();
 			WP_CLI::success('Starmus caches have been flushed.');
 		} else {
 			WP_CLI::error('Required method clear_taxonomy_transients() not found.');
 		}
-    }
+	}
+
+	/**
+	 * Force waveform + mastering regeneration for an attachment.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <attachment_id>
+	 * : The attachment ID to process.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp starmus regen 1234
+	 *
+	 * @subcommand regen
+	 */
+	public function regen(array $args): void
+	{
+		list($id) = $args;
+
+		$id = (int) $id;
+		if ($id <= 0) {
+			\WP_CLI::error('Invalid attachment ID.');
+			return;
+		}
+
+		$attachment = get_post($id);
+		if (! $attachment || $attachment->post_type !== 'attachment') {
+			\WP_CLI::error("Attachment {$id} not found.");
+			return;
+		}
+
+		\WP_CLI::log("Regenerating waveform and audio pipeline for attachment {$id}...");
+
+		$cron = new StarmusCron();
+		$cron->run_audio_processing_pipeline($id);
+
+		\WP_CLI::success("Rebuilt waveform and audio pipeline for attachment {$id}.");
+	}
+
+	/**
+	 * Scan for audio recordings with missing waveform_json and optionally repair them.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--repair]
+	 * : Automatically regenerate waveforms for recordings with missing data.
+	 *
+	 * [--limit=<number>]
+	 * : Maximum number of recordings to process (default: 100).
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp starmus scan-missing
+	 *     wp starmus scan-missing --repair
+	 *     wp starmus scan-missing --repair --limit=50
+	 *
+	 * @subcommand scan-missing
+	 */
+	public function scan_missing(array $args, array $assoc_args): void
+	{
+		$repair = isset($assoc_args['repair']);
+		$limit  = isset($assoc_args['limit']) ? (int) $assoc_args['limit'] : 100;
+
+		\WP_CLI::log('Scanning for audio recordings with missing waveform_json...');
+
+		$query_args = [
+			'post_type'      => 'audio-recording',
+			'post_status'    => 'any',
+			'posts_per_page' => $limit,
+			'meta_query'     => [
+				'relation' => 'OR',
+				[
+					'key'     => 'waveform_json',
+					'compare' => 'NOT EXISTS',
+				],
+				[
+					'key'     => 'waveform_json',
+					'value'   => '',
+					'compare' => '=',
+				],
+			],
+		];
+
+		$recordings = get_posts($query_args);
+
+		if (empty($recordings)) {
+			\WP_CLI::success('No recordings found with missing waveform_json.');
+			return;
+		}
+
+		\WP_CLI::log(sprintf('Found %d recording(s) with missing waveform_json.', count($recordings)));
+
+		$repaired = 0;
+		$cron     = $repair ? new StarmusCron() : null;
+
+		foreach ($recordings as $recording) {
+			$attachment_id = (int) get_post_meta($recording->ID, '_audio_attachment_id', true);
+
+			if ($attachment_id <= 0) {
+				\WP_CLI::warning(sprintf('Recording %d has no attachment ID, skipping.', $recording->ID));
+				continue;
+			}
+
+			\WP_CLI::log(sprintf('Recording %d (Attachment %d): Missing waveform_json', $recording->ID, $attachment_id));
+
+			if ($repair && $cron) {
+				\WP_CLI::log(sprintf('  → Regenerating waveform for attachment %d...', $attachment_id));
+				$cron->run_audio_processing_pipeline($attachment_id);
+				$repaired++;
+			}
+		}
+
+		if ($repair) {
+			\WP_CLI::success(sprintf('Repaired %d recording(s).', $repaired));
+		} else {
+			\WP_CLI::log('Use --repair to automatically regenerate missing waveforms.');
+		}
+	}
+
+	/**
+	 * Batch regenerate waveforms for all audio attachments.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--limit=<number>]
+	 * : Maximum number of attachments to process (default: 100).
+	 *
+	 * [--offset=<number>]
+	 * : Offset for pagination (default: 0).
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp starmus batch-regen
+	 *     wp starmus batch-regen --limit=50 --offset=100
+	 *
+	 * @subcommand batch-regen
+	 */
+	public function batch_regen(array $args, array $assoc_args): void
+	{
+		$limit  = isset($assoc_args['limit']) ? (int) $assoc_args['limit'] : 100;
+		$offset = isset($assoc_args['offset']) ? (int) $assoc_args['offset'] : 0;
+
+		\WP_CLI::log(sprintf('Batch regenerating waveforms for audio attachments (limit: %d, offset: %d)...', $limit, $offset));
+
+		$attachments = get_posts([
+			'post_type'      => 'attachment',
+			'post_mime_type' => 'audio',
+			'posts_per_page' => $limit,
+			'offset'         => $offset,
+			'post_status'    => 'inherit',
+		]);
+
+		if (empty($attachments)) {
+			\WP_CLI::success('No audio attachments found.');
+			return;
+		}
+
+		\WP_CLI::log(sprintf('Found %d audio attachment(s) to process.', count($attachments)));
+
+		$cron      = new StarmusCron();
+		$processed = 0;
+
+		foreach ($attachments as $attachment) {
+			\WP_CLI::log(sprintf('Processing attachment %d...', $attachment->ID));
+			$cron->run_audio_processing_pipeline($attachment->ID);
+			$processed++;
+		}
+
+		\WP_CLI::success(sprintf('Processed %d attachment(s).', $processed));
+	}
+
+	/**
+	 * Queue waveform regeneration for a specific attachment (runs via cron).
+	 *
+	 * ## OPTIONS
+	 *
+	 * <attachment_id>
+	 * : The attachment ID to queue.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp starmus queue 1234
+	 *
+	 * @subcommand queue
+	 */
+	public function queue(array $args): void
+	{
+		list($id) = $args;
+
+		$id = (int) $id;
+		if ($id <= 0) {
+			\WP_CLI::error('Invalid attachment ID.');
+			return;
+		}
+
+		$attachment = get_post($id);
+		if (! $attachment || $attachment->post_type !== 'attachment') {
+			\WP_CLI::error("Attachment {$id} not found.");
+			return;
+		}
+
+		\WP_CLI::log("Queueing waveform regeneration for attachment {$id}...");
+
+		$cron = new StarmusCron();
+		$cron->schedule_audio_processing($id);
+
+		\WP_CLI::success("Queued attachment {$id} for cron processing.");
+	}
 }

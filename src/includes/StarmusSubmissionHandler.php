@@ -540,6 +540,36 @@ final class StarmusSubmissionHandler
 		try {
 			StarmusLogger::debug('SubmissionHandler', 'Saving all metadata', ['post_id' => $audio_post_id]);
 
+			// --- FIRST PASS TRANSCRIPTION (from browser SpeechRecognition) ---
+			if (isset($form_data['first_pass_transcription']) && $form_data['first_pass_transcription'] !== '') {
+				$this->update_acf_field(
+					'first_pass_transcription',
+					wp_unslash($form_data['first_pass_transcription']),
+					$audio_post_id
+				);
+				StarmusLogger::info('SubmissionHandler', 'Saved first_pass_transcription', ['post_id' => $audio_post_id]);
+			}
+
+			// --- RECORDING METADATA (browser-generated metadata JSON) ---
+			if (isset($form_data['recording_metadata']) && $form_data['recording_metadata'] !== '') {
+				$this->update_acf_field(
+					'recording_metadata',
+					wp_unslash($form_data['recording_metadata']),
+					$audio_post_id
+				);
+				StarmusLogger::info('SubmissionHandler', 'Saved recording_metadata', ['post_id' => $audio_post_id]);
+			}
+
+			// --- WAVEFORM JSON (client-side waveform array) ---
+			if (isset($form_data['waveform_json']) && $form_data['waveform_json'] !== '') {
+				$this->update_acf_field(
+					'waveform_json',
+					wp_unslash($form_data['waveform_json']),
+					$audio_post_id
+				);
+				StarmusLogger::info('SubmissionHandler', 'Saved waveform_json', ['post_id' => $audio_post_id]);
+			}
+
 			// 1. Decode the main metadata blob from the client.
 			$metadata = [];
 			if (isset($form_data['metadata']) && is_string($form_data['metadata'])) {
@@ -574,7 +604,7 @@ final class StarmusSubmissionHandler
 				}
 			}
 
-            			// 4. Handle user-submitted form fields.
+			// 4. Handle user-submitted form fields.
 			$this->update_acf_field('submission_ip', StarmusSanitizer::get_user_ip(), $audio_post_id);
 			foreach (['project_collection_id', 'accession_number', 'location', 'usage_restrictions_rights', 'access_level'] as $field) {
 				if (isset($form_data[$field])) {
