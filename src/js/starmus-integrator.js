@@ -559,4 +559,8 @@ fallbackTimer = setTimeout(() => {
 if (typeof window !== 'undefined') {
     window.STARMUS = window.STARMUS || {};
     window.STARMUS.instances = instances;
+    
+    // Expose for console testing, cross-plugin communication, and telemetry
+    window.StarmusHooks = window.StarmusHooks || { doAction: CommandBus.dispatch };
+    window.CommandBus = CommandBus;
 }
