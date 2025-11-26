@@ -98,7 +98,7 @@ final class StarmusAudioRecorder
 	{
 		// Example: Only log messages of WARNING level or higher
 		StarmusLogger::setMinLogLevel(STARMUS_LOG_LEVEL);
-		if (STARMUS_LOG_FILE !== '') {
+		if (STARMUS_LOG_FILE) {
 			// Example: Log to a specific file (overrides the default daily file in uploads)
 			StarmusLogger::setLogFilePath(ABSPATH . STARMUS_LOG_FILE);
 		}
@@ -311,7 +311,7 @@ final class StarmusAudioRecorder
 
 			// WP-CLI commands (optional). Load your CLI files and register commands here.
 			if (defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
-				$cli_path = STARMUS_PLUGIN_DIR . 'src/cli/';
+				$cli_path = \STARMUS_PLUGIN_DIR . 'src/cli/';
 				if (file_exists($cli_path . 'StarmusCLI.php') && file_exists($cli_path . 'StarmusCacheCommand.php')) {
 					require_once $cli_path . 'StarmusCLI.php';
 					\WP_CLI::add_command('starmus', 'Starmus\\cli\\StarmusCLI');

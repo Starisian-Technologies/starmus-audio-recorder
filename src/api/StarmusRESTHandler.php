@@ -37,9 +37,13 @@ final readonly class StarmusRESTHandler
 
 	/**
 	 * Constructor.
+	 *
+	 * @param StarmusAudioRecorderDALInterface $dal The data access layer.
+	 * @param StarmusSettings $settings The settings instance.
+	 * @param StarmusSubmissionHandler|null $submission_handler Optional submission handler.
 	 */
 	public function __construct(
-		private StarmusAudioRecorderDAL $dal,
+		private StarmusAudioRecorderDALInterface $dal,
 		private StarmusSettings $settings,
 		?StarmusSubmissionHandler $submission_handler = null
 	) {
@@ -92,6 +96,8 @@ final readonly class StarmusRESTHandler
 
 	/**
 	 * Handle fallback form-based upload.
+	 *
+	 * @phpstan-param WP_REST_Request<array<string,mixed>> $request
 	 */
 	public function handle_fallback_upload(WP_REST_Request $request): WP_REST_Response|WP_Error
 	{
@@ -145,6 +151,8 @@ final readonly class StarmusRESTHandler
 
 	/**
 	 * Handle chunked uploads.
+	 *
+	 * @phpstan-param WP_REST_Request<array<string,mixed>> $request
 	 */
 	public function handle_chunk_upload(WP_REST_Request $request): WP_REST_Response|WP_Error
 	{
@@ -174,6 +182,8 @@ final readonly class StarmusRESTHandler
 
 	/**
 	 * Handle status check for a submission.
+	 *
+	 * @phpstan-param WP_REST_Request<array<string,mixed>> $request
 	 */
 	public function handle_status(WP_REST_Request $request): WP_REST_Response|WP_Error
 	{

@@ -27,7 +27,11 @@ final class StarmusShortcodeLoader
 
 	private StarmusAudioRecorderDAL $dal;
 
-	public function __construct(?StarmusAudioRecorderDAL $dal = null, ?StarmusSettings $settings = null)
+	/**
+	 * @param StarmusAudioRecorderDALInterface|null $dal The data access layer.
+	 * @param StarmusSettings|null $settings The settings instance.
+	 */
+	public function __construct(?StarmusAudioRecorderDALInterface $dal = null, ?StarmusSettings $settings = null)
 	{
 		try {
 			if (! $dal instanceof StarmusAudioRecorderDALInterface) {

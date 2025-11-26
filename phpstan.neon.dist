@@ -14,6 +14,7 @@ parameters:
     - wp-admin/*
     - wp-content/*
     - wordpress-installer/*
+    - src/cli/*  # Exclude WP-CLI files (WP_CLI class not available during analysis)
 
   # Ignore common WordPress dynamic behavior warnings
   ignoreErrors:

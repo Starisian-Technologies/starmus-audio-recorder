@@ -16,12 +16,22 @@
 
 namespace Starisian\Sparxstar\Starmus\core;
 
-if (!defined('ABSPATH')) {
-    exit;
-}
-
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
+use Throwable;
+
+use function defined;
+use function array_filter;
+use function array_map;
+use function explode;
+use function trim;
+use function json_encode;
+
+use const ABSPATH;
+
+if (! defined('ABSPATH')) {
+    exit;
+}
 
 final class StarmusAssetLoader
 {

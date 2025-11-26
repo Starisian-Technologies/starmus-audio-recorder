@@ -42,4 +42,9 @@ interface StarmusAudioRecorderDALInterface
 	public function save_audio_outputs(int $post_id, ?string $waveform_json, ?string $mp3_path, ?string $wav_path): void;
 
 	public function set_audio_state(int $attachment_id, string $state): void;
+
+	/**
+	 * @return array{id: int, title: string, type: string, status: string}|null
+	 */
+	public function get_post_info(int $post_id): ?array;
 }

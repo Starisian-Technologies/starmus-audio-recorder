@@ -16,7 +16,7 @@ A mobile-first audio recording and annotation plugin for WordPress, designed for
 
 **Tested up to:** 6.5
 
-**Requires PHP:** 8.0
+**Requires PHP:** 8.2
 
 **Stable tag:** v0.5.0
 

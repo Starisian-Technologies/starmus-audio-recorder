@@ -44,6 +44,7 @@ $show_file_type_select = count($allowed_types_arr) > 1;
 
         <!-- Hidden Fields: Pre-filled metadata from existing post -->
         <input type="hidden" name="post_id" value="<?php echo esc_attr((string) $post_id); ?>">
+        <input type="hidden" name="target_post_id" value="<?php echo esc_attr((string) ($target_post_id ?? 0)); ?>">
         <input type="hidden" name="starmus_title" value="<?php echo esc_attr($title); ?>">
         <input type="hidden" name="starmus_language" value="<?php echo esc_attr($language); ?>">
         <input type="hidden" name="starmus_recording_type" value="<?php echo esc_attr($recording_type); ?>">

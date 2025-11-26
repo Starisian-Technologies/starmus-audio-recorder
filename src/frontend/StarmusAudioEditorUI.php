@@ -18,6 +18,24 @@ use WP_REST_Response;
 use Throwable;
 use Exception;
 
+use function defined;
+use function file_exists;
+use function realpath;
+use function str_replace;
+use function is_numeric;
+use function is_array;
+use function count;
+use function floatval;
+use function is_string;
+use function sprintf;
+use function usort;
+use function json_decode;
+use function json_last_error;
+use function json_last_error_msg;
+
+use const ABSPATH;
+use const JSON_ERROR_NONE;
+
 if (! defined('ABSPATH')) {
 	exit;
 }

@@ -92,6 +92,7 @@ class StarmusAudioRecorderUI
 			$atts = shortcode_atts(
 				[
 					'post_id' => 0,
+					'target_post_id' => 0,
 				],
 				$atts,
 				'starmus_audio_re_recorder'
@@ -107,6 +108,7 @@ class StarmusAudioRecorderUI
 			$template_args = [
 				'form_id'            => 'rerecord',
 				'post_id'            => $post_id,
+				'target_post_id'     => absint($atts['target_post_id']),
 				'consent_message'    => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
 					? $this->settings->get('consent_message', 'I consent to the terms and conditions.')
 					: 'I consent to the terms and conditions.',

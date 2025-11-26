@@ -182,6 +182,9 @@ final class StarmusSubmissionHandler
 			$this->dal->set_attachment_parent((int) $attachment_id, (int) $cpt_post_id);
 			$this->save_all_metadata((int) $cpt_post_id, (int) $attachment_id, $form_data);
 
+			// Fire action hook with full request data for external plugins
+			do_action('starmus_after_audio_saved', (int) $cpt_post_id, $form_data);
+
 			StarmusLogger::timeEnd('process_completed_file', 'SubmissionHandler');
 
 			return [

@@ -324,34 +324,34 @@ class StarmusAdmin
 			add_settings_section(
 				'starmus_cpt_section',
 				__('Custom Post Type Settings', 'starmus-audio-recorder'),
-				null,
+				'__return_empty_string',
 				self::STARMUS_MENU_SLUG
 			);
 
 			add_settings_section(
 				'starmus_rules_section',
 				__('File Upload & Recording Rules', 'starmus-audio-recorder'),
-				null,
+				'__return_empty_string',
 				self::STARMUS_MENU_SLUG
 			);
 			add_settings_section(
 				'starmus_language_section',
 				__('Language Validation', 'starmus-audio-recorder'),
-				null,
+				'__return_empty_string',
 				self::STARMUS_MENU_SLUG
 			);
 
 			add_settings_section(
 				'starmus_privacy_section',
 				__('Privacy & Form Settings', 'starmus-audio-recorder'),
-				null,
+				'__return_empty_string',
 				self::STARMUS_MENU_SLUG
 			);
 
 			add_settings_section(
 				'starmus_page_section',
 				__('Frontend Page Settings', 'starmus-audio-recorder'),
-				null,
+				'__return_empty_string',
 				self::STARMUS_MENU_SLUG
 			);
 		} catch (\Throwable $throwable) {
@@ -462,6 +462,8 @@ class StarmusAdmin
 	/**
 	 * Render form field with validation.
 	 * REVERTED: Field name is back to using STARMUS_OPTION_KEY for Settings API.
+	 *
+	 * @param array<string,mixed> $args Field arguments.
 	 */
 	public function render_field(array $args): void
 	{
