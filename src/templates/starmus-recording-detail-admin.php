@@ -3,7 +3,13 @@
 /**
  * Admin detail template showing all associated audio files, waveform, and metadata.
  *
+ * STARMUS CORE STANDARD: Runtime detail views MUST use get_post_meta() exclusively.
+ * - get_field() is FORBIDDEN in telemetry/read-only contexts (ACF overhead)
+ * - get_post_meta() is core-cached, zero-overhead, fastest in production
+ * - Detail views are telemetry surfaces, not edit UIs — performance matters
+ *
  * @package Starisian\Starmus
+ * @phpstan-ignore-next-line
  */
 
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
@@ -26,36 +32,25 @@ $type            = get_the_terms($post_id, 'recording-type');
 $transcript_json = get_post_meta($post_id, 'first_pass_transcription', true);
 $metadata_json   = get_post_meta($post_id, 'recording_metadata', true);
 
-// === All Submission Metadata ===
+// === All Submission Metadata (post_meta only - zero ACF overhead) ===
 $submission_ip = get_post_meta($post_id, 'submission_ip', true);
 $device_fingerprint = get_post_meta($post_id, 'device_fingerprint', true);
 $environment_data = get_post_meta($post_id, 'environment_data', true);
-$waveform_json_meta = get_post_meta($post_id, 'waveform_json', true);
+$waveform_json = get_post_meta($post_id, 'waveform_json', true);
 $processing_log = get_post_meta($post_id, 'processing_log', true);
 $user_agent = get_post_meta($post_id, 'user_agent', true);
 $mic_profile = get_post_meta($post_id, 'mic_profile', true);
 $runtime_metadata = get_post_meta($post_id, 'runtime_metadata', true);
+$weba_file = get_post_meta($post_id, 'weba_file', true);
+$mastered_mp3 = get_post_meta($post_id, 'mastered_mp3', true);
+$archival_wav = get_post_meta($post_id, 'archival_wav', true);
 
-// === Legacy ACF Fields (fallback) ===
-$waveform_json_acf = function_exists('get_field') ? get_field('waveform_json', $post_id) : '';
-$weba_file = function_exists('get_field') ? get_field('weba_file', $post_id) : '';
-$mastered_mp3 = function_exists('get_field') ? get_field('mastered_mp3', $post_id) : '';
-$archival_wav_acf = function_exists('get_field') ? get_field('archival_wav', $post_id) : '';
-$processing_log_acf = function_exists('get_field') ? get_field('processing_log', $post_id) : '';
-$device_fingerprint_acf = function_exists('get_field') ? get_field('device_fingerprint', $post_id) : '';
-$environment_data_acf = function_exists('get_field') ? get_field('environment_data', $post_id) : '';
-
-// === Backward compatibility ===
+// === Attachment-level metadata (backward compatibility) ===
 $archival_mp3_meta = get_post_meta($audio_attachment_id, '_starmus_mp3_path', true);
 $archival_wav_meta = get_post_meta($audio_attachment_id, '_starmus_archival_path', true);
 $waveform_meta     = get_post_meta($audio_attachment_id, '_waveform_data', true);
 
-// Merge data sources (meta takes priority over ACF)
-$waveform_json = $waveform_json_meta ?: $waveform_json_acf;
-$processing_log = $processing_log ?: $processing_log_acf;
-$device_fingerprint = $device_fingerprint ?: $device_fingerprint_acf;
-$environment_data = $environment_data ?: $environment_data_acf;
-
+// === Waveform data resolution (post_meta priority chain) ===
 $waveform_data = [];
 if (! empty($waveform_json)) {
 	$decoded = is_string($waveform_json) ? json_decode($waveform_json, true) : $waveform_json;
@@ -94,8 +89,8 @@ function starmus_fs_to_url(string $path, array $uploads): string
 		: '';
 }
 
-// Resolve URLs
-$wav_url = starmus_fs_to_url($archival_wav_acf ?: $archival_wav_meta, $uploads);
+// Resolve URLs (post_meta → attachment meta fallback)
+$wav_url = starmus_fs_to_url($archival_wav ?: $archival_wav_meta, $uploads);
 $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 ?>
 
@@ -135,11 +130,11 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 						</audio>
 					</li>
 				<?php endif; ?>
-				<?php if ($archival_wav_acf || $wav_url) : ?>
+				<?php if ($archival_wav || $wav_url) : ?>
 					<li><strong>Archival WAV:</strong>
-						<a href="<?php echo esc_url($archival_wav_acf ?: $wav_url); ?>" download><?php echo esc_html(basename($archival_wav_acf ?: $wav_url)); ?></a>
+						<a href="<?php echo esc_url($archival_wav ?: $wav_url); ?>" download><?php echo esc_html(basename($archival_wav ?: $wav_url)); ?></a>
 						<audio controls preload="metadata" style="width:100%;margin-top:0.3rem;">
-							<source src="<?php echo esc_url($archival_wav_acf ?: $wav_url); ?>" type="audio/wav">
+							<source src="<?php echo esc_url($archival_wav ?: $wav_url); ?>" type="audio/wav">
 						</audio>
 					</li>
 				<?php endif; ?>
