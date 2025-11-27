@@ -240,6 +240,39 @@
         return;
       }
 
+      // --- Initialize Transcript Controller ---
+      let transcriptController = null;
+
+      // Mock transcript data for development/testing
+      // In production, this should be fetched from post meta or REST API
+      const mockTranscriptData = [
+        { start: 0.5, end: 1.2, text: "Welcome", confidence: 0.95 },
+        { start: 1.2, end: 1.8, text: "to", confidence: 0.99 },
+        { start: 1.8, end: 2.5, text: "the", confidence: 0.98 },
+        { start: 2.5, end: 3.1, text: "Starmus", confidence: 0.92 },
+        { start: 3.1, end: 3.8, text: "editor.", confidence: 0.94 },
+        { start: 4.0, end: 5.2, text: "This", confidence: 0.96 },
+        { start: 5.2, end: 6.5, text: "is", confidence: 0.97 },
+        { start: 6.5, end: 7.0, text: "a", confidence: 0.99 },
+        { start: 7.0, end: 8.2, text: "synchronized", confidence: 0.75 },
+        { start: 8.2, end: 8.8, text: "test.", confidence: 0.93 },
+      ];
+
+      // Initialize transcript sync if StarmusTranscript class is available
+      if (
+        typeof StarmusTranscript !== "undefined" &&
+        document.getElementById("starmus-transcript-panel")
+      ) {
+        // TODO: In production, fetch transcript from post meta:
+        // const transcriptData = STARMUS_EDITOR_DATA.transcript || mockTranscriptData;
+        transcriptController = new StarmusTranscript(
+          peaks,
+          "starmus-transcript-panel",
+          mockTranscriptData,
+        );
+        console.log("Starmus Linguistic Engine: Online");
+      }
+
       // --- Time Display ---
       const elCur = document.getElementById("starmus-time-cur");
       const elDur = document.getElementById("starmus-time-dur");

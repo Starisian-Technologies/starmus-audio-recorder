@@ -135,10 +135,20 @@ class StarmusAudioEditorUI
 			wp_enqueue_style('starmus-unified-styles', STARMUS_URL . 'assets/css/starmus-audio-recorder-styles.min.css', [], STARMUS_VERSION);
 			// Peaks.js is bundled into starmus-audio-recorder-script.bundle.min.js
 			// No separate enqueue needed
+
+			// Enqueue transcript controller first (dependency for editor)
+			wp_enqueue_script(
+				'starmus-transcript-controller',
+				STARMUS_URL . 'src/js/starmus-transcript-controller.js',
+				[],
+				STARMUS_VERSION,
+				true
+			);
+
 			wp_enqueue_script(
 				'starmus-audio-editor',
 				STARMUS_URL . 'src/js/starmus-audio-editor.js',
-				['jquery', 'peaks-js'],
+				['jquery', 'peaks-js', 'starmus-transcript-controller'],
 				STARMUS_VERSION,
 				true
 			);
