@@ -26,25 +26,42 @@ $type            = get_the_terms($post_id, 'recording-type');
 $transcript_json = get_post_meta($post_id, 'first_pass_transcription', true);
 $metadata_json   = get_post_meta($post_id, 'recording_metadata', true);
 
-// === New ACF Fields ===
-$waveform_json      = get_field('waveform_json', $post_id);
-$weba_file          = get_field('weba_file', $post_id);
-$mastered_mp3       = get_field('mastered_mp3', $post_id);
-$archival_wav_acf   = get_field('archival_wav', $post_id);
-$processing_log     = get_field('processing_log', $post_id);
-$device_fingerprint = get_field('device_fingerprint', $post_id);
-$environment_data   = get_field('environment_data', $post_id);
+// === All Submission Metadata ===
+$submission_ip = get_post_meta($post_id, 'submission_ip', true);
+$device_fingerprint = get_post_meta($post_id, 'device_fingerprint', true);
+$environment_data = get_post_meta($post_id, 'environment_data', true);
+$waveform_json_meta = get_post_meta($post_id, 'waveform_json', true);
+$processing_log = get_post_meta($post_id, 'processing_log', true);
+$user_agent = get_post_meta($post_id, 'user_agent', true);
+$mic_profile = get_post_meta($post_id, 'mic_profile', true);
+$runtime_metadata = get_post_meta($post_id, 'runtime_metadata', true);
+
+// === Legacy ACF Fields (fallback) ===
+$waveform_json_acf = function_exists('get_field') ? get_field('waveform_json', $post_id) : '';
+$weba_file = function_exists('get_field') ? get_field('weba_file', $post_id) : '';
+$mastered_mp3 = function_exists('get_field') ? get_field('mastered_mp3', $post_id) : '';
+$archival_wav_acf = function_exists('get_field') ? get_field('archival_wav', $post_id) : '';
+$processing_log_acf = function_exists('get_field') ? get_field('processing_log', $post_id) : '';
+$device_fingerprint_acf = function_exists('get_field') ? get_field('device_fingerprint', $post_id) : '';
+$environment_data_acf = function_exists('get_field') ? get_field('environment_data', $post_id) : '';
 
 // === Backward compatibility ===
 $archival_mp3_meta = get_post_meta($audio_attachment_id, '_starmus_mp3_path', true);
 $archival_wav_meta = get_post_meta($audio_attachment_id, '_starmus_archival_path', true);
 $waveform_meta     = get_post_meta($audio_attachment_id, '_waveform_data', true);
 
+// Merge data sources (meta takes priority over ACF)
+$waveform_json = $waveform_json_meta ?: $waveform_json_acf;
+$processing_log = $processing_log ?: $processing_log_acf;
+$device_fingerprint = $device_fingerprint ?: $device_fingerprint_acf;
+$environment_data = $environment_data ?: $environment_data_acf;
+
 $waveform_data = [];
 if (! empty($waveform_json)) {
-	$waveform_data = json_decode($waveform_json, true);
+	$decoded = is_string($waveform_json) ? json_decode($waveform_json, true) : $waveform_json;
+	$waveform_data = is_array($decoded) ? $decoded : [];
 } elseif (! empty($waveform_meta)) {
-	$waveform_data = $waveform_meta;
+	$waveform_data = is_array($waveform_meta) ? $waveform_meta : [];
 }
 
 // === Utility functions ===
@@ -191,9 +208,16 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 				<h2><?php esc_html_e('Submission Data', 'starmus-audio-recorder'); ?></h2>
 				<dl class="starmus-info-list">
 					<?php
-					$submission_ip = get_post_meta($post_id, 'submission_ip', true);
 					if ($submission_ip) {
 						echo '<dt>' . esc_html__('IP Address', 'starmus-audio-recorder') . '</dt><dd>' . esc_html($submission_ip) . '</dd>';
+					}
+
+					if ($user_agent) {
+						echo '<dt>' . esc_html__('User Agent', 'starmus-audio-recorder') . '</dt><dd><code>' . esc_html($user_agent) . '</code></dd>';
+					}
+
+					if ($mic_profile) {
+						echo '<dt>' . esc_html__('Microphone Profile', 'starmus-audio-recorder') . '</dt><dd>' . esc_html($mic_profile) . '</dd>';
 					}
 
 					// Device fingerprint
@@ -243,7 +267,43 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 						</div>
 					</details>
 				</section>
-			<?php endif; ?> <?php if ($metadata_json) : ?>
+			<?php endif; ?>
+
+			<?php if ($transcript_json) : ?>
+				<section class="starmus-detail__section starmus-glass">
+					<h2><?php esc_html_e('Transcription', 'starmus-audio-recorder'); ?></h2>
+					<?php
+					$transcript_data = is_string($transcript_json) ? json_decode($transcript_json, true) : $transcript_json;
+					if (is_array($transcript_data)) :
+						if (isset($transcript_data['text'])) :
+					?>
+							<div class="starmus-transcription-text">
+								<p><?php echo esc_html($transcript_data['text']); ?></p>
+							</div>
+						<?php
+						endif;
+						if (isset($transcript_data['confidence'])) :
+						?>
+							<p class="starmus-transcription-meta">
+								<small><?php echo esc_html(sprintf(__('Confidence: %s%%', 'starmus-audio-recorder'), round($transcript_data['confidence'] * 100, 2))); ?></small>
+							</p>
+						<?php
+						endif;
+					else :
+						?>
+						<details class="starmus-accordion">
+							<summary class="starmus-accordion__summary"><?php esc_html_e('Show Transcription JSON', 'starmus-audio-recorder'); ?></summary>
+							<div class="starmus-accordion__content">
+								<pre class="starmus-json-data"><code><?php echo esc_html($transcript_json); ?></code></pre>
+							</div>
+						</details>
+					<?php
+					endif;
+					?>
+				</section>
+			<?php endif; ?>
+
+			<?php if ($metadata_json) : ?>
 				<section class="starmus-detail__section starmus-glass">
 					<h2><?php esc_html_e('Raw Recording Metadata', 'starmus-audio-recorder'); ?></h2>
 					<details class="starmus-accordion">
@@ -255,13 +315,13 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 				</section>
 			<?php endif; ?>
 
-			<?php if ($transcript_json) : ?>
+			<?php if ($runtime_metadata) : ?>
 				<section class="starmus-detail__section starmus-glass">
-					<h2><?php esc_html_e('Transcription Data', 'starmus-audio-recorder'); ?></h2>
+					<h2><?php esc_html_e('Runtime Metadata', 'starmus-audio-recorder'); ?></h2>
 					<details class="starmus-accordion">
-						<summary class="starmus-accordion__summary"><?php esc_html_e('Show JSON', 'starmus-audio-recorder'); ?></summary>
+						<summary class="starmus-accordion__summary"><?php esc_html_e('Show Runtime Data', 'starmus-audio-recorder'); ?></summary>
 						<div class="starmus-accordion__content">
-							<pre class="starmus-json-data"><code><?php echo esc_html(json_encode(json_decode($transcript_json), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></code></pre>
+							<pre class="starmus-json-data"><code><?php echo esc_html(is_string($runtime_metadata) ? $runtime_metadata : wp_json_encode($runtime_metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></code></pre>
 						</div>
 					</details>
 				</section>
@@ -285,7 +345,7 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 				<section class="starmus-detail__section starmus-glass">
 					<h2><?php esc_html_e('Re-Record Audio', 'starmus-audio-recorder'); ?></h2>
 					<p class="starmus-section-description"><?php esc_html_e('Replace this recording with a new one', 'starmus-audio-recorder'); ?></p>
-					<a href="<?php echo esc_url(add_query_arg('post_id', $post_id, $recorder_page_url)); ?>" class="starmus-btn starmus-btn--secondary">
+					<a href="<?php echo esc_url(add_query_arg('recording_id', $post_id, $recorder_page_url)); ?>" class="starmus-btn starmus-btn--secondary">
 						<?php esc_html_e('Go to Re-Recorder', 'starmus-audio-recorder'); ?>
 					</a>
 				</section>
@@ -295,7 +355,7 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 				<section class="starmus-detail__section starmus-glass">
 					<h2><?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?></h2>
 					<p class="starmus-section-description"><?php esc_html_e('Edit annotations and waveform segments', 'starmus-audio-recorder'); ?></p>
-					<a href="<?php echo esc_url(add_query_arg('post_id', $post_id, $edit_page_url)); ?>" class="starmus-btn starmus-btn--secondary">
+					<a href="<?php echo esc_url(add_query_arg('recording_id', $post_id, $edit_page_url)); ?>" class="starmus-btn starmus-btn--secondary">
 						<?php esc_html_e('Open in Editor', 'starmus-audio-recorder'); ?>
 					</a>
 				</section>
