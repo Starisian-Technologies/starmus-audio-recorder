@@ -22,10 +22,12 @@
  */
 
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 
 $post_id = get_the_ID();
 $uploads = wp_get_upload_dir();
 $settings = new StarmusSettings();
+$file_service = new StarmusFileService();
 
 // Get page URLs for actions
 $edit_page_slug = $settings->get('edit_page_id', '');
@@ -34,7 +36,7 @@ $edit_page_url = $edit_page_slug ? get_permalink(get_page_by_path($edit_page_slu
 $recorder_page_url = $recorder_page_slug ? get_permalink(get_page_by_path($recorder_page_slug)) : '';
 
 $audio_attachment_id = (int) get_post_meta($post_id, '_audio_attachment_id', true);
-$audio_url           = $audio_attachment_id !== 0 ? wp_get_attachment_url($audio_attachment_id) : '';
+$audio_url           = $audio_attachment_id !== 0 ? $file_service->star_get_public_url($audio_attachment_id) : '';
 
 $language        = get_the_terms($post_id, 'language');
 $type            = get_the_terms($post_id, 'recording-type');
@@ -50,16 +52,34 @@ $processing_log = get_post_meta($post_id, 'processing_log', true);
 $user_agent = get_post_meta($post_id, 'user_agent', true);
 $mic_profile = get_post_meta($post_id, 'mic_profile', true);
 $runtime_metadata = get_post_meta($post_id, 'runtime_metadata', true);
-$weba_file = get_post_meta($post_id, 'weba_file', true);
-$mastered_mp3 = get_post_meta($post_id, 'mastered_mp3', true);
-$archival_wav = get_post_meta($post_id, 'archival_wav', true);
 
-// === Attachment-level metadata (backward compatibility) ===
+// Attachment IDs for audio files
+$weba_file_id = (int) get_post_meta($post_id, 'weba_file', true);
+$mastered_mp3_id = (int) get_post_meta($post_id, 'mastered_mp3', true);
+$archival_wav_id = (int) get_post_meta($post_id, 'archival_wav', true);
+
+// Resolve public URLs via enterprise-grade file service
+$weba_file = $weba_file_id > 0 ? $file_service->star_get_public_url($weba_file_id) : '';
+$mastered_mp3 = $mastered_mp3_id > 0 ? $file_service->star_get_public_url($mastered_mp3_id) : '';
+$archival_wav = $archival_wav_id > 0 ? $file_service->star_get_public_url($archival_wav_id) : '';
+
+// === Attachment-level metadata (backward compatibility - legacy filesystem paths) ===
 $archival_mp3_meta = get_post_meta($audio_attachment_id, '_starmus_mp3_path', true);
 $archival_wav_meta = get_post_meta($audio_attachment_id, '_starmus_archival_path', true);
 $waveform_meta     = get_post_meta($audio_attachment_id, '_waveform_data', true);
 
+// Resolve legacy filesystem paths to URLs (deprecated - use attachment IDs above)
+$wav_url = starmus_fs_to_url($archival_wav_meta, $uploads);
+$mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
+
 // === Waveform data resolution (post_meta priority chain) ===
+$waveform_data = [];
+if (! empty($waveform_json)) {
+	$decoded = is_string($waveform_json) ? json_decode($waveform_json, true) : $waveform_json;
+	$waveform_data = is_array($decoded) ? $decoded : [];
+} elseif (! empty($waveform_meta)) {
+	$waveform_data = is_array($waveform_meta) ? $waveform_meta : [];
+}
 $waveform_data = [];
 if (! empty($waveform_json)) {
 	$decoded = is_string($waveform_json) ? json_decode($waveform_json, true) : $waveform_json;

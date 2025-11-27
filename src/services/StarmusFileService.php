@@ -75,9 +75,9 @@ final readonly class StarmusFileService
 
 		// Delegate to offloader if present
 		if (function_exists('as3cf_upload_attachment')) {
-            $result = as3cf_upload_attachment($attachment_id, null, $local_file_path);
-            return !is_wp_error($result);
-        }
+			$result = as3cf_upload_attachment($attachment_id, null, $local_file_path);
+			return !is_wp_error($result);
+		}
 
 		// DAL-managed fallback
 		$upload_dir = wp_get_upload_dir();
@@ -95,5 +95,40 @@ final readonly class StarmusFileService
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns the correct public URL for an attachment.
+	 * - Honors external offloaders (AS3CF, Cloudflare, etc.)
+	 * - Falls back to wp_get_attachment_url()
+	 * - Normalizes HTTPS and Base URL mismatches
+	 *
+	 * @param int $attachment_id Attachment ID to resolve URL for.
+	 * @return string|null Public URL or null if attachment not found.
+	 */
+	public function star_get_public_url(int $attachment_id): ?string
+	{
+		if ($attachment_id <= 0) {
+			return null;
+		}
+
+		// First: Use WordPress's own resolver (may be offloaded/re-routed)
+		$url = wp_get_attachment_url($attachment_id);
+		if (! empty($url)) {
+			return esc_url_raw($url);
+		}
+
+		// Second: If bypassed or metadata missing, reconstruct from metadata
+		$meta = wp_get_attachment_metadata($attachment_id);
+		$upload_dir = wp_get_upload_dir();
+
+		if (! empty($meta['file'])) {
+			$url = \trailingslashit($upload_dir['baseurl']) . \ltrim($meta['file'], '/');
+			return \esc_url_raw($url);
+		}
+
+		// Third: Last-chance fallback: GUID (rare, but safer than null)
+		$guid = \get_post_field('guid', $attachment_id);
+		return ! empty($guid) ? \esc_url_raw($guid) : null;
 	}
 }
