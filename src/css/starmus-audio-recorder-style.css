@@ -35,6 +35,26 @@
 }
 
 /* ========================================================================
+   1.1 THEME NEUTRALIZATION - Remove Gutenberg/TwentyTwentyFive Margins
+   ======================================================================== */
+
+/* Remove theme-injected margins from Gutenberg containers */
+.entry-content>*:first-child {
+  margin-top: 0 !important;
+}
+
+.entry-content>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Normalize block spacing in Starmus views */
+.starmus-my-recordings-wrapper .entry-content,
+.starmus-recorder-form .entry-content {
+  margin-block-start: 0;
+  margin-block-end: 0;
+}
+
+/* ========================================================================
    2. REUSABLE GLASS CLASS & DARK THEME ADAPTATIONS
    ======================================================================== */
 
@@ -470,23 +490,47 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
    5. COMPONENT: My Recordings List & Cards
    ======================================================================== */
 
-/* Recordings Grid Container */
+/* Recordings Wrapper - App Density Mode */
+.starmus-my-recordings-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.5rem 2rem 1rem;
+}
+
+/* Normalize heading sizes for functional UI */
+.starmus-my-recordings-wrapper h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+  margin: 0 0 0.75rem;
+}
+
+.starmus-my-recordings-wrapper h2 {
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin: 0 0 1rem;
+  opacity: 0.85;
+}
+
+/* Recordings Grid Container - Tightened Spacing */
 .starmus-recordings-grid {
   color: var(--starmus-text-color);
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
-  padding: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+  padding: 0;
   margin: 0;
 }
 
-/* Individual Recording Card */
+/* Individual Recording Card - Tightened Padding */
 .starmus-card {
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   max-width: 100%;
+  margin: 0;
+  padding: 1.25rem;
 }
 
 .starmus-card:hover {
@@ -683,9 +727,8 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 
   .starmus-recordings-grid,
   .starmus-my-recordings-container {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-    padding: 0.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
   }
 }
 
@@ -693,9 +736,8 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 
   .starmus-recordings-grid,
   .starmus-my-recordings-container {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-    padding: 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
   }
 }
 
@@ -703,8 +745,8 @@ button[id*="starmus_continue_btn_"]:hover:not(:disabled) {
 
   .starmus-recordings-grid,
   .starmus-my-recordings-container {
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
   }
 }
 
