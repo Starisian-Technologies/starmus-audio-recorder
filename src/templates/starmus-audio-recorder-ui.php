@@ -21,10 +21,10 @@ $show_file_type_select = count($allowed_types_arr) > 1;
 $is_admin              = current_user_can('manage_options');
 ?>
 
-<div class="starmus-recorder-form">
+<div class="starmus-recorder-form sparxstar-glass-card">
 	<form
 		id="<?php echo esc_attr($instance_id); ?>"
-		class="starmus-audio-form sparxstar-glass-card"
+		class="starmus-audio-form"
 		method="post"
 		enctype="multipart/form-data"
 		novalidate
