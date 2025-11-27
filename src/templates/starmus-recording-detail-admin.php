@@ -8,6 +8,15 @@
  * - get_post_meta() is core-cached, zero-overhead, fastest in production
  * - Detail views are telemetry surfaces, not edit UIs — performance matters
  *
+ * WCAG 2.2 AA COMPLIANCE REQUIRED:
+ * - Semantic HTML only (<main>, <section>, <figure>, <table> etc.)
+ * - All inputs have <label for="id"> and matching id=""
+ * - Buttons use <button>, links use <a href>
+ * - Keyboard navigable (TAB reaches all controls, SPACE/ENTER triggers)
+ * - ARIA live regions for dynamic status changes
+ * - 4.5:1 minimum color contrast
+ * - Metadata displayed in accessible <table> with proper headers
+ *
  * @package Starisian\Starmus
  * @phpstan-ignore-next-line
  */
@@ -92,9 +101,19 @@ function starmus_fs_to_url(string $path, array $uploads): string
 // Resolve URLs (post_meta → attachment meta fallback)
 $wav_url = starmus_fs_to_url($archival_wav ?: $archival_wav_meta, $uploads);
 $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
+
+// Calculate waveform stats for accessible description
+$waveform_duration = '';
+$waveform_sample_count = 0;
+if (! empty($waveform_data) && is_array($waveform_data)) {
+	$waveform_sample_count = count($waveform_data);
+	// Estimate duration assuming 44.1kHz sample rate
+	$duration_seconds = $waveform_sample_count / 44100;
+	$waveform_duration = sprintf('%d:%02d', floor($duration_seconds / 60), $duration_seconds % 60);
+}
 ?>
 
-<article class="starmus-admin-detail">
+<main class="starmus-admin-detail" id="starmus-recording-detail">
 	<header class="starmus-detail__header">
 		<h1><?php echo esc_html(get_the_title($post_id)); ?></h1>
 		<div class="starmus-detail__meta">
@@ -111,9 +130,10 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 	<section class="starmus-detail__section">
 		<h2><?php esc_html_e('Audio Files', 'starmus-audio-recorder'); ?></h2>
 		<?php if ($weba_file || $audio_url) : ?>
-			<p><strong>Original Recording:</strong></p>
-			<audio controls preload="metadata" style="width:100%;">
+			<h3><?php esc_html_e('Original Recording', 'starmus-audio-recorder'); ?></h3>
+			<audio controls preload="metadata" style="width:100%;" aria-label="<?php esc_attr_e('Original audio recording player', 'starmus-audio-recorder'); ?>">
 				<source src="<?php echo esc_url($weba_file ?: $audio_url); ?>">
+				<p><?php esc_html_e('Your browser does not support the audio element. Download the file using the links below.', 'starmus-audio-recorder'); ?></p>
 			</audio>
 
 			<ul class="starmus-file-list">
@@ -164,12 +184,17 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 		}
 	?>
 		<section class="starmus-detail__section">
-			<h2>Waveform Visualization</h2>
-			<div class="starmus-waveform">
-				<svg viewBox="0 0 <?php echo esc_attr((string) $width); ?> <?php echo esc_attr((string) $height); ?>" width="100%" height="<?php echo esc_attr((string) $height); ?>" role="img" aria-label="Waveform preview">
+			<h2><?php esc_html_e('Waveform Visualization', 'starmus-audio-recorder'); ?></h2>
+			<figure class="starmus-waveform">
+				<svg viewBox="0 0 <?php echo esc_attr((string) $width); ?> <?php echo esc_attr((string) $height); ?>" width="100%" height="<?php echo esc_attr((string) $height); ?>" role="img" aria-labelledby="waveform-title waveform-desc">
+					<title id="waveform-title"><?php esc_html_e('Audio waveform visualization', 'starmus-audio-recorder'); ?></title>
+					<desc id="waveform-desc"><?php echo esc_html(sprintf(__('Waveform visualization showing %s audio samples. Estimated duration: %s', 'starmus-audio-recorder'), number_format($waveform_sample_count), $waveform_duration)); ?></desc>
 					<polyline fill="none" stroke="#0073aa" stroke-width="1" points="<?php echo esc_attr(implode(' ', $points)); ?>" />
 				</svg>
-			</div>
+				<figcaption class="screen-reader-text">
+					<?php echo esc_html(sprintf(__('Waveform graph displaying %s audio samples with estimated duration of %s. Visual representation of audio amplitude over time.', 'starmus-audio-recorder'), number_format($waveform_sample_count), $waveform_duration)); ?>
+				</figcaption>
+			</figure>
 		</section>
 	<?php endif; ?>
 
@@ -178,78 +203,78 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 		<div class="starmus-detail__left">
 			<section class="starmus-detail__section starmus-glass">
 				<h2><?php esc_html_e('Recording Metadata', 'starmus-audio-recorder'); ?></h2>
-				<dl class="starmus-info-list">
-					<?php
-					$session_fields = [
-						'session_date'          => 'Session Date',
-						'session_start_time'    => 'Start Time',
-						'session_end_time'      => 'End Time',
-						'duration'              => 'Duration',
-						'location'              => 'Location',
-						'recording_equipment'   => 'Recording Equipment',
-						'media_condition_notes' => 'Media Condition Notes',
-					];
-					foreach ($session_fields as $k => $label) {
-						$val = get_post_meta($post_id, $k, true);
-						if (! empty($val)) {
-							echo '<dt>' . esc_html($label) . '</dt><dd>' . wp_kses_post(nl2br($val)) . '</dd>';
+				<table class="starmus-info-table">
+					<caption class="screen-reader-text"><?php esc_html_e('Recording session metadata including date, time, location, and equipment details', 'starmus-audio-recorder'); ?></caption>
+					<tbody>
+						<?php
+						$session_fields = [
+							'session_date'          => 'Session Date',
+							'session_start_time'    => 'Start Time',
+							'session_end_time'      => 'End Time',
+							'duration'              => 'Duration',
+							'location'              => 'Location',
+							'recording_equipment'   => 'Recording Equipment',
+							'media_condition_notes' => 'Media Condition Notes',
+						];
+						foreach ($session_fields as $k => $label) {
+							$val = get_post_meta($post_id, $k, true);
+							if (! empty($val)) {
+								echo '<tr><th scope="row">' . esc_html($label) . '</th><td>' . wp_kses_post(nl2br($val)) . '</td></tr>';
+							}
 						}
-					}
-					?>
-				</dl>
+						?>
+					</tbody>
+				</table>
 			</section>
-
 			<section class="starmus-detail__section starmus-glass">
 				<h2><?php esc_html_e('Submission Data', 'starmus-audio-recorder'); ?></h2>
-				<dl class="starmus-info-list">
-					<?php
-					if ($submission_ip) {
-						echo '<dt>' . esc_html__('IP Address', 'starmus-audio-recorder') . '</dt><dd>' . esc_html($submission_ip) . '</dd>';
-					}
-
-					if ($user_agent) {
-						echo '<dt>' . esc_html__('User Agent', 'starmus-audio-recorder') . '</dt><dd><code>' . esc_html($user_agent) . '</code></dd>';
-					}
-
-					if ($mic_profile) {
-						echo '<dt>' . esc_html__('Microphone Profile', 'starmus-audio-recorder') . '</dt><dd>' . esc_html($mic_profile) . '</dd>';
-					}
-
-					// Device fingerprint
-					if ($device_fingerprint) {
-						$device_data = is_string($device_fingerprint) ? json_decode($device_fingerprint, true) : $device_fingerprint;
-						if (is_array($device_data)) {
-							echo '<dt>' . esc_html__('Device Information', 'starmus-audio-recorder') . '</dt><dd>';
-							echo '<ul class="starmus-nested-list">';
-							foreach ($device_data as $key => $value) {
-								echo '<li><strong>' . esc_html(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . esc_html($value) . '</li>';
-							}
-							echo '</ul></dd>';
-						} else {
-							echo '<dt>' . esc_html__('Device Fingerprint', 'starmus-audio-recorder') . '</dt><dd>' . esc_html($device_fingerprint) . '</dd>';
+				<table class="starmus-info-table">
+					<caption class="screen-reader-text"><?php esc_html_e('Submission metadata including IP address, user agent, device information, and environment data', 'starmus-audio-recorder'); ?></caption>
+					<tbody>
+						<?php
+						if ($submission_ip) {
+							echo '<tr><th scope="row">' . esc_html__('IP Address', 'starmus-audio-recorder') . '</th><td>' . esc_html($submission_ip) . '</td></tr>';
 						}
-					}
 
-					// Environment data
-					if ($environment_data) {
-						$env_data = is_string($environment_data) ? json_decode($environment_data, true) : $environment_data;
-						if (is_array($env_data)) {
-							echo '<dt>' . esc_html__('Environment Data', 'starmus-audio-recorder') . '</dt><dd>';
-							echo '<ul class="starmus-nested-list">';
-							foreach ($env_data as $key => $value) {
-								if (is_array($value)) {
-									echo '<li><strong>' . esc_html(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . esc_html(wp_json_encode($value)) . '</li>';
-								} else {
-									echo '<li><strong>' . esc_html(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . esc_html($value) . '</li>';
+						if ($user_agent) {
+							echo '<tr><th scope="row">' . esc_html__('User Agent', 'starmus-audio-recorder') . '</th><td><code>' . esc_html($user_agent) . '</code></td></tr>';
+						}
+
+						if ($mic_profile) {
+							echo '<tr><th scope="row">' . esc_html__('Microphone Profile', 'starmus-audio-recorder') . '</th><td>' . esc_html($mic_profile) . '</td></tr>';
+						}					// Device fingerprint
+						if ($device_fingerprint) {
+							$device_data = is_string($device_fingerprint) ? json_decode($device_fingerprint, true) : $device_fingerprint;
+							if (is_array($device_data)) {
+								echo '<tr><th scope="row">' . esc_html__('Device Information', 'starmus-audio-recorder') . '</th><td>';
+								echo '<table class="starmus-nested-table"><caption class="screen-reader-text">' . esc_html__('Device fingerprint details', 'starmus-audio-recorder') . '</caption><tbody>';
+								foreach ($device_data as $key => $value) {
+									echo '<tr><th scope="row">' . esc_html(ucwords(str_replace('_', ' ', $key))) . '</th><td>' . esc_html($value) . '</td></tr>';
 								}
+								echo '</tbody></table></td></tr>';
+							} else {
+								echo '<tr><th scope="row">' . esc_html__('Device Fingerprint', 'starmus-audio-recorder') . '</th><td>' . esc_html($device_fingerprint) . '</td></tr>';
 							}
-							echo '</ul></dd>';
-						} else {
-							echo '<dt>' . esc_html__('Environment Data', 'starmus-audio-recorder') . '</dt><dd>' . esc_html($environment_data) . '</dd>';
+						}					// Environment data
+						if ($environment_data) {
+							$env_data = is_string($environment_data) ? json_decode($environment_data, true) : $environment_data;
+							if (is_array($env_data)) {
+								echo '<dt>' . esc_html__('Environment Data', 'starmus-audio-recorder') . '</dt><dd>';
+								echo '<ul class="starmus-nested-list">';
+								foreach ($env_data as $key => $value) {
+									if (is_array($value)) {
+										echo '<li><strong>' . esc_html(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . esc_html(wp_json_encode($value)) . '</li>';
+									} else {
+										echo '<li><strong>' . esc_html(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . esc_html($value) . '</li>';
+									}
+								}
+								echo '</ul></dd>';
+							} else {
+								echo '<dt>' . esc_html__('Environment Data', 'starmus-audio-recorder') . '</dt><dd>' . esc_html($environment_data) . '</dd>';
+							}
 						}
-					}
-					?>
-				</dl>
+						?>
+						</dl>
 			</section>
 
 			<?php if ($processing_log) : ?>
@@ -327,20 +352,20 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 		<div class="starmus-detail__right">
 			<section class="starmus-detail__section starmus-glass starmus-detail__actions-card">
 				<h2><?php esc_html_e('Actions', 'starmus-audio-recorder'); ?></h2>
-				<div class="starmus-action-buttons">
+				<nav class="starmus-action-buttons" aria-label="<?php esc_attr_e('Recording actions', 'starmus-audio-recorder'); ?>">
 					<?php if (current_user_can('edit_post', $post_id)) : ?>
-						<a href="<?php echo esc_url(get_edit_post_link($post_id)); ?>" class="starmus-btn starmus-btn--primary">
+						<a href="<?php echo esc_url(get_edit_post_link($post_id)); ?>" class="starmus-btn starmus-btn--primary" aria-label="<?php echo esc_attr(sprintf(__('Edit recording: %s', 'starmus-audio-recorder'), get_the_title($post_id))); ?>">
 							<?php esc_html_e('Edit Post', 'starmus-audio-recorder'); ?>
 						</a>
 					<?php endif; ?>
-				</div>
+				</nav>
 			</section>
 
 			<?php if ($recorder_page_url) : ?>
 				<section class="starmus-detail__section starmus-glass">
 					<h2><?php esc_html_e('Re-Record Audio', 'starmus-audio-recorder'); ?></h2>
 					<p class="starmus-section-description"><?php esc_html_e('Replace this recording with a new one', 'starmus-audio-recorder'); ?></p>
-					<a href="<?php echo esc_url(add_query_arg('recording_id', $post_id, $recorder_page_url)); ?>" class="starmus-btn starmus-btn--secondary">
+					<a href="<?php echo esc_url(add_query_arg('recording_id', $post_id, $recorder_page_url)); ?>" class="starmus-btn starmus-btn--secondary" aria-label="<?php echo esc_attr(sprintf(__('Re-record audio for: %s', 'starmus-audio-recorder'), get_the_title($post_id))); ?>">
 						<?php esc_html_e('Go to Re-Recorder', 'starmus-audio-recorder'); ?>
 					</a>
 				</section>
@@ -350,11 +375,11 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 				<section class="starmus-detail__section starmus-glass">
 					<h2><?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?></h2>
 					<p class="starmus-section-description"><?php esc_html_e('Edit annotations and waveform segments', 'starmus-audio-recorder'); ?></p>
-					<a href="<?php echo esc_url(add_query_arg('recording_id', $post_id, $edit_page_url)); ?>" class="starmus-btn starmus-btn--secondary">
+					<a href="<?php echo esc_url(add_query_arg('recording_id', $post_id, $edit_page_url)); ?>" class="starmus-btn starmus-btn--secondary" aria-label="<?php echo esc_attr(sprintf(__('Open audio editor for: %s', 'starmus-audio-recorder'), get_the_title($post_id))); ?>">
 						<?php esc_html_e('Open in Editor', 'starmus-audio-recorder'); ?>
 					</a>
 				</section>
 			<?php endif; ?>
 		</div>
 	</div>
-</article>
+</main>
