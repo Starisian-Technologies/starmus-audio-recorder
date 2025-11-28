@@ -30,7 +30,7 @@ $instance_id = 'starmus_rerecord_' . sanitize_key($form_id . '_' . wp_generate_u
 
 // Get allowed file types from settings
 $allowed_file_types ??= 'webm';
-$allowed_types_arr     = array_filter(array_map(trim(...), explode(',', $allowed_file_types)));
+$allowed_types_arr     = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn($v) => $v !== ''));
 $show_file_type_select = count($allowed_types_arr) > 1;
 
 // Get existing audio URL for re-recording
@@ -129,7 +129,7 @@ if (!is_array($transcript_data)) {
                     esc_html__('You are about to re-record: %s', 'starmus-audio-recorder'),
                     '<strong>' . esc_html($title) . '</strong>'
                 );
-?>
+                ?>
             </p>
 
             <fieldset class="starmus-consent-fieldset">

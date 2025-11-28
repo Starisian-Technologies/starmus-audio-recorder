@@ -6,6 +6,23 @@
 
 'use strict';
 
+// BOOTSTRAP ADAPTER: Normalize editor/recorder/re-recorder data into single contract
+(function() {
+    // Detect page type and assign to unified bootstrap object
+    if (window.STARMUS_EDITOR_DATA) {
+        window.STARMUS_BOOTSTRAP = window.STARMUS_EDITOR_DATA;
+        window.STARMUS_BOOTSTRAP.pageType = 'editor';
+    }
+    else if (window.STARMUS_RERECORDER_DATA) {
+        window.STARMUS_BOOTSTRAP = window.STARMUS_RERECORDER_DATA;
+        window.STARMUS_BOOTSTRAP.pageType = 'rerecorder';
+    }
+    else if (window.STARMUS_RECORDER_DATA) {
+        window.STARMUS_BOOTSTRAP = window.STARMUS_RECORDER_DATA;
+        window.STARMUS_BOOTSTRAP.pageType = 'recorder';
+    }
+})();
+
 // PATCH 4: Disable optional audio nodes for cross-browser stability
 window.Starmus_DisableOptionalNodes = true;
 

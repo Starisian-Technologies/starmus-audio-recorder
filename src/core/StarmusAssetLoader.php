@@ -14,6 +14,7 @@
  *
  * @version 3.1.0
  */
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;
@@ -167,7 +168,7 @@ final class StarmusAssetLoader
 
             // Get allowed file types from settings (comma-separated string like 'mp3,wav,webm')
             $allowed_file_types = $settings->get('allowed_file_types', 'mp3,wav,webm');
-            $allowed_types_arr  = array_filter(array_map(trim(...), explode(',', $allowed_file_types)));
+            $allowed_types_arr  = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn($v) => $v !== ''));
 
             // Map extensions to MIME types
             $allowed_mimes = [];
