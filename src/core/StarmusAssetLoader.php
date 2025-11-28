@@ -11,25 +11,23 @@
  *   the best possible debugging experience.
  *
  * @package Starmus
+ *
  * @version 3.1.0
  */
-
 namespace Starisian\Sparxstar\Starmus\core;
+
+use function array_filter;
+use function array_map;
+use function defined;
+use function explode;
+use function json_encode;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
-use Throwable;
 
-use function defined;
-use function array_filter;
-use function array_map;
-use function explode;
 use function trim;
-use function json_encode;
 
-use const ABSPATH;
-
-if (! defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -82,7 +80,6 @@ final class StarmusAssetLoader
 
         error_log('[Starmus AssetLoader] Assets enqueued successfully');
     }
-
 
     /**
      * Enqueues the single, bundled, and minified JavaScript file for production.
@@ -170,7 +167,7 @@ final class StarmusAssetLoader
 
             // Get allowed file types from settings (comma-separated string like 'mp3,wav,webm')
             $allowed_file_types = $settings->get('allowed_file_types', 'mp3,wav,webm');
-            $allowed_types_arr = \array_filter(\array_map(trim(...), \explode(',', $allowed_file_types)));
+            $allowed_types_arr  = array_filter(array_map(trim(...), explode(',', $allowed_file_types)));
 
             // Map extensions to MIME types
             $allowed_mimes = [];
@@ -182,40 +179,40 @@ final class StarmusAssetLoader
             }
 
             // TUS endpoint from settings
-            $tus_endpoint = \get_option('starmus_tus_endpoint', '');
+            $tus_endpoint = get_option('starmus_tus_endpoint', '');
 
             // Speech recognition language from settings
             $speech_lang = $settings->get('speech_recognition_lang', 'en-US');
 
             // Get my-recordings page URL from settings
             $my_recordings_slug = $settings->get('my_recordings_page_slug', 'my-submissions');
-            $my_recordings_url = \home_url('/' . $my_recordings_slug . '/');
+            $my_recordings_url  = home_url('/' . $my_recordings_slug . '/');
 
             return [
                 'endpoints' => [
-                    'directUpload' => \esc_url_raw(\rest_url(StarmusSubmissionHandler::STARMUS_REST_NAMESPACE . '/upload-fallback')),
-                    'tusUpload' => \esc_url_raw($tus_endpoint),
+                    'directUpload' => esc_url_raw(rest_url(StarmusSubmissionHandler::STARMUS_REST_NAMESPACE . '/upload-fallback')),
+                    'tusUpload'    => esc_url_raw($tus_endpoint),
                 ],
-                'nonce' => \wp_create_nonce('wp_rest'),
-                'user_id' => \get_current_user_id(),
-                'allowedFileTypes' => $allowed_types_arr, // ['mp3', 'wav', 'webm']
-                'allowedMimeTypes' => $allowed_mimes,     // ['mp3' => 'audio/mpeg', ...]
-                'speechRecognitionLang' => \sanitize_text_field($speech_lang), // BCP 47 language code
-                'myRecordingsUrl' => \esc_url_raw($my_recordings_url), // Redirect URL after successful submission
+                'nonce'                 => wp_create_nonce('wp_rest'),
+                'user_id'               => get_current_user_id(),
+                'allowedFileTypes'      => $allowed_types_arr, // ['mp3', 'wav', 'webm']
+                'allowedMimeTypes'      => $allowed_mimes,     // ['mp3' => 'audio/mpeg', ...]
+                'speechRecognitionLang' => sanitize_text_field($speech_lang), // BCP 47 language code
+                'myRecordingsUrl'       => esc_url_raw($my_recordings_url), // Redirect URL after successful submission
             ];
         } catch (\Throwable $throwable) {
             StarmusLogger::log('StarmusAssetLoader::get_localization_data', $throwable);
             return [
                 'endpoints' => [
                     'directUpload' => '',
-                    'tusUpload' => '',
+                    'tusUpload'    => '',
                 ],
-                'nonce' => '',
-                'user_id' => 0,
-                'allowedFileTypes' => [],
-                'allowedMimeTypes' => [],
+                'nonce'                 => '',
+                'user_id'               => 0,
+                'allowedFileTypes'      => [],
+                'allowedMimeTypes'      => [],
                 'speechRecognitionLang' => 'en-US',
-                'myRecordingsUrl' => \home_url('/my-submissions/'),
+                'myRecordingsUrl'       => home_url('/my-submissions/'),
             ];
         }
     }

@@ -4,45 +4,45 @@
  * Starmus Audio Editor UI - Refactored for Security & Performance
  *
  * @package Starisian\Sparxstar\Starmus\frontend
+ *
  * @version 0.8.5
+ *
  * @since 0.3.1
  */
 
 namespace Starisian\Sparxstar\Starmus\frontend;
 
+use Exception;
+
+use function file_exists;
+use function is_numeric;
+use function json_decode;
+
+use const JSON_ERROR_NONE;
+
+use function json_last_error;
+use function json_last_error_msg;
+use function realpath;
+
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
+
+use function str_replace;
+
+use Throwable;
+
+use function usort;
+
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
-use Throwable;
-use Exception;
 
-use function defined;
-use function file_exists;
-use function realpath;
-use function str_replace;
-use function is_numeric;
-use function is_array;
-use function count;
-use function floatval;
-use function is_string;
-use function sprintf;
-use function usort;
-use function json_decode;
-use function json_last_error;
-use function json_last_error_msg;
-
-use const ABSPATH;
-use const JSON_ERROR_NONE;
-
-if (! defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
 	exit;
 }
 
 class StarmusAudioEditorUI
 {
-
 	/**
 	 * REST namespace for editor endpoints (must match other handlers)
 	 */
@@ -83,6 +83,16 @@ class StarmusAudioEditorUI
 	{
 		// Register REST endpoint for annotation saving.
 		add_action('rest_api_init', $this->register_rest_endpoint(...));
+
+		// Add body class for Starmus-controlled pages
+		add_filter('body_class', function ($classes) {
+			global $post;
+			if ($post && has_shortcode($post->post_content, 'starmus_audio_editor')) {
+				$classes[] = 'starmus-page';
+				$classes[] = 'starmus-editor-page';
+			}
+			return $classes;
+		});
 	}
 
 	/**
@@ -153,6 +163,17 @@ class StarmusAudioEditorUI
 				true
 			);
 			$annotations_data = $this->parse_annotations_json($context['annotations_json']);
+
+			// Get transcript data
+			$transcript_json = get_post_meta($context['post_id'], 'star_transcript_json', true);
+			$transcript_data = [];
+			if ($transcript_json && is_string($transcript_json)) {
+				$decoded = json_decode($transcript_json, true);
+				if (is_array($decoded)) {
+					$transcript_data = $decoded;
+				}
+			}
+
 			wp_localize_script(
 				'starmus-audio-editor',
 				'STARMUS_EDITOR_DATA',
@@ -163,13 +184,15 @@ class StarmusAudioEditorUI
 					'audioUrl'        => esc_url($context['audio_url']),
 					'waveformDataUrl' => esc_url($context['waveform_url']),
 					'annotations'     => $annotations_data,
+					'transcript'      => $transcript_data,
+					'mode'            => 'editor',
+					'canCommit'       => current_user_can('publish_posts'),
 				]
 			);
 		} catch (Throwable $throwable) {
 			$this->log_error($throwable);
 		}
 	}
-
 	/**
 	 * Convert stored annotations JSON to a sanitized array structure.
 	 *
@@ -189,7 +212,7 @@ class StarmusAudioEditorUI
 				throw new Exception(json_last_error_msg());
 			}
 
-			return is_array($data) ? $data : [];
+			return \is_array($data) ? $data : [];
 		} catch (Throwable $throwable) {
 			$this->log_error($throwable);
 			return [];
@@ -215,8 +238,8 @@ class StarmusAudioEditorUI
 			$get_nonce = isset($_GET['nonce']) ? wp_unslash($_GET['nonce']) : '';
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotUnslashed
 			$get_wpnonce = isset($_GET['_wpnonce']) ? wp_unslash($_GET['_wpnonce']) : '';
-			$raw_nonce = $get_nonce ?: $get_wpnonce;
-			$nonce     = is_string($raw_nonce) ? sanitize_text_field($raw_nonce) : '';
+			$raw_nonce   = $get_nonce ?: $get_wpnonce;
+			$nonce       = \is_string($raw_nonce) ? sanitize_text_field($raw_nonce) : '';
 
 			// Only require nonce validation when accessing via link with post_id
 			if ($post_id > 0 && (!$nonce || ! wp_verify_nonce($nonce, 'starmus_edit_audio_' . $post_id))) {
@@ -255,7 +278,7 @@ class StarmusAudioEditorUI
 
 			$waveform_url         = $this->get_secure_waveform_url($attachment_id);
 			$annotations_json     = get_post_meta($post_id, 'starmus_annotations_json', true);
-			$annotations_json     = is_string($annotations_json) ? $annotations_json : '[]';
+			$annotations_json     = \is_string($annotations_json) ? $annotations_json : '[]';
 			$this->cached_context = [
 				'post_id'          => $post_id,
 				'attachment_id'    => $attachment_id,
@@ -280,7 +303,7 @@ class StarmusAudioEditorUI
 	private function get_secure_waveform_url(int $attachment_id): string
 	{
 		$wave_json_path = get_post_meta($attachment_id, '_waveform_json_path', true);
-		if (! is_string($wave_json_path) || ($wave_json_path === '' || $wave_json_path === '0')) {
+		if (! \is_string($wave_json_path) || ($wave_json_path === '' || $wave_json_path === '0')) {
 			return '';
 		}
 
@@ -311,7 +334,7 @@ class StarmusAudioEditorUI
 				'callback'            => $this->handle_save_annotations(...),
 				'permission_callback' => $this->can_save_annotations(...),
 				'args'                => [
-					'postId'      => [
+					'postId' => [
 						'type'              => 'integer',
 						'required'          => true,
 						'sanitize_callback' => 'absint',
@@ -349,20 +372,20 @@ class StarmusAudioEditorUI
 	public function sanitize_annotations($value): array
 	{
 		try {
-			if (! is_array($value)) {
+			if (! \is_array($value)) {
 				return [];
 			}
 
 			$sanitized = [];
 			foreach ($value as $annotation) {
-				if (! is_array($annotation)) {
+				if (! \is_array($annotation)) {
 					continue;
 				}
 
 				$sanitized[] = [
 					'id'        => sanitize_key($annotation['id'] ?? ''),
-					'startTime' => floatval($annotation['startTime'] ?? 0),
-					'endTime'   => floatval($annotation['endTime'] ?? 0),
+					'startTime' => \floatval($annotation['startTime'] ?? 0),
+					'endTime'   => \floatval($annotation['endTime'] ?? 0),
 					'labelText' => wp_kses_post($annotation['labelText'] ?? ''),
 					'color'     => sanitize_hex_color($annotation['color'] ?? '#000000'),
 				];
@@ -384,12 +407,12 @@ class StarmusAudioEditorUI
 	 */
 	public function validate_annotations($value): bool
 	{
-		if (! is_array($value) || count($value) > self::STARMUS_MAX_ANNOTATIONS) {
+		if (! \is_array($value) || \count($value) > self::STARMUS_MAX_ANNOTATIONS) {
 			return false;
 		}
 
 		foreach ($value as $annotation) {
-			if (! is_array($annotation)) {
+			if (! \is_array($annotation)) {
 				return false;
 			}
 
@@ -397,8 +420,8 @@ class StarmusAudioEditorUI
 				return false;
 			}
 
-			$start = floatval($annotation['startTime']);
-			$end   = floatval($annotation['endTime']);
+			$start = \floatval($annotation['startTime']);
+			$end   = \floatval($annotation['endTime']);
 			if ($start < 0 || $end < 0 || $start >= $end) {
 				return false;
 			}
@@ -485,7 +508,7 @@ class StarmusAudioEditorUI
 				[
 					'success' => true,
 					'message' => __('Annotations saved successfully.', 'starmus-audio-recorder'),
-					'count'   => count($annotations),
+					'count'   => \count($annotations),
 				],
 				200
 			);
@@ -511,7 +534,7 @@ class StarmusAudioEditorUI
 	private function is_rate_limited(int $post_id): bool
 	{
 		$user_id = get_current_user_id();
-		$key     = sprintf('starmus_ann_rl_%s_%d', $user_id, $post_id);
+		$key     = \sprintf('starmus_ann_rl_%s_%d', $user_id, $post_id);
 		if (get_transient($key)) {
 			return true;
 		}
@@ -537,7 +560,7 @@ class StarmusAudioEditorUI
 			$annotations,
 			fn(array $a, array $b): int => $a['startTime'] <=> $b['startTime']
 		);
-		for ($i = 0; $i < count($annotations) - 1; $i++) {
+		for ($i = 0; $i < \count($annotations) - 1; $i++) {
 			$current = $annotations[$i];
 			$next    = $annotations[$i + 1];
 			if ($current['endTime'] > $next['startTime']) {
@@ -551,12 +574,11 @@ class StarmusAudioEditorUI
 	/**
 	 * Log an error with unified context handling.
 	 *
-	 * @param Throwable $e       Captured exception instance.
-	 *
+	 * @param Throwable $e Captured exception instance.
 	 */
 	private function log_error(Throwable $e): void
 	{
-		if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+		if (\defined('WP_DEBUG') && WP_DEBUG && \defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
 			StarmusLogger::error('StarmusAudioEditorUI', $e);
 		}
 	}

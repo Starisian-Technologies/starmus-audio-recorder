@@ -1,9 +1,8 @@
 <?php
-
 namespace Starisian\Sparxstar\Starmus\helpers;
 
-if (! defined('ABSPATH')) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
 /**
@@ -13,126 +12,126 @@ if (! defined('ABSPATH')) {
  */
 class StarmusSanitizer
 {
+    /**
+     * Sanitize general submission data from forms or REST params.
+     *
+     * @param array $data Raw request parameters.
+     *
+     * @return array Sanitized data.
+     */
+    public static function sanitize_submission_data(array $data): array
+    {
+        $clean = [];
 
+        foreach ($data as $key => $value) {
+            $clean[sanitize_key($key)] = \is_array($value) ? array_map(sanitize_text_field(...), $value) : sanitize_text_field($value);
+        }
 
-	/**
-	 * Sanitize general submission data from forms or REST params.
-	 *
-	 * @param array $data Raw request parameters.
-	 * @return array Sanitized data.
-	 */
-	public static function sanitize_submission_data(array $data): array
-	{
-		$clean = [];
+        return $clean;
+    }
 
-		foreach ($data as $key => $value) {
-			$clean[sanitize_key($key)] = is_array($value) ? array_map(sanitize_text_field(...), $value) : sanitize_text_field($value);
-		}
+    /**
+     * Sanitize structured metadata for saving into CPT/attachment.
+     *
+     * Maps form fields into normalized meta keys.
+     *
+     * @param array $form_data Sanitized form parameters.
+     *
+     * @return array Key → Value metadata array.
+     */
+    public static function sanitize_metadata(array $form_data): array
+    {
+        $meta = [];
 
-		return $clean;
-	}
+        // Standard fields
+        if (! empty($form_data['starmus_title'])) {
+            $meta['_starmus_title'] = sanitize_text_field($form_data['starmus_title']);
+        }
 
-	/**
-	 * Sanitize structured metadata for saving into CPT/attachment.
-	 *
-	 * Maps form fields into normalized meta keys.
-	 *
-	 * @param array $form_data Sanitized form parameters.
-	 * @return array Key → Value metadata array.
-	 */
-	public static function sanitize_metadata(array $form_data): array
-	{
-		$meta = [];
+        if (! empty($form_data['description'])) {
+            $meta['_starmus_description'] = sanitize_textarea_field($form_data['description']);
+        }
 
-		// Standard fields
-		if (! empty($form_data['starmus_title'])) {
-			$meta['_starmus_title'] = sanitize_text_field($form_data['starmus_title']);
-		}
+        if (! empty($form_data['language'])) {
+            $meta['_starmus_language'] = sanitize_text_field($form_data['language']);
+        }
 
-		if (! empty($form_data['description'])) {
-			$meta['_starmus_description'] = sanitize_textarea_field($form_data['description']);
-		}
+        if (! empty($form_data['dialect'])) {
+            $meta['_starmus_dialect'] = sanitize_text_field($form_data['dialect']);
+        }
 
-		if (! empty($form_data['language'])) {
-			$meta['_starmus_language'] = sanitize_text_field($form_data['language']);
-		}
+        if (! empty($form_data['project_id'])) {
+            $meta['_starmus_project_id'] = sanitize_text_field($form_data['project_id']);
+        }
 
-		if (! empty($form_data['dialect'])) {
-			$meta['_starmus_dialect'] = sanitize_text_field($form_data['dialect']);
-		}
+        if (! empty($form_data['interview_type'])) {
+            $meta['_starmus_interview_type'] = sanitize_text_field($form_data['interview_type']);
+        }
 
-		if (! empty($form_data['project_id'])) {
-			$meta['_starmus_project_id'] = sanitize_text_field($form_data['project_id']);
-		}
+        // Contributor info
+        if (! empty($form_data['contributor_name'])) {
+            $meta['_contributor_name'] = sanitize_text_field($form_data['contributor_name']);
+        }
 
-		if (! empty($form_data['interview_type'])) {
-			$meta['_starmus_interview_type'] = sanitize_text_field($form_data['interview_type']);
-		}
+        if (! empty($form_data['contributor_role'])) {
+            $meta['_contributor_role'] = sanitize_text_field($form_data['contributor_role']);
+        }
 
-		// Contributor info
-		if (! empty($form_data['contributor_name'])) {
-			$meta['_contributor_name'] = sanitize_text_field($form_data['contributor_name']);
-		}
+        if (! empty($form_data['translator'])) {
+            $meta['_translator'] = sanitize_text_field($form_data['translator']);
+        }
 
-		if (! empty($form_data['contributor_role'])) {
-			$meta['_contributor_role'] = sanitize_text_field($form_data['contributor_role']);
-		}
+        // Content classification
+        if (! empty($form_data['story_type'])) {
+            $meta['_story_type'] = sanitize_text_field($form_data['story_type']);
+        }
 
-		if (! empty($form_data['translator'])) {
-			$meta['_translator'] = sanitize_text_field($form_data['translator']);
-		}
+        if (! empty($form_data['rating'])) {
+            $meta['_content_rating'] = sanitize_text_field($form_data['rating']);
+        }
 
-		// Content classification
-		if (! empty($form_data['story_type'])) {
-			$meta['_story_type'] = sanitize_text_field($form_data['story_type']);
-		}
+        if (! empty($form_data['verification'])) {
+            $meta['_contributor_verification'] = sanitize_text_field($form_data['verification']);
+        }
 
-		if (! empty($form_data['rating'])) {
-			$meta['_content_rating'] = sanitize_text_field($form_data['rating']);
-		}
+        // Location context
+        if (! empty($form_data['geolocation'])) {
+            $meta['_geolocation'] = sanitize_text_field($form_data['geolocation']);
+        }
 
-		if (! empty($form_data['verification'])) {
-			$meta['_contributor_verification'] = sanitize_text_field($form_data['verification']);
-		}
+        if (! empty($form_data['countries_lived']) && \is_array($form_data['countries_lived'])) {
+            $meta['_countries_lived'] = array_map(sanitize_text_field(...), $form_data['countries_lived']);
+        }
 
-		// Location context
-		if (! empty($form_data['geolocation'])) {
-			$meta['_geolocation'] = sanitize_text_field($form_data['geolocation']);
-		}
+        // Custom fields passthrough (prefix enforcement)
+        foreach ($form_data as $key => $value) {
+            if (str_starts_with((string) $key, 'custom_')) {
+                $meta['_' . sanitize_key($key)] = sanitize_text_field($value);
+            }
+        }
 
-		if (! empty($form_data['countries_lived']) && is_array($form_data['countries_lived'])) {
-			$meta['_countries_lived'] = array_map(sanitize_text_field(...), $form_data['countries_lived']);
-		}
+        return $meta;
+    }
 
-		// Custom fields passthrough (prefix enforcement)
-		foreach ($form_data as $key => $value) {
-			if (str_starts_with((string) $key, 'custom_')) {
-				$meta['_' . sanitize_key($key)] = sanitize_text_field($value);
-			}
-		}
+    public static function get_user_ip(): string
+    {
+        $ipaddress = '';
+        if (isset($_SERVER['HTTP_CLIENT_IP'])) {
+            $ipaddress = sanitize_text_field(wp_unslash($_SERVER['HTTP_CLIENT_IP']));
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ipaddress = sanitize_text_field(wp_unslash($_SERVER['HTTP_X_FORWARDED_FOR']));
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED'])) {
+            $ipaddress = sanitize_text_field(wp_unslash($_SERVER['HTTP_X_FORWARDED']));
+        } elseif (isset($_SERVER['HTTP_FORWARDED_FOR'])) {
+            $ipaddress = sanitize_text_field(wp_unslash($_SERVER['HTTP_FORWARDED_FOR']));
+        } elseif (isset($_SERVER['HTTP_FORWARDED'])) {
+            $ipaddress = sanitize_text_field(wp_unslash($_SERVER['HTTP_FORWARDED']));
+        } elseif (isset($_SERVER['REMOTE_ADDR'])) {
+            $ipaddress = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));
+        } else {
+            $ipaddress = '0.0.0.0';
+        }
 
-		return $meta;
-	}
-
-	public static function get_user_ip(): string
-	{
-		$ipaddress = '';
-		if (isset($_SERVER['HTTP_CLIENT_IP'])) {
-			$ipaddress = sanitize_text_field(wp_unslash($_SERVER['HTTP_CLIENT_IP']));
-		} elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-			$ipaddress = sanitize_text_field(wp_unslash($_SERVER['HTTP_X_FORWARDED_FOR']));
-		} elseif (isset($_SERVER['HTTP_X_FORWARDED'])) {
-			$ipaddress = sanitize_text_field(wp_unslash($_SERVER['HTTP_X_FORWARDED']));
-		} elseif (isset($_SERVER['HTTP_FORWARDED_FOR'])) {
-			$ipaddress = sanitize_text_field(wp_unslash($_SERVER['HTTP_FORWARDED_FOR']));
-		} elseif (isset($_SERVER['HTTP_FORWARDED'])) {
-			$ipaddress = sanitize_text_field(wp_unslash($_SERVER['HTTP_FORWARDED']));
-		} elseif (isset($_SERVER['REMOTE_ADDR'])) {
-			$ipaddress = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));
-		} else {
-			$ipaddress = '0.0.0.0';
-		}
-
-		return trim($ipaddress);
-	}
+        return trim($ipaddress);
+    }
 }

@@ -7,10 +7,13 @@
  * It skips Step 1 (metadata entry) and goes directly to consent + recording.
  *
  * @package Starisian\Sparxstar\Starmus\templates
+ *
  * @version 1.0.0
+ *
  * @since   0.8.5
+ *
  * @var string $form_id         Base ID for the form.
- * @var int    $post_id         The existing audio recording post ID.
+ * @var int $post_id         The existing audio recording post ID.
  * @var string $title           Pre-filled title from existing post.
  * @var string $language        Pre-filled language term slug.
  * @var string $recording_type  Pre-filled recording type term slug.
@@ -29,7 +32,33 @@ $instance_id = 'starmus_rerecord_' . sanitize_key($form_id . '_' . wp_generate_u
 $allowed_file_types ??= 'webm';
 $allowed_types_arr     = array_filter(array_map(trim(...), explode(',', $allowed_file_types)));
 $show_file_type_select = count($allowed_types_arr) > 1;
+
+// Get existing audio URL for re-recording
+$existing_audio_id  = get_post_meta($post_id, 'mastered_mp3', true);
+$existing_audio_url = $existing_audio_id ? wp_get_attachment_url($existing_audio_id) : '';
+
+// Get transcript data if available
+$transcript_json = get_post_meta($post_id, 'star_transcript_json', true);
+$transcript_data = $transcript_json ? json_decode($transcript_json, true) : [];
+if (!is_array($transcript_data)) {
+    $transcript_data = [];
+}
 ?>
+
+<!-- Bootstrap Contract: Re-Recorder Data -->
+<script>
+    window.STARMUS_RERECORDER_DATA = {
+        instanceId: "<?php echo esc_js($instance_id); ?>",
+        postId: <?php echo (int) $post_id; ?>,
+        audioUrl: "<?php echo esc_js($existing_audio_url); ?>",
+        transcript: <?php echo wp_json_encode($transcript_data); ?>,
+        mode: "rerecord",
+        canCommit: <?php echo current_user_can('edit_posts') ? 'true' : 'false'; ?>,
+        title: "<?php echo esc_js($title); ?>",
+        language: "<?php echo esc_js($language); ?>",
+        recordingType: "<?php echo esc_js($recording_type); ?>"
+    };
+</script>
 
 <div class="starmus-recorder-form starmus-re-recorder">
     <form
@@ -72,11 +101,11 @@ $show_file_type_select = count($allowed_types_arr) > 1;
         <input type="hidden" name="device" value="">
         <input type="hidden" name="user_agent" value="">
 
-        <?php if ($show_file_type_select) : ?>
+        <?php if ($show_file_type_select) { ?>
             <input type="hidden" name="audio_file_type" value="audio/<?php echo esc_attr((string) $allowed_types_arr[0]); ?>">
-        <?php else : ?>
+        <?php } else { ?>
             <input type="hidden" name="audio_file_type" value="audio/<?php echo esc_attr($allowed_file_types); ?>">
-        <?php endif; ?>
+        <?php } ?>
 
         <!-- Step 1: Consent Only -->
         <div
@@ -100,7 +129,7 @@ $show_file_type_select = count($allowed_types_arr) > 1;
                     esc_html__('You are about to re-record: %s', 'starmus-audio-recorder'),
                     '<strong>' . esc_html($title) . '</strong>'
                 );
-                ?>
+?>
             </p>
 
             <fieldset class="starmus-consent-fieldset">
@@ -116,12 +145,12 @@ $show_file_type_select = count($allowed_types_arr) > 1;
                         required>
                     <label for="starmus_consent_<?php echo esc_attr($instance_id); ?>">
                         <?php echo wp_kses_post($consent_message); ?>
-                        <?php if (! empty($data_policy_url)) : ?>
+                        <?php if (! empty($data_policy_url)) { ?>
                             <a
                                 href="<?php echo esc_url($data_policy_url); ?>"
                                 target="_blank"
                                 rel="noopener noreferrer"><?php esc_html_e('Privacy Policy', 'starmus-audio-recorder'); ?></a>
-                        <?php endif; ?>
+                        <?php } ?>
                     </label>
                 </div>
             </fieldset>

@@ -1,8 +1,7 @@
 <?php
-
 namespace Starisian\Sparxstar\Starmus\helpers;
 
-if (!defined('ABSPATH')) {
+if (!\defined('ABSPATH')) {
     exit;
 }
 
@@ -98,14 +97,15 @@ class StarmusLogger
 
     /**
      * @param array<string|int, mixed> $data
+     *
      * @return array<string|int, mixed>
      */
     protected static function sanitizeData(array $data): array
     {
         foreach ($data as $k => &$v) {
-            if (is_string($v) && preg_match('/(ip|email|user|token|auth|fingerprint)/i', (string) $k)) {
+            if (\is_string($v) && preg_match('/(ip|email|user|token|auth|fingerprint)/i', (string) $k)) {
                 $v = '[REDACTED]';
-            } elseif (is_array($v)) {
+            } elseif (\is_array($v)) {
                 $v = self::sanitizeData($v);
             }
         }
@@ -116,8 +116,9 @@ class StarmusLogger
     /**
      * Main logging method.
      * Writes directly to PHP error_log (standard WP debug.log).
-     * 
+     *
      * @param array<string|int, mixed> $extra
+     * @param mixed $msg
      */
     public static function log(string $context, $msg, string $level = 'error', array $extra = []): void
     {
@@ -128,29 +129,29 @@ class StarmusLogger
             return;
         }
 
-        $level_name = strtoupper($level);
+        $level_name      = strtoupper($level);
         $message_content = self::formatMessageContent($msg);
 
         // Prepare context data
         $extra_clean = self::sanitizeData($extra);
-        $extra_str = $extra_clean === [] ? '' : ' | Data: ' . json_encode($extra_clean, JSON_UNESCAPED_SLASHES);
+        $extra_str   = $extra_clean === [] ? '' : ' | Data: ' . json_encode($extra_clean, JSON_UNESCAPED_SLASHES);
 
         $prefix = self::$correlation_id ? '[' . self::$correlation_id . '] ' : '';
 
         // Construct the log line
         if (self::$json_mode) {
             $log_entry = json_encode([
-                'level' => $level_name,
+                'level'   => $level_name,
                 'context' => $context,
                 'message' => $message_content,
-                'extra' => $extra_clean,
-                'cid' => self::$correlation_id
+                'extra'   => $extra_clean,
+                'cid'     => self::$correlation_id,
             ], JSON_UNESCAPED_UNICODE);
         } else {
             // Format: [STARMUS] [LEVEL] [Context] Message | Data: {...}
             // Note: error_log automatically adds the Timestamp.
-            $log_entry = sprintf(
-                "%s[STARMUS] [%s] [%s] %s%s",
+            $log_entry = \sprintf(
+                '%s[STARMUS] [%s] [%s] %s%s',
                 $prefix,
                 $level_name,
                 $context,
@@ -169,7 +170,7 @@ class StarmusLogger
     protected static function formatMessageContent($msg): string
     {
         if ($msg instanceof \Throwable) {
-            return sprintf(
+            return \sprintf(
                 '%s: %s in %s:%d',
                 $msg::class,
                 $msg->getMessage(),
@@ -178,7 +179,7 @@ class StarmusLogger
             );
         }
 
-        return is_array($msg) || is_object($msg) ? print_r($msg, true) : (string) $msg;
+        return \is_array($msg) || \is_object($msg) ? print_r($msg, true) : (string) $msg;
     }
 
     /*==============================================================
@@ -199,7 +200,7 @@ class StarmusLogger
         $duration = round((microtime(true) - self::$timers[$label]) * 1000, 2);
         unset(self::$timers[$label]);
         // Log timer results as debug
-        self::debug($context, sprintf('%s completed in %sms', $label, $duration));
+        self::debug($context, \sprintf('%s completed in %sms', $label, $duration));
     }
 
     /*==============================================================
@@ -207,6 +208,7 @@ class StarmusLogger
      *=============================================================*/
     /**
      * @param array<string|int, mixed> $extra
+     * @param mixed $msg
      */
     public static function debug(string $context, $msg, array $extra = []): void
     {

@@ -7,15 +7,16 @@
  * with integrated transcript panel for bidirectional audio-text sync.
  *
  * @package Starisian\Sparxstar\Starmus\templates
+ *
  * @version 0.9.0
+ *
  * @since 0.3.0
  */
-
 namespace Starisian\Sparxstar\Starmus\templates;
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 ?>
 <div class="starmus-editor" role="region" aria-label="<?php esc_attr_e('Audio editor', 'starmus-audio-recorder'); ?>">

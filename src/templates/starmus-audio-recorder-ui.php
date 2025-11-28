@@ -4,11 +4,12 @@
  * Starmus Audio Recorder UI Template - Final, Secure, and Accessible
  *
  * @package Starisian\Sparxstar\Starmus\templates
+ *
  * @version 1.1.0
  */
 
 if (! defined('ABSPATH')) {
-	exit;
+    exit;
 }
 
 $form_id ??= 'default';
@@ -69,13 +70,13 @@ $is_admin              = current_user_can('manage_options');
 					name="starmus_language"
 					required>
 					<option value=""><?php esc_html_e('Select Language', 'starmus-audio-recorder'); ?></option>
-					<?php if (! empty($languages) && is_array($languages)) : ?>
-						<?php foreach ($languages as $lang) : ?>
+					<?php if (! empty($languages) && is_array($languages)) { ?>
+						<?php foreach ($languages as $lang) { ?>
 							<option value="<?php echo esc_attr($lang->term_id); ?>">
 								<?php echo esc_html($lang->name); ?>
 							</option>
-						<?php endforeach; ?>
-					<?php endif; ?>
+						<?php } ?>
+					<?php } ?>
 				</select>
 			</div>
 
@@ -89,17 +90,17 @@ $is_admin              = current_user_can('manage_options');
 					name="starmus_recording_type"
 					required>
 					<option value=""><?php esc_html_e('Select Type', 'starmus-audio-recorder'); ?></option>
-					<?php if (! empty($recording_types) && is_array($recording_types)) : ?>
-						<?php foreach ($recording_types as $type) : ?>
+					<?php if (! empty($recording_types) && is_array($recording_types)) { ?>
+						<?php foreach ($recording_types as $type) { ?>
 							<option value="<?php echo esc_attr($type->term_id); ?>">
 								<?php echo esc_html($type->name); ?>
 							</option>
-						<?php endforeach; ?>
-					<?php endif; ?>
+						<?php } ?>
+					<?php } ?>
 				</select>
 			</div>
 
-			<?php if ($show_file_type_select) : ?>
+			<?php if ($show_file_type_select) { ?>
 				<div class="starmus-field-group">
 					<label for="starmus_audio_file_type_<?php echo esc_attr($instance_id); ?>">
 						<?php esc_html_e('Audio File Type', 'starmus-audio-recorder'); ?>
@@ -107,16 +108,16 @@ $is_admin              = current_user_can('manage_options');
 					<select
 						id="starmus_audio_file_type_<?php echo esc_attr($instance_id); ?>"
 						name="audio_file_type">
-						<?php foreach ($allowed_types_arr as $type) : ?>
+						<?php foreach ($allowed_types_arr as $type) { ?>
 							<option value="audio/<?php echo esc_attr($type); ?>">
 								<?php echo esc_html(strtoupper($type)); ?>
 							</option>
-						<?php endforeach; ?>
+						<?php } ?>
 					</select>
 				</div>
-			<?php else : ?>
+			<?php } else { ?>
 				<input type="hidden" name="audio_file_type" value="audio/<?php echo esc_attr($allowed_types_arr[0]); ?>">
-			<?php endif; ?>
+			<?php } ?>
 
 			<fieldset class="starmus-consent-fieldset">
 				<legend class="starmus-fieldset-legend">
@@ -131,12 +132,12 @@ $is_admin              = current_user_can('manage_options');
 						required>
 					<label for="starmus_consent_<?php echo esc_attr($instance_id); ?>">
 						<?php echo wp_kses_post($consent_message); ?>
-						<?php if (! empty($data_policy_url)) : ?>
+						<?php if (! empty($data_policy_url)) { ?>
 							<a
 								href="<?php echo esc_url($data_policy_url); ?>"
 								target="_blank"
 								rel="noopener noreferrer"><?php esc_html_e('Privacy Policy', 'starmus-audio-recorder'); ?></a>
-						<?php endif; ?>
+						<?php } ?>
 					</label>
 				</div>
 			</fieldset>
@@ -356,7 +357,7 @@ $is_admin              = current_user_can('manage_options');
 			</button>
 
 			<!-- Manual Upload Toggle (Admin/Editor Only) -->
-			<?php if (current_user_can('upload_files')) : ?>
+			<?php if (current_user_can('upload_files')) { ?>
 				<div class="starmus-upload-audio-link" style="margin-top:24px;text-align:right;">
 					<button
 						type="button"
@@ -393,7 +394,7 @@ $is_admin              = current_user_can('manage_options');
 						}
 					});
 				</script>
-			<?php endif; ?>
+			<?php } ?>
 		</div>
 	</form>
 </div>
