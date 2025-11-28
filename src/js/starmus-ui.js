@@ -8,6 +8,38 @@
 'use strict';
 
 /**
+ * Clipping coaching state (one warning per session)
+ */
+let starmusClipWarned = false;
+
+/**
+ * Helper: Maybe show coaching message for clipping levels
+ * @param {number} normalizedLevel - Volume level 0-1
+ * @param {Object} elements - DOM elements object
+ */
+function starmusMaybeCoachUser(normalizedLevel, elements) {
+    if (normalizedLevel >= 0.85 && !starmusClipWarned) {
+        starmusClipWarned = true;
+
+        const msg = elements.messageBox || document.querySelector('[data-starmus-message-box]');
+        if (msg) {
+            msg.innerHTML =
+                '⚠️ Your microphone is too loud. Move back 6–12 inches or speak softer for a cleaner recording.';
+            msg.style.display = 'block';
+            msg.setAttribute('role', 'alert');
+            msg.setAttribute('aria-live', 'assertive');
+
+            // Auto-clear after 6 seconds
+            setTimeout(() => {
+                msg.style.display = 'none';
+                msg.removeAttribute('role');
+                msg.removeAttribute('aria-live');
+            }, 6000);
+        }
+    }
+}
+
+/**
  * Helper: Format seconds into MM:SS with units
  */
 function formatTime(seconds) {
@@ -105,26 +137,23 @@ function render(state, elements) {
         
         if (showProgress) {
             if (elements.durationProgress.parentElement) {
-                elements.durationProgress.parentElement.style.display = 'block';
+                elements.durationProgress.parentElement.style.display = 'flex';
             }
             
             // Calculate progress percentage (0-100)
             const progressPercent = Math.min(100, (time / MAX_DURATION) * 100);
-            elements.durationProgress.style.width = `${progressPercent}%`;
+            
+            // Update ::after width via CSS custom property
+            elements.durationProgress.style.setProperty('--progress-width', `${progressPercent}%`);
             elements.durationProgress.setAttribute('aria-valuenow', Math.floor(time));
             
-            // Color thresholds: green -> orange (15min) -> red (17min)
+            // Color thresholds via data attributes: green -> orange (15min) -> red (17min)
             if (time >= RED_THRESHOLD) {
-                elements.durationProgress.style.backgroundColor = '#e74c3c'; // Red
-                elements.durationProgress.classList.add('starmus-duration-progress--danger');
-                elements.durationProgress.classList.remove('starmus-duration-progress--warning');
+                elements.durationProgress.setAttribute('data-level', 'danger');
             } else if (time >= ORANGE_THRESHOLD) {
-                elements.durationProgress.style.backgroundColor = '#f39c12'; // Orange
-                elements.durationProgress.classList.add('starmus-duration-progress--warning');
-                elements.durationProgress.classList.remove('starmus-duration-progress--danger');
+                elements.durationProgress.setAttribute('data-level', 'warning');
             } else {
-                elements.durationProgress.style.backgroundColor = '#27ae60'; // Green
-                elements.durationProgress.classList.remove('starmus-duration-progress--warning', 'starmus-duration-progress--danger');
+                elements.durationProgress.setAttribute('data-level', 'safe');
             }
             
             // Auto-stop at 20 minutes
@@ -142,12 +171,12 @@ function render(state, elements) {
         }
     }
 
-    // --- 3. Volume Meter (FIXED: separate calibration vs recording data sources) ---
+    // --- 3. Volume Meter (Enhanced with color states and coaching) ---
     if (elements.volumeMeter) {
         const showMeter = status === 'calibrating' || status === 'recording' || status === 'paused';
 
         if (elements.volumeMeter.parentElement) {
-            elements.volumeMeter.parentElement.style.display = showMeter ? 'block' : 'none';
+            elements.volumeMeter.parentElement.style.display = showMeter ? 'flex' : 'none';
         }
 
         if (showMeter) {
@@ -160,11 +189,32 @@ function render(state, elements) {
                 vol = recorder.amplitude || 0;
             }
             
-            elements.volumeMeter.style.width = `${Math.max(0, Math.min(100, vol))}%`;
-            elements.volumeMeter.style.backgroundColor = vol > 90 ? '#ff4444' : '#4caf50';
+            // Clamp to 0-100 range
+            vol = Math.max(0, Math.min(100, vol));
+            
+            // Normalize to 0-1 range for classification
+            const normalizedLevel = vol / 100;
+            
+            // Update ::after width via CSS custom property
+            elements.volumeMeter.style.setProperty('--meter-width', `${vol}%`);
+            
+            // State classification for color feedback
+            if (normalizedLevel < 0.6) {
+                elements.volumeMeter.setAttribute('data-level', 'safe');
+            } else if (normalizedLevel < 0.85) {
+                elements.volumeMeter.setAttribute('data-level', 'hot');
+            } else {
+                elements.volumeMeter.setAttribute('data-level', 'clip');
+            }
+            
+            // Coaching layer (only during recording, not calibration)
+            if (status === 'recording') {
+                starmusMaybeCoachUser(normalizedLevel, elements);
+            }
         } else {
             // Reset meter when hidden
-            elements.volumeMeter.style.width = '0%';
+            elements.volumeMeter.style.setProperty('--meter-width', '0%');
+            elements.volumeMeter.removeAttribute('data-level');
         }
     }
 
