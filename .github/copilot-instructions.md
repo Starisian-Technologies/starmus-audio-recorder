@@ -1,84 +1,130 @@
-# Copilot Instructions for Starmus Audio Recorder
+Copilot Instructions: Starmus Audio Recorder
+============================================
 
-## Project Overview
+Mission
+-------
 
-Mobile-first WordPress audio recorder designed for West Africa's constrained networks. Built with offline-first architecture, progressive enhancement (Tier A/B/C browsers), and strict payload budgets (≤60KB JS, ≤25KB CSS gzipped).
+Maintain a WordPress-based audio-recording system optimized for **mobile, weak networks, and offline submission**. All changes must preserve:
 
-## Key Components & Patterns
+*   **Offline-first behavior**
+    
+*   **Small payloads** (≤60KB JS, ≤25KB CSS gzipped)
+    
+*   **Progressive enhancement** across browser tiers
+    
 
-**Core Architecture:**
+Do not introduce abstractions that increase complexity or break compatibility.
 
-- `src/StarmusPlugin.php`: Main plugin controller, singleton pattern, hooks registration
-- `src/frontend/StarmusAudioRecorderUI.php`: Two-step UI, chunked uploads, tus.io integration
-- `src/frontend/StarmusAudioEditorUI.php`: Peaks.js-based editor, REST API endpoints
-- Custom post types: `audio-recording`, `consent-agreement`
-- Taxonomies: `language`, `recording_type`
+System Boundaries
+-----------------
 
-**JavaScript Modules (Separation of Concerns):**
+### PHP Kernel
 
-- `src/js/starmus-audio-recorder-module.js`: Pure recording engine (MediaRecorder, calibration)
-- `src/js/starmus-audio-recorder-submissions-handler.js`: Upload logic, IndexedDB queue, tus.io
-- `src/js/starmus-audio-recorder-ui-controller.js`: Form validation, two-step flow delegation
-- `src/js/starmus-offline-sync.js`: Legacy fallback, geolocation, polyfills
+Main components live under PSR-4 namespaces:
 
-## Developer Workflows
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   Starmus\    StarmusPlugin.php                // Entry point: registers hooks, loads services    frontend/      StarmusAudioRecorderUI.php     // Recorder UI + bootstrap      StarmusAudioEditorUI.php       // Editor UI + Peaks bootstrap   `
 
-**Build & Test Commands:**
+### Storage Model
 
-```bash
-# Frontend/E2E testing
-npm test                    # Runs Playwright E2E + accessibility tests
-npm run test:e2e           # End-to-end tests
-npm run test:a11y          # WCAG compliance tests
+Custom post types:
 
-# PHP/Backend testing
-composer test              # PHPUnit + quality checks (requires vendor install)
-composer run test:unit     # Unit tests only
-composer run lint:php      # PHPCS code style
-composer run analyze:php   # PHPStan static analysis
+*   audio-recording (primary artifact)
+    
+*   consent-agreement (legal metadata)
+    
 
-# Build pipeline
-npm run build              # Full build: clean → vendor → CSS/JS → hash → version sync
-```
+Taxonomies:
 
-**Key Config Files:** `phpunit.xml.dist`, `phpcs.xml.dist`, `phpstan.neon.dist`, `eslint.config.js`, `playwright.config.js`
+*   language
+    
+*   recording\_type
+    
 
-## Naming Conventions & Standards
+All metadata must be created, retrieved, or mutated via WordPress APIs. No direct DB writes.
 
-- **Namespace:** `Starmus\\ComponentName\\` (PSR-4 autoload)
-- **Handles/Routes:** `star-<slug>-*` (e.g., `star-audio-recorder-upload`)
-- **REST Namespace:** `star-<slug>/v1` (e.g., `/wp-json/star-audio-recorder/v1/upload`)
-- **Hook Prefix:** `starmus_` (e.g., `starmus_before_recorder_render`)
-- **Error Handling:** Internals throw exceptions, boundaries return `WP_Error`
-- **JS Responses:** `{ ok: boolean, code: string, message: string, data: object }`
+JavaScript Execution Model
+--------------------------
 
-## Security & Offline Patterns
+The JS layer is modular. Do not collapse responsibilities.
 
-- **Capabilities + nonces** for privileged actions
-- **IndexedDB-first** with localStorage fallback for offline queue
-- **Chunked uploads** with resume capability (tus.io protocol)
-- **Input sanitization:** `sanitize_text_field()`, `absint()`, `$wpdb->prepare()`
-- **Output escaping:** `esc_html()`, `esc_attr()`, `wp_kses()`
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   starmus-audio-recorder-module.js       // MediaRecorder, audio graph, calibration  starmus-audio-recorder-ui-controller.js// Form wizard (step1/step2), UI state  starmus-audio-recorder-submissions.js  // Upload, IndexedDB queue, tus.io support  starmus-offline-sync.js                // Polyfills + legacy queue   `
 
-## Integration Points & Hooks
+Each module assumes:
 
-```php
-// Core recorder hooks
-do_action('starmus_before_recorder_render', $instance_id);
-do_action('starmus_after_audio_upload', $post_id, $file_path, $metadata);
-$response = apply_filters('starmus_audio_upload_success_response', $response, $post_id, $form_data);
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window.STARMUS_BOOTSTRAP exists before any init   `
 
-// Editor hooks
-do_action('starmus_before_editor_render', $post_id);
-do_action('starmus_before_annotations_save', $post_id, $annotations);
-```
+If this object is missing or late-loaded, **the system will not initialize**.
 
-## Mobile-First Requirements
+Runtime Invariants
+------------------
 
-- **Progressive enhancement:** Tier A (modern), Tier B (legacy), Tier C (file upload fallback)
-- **Offline queue resilience:** FIFO IndexedDB queue with retry logic
-- **Bundle constraints:** Validate with `npm run size-check`
-- **Accessibility:** WCAG 2.1 AA compliance, keyboard navigation
-- **Legacy browser support:** Avoid ES2020+ features, include polyfills
+Claude must respect these rules at all times:
 
-Refer to `AGENTS.md`, `INSTRUCTIONS.md`, and `TESTING.md` for detailed conventions. When in doubt, prioritize offline-first, secure, and minimal solutions.
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   1. The bootstrap object is created by PHP before JS runs:     window.STARMUS_BOOTSTRAP = { postId, restUrl, mode, canCommit, ... }  2. Recorder pages initialize only when:   `
+
+   `3. Editor pages initialize only when:`
+
+   `4. No JS module fetches DOM nodes until bootstrap is detected.`
+
+Any change that breaks these invariants is rejected.
+
+Naming Rules (strict)
+---------------------
+
+*   PHP Namespace: Starmus\\\*
+    
+*   REST Namespace: star-/v1
+    
+*   Actions/filters: starmus\_\*
+    
+*   Frontend handles: starmus-audio-\*
+    
+*   Error objects: WP\_Error only at boundaries
+    
+*   No globals except the bootstrap object
+    
+
+Security & Offline Constraints
+------------------------------
+
+Claude must maintain:
+
+*   **IndexedDB offline queue** for uploads
+    
+*   **Chunked uploads** (tus.io) with resume
+    
+*   **Nonces + capabilities** on REST endpoints
+    
+*   **Sanitization** of input, **escaping** of output
+    
+
+If offline behavior regresses, reject the change.
+
+Testing & Validation Commands
+-----------------------------
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   npm run build         // Full asset pipeline  npm run test:e2e      // Frontend recorder/editor tests  composer test         // PHPUnit + static analysis  composer run lint:php // Code style   `
+
+Nothing is considered "done" unless it passes both JS and PHP checks.
+
+Claude’s Job
+------------
+
+When modifying code:
+
+1.  Identify the boundary (PHP → JS → REST → queue)
+    
+2.  Do not move logic across boundaries
+    
+3.  Never remove or rename the bootstrap
+    
+4.  Keep code minimal and mobile-safe
+    
+5.  Prioritize reliability over abstractions
+    
+
+If uncertain, ask:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   What is the canonical source of truth?  Does this run offline?  Does this maintain bootstrap invariants?   `
+
+If any answer is "no," stop and propose an alternative.

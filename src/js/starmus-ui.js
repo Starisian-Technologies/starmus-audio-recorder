@@ -137,14 +137,14 @@ function render(state, elements) {
         
         if (showProgress) {
             if (elements.durationProgress.parentElement) {
-                elements.durationProgress.parentElement.style.display = 'flex';
+                elements.durationProgress.parentElement.style.display = 'block';
             }
             
             // Calculate progress percentage (0-100)
             const progressPercent = Math.min(100, (time / MAX_DURATION) * 100);
             
-            // Update ::after width via CSS custom property
-            elements.durationProgress.style.setProperty('--progress-width', `${progressPercent}%`);
+            // Update ::after width via CSS custom property (matches CSS: --starmus-recording-progress)
+            elements.durationProgress.style.setProperty('--starmus-recording-progress', `${progressPercent}%`);
             elements.durationProgress.setAttribute('aria-valuenow', Math.floor(time));
             
             // Color thresholds via data attributes: green -> orange (15min) -> red (17min)
@@ -176,7 +176,7 @@ function render(state, elements) {
         const showMeter = status === 'calibrating' || status === 'recording' || status === 'paused';
 
         if (elements.volumeMeter.parentElement) {
-            elements.volumeMeter.parentElement.style.display = showMeter ? 'flex' : 'none';
+            elements.volumeMeter.parentElement.style.display = showMeter ? 'block' : 'none';
         }
 
         if (showMeter) {
@@ -195,10 +195,10 @@ function render(state, elements) {
             // Normalize to 0-1 range for classification
             const normalizedLevel = vol / 100;
             
-            // Update ::after width via CSS custom property
-            elements.volumeMeter.style.setProperty('--meter-width', `${vol}%`);
+            // Update ::after width via CSS custom property (matches CSS: --starmus-audio-level)
+            elements.volumeMeter.style.setProperty('--starmus-audio-level', `${vol}%`);
             
-            // State classification for color feedback
+            // State classification for color feedback (overrides gradient)
             if (normalizedLevel < 0.6) {
                 elements.volumeMeter.setAttribute('data-level', 'safe');
             } else if (normalizedLevel < 0.85) {
@@ -213,7 +213,7 @@ function render(state, elements) {
             }
         } else {
             // Reset meter when hidden
-            elements.volumeMeter.style.setProperty('--meter-width', '0%');
+            elements.volumeMeter.style.setProperty('--starmus-audio-level', '0%');
             elements.volumeMeter.removeAttribute('data-level');
         }
     }
