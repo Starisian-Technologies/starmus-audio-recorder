@@ -23,9 +23,14 @@ export default {
         }
     },
 
-    plugins: [
-        resolve({ browser: true }),
-        commonjs(),
-        terser()
-    ]
+  plugins: [
+      resolve({
+          browser: true,
+          preferBuiltins: false    // REQUIRED so Peaks peer deps resolve
+      }),
+      commonjs({
+          include: /node_modules/  // REQUIRED or Peaks internals won't load
+      }),
+      terser()
+  ]
 };
