@@ -115,8 +115,22 @@ final class StarmusAssetLoader
             $config = $this->get_localization_data();
             error_log('[Starmus AssetLoader] Localizing script with config: ' . json_encode($config));
 
+            // Keep the legacy config for backward compatibility
             wp_localize_script(self::HANDLE_PROD_BUNDLE, 'starmusConfig', $config);
-
+            
+            // New unified bootstrap contract required by refactored JS
+            wp_localize_script(
+                self::HANDLE_PROD_BUNDLE,
+                'STARMUS_BOOTSTRAP',
+                [
+                    'version' => $this->resolve_version(),
+                    'config'  => $config,
+                    'env'     => defined('WP_ENV') ? WP_ENV : 'production',
+                    'postId'  => get_the_ID() ?: 0,
+                    'restUrl' => esc_url_raw(rest_url()),
+                    'homeUrl' => esc_url_raw(home_url('/')),
+                ]
+            );
             error_log('[Starmus AssetLoader] JS enqueued successfully');
         } catch (\Throwable $throwable) {
             error_log('[Starmus AssetLoader] ERROR in enqueue_production_assets: ' . $throwable->getMessage());
