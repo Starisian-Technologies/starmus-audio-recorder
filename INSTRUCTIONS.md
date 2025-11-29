@@ -1,158 +1,189 @@
-# Instructions.md — Operating Guidelines for AI Codex
+Operating Guidelines for AI Codex
+=================================
 
-## 1) Intake Checklist
+_(Starisian Engineering Agent — 2025 Edition)_
 
-- Confirm **plugin identifiers**: `STARMUS_PLUGIN_NAME` (PascalCase), slug, text domain, REST namespace.
-- Identify CPTs/taxonomies, REST endpoints, storage (options/custom tables), and required roles/caps.
-- Note offline interactions (recording, forms), data sensitivity, and deletion/opt‑out requirements.
+1) Intake Checklist
+-------------------
 
-## 2) Scaffolding
+*   Identify **plugin role in the ecosystem**:
+    
+    *   **Starmus** = capture + drafts
+        
+    *   **AiWA** = approved corpus + linguistics
+        
+*   Confirm identifiers: PascalCase name, slug, text domain, REST namespace.
+    
+*   Capture CPTs/taxonomies, storage model (options/table), and capability requirements.
+    
+*   Determine **bootstrap contract** fields and pageType.
+    
+*   Specify offline/queue interactions, GDPR/CCPA sensitivity, retention, delete/opt-out.
+    
+
+2) Scaffolding
+--------------
 
 Generate:
 
-```
-plugin-slug/
-├─ plugin-slug.php
-├─ src/<PluginName>/Core/PluginCore.php
-├─ src/<PluginName>/{Admin,Frontend,Rest,Services,Support}/...
-├─ assets/{js/{modern,legacy},css,img}
-├─ templates/
-├─ languages/
-├─ tests/{unit,integration,e2e}
-├─ config/{phpcs.xml,phpstan.neon}
-├─ composer.json (optional)
-└─ README.md, CHANGELOG.md, CONTRIBUTING.md
-```
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   plugin/  ├─ plugin.php  ├─ src//{Core,Admin,Frontend,Rest,Services,Support}/...  ├─ assets/{js/{modern,legacy},css,img}  ├─ templates/  ├─ languages/  ├─ tests/{unit,integration,e2e}  ├─ config/{phpcs.xml,phpstan.neon,eslint,stylelint}  └─ README.md, CHANGELOG.md, CONTRIBUTING.md   `
 
-Include bootstrap guards (PHP/WP versions), PSR‑4 autoload (Composer + fallback), and `load_plugin_textdomain`.
+*   Enforce bootstrap guards (PHP ≥ 8.2, WP ≥ 6.4).
+    
+*   PSR-4 autoload with Composer fallback.
+    
+*   load\_plugin\_textdomain on init.
+    
 
-## 3) Naming Conventions (Enforced)
+3) Naming Conventions (Non-Negotiable)
+--------------------------------------
 
-- Namespace: `Starisian\\<PluginName>\\…` (PSR‑4 maps to `src/<PluginName>/`).
-- Classes: PascalCase; one per file; filename mirrors class.
-- Methods/props: camelCase; constants: SCREAMING_SNAKE_CASE.
-- Handles/routes/options/meta: `star-<slug>-*`; REST: `star-<slug>/v1`.
+*   Namespace: Starisian\\\\\\\\…
+    
+*   Classes: PascalCase, one per file; methods camelCase.
+    
+*   Constants SCREAMING\_SNAKE\_CASE.
+    
+*   Handles/routes/options/meta: star-\-\*
+    
+*   REST namespace: star-/v1
+    
 
-## 4) Error Handling
+4) Error Handling
+-----------------
 
-- Internals may throw; **translate to `WP_Error`** at boundaries (hooks/REST/shortcodes).
-- Use capped exponential backoff with jitter for network I/O; default timeouts ≤ 10s.
-- JS responses standardize to `{ ok, code, message, data }`; offline triggers queue‑retry, not failure.
+*   Internals throw exceptions; **convert to WP\_Error** at all boundaries.
+    
+*   Network calls use capped exponential backoff + jitter, ≤ 10s timeout.
+    
+*   JS responses always { ok, code, message, data }.
+    
+*   Offline does not equal error — it equals **enqueue**.
+    
 
-## 5) Offline‑First
+5) Offline-First Mandate
+------------------------
 
-- IndexedDB (preferred) with localStorage fallback; entries are UUID‑keyed with statuses: `pending|uploading|complete|failed`.
-- Chunked uploads; resume from last byte; FIFO queue; user feedback for each state.
-- Idempotency keys (UUID) for dedupe; “Export to File” fallback for hand‑delivery.
+*   IndexedDB preferred; localStorage as fallback.
+    
+*   Queue entries keyed by UUID: pending|uploading|complete|failed.
+    
+*   Chunked resumable uploads + idempotency tokens.
+    
+*   Export-to-file fallback for constrained schools/devices.
+    
 
-## 6) Accessibility & i18n
+6) Accessibility & i18n
+-----------------------
 
-- WCAG 2.1 AA: keyboard, focus, contrast, live regions; no color‑only meaning.
-- All strings localized via `__()`; add translator comments where ambiguous.
+*   WCAG 2.1 AA conformance, live regions for status updates.
+    
+*   No color-only meaning; maintain keyboard tab order.
+    
+*   All user text via \_\_() and translator comments.
+    
 
-## 7) Security
+7) Security
+-----------
 
-- Capability checks + nonces; sanitize on input, escape on output; `$wpdb->prepare` for SQL; strict upload validation.
-- Rate‑limit sensitive REST; never echo stack traces or paths.
+*   Capabilities + nonces; sanitize input, escape output.
+    
+*   Strict MIME enforcement and upload whitelists.
+    
+*   Rate-limit sensitive REST endpoints.
+    
+*   Never expose file paths, stack traces, or PII without consent.
+    
 
-## 8) REST API
+8) REST API
+-----------
 
-- Register routes under `star-<slug>/v1`; permission callbacks must be explicit.
-- ACF/SCF: do **not** rename vendor namespaces; **wrap** with custom endpoints if you need a `star-` prefix.
-- Provide OpenAPI‑style route docs (path, methods, params, responses, error codes).
+*   Register under star-/v1.
+    
+*   Permission callbacks explicit and minimal.
+    
+*   Wrap ACF/SCF CRUD — **never rename vendor routes**.
+    
+*   Provide OpenAPI-style docs for every route.
+    
 
-## 9) Builds & Budgets
+9) Builds, Budgets & CI Gates _(Updated)_
+-----------------------------------------
 
-- Dual bundles: `modern` (ES modules) + `legacy` (transpiled, no modern syntax).
-- Budget gates: ≤ 60KB JS, ≤ 25KB CSS gz; system fonts; no heavy frameworks by default.
-- Lint: PHPCS (WordPress + PSR‑12), PHPStan ≥ level 6, ESLint, Stylelint.
+*   **Dual bundles**: modern (ESM) + legacy (ES5).
+    
+*   **Budgets (CI enforced)**:
+    
+    *   JS ≤ **60KB gz**
+        
+    *   CSS ≤ **25KB gz**
+        
+*   System fonts only; no heavy front-end frameworks.
+    
+*   PHPStan ≥ level 6, PHPCS WordPress+PSR12, ESLint, Stylelint.
+    
 
-## 10) Testing
+10) Testing
+-----------
 
-- PHPUnit unit tests; REST integration tests (auth, caps, schema).
-- E2E tests for JS‑off baseline and offline queue (2G/3G throttling).
-- Include fixtures and idempotency tests.
+*   **Unit** (PHP), **integration** (REST + permissions), **E2E** for JS-off baseline.
+    
+*   Offline queue tests at 2G/3G throttling.
+    
+*   Idempotency + replay-attack tests.
+    
 
-## 11) Documentation
+11) Documentation
+-----------------
 
-- README (purpose, constraints, offline model), CHANGELOG (Keep‑a‑Changelog), CONTRIBUTING (conventions, branches, CI).
-- Admin Help tab to explain consent/offline behavior.
+*   README explains purpose, constraints, bootstrap contract, offline model.
+    
+*   CHANGELOG = Keep-a-Changelog format.
+    
+*   CONTRIBUTING describes CI, branches, PR rules, and naming.
+    
 
-## 12) Release & Maintenance
+12) Release & Maintenance
+-------------------------
 
-- SemVer; store DB version in option; idempotent migrations.
-- Safe uninstall; configurable data cleanup.
-- Deprecation policy with timelines; backward‑compatible filters/actions.
+*   SemVer versioning; DB version stored in options.
+    
+*   Migrations idempotent; safe uninstall path.
+    
+*   Deprecations provide deadlines and shim warnings.
+    
 
-## 13) Response Templates (Use As‑Is)
+13) Bootstrap Contract _(New Requirement)_
+------------------------------------------
 
-**REST Endpoint (PHP)**
+Every plugin page must expose one bootstrap object _before_ scripts load:
 
-```php
-register_rest_route( 'star-' . STARMUS_PLUGIN_SLUG . '/v1', '/queue/(?P<uuid>[A-Za-z0-9-]+)', [
-  'methods'             => 'POST',
-  'permission_callback' => function () { return current_user_can( 'upload_files' ); },
-  'args'                => [ 'uuid' => [ 'required' => true ] ],
-  'callback'            => [ $service, 'receive_chunk' ],
-] );
-```
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window._BOOTSTRAP = {    pageType: 'recorder'|'rerecorder'|'editor',    postId: number|null,    restUrl: string,    canCommit: boolean,    transcript: array|null,    audioUrl: string|null  };   `
 
-**Bootstrap Guards (PHP)**
+### Rule
 
-```php
-if ( version_compare( PHP_VERSION, '8.2', '<' ) || version_compare( get_bloginfo('version'), '6.4', '<' ) ) {
-  add_action('admin_notices', function(){ echo '<div class="notice notice-error"><p>' . esc_html__( 'Requires PHP 8.2+ and WP 6.4+.', 'star-slug' ) . '</p></div>'; });
-  return;
-}
-```
+**If no bootstrap object exists, no code runs.**Modules must not inspect global state outside this contract.
 
-**JS Error Envelope**
+14) The Bicameral Architecture _(New Requirement)_
+--------------------------------------------------
 
-```js
-function ok(data = {}) {
-  return { ok: true, code: "OK", message: "", data };
-}
-function fail(code, msg, data = {}) {
-  return { ok: false, code: code || "ERR", message: msg || "Failed", data };
-}
-```
+Starisian plugins separate:
 
-**Queue Status Model**
+PartRole**UI**Empathy, validation, user flow**Kernel**Actions, uploads, REST, drafts, approvals
 
-```js
-const STATUS = {
-  PENDING: "pending",
-  UPLOADING: "uploading",
-  COMPLETE: "complete",
-  FAILED: "failed",
-};
-```
+UI never uploads; Kernel never touches DOM.
 
-## 14) ACF/SCF REST Namespacing Notes
+15) Response Templates (Unchanged)
+----------------------------------
 
-- You **cannot** rename ACF’s native `acf/v3` (or vendor) routes.
-- Expose needed data via **your own** `star-<slug>/v1/...` endpoints that **wrap** ACF/SCF CRUD.
-- Ensure CPTs have `show_in_rest` and field schemas are mirrored in your responses.
+Use the existing code blocks for REST route, bootstrap guard, and JS error envelopes without modification.
 
----
+16) AiWA Interaction Rule
+-------------------------
 
-## Appendix — REST Namespace Quickstart (STAR Prefix)
+Starmus produces **draft artifacts**.AiWA **accepts approved transcripts** and integrates them into the corpus.No plugin may bypass this gate.
 
-1. Define identifiers in `plugin-slug.php` (constants for name/slug).
-2. In `Rest/Routes.php`, register routes under `star-<slug>/v1`.
-3. Use explicit `permission_callback` and idempotency keys in headers or params.
+17) Immutable Decision
+----------------------
 
-```php
-namespace Starisian\Recorder\Rest;
-class Routes{
-  public function register(){
-    add_action('rest_api_init', function(){
-      register_rest_route('star-' . STARMUS_PLUGIN_SLUG . '/v1','/health',[
-        'methods'=>'GET',
-        'permission_callback'=>'__return_true',
-        'callback'=> function(){ return rest_ensure_response([ 'status'=>'ok','ts'=>time() ]); }
-      ]);
-    });
-  }
-}
-```
+Shared globals are forbidden except for the **bootstrap contract**.Everything else passes through modular interfaces.

@@ -1,101 +1,108 @@
-# Testing Strategy
+Testing Strategy
+================
 
-This project uses a divided testing approach to maximize coverage while minimizing redundancy.
+This project uses a dual-toolchain testing model. JavaScript-based tests validate user experience and browser integration, while PHP-based tests enforce backend correctness, security, and architectural quality. Each layer has a different purpose, and no test suite duplicates the responsibilities of another.
 
-## Test Division
+Test Division
+-------------
 
-### NPM Tests (Frontend/Integration/E2E)
+### **NPM Test Suite**
 
-**Purpose:** Test user-facing functionality, browser behavior, and WordPress integration
+**Scope:** Frontend, browser integration, user experience, and client-side workflows
 
-**Commands:**
+**Commands**
 
-```bash
-npm test                    # Run all frontend tests
-npm run test:e2e           # End-to-end tests with Playwright
-npm run test:a11y          # Accessibility tests (WCAG compliance)
-npm run test:integration   # WordPress plugin activation/integration
-npm run test:wp-env        # Alias for integration tests
-```
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   npm test                   # Full frontend test suite  npm run test:e2e           # Playwright E2E browser tests  npm run test:a11y          # WCAG accessibility audit  npm run test:integration   # WordPress integration via WP-Env  npm run test:wp-env        # Alias for integration tests   `
 
-**What's tested:**
+**Validated Behaviors**
 
-- Audio recording functionality in browsers
-- User interface interactions
-- Accessibility compliance
-- WordPress plugin activation
-- REST API endpoints (from frontend perspective)
-- Offline queue functionality
+*   MediaRecorder initialization and audio UX
+    
+*   Recorder controls, speech features, and calibration flow
+    
+*   Tier-based degradation paths
+    
+*   Offline queue persistence and retry logic
+    
+*   WordPress frontend integration and REST responses
+    
+*   Accessibility compliance (WCAG)
+    
 
-### Composer Tests (Backend/Unit/Quality)
+Use this suite to confirm the software works in real browsers, under real constraints, with real users.
 
-**Purpose:** Test PHP code quality, logic, and WordPress backend functionality
+### **Composer Test Suite**
 
-**Commands:**
+**Scope:** Backend logic, business rules, WordPress hooks, and code correctness
 
-```bash
-composer test              # Run all PHP tests and quality checks
-composer run test:unit     # PHP unit tests only
-composer run lint:php      # Code style checks
-composer run analyze:php   # Static analysis with PHPStan
-composer run fix:php       # Auto-fix code style issues
-```
+**Commands**
 
-**What's tested:**
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   composer test              # Full backend test suite  composer run test:unit     # Unit tests only  composer run lint:php      # Code style (PHPCS)  composer run analyze:php   # Static analysis (PHPStan)  composer run fix:php       # Auto-fixes where possible   `
 
-- PHP class instantiation and methods
-- WordPress hooks and filters
-- Custom post type registration
-- Plugin activation/deactivation
-- Code quality and standards compliance
-- Static analysis for potential bugs
+**Validated Behaviors**
 
-## Test Environment Setup
+*   Constructor logic and service dependencies
+    
+*   CPT and taxonomy registration
+    
+*   Activation/deactivation routines
+    
+*   REST endpoints (server-side)
+    
+*   Security and input validation
+    
+*   Standards compliance and future-proofing
+    
 
-### For NPM Tests
+This suite prevents regressions that can brick a WordPress network.
 
-```bash
-npm run env:start          # Start WordPress test environment
-npm run env:stop           # Stop WordPress test environment
-```
+Test Environment Bootstrapping
+------------------------------
 
-### For Composer Tests
+### NPM Side (browser + WP sandbox)
 
-```bash
-composer install           # Install PHP dependencies
-```
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   npm run env:start  npm run env:stop   `
 
-## File Structure
+### Composer Side (PHP toolchain)
 
-```
-tests/
-├── e2e/                   # Playwright E2E tests (NPM)
-├── integration/           # WordPress integration tests (Composer)
-├── unit/                  # PHP unit tests (Composer)
-├── bootstrap.php          # WordPress test bootstrap
-└── index.php             # Security file
-```
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   composer install   `
 
-## Configuration Files
+Both environments operate independently. Breaking one must not break the other.
 
-- `phpunit.xml.dist` - Main PHPUnit configuration
-- `phpunit-unit.xml.dist` - Unit tests only
-- `phpunit-integration.xml.dist` - Integration tests only
-- `playwright.config.js` - Playwright E2E configuration
+Test Directory Layout
+---------------------
 
-## CI/CD Integration
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   tests/  ├── e2e/                   # Full user journeys (Playwright)  ├── integration/           # WP-Env integration tests (Composer)  ├── unit/                  # Pure PHP logic tests  ├── bootstrap.php          # Test environment bootstrap  └── index.php              # Filesystem guard   `
 
-**GitHub Actions should run:**
+Configuration Files
+-------------------
 
-1. `npm test` - Frontend/E2E tests
-2. `composer test` - Backend/Quality tests
-3. Both environments provide complementary coverage
+*   phpunit.xml.dist – Full Composer stack
+    
+*   phpunit-unit.xml.dist – Pure backend logic
+    
+*   phpunit-integration.xml.dist – WordPress bootstrap tests
+    
+*   playwright.config.js – Browser/E2E behavior
+    
 
-## Best Practices
+Each config has one responsibility, no overlap.
 
-1. **Unit Tests (Composer):** Test individual PHP classes and methods
-2. **Integration Tests (Composer):** Test WordPress-specific functionality
-3. **E2E Tests (NPM):** Test complete user workflows
-4. **Accessibility Tests (NPM):** Ensure WCAG compliance
+CI/CD Requirements
+------------------
 
-This division ensures comprehensive testing while avoiding redundant test execution across both environments.
+GitHub Actions must run:
+
+1.  npm test — validates UI, browser workflows, accessibility, and WP-Env integration
+    
+2.  composer test — validates all PHP logic and architectural boundaries
+    
+
+A build is **invalid** unless both pass.
+
+Testing Doctrine
+----------------
+
+LayerTechnologyPurposeUnitComposerValidate individual PHP methodsIntegrationComposerValidate WordPress lifecycle and plugin glueE2ENPM/PlaywrightValidate real workflows from user action to server responseAccessibilityNPMValidate ethical and legal UX compliance
+
+If a test does not reveal new information, it does not belong in this suite.

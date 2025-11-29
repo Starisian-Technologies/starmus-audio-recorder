@@ -1,433 +1,156 @@
-# Tier Detection Testing Checklist
+**Starmus + Sparxstar UEC Cross-Validation Protocol**
+=====================================================
 
-**Purpose**: Validate tier classification accuracy on real West African hardware before implementing Permission State Sync (P1.2).
+**Purpose**Verify that the **Sparxstar User Environment Check (UEC)** tier classification is accurately consumed by **Starmus Audio Recorder** and produces correct UI and feature gating across real West African devices.
 
-**Status**: Ready for Testing  
-**Date**: November 20, 2025  
-**Version**: 0.8.5
+**Document Status**: Updated for Bootstrap Contract v2.1**Date**: March 2026**Applies To**: Build 0.9.0+**Scope**: Recorder / Re-Recorder / Editor pages
 
----
+**System Under Test**
+---------------------
 
-## 🎯 Testing Objectives
+### **Inputs to Tier Detection**
 
-1. **Tier C devices correctly show file upload fallback**
-2. **Tier B devices load recorder with degraded features**
-3. **Tier A devices get full functionality**
-4. **No misclassification across device categories**
-5. **Telemetry accurately reports device capabilities**
+Tier = Function of:
 
----
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   env.device.memory  env.device.concurrency  env.network.effectiveType  env.browser.supports.MediaRecorder  env.capabilities.speechRecognition  env.storage.quota  env.permissionState.microphone   `
 
-## 📱 Test Devices Required
+These are collected by **Sparxstar UEC**, stored in its snapshot, and passed into:
 
-### **Tier C Expected Devices**
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window.STARMUS_BOOTSTRAP.env   `
 
-- [ ] Infinix Smart series (Android Go)
-- [ ] Tecno Spark 2 or older
-- [ ] Itel A-series (A16, A23)
-- [ ] Samsung Galaxy J2/J4
-- [ ] Old Firefox Mobile (< v68)
-- [ ] School computer (512MB-1GB RAM)
-- [ ] WebView inside third-party app
+No recorder module may compute tier independently.
 
-### **Tier B Expected Devices**
+**Tier Roles**
+--------------
 
-- [ ] Infinix Note 5/6 (2GB RAM)
-- [ ] Tecno Spark 7/8
-- [ ] Samsung A10/A20
-- [ ] Devices on 2G/3G network
-- [ ] Battery saver mode enabled
+TierDevice ClassRecorder UISpeech RecWaveformTUSOffline QueueFallbackAModern/4GB+/WiFiFullYesYesYesYesNoBMid-level/2GB/slow netBasicNoNoConditionalYesNoCLegacy/<1GB/WebViewNoneNoNoNoYes**File Upload Only**
 
-### **Tier A Expected Devices**
+**Test Objectives**
+-------------------
 
-- [ ] Modern Android (4GB+ RAM)
-- [ ] iPhone 11 or newer
-- [ ] Desktop Chrome/Firefox
-- [ ] 4G/WiFi connection
-- [ ] Recent Samsung flagships
+1.  **UEC and Starmus agree on tier**
+    
+2.  **Recorder UI behavior matches tier contract**
+    
+3.  **Bootstrap contract is respected**
+    
+4.  **No recorder initialization on Tier C**
+    
+5.  **No Tier A behavior on weak devices**
+    
+6.  **Telemetry correctly logs reasons and bootstrap state**
+    
 
----
+**Required Devices**
+--------------------
 
-## ✅ Tier C Validation Tests
+Use the same model list you already prepared. No changes required there.
 
-### **Test 1: UI Fallback Activation**
+**UPDATED VALIDATION STEPS**
+----------------------------
 
-- [ ] Open recorder on Tier C device
-- [ ] **Expected**: File upload UI visible immediately
-- [ ] **Expected**: No recorder controls visible
-- [ ] **Expected**: Message: "Record on your device, then upload here"
-- [ ] **Verify**: No "Initializing microphone..." message
-- [ ] **Verify**: No mic permission popup
+### **Step 0 — Bootstrap Verification (NEW)**
 
-### **Test 2: File Upload Works**
+Open DevTools before interacting:
 
-- [ ] Select audio file from device
-- [ ] **Expected**: File attaches successfully
-- [ ] **Expected**: Submit button enabled
-- [ ] **Expected**: Upload uses TUS if > 1MB
-- [ ] **Verify**: Offline queue works if upload fails
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window.STARMUS_BOOTSTRAP   `
 
-### **Test 3: No Recorder Initialization**
+Verify:
 
-- [ ] Check browser console logs
-- [ ] **Expected**: `[Tier Detection] Tier C: <reason>`
-- [ ] **Expected**: `[Starmus] Tier C mode: Revealing file upload fallback`
-- [ ] **Expected**: No MediaRecorder initialization
-- [ ] **Expected**: No calibration attempts
-- [ ] **Expected**: No speech recognition init
+*   pageType exists (recorder, rerecorder, or editor)
+    
+*   env exists
+    
+*   No other globals are read by recorder modules
+    
 
-### **Test 4: Telemetry Dispatch**
+If bootstrap missing → **FAIL AUTOMATICALLY**
 
-- [ ] Check for `starmus_tier_c_revealed` hook dispatch
-- [ ] **Verify**: Hook includes instanceId and env data
-- [ ] **Verify**: Telemetry shows correct detection reason:
-  - No MediaRecorder support
-  - Low RAM (<1GB)
-  - Low CPU (<2 threads)
-  - WebView detected
-  - Storage quota <80MB
-  - Permission denied
+**Tier C Checklist (Updated)**
+------------------------------
 
-### **Test 5: Edge Cases**
+Expected Logs:
 
-- [ ] **Reload page**: Still shows Tier C
-- [ ] **Switch tabs**: Remains stable
-- [ ] **Submit without file**: Shows error
-- [ ] **Network offline**: Can still attach file
-- [ ] **Offline queue**: Saves submission when offline
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   [SparxstarUEC] Tier C reason: memory < 1GB  [Starmus] Consuming Tier C — revealing fallback   `
 
----
+**Disallowed Logs**:
 
-## ✅ Tier B Validation Tests
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   Initializing MediaRecorder...  Calibrating microphone...  Starting speech recognition...   `
 
-### **Test 1: Degraded Recorder Mode**
+**Pass Criteria**:
 
-- [ ] Open recorder on Tier B device (2G network or 1-2GB RAM)
-- [ ] **Expected**: Recorder UI loads
-- [ ] **Expected**: Record/Stop buttons visible
-- [ ] **Expected**: No waveform visualization
-- [ ] **Verify**: Speech recognition disabled
-- [ ] **Verify**: Low-bitrate audio (16kHz, 24kbps)
+*   Recorder JS never loads MediaRecorder
+    
+*   Only file upload widgets visible
+    
+*   Offline queue operates without recorder engine
+    
 
-### **Test 2: Network Quality Adaptation**
+**Tier B Checklist (Updated)**
+------------------------------
 
-- [ ] Test on 2G network
-- [ ] **Expected**: Tier B classification
-- [ ] **Expected**: Message about network quality
-- [ ] **Verify**: Audio encoding: 16kHz, mono, 24kbps
-- [ ] **Verify**: Recorder still functional
+Expected Logs:
 
-### **Test 3: Marginal RAM Handling**
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   [SparxstarUEC] Tier B: network slow (2G)  [Starmus] Recorder enabled (no waveform)   `
 
-- [ ] Test on device with 1-2GB RAM
-- [ ] **Expected**: Tier B classification
-- [ ] **Expected**: Recorder works but minimal UI
-- [ ] **Verify**: No browser freeze
-- [ ] **Verify**: No out-of-memory crashes
+Must NOT display waveform or speech transcript.
 
-### **Test 4: Recording Functionality**
+**Tier A Checklist (Updated)**
+------------------------------
 
-- [ ] Start recording
-- [ ] **Expected**: MediaRecorder initializes
-- [ ] **Expected**: Calibration runs (simplified)
-- [ ] **Expected**: Recording completes successfully
-- [ ] **Verify**: Audio quality matches network tier
-- [ ] **Verify**: Upload uses TUS if available
+Expected Logs:
 
-### **Test 5: UI Responsiveness**
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   [SparxstarUEC] Tier A: full device capabilities  [Starmus] Waveform + Speech Rec enabled   `
 
-- [ ] **Verify**: No lag during recording
-- [ ] **Verify**: Stop button responds immediately
-- [ ] **Verify**: Form submission works
-- [ ] **Verify**: Offline queue activates on failure
+Speech recognition must match **language selected on Step 1**.
 
----
+**Dynamic Behavior Rules (Updated)**
+------------------------------------
 
-## ✅ Tier A Validation Tests
+*   **Tier NEVER changes mid-session**
+    
+*   Network downgrade triggers warning, _not_ tier change
+    
+*   Battery saver mode does not demote tier
+    
+*   iOS tab freeze stops recording but does not corrupt queue
+    
 
-### **Test 1: Full Feature Activation**
+**Telemetry Cross-Validation**
+------------------------------
 
-- [ ] Open recorder on modern device
-- [ ] **Expected**: Tier A classification
-- [ ] **Expected**: All features enabled
-- [ ] **Verify**: Speech recognition active
-- [ ] **Verify**: Waveform visualization (if implemented)
-- [ ] **Verify**: High-quality audio (48kHz, 128kbps+)
+Check:
 
-### **Test 2: Calibration Process**
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window.STARMUS.instances.get(id).store.getState()   `
 
-- [ ] Start recording
-- [ ] **Expected**: 3-phase calibration (15 seconds)
-- [ ] **Expected**: Volume meter visible
-- [ ] **Expected**: SNR calculation
-- [ ] **Verify**: Calibration data stored
-- [ ] **Verify**: Adaptive gain applied
+Expect fields:
 
-### **Test 3: Speech Recognition**
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   tier           // 'A' | 'B' | 'C'  reason         // from UEC  bootstrapHash  // cache integrity   `
 
-- [ ] Record audio with speech
-- [ ] **Expected**: Live transcription visible
-- [ ] **Expected**: Transcript updates during recording
-- [ ] **Verify**: Transcript attached to upload
-- [ ] **Verify**: Language matches form selection
+If tier exists without a reason → **FAIL**
 
-### **Test 4: Upload Performance**
+**Test Results Template (Updated)**
+-----------------------------------
 
-- [ ] Record large file (> 5MB)
-- [ ] **Expected**: TUS resumable upload used
-- [ ] **Expected**: Progress bar updates smoothly
-- [ ] **Verify**: Can resume after interruption
-- [ ] **Verify**: Chunked upload (5MB chunks)
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   ## Device: [Model]  **Detected Tier**: [A/B/C]  **Expected Tier**: [A/B/C]  **Match**: [Y/N]  **Bootstrap Present**: [Y/N]  **Reason Logged**: [Y/N]  **Recorder Behavior Correct**: [Y/N]  **TUS Behavior**: [Pass/Fail]  **Offline Queue**: [Pass/Fail]  **Notes**:   `
 
-### **Test 5: Offline Recovery**
+**Success Criteria (Updated)**
+------------------------------
 
-- [ ] Start upload, then disconnect network
-- [ ] **Expected**: Upload fails gracefully
-- [ ] **Expected**: Saved to offline queue
-- [ ] **Expected**: Message: "Saved offline. Will submit automatically when online."
-- [ ] Reconnect network
-- [ ] **Expected**: Auto-retry within 60 seconds
-- [ ] **Verify**: Upload completes successfully
+All must be checked before enabling **Permission State Sync (P1.2)**:
 
----
-
-## 🔄 Dynamic Tier Switching Tests
-
-### **Test 1: Network Quality Changes**
-
-- [ ] Start on 4G (Tier A)
-- [ ] Switch to 2G mid-session
-- [ ] **Expected**: Tier remains A (no mid-session downgrade)
-- [ ] **Alternative**: Show warning about network quality
-
-### **Test 2: Battery Saver Mode**
-
-- [ ] Enable battery saver during recording
-- [ ] **Expected**: Recording continues
-- [ ] **Verify**: No performance degradation
-- [ ] **Verify**: Upload still works
-
-### **Test 3: Low Storage Warning**
-
-- [ ] Fill device storage to <100MB
-- [ ] **Expected**: Warning before recording
-- [ ] **Alternative**: Tier C fallback if <80MB quota
-
----
-
-## 📊 Telemetry Validation
-
-### **Check Console Logs**
-
-For each tier, verify console output:
-
-**Tier A:**
-
-```
-[Tier Detection] Tier A: Full features enabled
-[Starmus] Instance starmus_xxx detected as Tier A
-```
-
-**Tier B:**
-
-```
-[Tier Detection] Tier B: Slow network (2G)
-[Starmus] Instance starmus_xxx detected as Tier B
-```
-
-**Tier C:**
-
-```
-[Tier Detection] Tier C: Low RAM (<1GB)
-[Starmus] Instance starmus_xxx detected as Tier C
-[Starmus] Tier C mode: Revealing file upload fallback
-```
-
-### **Check State Store**
-
-Open browser DevTools → Console:
-
-```javascript
-window.STARMUS.instances.get('starmus_xxx').store.getState()
-```
-
-**Verify:**
-
-- [ ] `tier` field matches expected ('A', 'B', or 'C')
-- [ ] `env.device.memory` correctly reported (or null)
-- [ ] `env.device.concurrency` correctly reported (or null)
-- [ ] `env.network.effectiveType` matches network
-- [ ] `env.capabilities` reflects browser support
-
-### **Check Network Tab**
-
-- [ ] TUS endpoint called for Tier A large files
-- [ ] Direct upload for Tier B/C or small files
-- [ ] Retry attempts visible on failure
-- [ ] Offline queue processes when online
-
----
-
-## 🚨 Known Failure Modes to Test
-
-### **1. Android Low Memory Kill**
-
-- [ ] Record audio on low-RAM device
-- [ ] Switch to another app
-- [ ] Return to browser
-- [ ] **Expected**: Recording lost (unavoidable)
-- [ ] **Expected**: Form data preserved
-- [ ] **Alternative**: Offline queue saved partial recording
-
-### **2. iOS Background Tab Freeze**
-
-- [ ] Start recording on iPhone
-- [ ] Switch to home screen
-- [ ] Return after 30 seconds
-- [ ] **Expected**: Recording stopped
-- [ ] **Expected**: Partial audio saved (if possible)
-
-### **3. Unstable Network Switching**
-
-- [ ] Upload while switching 2G ↔ 3G ↔ 4G
-- [ ] **Expected**: TUS handles reconnection
-- [ ] **Expected**: Upload resumes from last chunk
-- [ ] **Verify**: No data corruption
-
-### **4. Browser Crash During Upload**
-
-- [ ] Start large upload
-- [ ] Force-close browser
-- [ ] Reopen page
-- [ ] **Expected**: Upload in offline queue
-- [ ] **Expected**: Auto-retry when online
-
-### **5. Quota Exceeded**
-
-- [ ] Fill IndexedDB quota
-- [ ] Attempt offline save
-- [ ] **Expected**: Falls back to localStorage
-- [ ] **Alternative**: Shows error, keeps recording
-
----
-
-## 📝 Test Results Template
-
-```markdown
-## Device: [Device Name]
-**OS**: [Android 10 / iOS 15 / etc.]
-**Browser**: [Chrome 120 / Safari 17 / etc.]
-**RAM**: [X GB]
-**Network**: [4G / 3G / 2G / WiFi]
-
-### Tier Classification
-- **Detected Tier**: [A / B / C]
-- **Expected Tier**: [A / B / C]
-- **Match**: [✅ / ❌]
-
-### Test Results
-- Tier C Validation: [Pass / Fail / N/A]
-- Tier B Validation: [Pass / Fail / N/A]
-- Tier A Validation: [Pass / Fail / N/A]
-- Telemetry Accuracy: [Pass / Fail]
-- Offline Queue: [Pass / Fail]
-- TUS Upload: [Pass / Fail / N/A]
-
-### Issues Found
-[List any bugs, misclassifications, or unexpected behavior]
-
-### Console Logs
-```
-
-[Paste relevant console output]
-
-```
-```
-
----
-
-## 🎯 Success Criteria
-
-**Before proceeding to P1.2, ALL of these must pass:**
-
-- [ ] **Zero Tier C misclassifications** (no false positives)
-- [ ] **Zero Tier A misclassifications** (no weak devices getting full features)
-- [ ] **Tier B correctly handles 2G networks**
-- [ ] **File upload fallback works on all Tier C devices**
-- [ ] **Recorder loads without errors on Tier A/B**
-- [ ] **Telemetry accurately reports all device metrics**
-- [ ] **Offline queue works across all tiers**
-- [ ] **TUS upload resumes correctly on Tier A**
-- [ ] **No browser crashes on low-RAM devices**
-- [ ] **Console logs show correct tier detection reasons**
-
----
-
-## 🔧 Debugging Tools
-
-### **Force Tier for Testing**
-
-Add to browser console:
-
-```javascript
-localStorage.setItem('starmus_force_tier', 'C'); // Force Tier C
-location.reload();
-```
-
-### **View Current Tier**
-
-```javascript
-const instances = window.STARMUS.instances;
-instances.forEach((inst, id) => {
-    console.log(`Instance ${id}: Tier ${inst.store.getState().tier}`);
-});
-```
-
-### **Check Telemetry**
-
-```javascript
-const state = window.STARMUS.instances.values().next().value.store.getState();
-console.table(state.env.device);
-console.table(state.env.network);
-console.table(state.env.capabilities);
-```
-
-### **Simulate Low RAM**
-
-Chrome DevTools → Performance → CPU throttling (6x slowdown simulates low-end device)
-
-### **Simulate 2G Network**
-
-Chrome DevTools → Network → Throttling → Slow 2G
-
----
-
-## 📞 Contact for Test Results
-
-**Testing Lead**: Muhammed (Gambia field testing)  
-**Devices Available**: Infinix, Tecno, Itel, Samsung J-series  
-**Network Conditions**: Banjul 4G, Brikama 3G, rural 2G/EDGE
-
-**Report Issues To**: GitHub Issues with:
-
-- Device model
-- Network type
-- Screenshot of console logs
-- State store dump
-- Steps to reproduce
-
----
-
-## 🚀 Next Steps After Testing
-
-1. ✅ Validate Tier A/B/C on 10+ devices
-2. ✅ Fix any misclassification bugs
-3. ✅ Confirm telemetry accuracy
-4. ✅ Document edge cases found
-5. ➡️ **THEN** proceed to P1.2 (Permission State Sync)
-
----
-
-**Last Updated**: November 20, 2025  
-**Build Version**: 0.8.5  
-**Ready for Field Testing**: ✅
+*   Bootstrap contract present on all recorder pages
+    
+*   UEC tier matches recorder behavior on all tested devices
+    
+*   No recorder initialization on Tier C
+    
+*   No waveform on Tier B
+    
+*   Speech recognition only on Tier A
+    
+*   Offline queue persistent across reloads
+    
+*   TUS resumable on Tier A only
+    
+*   No mid-session tier switching

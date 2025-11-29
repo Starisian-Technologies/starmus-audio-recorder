@@ -1,102 +1,185 @@
-# Starmus Audio Recorder - Architecture & Separation of Concerns
+Starmus Audio Recorder — Architecture & Separation of Concerns (2025 Edition)
+=============================================================================
 
-## File Responsibilities
+Purpose
+-------
 
-### 1. `starmus-audio-recorder-module.js` - Core Recording Engine
+The Starmus Audio Recorder is the **frontline acquisition system** in the Starisian stack.It captures audio, enforces consent, normalizes metadata, and produces artifacts that later graduate into the **AiWA corpus**.No data flows into AiWA until Starmus certifies it.
 
-**Responsibility**: Pure audio recording functionality
+Runtime Bootstrap Contract
+--------------------------
 
-- MediaRecorder API management
-- Audio stream handling
-- Recording state management (start/stop/pause/resume)
-- Audio blob validation and preparation
-- Timer functionality
-- UI element creation and updates for recorder controls
-- Resource cleanup
+Starmus never initializes unless one of these globals exists:
 
-**Public API**:
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window.STARMUS_BOOTSTRAP = {    pageType: 'recorder' | 'rerecorder' | 'editor',    postId: number | null,    restUrl: string,    mode: string,    canCommit: boolean,    transcript: array|null,    audioUrl: string|null  }   `
 
-- `init(options)` - Initialize recorder instance
-- `getSubmissionData(instanceId)` - Get recorded audio data
-- `cleanup(instanceId)` - Clean up resources
+This object **must** be present before JS bundles run.It defines **what this page is allowed to do**.
 
-### 2. `starmus-audio-recorder-ui-controller.js` - Form UI Management
+Module Responsibilities
+-----------------------
 
-**Responsibility**: Form interaction and validation coordination
+### 1\. starmus-audio-recorder-module.js — Core Recording Engine
 
-- Two-step form flow management
-- Field validation (Step 1)
-- Event binding for continue/submit buttons
-- Delegation to appropriate handlers
-- User message display
+**Responsibility**: Capture and process live audio
 
-**Public API**:
+*   MediaRecorder lifecycle (start/pause/resume/stop)
+    
+*   Gain analysis + meter updates
+    
+*   Timer and progress bar state
+    
+*   Audio blob normalization
+    
+*   Tier detection influences these controls
+    
+*   No knowledge of UI, WordPress, or uploads
+    
 
-- Auto-initializes all `.starmus-audio-form` forms
-- Delegates to `StarmusSubmissionsHandler.handleSubmit()`
+**Public API**
 
-### 3. `starmus-audio-recorder-submissions-handler.js` - Submission Logic
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   RecorderEngine.init(options)  RecorderEngine.getSubmissionData(instanceId)  RecorderEngine.cleanup(instanceId)   `
 
-**Responsibility**: Audio upload and submission processing
+### 2\. starmus-audio-recorder-ui-controller.js — Interface Orchestration
 
-- TUS resumable uploads
-- Offline queue management (IndexedDB)
-- Form data collection
-- Metadata building
-- WordPress REST API integration
-- Fallback file upload handling
+**Responsibility**: State machine for the two-step recorder UI
 
-**Public API**:
+*   Validates **Step 1** fields (title, language, type, consent)
+    
+*   Advances or blocks recording stage
+    
+*   Shows Tier A/B recorder or Tier C upload fallback
+    
+*   Sanitizes text input for safety
+    
+*   Delegates save operations to Submission Handler
+    
 
-- `StarmusSubmissionsHandler.handleSubmit(instanceId, form)`
-- `StarmusSubmissionsHandler.initRecorder(instanceId)`
-- `StarmusSubmissionsHandler.revealTierC(instanceId)`
+**NOTES**
 
-### 4. `starmus-audio-recorder-submissions.js` - Legacy Browser Support
+*   Never touches blobs
+    
+*   Never uploads anything
+    
+*   Never talks to REST directly
+    
 
-**Responsibility**: Backward compatibility and polyfills
+### 3\. starmus-audio-recorder-submissions-handler.js — Persistence Layer
 
-- Legacy browser polyfills (forEach, trim)
-- IE compatibility layer
-- Geolocation handling
-- Alternative submission flow for older devices
-- Enhanced error handling for legacy environments
+**Responsibility**: Network, uploads, and offline queue
 
-## Data Flow
+*   TUS chunked uploads (resume-safe)
+    
+*   Offline IndexedDB FIFO queue
+    
+*   REST calls with capability + nonce
+    
+*   Metadata composition from UI + Bootstrap
+    
+*   Delete/rollback capabilities
+    
 
-```
-User Interaction → UI Controller → Submissions Handler → Recording Module
-                                      ↓
-                              Offline Queue ← TUS Upload → WordPress REST API
-```
+**Public API**
 
-## Security Improvements Made
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   StarmusSubmissionsHandler.handleSubmit(instanceId, form)  StarmusSubmissionsHandler.initRecorder(instanceId)  StarmusSubmissionsHandler.revealTierC(instanceId)   `
 
-1. **XSS Prevention**: All user input sanitized before DOM insertion
-2. **Open Redirect Protection**: URL validation for redirects
-3. **Input Validation**: Enhanced field validation with error handling
-4. **Memory Management**: Proper cleanup of timeouts and blob URLs
-5. **CSRF Protection**: WordPress nonces used for all API calls
+Everything here is **idempotent**.
 
-## Performance Optimizations
+### 4\. starmus-audio-recorder-submissions.js — Tier C / Legacy Layer
 
-1. **Early Exit Loops**: Validation stops on first error
-2. **DOM Caching**: Elements cached to reduce queries
-3. **Rate Limiting**: Offline queue processing with delays
-4. **Memory Cleanup**: Proper resource disposal
-5. **Efficient Logging**: Reduced overhead in logging functions
+**Responsibility**: Browser salvage operations
 
-## Missing Methods Added
+*   ES5 safety net
+    
+*   Polyfills for .forEach, .trim, Blob support
+    
+*   Fallback file upload path
+    
+*   Enhanced error messaging for low-capability devices
+    
 
-1. **Global Submission Handler**: `window.StarmusSubmissionsHandler`
-2. **URL Validation**: `isValidRedirectUrl()` function
-3. **Text Sanitization**: `sanitizeText()` in UI Controller
-4. **Enhanced Error Handling**: Try-catch blocks around critical operations
+If Tier C runs, no modern modules execute.
 
-## Architectural Principles Followed
+Editor & Re-Recorder Extensions
+-------------------------------
 
-1. **Single Responsibility**: Each file has one clear purpose
-2. **Dependency Injection**: Modules communicate through well-defined interfaces
-3. **Error Isolation**: Failures in one module don't crash others
-4. **Progressive Enhancement**: Graceful degradation for older browsers
-5. **Security by Design**: Input validation and output encoding throughout
+### starmus-audio-editor.js _(not previously documented)_
+
+**Responsibility**: Review, segment, annotate, sync transcript
+
+*   Peaks.js waveform rendering
+    
+*   Region/annotation persistence
+    
+*   Loads via STARMUS\_BOOTSTRAP.pageType === 'editor'
+    
+*   Transcript scroll sync
+    
+
+### starmus-re-recorder.js
+
+**Responsibility**: Replace a previous recording
+
+*   Preloads reference audio + transcript
+    
+*   Maintains original metadata linkage
+    
+*   Uses same submission handler
+    
+
+Data Flow
+---------
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   USER → UI Controller → Recorder Engine → Submissions Handler                │               │              │                ▼               ▼              ▼           Bootstrap      Audio Blobs    TUS / REST / Queue                                           ↓                                        WordPress   `
+
+Graduation into **AiWA** happens only after a human or AI approves the transcript.
+
+Security Model
+--------------
+
+1.  **Nonce + capability checks** for every POST/PUT
+    
+2.  **Sanitized inputs** before DOM insertion
+    
+3.  **Escaped outputs** before rendering
+    
+4.  **Upload MIME checks** + allowed types enforcement
+    
+5.  **Offline queue sealed** against replay attacks
+    
+6.  **Recorder never stores PII** without explicit consent
+    
+
+Performance Standards
+---------------------
+
+*   No blocking scripts
+    
+*   DOM cached before mutations
+    
+*   Single RecorderEngine instance per form
+    
+*   Avoid heap growth by releasing blob URLs
+    
+*   IndexedDB batching to reduce write thrash
+    
+*   Payload ceilings enforced by CI
+    
+
+Architectural Principles
+------------------------
+
+1.  **Bootstrap-first**Nothing initializes without a pageType contract.
+    
+2.  **Separation of duties**UI is not allowed to upload; engine is not allowed to touch the DOM.
+    
+3.  **Replaceable layers**Each module can fail without collapsing the system.
+    
+4.  **Offline-first**Queue always wins over network optimism.
+    
+5.  **No shared mutable globals** except the bootstrap
+    
+
+What Changed From Your Old Version
+----------------------------------
+
+AreaOld DocUpdated RealityEditor lifecycleMissingFully describedBootstrap ContractNot referencedNow mandatoryTranscript syncNot mentionedCore requirementRe-Recorder flowImplicitExplicitUnified SchemaNot appliedAiWA constraints enforced

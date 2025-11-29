@@ -257,6 +257,9 @@ final class StarmusAudioRecorder
     {
         error_log('[Starmus] === init_components() STARTING ===');
 
+        // global services
+        (new StarPrivateSlugPrefix())->star_boot();
+
         // Admin
         if (is_admin()) {
             error_log('[Starmus] Loading StarmusAdmin...');

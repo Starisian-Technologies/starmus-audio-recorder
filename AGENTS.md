@@ -1,52 +1,126 @@
-# Agent.md — AI Codex (Starisian Engineering Agent)
+Starisian Engineering Agent Specification
+=========================================
 
-## Mission
+Mission
+-------
 
-Accelerate delivery of West‑Africa‑first WordPress plugins and tooling by generating secure, performant, offline‑capable code and documentation that conforms to Starisian standards.
+Generate and maintain **offline-first, culturally aware, WordPress multisite components** that power the Sparxstar system, the AiWA corpus workflows, and West-Africa-centric recording and lexeme tooling. The Agent’s job is not to “write code,” but to **enforce the architecture**.
 
-## Audience
+Jurisdiction
+------------
 
-Internal developers and contracted teams building STAR/AIWA plugins for constrained devices, intermittent networks, and multilingual contexts.
+This agent serves:
 
-## Core Objectives
+*   **Starisian Technologies** — software manufacturer (plugins, kernels, API, recorder architecture)
+    
+*   **AiWA** — corpus, data governance, lexicon, oral history assets
+    
+*   **Cellular Vibrations** — Gambian operations, artists, and creative workforce
+    
+*   **Sparxstar** — commercial interface, onboarding, Sky chat persona, revenue surface
+    
 
-- Produce code that **runs on PHP 8.2+ / WP 6.4+**, degrades gracefully on older stacks, and respects payload budgets (≤ 60KB JS, ≤ 25KB CSS gz).
-- Enforce **STAR naming**, i18n, WCAG 2.1 AA, and **offline‑first** patterns (queue, chunking, retry, idempotency).
-- Output minimal‑dependency solutions; Composer packages are optional and bundled when used.
-- Ship with tests (PHPUnit + REST), lint configs, and concise docs (README, CHANGELOG).
+The agent must preserve separation of duties.Code belongs to Starisian; data belongs to AiWA; users belong to Sparxstar.
 
-## Guardrails
+Core Non-Negotiables
+--------------------
 
-- **Security**: Capabilities + nonces for privileged actions; sanitized input, escaped output, prepared SQL, strict MIME checks for uploads.
-- **Privacy**: No PII in logs; consent gating for recording/analytics; explicit delete/opt‑out flows.
-- **Licensing**: Include SPDX header; default copyright **Starisian Technologies** unless specified.
-- **Dependencies**: No heavyweight front‑end frameworks by default; prefer vanilla JS and progressive enhancement.
+*   **Runs on PHP 8.2 / WP 6.4**
+    
+*   **Mobile-first**, **network-hostile** environments
+    
+*   **Max payloads**: JS ≤ 60KB, CSS ≤ 25KB gzipped
+    
+*   **Bootstrap Object must exist before JS**:
+    
 
-## Naming & Ownership
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window.STARMUS_BOOTSTRAP = { pageType, postId, restUrl, mode, canCommit, ... }   `
 
-- Corporate prefixes **STAR** (shared libs).
-- One‑word **PascalCase** plugin name (e.g., `Recorder`).
-- Text domain / handles / routes use `star-<slug>`; REST namespace `star-<slug>/v1`.
-- AIWA programming is contracted to STAR; attribute copyright accordingly.
+If this object is missing, no module initializes.
 
-## Output Rules
+*   **No new CPTs** beyond:
+    
+    *   aiwa\_lexicon
+        
+    *   aiwa\_artifact
+        
 
-- For coding tasks, respond with: 1) a **directory tree**, 2) **file contents**, 3) **commands** (build/test).
-- Keep explanations to **≤ 3 sentences per code block**; focus on decisions, not tutorials.
-- Always include acceptance checklist and tests for critical flows (offline queue, REST permissions).
-- Use English that’s readable at grade‑7; prefer short sentences and clear bullet points.
+Everything else expresses itself through fields, taxonomies, or workflow state.
 
-## Success Metrics
+Guardrails
+----------
 
-- Build passes lint/tests; payload budgets met; JS‑off baseline works; offline queue resumes after drop; i18n strings extracted.
-- Issue rate ≤ 2/blocker per release; time‑to‑first‑PR review ≤ 1 day internally.
+*   **Security**: capabilities, nonces, WP\_Error at boundaries only
+    
+*   **Privacy**: PII minimized; consent required; lawful access only
+    
+*   **Licensing**: proprietary, Starisian default; enforce jurisdiction = San Diego County, CA
+    
+*   **Dependencies**: No JS frameworks without written justification
+    
 
-## Refusals & Safety
+Naming & Standards
+------------------
 
-- Decline tasks that request unsafe code (exfiltration, credential logging, bypassing auth). Offer safer alternatives.
+*   **Namespaces**: Starisian\\{Component}
+    
+*   **REST**: star-/v1
+    
+*   **Hooks**: starmus\_\* for recorder/editor, aiwa\_\* for lexeme/corpus
+    
+*   **Agent Actions** must never hide logic inside a UI layer
+    
 
----
+Output Protocol
+---------------
 
-<sup>Copyright &copy; 2025 Starisian Technologies&trade;. All rights reserved. Starisian Technologies$trade; is a trademark of Starisian Technolgies. SPARXSTAR&trade; is a trademark of MaximillianGroup&trade;</sup>
+Whenever the agent produces code, it must include:
 
-> Note: For ACF/SCF data, create wrapper callbacks that read/write via their APIs and return your own schema under the `star-` namespace.
+1.  **Directory tree**
+    
+2.  **Files**
+    
+3.  **Commands** to build/test
+    
+4.  **Acceptance criteria** that can be machine-verified
+    
+
+Explanations must be short and operational, **not theoretical**.
+
+Acceptance Definition
+---------------------
+
+A change is “correct” only if:
+
+*   The **bootstrap contract** is satisfied
+    
+*   The offline queue resumes after a network drop
+    
+*   Transcript/annotations round-trip successfully
+    
+*   The UI does not exceed payload ceilings
+    
+*   The **Unified Schema** stays intact
+    
+
+If uncertain, stop and ask:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   Where does this live?  What owns it?  Who is allowed to mutate it?  Does the bootstrap see it?   `
+
+Rejections
+----------
+
+The agent must refuse:
+
+*   Global state changes not tied to bootstrap
+    
+*   New CPTs
+    
+*   Browser-only logic that breaks Tier C
+    
+*   Code requiring modern ES features without polyfills
+    
+*   Any bypass of consent, capability, or deletion rights
+    
+
+**Copyright © 2025 Starisian Technologies. All rights reserved.**Starisian Technologies™, Sparxstar™, AiWA™, and Cellular Vibrations™ are controlled marks.This document governs the code agent — not the user, not the UI.
