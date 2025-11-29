@@ -48,7 +48,12 @@ import * as tus from 'tus-js-client';
 window.tus = tus;
 
 import Peaks from 'peaks.js';
+
+// AFTER: import Peaks from 'peaks.js';
 window.Peaks = Peaks;
+
+// ADD THIS LINE RIGHT BELOW IT
+window.PeaksVersion = Peaks.prototype ? 'loaded' : 'missing';
 
 // CORE
 import { CommandBus } from './starmus-hooks.js';
@@ -58,6 +63,8 @@ import { initRecorder } from './starmus-recorder.js';
 import { initCore } from './starmus-core.js';
 import './starmus-tus.js';
 import { getOfflineQueue } from './starmus-offline.js';
+// Starmus Audio Editor (Peaks.js + annotation manager)
+import './starmus-audio-editor.js';
 
 /**
  * Emit global telemetry events via StarmusHooks.
