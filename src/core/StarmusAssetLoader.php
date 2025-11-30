@@ -56,6 +56,7 @@ final class StarmusAssetLoader
     public function __construct()
     {
         add_action('wp_enqueue_scripts', $this->enqueue_frontend_assets(...));
+
     }
 
     /**
@@ -81,6 +82,16 @@ final class StarmusAssetLoader
 
         error_log('[Starmus AssetLoader] Assets enqueued successfully');
     }
+
+    public function enqueue_re_recorder_assets(): void
+    {
+        wp_localize_script(
+            'starmus-audio-recorder-script.bundle',
+            'STARMUS_RERECORDER_DATA',
+            ['mode' => 'rerecorder']
+        );
+    }
+
 
     /**
      * Enqueues the single, bundled, and minified JavaScript file for production.
@@ -201,6 +212,34 @@ final class StarmusAssetLoader
             ]
         );
     }
+
+    private function maybe_localize_re_recorder_data(): void
+    {
+        if (!isset($_GET['post_id'])) {
+            return;
+        }
+
+        $post_id = absint($_GET['post_id']);
+        if ($post_id <= 0) {
+            return;
+        }
+
+       wp_localize_script(
+            self::HANDLE_PROD_BUNDLE,
+            'STARMUS_EDITOR_DATA',
+            [
+                'postId'          => $post_id,
+                'restUrl'         => esc_url_raw(rest_url('star_uec/v1/annotations')),
+                'audioUrl'        => esc_url($audio_url),
+                'waveformDataUrl' => esc_url($waveform_url),
+                'annotations'     => $annotations,
+                'nonce'           => wp_create_nonce('wp_rest'),
+                'mode'            => 'editor',
+                'rerecord'        => isset($_REQUEST['starmus_existing_recording_id']) ? absint($_REQUEST['starmus_existing_recording_id']) : 0,
+            ]
+        );
+    }
+
 
     /**
      * Enqueues the minified stylesheet for the plugin.

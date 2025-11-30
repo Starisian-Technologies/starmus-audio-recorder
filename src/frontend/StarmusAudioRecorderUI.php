@@ -47,6 +47,8 @@ class StarmusAudioRecorderUI
         StarmusLogger::info('StarmusAudioRecorderUI', 'Recorder component available, registering recorder hooks');
         add_action('starmus_after_audio_upload', [$this, 'save_all_metadata'], 10, 3);
         add_filter('starmus_audio_upload_success_response', [$this, 'add_conditional_redirect'], 10, 3);
+        add_action('template_redirect', [$this, 'maybe_handle_rerecorder_autostep']);
+
         // Cron scheduling moved to activation to avoid performance issues
         // Clear cache when a Language is added, edited, or deleted.
         add_action('delete_language', $this->clear_taxonomy_transients(...));
@@ -156,4 +158,25 @@ class StarmusAudioRecorderUI
         delete_transient('starmus_languages_list');
         delete_transient('starmus_recording_types_list');
     }
+
+    public function maybe_handle_rerecorder_autostep(): void
+    {
+        if (
+            !isset($_POST['starmus_rerecord']) ||
+            !isset($_POST['post_id'])
+        ) {
+            return;
+        }
+
+        $post_id = absint($_POST['post_id']);
+
+        // Inject POST into $_REQUEST so recorder sees metadata
+        $_REQUEST['starmus_existing_recording_id'] = $post_id;
+
+        wp_safe_redirect(
+            home_url('/' . get_option('starmus_recorder_page_slug', 'record') . '/?post_id=' . $post_id)
+        );
+        exit;
+    }
+
 }

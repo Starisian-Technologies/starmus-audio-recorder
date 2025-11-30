@@ -112,7 +112,7 @@ class StarmusAudioEditorUI
 			do_action('starmus_before_editor_render');
 
 			// PASS THE ATTS HERE:
-			$context = $this->get_editor_context($atts); 
+			$context = $this->get_editor_context(); 
 
 			if (is_wp_error($context)) {
 				return '<div class="notice notice-error"><p>' . esc_html($context->get_error_message()) . '</p></div>';
