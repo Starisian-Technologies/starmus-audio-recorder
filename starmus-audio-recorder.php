@@ -47,7 +47,18 @@ if (! defined('STARMUS_DELETE_ON_UNINSTALL')) {
 }
 
 // =========================================================================
-//  2. COMPOSER AUTOLOADER
+//  2. ACTION SCHEDULER LIBRARY
+// =========================================================================
+// Load Action Scheduler before everything else
+// Action Scheduler will automatically handle version negotiation if multiple
+// versions are present (e.g., from WooCommerce, other plugins, etc.)
+$action_scheduler_path = STARMUS_PATH . 'libraries/action-scheduler/action-scheduler.php';
+if (file_exists($action_scheduler_path)) {
+    require_once $action_scheduler_path;
+}
+
+// =========================================================================
+//  3. COMPOSER AUTOLOADER
 // =========================================================================
 $autoloader = STARMUS_PATH . 'vendor/autoload.php';
 
