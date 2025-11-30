@@ -5,6 +5,7 @@
  *
  * @package   Starmus
  */
+
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 if (! \defined('ABSPATH')) {
@@ -80,7 +81,8 @@ class StarmusAudioRecorderUI
 
     /**
      * Render the re-recorder (single-button variant).
-     * Usage: [starmus_audio_re_recorder title="..." language="..." recording_type="..."]
+     * Usage: [starmus_audio_re_recorder post_id="..." target_post_id="..."]
+     * If post_id is not provided, will check for 'recording_id' in query string.
      */
     public function render_re_recorder_shortcode(array $atts = []): string
     {
@@ -94,10 +96,22 @@ class StarmusAudioRecorderUI
                 'starmus_audio_re_recorder'
             );
 
+            // Get post_id from shortcode attribute or URL parameter
             $post_id = absint($atts['post_id']);
+            if ($post_id <= 0 && isset($_GET['recording_id'])) {
+                $post_id = absint($_GET['recording_id']);
+            }
 
             // Validate post exists and is an audio-recording
-            if ($post_id <= 0 || get_post_type($post_id) !== $this->settings->get('cpt_slug', 'audio-recording')) {
+            if ($post_id <= 0) {
+                return '<p>' . esc_html__('No recording specified.', 'starmus-audio-recorder') . '</p>';
+            }
+
+            $cpt_slug = $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
+                ? $this->settings->get('cpt_slug', 'audio-recording')
+                : 'audio-recording';
+
+            if (get_post_type($post_id) !== $cpt_slug) {
                 return '<p>' . esc_html__('Invalid recording ID.', 'starmus-audio-recorder') . '</p>';
             }
 
@@ -117,7 +131,7 @@ class StarmusAudioRecorderUI
             ];
 
             return \Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper::secure_render_template(
-                'starmus-audio-re-recorder.php',
+                'starmus-audio-re-recorder-ui.php',
                 $template_args
             );
         } catch (\Throwable $throwable) {
@@ -178,5 +192,4 @@ class StarmusAudioRecorderUI
         );
         exit;
     }
-
 }
