@@ -96,9 +96,11 @@ class StarmusAudioEditorUI
 	}
 
 	/**
-	 * Render the audio editor shortcode output for the current user.
+	 * Render the audio editor shortcode.
 	 *
-	 * @return string HTML payload for the editor interface.
+	 * @param array $atts Shortcode attributes.
+	 *
+	 * @return string Rendered HTML output.
 	 */
 	public function render_audio_editor_shortcode(): string
 	{
@@ -108,18 +110,34 @@ class StarmusAudioEditorUI
 			}
 
 			do_action('starmus_before_editor_render');
+
+			// Retrieve core context from DAL/logic
 			$context = $this->get_editor_context();
 			if (is_wp_error($context)) {
 				return '<div class="notice notice-error"><p>' . esc_html($context->get_error_message()) . '</p></div>';
 			}
 
-			$template = 'starmus-audio-editor-ui.php';
-			return StarmusTemplateLoaderHelper::secure_render_template($template, $context);
-		} catch (Throwable $throwable) {
+			/*
+			* CRITICAL FIX:
+			* Add post_id from shortcode or GET param into the context
+			*/
+			$post_id = isset($_GET['post_id']) ? absint($_GET['post_id']) : 0;
+			$context['post_id'] = $post_id;
+
+			// Now template receives post_id
+			return StarmusTemplateLoaderHelper::secure_render_template(
+				'starmus-audio-editor-ui.php',
+				$context
+			);
+
+		} catch (\Throwable $throwable) {
 			$this->log_error($throwable);
-			return '<div class="notice notice-error"><p>' . esc_html__('Audio editor unavailable.', 'starmus-audio-recorder') . '</p></div>';
+			return '<div class="notice notice-error"><p>' .
+				esc_html__('Audio editor unavailable.', 'starmus-audio-recorder') .
+			'</p></div>';
 		}
 	}
+
 
 	/**
 	 * Conditionally enqueue front-end assets required by the editor.

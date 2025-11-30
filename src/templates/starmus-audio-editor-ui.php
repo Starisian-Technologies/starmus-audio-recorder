@@ -19,7 +19,13 @@ if (! \defined('ABSPATH')) {
     exit;
 }
 ?>
-<div class="starmus-editor" role="region" aria-label="<?php esc_attr_e('Audio editor', 'starmus-audio-recorder'); ?>">
+<div
+    id="starmus-editor-root"
+    class="starmus-editor"
+    data-post-id="<?php echo esc_attr($post_id ?? 0); ?>"
+    role="region"
+    aria-label="<?php esc_attr_e('Audio editor', 'starmus-audio-recorder'); ?>"
+>
 	<div class="starmus-editor__head">
 		<h1 class="starmus-editor__title">
 			<?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?>
