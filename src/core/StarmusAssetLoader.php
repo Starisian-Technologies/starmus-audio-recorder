@@ -145,7 +145,7 @@ final class StarmusAssetLoader
     /**
      * Localize data specifically for the audio editor.
      */
-    private function maybe_localize_editor_data(): void
+   private function maybe_localize_editor_data(): void
     {
         global $post;
 
@@ -153,18 +153,23 @@ final class StarmusAssetLoader
             return;
         }
 
-        // Detect the editor shortcode on the current page
-        if (! has_shortcode((string) $post->post_content, 'starmus_audio_editor')) {
+        // Detect editor shortcode and capture post_id attribute
+        $shortcode = get_post_field('post_content', $post->ID);
+
+        if (! has_shortcode((string) $shortcode, 'starmus_audio_editor')) {
             return;
         }
 
-        $post_id = isset($_GET['post_id']) ? absint($_GET['post_id']) : 0;
+        // Extract post_id="123" from the shortcode
+        preg_match('/post_id="(\d+)"/', (string) $shortcode, $matches);
+        $post_id = isset($matches[1]) ? absint($matches[1]) : 0;
 
         wp_localize_script(
             self::HANDLE_PROD_BUNDLE,
             'STARMUS_EDITOR_DATA',
             [
-                'postId' => $post_id,
+                'postId'  => $post_id,
+                'restUrl' => rest_url('starmus/v1/editor/' . $post_id),
             ]
         );
     }
