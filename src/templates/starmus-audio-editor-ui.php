@@ -18,11 +18,13 @@ namespace Starisian\Sparxstar\Starmus\templates;
 if (! \defined('ABSPATH')) {
     exit;
 }
+/** @var array $context */
+
 ?>
 <div
     id="starmus-editor-root"
     class="starmus-editor"
-    data-post-id="<?php echo esc_attr($post_id ?? 0); ?>"
+    data-post-id="<?php echo esc_attr($context['post_id']); ?>"
     role="region"
     aria-label="<?php esc_attr_e('Audio editor', 'starmus-audio-recorder'); ?>"
 >
