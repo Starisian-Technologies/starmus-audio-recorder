@@ -111,8 +111,8 @@ class StarmusAudioEditorUI
 
 			do_action('starmus_before_editor_render');
 
-			// PASS THE ATTS HERE:
-			$context = $this->get_editor_context(); 
+			// Pass the atts to get_editor_context
+			$context = $this->get_editor_context($atts);
 
 			if (is_wp_error($context)) {
 				return '<div class="notice notice-error"><p>' . esc_html($context->get_error_message()) . '</p></div>';
@@ -123,12 +123,11 @@ class StarmusAudioEditorUI
 				'starmus-audio-editor-ui.php',
 				['context' => $context]
 			);
-
 		} catch (\Throwable $throwable) {
 			$this->log_error($throwable);
 			return '<div class="notice notice-error"><p>' .
 				esc_html__('Audio editor unavailable.', 'starmus-audio-recorder') .
-			'</p></div>';
+				'</p></div>';
 		}
 	}
 
@@ -310,7 +309,6 @@ class StarmusAudioEditorUI
 			];
 
 			return $this->cached_context;
-
 		} catch (Throwable $throwable) {
 			$this->log_error($throwable);
 			return new WP_Error('context_error', __('Unable to load editor context.', 'starmus-audio-recorder'));
@@ -593,6 +591,18 @@ class StarmusAudioEditorUI
 		}
 
 		return true;
+	}
+
+	/**
+	 * Public wrapper for get_editor_context to allow external access.
+	 *
+	 * @param array $atts Shortcode attributes.
+	 *
+	 * @return array|WP_Error Context array or WP_Error on failure.
+	 */
+	public function get_editor_context_public(array $atts = []): array|WP_Error
+	{
+		return $this->get_editor_context($atts);
 	}
 
 	/**

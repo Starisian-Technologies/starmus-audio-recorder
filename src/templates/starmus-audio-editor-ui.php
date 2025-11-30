@@ -12,25 +12,33 @@
  *
  * @since 0.3.0
  */
+
 namespace Starisian\Sparxstar\Starmus\templates;
 
 // Exit if accessed directly.
 if (! \defined('ABSPATH')) {
-    exit;
+	exit;
 }
 /** @var array $context */
 
+// Debug logging to verify context is received
+if (\defined('WP_DEBUG') && WP_DEBUG) {
+	error_log('Editor template loaded with context: ' . print_r($context, true));
+}
+
 ?>
 <div
-    id="starmus-editor-root"
-    class="starmus-editor"
-    data-post-id="<?php echo esc_attr($context['post_id']); ?>"
-    role="region"
-    aria-label="<?php esc_attr_e('Audio editor', 'starmus-audio-recorder'); ?>"
->
+	id="starmus-editor-root"
+	class="starmus-editor"
+	data-post-id="<?php echo esc_attr($context['post_id']); ?>"
+	data-audio-url="<?php echo esc_attr($context['audio_url']); ?>"
+	data-waveform-url="<?php echo esc_attr($context['waveform_url']); ?>"
+	role="region"
+	aria-label="<?php esc_attr_e('Audio editor', 'starmus-audio-recorder'); ?>">
 	<div class="starmus-editor__head">
 		<h1 class="starmus-editor__title">
 			<?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?>
+			<small style="opacity:0.6;font-size:0.6em;margin-left:1rem;">Post ID: <?php echo esc_html($context['post_id']); ?></small>
 		</h1>
 		<div class="starmus-editor__time" aria-live="polite">
 			<span class="screen-reader-text"><?php esc_html_e('Current time', 'starmus-audio-recorder'); ?></span>

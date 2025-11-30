@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 if (! \defined('ABSPATH')) {
@@ -50,11 +51,11 @@ final class StarmusShortcodeLoader
     public function register_shortcodes(): void
     {
         try {
-            add_shortcode('starmus_audio_recorder', fn (): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode(), 'starmus_audio_recorder'));
-            add_shortcode('starmus_audio_editor', fn (array $atts = []): string => $this->safe_render(fn (): string => $this->render_editor_with_bootstrap($atts), 'starmus_audio_editor'));
+            add_shortcode('starmus_audio_recorder', fn(): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode(), 'starmus_audio_recorder'));
+            add_shortcode('starmus_audio_editor', fn(array $atts = []): string => $this->safe_render(fn(): string => $this->render_editor_with_bootstrap($atts), 'starmus_audio_editor'));
             add_shortcode('starmus_my_recordings', $this->render_my_recordings_shortcode(...));
             add_shortcode('starmus_recording_detail', $this->render_submission_detail_shortcode(...));
-            add_shortcode('starmus_audio_re_recorder', fn (array $atts = []): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts), 'starmus_audio_re_recorder'));
+            add_shortcode('starmus_audio_re_recorder', fn(array $atts = []): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts), 'starmus_audio_re_recorder'));
 
             add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);
         } catch (\Throwable $throwable) {
@@ -157,24 +158,51 @@ final class StarmusShortcodeLoader
 
     private function render_editor_with_bootstrap(array $atts): string
     {
-        $post_id = isset($atts['post_id']) ? absint($atts['post_id']) : 0;
+        // Create editor instance and get context
+        $editor = new StarmusAudioEditorUI();
+        $context = $editor->get_editor_context_public($atts);
 
-        if ($post_id < 1) {
-            return '<p><em>No valid audio recording selected.</em></p>';
+        if (is_wp_error($context)) {
+            return '<div class="notice notice-error"><p>' . esc_html($context->get_error_message()) . '</p></div>';
         }
 
-        // Provide editor bootstrap config to JS
+        // Get transcript data
+        $transcript_json = get_post_meta($context['post_id'], 'star_transcript_json', true);
+        $transcript_data = [];
+        if ($transcript_json && is_string($transcript_json)) {
+            $decoded = json_decode($transcript_json, true);
+            if (is_array($decoded)) {
+                $transcript_data = $decoded;
+            }
+        }
+
+        // Parse annotations
+        $annotations_data = [];
+        if (!empty($context['annotations_json']) && is_string($context['annotations_json'])) {
+            $decoded = json_decode($context['annotations_json'], true);
+            if (is_array($decoded)) {
+                $annotations_data = $decoded;
+            }
+        }
+
+        // Provide complete editor bootstrap config to JS
         wp_localize_script(
             'starmus-audio-recorder-script.bundle',
             'STARMUS_EDITOR_DATA',
             [
-                'postId'  => $post_id,
-                'restUrl' => esc_url_raw(rest_url('starmus/v1/recording/' . $post_id)),
+                'postId'          => $context['post_id'],
+                'restUrl'         => esc_url_raw(rest_url('star_uec/v1/annotations')),
+                'audioUrl'        => esc_url($context['audio_url']),
+                'waveformDataUrl' => esc_url($context['waveform_url']),
+                'annotations'     => $annotations_data,
+                'transcript'      => $transcript_data,
+                'nonce'           => wp_create_nonce('wp_rest'),
+                'mode'            => 'editor',
+                'canCommit'       => current_user_can('publish_posts'),
             ]
         );
 
-        // Render the UI
-        return (new StarmusAudioEditorUI())->render_audio_editor_shortcode();
+        // Render the UI with context
+        return $editor->render_audio_editor_shortcode($atts);
     }
-
 }

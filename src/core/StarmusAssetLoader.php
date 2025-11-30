@@ -56,7 +56,6 @@ final class StarmusAssetLoader
     public function __construct()
     {
         add_action('wp_enqueue_scripts', $this->enqueue_frontend_assets(...));
-
     }
 
     /**
@@ -128,7 +127,7 @@ final class StarmusAssetLoader
 
             // Keep the legacy config for backward compatibility
             wp_localize_script(self::HANDLE_PROD_BUNDLE, 'starmusConfig', $config);
-            
+
             // New unified bootstrap contract required by refactored JS
             wp_localize_script(
                 self::HANDLE_PROD_BUNDLE,
@@ -143,8 +142,8 @@ final class StarmusAssetLoader
                 ]
             );
 
-            $this->maybe_localize_editor_data();
-          
+            // Editor data is now localized in StarmusShortcodeLoader::render_editor_with_bootstrap()
+            // to ensure correct context with all required fields (audio, waveform, transcript, annotations)
 
             error_log('[Starmus AssetLoader] JS enqueued successfully');
         } catch (\Throwable $throwable) {
@@ -153,91 +152,27 @@ final class StarmusAssetLoader
         }
     }
 
-   /**
-     * Localize data specifically for the audio editor.
-     * Updated to include Audio URL, Waveform, and handle GET parameters.
+
+    /**
+     * DEPRECATED: Editor data is now localized in StarmusShortcodeLoader::render_editor_with_bootstrap()
+     * This method is kept for backward compatibility but is no longer called.
+     * 
+     * @deprecated 3.2.0 Use StarmusShortcodeLoader::render_editor_with_bootstrap() instead
      */
     private function maybe_localize_editor_data(): void
     {
-        global $post;
-
-        // 1. Try to find ID from URL parameter (High Priority for direct editor access)
-        $post_id = isset($_GET['post_id']) ? absint($_GET['post_id']) : 0;
-
-        // 2. If not in URL, try to extract from shortcode in current post
-        if ($post_id === 0 && $post instanceof \WP_Post) {
-            $shortcode = get_post_field('post_content', $post->ID);
-            if (has_shortcode((string) $shortcode, 'starmus_audio_editor')) {
-                preg_match('/post_id="(\d+)"/', (string) $shortcode, $matches);
-                $post_id = isset($matches[1]) ? absint($matches[1]) : 0;
-            }
-        }
-
-        // If we still don't have a valid ID, stop here.
-        if ($post_id === 0) {
-            return;
-        }
-
-        // 3. Fetch the required Audio and Waveform Data
-        $attachment_id = absint(get_post_meta($post_id, '_audio_attachment_id', true));
-        $audio_url     = $attachment_id ? wp_get_attachment_url($attachment_id) : '';
-        
-        // Secure waveform URL logic
-        $waveform_url   = '';
-        $wave_json_path = get_post_meta($attachment_id, '_waveform_json_path', true);
-        if (!empty($wave_json_path) && file_exists($wave_json_path)) {
-            $uploads      = wp_get_upload_dir();
-            $waveform_url = str_replace($uploads['basedir'], $uploads['baseurl'], $wave_json_path);
-        }
-
-        // 4. Get Annotations
-        $annotations_json = get_post_meta($post_id, 'starmus_annotations_json', true);
-        $annotations      = (!empty($annotations_json) && is_string($annotations_json)) 
-                            ? json_decode($annotations_json, true) 
-                            : [];
-
-        // 5. Send the COMPLETE data object to JS
-        wp_localize_script(
-            self::HANDLE_PROD_BUNDLE,
-            'STARMUS_EDITOR_DATA',
-            [
-                'postId'          => $post_id,
-                // Ensure this matches the namespace in your StarmusAudioEditorUI class
-                'restUrl'         => esc_url_raw(rest_url('star_uec/v1/annotations')), 
-                'audioUrl'        => esc_url($audio_url),
-                'waveformDataUrl' => esc_url($waveform_url),
-                'annotations'     => $annotations,
-                'nonce'           => wp_create_nonce('wp_rest'),
-                'mode'            => 'editor'
-            ]
-        );
+        // This method is deprecated and no longer used
+        // Editor data localization moved to StarmusShortcodeLoader for proper context handling
     }
 
+    /**
+     * DEPRECATED: Re-recorder data localization moved to component level
+     * 
+     * @deprecated 3.2.0
+     */
     private function maybe_localize_re_recorder_data(): void
     {
-        if (!isset($_GET['post_id'])) {
-            return;
-        }
-
-        $post_id = absint($_GET['post_id']);
-        if ($post_id <= 0) {
-            return;
-        }
-
-       wp_localize_script(
-            self::HANDLE_PROD_BUNDLE,
-            'STARMUS_EDITOR_DATA',
-            [
-                'postId'          => $post_id,
-                'restUrl'         => esc_url_raw(rest_url('star_uec/v1/annotations')),
-                'audioUrl'        => esc_url($audio_url),
-                'waveformDataUrl' => esc_url($waveform_url),
-                'annotations'     => $annotations,
-                'nonce'           => wp_create_nonce('wp_rest'),
-                'mode'            => 'editor',
-                'rerecord'        => isset($_REQUEST['starmus_existing_recording_id']) ? absint($_REQUEST['starmus_existing_recording_id']) : 0,
-            ]
-        );
+        // This method is deprecated and no longer used
     }
 
 

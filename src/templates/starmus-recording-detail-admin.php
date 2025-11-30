@@ -25,10 +25,23 @@
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 
-$post_id      = get_the_ID();
-$uploads      = wp_get_upload_dir();
-$settings     = new StarmusSettings();
-$file_service = new StarmusFileService();
+// Initialize with error handling
+try {
+	$post_id      = get_the_ID();
+	$uploads      = wp_get_upload_dir();
+	$settings     = new StarmusSettings();
+	$file_service = new StarmusFileService();
+
+	if (!$post_id) {
+		throw new \Exception('No post ID found');
+	}
+
+	error_log('[StarmusDetailAdmin] Loading detail for post_id: ' . $post_id);
+} catch (\Throwable $e) {
+	error_log('[StarmusDetailAdmin] Initialization error: ' . $e->getMessage());
+	echo '<div class="notice notice-error"><p>Error loading recording details: ' . esc_html($e->getMessage()) . '</p></div>';
+	return;
+}
 
 // Get page URLs for actions
 $edit_page_slug     = $settings->get('edit_page_id', '');
@@ -37,7 +50,16 @@ $edit_page_url      = $edit_page_slug ? get_permalink(get_page_by_path($edit_pag
 $recorder_page_url  = $recorder_page_slug ? get_permalink(get_page_by_path($recorder_page_slug)) : '';
 
 $audio_attachment_id = (int) get_post_meta($post_id, '_audio_attachment_id', true);
-$audio_url           = $audio_attachment_id !== 0 ? $file_service->star_get_public_url($audio_attachment_id) : '';
+$audio_url           = '';
+
+try {
+	if ($audio_attachment_id > 0) {
+		$audio_url = $file_service->star_get_public_url($audio_attachment_id);
+	}
+} catch (\Throwable $e) {
+	error_log('[StarmusDetailAdmin] Error getting audio URL: ' . $e->getMessage());
+	$audio_url = $audio_attachment_id > 0 ? wp_get_attachment_url($audio_attachment_id) : '';
+}
 
 $language        = get_the_terms($post_id, 'language');
 $type            = get_the_terms($post_id, 'recording-type');
@@ -76,47 +98,47 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 // === Waveform data resolution (post_meta priority chain) ===
 $waveform_data = [];
 if (! empty($waveform_json)) {
-    $decoded       = is_string($waveform_json) ? json_decode($waveform_json, true) : $waveform_json;
-    $waveform_data = is_array($decoded) ? $decoded : [];
+	$decoded       = is_string($waveform_json) ? json_decode($waveform_json, true) : $waveform_json;
+	$waveform_data = is_array($decoded) ? $decoded : [];
 } elseif (! empty($waveform_meta)) {
-    $waveform_data = is_array($waveform_meta) ? $waveform_meta : [];
+	$waveform_data = is_array($waveform_meta) ? $waveform_meta : [];
 }
 $waveform_data = [];
 if (! empty($waveform_json)) {
-    $decoded       = is_string($waveform_json) ? json_decode($waveform_json, true) : $waveform_json;
-    $waveform_data = is_array($decoded) ? $decoded : [];
+	$decoded       = is_string($waveform_json) ? json_decode($waveform_json, true) : $waveform_json;
+	$waveform_data = is_array($decoded) ? $decoded : [];
 } elseif (! empty($waveform_meta)) {
-    $waveform_data = is_array($waveform_meta) ? $waveform_meta : [];
+	$waveform_data = is_array($waveform_meta) ? $waveform_meta : [];
 }
 
 // === Utility functions ===
 function starmus_local_time(int $post_id): string
 {
-    return get_date_from_gmt(get_post_time('Y-m-d H:i:s', true, $post_id), 'F j, Y \a\t g:i A');
+	return get_date_from_gmt(get_post_time('Y-m-d H:i:s', true, $post_id), 'F j, Y \a\t g:i A');
 }
 
 function starmus_language_label(string $lang_code): string
 {
-    $map = [
-        'en'    => 'English',
-        'en-US' => 'English (US)',
-        'mnk'   => 'Mandinka',
-        'wo'    => 'Wolof',
-        'fr'    => 'French',
-    ];
-    return $map[$lang_code] ?? strtoupper($lang_code);
+	$map = [
+		'en'    => 'English',
+		'en-US' => 'English (US)',
+		'mnk'   => 'Mandinka',
+		'wo'    => 'Wolof',
+		'fr'    => 'French',
+	];
+	return $map[$lang_code] ?? strtoupper($lang_code);
 }
 
 function starmus_fs_to_url(string $path, array $uploads): string
 {
-    if ($path === '' || $path === '0') {
-        return '';
-    }
-    $real = realpath($path);
-    $base = realpath($uploads['basedir']);
-    return ($real && $base && str_starts_with($real, $base))
-        ? str_replace($uploads['basedir'], $uploads['baseurl'], $path)
-        : '';
+	if ($path === '' || $path === '0') {
+		return '';
+	}
+	$real = realpath($path);
+	$base = realpath($uploads['basedir']);
+	return ($real && $base && str_starts_with($real, $base))
+		? str_replace($uploads['basedir'], $uploads['baseurl'], $path)
+		: '';
 }
 
 // Resolve URLs (post_meta → attachment meta fallback)
@@ -127,10 +149,10 @@ $mp3_url = starmus_fs_to_url($archival_mp3_meta, $uploads);
 $waveform_duration     = '';
 $waveform_sample_count = 0;
 if ($waveform_data !== [] && is_array($waveform_data)) {
-    $waveform_sample_count = count($waveform_data);
-    // Estimate duration assuming 44.1kHz sample rate
-    $duration_seconds  = $waveform_sample_count / 44100;
-    $waveform_duration = sprintf('%d:%02d', floor($duration_seconds / 60), $duration_seconds % 60);
+	$waveform_sample_count = count($waveform_data);
+	// Estimate duration assuming 44.1kHz sample rate
+	$duration_seconds  = $waveform_sample_count / 44100;
+	$waveform_duration = sprintf('%d:%02d', floor($duration_seconds / 60), $duration_seconds % 60);
 }
 ?>
 
@@ -186,24 +208,24 @@ if ($waveform_data !== [] && is_array($waveform_data)) {
 	</section>
 
 	<?php
-    if ($waveform_data !== [] && is_array($waveform_data)) {
-        $width      = 800;
-        $height     = 120;
-        $count      = count($waveform_data);
-        $max_points = 600;
-        $step       = max(1, floor($count / $max_points));
-        $max_val    = max(array_map(abs(...), $waveform_data));
-        if ($max_val <= 0) {
-            $max_val = 1;
-        }
-        $points = [];
-        for ($i = 0; $i < $count; $i += $step) {
-            $v        = (float) $waveform_data[$i];
-            $x        = ($i / max(1, $count - 1)) * $width;
-            $y        = $height - (($v / $max_val) * $height);
-            $points[] = sprintf('%s,%s', $x, $y);
-        }
-        ?>
+	if ($waveform_data !== [] && is_array($waveform_data)) {
+		$width      = 800;
+		$height     = 120;
+		$count      = count($waveform_data);
+		$max_points = 600;
+		$step       = max(1, floor($count / $max_points));
+		$max_val    = max(array_map(abs(...), $waveform_data));
+		if ($max_val <= 0) {
+			$max_val = 1;
+		}
+		$points = [];
+		for ($i = 0; $i < $count; $i += $step) {
+			$v        = (float) $waveform_data[$i];
+			$x        = ($i / max(1, $count - 1)) * $width;
+			$y        = $height - (($v / $max_val) * $height);
+			$points[] = sprintf('%s,%s', $x, $y);
+		}
+	?>
 		<section class="starmus-detail__section">
 			<h2><?php esc_html_e('Waveform Visualization', 'starmus-audio-recorder'); ?></h2>
 			<figure class="starmus-waveform">
@@ -228,22 +250,22 @@ if ($waveform_data !== [] && is_array($waveform_data)) {
 					<caption class="screen-reader-text"><?php esc_html_e('Recording session metadata including date, time, location, and equipment details', 'starmus-audio-recorder'); ?></caption>
 					<tbody>
 						<?php
-                            $session_fields = [
-                                'session_date'          => 'Session Date',
-                                'session_start_time'    => 'Start Time',
-                                'session_end_time'      => 'End Time',
-                                'duration'              => 'Duration',
-                                'location'              => 'Location',
-                                'recording_equipment'   => 'Recording Equipment',
-                                'media_condition_notes' => 'Media Condition Notes',
-                            ];
-foreach ($session_fields as $k => $label) {
-    $val = get_post_meta($post_id, $k, true);
-    if (! empty($val)) {
-        echo '<tr><th scope="row">' . esc_html($label) . '</th><td>' . wp_kses_post(nl2br($val)) . '</td></tr>';
-    }
-}
-?>
+						$session_fields = [
+							'session_date'          => 'Session Date',
+							'session_start_time'    => 'Start Time',
+							'session_end_time'      => 'End Time',
+							'duration'              => 'Duration',
+							'location'              => 'Location',
+							'recording_equipment'   => 'Recording Equipment',
+							'media_condition_notes' => 'Media Condition Notes',
+						];
+						foreach ($session_fields as $k => $label) {
+							$val = get_post_meta($post_id, $k, true);
+							if (! empty($val)) {
+								echo '<tr><th scope="row">' . esc_html($label) . '</th><td>' . wp_kses_post(nl2br($val)) . '</td></tr>';
+							}
+						}
+						?>
 					</tbody>
 				</table>
 			</section>
@@ -253,48 +275,48 @@ foreach ($session_fields as $k => $label) {
 					<caption class="screen-reader-text"><?php esc_html_e('Submission metadata including IP address, user agent, device information, and environment data', 'starmus-audio-recorder'); ?></caption>
 					<tbody>
 						<?php
-if ($submission_ip) {
-    echo '<tr><th scope="row">' . esc_html__('IP Address', 'starmus-audio-recorder') . '</th><td>' . esc_html($submission_ip) . '</td></tr>';
-}
+						if ($submission_ip) {
+							echo '<tr><th scope="row">' . esc_html__('IP Address', 'starmus-audio-recorder') . '</th><td>' . esc_html($submission_ip) . '</td></tr>';
+						}
 
-if ($user_agent) {
-    echo '<tr><th scope="row">' . esc_html__('User Agent', 'starmus-audio-recorder') . '</th><td><code>' . esc_html($user_agent) . '</code></td></tr>';
-}
+						if ($user_agent) {
+							echo '<tr><th scope="row">' . esc_html__('User Agent', 'starmus-audio-recorder') . '</th><td><code>' . esc_html($user_agent) . '</code></td></tr>';
+						}
 
-if ($mic_profile) {
-    echo '<tr><th scope="row">' . esc_html__('Microphone Profile', 'starmus-audio-recorder') . '</th><td>' . esc_html($mic_profile) . '</td></tr>';
-}					// Device fingerprint
-if ($device_fingerprint) {
-    $device_data = is_string($device_fingerprint) ? json_decode($device_fingerprint, true) : $device_fingerprint;
-    if (is_array($device_data)) {
-        echo '<tr><th scope="row">' . esc_html__('Device Information', 'starmus-audio-recorder') . '</th><td>';
-        echo '<table class="starmus-nested-table"><caption class="screen-reader-text">' . esc_html__('Device fingerprint details', 'starmus-audio-recorder') . '</caption><tbody>';
-        foreach ($device_data as $key => $value) {
-            echo '<tr><th scope="row">' . esc_html(ucwords(str_replace('_', ' ', $key))) . '</th><td>' . esc_html($value) . '</td></tr>';
-        }
-        echo '</tbody></table></td></tr>';
-    } else {
-        echo '<tr><th scope="row">' . esc_html__('Device Fingerprint', 'starmus-audio-recorder') . '</th><td>' . esc_html($device_fingerprint) . '</td></tr>';
-    }
-}					// Environment data
-if ($environment_data) {
-    $env_data = is_string($environment_data) ? json_decode($environment_data, true) : $environment_data;
-    if (is_array($env_data)) {
-        echo '<dt>' . esc_html__('Environment Data', 'starmus-audio-recorder') . '</dt><dd>';
-        echo '<ul class="starmus-nested-list">';
-        foreach ($env_data as $key => $value) {
-            if (is_array($value)) {
-                echo '<li><strong>' . esc_html(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . esc_html(wp_json_encode($value)) . '</li>';
-            } else {
-                echo '<li><strong>' . esc_html(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . esc_html($value) . '</li>';
-            }
-        }
-        echo '</ul></dd>';
-    } else {
-        echo '<dt>' . esc_html__('Environment Data', 'starmus-audio-recorder') . '</dt><dd>' . esc_html($environment_data) . '</dd>';
-    }
-}
-?>
+						if ($mic_profile) {
+							echo '<tr><th scope="row">' . esc_html__('Microphone Profile', 'starmus-audio-recorder') . '</th><td>' . esc_html($mic_profile) . '</td></tr>';
+						}					// Device fingerprint
+						if ($device_fingerprint) {
+							$device_data = is_string($device_fingerprint) ? json_decode($device_fingerprint, true) : $device_fingerprint;
+							if (is_array($device_data)) {
+								echo '<tr><th scope="row">' . esc_html__('Device Information', 'starmus-audio-recorder') . '</th><td>';
+								echo '<table class="starmus-nested-table"><caption class="screen-reader-text">' . esc_html__('Device fingerprint details', 'starmus-audio-recorder') . '</caption><tbody>';
+								foreach ($device_data as $key => $value) {
+									echo '<tr><th scope="row">' . esc_html(ucwords(str_replace('_', ' ', $key))) . '</th><td>' . esc_html($value) . '</td></tr>';
+								}
+								echo '</tbody></table></td></tr>';
+							} else {
+								echo '<tr><th scope="row">' . esc_html__('Device Fingerprint', 'starmus-audio-recorder') . '</th><td>' . esc_html($device_fingerprint) . '</td></tr>';
+							}
+						}					// Environment data
+						if ($environment_data) {
+							$env_data = is_string($environment_data) ? json_decode($environment_data, true) : $environment_data;
+							if (is_array($env_data)) {
+								echo '<dt>' . esc_html__('Environment Data', 'starmus-audio-recorder') . '</dt><dd>';
+								echo '<ul class="starmus-nested-list">';
+								foreach ($env_data as $key => $value) {
+									if (is_array($value)) {
+										echo '<li><strong>' . esc_html(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . esc_html(wp_json_encode($value)) . '</li>';
+									} else {
+										echo '<li><strong>' . esc_html(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . esc_html($value) . '</li>';
+									}
+								}
+								echo '</ul></dd>';
+							} else {
+								echo '<dt>' . esc_html__('Environment Data', 'starmus-audio-recorder') . '</dt><dd>' . esc_html($environment_data) . '</dd>';
+							}
+						}
+						?>
 						</dl>
 			</section>
 
@@ -314,24 +336,24 @@ if ($environment_data) {
 				<section class="starmus-detail__section starmus-glass">
 					<h2><?php esc_html_e('Transcription', 'starmus-audio-recorder'); ?></h2>
 					<?php
-                    $transcript_data = is_string($transcript_json) ? json_decode($transcript_json, true) : $transcript_json;
-			    if (is_array($transcript_data)) {
-			        if (isset($transcript_data['text'])) {
-			            ?>
+					$transcript_data = is_string($transcript_json) ? json_decode($transcript_json, true) : $transcript_json;
+					if (is_array($transcript_data)) {
+						if (isset($transcript_data['text'])) {
+					?>
 							<div class="starmus-transcription-text">
 								<p><?php echo esc_html($transcript_data['text']); ?></p>
 							</div>
 						<?php
-			        }
-			        if (isset($transcript_data['confidence'])) {
-			            ?>
+						}
+						if (isset($transcript_data['confidence'])) {
+						?>
 							<p class="starmus-transcription-meta">
 								<small><?php echo esc_html(sprintf(__('Confidence: %s%%', 'starmus-audio-recorder'), round($transcript_data['confidence'] * 100, 2))); ?></small>
 							</p>
 						<?php
-			        }
-			    } else {
-			        ?>
+						}
+					} else {
+						?>
 						<details class="starmus-accordion">
 							<summary class="starmus-accordion__summary"><?php esc_html_e('Show Transcription JSON', 'starmus-audio-recorder'); ?></summary>
 							<div class="starmus-accordion__content">
@@ -339,8 +361,8 @@ if ($environment_data) {
 							</div>
 						</details>
 					<?php
-			    }
-			    ?>
+					}
+					?>
 				</section>
 			<?php } ?>
 

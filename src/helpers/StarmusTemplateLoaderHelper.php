@@ -9,6 +9,7 @@
  *
  * @since 0.7.4
  */
+
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 class StarmusTemplateLoaderHelper
@@ -72,21 +73,34 @@ class StarmusTemplateLoaderHelper
     public static function render_template(string $template, array $args = []): string
     {
         try {
+            error_log('[StarmusTemplateLoader] Attempting to load template: ' . $template);
+
             $template_path = self::locate_template($template);
 
             if (! $template_path) {
-                return '';
+                error_log('[StarmusTemplateLoader] Template not found: ' . $template);
+                error_log('[StarmusTemplateLoader] STARMUS_PATH: ' . (defined('STARMUS_PATH') ? STARMUS_PATH : 'NOT DEFINED'));
+                return '<div class="notice notice-error"><p>Template not found: ' . esc_html($template) . '</p></div>';
             }
+
+            error_log('[StarmusTemplateLoader] Template found at: ' . $template_path);
+            error_log('[StarmusTemplateLoader] Template args: ' . print_r(array_keys($args), true));
 
             do_action('starmus_before_template_render');
 
             // Allow filters to modify the args if needed.
             $args = apply_filters(basename($template_path), $args, $template_path);
 
-            return self::post_template_render(self::render($template_path, $args));
+            $output = self::post_template_render(self::render($template_path, $args));
+
+            error_log('[StarmusTemplateLoader] Template rendered successfully, output length: ' . strlen($output));
+
+            return $output;
         } catch (\Throwable $throwable) {
+            error_log('[StarmusTemplateLoader] ERROR: ' . $throwable->getMessage());
+            error_log('[StarmusTemplateLoader] Stack trace: ' . $throwable->getTraceAsString());
             StarmusLogger::log('UI:render_template', 'Starmus Template Loader Error: ' . $throwable->getMessage());
-            return '<div class="notice notice-error"><p>' . esc_html__('Template loading failed.', 'starmus-audio-recorder') . '</p></div>';
+            return '<div class="notice notice-error"><p>' . esc_html__('Template loading failed: ', 'starmus-audio-recorder') . esc_html($throwable->getMessage()) . '</p></div>';
         }
     }
 
