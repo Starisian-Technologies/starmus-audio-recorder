@@ -121,8 +121,7 @@ class StarmusAudioEditorUI
 			* CRITICAL FIX:
 			* Add post_id from shortcode or GET param into the context
 			*/
-			$post_id = isset($_GET['post_id']) ? absint($_GET['post_id']) : 0;
-			$context['post_id'] = $post_id;
+			$context['post_id'] = isset($context['post_id']) ? absint($context['post_id']) : 0;
 
 			// Now template receives post_id
 			return StarmusTemplateLoaderHelper::secure_render_template(
