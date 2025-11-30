@@ -120,7 +120,7 @@ class StarmusAudioEditorUI
 			// Now template receives post_id
 			return StarmusTemplateLoaderHelper::secure_render_template(
 				'starmus-audio-editor-ui.php',
-				$context
+				['context' => $context]
 			);
 
 		} catch (\Throwable $throwable) {
