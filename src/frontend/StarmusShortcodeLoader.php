@@ -163,7 +163,15 @@ final class StarmusShortcodeLoader
         $context = $editor->get_editor_context_public($atts);
 
         if (is_wp_error($context)) {
-            return '<div class="notice notice-error"><p>' . esc_html($context->get_error_message()) . '</p></div>';
+            $error_message = $context->get_error_message();
+            if (\defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[StarmusShortcodeLoader] Editor context error: ' . $error_message);
+            }
+            return '<div class="notice notice-error"><p>' . esc_html($error_message) . '</p></div>';
+        }
+
+        if (\defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[StarmusShortcodeLoader] Editor context loaded: post_id=' . $context['post_id']);
         }
 
         // Get transcript data
@@ -201,6 +209,10 @@ final class StarmusShortcodeLoader
                 'canCommit'       => current_user_can('publish_posts'),
             ]
         );
+
+        if (\defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[StarmusShortcodeLoader] JS data localized. Audio URL: ' . $context['audio_url']);
+        }
 
         // Render the UI with context
         return $editor->render_audio_editor_shortcode($atts);

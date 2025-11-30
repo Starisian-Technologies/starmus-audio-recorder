@@ -48,7 +48,6 @@ class StarmusAudioRecorderUI
         StarmusLogger::info('StarmusAudioRecorderUI', 'Recorder component available, registering recorder hooks');
         add_action('starmus_after_audio_upload', [$this, 'save_all_metadata'], 10, 3);
         add_filter('starmus_audio_upload_success_response', [$this, 'add_conditional_redirect'], 10, 3);
-        add_action('template_redirect', [$this, 'maybe_handle_rerecorder_autostep']);
 
         // Cron scheduling moved to activation to avoid performance issues
         // Clear cache when a Language is added, edited, or deleted.
@@ -115,19 +114,35 @@ class StarmusAudioRecorderUI
                 return '<p>' . esc_html__('Invalid recording ID.', 'starmus-audio-recorder') . '</p>';
             }
 
+            // Get existing post data to pre-fill the form
+            $post = get_post($post_id);
+            $existing_title = $post ? $post->post_title : '';
+
+            // Get existing taxonomies
+            $language_terms = wp_get_object_terms($post_id, 'language');
+            $language_id = (!is_wp_error($language_terms) && !empty($language_terms)) ? $language_terms[0]->term_id : 0;
+
+            $type_terms = wp_get_object_terms($post_id, 'recording-type');
+            $type_id = (!is_wp_error($type_terms) && !empty($type_terms)) ? $type_terms[0]->term_id : 0;
+
             $template_args = [
-                'form_id'         => 'rerecord',
-                'post_id'         => $post_id,
-                'target_post_id'  => absint($atts['target_post_id']),
-                'consent_message' => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
+                'form_id'            => 'rerecord',
+                'post_id'            => $post_id,
+                'artifact_id'        => $post_id, // Link to original recording
+                'existing_title'     => $existing_title,
+                'existing_language'  => $language_id,
+                'existing_type'      => $type_id,
+                'consent_message'    => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
                     ? $this->settings->get('consent_message', 'I consent to the terms and conditions.')
                     : 'I consent to the terms and conditions.',
-                'data_policy_url' => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
+                'data_policy_url'    => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
                     ? $this->settings->get('data_policy_url', '')
                     : '',
                 'allowed_file_types' => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
                     ? $this->settings->get('allowed_file_types', 'webm')
                     : 'webm',
+                'recording_types'    => $this->get_cached_terms('recording-type', 'starmus_recording_types_list'),
+                'languages'          => $this->get_cached_terms('language', 'starmus_languages_list'),
             ];
 
             return \Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper::secure_render_template(
@@ -171,25 +186,5 @@ class StarmusAudioRecorderUI
     {
         delete_transient('starmus_languages_list');
         delete_transient('starmus_recording_types_list');
-    }
-
-    public function maybe_handle_rerecorder_autostep(): void
-    {
-        if (
-            !isset($_POST['starmus_rerecord']) ||
-            !isset($_POST['post_id'])
-        ) {
-            return;
-        }
-
-        $post_id = absint($_POST['post_id']);
-
-        // Inject POST into $_REQUEST so recorder sees metadata
-        $_REQUEST['starmus_existing_recording_id'] = $post_id;
-
-        wp_safe_redirect(
-            home_url('/' . get_option('starmus_recorder_page_slug', 'record') . '/?post_id=' . $post_id)
-        );
-        exit;
     }
 }

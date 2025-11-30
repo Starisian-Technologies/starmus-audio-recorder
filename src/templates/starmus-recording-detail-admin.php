@@ -36,7 +36,10 @@ try {
 		throw new \Exception('No post ID found');
 	}
 
-	error_log('[StarmusDetailAdmin] Loading detail for post_id: ' . $post_id);
+	error_log('[StarmusDetailAdmin] ===== LOADING DETAIL VIEW =====');
+	error_log('[StarmusDetailAdmin] Post ID: ' . $post_id);
+	error_log('[StarmusDetailAdmin] Post Title: ' . get_the_title($post_id));
+	error_log('[StarmusDetailAdmin] Post Type: ' . get_post_type($post_id));
 } catch (\Throwable $e) {
 	error_log('[StarmusDetailAdmin] Initialization error: ' . $e->getMessage());
 	echo '<div class="notice notice-error"><p>Error loading recording details: ' . esc_html($e->getMessage()) . '</p></div>';
@@ -52,19 +55,32 @@ $recorder_page_url  = $recorder_page_slug ? get_permalink(get_page_by_path($reco
 $audio_attachment_id = (int) get_post_meta($post_id, '_audio_attachment_id', true);
 $audio_url           = '';
 
+error_log('[StarmusDetailAdmin] Audio Attachment ID: ' . $audio_attachment_id);
+
 try {
 	if ($audio_attachment_id > 0) {
 		$audio_url = $file_service->star_get_public_url($audio_attachment_id);
+		error_log('[StarmusDetailAdmin] Audio URL via file service: ' . $audio_url);
+	} else {
+		error_log('[StarmusDetailAdmin] No audio attachment ID found');
 	}
 } catch (\Throwable $e) {
 	error_log('[StarmusDetailAdmin] Error getting audio URL: ' . $e->getMessage());
 	$audio_url = $audio_attachment_id > 0 ? wp_get_attachment_url($audio_attachment_id) : '';
+	if ($audio_url) {
+		error_log('[StarmusDetailAdmin] Fallback audio URL: ' . $audio_url);
+	}
 }
 
 $language        = get_the_terms($post_id, 'language');
 $type            = get_the_terms($post_id, 'recording-type');
 $transcript_json = get_post_meta($post_id, 'first_pass_transcription', true);
 $metadata_json   = get_post_meta($post_id, 'recording_metadata', true);
+
+error_log('[StarmusDetailAdmin] Language: ' . (is_array($language) && !is_wp_error($language) ? $language[0]->name : 'none'));
+error_log('[StarmusDetailAdmin] Recording Type: ' . (is_array($type) && !is_wp_error($type) ? $type[0]->name : 'none'));
+error_log('[StarmusDetailAdmin] Has Transcript: ' . ($transcript_json ? 'YES' : 'NO'));
+error_log('[StarmusDetailAdmin] Has Metadata JSON: ' . ($metadata_json ? 'YES' : 'NO'));
 
 // === All Submission Metadata (post_meta only - zero ACF overhead) ===
 $submission_ip      = get_post_meta($post_id, 'submission_ip', true);

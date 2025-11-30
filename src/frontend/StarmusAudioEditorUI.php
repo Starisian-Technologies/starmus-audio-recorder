@@ -276,15 +276,29 @@ class StarmusAudioEditorUI
 			}
 
 			// 4. Validate Post Existence and Permissions
-			if (! get_post($post_id)) {
+			$post = get_post($post_id);
+			if (! $post) {
 				return new WP_Error('invalid_id', __('Invalid submission ID.', 'starmus-audio-recorder'));
 			}
 
-			if (! current_user_can('edit_post', $post_id)) {
-				return new WP_Error('permission_denied', __('Permission denied.', 'starmus-audio-recorder'));
+			// Allow if user is post author OR has the starmus_edit_audio capability
+			$current_user_id = get_current_user_id();
+			$is_author = ($post->post_author == $current_user_id);
+			$has_cap = current_user_can('starmus_edit_audio');
+
+			if (\defined('WP_DEBUG') && WP_DEBUG) {
+				error_log(sprintf(
+					'[StarmusEditorUI] Permission check: user_id=%d, post_author=%d, is_author=%s, has_cap=%s',
+					$current_user_id,
+					$post->post_author,
+					$is_author ? 'YES' : 'NO',
+					$has_cap ? 'YES' : 'NO'
+				));
 			}
 
-			// 5. Retrieve Audio Data
+			if (! $is_author && ! $has_cap) {
+				return new WP_Error('permission_denied', __('Permission denied.', 'starmus-audio-recorder'));
+			}			// 5. Retrieve Audio Data
 			$attachment_id = absint(get_post_meta($post_id, '_audio_attachment_id', true));
 			if (! $attachment_id || get_post_type($attachment_id) !== 'attachment') {
 				return new WP_Error('no_audio', __('No audio file attached.', 'starmus-audio-recorder'));

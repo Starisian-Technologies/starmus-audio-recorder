@@ -19,6 +19,8 @@ wp-admin/
 wp-content/
 wp-plugins/
 wordpress/
+.wp-env/
+.wp-env.json
 
 # Build files
 build/

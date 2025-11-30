@@ -76,6 +76,12 @@ wordpress-installer/
 *.sql
 *.sql.gz
 
+# wp-env WordPress environment
+.wp-env/
+wp-content/themes/
+wp-content/plugins/
+wp-content/mu-plugins/
+
 # ---------------------------------------------------------------------
 # WP content paths that should never be committed
 # ---------------------------------------------------------------------
