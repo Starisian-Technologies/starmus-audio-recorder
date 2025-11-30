@@ -102,7 +102,7 @@ class StarmusAudioEditorUI
 	 *
 	 * @return string Rendered HTML output.
 	 */
-	public function render_audio_editor_shortcode(): string
+	public function render_audio_editor_shortcode($atts = []): string
 	{
 		try {
 			if (! is_user_logged_in()) {
@@ -111,8 +111,9 @@ class StarmusAudioEditorUI
 
 			do_action('starmus_before_editor_render');
 
-			// Retrieve core context from DAL/logic
-			$context = $this->get_editor_context();
+			// PASS THE ATTS HERE:
+			$context = $this->get_editor_context($atts); 
+
 			if (is_wp_error($context)) {
 				return '<div class="notice notice-error"><p>' . esc_html($context->get_error_message()) . '</p></div>';
 			}
@@ -232,36 +233,38 @@ class StarmusAudioEditorUI
 
 	/**
 	 * Build the editor rendering context for the current request.
+	 * 
+	 * @param array $atts Shortcode attributes passed from render method.
 	 *
 	 * @return array|WP_Error Context array or WP_Error on failure.
 	 */
-	private function get_editor_context(): array|WP_Error
+	private function get_editor_context($atts = []): array|WP_Error
 	{
 		try {
 			if ($this->cached_context !== null) {
 				return $this->cached_context;
 			}
 
-			$post_id = absint($_GET['post_id'] ?? 0);
+			// 1. Determine the Post ID (URL takes priority over Shortcode)
+			$url_id       = absint($_GET['post_id'] ?? 0);
+			$shortcode_id = isset($atts['post_id']) ? absint($atts['post_id']) : 0;
+			$post_id      = $url_id ?: $shortcode_id;
 
-			// Accept both custom 'nonce' and WordPress-native '_wpnonce' parameters
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotUnslashed
-			$get_nonce = isset($_GET['nonce']) ? wp_unslash($_GET['nonce']) : '';
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotUnslashed
-			$get_wpnonce = isset($_GET['_wpnonce']) ? wp_unslash($_GET['_wpnonce']) : '';
-			$raw_nonce   = $get_nonce ?: $get_wpnonce;
-			$nonce       = \is_string($raw_nonce) ? sanitize_text_field($raw_nonce) : '';
+			// 2. Security: Verify Nonce ONLY if accessing via URL parameter
+			if ($url_id > 0) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotUnslashed
+				$get_nonce = isset($_GET['nonce']) ? wp_unslash($_GET['nonce']) : '';
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotUnslashed
+				$get_wpnonce = isset($_GET['_wpnonce']) ? wp_unslash($_GET['_wpnonce']) : '';
+				$raw_nonce   = $get_nonce ?: $get_wpnonce;
+				$nonce       = \is_string($raw_nonce) ? sanitize_text_field($raw_nonce) : '';
 
-			// Only require nonce validation when accessing via link with post_id
-			if ($post_id > 0 && (!$nonce || ! wp_verify_nonce($nonce, 'starmus_edit_audio_' . $post_id))) {
-				return new WP_Error('invalid_nonce', __('Security check failed.', 'starmus-audio-recorder'));
+				if (! $nonce || ! wp_verify_nonce($nonce, 'starmus_edit_audio_' . $post_id)) {
+					return new WP_Error('invalid_nonce', __('Security check failed.', 'starmus-audio-recorder'));
+				}
 			}
 
-			if ($post_id && ! get_post($post_id)) {
-				return new WP_Error('invalid_id', __('Invalid submission ID.', 'starmus-audio-recorder'));
-			}
-
-			// If no post_id, return minimal context for editor demo/preview
+			// 3. Fallback: If no ID found anywhere, return empty context (Demo Mode)
 			if (! $post_id) {
 				$this->cached_context = [
 					'post_id'          => 0,
@@ -273,10 +276,16 @@ class StarmusAudioEditorUI
 				return $this->cached_context;
 			}
 
+			// 4. Validate Post Existence and Permissions
+			if (! get_post($post_id)) {
+				return new WP_Error('invalid_id', __('Invalid submission ID.', 'starmus-audio-recorder'));
+			}
+
 			if (! current_user_can('edit_post', $post_id)) {
 				return new WP_Error('permission_denied', __('Permission denied.', 'starmus-audio-recorder'));
 			}
 
+			// 5. Retrieve Audio Data
 			$attachment_id = absint(get_post_meta($post_id, '_audio_attachment_id', true));
 			if (! $attachment_id || get_post_type($attachment_id) !== 'attachment') {
 				return new WP_Error('no_audio', __('No audio file attached.', 'starmus-audio-recorder'));
@@ -287,9 +296,11 @@ class StarmusAudioEditorUI
 				return new WP_Error('no_audio_url', __('Audio file URL not available.', 'starmus-audio-recorder'));
 			}
 
+			// 6. Build Final Context
 			$waveform_url         = $this->get_secure_waveform_url($attachment_id);
 			$annotations_json     = get_post_meta($post_id, 'starmus_annotations_json', true);
 			$annotations_json     = \is_string($annotations_json) ? $annotations_json : '[]';
+
 			$this->cached_context = [
 				'post_id'          => $post_id,
 				'attachment_id'    => $attachment_id,
@@ -297,7 +308,9 @@ class StarmusAudioEditorUI
 				'waveform_url'     => $waveform_url,
 				'annotations_json' => $annotations_json,
 			];
+
 			return $this->cached_context;
+
 		} catch (Throwable $throwable) {
 			$this->log_error($throwable);
 			return new WP_Error('context_error', __('Unable to load editor context.', 'starmus-audio-recorder'));
