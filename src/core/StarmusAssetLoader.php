@@ -142,34 +142,62 @@ final class StarmusAssetLoader
         }
     }
 
-    /**
+   /**
      * Localize data specifically for the audio editor.
+     * Updated to include Audio URL, Waveform, and handle GET parameters.
      */
-   private function maybe_localize_editor_data(): void
+    private function maybe_localize_editor_data(): void
     {
         global $post;
 
-        if (! $post instanceof \WP_Post) {
+        // 1. Try to find ID from URL parameter (High Priority for direct editor access)
+        $post_id = isset($_GET['post_id']) ? absint($_GET['post_id']) : 0;
+
+        // 2. If not in URL, try to extract from shortcode in current post
+        if ($post_id === 0 && $post instanceof \WP_Post) {
+            $shortcode = get_post_field('post_content', $post->ID);
+            if (has_shortcode((string) $shortcode, 'starmus_audio_editor')) {
+                preg_match('/post_id="(\d+)"/', (string) $shortcode, $matches);
+                $post_id = isset($matches[1]) ? absint($matches[1]) : 0;
+            }
+        }
+
+        // If we still don't have a valid ID, stop here.
+        if ($post_id === 0) {
             return;
         }
 
-        // Detect editor shortcode and capture post_id attribute
-        $shortcode = get_post_field('post_content', $post->ID);
-
-        if (! has_shortcode((string) $shortcode, 'starmus_audio_editor')) {
-            return;
+        // 3. Fetch the required Audio and Waveform Data
+        $attachment_id = absint(get_post_meta($post_id, '_audio_attachment_id', true));
+        $audio_url     = $attachment_id ? wp_get_attachment_url($attachment_id) : '';
+        
+        // Secure waveform URL logic
+        $waveform_url   = '';
+        $wave_json_path = get_post_meta($attachment_id, '_waveform_json_path', true);
+        if (!empty($wave_json_path) && file_exists($wave_json_path)) {
+            $uploads      = wp_get_upload_dir();
+            $waveform_url = str_replace($uploads['basedir'], $uploads['baseurl'], $wave_json_path);
         }
 
-        // Extract post_id="123" from the shortcode
-        preg_match('/post_id="(\d+)"/', (string) $shortcode, $matches);
-        $post_id = isset($matches[1]) ? absint($matches[1]) : 0;
+        // 4. Get Annotations
+        $annotations_json = get_post_meta($post_id, 'starmus_annotations_json', true);
+        $annotations      = (!empty($annotations_json) && is_string($annotations_json)) 
+                            ? json_decode($annotations_json, true) 
+                            : [];
 
+        // 5. Send the COMPLETE data object to JS
         wp_localize_script(
             self::HANDLE_PROD_BUNDLE,
             'STARMUS_EDITOR_DATA',
             [
-                'postId'  => $post_id,
-                'restUrl' => rest_url('starmus/v1/editor/' . $post_id),
+                'postId'          => $post_id,
+                // Ensure this matches the namespace in your StarmusAudioEditorUI class
+                'restUrl'         => esc_url_raw(rest_url('star_uec/v1/annotations')), 
+                'audioUrl'        => esc_url($audio_url),
+                'waveformDataUrl' => esc_url($waveform_url),
+                'annotations'     => $annotations,
+                'nonce'           => wp_create_nonce('wp_rest'),
+                'mode'            => 'editor'
             ]
         );
     }
