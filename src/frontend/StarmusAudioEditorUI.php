@@ -117,12 +117,6 @@ class StarmusAudioEditorUI
 				return '<div class="notice notice-error"><p>' . esc_html($context->get_error_message()) . '</p></div>';
 			}
 
-			/*
-			* CRITICAL FIX:
-			* Add post_id from shortcode or GET param into the context
-			*/
-			$context['post_id'] = isset($context['post_id']) ? absint($context['post_id']) : 0;
-
 			// Now template receives post_id
 			return StarmusTemplateLoaderHelper::secure_render_template(
 				'starmus-audio-editor-ui.php',
