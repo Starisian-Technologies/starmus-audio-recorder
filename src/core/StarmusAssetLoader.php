@@ -131,11 +131,42 @@ final class StarmusAssetLoader
                     'homeUrl' => esc_url_raw(home_url('/')),
                 ]
             );
+
+            $this->maybe_localize_editor_data();
+          
+
             error_log('[Starmus AssetLoader] JS enqueued successfully');
         } catch (\Throwable $throwable) {
             error_log('[Starmus AssetLoader] ERROR in enqueue_production_assets: ' . $throwable->getMessage());
             StarmusLogger::log('StarmusAssetLoader::enqueue_production_assets', $throwable);
         }
+    }
+
+    /**
+     * Localize data specifically for the audio editor.
+     */
+    private function maybe_localize_editor_data(): void
+    {
+        global $post;
+
+        if (! $post instanceof \WP_Post) {
+            return;
+        }
+
+        // Detect the editor shortcode on the current page
+        if (! has_shortcode((string) $post->post_content, 'starmus_audio_editor')) {
+            return;
+        }
+
+        $post_id = isset($_GET['post_id']) ? absint($_GET['post_id']) : 0;
+
+        wp_localize_script(
+            self::HANDLE_PROD_BUNDLE,
+            'STARMUS_EDITOR_DATA',
+            [
+                'postId' => $post_id,
+            ]
+        );
     }
 
     /**

@@ -51,7 +51,7 @@ final class StarmusShortcodeLoader
     {
         try {
             add_shortcode('starmus_audio_recorder', fn (): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode(), 'starmus_audio_recorder'));
-            add_shortcode('starmus_audio_editor', fn (): string => $this->safe_render(fn (): string => (new StarmusAudioEditorUI())->render_audio_editor_shortcode(), 'starmus_audio_editor'));
+            add_shortcode('starmus_audio_editor', fn (array $atts = []): string => $this->safe_render(fn (): string => $this->render_editor_with_bootstrap($atts), 'starmus_audio_editor'));
             add_shortcode('starmus_my_recordings', $this->render_my_recordings_shortcode(...));
             add_shortcode('starmus_recording_detail', $this->render_submission_detail_shortcode(...));
             add_shortcode('starmus_audio_re_recorder', fn (array $atts = []): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts), 'starmus_audio_re_recorder'));
@@ -154,4 +154,27 @@ final class StarmusShortcodeLoader
 
         return '<p>You do not have permission to view this recording detail.</p>';
     }
+
+    private function render_editor_with_bootstrap(array $atts): string
+    {
+        $post_id = isset($atts['post_id']) ? absint($atts['post_id']) : 0;
+
+        if ($post_id < 1) {
+            return '<p><em>No valid audio recording selected.</em></p>';
+        }
+
+        // Provide editor bootstrap config to JS
+        wp_localize_script(
+            'starmus-audio-recorder-script.bundle',
+            'STARMUS_EDITOR_DATA',
+            [
+                'postId'  => $post_id,
+                'restUrl' => esc_url_raw(rest_url('starmus/v1/recording/' . $post_id)),
+            ]
+        );
+
+        // Render the UI
+        return (new StarmusAudioEditorUI())->render_audio_editor_shortcode();
+    }
+
 }
