@@ -8,8 +8,8 @@ const requiredFiles = [
   'src/js/starmus-recorder.js',
   'src/js/starmus-core.js',
   'src/js/starmus-ui.js',
-  'src/js/starmus-transcript-controller.js'
-  'src/js/starmus-tus.js'
+  'src/js/starmus-transcript-controller.js',
+  'src/js/starmus-tus.js',
   'src/js/starmus-integrator.js',
   'src/js/starmus-audio-editor.js', 
   'src/css/starmus-audio-recorder-style.css'
