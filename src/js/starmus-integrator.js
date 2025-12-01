@@ -234,39 +234,45 @@ function populateHiddenFields(store, formEl) {
     const calibration = state.calibration || {};
     const source = state.source || {};
     
-    // 1. UEC/Environment Blobs
+    // Helper function for safe injection: checks if element exists before setting value
+    const inject = (name, value) => {
+        const el = formEl.querySelector(`[name="${name}"]`);
+        if (el) { 
+            el.value = value;
+        } 
+        // NOTE: We don't log a warning here as the hidden fields are now dynamic 
+        // and we rely on the backend to use the raw blob if the specific field is missing.
+    };
+    
+    // 1. Telemetry Blobs (CRITICAL)
     if (env && Object.keys(env).length > 0) {
-        const envJson = JSON.stringify(env);
-        formEl.querySelector('[name="_starmus_env"]').value = envJson;
+        inject('_starmus_env', JSON.stringify(env));
     }
     
     // 2. Calibration Blobs
     if (calibration.complete) {
-        const calJson = JSON.stringify(calibration);
-        formEl.querySelector('[name="_starmus_calibration"]').value = calJson;
+        inject('_starmus_calibration', JSON.stringify(calibration));
     }
     
-    // 3. Transcript Text (Guaranteed to be empty if SpeechRec failed, but sent if available)
+    // 3. Transcript Text (Crucial for saving STT output)
     if (source.transcript) {
-        formEl.querySelector('[name="first_pass_transcription"]').value = source.transcript.trim();
+        inject('first_pass_transcription', source.transcript.trim());
     }
     
     // 4. Waveform Data (if client-side generated)
     if (source.waveform_data) {
-        formEl.querySelector('[name="waveform_json"]').value = JSON.stringify(source.waveform_data);
+        inject('waveform_json', JSON.stringify(source.waveform_data));
     }
     
-    // 5. User Agent (Final check: inject reconstructed UA)
+    // 5. User Agent & Fingerprint (Guaranteed fallback for server-side parsing)
     const browserInfo = env?.deviceDetails?.client || {};
     const osInfo = env?.deviceDetails?.os || {};
     const finalUA = browserInfo.name ? 
         `${browserInfo.name} ${browserInfo.version} (${osInfo.name})` : 
         (navigator.userAgent || '');
         
-    formEl.querySelector('[name="user_agent"]').value = finalUA;
-
-    // 6. Device Fingerprint (from UEC data)
-    formEl.querySelector('[name="device_fingerprint"]').value = env?.identifiers?.visitorId || '';
+    inject('user_agent', finalUA);
+    inject('device_fingerprint', env?.identifiers?.visitorId || '');
 }
 
 
