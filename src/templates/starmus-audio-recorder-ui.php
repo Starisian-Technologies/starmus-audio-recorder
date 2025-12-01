@@ -19,7 +19,7 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 
 // Get allowed file types from settings (comma-separated string)
 $allowed_file_types ??= 'webm';
-$allowed_types_arr     = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
+$allowed_types_arr     = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn($v) => $v !== ''));
 $show_file_type_select = count($allowed_types_arr) > 1;
 $is_admin              = current_user_can('manage_options');
 ?>
@@ -365,8 +365,7 @@ $is_admin              = current_user_can('manage_options');
 						type="file"
 						id="starmus_manual_upload_input_<?php echo esc_attr($instance_id); ?>"
 						name="audio_file"
-						accept="audio/webm,audio/wav,audio/mp3">
-					<input type="hidden" name="audio_file_type" value="audio/webm">
+						accept="audio/*">
 				</div>
 				<script>
 					document.addEventListener('DOMContentLoaded', function() {
