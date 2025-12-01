@@ -1,12 +1,14 @@
-=<?php
+<?php
 /**
  * Starmus Re-Recorder UI Template
  *
- * FIXED: Forces 'audio_file_type' to 'audio/webm' to prevent 415 Errors.
- * Browsers record in WebM, so we must tell the server to expect WebM.
+ * FIXED: 
+ * 1. Forces 'audio_file_type' to 'audio/webm' to prevent 415 Errors.
+ * 2. Includes ALL HIDDEN FIELDS needed by JS for data injection.
+ * 3. Includes CRITICAL hidden fields for Update logic (`action`, `recording_id`, `update_post_id`).
  *
  * @package Starisian\Sparxstar\Starmus\templates
- * @version 1.1.2
+ * @version 1.1.4
  */
 
 if (! defined('ABSPATH')) {
@@ -20,8 +22,12 @@ if (! defined('ABSPATH')) {
 /** @var int $existing_type */
 /** @var string $allowed_file_types */
 
-$form_id ??= 'rerecord';
+$form_id     = $form_id ?? 'rerecord';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
+
+$allowed_file_types ??= 'webm';
+$allowed_types_arr     = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn($v) => $v !== ''));
+$is_admin              = current_user_can('manage_options');
 
 ?>
 
@@ -60,7 +66,7 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 				</p>
 			</div>
 
-			<!-- CRITICAL: Hidden fields to trigger Update Logic -->
+			<!-- CRITICAL: Hidden fields for Update Logic -->
 			<input type="hidden" name="action" value="starmus_update_audio">
 			<input type="hidden" name="recording_id" value="<?php echo esc_attr($post_id); ?>">
 			<input type="hidden" name="update_post_id" value="<?php echo esc_attr($post_id); ?>">
@@ -70,7 +76,7 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 			<input type="hidden" name="starmus_language" value="<?php echo esc_attr($existing_language); ?>">
 			<input type="hidden" name="starmus_recording_type" value="<?php echo esc_attr($existing_type); ?>">
 			
-			<!-- FIX: Always set to 'audio/webm' to match browser recording format. -->
+			<!-- FIX: Always set to 'audio/webm' -->
 			<input type="hidden" name="audio_file_type" value="audio/webm">
 
 			<fieldset class="starmus-consent-fieldset">
@@ -133,7 +139,7 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 				</p>
 			</div>
 
-			<!-- TIER C FALLBACK -->
+			<!-- TIER C FALLBACK (Displayed if browser cannot record) -->
 			<div
 				id="starmus_fallback_container_<?php echo esc_attr($instance_id); ?>"
 				class="starmus-fallback-container"
@@ -149,9 +155,8 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 					type="file"
 					id="starmus_fallback_input_<?php echo esc_attr($instance_id); ?>"
 					name="audio_file"
-					accept="audio/webm,audio/wav,audio/mp3"
+					accept="audio/*"
 					style="display:none;">
-				
 			</div>
 
 			<!-- TIER A/B RECORDER UI -->
@@ -162,6 +167,7 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 
 				<!-- VISUALIZER STAGE -->
 				<div class="starmus-visualizer-stage">
+					<!-- Timer with Duration Progress -->
 					<div class="starmus-timer-wrapper">
 						<label for="starmus_timer_<?php echo esc_attr($instance_id); ?>" class="starmus-timer-label"><?php esc_html_e('Recording Time:', 'starmus-audio-recorder'); ?></label>
 						<div id="starmus_timer_<?php echo esc_attr($instance_id); ?>" class="starmus-timer" data-starmus-timer>
@@ -182,7 +188,7 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 						</div>
 					</div>
 
-					<!-- Waveform Container -->
+					<!-- Waveform Container (Peaks.js) -->
 					<div id="starmus_waveform_<?php echo esc_attr($instance_id); ?>" class="starmus-waveform-view" data-starmus-waveform></div>
 
 					<!-- Volume Meter -->
@@ -190,10 +196,9 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 						<label for="starmus_vol_meter_<?php echo esc_attr($instance_id); ?>" class="starmus-meter-label"><?php esc_html_e('Microphone Volume:', 'starmus-audio-recorder'); ?></label>
 						<div id="starmus_vol_meter_<?php echo esc_attr($instance_id); ?>" class="starmus-meter-bar" data-starmus-volume-meter></div>
 					</div>
-				</div> 
-				
-				<!-- CONTROLS DECK -->
+				</div> <!-- CONTROLS DECK -->
 				<div class="starmus-recorder-controls">
+					<!-- 1. IDLE STATE -->
 					<button
 						type="button"
 						id="starmus_record_btn_<?php echo esc_attr($instance_id); ?>"
@@ -202,6 +207,7 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 						<span class="dashicons dashicons-microphone"></span> <?php esc_html_e('Start Recording', 'starmus-audio-recorder'); ?>
 					</button>
 
+					<!-- 2. RECORDING STATE -->
 					<button
 						type="button"
 						id="starmus_pause_btn_<?php echo esc_attr($instance_id); ?>"
@@ -220,6 +226,7 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 						<span class="dashicons dashicons-media-default"></span> <?php esc_html_e('Stop', 'starmus-audio-recorder'); ?>
 					</button>
 
+					<!-- 2b. PAUSED STATE -->
 					<button
 						type="button"
 						id="starmus_resume_btn_<?php echo esc_attr($instance_id); ?>"
@@ -229,6 +236,7 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 						<span class="dashicons dashicons-controls-play"></span> <?php esc_html_e('Resume Recording', 'starmus-audio-recorder'); ?>
 					</button>
 
+					<!-- 3. REVIEW STATE -->
 					<div id="starmus_review_controls_<?php echo esc_attr($instance_id); ?>" class="starmus-review-controls" style="display:none;">
 						<button
 							type="button"
@@ -265,6 +273,7 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 				role="status"
 				style="display:none;"></div>
 
+			<!-- Upload Progress -->
 			<div
 				id="starmus_progress_wrap_<?php echo esc_attr($instance_id); ?>"
 				class="starmus-progress-wrap"
@@ -306,9 +315,7 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 						type="file"
 						id="starmus_manual_upload_input_<?php echo esc_attr($instance_id); ?>"
 						name="audio_file"
-						accept="audio/webm,audio/wav,audio/mp3">
-					<!-- FORCE webm to match browser output -->
-					<input type="hidden" name="audio_file_type" value="audio/webm">
+						accept="audio/*">
 				</div>
 				<script>
 					document.addEventListener('DOMContentLoaded', function() {

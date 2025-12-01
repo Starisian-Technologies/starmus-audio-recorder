@@ -363,56 +363,72 @@ final class StarmusSubmissionHandler
 		try {
 			StarmusLogger::debug('SubmissionHandler', 'Saving all metadata', ['post_id' => $audio_post_id]);
 
-			// --- 1. FRONTEND METADATA ---
+            // --- 1. RESOLVE TELEMETRY SOURCE (UEC Plugin Integration) ---
+            $all_telemetry = null;
+            if (class_exists('\Starisian\SparxstarUEC\StarUserEnv')) {
+                // Fetch the structured data from the UEC plugin's internal cache/DB
+                $all_telemetry = \Starisian\SparxstarUEC\StarUserEnv::get_snapshot(); 
+            }
+            
+            // Extract core data from telemetry or fallback to empty arrays
+            $client_data = $all_telemetry['client_side_data']['identifiers_extra'] ?? [];
+            $raw_profile_data   = $client_data['technical']['profile'] ?? [];
+            $browser_data       = $client_data['deviceDetails']['client'] ?? [];
+            $os_data            = $client_data['deviceDetails']['os'] ?? [];
+            $raw_technical_data = $client_data['technical']['raw'] ?? [];
+
+            // --- 2. POPULATE FROM UEC/FORM DATA (The Ultimate Fallback) ---
+
+            // Raw Calibration (Always from form)
+            if (isset($form_data['_starmus_calibration']) && $form_data['_starmus_calibration'] !== '') {
+				$this->update_acf_field('runtime_metadata', wp_unslash($form_data['_starmus_calibration']), $audio_post_id);
+			}
+
+            // Raw Environment Data (Save the entire blob)
+            $env_json_raw = $form_data['_starmus_env'] ?? '';
+            if ($env_json_raw !== '') {
+				$this->update_acf_field('environment_data', wp_unslash($env_json_raw), $audio_post_id);
+			}
+            
+            // Transcript Text (if any)
 			if (isset($form_data['first_pass_transcription']) && $form_data['first_pass_transcription'] !== '') {
 				$this->update_acf_field('first_pass_transcription', wp_unslash($form_data['first_pass_transcription']), $audio_post_id);
 			}
-
-			if (isset($form_data['recording_metadata']) && $form_data['recording_metadata'] !== '') {
-				$this->update_acf_field('recording_metadata', wp_unslash($form_data['recording_metadata']), $audio_post_id);
-			}
-
+            
+            // Raw Waveform Data from client
 			if (isset($form_data['waveform_json']) && $form_data['waveform_json'] !== '') {
 				$this->update_acf_field('waveform_json', wp_unslash($form_data['waveform_json']), $audio_post_id);
 			}
 
-			// --- 2. DECODE MAIN METADATA BLOB ---
-			$metadata = [];
-			if (isset($form_data['metadata']) && \is_string($form_data['metadata'])) {
-				$decoded = json_decode((string) wp_unslash($form_data['metadata']), true);
-				if (\is_array($decoded)) {
-					$metadata = $decoded;
-				}
-			}
-
-			// Save raw JSON for debugging
-			if ($metadata !== []) {
-				$this->update_acf_field('recording_metadata', wp_json_encode($metadata, JSON_PRETTY_PRINT), $audio_post_id);
-			}
-
-			// --- 3. ENVIRONMENT & FINGERPRINT ---
-			$env_snapshot = $metadata['environmentSnapshot'] ?? [];
-			if (! empty($env_snapshot)) {
-				$this->update_acf_field('environment_data', wp_json_encode($env_snapshot, JSON_PRETTY_PRINT), $audio_post_id);
-			}
-
-			if (! empty($env_snapshot['identifiers']['visitor_id'])) {
-				$this->update_acf_field('device_fingerprint', $env_snapshot['identifiers']['visitor_id'], $audio_post_id);
-			}
-
-			// --- 4. RECORDING DATE/TIME ---
-			if (! empty($metadata['recordedAt'])) {
+            // --- 3. EXTRACT STRUCTURED FIELDS (CRITICAL MISSING DATA) ---
+			
+			// User Agent (PRIORITY: UEC Data > Fallback from Form > Server Header)
+            $ua_from_uec = ($browser_data['name'] ?? '') . ' ' . ($browser_data['version'] ?? '') . ' (' . ($os_data['name'] ?? '') . ')';
+            $final_ua = trim($ua_from_uec) ?: ($form_data['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+			$this->update_acf_field('user_agent', sanitize_text_field($final_ua), $audio_post_id);
+			
+            // IP & Fingerprint (PRIORITY: Server-side IP > UEC IP)
+			$this->update_acf_field('submission_ip', \Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer::get_user_ip(), $audio_post_id);
+			$this->update_acf_field('device_fingerprint', $all_telemetry['fingerprint'] ?? '', $audio_post_id); 
+			
+            // Mic Profile
+            $mic_profile = $raw_profile_data['overallProfile'] ?? '';
+            if ($mic_profile) {
+                $this->update_acf_field('mic_profile', $mic_profile, $audio_post_id);
+            }
+            
+			// RECORDING DATE/TIME
+			if (! empty($raw_technical_data['timestamp'])) {
 				try {
-					$date = new \DateTime((string) $metadata['recordedAt']);
+					$date = new \DateTime((string) $raw_technical_data['timestamp']);
 					$this->update_acf_field('session_date', $date->format('Ymd'), $audio_post_id);
 					$this->update_acf_field('session_start_time', $date->format('H:i:s'), $audio_post_id);
 				} catch (\Throwable) {
-					StarmusLogger::warning('SubmissionHandler', 'Invalid recordedAt format');
+					// Logged as warning, no fatal error
 				}
 			}
-
-			// --- 5. STANDARD FIELDS & TAXONOMIES ---
-			$this->update_acf_field('submission_ip', StarmusSanitizer::get_user_ip(), $audio_post_id);
+            
+			// --- 4. FRONTEND METADATA & TAXONOMIES (Unchanged) ---
 			
 			foreach (['project_collection_id', 'accession_number', 'location', 'usage_restrictions_rights', 'access_level'] as $field) {
 				if (isset($form_data[$field])) {
@@ -423,7 +439,7 @@ final class StarmusSubmissionHandler
 			if ($attachment_id !== 0) {
 				$this->update_acf_field('audio_files_originals', $attachment_id, $audio_post_id);
 			}
-
+			
 			if (! empty($form_data['language'])) {
 				wp_set_post_terms($audio_post_id, [(int) $form_data['language']], 'language');
 			}
@@ -432,27 +448,17 @@ final class StarmusSubmissionHandler
 				wp_set_post_terms($audio_post_id, [(int) $form_data['recording_type']], 'recording-type');
 			}
 
-			do_action('starmus_after_save_submission_metadata', $audio_post_id, $form_data, $metadata);
+			do_action('starmus_after_save_submission_metadata', $audio_post_id, $form_data, $metadata ?? []);
 
-			// --- 6. OFFLINE SYNC DETECTION ---
-			$is_offline_sync = isset($metadata['sync_mode']) && 'offline' === $metadata['sync_mode'];
-			$sync_delay      = isset($metadata['sync_delay_seconds']) ? (int) $metadata['sync_delay_seconds'] : 0;
-			$sync_network    = $metadata['sync_network_type'] ?? null;
-
-			if ($is_offline_sync) {
-				$this->update_acf_field('sync_mode', 'offline', $audio_post_id);
-				$this->update_acf_field('sync_delay_seconds', $sync_delay, $audio_post_id);
-				if ($sync_delay > 3600) {
-					$this->update_acf_field('processing_priority', 'low', $audio_post_id);
-				}
-			}
-
-			// --- 7. ADAPTIVE PROCESSING CONFIG ---
-			$network_type   = $metadata['connection']['effectiveType'] ?? $sync_network ?? '4g';
+			// --- 5. ADAPTIVE PROCESSING CONFIG & TRIGGER ---
+			
+			$is_offline_sync = isset($form_data['sync_mode']) && 'offline' === $form_data['sync_mode'];
+			$sync_network    = $form_data['sync_network_type'] ?? null;
+			
+            $network_type   = $raw_technical_data['network']['effectiveType'] ?? $sync_network ?? '4g';
 			$ffmpeg_bitrate = '192k';
 			$sample_rate    = 44100;
 
-			// Adaptive logic for constrained networks
 			if ($is_offline_sync && \in_array($network_type, ['2g', 'slow-2g'], true)) {
 				$ffmpeg_bitrate = '24k';
 				$sample_rate    = 8000;
@@ -460,24 +466,17 @@ final class StarmusSubmissionHandler
 				$ffmpeg_bitrate = '48k';
 				$sample_rate    = 16000;
 			}
-
-			$processing_params = apply_filters('starmus_post_processing_params', [
+			$processing_params = [
 				'bitrate'      => $ffmpeg_bitrate,
 				'samplerate'   => $sample_rate,
 				'network_type' => $network_type,
-				'session_uuid' => $metadata['sessionUUID'] ?? ($metadata['submissionUUID'] ?? 'unknown'),
-			], $audio_post_id, $metadata);
+				'session_uuid' => $all_telemetry['session_id'] ?? 'unknown',
+			];
+			$processing_params = apply_filters('starmus_post_processing_params', $processing_params, $audio_post_id, $metadata ?? []);
 
-			StarmusLogger::info(
-				'SubmissionHandler',
-				'Determined adaptive post-processing profile',
-				$processing_params
-			);
-
-            // --- 8. TRIGGER POST PROCESSING ---
 			$this->trigger_post_processing($audio_post_id, $attachment_id, $processing_params);
 
-		} catch (Throwable $throwable) {
+		} catch (\Throwable $throwable) {
 			StarmusLogger::error('SubmissionHandler', $throwable, ['phase' => 'save_all_metadata']);
 		}
 	}
