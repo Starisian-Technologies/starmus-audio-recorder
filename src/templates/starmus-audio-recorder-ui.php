@@ -365,7 +365,8 @@ $is_admin              = current_user_can('manage_options');
 						type="file"
 						id="starmus_manual_upload_input_<?php echo esc_attr($instance_id); ?>"
 						name="audio_file"
-						accept="audio/*">
+						accept="audio/webm,audio/wav,audio/mp3">
+					<input type="hidden" name="audio_file_type" value="audio/webm">
 				</div>
 				<script>
 					document.addEventListener('DOMContentLoaded', function() {

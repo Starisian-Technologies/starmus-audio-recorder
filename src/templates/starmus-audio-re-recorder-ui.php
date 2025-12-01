@@ -149,8 +149,9 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 					type="file"
 					id="starmus_fallback_input_<?php echo esc_attr($instance_id); ?>"
 					name="audio_file"
-					accept="audio/*"
+					accept="audio/webm,audio/wav,audio/mp3"
 					style="display:none;">
+				
 			</div>
 
 			<!-- TIER A/B RECORDER UI -->
@@ -305,7 +306,9 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 						type="file"
 						id="starmus_manual_upload_input_<?php echo esc_attr($instance_id); ?>"
 						name="audio_file"
-						accept="audio/*">
+						accept="audio/webm,audio/wav,audio/mp3">
+					<!-- FORCE webm to match browser output -->
+					<input type="hidden" name="audio_file_type" value="audio/webm">
 				</div>
 				<script>
 					document.addEventListener('DOMContentLoaded', function() {
