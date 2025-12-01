@@ -363,34 +363,34 @@ final class StarmusSubmissionHandler
 		try {
 			StarmusLogger::debug('SubmissionHandler', 'Saving all metadata', ['post_id' => $audio_post_id]);
 
-            // --- 1. RESOLVE TELEMETRY SOURCE (UEC Plugin Integration) ---
-            $all_telemetry = null;
-            if (class_exists('\Starisian\SparxstarUEC\StarUserEnv')) {
-                // Fetch the structured data from the UEC plugin's internal cache/DB
-                $all_telemetry = \Starisian\SparxstarUEC\StarUserEnv::get_snapshot(); 
-            }
+            // --- 1. RESOLVE TELEMETRY FROM RAW FORM BLOBS ---
             
-            // Extract core data from telemetry or fallback to empty arrays
-            $client_data = $all_telemetry['client_side_data']['identifiers_extra'] ?? [];
-            $raw_profile_data   = $client_data['technical']['profile'] ?? [];
-            $browser_data       = $client_data['deviceDetails']['client'] ?? [];
-            $os_data            = $client_data['deviceDetails']['os'] ?? [];
-            $raw_technical_data = $client_data['technical']['raw'] ?? [];
-
-            // --- 2. POPULATE FROM UEC/FORM DATA (The Ultimate Fallback) ---
-
-            // Raw Calibration (Always from form)
-            if (isset($form_data['_starmus_calibration']) && $form_data['_starmus_calibration'] !== '') {
-				$this->update_acf_field('runtime_metadata', wp_unslash($form_data['_starmus_calibration']), $audio_post_id);
-			}
-
-            // Raw Environment Data (Save the entire blob)
+            // Raw Environment JSON (from hidden field)
             $env_json_raw = $form_data['_starmus_env'] ?? '';
+            $env_snapshot = !empty($env_json_raw) ? json_decode(wp_unslash($env_json_raw), true) : [];
+            
+            // Raw Calibration JSON (from hidden field)
+            $cal_json_raw = $form_data['_starmus_calibration'] ?? '';
+            $calibration_data = !empty($cal_json_raw) ? json_decode(wp_unslash($cal_json_raw), true) : [];
+            
+            // Extract the deep nested UEC fields safely
+            $raw_technical_data = $env_snapshot['technical']['raw'] ?? [];
+            $raw_profile_data   = $env_snapshot['technical']['profile'] ?? [];
+            $browser_data       = $raw_technical_data['browser'] ?? []; // Fallback from old JS structure
+            $os_data            = $env_snapshot['deviceDetails']['os'] ?? []; // Fallback from old JS structure
+            $all_telemetry_meta = $env_snapshot['identifiers'] ?? [];
+            
+            // --- 2. SAVE RAW BLOBS & FRONTEND DATA ---
+
+            // Save Raw Telemetry JSONs
             if ($env_json_raw !== '') {
 				$this->update_acf_field('environment_data', wp_unslash($env_json_raw), $audio_post_id);
 			}
+            if ($cal_json_raw !== '') {
+                $this->update_acf_field('runtime_metadata', wp_unslash($cal_json_raw), $audio_post_id);
+            }
             
-            // Transcript Text (if any)
+            // Transcript Text
 			if (isset($form_data['first_pass_transcription']) && $form_data['first_pass_transcription'] !== '') {
 				$this->update_acf_field('first_pass_transcription', wp_unslash($form_data['first_pass_transcription']), $audio_post_id);
 			}
@@ -399,22 +399,22 @@ final class StarmusSubmissionHandler
 			if (isset($form_data['waveform_json']) && $form_data['waveform_json'] !== '') {
 				$this->update_acf_field('waveform_json', wp_unslash($form_data['waveform_json']), $audio_post_id);
 			}
-
-            // --- 3. EXTRACT STRUCTURED FIELDS (CRITICAL MISSING DATA) ---
+            
+            // --- 3. EXTRACT STRUCTURED FIELDS (THE FIX) ---
 			
-			// User Agent (PRIORITY: UEC Data > Fallback from Form > Server Header)
-            $ua_from_uec = ($browser_data['name'] ?? '') . ' ' . ($browser_data['version'] ?? '') . ' (' . ($os_data['name'] ?? '') . ')';
-            $final_ua = trim($ua_from_uec) ?: ($form_data['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+			// User Agent (PRIORITY: UEC Data > Server Header)
+            $full_ua_uec = ($browser_data['name'] ?? '') . ' ' . ($browser_data['version'] ?? '') . ' (' . ($os_data['name'] ?? '') . ')';
+            $final_ua = trim($full_ua_uec) ?: ($form_data['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? ''));
 			$this->update_acf_field('user_agent', sanitize_text_field($final_ua), $audio_post_id);
 			
-            // IP & Fingerprint (PRIORITY: Server-side IP > UEC IP)
+            // IP & Fingerprint
 			$this->update_acf_field('submission_ip', \Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer::get_user_ip(), $audio_post_id);
-			$this->update_acf_field('device_fingerprint', $all_telemetry['fingerprint'] ?? '', $audio_post_id); 
+			$this->update_acf_field('device_fingerprint', $all_telemetry_meta['visitorId'] ?? '', $audio_post_id); 
 			
             // Mic Profile
-            $mic_profile = $raw_profile_data['overallProfile'] ?? '';
+            $mic_profile = $raw_profile_data['overallProfile'] ?? ($calibration_data['gain'] ?? '');
             if ($mic_profile) {
-                $this->update_acf_field('mic_profile', $mic_profile, $audio_post_id);
+                $this->update_acf_field('mic_profile', 'Profile: ' . $mic_profile, $audio_post_id);
             }
             
 			// RECORDING DATE/TIME
@@ -424,7 +424,7 @@ final class StarmusSubmissionHandler
 					$this->update_acf_field('session_date', $date->format('Ymd'), $audio_post_id);
 					$this->update_acf_field('session_start_time', $date->format('H:i:s'), $audio_post_id);
 				} catch (\Throwable) {
-					// Logged as warning, no fatal error
+					StarmusLogger::warning('SubmissionHandler', 'Invalid timestamp format in env data');
 				}
 			}
             
@@ -470,7 +470,7 @@ final class StarmusSubmissionHandler
 				'bitrate'      => $ffmpeg_bitrate,
 				'samplerate'   => $sample_rate,
 				'network_type' => $network_type,
-				'session_uuid' => $all_telemetry['session_id'] ?? 'unknown',
+				'session_uuid' => $all_telemetry_meta['sessionId'] ?? 'unknown',
 			];
 			$processing_params = apply_filters('starmus_post_processing_params', $processing_params, $audio_post_id, $metadata ?? []);
 
