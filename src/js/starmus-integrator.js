@@ -62,6 +62,7 @@ import { initInstance as initUI } from './starmus-ui.js';
 import { initRecorder } from './starmus-recorder.js';
 import { initCore } from './starmus-core.js';
 import './starmus-tus.js';
+import './starmus-transcript-controller.js';
 import { getOfflineQueue } from './starmus-offline.js';
 // Starmus Audio Editor (Peaks.js + annotation manager)
 import './starmus-audio-editor.js';
