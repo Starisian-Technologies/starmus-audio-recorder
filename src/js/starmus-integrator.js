@@ -237,11 +237,9 @@ function populateHiddenFields(store, formEl) {
     // Helper function for safe injection: checks if element exists before setting value
     const inject = (name, value) => {
         const el = formEl.querySelector(`[name="${name}"]`);
-        if (el) { // <--- This check stops the "Cannot set properties of null" crash
+        if (el) {
             el.value = value;
         } 
-        // NOTE: We rely on the PHP Submission Handler's default value for fields 
-        // that are not populated here (e.g., project_collection_id).
     };
     
     // 1. Telemetry Blobs (CRITICAL)
@@ -254,28 +252,22 @@ function populateHiddenFields(store, formEl) {
         inject('_starmus_calibration', JSON.stringify(calibration));
     }
     
-    // 3. Transcript Text (Crucial for saving STT output)
+    // 3. Transcript Text (FINAL FIX: Use source.transcript)
     if (source.transcript) {
         inject('first_pass_transcription', source.transcript.trim());
     }
     
-    // 4. Waveform Data (if client-side generated)
+    // 4. Waveform Data 
     if (source.waveform_data) {
         inject('waveform_json', JSON.stringify(source.waveform_data));
     }
     
-    // 5. User Agent & Fingerprint (Guaranteed fallback for server-side parsing)
-    const browserInfo = env?.deviceDetails?.client || {};
-    const osInfo = env?.deviceDetails?.os || {};
+    // 5. User Agent (Uses the most reliable source: navigator.userAgent)
+    inject('user_agent', navigator.userAgent || '');
     
-    // Construct User Agent string
-    const constructedUA = browserInfo.name ? 
-        `${browserInfo.name} ${browserInfo.version || ''} (${osInfo.name || ''})` : 
-        (navigator.userAgent || '');
-        
-    inject('user_agent', constructedUA);
-    inject('device_fingerprint', env?.identifiers?.visitorId || '');
-    // NOTE: Injecting the device type/memory/concurrency is not needed as it's in _starmus_env
+    // 6. Device Fingerprint (CRITICAL FIX: Access top-level property)
+    // The visitorId is the fingerprint
+    inject('device_fingerprint', env?.identifiers?.visitorId || ''); 
 }
 
 
