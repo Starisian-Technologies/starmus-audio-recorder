@@ -3,10 +3,13 @@
 /**
  * Starmus Audio Recorder UI Template - Final, Secure, and Accessible
  *
- * FIXED: Ensures 'audio_file_type' is 'audio/webm' to prevent 415 Errors during recording.
+ * FIXED: 
+ * 1. Guarantees 'audio_file_type' is 'audio/webm' (Stops 415 Error).
+ * 2. Includes ALL CRITICAL HIDDEN FIELDS required by the JS bundle 
+ *    to inject environment, calibration, and transcript data for submission.
  *
  * @package Starisian\Sparxstar\Starmus\templates
- * @version 1.1.2
+ * @version 1.1.4
  */
 
 if (! defined('ABSPATH')) {
@@ -15,11 +18,8 @@ if (! defined('ABSPATH')) {
 
 $form_id ??= 'default';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
-
-// Get allowed file types from settings (comma-separated string)
 $allowed_file_types ??= 'webm';
 $allowed_types_arr     = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn($v) => $v !== ''));
-$show_file_type_select = count($allowed_types_arr) > 1;
 $is_admin              = current_user_can('manage_options');
 ?>
 
@@ -101,7 +101,7 @@ $is_admin              = current_user_can('manage_options');
 				</select>
 			</div>
 
-			<!-- FIX: Overrides dynamic setting to guarantee audio/webm is sent to match browser output. -->
+			<!-- FIX: Forces the recorder format to WebM -->
 			<input type="hidden" name="audio_file_type" value="audio/webm">
 
 			<fieldset class="starmus-consent-fieldset">
@@ -127,7 +127,15 @@ $is_admin              = current_user_can('manage_options');
 				</div>
 			</fieldset>
 
-			<!-- Hidden fields -->
+			<!-- CRITICAL HIDDEN FIELDS - JS TARGETS -->
+			<!-- These must be present and named exactly for the JS to inject final telemetry, transcript, and calibration data -->
+			<input type="hidden" name="_starmus_calibration" value="">
+			<input type="hidden" name="_starmus_env" value="">
+			<input type="hidden" name="first_pass_transcription" value="">
+			<input type="hidden" name="recording_metadata" value="">
+			<input type="hidden" name="waveform_json" value="">
+
+			<!-- MANUAL / ARCHIVAL FIELDS - Should be present to ensure form submission includes them -->
 			<input type="hidden" name="project_collection_id" value="">
 			<input type="hidden" name="accession_number" value="">
 			<input type="hidden" name="session_date" value="">
@@ -143,9 +151,7 @@ $is_admin              = current_user_can('manage_options');
 			<input type="hidden" name="related_consent_agreement" value="">
 			<input type="hidden" name="usage_restrictions_rights" value="">
 			<input type="hidden" name="access_level" value="">
-			<input type="hidden" name="first_pass_transcription" value="">
 			<input type="hidden" name="audio_quality_score" value="">
-			<input type="hidden" name="recording_metadata" value="">
 			<input type="hidden" name="mic-rest-adjustments" value="">
 			<input type="hidden" name="device" value="">
 			<input type="hidden" name="user_agent" value="">
