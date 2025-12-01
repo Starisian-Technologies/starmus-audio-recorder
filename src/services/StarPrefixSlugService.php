@@ -42,13 +42,12 @@ final class StarPrivateSlugPrefix
      * Registers the wp_unique_post_slug filter to automatically prefix
      * slugs for posts marked as restricted.
      *
-     * @return void
      *
      * @since 0.8.0
      */
     public function star_boot(): void
     {
-        add_filter('wp_unique_post_slug', [$this, 'star_prefix_slug'], 10, 6);
+        add_filter('wp_unique_post_slug', $this->star_prefix_slug(...), 10, 6);
     }
 
     /**
@@ -60,10 +59,6 @@ final class StarPrivateSlugPrefix
      *
      * @param string $slug          The unique post slug
      * @param int    $post_id       The post ID
-     * @param string $post_status   The post status (publish, draft, etc.)
-     * @param string $post_type     The post type
-     * @param int    $post_parent   The post parent ID
-     * @param string $original_slug The original slug before WordPress processing
      *
      * @return string The potentially modified slug with star- prefix
      *
@@ -71,16 +66,12 @@ final class StarPrivateSlugPrefix
      */
     public function star_prefix_slug(
         string $slug,
-        int $post_id,
-        string $post_status,
-        string $post_type,
-        int $post_parent,
-        string $original_slug
+        int $post_id
     ): string {
         $restricted = get_post_meta($post_id, self::META_KEY, true);
 
         if ($restricted === '1' && !str_starts_with($slug, self::PREFIX)) {
-            $slug = self::PREFIX . $slug;
+            return self::PREFIX . $slug;
         }
 
         return $slug;

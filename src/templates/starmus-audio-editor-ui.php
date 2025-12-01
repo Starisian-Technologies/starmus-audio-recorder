@@ -2,9 +2,8 @@
 /**
  * Starmus Audio Editor UI Template
  *
- * FIXED: 
- * 1. Rebuilds the data array ($editor_data) locally to prevent empty JS variables.
- * 2. Outputs JS data immediately to prevent "Editor data not found" race conditions.
+ * FIXED: Prioritizes Context ID > URL Parameter > Current Page ID.
+ * This prevents the editor from trying to load audio from the Page (ID 21) instead of the Recording (ID 573).
  *
  * @package Starisian\Sparxstar\Starmus\templates
  */
@@ -15,33 +14,48 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// 1. Resolve Post ID (Handle passed args or global fallback)
-$current_post_id = isset( $post_id ) ? intval( $post_id ) : get_the_ID();
+// === 1. ROBUST ID RESOLUTION ===
 
-// If we still don't have an ID (rare), check the $context array if it exists
-if ( ! $current_post_id && isset( $context['post_id'] ) ) {
+$current_post_id = 0;
+
+// Priority 1: Context passed from Shortcode Loader (This contains the correct ID 573)
+if ( ! empty( $context['post_id'] ) ) {
 	$current_post_id = intval( $context['post_id'] );
 }
+// Priority 2: Direct variable if extracted
+elseif ( isset( $post_id ) ) {
+	$current_post_id = intval( $post_id );
+}
+// Priority 3: URL Parameter (e.g. ?recording_id=573)
+elseif ( isset( $_GET['recording_id'] ) ) {
+	$current_post_id = intval( $_GET['recording_id'] );
+}
+// Priority 4: Global ID (Only if it's actually an audio-recording post type)
+elseif ( 'audio-recording' === get_post_type() ) {
+	$current_post_id = get_the_ID();
+}
+
+// === 2. FETCH DATA BASED ON RESOLVED ID ===
 
 $audio_url = '';
-$editor_data = []; // We will build this object for JS
+$editor_data = []; 
 
 if ( $current_post_id ) {
-	// 2. Resolve Audio URL (Master > Original > Legacy)
+	// Resolve Audio URL (Master > Original > Legacy)
 	$master_id   = (int) get_post_meta( $current_post_id, 'mastered_mp3', true );
 	$original_id = (int) get_post_meta( $current_post_id, 'audio_files_originals', true );
 	$legacy_id   = (int) get_post_meta( $current_post_id, '_audio_attachment_id', true );
 
 	$audio_att_id = $master_id ?: ( $original_id ?: $legacy_id );
-	$audio_url    = $audio_att_id ? wp_get_attachment_url( $audio_att_id ) : '';
+	$audio_url    = $audio_att_id !== 0 ? wp_get_attachment_url( $audio_att_id ) : '';
 
-	// 3. Resolve Metadata (Transcript & Annotations)
+	// Resolve Metadata
 	$transcript_json  = get_post_meta( $current_post_id, 'first_pass_transcription', true );
 	$annotations_json = get_post_meta( $current_post_id, 'starmus_annotations', true );
 	$waveform_json    = get_post_meta( $current_post_id, 'waveform_json', true );
 
 	// Decode JSONs safely
-	$transcript_data  = [];
+	$transcript_data = [];
 	if ( $transcript_json ) {
 		$decoded = json_decode( $transcript_json, true );
 		$transcript_data = is_array( $decoded ) ? ( $decoded['segments'] ?? $decoded ) : [];
@@ -58,13 +72,10 @@ if ( $current_post_id ) {
 		$waveform_data = is_string( $waveform_json ) ? json_decode( $waveform_json, true ) : $waveform_json;
 	}
 
-	// 4. Construct the Data Object for JavaScript
-	// This ensures keys exactly match what starmus-audio-recorder-script.bundle.js expects
+	// Construct JS Data Object
 	$editor_data = [
-		'postId'          => $current_post_id, // JS expects camelCase 'postId'
-		'post_id'         => $current_post_id, // Keep snake_case just in case
-		'audioUrl'        => $audio_url,       // JS expects 'audioUrl'
-		'audio_url'       => $audio_url,
+		'postId'          => $current_post_id,
+		'audioUrl'        => $audio_url,
 		'restUrl'         => esc_url_raw( rest_url( 'star_uec/v1/annotations' ) ),
 		'nonce'           => wp_create_nonce( 'wp_rest' ),
 		'transcript'      => $transcript_data,
@@ -76,14 +87,11 @@ if ( $current_post_id ) {
 }
 ?>
 
-<!-- 1. OUTPUT DATA FIRST (This fixes the "Editor data not found" error) -->
+<!-- OUTPUT DATA IMMEDIATELY -->
 <script>
 	window.STARMUS_EDITOR_DATA = <?php echo wp_json_encode( $editor_data ); ?>;
-	// Helper for debugging
-	console.log("[Starmus Editor] Data Loaded:", window.STARMUS_EDITOR_DATA);
 </script>
 
-<!-- 2. EDITOR CONTAINER -->
 <div 
 	id="starmus-editor-root" 
 	class="starmus-editor sparxstar-glass-card" 
@@ -94,16 +102,31 @@ if ( $current_post_id ) {
 	<div class="starmus-editor__head">
 		<h1 class="starmus-editor__title">
 			<?php esc_html_e( 'Audio Editor', 'starmus-audio-recorder' ); ?>
-			<span class="starmus-editor__id-badge">ID: <?php echo intval( $current_post_id ); ?></span>
+			<span class="starmus-editor__id-badge">
+				<?php 
+				if ( $current_post_id ) {
+					printf( esc_html__( 'ID: %d', 'starmus-audio-recorder' ), intval( $current_post_id ) ); 
+				} else {
+					esc_html_e( 'No Recording Selected', 'starmus-audio-recorder' );
+				}
+				?>
+			</span>
 		</h1>
 		<div class="starmus-editor__time">
 			<span id="starmus-time-cur">0:00</span> / <span id="starmus-time-dur">0:00</span>
 		</div>
 	</div>
 
-	<?php if ( empty( $audio_url ) ) : ?>
+	<?php if ( empty( $current_post_id ) ) : ?>
+		<div class="starmus-alert starmus-alert--warning">
+			<p><?php esc_html_e( 'Please select a recording to edit.', 'starmus-audio-recorder' ); ?></p>
+		</div>
+	<?php elseif ( empty( $audio_url ) ) : ?>
 		<div class="starmus-alert starmus-alert--error">
-			<p><strong>Error:</strong> Audio file not found (ID: <?php echo intval( $current_post_id ); ?>). Cannot initialize editor.</p>
+			<p>
+				<strong><?php esc_html_e( 'Error:', 'starmus-audio-recorder' ); ?></strong> 
+				<?php printf( esc_html__( 'Audio file missing for recording #%d.', 'starmus-audio-recorder' ), $current_post_id ); ?>
+			</p>
 		</div>
 	<?php else : ?>
 

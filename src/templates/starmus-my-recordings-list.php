@@ -12,7 +12,7 @@
 use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 
 // Initialize Service safely
-$file_service = class_exists( 'Starisian\Sparxstar\Starmus\services\StarmusFileService' ) 
+$file_service = class_exists( \Starisian\Sparxstar\Starmus\services\StarmusFileService::class ) 
 	? new StarmusFileService() 
 	: null;
 
@@ -41,12 +41,8 @@ if ( $query->have_posts() ) { ?>
 				$audio_url = '';
 				if ( $audio_att_id > 0 ) {
 					try {
-						if ( $file_service ) {
-							$audio_url = $file_service->star_get_public_url( $audio_att_id );
-						} else {
-							$audio_url = wp_get_attachment_url( $audio_att_id );
-						}
-					} catch ( \Throwable $e ) {
+						$audio_url = $file_service instanceof \Starisian\Sparxstar\Starmus\services\StarmusFileService ? $file_service->star_get_public_url( $audio_att_id ) : wp_get_attachment_url( $audio_att_id );
+					} catch ( \Throwable ) {
 						$audio_url = wp_get_attachment_url( $audio_att_id );
 					}
 				}
@@ -55,9 +51,15 @@ if ( $query->have_posts() ) { ?>
 				$mime_type = 'audio/mpeg'; // Default
 				if ( $audio_url ) {
 					$ext = strtolower( pathinfo( parse_url( $audio_url, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
-					if ( 'wav' === $ext ) $mime_type = 'audio/wav';
-					if ( 'webm' === $ext ) $mime_type = 'audio/webm';
-					if ( 'm4a' === $ext ) $mime_type = 'audio/mp4';
+					if ('wav' === $ext) {
+                        $mime_type = 'audio/wav';
+                    }
+					if ('webm' === $ext) {
+                        $mime_type = 'audio/webm';
+                    }
+					if ('m4a' === $ext) {
+                        $mime_type = 'audio/mp4';
+                    }
 				}
 
 				// === 4. METADATA & DURATION FALLBACK ===
@@ -70,7 +72,7 @@ if ( $query->have_posts() ) { ?>
 				
 				if ( $duration_sec ) {
 					$duration_formatted = gmdate( 'i:s', intval( $duration_sec ) );
-				} elseif ( $audio_att_id ) {
+				} elseif ( $audio_att_id !== 0 ) {
 					// Fallback to attachment meta
 					$att_meta = wp_get_attachment_metadata( $audio_att_id );
 					if ( isset( $att_meta['length_formatted'] ) ) {

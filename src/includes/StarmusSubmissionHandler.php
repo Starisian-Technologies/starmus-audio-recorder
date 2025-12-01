@@ -946,7 +946,7 @@ final class StarmusSubmissionHandler
 
 			$allowed = $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings ? $this->settings->get('allowed_file_types', []) : [];
 			if (\is_string($allowed) && $allowed !== '') {
-				$allowed = array_values(array_filter(array_map('trim', explode(',', (string) $allowed)), fn($v) => $v !== ''));
+				$allowed = array_values(array_filter(array_map(trim(...), explode(',', $allowed)), fn($v): bool => $v !== ''));
 			}
 
 			if (! \is_array($allowed) || $allowed === []) {

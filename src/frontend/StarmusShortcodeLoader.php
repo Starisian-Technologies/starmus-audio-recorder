@@ -167,6 +167,7 @@ final class StarmusShortcodeLoader
             if (\defined('WP_DEBUG') && WP_DEBUG) {
                 error_log('[StarmusShortcodeLoader] Editor context error: ' . $error_message);
             }
+
             return '<div class="notice notice-error"><p>' . esc_html($error_message) . '</p></div>';
         }
 

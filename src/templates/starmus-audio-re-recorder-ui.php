@@ -1,10 +1,9 @@
-<?php
+=<?php
 /**
  * Starmus Re-Recorder UI Template
  *
- * FIXED: 
- * 1. Forces 'audio_file_type' to 'audio/webm' to prevent 415 errors (Browsers record WebM, not MP3).
- * 2. Identical structure to Standard Recorder for JS compatibility.
+ * FIXED: Forces 'audio_file_type' to 'audio/webm' to prevent 415 Errors.
+ * Browsers record in WebM, so we must tell the server to expect WebM.
  *
  * @package Starisian\Sparxstar\Starmus\templates
  * @version 1.1.2
@@ -21,7 +20,7 @@ if (! defined('ABSPATH')) {
 /** @var int $existing_type */
 /** @var string $allowed_file_types */
 
-$form_id     = $form_id ?? 'rerecord';
+$form_id ??= 'rerecord';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 
 ?>
@@ -71,7 +70,7 @@ $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4
 			<input type="hidden" name="starmus_language" value="<?php echo esc_attr($existing_language); ?>">
 			<input type="hidden" name="starmus_recording_type" value="<?php echo esc_attr($existing_type); ?>">
 			
-			<!-- FIX: Default to 'audio/webm' to match browser capability and prevent 415 errors -->
+			<!-- FIX: Always set to 'audio/webm' to match browser recording format. -->
 			<input type="hidden" name="audio_file_type" value="audio/webm">
 
 			<fieldset class="starmus-consent-fieldset">

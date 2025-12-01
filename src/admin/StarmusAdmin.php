@@ -240,7 +240,7 @@ class StarmusAdmin
 			// Allowed file types
 			$file_types = sanitize_text_field($input['allowed_file_types'] ?? '');
 			if (! empty($file_types)) {
-				$types                           = array_map('trim', explode(',', $file_types));
+				$types                           = array_map(trim(...), explode(',', $file_types));
 				$types                           = array_filter($types, [$this, 'is_valid_file_extension']);
 				$sanitized['allowed_file_types'] = implode(',', $types);
 			} else {
@@ -250,7 +250,7 @@ class StarmusAdmin
 			// Allowed languages
 			$allowed_langs = sanitize_text_field($input['allowed_languages'] ?? '');
 			if (! empty($allowed_langs)) {
-				$langs = array_map('trim', explode(',', $allowed_langs));
+				$langs = array_map(trim(...), explode(',', $allowed_langs));
 				$langs = array_filter(
 					$langs,
 					fn($l): int|false => preg_match('/^[a-z]{2,4}$/', $l)

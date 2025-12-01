@@ -154,29 +154,6 @@ final class StarmusAssetLoader
 
 
     /**
-     * DEPRECATED: Editor data is now localized in StarmusShortcodeLoader::render_editor_with_bootstrap()
-     * This method is kept for backward compatibility but is no longer called.
-     * 
-     * @deprecated 3.2.0 Use StarmusShortcodeLoader::render_editor_with_bootstrap() instead
-     */
-    private function maybe_localize_editor_data(): void
-    {
-        // This method is deprecated and no longer used
-        // Editor data localization moved to StarmusShortcodeLoader for proper context handling
-    }
-
-    /**
-     * DEPRECATED: Re-recorder data localization moved to component level
-     * 
-     * @deprecated 3.2.0
-     */
-    private function maybe_localize_re_recorder_data(): void
-    {
-        // This method is deprecated and no longer used
-    }
-
-
-    /**
      * Enqueues the minified stylesheet for the plugin.
      *
      * Loads the production-optimized CSS bundle with cache-busting version.
@@ -220,7 +197,7 @@ final class StarmusAssetLoader
 
             // Get allowed file types from settings (comma-separated string like 'mp3,wav,webm')
             $allowed_file_types = $settings->get('allowed_file_types', 'mp3,wav,webm');
-            $allowed_types_arr  = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn($v) => $v !== ''));
+            $allowed_types_arr  = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
 
             // Map extensions to MIME types
             $allowed_mimes = [];

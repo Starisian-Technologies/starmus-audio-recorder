@@ -38,7 +38,7 @@ try {
 	$settings     = new StarmusSettings();
 	
 	// Check if FileService exists before instantiating to prevent fatal errors
-	$file_service = class_exists( 'Starisian\Sparxstar\Starmus\services\StarmusFileService' ) 
+	$file_service = class_exists( \Starisian\Sparxstar\Starmus\services\StarmusFileService::class ) 
 		? new StarmusFileService() 
 		: null;
 
@@ -61,12 +61,12 @@ try {
 	$playback_url = '';
 	if ( $playback_id > 0 ) {
 		try {
-			if ( $file_service ) {
+			if ( $file_service instanceof \Starisian\Sparxstar\Starmus\services\StarmusFileService ) {
 				$playback_url = $file_service->star_get_public_url( $playback_id );
 			} else {
 				throw new Exception( 'Service unavailable' );
 			}
-		} catch ( \Throwable $e ) {
+		} catch ( \Throwable ) {
 			$playback_url = wp_get_attachment_url( $playback_id );
 		}
 	}
@@ -100,10 +100,10 @@ try {
 	$edit_page_url      = $edit_page_slug ? get_permalink( get_page_by_path( $edit_page_slug ) ) : '';
 	$recorder_page_url  = $recorder_page_slug ? get_permalink( get_page_by_path( $recorder_page_slug ) ) : '';
 
-} catch ( \Throwable $e ) {
+} catch ( \Throwable $throwable ) {
 	// Fail silently in production, log in debug
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		error_log( '[Starmus Detail Error] ' . $e->getMessage() );
+		error_log( '[Starmus Detail Error] ' . $throwable->getMessage() );
 	}
 	echo '<div class="starmus-alert starmus-alert--error"><p>' . esc_html__( 'Unable to load recording details.', 'starmus-audio-recorder' ) . '</p></div>';
 	return;
@@ -145,7 +145,7 @@ try {
 			<section class="starmus-player-card sparxstar-glass-card">
 				<?php if ( $playback_url ) : ?>
 					<audio controls preload="metadata" class="starmus-audio-full">
-						<source src="<?php echo esc_url( $playback_url ); ?>" type="<?php echo strpos($playback_url, '.mp3') !== false ? 'audio/mpeg' : 'audio/webm'; ?>">
+						<source src="<?php echo esc_url( $playback_url ); ?>" type="<?php echo str_contains($playback_url, '.mp3') ? 'audio/mpeg' : 'audio/webm'; ?>">
 						<?php esc_html_e( 'Your browser does not support the audio player.', 'starmus-audio-recorder' ); ?>
 					</audio>
 				<?php else : ?>

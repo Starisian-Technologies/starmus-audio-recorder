@@ -91,6 +91,7 @@ class StarmusAudioEditorUI
 				$classes[] = 'starmus-page';
 				$classes[] = 'starmus-editor-page';
 			}
+
 			return $classes;
 		});
 	}
@@ -204,6 +205,7 @@ class StarmusAudioEditorUI
 			$this->log_error($throwable);
 		}
 	}
+
 	/**
 	 * Convert stored annotations JSON to a sanitized array structure.
 	 *
@@ -237,7 +239,7 @@ class StarmusAudioEditorUI
 	 *
 	 * @return array|WP_Error Context array or WP_Error on failure.
 	 */
-	private function get_editor_context($atts = []): array|WP_Error
+	private function get_editor_context(array $atts = []): array|WP_Error
 	{
 		try {
 			if ($this->cached_context !== null) {
@@ -298,7 +300,8 @@ class StarmusAudioEditorUI
 
 			if (! $is_author && ! $has_cap) {
 				return new WP_Error('permission_denied', __('Permission denied.', 'starmus-audio-recorder'));
-			}			// 5. Retrieve Audio Data
+			}
+            			// 5. Retrieve Audio Data
 			$attachment_id = absint(get_post_meta($post_id, '_audio_attachment_id', true));
 			if (! $attachment_id || get_post_type($attachment_id) !== 'attachment') {
 				return new WP_Error('no_audio', __('No audio file attached.', 'starmus-audio-recorder'));
