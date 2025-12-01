@@ -1,6 +1,6 @@
 /**
  * @file starmus-integrator.js
- * @version 4.3.3
+ * @version 4.3.4
  * @description Master orchestrator with CRITICAL fix for submission payload injection.
  */
 
@@ -237,11 +237,11 @@ function populateHiddenFields(store, formEl) {
     // Helper function for safe injection: checks if element exists before setting value
     const inject = (name, value) => {
         const el = formEl.querySelector(`[name="${name}"]`);
-        if (el) { 
+        if (el) { // <--- This check stops the "Cannot set properties of null" crash
             el.value = value;
         } 
-        // NOTE: We don't log a warning here as the hidden fields are now dynamic 
-        // and we rely on the backend to use the raw blob if the specific field is missing.
+        // NOTE: We rely on the PHP Submission Handler's default value for fields 
+        // that are not populated here (e.g., project_collection_id).
     };
     
     // 1. Telemetry Blobs (CRITICAL)
@@ -267,12 +267,15 @@ function populateHiddenFields(store, formEl) {
     // 5. User Agent & Fingerprint (Guaranteed fallback for server-side parsing)
     const browserInfo = env?.deviceDetails?.client || {};
     const osInfo = env?.deviceDetails?.os || {};
-    const finalUA = browserInfo.name ? 
-        `${browserInfo.name} ${browserInfo.version} (${osInfo.name})` : 
+    
+    // Construct User Agent string
+    const constructedUA = browserInfo.name ? 
+        `${browserInfo.name} ${browserInfo.version || ''} (${osInfo.name || ''})` : 
         (navigator.userAgent || '');
         
-    inject('user_agent', finalUA);
+    inject('user_agent', constructedUA);
     inject('device_fingerprint', env?.identifiers?.visitorId || '');
+    // NOTE: Injecting the device type/memory/concurrency is not needed as it's in _starmus_env
 }
 
 
