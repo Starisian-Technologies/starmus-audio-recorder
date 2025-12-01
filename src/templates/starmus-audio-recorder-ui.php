@@ -3,8 +3,7 @@
 /**
  * Starmus Audio Recorder UI Template - Final, Secure, and Accessible
  *
- * FIXED: Forces 'audio_file_type' to 'audio/webm' to prevent 415 Errors.
- * This fixes the issue where the browser sends WebM but the form claims it is MP3.
+ * FIXED: Ensures 'audio_file_type' is 'audio/webm' to prevent 415 Errors during recording.
  *
  * @package Starisian\Sparxstar\Starmus\templates
  * @version 1.1.2
@@ -102,8 +101,7 @@ $is_admin              = current_user_can('manage_options');
 				</select>
 			</div>
 
-			<!-- FIX: Always set this to audio/webm because that is what the browser records.
-			     The backend handles conversion to MP3 later. This stops the 415 error. -->
+			<!-- FIX: Overrides dynamic setting to guarantee audio/webm is sent to match browser output. -->
 			<input type="hidden" name="audio_file_type" value="audio/webm">
 
 			<fieldset class="starmus-consent-fieldset">
