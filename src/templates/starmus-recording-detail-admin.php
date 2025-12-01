@@ -31,7 +31,7 @@ try {
 	$settings     = new StarmusSettings();
 	
 	// Safe Service Instantiation
-	$file_service = class_exists( 'Starisian\Sparxstar\Starmus\services\StarmusFileService' ) 
+	$file_service = class_exists( \Starisian\Sparxstar\Starmus\services\StarmusFileService::class ) 
 		? new StarmusFileService() 
 		: null;
 
@@ -42,10 +42,14 @@ try {
 	$legacy_id       = (int) get_post_meta( $post_id, '_audio_attachment_id', true );
 
 	$get_url = function( int $att_id ) use ( $file_service ) {
-		if ( $att_id <= 0 ) return '';
+		if ($att_id <= 0) {
+            return '';
+        }
 		try {
-			if ( $file_service ) return $file_service->star_get_public_url( $att_id );
-		} catch ( \Throwable $e ) {}
+			if ($file_service instanceof \Starisian\Sparxstar\Starmus\services\StarmusFileService) {
+                return $file_service->star_get_public_url( $att_id );
+            }
+		} catch ( \Throwable ) {}
 		return wp_get_attachment_url( $att_id ) ?: '';
 	};
 
@@ -86,10 +90,10 @@ try {
 	}
 
 	// Parse Environment
-	$env_data = ! empty( $env_json ) ? json_decode( $env_json, true ) : [];
+	$env_data = empty( $env_json ) ? [] : json_decode( $env_json, true );
 
 	// Parse Annotations
-	$annotations = ! empty( $annotations_json ) ? json_decode( $annotations_json, true ) : [];
+	$annotations = empty( $annotations_json ) ? [] : json_decode( $annotations_json, true );
 
 	// --- 4. Standard Metadata ---
 	$accession_number = get_post_meta( $post_id, 'accession_number', true );
@@ -105,8 +109,8 @@ try {
 	$edit_page_url      = $edit_page_slug ? get_permalink( get_page_by_path( $edit_page_slug ) ) : '';
 	$recorder_page_url  = $recorder_page_slug ? get_permalink( get_page_by_path( $recorder_page_slug ) ) : '';
 
-} catch ( \Throwable $e ) {
-	echo '<div class="starmus-alert starmus-alert--error"><p>Error: ' . esc_html( $e->getMessage() ) . '</p></div>';
+} catch ( \Throwable $throwable ) {
+	echo '<div class="starmus-alert starmus-alert--error"><p>Error: ' . esc_html( $throwable->getMessage() ) . '</p></div>';
 	return;
 }
 ?>
@@ -139,7 +143,7 @@ try {
 		<?php if ( $playback_url ) : ?>
 			<figure class="starmus-player-wrap" style="margin-bottom: 20px;">
 				<audio controls preload="metadata" style="width: 100%;" class="starmus-audio-full">
-					<source src="<?php echo esc_url( $playback_url ); ?>" type="<?php echo strpos($playback_url, '.mp3') !== false ? 'audio/mpeg' : 'audio/webm'; ?>">
+					<source src="<?php echo esc_url( $playback_url ); ?>" type="<?php echo str_contains($playback_url, '.mp3') ? 'audio/mpeg' : 'audio/webm'; ?>">
 					<?php esc_html_e( 'Browser does not support audio.', 'starmus-audio-recorder' ); ?>
 				</audio>
 			</figure>
@@ -156,12 +160,12 @@ try {
 			<tbody>
 				<tr>
 					<td><strong>Mastered MP3</strong></td>
-					<td><?php echo $mastered_mp3_id ? '<span style="color:var(--starmus-success);">✔ Available</span>' : '<span style="color:var(--starmus-warning);">Processing...</span>'; ?></td>
+					<td><?php echo $mastered_mp3_id !== 0 ? '<span style="color:var(--starmus-success);">✔ Available</span>' : '<span style="color:var(--starmus-warning);">Processing...</span>'; ?></td>
 					<td><?php if ( $mp3_url ) : ?><a href="<?php echo esc_url( $mp3_url ); ?>" target="_blank" download class="starmus-btn starmus-btn--outline" style="padding:4px 8px;font-size:0.8em;">Download</a><?php endif; ?></td>
 				</tr>
 				<tr>
 					<td><strong>Archival WAV</strong></td>
-					<td><?php echo $archival_wav_id ? '<span style="color:var(--starmus-success);">✔ Available</span>' : '<span style="color:var(--starmus-text-muted);">Not generated</span>'; ?></td>
+					<td><?php echo $archival_wav_id !== 0 ? '<span style="color:var(--starmus-success);">✔ Available</span>' : '<span style="color:var(--starmus-text-muted);">Not generated</span>'; ?></td>
 					<td><?php if ( $wav_url ) : ?><a href="<?php echo esc_url( $wav_url ); ?>" target="_blank" download class="starmus-btn starmus-btn--outline" style="padding:4px 8px;font-size:0.8em;">Download</a><?php endif; ?></td>
 				</tr>
 				<tr>
@@ -174,17 +178,17 @@ try {
 	</section>
 
 	<!-- Waveform -->
-	<?php if ( ! empty( $waveform_data ) ) : 
+	<?php if ( $waveform_data !== [] ) : 
 		$width = 800; $height = 100;
 		$count = count( $waveform_data );
 		$step = max( 1, floor( $count / 800 ) ); 
 		$points = [];
-		$max_val = max( array_map( 'abs', $waveform_data ) ) ?: 1;
+		$max_val = max( array_map( abs(...), $waveform_data ) ) ?: 1;
 		for ( $i = 0; $i < $count; $i += $step ) {
 			$val = (float) $waveform_data[$i];
 			$x = ( $i / $count ) * $width;
 			$y = $height - ( ( $val / $max_val ) * $height );
-			$points[] = "$x,$y";
+			$points[] = sprintf('%s,%s', $x, $y);
 		}
 	?>
 	<section class="starmus-detail__section sparxstar-glass-card">

@@ -27,8 +27,9 @@ use Throwable;
  */
 class StarmusPostProcessingService
 {
-    private StarmusAudioRecorderDAL $dal;
-    private StarmusWaveformService $waveform_service;
+    private readonly StarmusAudioRecorderDAL $dal;
+
+    private readonly StarmusWaveformService $waveform_service;
 
     public function __construct()
     {
@@ -54,7 +55,7 @@ class StarmusPostProcessingService
             // 1. Validate Source
             $source_path = get_attached_file($attachment_id);
             if (!$source_path || !file_exists($source_path)) {
-                throw new \RuntimeException("Source file missing for attachment ID: $attachment_id");
+                throw new \RuntimeException('Source file missing for attachment ID: ' . $attachment_id);
             }
 
             // 2. Prepare Output Directory
@@ -70,7 +71,8 @@ class StarmusPostProcessingService
                 // Fallback for local dev environments where 'ffmpeg' is in PATH
                 $ffmpeg_path = trim(shell_exec('command -v ffmpeg') ?: '');
             }
-            if (!$ffmpeg_path) {
+
+            if ($ffmpeg_path === '' || $ffmpeg_path === '0') {
                 throw new \RuntimeException('FFmpeg binary not found on server.');
             }
 
@@ -94,10 +96,10 @@ class StarmusPostProcessingService
                 escapeshellarg($source_path)
             );
             $scan_output = shell_exec($cmd_scan);
-            
+
             // Parse JSON from FFmpeg output
             preg_match('/\{.*\}/s', $scan_output, $matches);
-            $loudness_data = !empty($matches[0]) ? json_decode($matches[0], true) : [];
+            $loudness_data = empty($matches[0]) ? [] : json_decode($matches[0], true);
 
             $loudnorm_filter = \sprintf(
                 'loudnorm=I=-23:LRA=7:tp=-2:measured_I=%s:measured_LRA=%s:measured_tp=%s:measured_thresh=%s:offset=%s',
@@ -108,7 +110,7 @@ class StarmusPostProcessingService
                 $loudness_data['target_offset'] ?? 0
             );
 
-            $full_filter = "$highpass,$loudnorm_filter";
+            $full_filter = sprintf('%s,%s', $highpass, $loudnorm_filter);
 
             // 6. Define Output Paths
             $mp3_filename = $post_id . '_master.mp3';
@@ -119,7 +121,7 @@ class StarmusPostProcessingService
             // Metadata Tags for FFmpeg
             $ffmpeg_meta = \sprintf(
                 '-metadata comment=%s',
-                escapeshellarg("Source: Starmus | Profile: $network_type | Session: $session_uuid")
+                escapeshellarg(sprintf('Source: Starmus | Profile: %s | Session: %s', $network_type, $session_uuid))
             );
 
             // 7. Transcode (Pass 2)
@@ -155,12 +157,12 @@ class StarmusPostProcessingService
             $mp3_id = $this->import_to_media_library($mp3_path, $post_id, 'audio/mpeg');
             $wav_id = $this->import_to_media_library($wav_path, $post_id, 'audio/wav');
 
-            if (!$mp3_id) {
+            if ($mp3_id === 0) {
                 throw new \RuntimeException("Failed to import MP3 to Media Library.");
             }
 
             // 9. Apply ID3 Tags (to the MP3)
-            $this->apply_id3_tags($mp3_path, $post_id, $mp3_id);
+            $this->apply_id3_tags($mp3_path, $post_id);
 
             // 10. Generate Waveform Data
             // We use the WAV file for faster processing if available, otherwise MP3
@@ -176,10 +178,10 @@ class StarmusPostProcessingService
             update_post_meta($post_id, 'mastered_mp3', $mp3_id);
             update_post_meta($post_id, 'archival_wav', $wav_id);
             update_post_meta($post_id, 'processing_log', implode("\n", $log));
-            
+
             // Legacy / Backup keys
             update_post_meta($post_id, '_audio_attachment_id', $attachment_id); // Keep link to original source
-            
+
             // Also update ACF fields if plugin exists
             if (function_exists('update_field')) {
                 update_field('mastered_mp3', $mp3_id, $post_id);
@@ -189,9 +191,9 @@ class StarmusPostProcessingService
             StarmusLogger::info('StarmusPostProcessing', 'Processing Complete', ['post_id' => $post_id, 'mp3_id' => $mp3_id]);
             return true;
 
-        } catch (Throwable $e) {
-            StarmusLogger::error('StarmusPostProcessing', $e, ['post_id' => $post_id]);
-            update_post_meta($post_id, 'processing_log', "CRITICAL ERROR:\n" . $e->getMessage());
+        } catch (Throwable $throwable) {
+            StarmusLogger::error('StarmusPostProcessing', $throwable, ['post_id' => $post_id]);
+            update_post_meta($post_id, 'processing_log', "CRITICAL ERROR:\n" . $throwable->getMessage());
             return false;
         } finally {
             StarmusLogger::timeEnd('audio_process', 'StarmusPostProcessing');
@@ -203,7 +205,9 @@ class StarmusPostProcessingService
      */
     private function import_to_media_library(string $filepath, int $parent_post_id, string $mime_type): int
     {
-        if (!file_exists($filepath)) return 0;
+        if (!file_exists($filepath)) {
+            return 0;
+        }
 
         $filename = basename($filepath);
         $attachment = [
@@ -214,7 +218,7 @@ class StarmusPostProcessingService
         ];
 
         $attach_id = wp_insert_attachment($attachment, $filepath, $parent_post_id);
-        
+
         if (!is_wp_error($attach_id)) {
             require_once ABSPATH . 'wp-admin/includes/image.php';
             $attach_data = wp_generate_attachment_metadata($attach_id, $filepath);
@@ -228,7 +232,7 @@ class StarmusPostProcessingService
     /**
      * Writes ID3 tags using getID3 library.
      */
-    private function apply_id3_tags(string $filepath, int $post_id, int $attachment_id): void
+    private function apply_id3_tags(string $filepath, int $post_id): void
     {
         if (!class_exists('getid3_writetags')) {
             // Try to load from WP core or included lib if available
@@ -253,15 +257,15 @@ class StarmusPostProcessingService
                 'artist'  => [$author_name],
                 'album'   => [$site_name . ' Archives'],
                 'year'    => [date('Y')],
-                'comment' => ["Recorded via Starmus | ID: $post_id"],
-                'copyright_message' => ["© $site_name"],
+                'comment' => ['Recorded via Starmus | ID: ' . $post_id],
+                'copyright_message' => ['© ' . $site_name],
                 'publisher' => [$site_name],
             ];
 
             $writer->tag_data = $TagData;
             $writer->WriteTags();
-        } catch (\Throwable $e) {
-            StarmusLogger::warning('ID3 Write Failed', $e->getMessage());
+        } catch (\Throwable $throwable) {
+            StarmusLogger::warning('ID3 Write Failed', $throwable->getMessage());
         }
     }
 }

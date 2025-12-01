@@ -343,9 +343,9 @@ final class StarmusSubmissionHandler
 					wp_schedule_single_event(time() + 60, 'starmus_cron_process_pending_audio', [$post_id, $attachment_id]);
 				}
 			}
-		} catch (Throwable $e) {
+		} catch (Throwable $throwable) {
             // If the service threw a fatal error, log it and schedule a retry
-			StarmusLogger::error('SubmissionHandler', $e, ['phase' => 'trigger_post_processing']);
+			StarmusLogger::error('SubmissionHandler', $throwable, ['phase' => 'trigger_post_processing']);
             
             if (! wp_next_scheduled('starmus_cron_process_pending_audio', [$post_id, $attachment_id])) {
                 wp_schedule_single_event(time() + 120, 'starmus_cron_process_pending_audio', [$post_id, $attachment_id]);
@@ -889,6 +889,10 @@ final class StarmusSubmissionHandler
 	 * Validates file against size/mime settings.
 	 * FIXED: Checks if submitted MIME *contains* the allowed type (e.g., checks 'audio/webm;codecs=opus' against 'webm').
 	 */
+	/**
+	 * Validates file against size/mime settings.
+	 * FIXED: Checks if submitted MIME *contains* the allowed type (e.g., checks 'audio/webm;codecs=opus' against 'webm').
+	 */
 	private function validate_file_against_settings(string $mime, int $size_bytes): true|WP_Error
 	{
 		try {
@@ -897,13 +901,11 @@ final class StarmusSubmissionHandler
 				return $this->err('file_too_large', \sprintf('File exceeds maximum size of %dMB.', $max_mb), 413, ['size_bytes' => $size_bytes]);
 			}
 
-			// Get allowed extensions/mimes from settings
 			$allowed_settings = $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings ? $this->settings->get('allowed_file_types', '') : '';
 			
-			// Transform comma-separated string to an array of short extensions (e.g., ['mp3', 'wav', 'webm'])
 			$allowed_exts = \is_string($allowed_settings) ? array_values(array_filter(array_map(trim(...), explode(',', $allowed_settings)), fn($v): bool => $v !== '')) : $this->default_allowed_mimes;
 
-			if (empty($allowed_exts)) {
+			if ($allowed_exts === []) {
 				$allowed_exts = ['webm', 'mp3', 'wav', 'ogg']; 
 			}
 
@@ -911,9 +913,8 @@ final class StarmusSubmissionHandler
 			$ok      = false;
 			
 			// CRITICAL FIX: Check if the submitted MIME *contains* the allowed extension.
-			// This bypasses the strict 'codecs=opus' mismatch which causes the 415 error.
 			foreach ($allowed_exts as $allowed_ext) {
-				$ext_lc = strtolower($allowed_ext);
+				$ext_lc = strtolower((string) $allowed_ext);
                 
 				// 1. Check for a direct substring match of the extension (e.g., 'webm' is in 'audio/webm;codecs=opus')
 				if (str_contains($mime_lc, $ext_lc)) {

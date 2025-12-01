@@ -103,7 +103,7 @@ class StarmusAudioEditorUI
 	 *
 	 * @return string Rendered HTML output.
 	 */
-	public function render_audio_editor_shortcode($atts = []): string
+	public function render_audio_editor_shortcode(array $atts = []): string
 	{
 		try {
 			if (! is_user_logged_in()) {
@@ -301,6 +301,7 @@ class StarmusAudioEditorUI
 			if (! $is_author && ! $has_cap) {
 				return new WP_Error('permission_denied', __('Permission denied.', 'starmus-audio-recorder'));
 			}
+
             			// 5. Retrieve Audio Data
 			$attachment_id = absint(get_post_meta($post_id, '_audio_attachment_id', true));
 			if (! $attachment_id || get_post_type($attachment_id) !== 'attachment') {
