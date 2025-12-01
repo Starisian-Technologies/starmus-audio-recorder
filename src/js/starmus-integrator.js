@@ -1,7 +1,7 @@
 /**
  * @file starmus-integrator.js
- * @version 4.3.2
- * @description Master orchestrator. Tier detection (Chromebook-safe), fallback init, playback wiring.
+ * @version 4.3.3
+ * @description Master orchestrator with CRITICAL fix for submission payload injection.
  */
 
 'use strict';
@@ -49,10 +49,8 @@ window.tus = tus;
 
 import Peaks from 'peaks.js';
 
-// AFTER: import Peaks from 'peaks.js';
 window.Peaks = Peaks;
 
-// ADD THIS LINE RIGHT BELOW IT
 window.PeaksVersion = Peaks.prototype ? 'loaded' : 'missing';
 
 // CORE
@@ -225,6 +223,52 @@ function isRecordingSupported() {
 // Expose for SparxstarUEC
 window.StarmusApp = window.StarmusApp || {};
 window.StarmusApp.isRecordingSupported = isRecordingSupported;
+
+/**
+ * CRITICAL FIX: Injects all internal state data into hidden form fields 
+ * before submission to bypass the REST API Session/Cache sync problem.
+ */
+function populateHiddenFields(store, formEl) {
+    const state = store.getState();
+    const env = state.env || {};
+    const calibration = state.calibration || {};
+    const source = state.source || {};
+    
+    // 1. UEC/Environment Blobs
+    if (env && Object.keys(env).length > 0) {
+        const envJson = JSON.stringify(env);
+        formEl.querySelector('[name="_starmus_env"]').value = envJson;
+    }
+    
+    // 2. Calibration Blobs
+    if (calibration.complete) {
+        const calJson = JSON.stringify(calibration);
+        formEl.querySelector('[name="_starmus_calibration"]').value = calJson;
+    }
+    
+    // 3. Transcript Text (Guaranteed to be empty if SpeechRec failed, but sent if available)
+    if (source.transcript) {
+        formEl.querySelector('[name="first_pass_transcription"]').value = source.transcript.trim();
+    }
+    
+    // 4. Waveform Data (if client-side generated)
+    if (source.waveform_data) {
+        formEl.querySelector('[name="waveform_json"]').value = JSON.stringify(source.waveform_data);
+    }
+    
+    // 5. User Agent (Final check: inject reconstructed UA)
+    const browserInfo = env?.deviceDetails?.client || {};
+    const osInfo = env?.deviceDetails?.os || {};
+    const finalUA = browserInfo.name ? 
+        `${browserInfo.name} ${browserInfo.version} (${osInfo.name})` : 
+        (navigator.userAgent || '');
+        
+    formEl.querySelector('[name="user_agent"]').value = finalUA;
+
+    // 6. Device Fingerprint (from UEC data)
+    formEl.querySelector('[name="device_fingerprint"]').value = env?.identifiers?.visitorId || '';
+}
+
 
 async function wireInstance(env, formEl) {
     let instanceId = formEl.getAttribute('data-starmus-id');
@@ -506,6 +550,11 @@ async function wireInstance(env, formEl) {
     // Submit
     formEl.addEventListener('submit', (e) => {
         e.preventDefault();
+        
+        // --- CRITICAL FIX: INJECT DATA FROM STORE INTO HIDDEN FIELDS BEFORE SUBMISSION ---
+        populateHiddenFields(store, formEl); 
+        // ---------------------------------------------------------------------------------
+        
         const formData = new FormData(formEl);
         const formFields = {};
         formData.forEach((value, key) => {
