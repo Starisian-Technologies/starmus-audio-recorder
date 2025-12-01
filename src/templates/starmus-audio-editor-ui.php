@@ -2,32 +2,26 @@
 /**
  * Starmus Audio Editor UI Template
  *
- * This template provides the HTML structure for the Peaks.js audio editor.
- * 
- * UPDATED FOR PRODUCTION KEYS:
- * - Prioritizes 'mastered_mp3' (Post Meta) for playback efficiency.
- * - Falls back to 'audio_files_originals'.
- * - Resolves 'first_pass_transcription' for the transcript panel.
+ * UPDATED:
+ * - Includes REST API Nonce & URL (Required for Saving).
+ * - Fetches existing Annotations (Regions).
+ * - Uses verified production keys (`mastered_mp3`, `first_pass_transcription`).
  *
  * @package Starisian\Sparxstar\Starmus\templates
  */
 
 namespace Starisian\Sparxstar\Starmus\templates;
 
-// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/** 
- * === DATA RESOLUTION LOGIC ===
- * Ensure we have the correct URLs based on verified CLI meta keys.
- * This overrides generic context if specific production keys exist.
- */
+// === DATA RESOLUTION & SECURITY LOGIC ===
+
 $post_id = isset( $context['post_id'] ) ? intval( $context['post_id'] ) : get_the_ID();
 
 if ( $post_id ) {
-	// 1. Resolve Audio URL (Priority: Mastered MP3 > Original WebM/WAV)
+	// 1. Resolve Audio URL (Priority: Mastered > Original)
 	$master_id   = (int) get_post_meta( $post_id, 'mastered_mp3', true );
 	$original_id = (int) get_post_meta( $post_id, 'audio_files_originals', true );
 	
@@ -43,42 +37,45 @@ if ( $post_id ) {
 		$audio_url = wp_get_attachment_url( $original_id );
 	}
 
-	// 2. Resolve Transcript Data
+	// 2. Resolve Transcript
 	$transcript_json = get_post_meta( $post_id, 'first_pass_transcription', true );
 	$transcript_data = [];
-	
 	if ( $transcript_json ) {
 		$decoded = json_decode( $transcript_json, true );
 		if ( is_array( $decoded ) ) {
-			// Handle different structure variations (some have 'segments', some are flat)
 			$transcript_data = $decoded['segments'] ?? $decoded; 
 		}
 	}
 
-	// 3. Resolve Waveform Data (JSON vs URL)
-	// If we have raw JSON in meta, we pass it via JS object, not data-attribute URL
+	// 3. Resolve Waveform Data
 	$waveform_json = get_post_meta( $post_id, 'waveform_json', true );
 	$waveform_data = null;
 	if ( $waveform_json ) {
 		$waveform_data = is_string( $waveform_json ) ? json_decode( $waveform_json, true ) : $waveform_json;
 	}
 
-	// Update Context for JS
-	$context['post_id']        = $post_id;
-	$context['audio_url']      = $audio_url;
-	$context['transcript']     = $transcript_data;
-	$context['waveform_data']  = $waveform_data; // Pass raw data to JS
-	
-	// Only set waveform_url if it's a physical file (legacy), otherwise let JS use the data object
-	if ( empty( $context['waveform_url'] ) && empty( $waveform_data ) ) {
-		$context['waveform_url'] = ''; 
+	// 4. Resolve Existing Annotations (Regions) - NEW
+	$annotations_json = get_post_meta( $post_id, 'starmus_annotations', true );
+	$annotations_data = [];
+	if ( $annotations_json ) {
+		$decoded = json_decode( $annotations_json, true );
+		$annotations_data = is_array( $decoded ) ? $decoded : [];
 	}
-}
 
-// Debug logging
-if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	error_log( '[Starmus Editor] Loading for Post ' . $post_id );
-	error_log( '[Starmus Editor] Audio URL: ' . $context['audio_url'] );
+	// 5. Build Full Context for JS
+	$context['post_id']       = $post_id;
+	$context['audio_url']     = $audio_url;
+	$context['transcript']    = $transcript_data;
+	$context['annotations']   = $annotations_data; // Pass regions to JS
+	$context['waveform_data'] = $waveform_data;
+	
+	// 6. Security & API Endpoints (CRITICAL FOR SAVE BUTTON)
+	if ( empty( $context['restUrl'] ) ) {
+		$context['restUrl'] = esc_url_raw( rest_url( 'star_uec/v1/annotations' ) );
+	}
+	if ( empty( $context['nonce'] ) ) {
+		$context['nonce'] = wp_create_nonce( 'wp_rest' );
+	}
 }
 ?>
 
@@ -92,7 +89,6 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 	class="starmus-editor"
 	data-post-id="<?php echo esc_attr( $context['post_id'] ); ?>"
 	data-audio-url="<?php echo esc_attr( $context['audio_url'] ); ?>"
-	data-waveform-url="<?php echo esc_attr( $context['waveform_url'] ?? '' ); ?>"
 	role="region"
 	aria-label="<?php esc_attr_e( 'Audio editor', 'starmus-audio-recorder' ); ?>">
 	
@@ -117,7 +113,7 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		<div class="notice notice-error inline">
 			<p>
 				<strong><?php esc_html_e( 'Error:', 'starmus-audio-recorder' ); ?></strong>
-				<?php esc_html_e( 'No audio file found (checked `mastered_mp3` and `audio_files_originals`). Cannot load editor.', 'starmus-audio-recorder' ); ?>
+				<?php esc_html_e( 'No audio file found. Cannot load editor.', 'starmus-audio-recorder' ); ?>
 			</p>
 		</div>
 	<?php else : ?>
@@ -126,16 +122,8 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		<!-- LEFT: Waveform + transport -->
 		<div class="starmus-editor__wave">
 			<div id="peaks-container" class="starmus-editor__wave-inner">
-				<div
-					id="zoomview"
-					class="starmus-editor__zoom"
-					aria-label="<?php esc_attr_e( 'Zoomed waveform', 'starmus-audio-recorder' ); ?>">
-				</div>
-				<div
-					id="overview"
-					class="starmus-editor__overview"
-					aria-label="<?php esc_attr_e( 'Overview waveform', 'starmus-audio-recorder' ); ?>">
-				</div>
+				<div id="zoomview" class="starmus-editor__zoom" aria-label="<?php esc_attr_e( 'Zoomed waveform', 'starmus-audio-recorder' ); ?>"></div>
+				<div id="overview" class="starmus-editor__overview" aria-label="<?php esc_attr_e( 'Overview waveform', 'starmus-audio-recorder' ); ?>"></div>
 			</div>
 
 			<div class="starmus-editor__controls" role="toolbar" aria-label="<?php esc_attr_e( 'Transport and edit', 'starmus-audio-recorder' ); ?>">
@@ -198,7 +186,6 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					role="list"
 					aria-live="polite">
 					<?php 
-					// Fallback if JS hasn't initialized: render text if available
 					if ( ! empty( $context['transcript'] ) ) {
 						echo '<p style="padding:10px; color:#666;">' . esc_html__( 'Loading transcript sync...', 'starmus-audio-recorder' ) . '</p>';
 					} else {

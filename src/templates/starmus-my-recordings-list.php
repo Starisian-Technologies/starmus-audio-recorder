@@ -1,12 +1,20 @@
 <?php
 /**
- * Starmus Recordings List Template
+ * Starmus Recordings List Template (parts/starmus-my-recordings-list.php)
  *
  * Lists audio recordings with accessible cards and custom pagination.
+ * ENHANCED: Includes FileService for signed URLs and Duration fallbacks.
  *
  * @var WP_Query $query The custom query object containing recordings.
  * @var string   $edit_page_url (Optional) URL to the edit page.
  */
+
+use Starisian\Sparxstar\Starmus\services\StarmusFileService;
+
+// Initialize Service safely
+$file_service = class_exists( 'Starisian\Sparxstar\Starmus\services\StarmusFileService' ) 
+	? new StarmusFileService() 
+	: null;
 
 if ( $query->have_posts() ) { ?>
 
@@ -22,35 +30,55 @@ if ( $query->have_posts() ) { ?>
 				$current_post_id = get_the_ID();
 				$post_title      = get_the_title();
 
-				// === PRODUCTION DATA RESOLUTION ===
-				// 1. Prioritize Mastered MP3 (Best for web playback)
-				$audio_att_id = (int) get_post_meta( $current_post_id, 'mastered_mp3', true );
-				
-				// 2. Fallback to Original Source (Newer system)
-				if ( ! $audio_att_id ) {
-					$audio_att_id = (int) get_post_meta( $current_post_id, 'audio_files_originals', true );
+				// === 1. RESOLVE AUDIO ID (Priority Order) ===
+				$master_id   = (int) get_post_meta( $current_post_id, 'mastered_mp3', true );
+				$original_id = (int) get_post_meta( $current_post_id, 'audio_files_originals', true );
+				$legacy_id   = (int) get_post_meta( $current_post_id, '_audio_attachment_id', true );
+
+				$audio_att_id = $master_id ?: ( $original_id ?: $legacy_id );
+
+				// === 2. RESOLVE URL (Signed vs Standard) ===
+				$audio_url = '';
+				if ( $audio_att_id > 0 ) {
+					try {
+						if ( $file_service ) {
+							$audio_url = $file_service->star_get_public_url( $audio_att_id );
+						} else {
+							$audio_url = wp_get_attachment_url( $audio_att_id );
+						}
+					} catch ( \Throwable $e ) {
+						$audio_url = wp_get_attachment_url( $audio_att_id );
+					}
 				}
 
-				// 3. Fallback to Legacy Attachment ID
-				if ( ! $audio_att_id ) {
-					$audio_att_id = (int) get_post_meta( $current_post_id, '_audio_attachment_id', true );
-				}
-
-				// 4. Resolve URL & MIME Type
-				$audio_url = $audio_att_id ? wp_get_attachment_url( $audio_att_id ) : '';
-				
+				// === 3. DETERMINE MIME TYPE ===
 				$mime_type = 'audio/mpeg'; // Default
 				if ( $audio_url ) {
-					$ext = strtolower( pathinfo( $audio_url, PATHINFO_EXTENSION ) );
+					$ext = strtolower( pathinfo( parse_url( $audio_url, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
 					if ( 'wav' === $ext ) $mime_type = 'audio/wav';
 					if ( 'webm' === $ext ) $mime_type = 'audio/webm';
 					if ( 'm4a' === $ext ) $mime_type = 'audio/mp4';
 				}
 
-				// 5. Additional Metadata
+				// === 4. METADATA & DURATION FALLBACK ===
 				$recording_type = get_the_terms( $current_post_id, 'recording_type' );
 				$language       = get_the_terms( $current_post_id, 'language' );
-				$duration       = get_post_meta( $current_post_id, 'audio_duration', true );
+				
+				// Duration Logic
+				$duration_sec = get_post_meta( $current_post_id, 'audio_duration', true );
+				$duration_formatted = '';
+				
+				if ( $duration_sec ) {
+					$duration_formatted = gmdate( 'i:s', intval( $duration_sec ) );
+				} elseif ( $audio_att_id ) {
+					// Fallback to attachment meta
+					$att_meta = wp_get_attachment_metadata( $audio_att_id );
+					if ( isset( $att_meta['length_formatted'] ) ) {
+						$duration_formatted = $att_meta['length_formatted'];
+					} elseif ( isset( $att_meta['length'] ) ) {
+						$duration_formatted = gmdate( 'i:s', intval( $att_meta['length'] ) );
+					}
+				}
 				?>
 
 				<article class="starmus-card sparxstar-glass-card" aria-labelledby="card-title-<?php echo intval( $current_post_id ); ?>">
@@ -92,12 +120,12 @@ if ( $query->have_posts() ) { ?>
 								<?php esc_html_e( 'Your browser does not support the audio element.', 'starmus-audio-recorder' ); ?>
 							</audio>
 							
-							<?php if ( $duration ) { ?>
+							<?php if ( $duration_formatted ) { ?>
 								<div class="starmus-card__duration" aria-hidden="true">
-									<?php echo esc_html( gmdate( 'i:s', (int) $duration ) ); ?>
+									<?php echo esc_html( $duration_formatted ); ?>
 								</div>
 								<span class="screen-reader-text">
-									<?php printf( esc_html__( 'Duration: %s', 'starmus-audio-recorder' ), gmdate( 'i:s', (int) $duration ) ); ?>
+									<?php printf( esc_html__( 'Duration: %s', 'starmus-audio-recorder' ), $duration_formatted ); ?>
 								</span>
 							<?php } ?>
 						</div>

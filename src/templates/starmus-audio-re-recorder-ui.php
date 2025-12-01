@@ -1,12 +1,13 @@
 <?php
 /**
  * Starmus Re-Recorder UI Template
- * 
- * structurally identical to the Standard Recorder to ensure
- * compatibility with shared JavaScript controllers.
+ *
+ * FIXED: 
+ * 1. Forces 'audio_file_type' to 'audio/webm' to prevent 415 errors (Browsers record WebM, not MP3).
+ * 2. Identical structure to Standard Recorder for JS compatibility.
  *
  * @package Starisian\Sparxstar\Starmus\templates
- * @version 1.1.0
+ * @version 1.1.2
  */
 
 if (! defined('ABSPATH')) {
@@ -23,9 +24,6 @@ if (! defined('ABSPATH')) {
 $form_id     = $form_id ?? 'rerecord';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 
-// Allowed types logic matches standard recorder
-$allowed_types_arr = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn($v) => $v !== ''));
-
 ?>
 
 <div class="starmus-recorder-form sparxstar-glass-card">
@@ -40,7 +38,7 @@ $allowed_types_arr = array_values(array_filter(array_map('trim', explode(',', (s
 		data-starmus-update-id="<?php echo esc_attr($post_id); ?>"
 		data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
 
-		<!-- Step 1: Confirmation (Replaces Data Entry) -->
+		<!-- Step 1: Confirmation -->
 		<div
 			id="starmus_step1_<?php echo esc_attr($instance_id); ?>"
 			class="starmus-step starmus-step-1"
@@ -56,7 +54,7 @@ $allowed_types_arr = array_values(array_filter(array_map('trim', explode(',', (s
 				aria-live="polite"
 				data-starmus-message-box></div>
 
-			<div class="starmus-notice starmus-notice--info" style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+			<div class="starmus-notice starmus-notice--info">
 				<p>
 					<?php esc_html_e('You are replacing the audio for:', 'starmus-audio-recorder'); ?>
 					<strong><?php echo esc_html($existing_title); ?></strong>
@@ -68,13 +66,13 @@ $allowed_types_arr = array_values(array_filter(array_map('trim', explode(',', (s
 			<input type="hidden" name="recording_id" value="<?php echo esc_attr($post_id); ?>">
 			<input type="hidden" name="update_post_id" value="<?php echo esc_attr($post_id); ?>">
 			
-			<!-- Pass existing metadata hidden so JS FormData sees them -->
+			<!-- Metadata Persistence -->
 			<input type="hidden" name="starmus_title" value="<?php echo esc_attr($existing_title); ?>">
 			<input type="hidden" name="starmus_language" value="<?php echo esc_attr($existing_language); ?>">
 			<input type="hidden" name="starmus_recording_type" value="<?php echo esc_attr($existing_type); ?>">
 			
-			<!-- File Type Logic -->
-			<input type="hidden" name="audio_file_type" value="audio/<?php echo esc_attr($allowed_types_arr[0] ?? 'webm'); ?>">
+			<!-- FIX: Default to 'audio/webm' to match browser capability and prevent 415 errors -->
+			<input type="hidden" name="audio_file_type" value="audio/webm">
 
 			<fieldset class="starmus-consent-fieldset">
 				<legend class="starmus-fieldset-legend">
@@ -108,7 +106,7 @@ $allowed_types_arr = array_values(array_filter(array_map('trim', explode(',', (s
 			</button>
 		</div>
 
-		<!-- Step 2: Audio Recording (EXACT COPY of Standard Template) -->
+		<!-- Step 2: Audio Recording -->
 		<div
 			id="starmus_step2_<?php echo esc_attr($instance_id); ?>"
 			class="starmus-step starmus-step-2"

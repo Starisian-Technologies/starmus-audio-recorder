@@ -1,157 +1,218 @@
 <?php
-
 /**
- * Starmus Single Recording Detail Template Part (User View)
+ * User Detail Template - Simplified View (starmus-recording-detail-user.php)
  *
- * @package Starisian\Sparxstar\Starmus\templates\parts
+ * Loaded by StarmusShortcodeLoader::render_submission_detail_shortcode()
+ * when the current user is the author of the recording.
+ *
+ * @package Starisian\Starmus\templates
  */
 
-// Exit if accessed directly.
-if (! defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-// Assume the global $post is set by the shortcode's context.
-$post_id = get_the_ID();
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 
-// Get the audio URL correctly
-$audio_attachment_id = get_post_meta($post_id, '_audio_attachment_id', true);
-$audio_url           = empty($audio_attachment_id) ? '' : wp_get_attachment_url((int) $audio_attachment_id);
+// === 1. INITIALIZATION & DATA RESOLUTION ===
 
-// Get other necessary data
-$recording_type  = get_the_terms($post_id, 'recording_type');
-$language        = get_the_terms($post_id, 'language');
-$transcript      = get_post_meta($post_id, 'first_pass_transcription', true);
-$metadata        = get_post_meta($post_id, 'recording_metadata', true);
-$transcript_data = $transcript ? json_decode($transcript, true) : null;
-$meta_data       = $metadata ? json_decode($metadata, true) : null;
+try {
+	// 1. Get the current Post ID (Works inside Shortcode and Filter contexts)
+	$post_id = get_the_ID();
+
+	// Fallback if specific ID passed via args (future proofing)
+	if ( ! $post_id && isset( $args['post_id'] ) ) {
+		$post_id = intval( $args['post_id'] );
+	}
+
+	if ( ! $post_id ) {
+		// If loaded outside a loop context, return empty or error
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( '[Starmus Detail] No Post ID found in context.' );
+		}
+		return;
+	}
+
+	// 2. Instantiate Services (Since Loader doesn't pass them down)
+	$settings     = new StarmusSettings();
+	
+	// Check if FileService exists before instantiating to prevent fatal errors
+	$file_service = class_exists( 'Starisian\Sparxstar\Starmus\services\StarmusFileService' ) 
+		? new StarmusFileService() 
+		: null;
+
+	// --- Resolve Audio Logic (Based on CLI Keys) ---
+	$mastered_mp3_id = (int) get_post_meta( $post_id, 'mastered_mp3', true );
+	$original_id     = (int) get_post_meta( $post_id, 'audio_files_originals', true );
+	$legacy_id       = (int) get_post_meta( $post_id, '_audio_attachment_id', true );
+
+	// Priority: Mastered > Original > Legacy
+	$playback_id = 0;
+	if ( $mastered_mp3_id > 0 ) {
+		$playback_id = $mastered_mp3_id;
+	} elseif ( $original_id > 0 ) {
+		$playback_id = $original_id;
+	} elseif ( $legacy_id > 0 ) {
+		$playback_id = $legacy_id;
+	}
+	
+	// 3. Resolve Public URL
+	$playback_url = '';
+	if ( $playback_id > 0 ) {
+		try {
+			if ( $file_service ) {
+				$playback_url = $file_service->star_get_public_url( $playback_id );
+			} else {
+				throw new Exception( 'Service unavailable' );
+			}
+		} catch ( \Throwable $e ) {
+			$playback_url = wp_get_attachment_url( $playback_id );
+		}
+	}
+
+	// --- Resolve Duration ---
+	$duration_formatted = '';
+	$duration_sec = get_post_meta( $post_id, 'audio_duration', true );
+
+	if ( $duration_sec ) {
+		$duration_formatted = gmdate( 'i:s', intval( $duration_sec ) );
+	} elseif ( $playback_id > 0 ) {
+		$att_meta = wp_get_attachment_metadata( $playback_id );
+		if ( isset( $att_meta['length_formatted'] ) ) {
+			$duration_formatted = $att_meta['length_formatted'];
+		} elseif ( isset( $att_meta['length'] ) ) {
+			$duration_formatted = gmdate( 'i:s', intval( $att_meta['length'] ) );
+		}
+	}
+
+	// --- Fetch Metadata ---
+	$accession_number = get_post_meta( $post_id, 'accession_number', true );
+	$location_data    = get_post_meta( $post_id, 'location', true );
+	
+	// --- Taxonomies ---
+	$languages = get_the_terms( $post_id, 'language' );
+	$rec_types = get_the_terms( $post_id, 'recording_type' );
+
+	// --- Action URLs ---
+	$edit_page_slug     = $settings->get( 'edit_page_id', '' );
+	$recorder_page_slug = $settings->get( 'recorder_page_id', '' );
+	$edit_page_url      = $edit_page_slug ? get_permalink( get_page_by_path( $edit_page_slug ) ) : '';
+	$recorder_page_url  = $recorder_page_slug ? get_permalink( get_page_by_path( $recorder_page_slug ) ) : '';
+
+} catch ( \Throwable $e ) {
+	// Fail silently in production, log in debug
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( '[Starmus Detail Error] ' . $e->getMessage() );
+	}
+	echo '<div class="starmus-alert starmus-alert--error"><p>' . esc_html__( 'Unable to load recording details.', 'starmus-audio-recorder' ) . '</p></div>';
+	return;
+}
 ?>
 
-<div class="starmus-recording-detail">
-	<header class="starmus-detail__header">
-		<div class="starmus-detail__meta">
-			<span class="starmus-meta__date">
-				<?php esc_html_e('Recorded on', 'starmus-audio-recorder'); ?>
-				<time datetime="<?php echo esc_attr(get_the_date('c', $post_id)); ?>">
-					<?php echo esc_html(get_the_date('F j, Y \a\t g:i A', $post_id)); ?>
-				</time>
+<main class="starmus-user-detail" id="starmus-record-<?php echo esc_attr( $post_id ); ?>">
+	
+	<!-- Header: Title & Badges -->
+	<header class="starmus-header-clean">
+		<h1 class="starmus-title"><?php echo esc_html( get_the_title( $post_id ) ); ?></h1>
+		
+		<div class="starmus-meta-row">
+			<span class="starmus-meta-item">
+				<span class="dashicons dashicons-calendar-alt" aria-hidden="true"></span>
+				<?php echo esc_html( get_the_date( 'F j, Y', $post_id ) ); ?>
 			</span>
-			<?php if ($recording_type && ! is_wp_error($recording_type)) { ?>
-				<span class="starmus-meta__type">
-					<?php esc_html_e('Type:', 'starmus-audio-recorder'); ?>
-					<strong><?php echo esc_html($recording_type[0]->name); ?></strong>
+			
+			<?php if ( ! empty( $languages ) && ! is_wp_error( $languages ) ) : ?>
+				<span class="starmus-tag starmus-tag--lang">
+					<?php echo esc_html( $languages[0]->name ); ?>
 				</span>
-			<?php } ?>
-			<?php if ($language && ! is_wp_error($language)) { ?>
-				<span class="starmus-meta__language">
-					<?php esc_html_e('Language:', 'starmus-audio-recorder'); ?>
-					<strong><?php echo esc_html($language[0]->name); ?></strong>
+			<?php endif; ?>
+
+			<?php if ( ! empty( $rec_types ) && ! is_wp_error( $rec_types ) ) : ?>
+				<span class="starmus-tag starmus-tag--type">
+					<?php echo esc_html( $rec_types[0]->name ); ?>
 				</span>
-			<?php } ?>
+			<?php endif; ?>
 		</div>
 	</header>
 
-	<?php if ($audio_url) { ?>
-		<div class="starmus-detail__audio">
-			<h2><?php esc_html_e('Your Recording', 'starmus-audio-recorder'); ?></h2>
-			<audio controls controlsList="nodownload" preload="metadata" class="starmus-audio-player--large"
-				style="width: 100%;">
-				<source src="<?php echo esc_url($audio_url); ?>" type="audio/webm">
-				<?php esc_html_e('Your browser does not support the audio element.', 'starmus-audio-recorder'); ?>
-			</audio>
-			<?php if ($meta_data && isset($meta_data['technical']['duration'])) { ?>
-				<p class="starmus-audio__duration">
-					<?php esc_html_e('Duration:', 'starmus-audio-recorder'); ?>
-					<?php echo esc_html(gmdate('i:s', $meta_data['technical']['duration'] / 1000)); ?>
-				</p>
-			<?php } ?>
+	<div class="starmus-layout-split">
+		
+		<!-- Left: Player & Info -->
+		<div class="starmus-content-main">
+			
+			<!-- Audio Player -->
+			<section class="starmus-player-card sparxstar-glass-card">
+				<?php if ( $playback_url ) : ?>
+					<audio controls preload="metadata" class="starmus-audio-full">
+						<source src="<?php echo esc_url( $playback_url ); ?>" type="<?php echo strpos($playback_url, '.mp3') !== false ? 'audio/mpeg' : 'audio/webm'; ?>">
+						<?php esc_html_e( 'Your browser does not support the audio player.', 'starmus-audio-recorder' ); ?>
+					</audio>
+				<?php else : ?>
+					<p class="starmus-empty-msg">
+						<?php esc_html_e( 'Audio is currently processing or unavailable.', 'starmus-audio-recorder' ); ?>
+					</p>
+				<?php endif; ?>
+			</section>
 
-			<?php
-            // Waveform preview (if generated)
-            if ($audio_attachment_id) {
-                $waveform_peaks = get_post_meta((int) $audio_attachment_id, '_waveform_data', true);
-                if (! empty($waveform_peaks) && is_array($waveform_peaks)) {
-                    $width      = 900; // viewbox width (CSS will scale)
-                    $height     = 96;
-                    $count      = count($waveform_peaks);
-                    $max_points = 600; // limit for performance
-                    $step       = max(1, (int) floor($count / $max_points));
-                    $abs_vals   = array_map(abs(...), $waveform_peaks);
-                    $max_val    = $abs_vals === [] ? 1 : max($abs_vals);
-                    if ($max_val <= 0) {
-                        $max_val = 1;
-                    }
-                    $points = [];
-                    for ($i = 0; $i < $count; $i += $step) {
-                        $v    = (float) $waveform_peaks[$i];
-                        $norm = $v / $max_val; // roughly -1..1
-                        $x    = ($i / max(1, $count - 1)) * $width;
-                        // center the waveform vertically
-                        $y        = ($height / 2) - ($norm * ($height / 2));
-                        $points[] = $x . ',' . $y;
-                    }
-                    $points_str = implode(' ', $points);
-                    ?>
-					<div class="starmus-detail__waveform" style="margin-top:1rem;">
-						<h3><?php esc_html_e('Waveform', 'starmus-audio-recorder'); ?></h3>
-						<svg viewBox="0 0 <?php echo esc_attr((string) $width); ?> <?php echo esc_attr((string) $height); ?>" preserveAspectRatio="none" width="100%" height="<?php echo esc_attr((string) $height); ?>" aria-hidden="false" role="img" aria-label="<?php esc_attr_e('Waveform preview of the recording', 'starmus-audio-recorder'); ?>">
-							<rect width="100%" height="100%" fill="transparent" />
-							<polyline points="<?php echo esc_attr($points_str); ?>" fill="none" stroke="#2b8cff" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round" />
-							<line x1="0" y1="<?php echo esc_attr((string) ($height / 2)); ?>" x2="<?php echo esc_attr((string) $width); ?>" y2="<?php echo esc_attr((string) ($height / 2)); ?>" stroke="#e6eef9" stroke-width="0.5" />
-						</svg>
-						<details style="margin-top:.5rem;">
-							<summary><?php esc_html_e('Show raw waveform data', 'starmus-audio-recorder'); ?></summary>
-							<pre class="starmus-raw-json"><code><?php echo esc_html(json_encode($waveform_peaks, JSON_PRETTY_PRINT)); ?></code></pre>
-						</details>
+			<!-- Public Metadata -->
+			<section class="starmus-info-card sparxstar-glass-card">
+				<h3><?php esc_html_e( 'About this Recording', 'starmus-audio-recorder' ); ?></h3>
+				<dl class="starmus-dl-list">
+					
+					<?php if ( $location_data ) : ?>
+						<div class="starmus-dl-item">
+							<dt><?php esc_html_e( 'Location', 'starmus-audio-recorder' ); ?></dt>
+							<dd><?php echo esc_html( $location_data ); ?></dd>
+						</div>
+					<?php endif; ?>
+
+					<?php if ( $accession_number ) : ?>
+						<div class="starmus-dl-item">
+							<dt><?php esc_html_e( 'Accession ID', 'starmus-audio-recorder' ); ?></dt>
+							<dd><?php echo esc_html( $accession_number ); ?></dd>
+						</div>
+					<?php endif; ?>
+
+					<?php if ( $duration_formatted ) : ?>
+						<div class="starmus-dl-item">
+							<dt><?php esc_html_e( 'Duration', 'starmus-audio-recorder' ); ?></dt>
+							<dd><?php echo esc_html( $duration_formatted ); ?></dd>
+						</div>
+					<?php endif; ?>
+
+				</dl>
+			</section>
+
+		</div>
+
+		<!-- Right: Actions (Permissions Checked in Loader, but re-checked here for safety) -->
+		<aside class="starmus-content-sidebar">
+			<?php if ( current_user_can( 'edit_post', $post_id ) ) : ?>
+				<section class="starmus-actions-card sparxstar-glass-card">
+					<h3><?php esc_html_e( 'Actions', 'starmus-audio-recorder' ); ?></h3>
+					
+					<div class="starmus-btn-stack">
+						<!-- Re-Record -->
+						<?php if ( $recorder_page_url ) : ?>
+							<a href="<?php echo esc_url( add_query_arg( 'recording_id', $post_id, $recorder_page_url ) ); ?>" class="starmus-btn starmus-btn--action">
+								<span class="dashicons dashicons-microphone" aria-hidden="true"></span>
+								<?php esc_html_e( 'Re-Record Audio', 'starmus-audio-recorder' ); ?>
+							</a>
+						<?php endif; ?>
+
+						<!-- Edit -->
+						<?php if ( $edit_page_url ) : ?>
+							<a href="<?php echo esc_url( add_query_arg( 'recording_id', $post_id, $edit_page_url ) ); ?>" class="starmus-btn starmus-btn--outline">
+								<span class="dashicons dashicons-edit" aria-hidden="true"></span>
+								<?php esc_html_e( 'Open Editor', 'starmus-audio-recorder' ); ?>
+							</a>
+						<?php endif; ?>
 					</div>
-			<?php
-                }
-            }
-	    ?>
-		</div>
-	<?php } else { ?>
-		<div class="starmus-submission-error">
-			<p><strong>Audio file could not be found for this submission.</strong></p>
-		</div>
-	<?php } ?>
+				</section>
+			<?php endif; ?>
+		</aside>
 
-	<?php if ($transcript_data && ! empty($transcript_data['transcript'])) { ?>
-		<div class="starmus-detail__transcript">
-			<h2><?php esc_html_e('Automatic Transcription', 'starmus-audio-recorder'); ?></h2>
-			<p class="starmus-transcript__note">
-				<?php esc_html_e('This is an automatic transcription and may contain errors.', 'starmus-audio-recorder'); ?>
-			</p>
-			<div class="starmus-transcript__content">
-				<?php foreach ($transcript_data['transcript'] as $segment) { ?>
-					<span class="starmus-transcript__segment"
-						data-timestamp="<?php echo esc_attr($segment['timestamp'] ?? 0); ?>">
-						<?php echo esc_html($segment['text'] ?? ''); ?>
-					</span>
-				<?php } ?>
-			</div>
-		</div>
-	<?php } ?>
-
-	<div class="starmus-detail__status">
-		<h2><?php esc_html_e('Submission Status', 'starmus-audio-recorder'); ?></h2>
-		<div class="starmus-status-card">
-			<div class="starmus-status__icon">✓</div>
-			<div class="starmus-status__content">
-				<h3><?php esc_html_e('Successfully Submitted', 'starmus-audio-recorder'); ?></h3>
-				<p><?php esc_html_e('Your recording has been received and is being processed for the linguistic corpus.', 'starmus-audio-recorder'); ?>
-				</p>
-			</div>
-		</div>
 	</div>
 
-	<div class="starmus-detail__actions">
-		<?php
-        $archive_url = get_post_type_archive_link('audio-recording');
-if ($archive_url) {
-    ?>
-			<a href="<?php echo esc_url($archive_url); ?>" class="starmus-btn starmus-btn--outline">
-				<?php esc_html_e('← Back to My Recordings', 'starmus-audio-recorder'); ?>
-			</a>
-		<?php } ?>
-	</div>
-</div>
+</main>

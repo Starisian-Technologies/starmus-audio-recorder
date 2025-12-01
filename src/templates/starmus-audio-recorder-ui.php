@@ -1,11 +1,12 @@
 <?php
 
 /**
- * Starmus Audio Recorder UI Template - Final, Secure, and Accessible
+ * Starmus Audio Recorder UI Template
+ *
+ * FIXED: Forced 'audio_file_type' to 'audio/webm' to prevent 415 Errors during recording.
  *
  * @package Starisian\Sparxstar\Starmus\templates
- *
- * @version 1.1.0
+ * @version 1.1.2
  */
 
 if (! defined('ABSPATH')) {
@@ -15,11 +16,7 @@ if (! defined('ABSPATH')) {
 $form_id ??= 'default';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 
-// Get allowed file types from settings (comma-separated string)
-$allowed_file_types ??= 'webm';
-$allowed_types_arr     = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn($v) => $v !== ''));
-$show_file_type_select = count($allowed_types_arr) > 1;
-$is_admin              = current_user_can('manage_options');
+$is_admin = current_user_can('manage_options');
 ?>
 
 <div class="starmus-recorder-form sparxstar-glass-card">
@@ -100,24 +97,8 @@ $is_admin              = current_user_can('manage_options');
 				</select>
 			</div>
 
-			<?php if ($show_file_type_select) { ?>
-				<div class="starmus-field-group">
-					<label for="starmus_audio_file_type_<?php echo esc_attr($instance_id); ?>">
-						<?php esc_html_e('Audio File Type', 'starmus-audio-recorder'); ?>
-					</label>
-					<select
-						id="starmus_audio_file_type_<?php echo esc_attr($instance_id); ?>"
-						name="audio_file_type">
-						<?php foreach ($allowed_types_arr as $type) { ?>
-							<option value="audio/<?php echo esc_attr($type); ?>">
-								<?php echo esc_html(strtoupper($type)); ?>
-							</option>
-						<?php } ?>
-					</select>
-				</div>
-			<?php } else { ?>
-				<input type="hidden" name="audio_file_type" value="audio/<?php echo esc_attr($allowed_types_arr[0]); ?>">
-			<?php } ?>
+			<!-- FIX: Default to 'audio/webm' to match browser capability -->
+			<input type="hidden" name="audio_file_type" value="audio/webm">
 
 			<fieldset class="starmus-consent-fieldset">
 				<legend class="starmus-fieldset-legend">
