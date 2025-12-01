@@ -366,22 +366,15 @@ final class StarmusSubmissionHandler
             // --- 1. RESOLVE TELEMETRY SOURCE (UEC Session Data) ---
             $all_telemetry = null;
             if (class_exists('\Starisian\SparxstarUEC\StarUserEnv')) {
-                // Fetch the structured data from the UEC plugin's internal cache/DB
                 $all_telemetry = \Starisian\SparxstarUEC\StarUserEnv::get_snapshot(); 
             }
             
-            // Extract core data from telemetry or fallback to empty arrays
-            // This is the structure from the UEC data you provided
             $client_data = $all_telemetry['client_side_data']['identifiers_extra'] ?? [];
             $raw_profile_data   = $client_data['technical']['profile'] ?? [];
-            $browser_data       = $client_data['deviceDetails']['client'] ?? [];
-            $os_data            = $client_data['deviceDetails']['os'] ?? [];
+            $browser_data       = $raw_technical_data['browser'] ?? [];
+            $os_data            = $env_snapshot['deviceDetails']['os'] ?? [];
             $raw_technical_data = $client_data['technical']['raw'] ?? [];
-            // UEC Fingerprint is at the top level of the array
-            $fingerprint_uec    = $all_telemetry['fingerprint'] ?? ''; 
-
-
-            // --- 2. POPULATE FROM INJECTED FORM DATA (Raw Blobs) ---
+            $all_telemetry_meta = $all_telemetry['fingerprint'] ?? [];
 
             // Raw Calibration (Always from form)
             if (isset($form_data['_starmus_calibration']) && $form_data['_starmus_calibration'] !== '') {
@@ -390,39 +383,44 @@ final class StarmusSubmissionHandler
 
             // Raw Environment Data (Save the entire blob)
             $env_json_raw = $form_data['_starmus_env'] ?? '';
+            $env_snapshot = !empty($env_json_raw) ? json_decode(wp_unslash($env_json_raw), true) : [];
             if ($env_json_raw !== '') {
 				$this->update_acf_field('environment_data', wp_unslash($env_json_raw), $audio_post_id);
 			}
+
+            // --- CRITICAL TRANSCRIPT FIX ---
+            $transcript_text = $form_data['first_pass_transcription'] ?? '';
             
-            // Transcript Text (if any)
-			if (isset($form_data['first_pass_transcription']) && $form_data['first_pass_transcription'] !== '') {
-				$this->update_acf_field('first_pass_transcription', wp_unslash($form_data['first_pass_transcription']), $audio_post_id);
-			}
+            // Fallback 1: Check the raw environment JSON (where the recorder often dumps final text)
+            if (empty($transcript_text) && !empty($env_snapshot['transcript'])) {
+                 $transcript_text = $env_snapshot['transcript']['final'] ?? $env_snapshot['transcript']['text'] ?? '';
+            }
+            
+            if (!empty($transcript_text)) {
+                 $this->update_acf_field('first_pass_transcription', wp_unslash($transcript_text), $audio_post_id);
+            }
+            // --- END TRANSCRIPT FIX ---
             
             // Raw Waveform Data from client
 			if (isset($form_data['waveform_json']) && $form_data['waveform_json'] !== '') {
 				$this->update_acf_field('waveform_json', wp_unslash($form_data['waveform_json']), $audio_post_id);
 			}
 
-            // --- 3. EXTRACT STRUCTURED FIELDS (THE FINAL FIX) ---
+            // --- 3. EXTRACT STRUCTURED FIELDS (CRITICAL MISSING DATA) ---
 			
 			// User Agent (PRIORITY: UEC Data > Server Header)
-            // Construct a human-readable UA from the parsed UEC data
             $full_ua_uec = ($browser_data['name'] ?? '') . ' ' . ($browser_data['version'] ?? '') . ' (' . ($os_data['name'] ?? '') . ')';
-            
-            // Use the constructed UEC UA if it's not empty, otherwise fall back to the raw server header
-            $final_ua = trim($full_ua_uec) ?: ($_SERVER['HTTP_USER_AGENT'] ?? '');
+            $final_ua = trim($full_ua_uec) ?: ($form_data['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? ''));
 			$this->update_acf_field('user_agent', sanitize_text_field($final_ua), $audio_post_id);
 			
             // IP & Fingerprint
 			$this->update_acf_field('submission_ip', \Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer::get_user_ip(), $audio_post_id);
-            // FIX: Access fingerprint from the correct top-level key
-			$this->update_acf_field('device_fingerprint', $fingerprint_uec, $audio_post_id); 
+			$this->update_acf_field('device_fingerprint', $all_telemetry['fingerprint'] ?? '', $audio_post_id); 
 			
             // Mic Profile
-            $mic_profile = $raw_profile_data['overallProfile'] ?? '';
+            $mic_profile = $raw_profile_data['overallProfile'] ?? ($calibration_data['gain'] ?? '');
             if ($mic_profile) {
-                $this->update_acf_field('mic_profile', $mic_profile, $audio_post_id);
+                $this->update_acf_field('mic_profile', 'Profile: ' . $mic_profile, $audio_post_id);
             }
             
 			// RECORDING DATE/TIME
