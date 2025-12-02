@@ -105,6 +105,9 @@ final class StarmusSubmissionHandler
 	 *
 	 * @return array|WP_Error Success array with IDs or WP_Error.
 	 */
+/**
+	 * Processes a file that is already fully present on the local filesystem.
+	 */
 	public function process_completed_file(string $file_path, array $form_data): array|WP_Error
 	{
 		try {
@@ -118,7 +121,6 @@ final class StarmusSubmissionHandler
 			$upload_dir  = wp_upload_dir();
 			$destination = trailingslashit($upload_dir['path']) . wp_unique_filename($upload_dir['path'], $filename);
 
-			// Validate the file before moving it
 			$mime  = (string) ($form_data['filetype'] ?? mime_content_type($file_path));
 			$size  = (int) @filesize($file_path);
 			$valid = $this->validate_file_against_settings($mime, $size);
@@ -144,23 +146,18 @@ final class StarmusSubmissionHandler
 				return $attachment_id;
 			}
 
-			// Check if this is a re-recording (post_id provided in form_data)
 			$existing_post_id = isset($form_data['post_id']) ? absint($form_data['post_id']) : 0;
 
 			if ($existing_post_id > 0 && get_post_type($existing_post_id) === $this->get_cpt_slug()) {
-				// Re-recording: Update existing post with new attachment
 				$cpt_post_id = $existing_post_id;
-
-				// Delete old attachment if exists
 				$old_attachment_id = (int) get_post_meta($cpt_post_id, '_audio_attachment_id', true);
 				if ($old_attachment_id > 0) {
 					$this->dal->delete_attachment($old_attachment_id);
 				}
 			} else {
-				// New recording: Create new post
 				$user_id = isset($form_data['user_id']) ? absint($form_data['user_id']) : 0;
 				if ($user_id && ! get_userdata($user_id)) {
-					$user_id = 0; // Invalid user ID, fallback to anonymous.
+					$user_id = 0;
 				}
 
 				$cpt_post_id = $this->dal->create_audio_post(
@@ -177,10 +174,8 @@ final class StarmusSubmissionHandler
 			$this->dal->save_post_meta((int) $cpt_post_id, '_audio_attachment_id', (int) $attachment_id);
 			$this->dal->set_attachment_parent((int) $attachment_id, (int) $cpt_post_id);
 			
-			// Save metadata AND trigger post-processing
 			$this->save_all_metadata((int) $cpt_post_id, (int) $attachment_id, $form_data);
 
-			// Fire action hook with full request data for external plugins
 			do_action('starmus_after_audio_saved', (int) $cpt_post_id, $form_data);
 
 			StarmusLogger::timeEnd('process_completed_file', 'SubmissionHandler');
@@ -196,20 +191,12 @@ final class StarmusSubmissionHandler
 			return $this->err('server_error', 'Failed to process completed file.', 500);
 		}
 	}
-
+  
 	public function handle_upload_chunk_rest(WP_REST_Request $request): array|WP_Error
 	{
 		try {
 			StarmusLogger::setCorrelationId();
 			StarmusLogger::timeStart('chunk_upload');
-			StarmusLogger::info(
-				'SubmissionHandler',
-				'Chunk request received',
-				[
-					'user_id' => get_current_user_id(),
-					'ip'      => StarmusSanitizer::get_user_ip(),
-				]
-			);
 
 			if ($this->is_rate_limited(get_current_user_id())) {
 				return $this->err('rate_limited', 'You are uploading too frequently.', 429);
@@ -239,16 +226,6 @@ final class StarmusSubmissionHandler
 				return $final;
 			}
 
-			StarmusLogger::info(
-				'SubmissionHandler',
-				'Chunk stored',
-				[
-					'upload_id'   => $params['upload_id']   ?? null,
-					'chunk_index' => $params['chunk_index'] ?? null,
-					'bytes'       => isset($params['data']) ? \strlen((string) $params['data']) : 0,
-				]
-			);
-
 			StarmusLogger::timeEnd('chunk_upload', 'SubmissionHandler');
 			return [
 				'success' => true,
@@ -264,24 +241,11 @@ final class StarmusSubmissionHandler
 		}
 	}
 
-	/*
-    ======================================================================
-     * FALLBACK FORM UPLOAD HANDLER (multipart/form-data)
-     * ==================================================================== */
-
-	public function handle_fallback_upload_rest(WP_REST_Request $request): array|WP_Error
+	public function handle_fallback_upload_rest(WP_REST_Request $request): WP_REST_Response|WP_Error
 	{
 		try {
 			StarmusLogger::setCorrelationId();
 			StarmusLogger::timeStart('fallback_upload');
-			StarmusLogger::info(
-				'SubmissionHandler',
-				'Fallback upload request received',
-				[
-					'user_id' => get_current_user_id(),
-					'ip'      => StarmusSanitizer::get_user_ip(),
-				]
-			);
 
 			if ($this->is_rate_limited(get_current_user_id())) {
 				return $this->err('rate_limited', 'You are uploading too frequently.', 429);
@@ -312,9 +276,181 @@ final class StarmusSubmissionHandler
 			$result = $this->process_fallback_upload($files_data, $form_data, $file_key);
 
 			StarmusLogger::timeEnd('fallback_upload', 'SubmissionHandler');
-			return $result;
+			
+			if (is_wp_error($result)) {
+				return $result;
+			}
+			
+			return new WP_REST_Response(
+				[
+					'success' => true,
+					'data'    => $result['data'],
+				],
+				200
+			);
 		} catch (Throwable $throwable) {
 			StarmusLogger::error('SubmissionHandler', $throwable, ['phase' => 'fallback']);
+			return new WP_REST_Response(
+				new WP_Error(
+					'server_error',
+					__('Upload failed. Please try again later.', 'starmus-audio-recorder'),
+					['status' => 500]
+				),
+				500
+			);
+		}
+	}
+
+   ======================================================================
+     * FILE PROCESSING (Finalization)
+     * ==================================================================== */
+
+	private function finalize_submission(string $file_path, array $form_data): array|WP_Error
+	{
+		try {
+			StarmusLogger::timeStart('finalize_submission');
+
+			if (! file_exists($file_path)) {
+				return $this->err('file_missing', 'No file to finalize.', 400, ['path' => $file_path]);
+			}
+
+			$filename   = $form_data['filename'] ?? uniqid('starmus_', true) . '.webm';
+			$upload_dir = wp_upload_dir();
+			if (empty($upload_dir['path']) || ! is_dir($upload_dir['path'])) {
+				return $this->err('uploads_unavailable', 'Uploads directory not available.', 500, $upload_dir);
+			}
+
+			$destination = trailingslashit($upload_dir['path']) . $filename;
+
+			$mime  = (string) ($form_data['mime'] ?? 'audio/webm');
+			$size  = (int) @filesize($file_path);
+			$valid = $this->validate_file_against_settings($mime, $size);
+			if (is_wp_error($valid)) {
+				wp_delete_file($file_path);
+				return $valid;
+			}
+
+			global $wp_filesystem;
+			if (empty($wp_filesystem)) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+				WP_Filesystem();
+			}
+
+			if (! $wp_filesystem->move($file_path, $destination, true)) {
+				wp_delete_file($file_path);
+				return $this->err('move_failed', 'Failed to move upload into uploads path.', 500, ['dest' => $destination]);
+			}
+
+			try {
+				$attachment_id = $this->dal->create_attachment_from_file($destination, $filename);
+			} catch (Throwable $e) {
+				StarmusLogger::error('SubmissionHandler', $e, ['phase' => 'create_attachment']);
+				wp_delete_file($destination);
+				return $this->err('attachment_create_failed', 'Could not create attachment.', 500);
+			}
+
+			if (is_wp_error($attachment_id)) {
+				wp_delete_file($destination);
+				return $attachment_id;
+			}
+
+			try {
+				$cpt_post_id = $this->dal->create_audio_post(
+					$form_data['starmus_title'] ?? pathinfo((string) $filename, PATHINFO_FILENAME),
+					$this->get_cpt_slug(),
+					get_current_user_id()
+				);
+			} catch (Throwable $e) {
+				StarmusLogger::error('SubmissionHandler', $e, ['phase' => 'create_post']);
+				$this->dal->delete_attachment((int) $attachment_id);
+				return $this->err('post_create_failed', 'Could not create audio post.', 500);
+			}
+
+			if (is_wp_error($cpt_post_id)) {
+				$this->dal->delete_attachment((int) $attachment_id);
+				return $cpt_post_id;
+			}
+
+			try {
+				$this->dal->save_post_meta((int) $cpt_post_id, '_audio_attachment_id', (int) $attachment_id);
+				$this->dal->set_attachment_parent((int) $attachment_id, (int) $cpt_post_id);
+				
+                // Save metadata and trigger post processing
+				$this->save_all_metadata((int) $cpt_post_id, (int) $attachment_id, $form_data);
+			} catch (Throwable $e) {
+				StarmusLogger::error('SubmissionHandler', $e, ['phase' => 'save_meta']);
+			}
+
+			StarmusLogger::timeEnd('finalize_submission', 'SubmissionHandler');
+
+			return [
+				'success' => true,
+				'data'    => [
+					'attachment_id' => (int) $attachment_id,
+					'post_id'       => (int) $cpt_post_id,
+					'url'           => wp_get_attachment_url((int) $attachment_id),
+					'redirect_url'  => esc_url($this->get_redirect_url()),
+				],
+			];
+		} catch (Throwable $throwable) {
+			StarmusLogger::error('SubmissionHandler', $throwable, ['phase' => 'finalize_submission']);
+			return $this->err('server_error', 'Finalize failed.', 500);
+		}
+	}
+
+/**
+	 * Process standard multipart upload via media sideload.
+	 */
+	public function process_fallback_upload(array $files_data, array $form_data, string $file_key = 'audio_file'): array|WP_Error
+	{
+		try {
+			StarmusLogger::timeStart('fallback_pipeline');
+
+			if (empty($files_data[$file_key])) {
+				return $this->err('missing_file', 'No audio file provided.', 400);
+			}
+
+			$attachment_id = $this->dal->create_attachment_from_sideload($files_data[$file_key]);
+			if (is_wp_error($attachment_id)) {
+				return $attachment_id;
+			}
+
+			$title       = $form_data['starmus_title'] ?? pathinfo((string) $files_data[$file_key]['name'], PATHINFO_FILENAME);
+			$cpt_post_id = $this->dal->create_audio_post(
+				$title,
+				$this->get_cpt_slug(),
+				get_current_user_id()
+			);
+
+			if (is_wp_error($cpt_post_id)) {
+				$this->dal->delete_attachment((int) $attachment_id);
+				return $cpt_post_id;
+			}
+
+			// 1. CRITICAL FIX: Link the original attachment to the CPT
+			$this->dal->save_post_meta((int) $cpt_post_id, '_audio_attachment_id', (int) $attachment_id);
+			$this->dal->set_attachment_parent((int) $attachment_id, (int) $cpt_post_id);
+
+			// 2. CRITICAL FIX: Inject the attachment ID into the form_data array.
+			// This allows the save_all_metadata method to persist the correct values (audio_files_originals)
+			$form_data['audio_files_originals'] = (int) $attachment_id;
+			
+			// 3. Save metadata AND trigger post processing
+			$this->save_all_metadata((int) $cpt_post_id, (int) $attachment_id, $form_data);
+
+			StarmusLogger::timeEnd('fallback_pipeline', 'SubmissionHandler');
+
+			return [
+				'success' => true,
+				'data'    => [
+					'attachment_id' => (int) $attachment_id,
+					'post_id'       => (int) $cpt_post_id,
+					'url'           => wp_get_attachment_url((int) $attachment_id),
+					'redirect_url'  => esc_url($this->get_redirect_url()),
+				],
+			];
+		} catch (Throwable $throwable) {
+			StarmusLogger::error('SubmissionHandler', $throwable, ['phase' => 'fallback_pipeline']);
 			return $this->err('server_error', 'Failed to process fallback upload.', 500);
 		}
 	}
