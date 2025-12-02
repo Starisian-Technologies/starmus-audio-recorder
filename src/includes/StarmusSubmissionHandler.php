@@ -7,8 +7,8 @@ declare(strict_types=1);
  *
  * @package   Starisian\Sparxstar\Starmus\includes
  */
-
 namespace Starisian\Sparxstar\Starmus\includes;
+
 
 if (! \defined('ABSPATH')) {
 	exit;
@@ -58,6 +58,7 @@ final class StarmusSubmissionHandler
 {
 	public const STARMUS_REST_NAMESPACE = 'star-starmus-audio-recorder/v1';
 
+
 	private ?StarmusSettings $settings;
 
 	private StarmusAudioRecorderDALInterface $dal;
@@ -91,8 +92,7 @@ final class StarmusSubmissionHandler
 		}
 	}
 
-	/*
-    ======================================================================
+	/*======================================================================
      * CHUNKED UPLOAD HANDLER
      * ==================================================================== */
 
@@ -104,9 +104,7 @@ final class StarmusSubmissionHandler
 	 * @param array $form_data Sanitized metadata from the client.
 	 *
 	 * @return array|WP_Error Success array with IDs or WP_Error.
-	 */
-/**
-	 * Processes a file that is already fully present on the local filesystem.
+	 *
 	 */
 	public function process_completed_file(string $file_path, array $form_data): array|WP_Error
 	{
@@ -301,7 +299,7 @@ final class StarmusSubmissionHandler
 		}
 	}
 
-   ======================================================================
+   /*======================================================================
      * FILE PROCESSING (Finalization)
      * ==================================================================== */
 
@@ -504,7 +502,7 @@ final class StarmusSubmissionHandler
             if (class_exists('\Starisian\SparxstarUEC\StarUserEnv')) {
                 $all_telemetry = \Starisian\SparxstarUEC\StarUserEnv::get_snapshot(); 
             }
-            
+
             $client_data = $all_telemetry['client_side_data']['identifiers_extra'] ?? [];
             $raw_profile_data   = $client_data['technical']['profile'] ?? [];
             $browser_data       = $raw_technical_data['browser'] ?? [];
@@ -519,46 +517,47 @@ final class StarmusSubmissionHandler
 
             // Raw Environment Data (Save the entire blob)
             $env_json_raw = $form_data['_starmus_env'] ?? '';
-            $env_snapshot = !empty($env_json_raw) ? json_decode(wp_unslash($env_json_raw), true) : [];
+            $env_snapshot = empty($env_json_raw) ? [] : json_decode(wp_unslash($env_json_raw), true);
             if ($env_json_raw !== '') {
 				$this->update_acf_field('environment_data', wp_unslash($env_json_raw), $audio_post_id);
 			}
 
             // --- CRITICAL TRANSCRIPT FIX ---
             $transcript_text = $form_data['first_pass_transcription'] ?? '';
-            
+
             // Fallback 1: Check the raw environment JSON (where the recorder often dumps final text)
             if (empty($transcript_text) && !empty($env_snapshot['transcript'])) {
                  $transcript_text = $env_snapshot['transcript']['final'] ?? $env_snapshot['transcript']['text'] ?? '';
             }
-            
+
             if (!empty($transcript_text)) {
                  $this->update_acf_field('first_pass_transcription', wp_unslash($transcript_text), $audio_post_id);
             }
+
             // --- END TRANSCRIPT FIX ---
-            
+
             // Raw Waveform Data from client
 			if (isset($form_data['waveform_json']) && $form_data['waveform_json'] !== '') {
 				$this->update_acf_field('waveform_json', wp_unslash($form_data['waveform_json']), $audio_post_id);
 			}
 
             // --- 3. EXTRACT STRUCTURED FIELDS (CRITICAL MISSING DATA) ---
-			
+
 			// User Agent (PRIORITY: UEC Data > Server Header)
             $full_ua_uec = ($browser_data['name'] ?? '') . ' ' . ($browser_data['version'] ?? '') . ' (' . ($os_data['name'] ?? '') . ')';
             $final_ua = trim($full_ua_uec) ?: ($form_data['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? ''));
 			$this->update_acf_field('user_agent', sanitize_text_field($final_ua), $audio_post_id);
-			
+
             // IP & Fingerprint
 			$this->update_acf_field('submission_ip', \Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer::get_user_ip(), $audio_post_id);
 			$this->update_acf_field('device_fingerprint', $all_telemetry['fingerprint'] ?? '', $audio_post_id); 
-			
+
             // Mic Profile
             $mic_profile = $raw_profile_data['overallProfile'] ?? ($calibration_data['gain'] ?? '');
             if ($mic_profile) {
                 $this->update_acf_field('mic_profile', 'Profile: ' . $mic_profile, $audio_post_id);
             }
-            
+
 			// RECORDING DATE/TIME
 			if (! empty($raw_technical_data['timestamp'])) {
 				try {
@@ -569,9 +568,9 @@ final class StarmusSubmissionHandler
 					// Logged as warning, no fatal error
 				}
 			}
-            
+
 			// --- 4. FRONTEND METADATA & TAXONOMIES (Unchanged) ---
-			
+
 			foreach (['project_collection_id', 'accession_number', 'location', 'usage_restrictions_rights', 'access_level'] as $field) {
 				if (isset($form_data[$field])) {
 					$this->update_acf_field($field, sanitize_text_field((string) wp_unslash($form_data[$field])), $audio_post_id);
@@ -581,7 +580,7 @@ final class StarmusSubmissionHandler
 			if ($attachment_id !== 0) {
 				$this->update_acf_field('audio_files_originals', $attachment_id, $audio_post_id);
 			}
-			
+
 			if (! empty($form_data['language'])) {
 				wp_set_post_terms($audio_post_id, [(int) $form_data['language']], 'language');
 			}
@@ -593,10 +592,10 @@ final class StarmusSubmissionHandler
 			do_action('starmus_after_save_submission_metadata', $audio_post_id, $form_data, $metadata ?? []);
 
 			// --- 5. ADAPTIVE PROCESSING CONFIG & TRIGGER ---
-			
+
 			$is_offline_sync = isset($form_data['sync_mode']) && 'offline' === $form_data['sync_mode'];
 			$sync_network    = $form_data['sync_network_type'] ?? null;
-			
+
             $network_type   = $raw_technical_data['network']['effectiveType'] ?? $sync_network ?? '4g';
 			$ffmpeg_bitrate = '192k';
 			$sample_rate    = 44100;
@@ -608,6 +607,7 @@ final class StarmusSubmissionHandler
 				$ffmpeg_bitrate = '48k';
 				$sample_rate    = 16000;
 			}
+
 			$processing_params = [
 				'bitrate'      => $ffmpeg_bitrate,
 				'samplerate'   => $sample_rate,
@@ -796,150 +796,6 @@ final class StarmusSubmissionHandler
 		}
 	}
 
-	private function finalize_submission(string $file_path, array $form_data): array|WP_Error
-	{
-		try {
-			StarmusLogger::timeStart('finalize_submission');
-
-			if (! file_exists($file_path)) {
-				return $this->err('file_missing', 'No file to finalize.', 400, ['path' => $file_path]);
-			}
-
-			$filename   = $form_data['filename'] ?? uniqid('starmus_', true) . '.webm';
-			$upload_dir = wp_upload_dir();
-			if (empty($upload_dir['path']) || ! is_dir($upload_dir['path'])) {
-				return $this->err('uploads_unavailable', 'Uploads directory not available.', 500, $upload_dir);
-			}
-
-			$destination = trailingslashit($upload_dir['path']) . $filename;
-
-			$mime  = (string) ($form_data['mime'] ?? 'audio/webm');
-			$size  = (int) @filesize($file_path);
-			$valid = $this->validate_file_against_settings($mime, $size);
-			if (is_wp_error($valid)) {
-				wp_delete_file($file_path);
-				return $valid;
-			}
-
-			global $wp_filesystem;
-			if (empty($wp_filesystem)) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-				WP_Filesystem();
-			}
-
-			if (! $wp_filesystem->move($file_path, $destination, true)) {
-				wp_delete_file($file_path);
-				return $this->err('move_failed', 'Failed to move upload into uploads path.', 500, ['dest' => $destination]);
-			}
-
-			try {
-				$attachment_id = $this->dal->create_attachment_from_file($destination, $filename);
-			} catch (Throwable $e) {
-				StarmusLogger::error('SubmissionHandler', $e, ['phase' => 'create_attachment']);
-				wp_delete_file($destination);
-				return $this->err('attachment_create_failed', 'Could not create attachment.', 500);
-			}
-
-			if (is_wp_error($attachment_id)) {
-				wp_delete_file($destination);
-				return $attachment_id;
-			}
-
-			try {
-				$cpt_post_id = $this->dal->create_audio_post(
-					$form_data['starmus_title'] ?? pathinfo((string) $filename, PATHINFO_FILENAME),
-					$this->get_cpt_slug(),
-					get_current_user_id()
-				);
-			} catch (Throwable $e) {
-				StarmusLogger::error('SubmissionHandler', $e, ['phase' => 'create_post']);
-				$this->dal->delete_attachment((int) $attachment_id);
-				return $this->err('post_create_failed', 'Could not create audio post.', 500);
-			}
-
-			if (is_wp_error($cpt_post_id)) {
-				$this->dal->delete_attachment((int) $attachment_id);
-				return $cpt_post_id;
-			}
-
-			try {
-				$this->dal->save_post_meta((int) $cpt_post_id, '_audio_attachment_id', (int) $attachment_id);
-				$this->dal->set_attachment_parent((int) $attachment_id, (int) $cpt_post_id);
-				
-                // Save metadata and trigger post processing
-				$this->save_all_metadata((int) $cpt_post_id, (int) $attachment_id, $form_data);
-			} catch (Throwable $e) {
-				StarmusLogger::error('SubmissionHandler', $e, ['phase' => 'save_meta']);
-			}
-
-			StarmusLogger::timeEnd('finalize_submission', 'SubmissionHandler');
-
-			return [
-				'success' => true,
-				'data'    => [
-					'attachment_id' => (int) $attachment_id,
-					'post_id'       => (int) $cpt_post_id,
-					'url'           => wp_get_attachment_url((int) $attachment_id),
-					'redirect_url'  => esc_url($this->get_redirect_url()),
-				],
-			];
-		} catch (Throwable $throwable) {
-			StarmusLogger::error('SubmissionHandler', $throwable, ['phase' => 'finalize_submission']);
-			return $this->err('server_error', 'Finalize failed.', 500);
-		}
-	}
-
-	/**
-	 * Process standard multipart upload via media sideload.
-	 */
-	public function process_fallback_upload(array $files_data, array $form_data, string $file_key = 'audio_file'): array|WP_Error
-	{
-		try {
-			StarmusLogger::timeStart('fallback_pipeline');
-
-			if (empty($files_data[$file_key])) {
-				return $this->err('missing_file', 'No audio file provided.', 400);
-			}
-
-			$attachment_id = $this->dal->create_attachment_from_sideload($files_data[$file_key]);
-			if (is_wp_error($attachment_id)) {
-				return $attachment_id;
-			}
-
-			$title       = $form_data['starmus_title'] ?? pathinfo((string) $files_data[$file_key]['name'], PATHINFO_FILENAME);
-			$cpt_post_id = $this->dal->create_audio_post(
-				$title,
-				$this->get_cpt_slug(),
-				get_current_user_id()
-			);
-
-			if (is_wp_error($cpt_post_id)) {
-				$this->dal->delete_attachment((int) $attachment_id);
-				return $cpt_post_id;
-			}
-
-			$this->dal->save_post_meta((int) $cpt_post_id, '_audio_attachment_id', (int) $attachment_id);
-			$this->dal->set_attachment_parent((int) $attachment_id, (int) $cpt_post_id);
-
-			$this->save_all_metadata((int) $cpt_post_id, (int) $attachment_id, $form_data);
-
-			StarmusLogger::timeEnd('fallback_pipeline', 'SubmissionHandler');
-
-			return [
-				'success' => true,
-				'data'    => [
-					'attachment_id' => (int) $attachment_id,
-					'post_id'       => (int) $cpt_post_id,
-					'url'           => wp_get_attachment_url((int) $attachment_id),
-					'redirect_url'  => esc_url($this->get_redirect_url()),
-				],
-			];
-		} catch (Throwable $throwable) {
-			StarmusLogger::error('SubmissionHandler', $throwable, ['phase' => 'fallback_pipeline']);
-			return $this->err('server_error', 'Failed to process fallback upload.', 500);
-		}
-	}
-
 	/**
 	 * Consistent logger + WP_Error creator with correlation id in data.
 	 */
@@ -964,12 +820,14 @@ final class StarmusSubmissionHandler
 				[
 					'status'         => $status,
 					'correlation_id' => $cid,
+					'message'        => $message
 				]
 			);
 		} catch (Throwable) {
 			return new WP_Error($code, $message, ['status' => $status]);
 		}
 	}
+
 
 	/**
 	 * Ensure uploads base dir is writable; returns WP_Error on failure.
@@ -1026,10 +884,6 @@ final class StarmusSubmissionHandler
 		}
 	}
 
-	/**
-	 * Validates file against size/mime settings.
-	 * FIXED: Checks if submitted MIME *contains* the allowed type (e.g., checks 'audio/webm;codecs=opus' against 'webm').
-	 */
 	/**
 	 * Validates file against size/mime settings.
 	 * FIXED: Checks if submitted MIME *contains* the allowed type (e.g., checks 'audio/webm;codecs=opus' against 'webm').

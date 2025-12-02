@@ -22,11 +22,11 @@ if (! defined('ABSPATH')) {
 /** @var int $existing_type */
 /** @var string $allowed_file_types */
 
-$form_id     = $form_id ?? 'rerecord';
+$form_id ??= 'rerecord';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 
 $allowed_file_types ??= 'webm';
-$allowed_types_arr     = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn($v) => $v !== ''));
+$allowed_types_arr     = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
 $is_admin              = current_user_can('manage_options');
 
 ?>
