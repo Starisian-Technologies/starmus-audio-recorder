@@ -228,6 +228,7 @@ window.StarmusApp.isRecordingSupported = isRecordingSupported;
  * CRITICAL FIX: Injects all internal state data into hidden form fields 
  * before submission to bypass the REST API Session/Cache sync problem.
  */
+// --- FINAL CORRECTED populateHiddenFields (The definitive fix for missing telemetry) ---
 function populateHiddenFields(store, formEl) {
     const state = store.getState();
     const env = state.env || {};
@@ -269,7 +270,7 @@ function populateHiddenFields(store, formEl) {
     // The visitorId is the fingerprint
     inject('device_fingerprint', env?.identifiers?.visitorId || ''); 
 }
-
+// --- END FINAL CORRECTED populateHiddenFields ---
 
 async function wireInstance(env, formEl) {
     let instanceId = formEl.getAttribute('data-starmus-id');
