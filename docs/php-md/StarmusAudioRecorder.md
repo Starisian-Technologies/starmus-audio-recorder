@@ -62,6 +62,12 @@ Strictly prevent cloning.
 Strictly prevent (un)serialization.
 @throws LogicException Always.
 
+### `__unserialize()`
+
+**Visibility:** `public`
+
+@param array<string, mixed> $data
+
 ## Properties
 
 ---

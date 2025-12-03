@@ -22,12 +22,12 @@ This is the final, consolidated class containing all commands and best practices
 @package Starisian\Sparxstar\Starmus\cli
 @version 0.8.5
 /
-
 namespace Starisian\Sparxstar\Starmus\cli;
 
-use WP_Query;
-use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
+use Starisian\Sparxstar\Starmus\cron\StarmusCron;
 use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
+use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
+use WP_Query;
 
 // WP_CLI guard removed: always define the class, only register commands when WP_CLI is present.
 
@@ -36,18 +36,14 @@ Manages the Starmus Audio Recorder plugin.
 /
 class StarmusCLI extends \WP_CLI_Command
 {
+    private ?StarmusWaveformService $waveform_service = null;
 
+    public function __construct()
+    {
+        $this->waveform_service = new StarmusWaveformService();
+    }
 
-
-
-	private ?StarmusWaveformService $waveform_service = null;
-
-	public function __construct()
-	{
-		$this->waveform_service = new StarmusWaveformService();
-	}
-
-	/**
+    /**
 Manages audio recording waveforms.
 ## EXAMPLES
     # Generate waveforms for all recordings missing them.
@@ -56,6 +52,7 @@ Manages audio recording waveforms.
     $ wp starmus waveform generate --post_ids=123,456 --regenerate
     # Delete waveform data for attachment ID 789.
     $ wp starmus waveform delete --attachment_ids=789
+@param mixed $args
 
 ### `cache()`
 
@@ -65,6 +62,8 @@ Manages the Starmus caches.
 ## EXAMPLES
     # Flush taxonomy caches
     $ wp starmus cache flush
+@param mixed $args
+@param mixed $assoc_args
 
 ### `cleanup_temp_files()`
 
@@ -77,6 +76,7 @@ Cleans up stale temporary files.
 ---
 default: 1
 ---
+@param mixed $args
 
 ### `export()`
 
@@ -92,6 +92,7 @@ options:
   - csv
   - json
 ---
+@param mixed $args
 
 ### `import()`
 
@@ -103,6 +104,63 @@ Imports audio recordings from a CSV file.
 : The path to the CSV file to import.
 [--dry-run]
 : Preview the import without creating posts or attachments.
+@param mixed $args
+@param mixed $assoc_args
+
+### `regen()`
+
+**Visibility:** `public`
+
+Force waveform + mastering regeneration for an attachment.
+## OPTIONS
+<attachment_id>
+: The attachment ID to process.
+## EXAMPLES
+    wp starmus regen 1234
+@subcommand regen
+
+### `scan_missing()`
+
+**Visibility:** `public`
+
+Scan for audio recordings with missing waveform_json and optionally repair them.
+## OPTIONS
+[--repair]
+: Automatically regenerate waveforms for recordings with missing data.
+[--limit=<number>]
+: Maximum number of recordings to process (default: 100).
+## EXAMPLES
+    wp starmus scan-missing
+    wp starmus scan-missing --repair
+    wp starmus scan-missing --repair --limit=50
+@subcommand scan-missing
+
+### `batch_regen()`
+
+**Visibility:** `public`
+
+Batch regenerate waveforms for all audio attachments.
+## OPTIONS
+[--limit=<number>]
+: Maximum number of attachments to process (default: 100).
+[--offset=<number>]
+: Offset for pagination (default: 0).
+## EXAMPLES
+    wp starmus batch-regen
+    wp starmus batch-regen --limit=50 --offset=100
+@subcommand batch-regen
+
+### `queue()`
+
+**Visibility:** `public`
+
+Queue waveform regeneration for a specific attachment (runs via cron).
+## OPTIONS
+<attachment_id>
+: The attachment ID to queue.
+## EXAMPLES
+    wp starmus queue 1234
+@subcommand queue
 
 ---
 

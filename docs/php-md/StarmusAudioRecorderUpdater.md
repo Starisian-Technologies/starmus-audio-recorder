@@ -24,20 +24,22 @@ Handles checking for and providing updates for the Starmus plugin.
 @version 0.8.5
 @since       0.7.2
 /
-class StarmusAudioRecorderUpdater {
+class StarmusAudioRecorderUpdater
+{
+    private string $update_api_url = 'https://updates.starisian.com/v1/info'; // Your update server URL
 
-	private string $update_api_url = 'https://updates.starisian.com/v1/info'; // Your update server URL
+    public function __construct(private $plugin_file, private $current_version)
+    {
+        $this->register_hooks();
+        // The crucial hook that starts the process.
+    }
 
-	public function __construct( private $plugin_file, private $current_version ) {
-		$this->register_hooks();
-		// The crucial hook that starts the process.
-	}
+    private function register_hooks(): void
+    {
+        add_filter('pre_set_site_transient_update_plugins', $this->check_for_updates(...));
+    }
 
-	private function register_hooks(): void {
-		add_filter( 'pre_set_site_transient_update_plugins', $this->check_for_updates(...) );
-	}
-
-	/**
+    /**
 The callback function that intercepts the WordPress update check.
 @param object $transient The WordPress update transient.
 @return object The modified transient.

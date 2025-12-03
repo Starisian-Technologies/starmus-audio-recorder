@@ -4,40 +4,6 @@
 
 ---
 
-## Functions
-
-<dl>
-<dt><a href="#reducer">reducer(state, action)</a> ⇒ <code>object</code></dt>
-<dd><p>Pure reducer for Starmus state.</p>
-</dd>
-<dt><a href="#createStore">createStore([initial])</a> ⇒ <code>Object</code></dt>
-<dd><p>Creates a minimal store with getState, dispatch, subscribe.</p>
-</dd>
-</dl>
-
-<a name="reducer"></a>
-
-## reducer(state, action) ⇒ <code>object</code>
-Pure reducer for Starmus state.
-
-**Kind**: global function  
-
-| Param | Type |
-| --- | --- |
-| state | <code>object</code> | 
-| action | <code>object</code> | 
-
-<a name="createStore"></a>
-
-## createStore([initial]) ⇒ <code>Object</code>
-Creates a minimal store with getState, dispatch, subscribe.
-
-**Kind**: global function  
-
-| Param | Type |
-| --- | --- |
-| [initial] | <code>object</code> | 
-
 
 
 ---

@@ -14,7 +14,6 @@
  *
  * @version 3.1.0
  */
-
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;
@@ -91,7 +90,6 @@ final class StarmusAssetLoader
         );
     }
 
-
     /**
      * Enqueues the single, bundled, and minified JavaScript file for production.
      *
@@ -135,7 +133,7 @@ final class StarmusAssetLoader
                 [
                     'version' => $this->resolve_version(),
                     'config'  => $config,
-                    'env'     => defined('WP_ENV') ? WP_ENV : 'production',
+                    'env'     => \defined('WP_ENV') ? WP_ENV : 'production',
                     'postId'  => get_the_ID() ?: 0,
                     'restUrl' => esc_url_raw(rest_url()),
                     'homeUrl' => esc_url_raw(home_url('/')),
@@ -151,7 +149,6 @@ final class StarmusAssetLoader
             StarmusLogger::log('StarmusAssetLoader::enqueue_production_assets', $throwable);
         }
     }
-
 
     /**
      * Enqueues the minified stylesheet for the plugin.
@@ -197,7 +194,7 @@ final class StarmusAssetLoader
 
             // Get allowed file types from settings (comma-separated string like 'mp3,wav,webm')
             $allowed_file_types = $settings->get('allowed_file_types', 'mp3,wav,webm');
-            $allowed_types_arr  = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
+            $allowed_types_arr  = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
 
             // Map extensions to MIME types
             $allowed_mimes = [];

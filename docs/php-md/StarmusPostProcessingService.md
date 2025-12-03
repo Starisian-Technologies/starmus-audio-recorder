@@ -8,104 +8,46 @@
 
 STARISIAN TECHNOLOGIES CONFIDENTIAL
 © 2023–2025 Starisian Technologies. All Rights Reserved.
-Adaptive PostProcessing Service (Broadcast & AI-Ready)
+UNIFIED POST-PROCESSING SERVICE
 ---------------------------------------------------------
-Dynamically optimizes audio encoding, applies EBU R128 loudness
-normalization, and embeds provenance metadata into the final files.
-@version 1.5.0
+Combines Transcoding, EBU R128 Normalization, ID3 Tagging,
+and Waveform Generation into a single atomic operation.
+@package Starisian\Sparxstar\Starmus\services
+@version 2.0.0 (Unified)
 
 ## Methods
-
-### `process_and_archive_audio()`
-
-**Visibility:** `public`
-
-STARISIAN TECHNOLOGIES CONFIDENTIAL
-© 2023–2025 Starisian Technologies. All Rights Reserved.
-Adaptive PostProcessing Service (Broadcast & AI-Ready)
----------------------------------------------------------
-Dynamically optimizes audio encoding, applies EBU R128 loudness
-normalization, and embeds provenance metadata into the final files.
-@version 1.5.0
-/
-
-
-
-
-if (!defined('ABSPATH')) {
-	exit;
-}
-
-use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Throwable;
-
-
-/**
-StarmusPostProcessingService
-Responsibilities:
- - Resolve ffmpeg path (via DAL → filters)
- - Transcode original → WAV (archival), MP3 (distribution)
- - Apply ID3 via StarmusAudioProcessingService
- - Generate waveform via StarmusWaveformService
- - Persist paths & state via DAL
- - Optional cloud offload via StarmusFileService
-/
-class StarmusPostProcessingService
-{
-
-	/** Status/state codes written for observability */
-	public const STATE_IDLE           = 'idle';
-
-	public const STATE_PROCESSING     = 'processing';
-
-	public const STATE_CONVERTING_WAV = 'converting_wav';
-
-	public const STATE_CONVERTING_MP3 = 'converting_mp3';
-
-	public const STATE_ID3_WRITING    = 'id3_writing';
-
-	public const STATE_WAVEFORM       = 'waveform';
-
-	public const STATE_COMPLETED      = 'completed';
-
-
-	public const STATE_ERR_FFMPEG_MISSING = 'error_ffmpeg_missing';
-
-	public const STATE_ERR_SOURCE_MISSING = 'error_source_missing';
-
-	public const STATE_ERR_BACKUP_FAILED  = 'error_backup_failed';
-
-	public const STATE_ERR_WAV_FAILED     = 'error_wav_failed';
-
-	public const STATE_ERR_MP3_FAILED     = 'error_mp3_failed';
-
-	public const STATE_ERR_ID3_FAILED     = 'error_id3_failed';
-
-	public const STATE_ERR_UNKNOWN        = 'error_unknown';
-
-
-
-
-
-
-	/** Back-compat alias
-
-### `star_process_and_archive_audio()`
-
-**Visibility:** `public`
-
-Back-compat alias (kept to avoid touching older callers)
 
 ### `process()`
 
 **Visibility:** `public`
 
-Process an audio recording using adaptive settings.
-@param int   $post_id        The WordPress post ID of the audio artifact.
-@param int   $attachment_id  The attachment ID of the original file.
-@param array $params         Adaptive encoding parameters from the handler.
-@return bool                 True on success, false on failure.
+STARISIAN TECHNOLOGIES CONFIDENTIAL
+© 2023–2025 Starisian Technologies. All Rights Reserved.
+UNIFIED POST-PROCESSING SERVICE
+---------------------------------------------------------
+Combines Transcoding, EBU R128 Normalization, ID3 Tagging,
+and Waveform Generation into a single atomic operation.
+@package Starisian\Sparxstar\Starmus\services
+@version 2.0.0 (Unified)
+/
+class StarmusPostProcessingService
+{
+    private readonly StarmusAudioRecorderDAL $dal;
+
+    private readonly StarmusWaveformService $waveform_service;
+
+    public function __construct()
+    {
+        $this->dal              = new StarmusAudioRecorderDAL();
+        $this->waveform_service = new StarmusWaveformService();
+    }
+
+    /**
+Main Entry Point: Process an audio recording.
+@param int $post_id The 'audio-recording' Post ID.
+@param int $attachment_id The ID of the uploaded 'original' file.
+@param array $params Context parameters (network_type, bitrates, etc).
+@return bool True on success.
 
 ---
 

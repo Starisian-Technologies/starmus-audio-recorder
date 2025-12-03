@@ -22,68 +22,66 @@ Optimized and secure settings management for the Starmus plugin.
 @version 0.8.5
 @since 0.3.1
 /
-
 namespace Starisian\Sparxstar\Starmus\core;
 
-if (! defined('ABSPATH')) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
 final class StarmusSettings
 {
-
-	/**
+    /**
 Whitelisted MIME types for audio/video file uploads.
 Centralized in a constant for clarity and reuse across the plugin.
 Maps file extensions to their corresponding MIME types.
 @var array<string, string>
 /
-	private const ALLOWED_MIMES = [
-		'mp3'  => 'audio/mpeg',
-		'wav'  => 'audio/wav',
-		'ogg'  => 'audio/ogg',
-		'oga'  => 'audio/ogg',
-		'opus' => 'audio/ogg; codecs=opus',
-		'weba' => 'audio/webm',
-		'aac'  => 'audio/aac',
-		'm4a'  => 'audio/mp4',
-		'flac' => 'audio/flac',
-		'mp4'  => 'video/mp4',
-		'm4v'  => 'video/x-m4v',
-		'mov'  => 'video/quicktime',
-		'webm' => 'video/webm',
-		'ogv'  => 'video/ogg',
-		'avi'  => 'video/x-msvideo',
-		'wmv'  => 'video/x-ms-wmv',
-		'3gp'  => 'video/3gpp',
-		'3g2'  => 'video/3gpp2',
-	];
+    private const ALLOWED_MIMES = [
+        'mp3'  => 'audio/mpeg',
+        'wav'  => 'audio/wav',
+        'ogg'  => 'audio/ogg',
+        'oga'  => 'audio/ogg',
+        'opus' => 'audio/ogg; codecs=opus',
+        'weba' => 'audio/webm',
+        'aac'  => 'audio/aac',
+        'm4a'  => 'audio/mp4',
+        'flac' => 'audio/flac',
+        'mp4'  => 'video/mp4',
+        'm4v'  => 'video/x-m4v',
+        'mov'  => 'video/quicktime',
+        'webm' => 'video/webm',
+        'ogv'  => 'video/ogg',
+        'avi'  => 'video/x-msvideo',
+        'wmv'  => 'video/x-ms-wmv',
+        '3gp'  => 'video/3gpp',
+        '3g2'  => 'video/3gpp2',
+    ];
 
-	/**
+    /**
 WordPress option key for storing plugin settings.
 REVERTED: Back to OPTION_KEY, no transients.
 All plugin settings are stored under this single option key in wp_options table.
 @var string
 /
-	public const STARMUS_OPTION_KEY = 'starmus_options';
+    public const STARMUS_OPTION_KEY = 'starmus_options';
 
-	/**
+    /**
 Cached plugin settings for current request.
 Using nullable type allows simple cache invalidation with `null`.
 Reduces repeated database queries within a single request.
 @var array<string, mixed>|null
 /
-	private ?array $obj_cache = null;
+    private ?array $obj_cache = null;
 
-	/**
+    /**
 Cached default settings to avoid recomputation.
 Stores the default configuration values for all plugin settings.
 Computed once and reused throughout the request lifecycle.
 @var array<string, mixed>|null
 /
-	private ?array $default_obj_cache = null;
+    private ?array $default_obj_cache = null;
 
-	/**
+    /**
 Constructor - Initializes settings and primes caches.
 Loads default settings, fetches current settings from database,
 and registers WordPress hooks for MIME type validation.
@@ -96,8 +94,8 @@ and registers WordPress hooks for MIME type validation.
 Retrieve a single setting by key with default fallback.
 Fetches a specific setting value from the cached settings array.
 Returns the provided default value if the key doesn't exist.
-@param string $key     The setting key to retrieve.
-@param mixed  $default Default value to return if setting doesn't exist.
+@param string $key The setting key to retrieve.
+@param mixed $default Default value to return if setting doesn't exist.
 @return mixed The setting value or default.
 
 ### `all()`
@@ -118,8 +116,8 @@ Set a single setting value with sanitization and cache invalidation.
 REVERTED: Now updates wp_options instead of transients.
 Validates the key, sanitizes the value, updates the option,
 and clears the cache on success.
-@param string $key   The setting key to update.
-@param mixed  $value The new value to set.
+@param string $key The setting key to update.
+@param mixed $value The new value to set.
 @return bool True on successful update, false on failure or invalid key.
 
 ### `update_all()`
@@ -169,12 +167,18 @@ REVERTED: Now deletes option.
 **Visibility:** `public`
 
 Legacy wrapper (deprecated).
+@param mixed $default
 
 ### `filter_filetype_and_ext()`
 
 **Visibility:** `public`
 
 Filter MIME type detection to whitelist allowed formats.
+@param mixed $types
+@param mixed $file
+@param mixed $filename
+@param mixed $mimes_allowed
+@param mixed $real_mime
 
 ### `filter_upload_mimes()`
 

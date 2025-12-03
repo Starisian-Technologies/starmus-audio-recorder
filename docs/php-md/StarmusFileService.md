@@ -32,26 +32,24 @@ StarmusFileService (DAL-integrated)
 @package Starisian\Sparxstar\Starmus\services
 @version 0.8.5-dal
 /
-
 namespace Starisian\Sparxstar\Starmus\services;
 
-if (! defined('ABSPATH')) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 
 final readonly class StarmusFileService
 {
+    private StarmusAudioRecorderDAL $dal;
 
-	private StarmusAudioRecorderDAL $dal;
+    public function __construct(?StarmusAudioRecorderDAL $dal = null)
+    {
+        $this->dal = $dal ?: new StarmusAudioRecorderDAL();
+    }
 
-	public function __construct(?StarmusAudioRecorderDAL $dal = null)
-	{
-		$this->dal = $dal ?: new StarmusAudioRecorderDAL();
-	}
-
-	/**
+    /**
 Guarantees a local copy of an attachment's file is available for processing.
 If offloaded, downloads it to a temp path and returns the local copy.
 The caller is responsible for cleanup.
@@ -61,6 +59,17 @@ The caller is responsible for cleanup.
 **Visibility:** `public`
 
 Uploads or re-attaches a local file via offloader or DAL fallback.
+
+### `star_get_public_url()`
+
+**Visibility:** `public`
+
+Returns the correct public URL for an attachment.
+- Honors external offloaders (AS3CF, Cloudflare, etc.)
+- Falls back to wp_get_attachment_url()
+- Normalizes HTTPS and Base URL mismatches
+@param int $attachment_id Attachment ID to resolve URL for.
+@return string|null Public URL or null if attachment not found.
 
 ---
 

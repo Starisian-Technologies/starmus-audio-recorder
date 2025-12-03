@@ -2,17 +2,18 @@
 /**
  * Starmus Re-Recorder UI Template
  *
- * FIXED: 
+ * FIXED:
  * 1. Forces 'audio_file_type' to 'audio/webm' to prevent 415 Errors.
  * 2. Includes ALL HIDDEN FIELDS needed by JS for data injection.
  * 3. Includes CRITICAL hidden fields for Update logic (`action`, `recording_id`, `update_post_id`).
  *
  * @package Starisian\Sparxstar\Starmus\templates
+ *
  * @version 1.1.4
  */
 
 if (! defined('ABSPATH')) {
-	exit;
+    exit;
 }
 
 /** @var string $form_id */
@@ -26,8 +27,8 @@ $form_id ??= 'rerecord';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 
 $allowed_file_types ??= 'webm';
-$allowed_types_arr     = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
-$is_admin              = current_user_can('manage_options');
+$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+$is_admin          = current_user_can('manage_options');
 
 ?>
 

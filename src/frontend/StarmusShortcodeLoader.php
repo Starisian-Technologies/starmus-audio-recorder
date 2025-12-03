@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 if (! \defined('ABSPATH')) {
@@ -51,11 +50,11 @@ final class StarmusShortcodeLoader
     public function register_shortcodes(): void
     {
         try {
-            add_shortcode('starmus_audio_recorder', fn(): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode(), 'starmus_audio_recorder'));
-            add_shortcode('starmus_audio_editor', fn(array $atts = []): string => $this->safe_render(fn(): string => $this->render_editor_with_bootstrap($atts), 'starmus_audio_editor'));
+            add_shortcode('starmus_audio_recorder', fn (): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode(), 'starmus_audio_recorder'));
+            add_shortcode('starmus_audio_editor', fn (array $atts = []): string => $this->safe_render(fn (): string => $this->render_editor_with_bootstrap($atts), 'starmus_audio_editor'));
             add_shortcode('starmus_my_recordings', $this->render_my_recordings_shortcode(...));
             add_shortcode('starmus_recording_detail', $this->render_submission_detail_shortcode(...));
-            add_shortcode('starmus_audio_re_recorder', fn(array $atts = []): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts), 'starmus_audio_re_recorder'));
+            add_shortcode('starmus_audio_re_recorder', fn (array $atts = []): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts), 'starmus_audio_re_recorder'));
 
             add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);
         } catch (\Throwable $throwable) {
@@ -159,7 +158,7 @@ final class StarmusShortcodeLoader
     private function render_editor_with_bootstrap(array $atts): string
     {
         // Create editor instance and get context
-        $editor = new StarmusAudioEditorUI();
+        $editor  = new StarmusAudioEditorUI();
         $context = $editor->get_editor_context_public($atts);
 
         if (is_wp_error($context)) {
@@ -178,18 +177,18 @@ final class StarmusShortcodeLoader
         // Get transcript data
         $transcript_json = get_post_meta($context['post_id'], 'star_transcript_json', true);
         $transcript_data = [];
-        if ($transcript_json && is_string($transcript_json)) {
+        if ($transcript_json && \is_string($transcript_json)) {
             $decoded = json_decode($transcript_json, true);
-            if (is_array($decoded)) {
+            if (\is_array($decoded)) {
                 $transcript_data = $decoded;
             }
         }
 
         // Parse annotations
         $annotations_data = [];
-        if (!empty($context['annotations_json']) && is_string($context['annotations_json'])) {
+        if (!empty($context['annotations_json']) && \is_string($context['annotations_json'])) {
             $decoded = json_decode($context['annotations_json'], true);
-            if (is_array($decoded)) {
+            if (\is_array($decoded)) {
                 $annotations_data = $decoded;
             }
         }

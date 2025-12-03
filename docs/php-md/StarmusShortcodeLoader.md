@@ -11,7 +11,7 @@ Registers shortcodes and routes rendering lazily to the correct UI classes.
 
 ## Methods
 
-### `register_shortcodes()`
+### `__construct()`
 
 **Visibility:** `public`
 
@@ -20,27 +20,18 @@ Registers shortcodes and routes rendering lazily to the correct UI classes.
 /
 final class StarmusShortcodeLoader
 {
+    private StarmusSettings $settings;
 
-	private StarmusSettings $settings;
+    private StarmusAudioRecorderDAL $dal;
 
-	private StarmusAudioRecorderDAL $dal;
+    /**
+@param StarmusAudioRecorderDALInterface|null $dal The data access layer.
+@param StarmusSettings|null $settings The settings instance.
 
-	public function __construct(?StarmusAudioRecorderDAL $dal = null, ?StarmusSettings $settings = null)
-	{
-		try {
-			if (! $dal instanceof StarmusAudioRecorderDALInterface) {
-				throw new \RuntimeException('Invalid DAL: must implement StarmusAudioRecorderDALInterface');
-			}
+### `register_shortcodes()`
 
-			$this->settings = $settings ?? new StarmusSettings();
-			$this->dal      = $dal ?? new StarmusAudioRecorderDAL();
-			add_action('init', $this->register_shortcodes(...));
-		} catch (Throwable $throwable) {
-			error_log($throwable);
-		}
-	}
+**Visibility:** `public`
 
-	/**
 Register shortcodes — but don't instantiate heavy UI classes yet.
 
 ### `render_my_recordings_shortcode()`

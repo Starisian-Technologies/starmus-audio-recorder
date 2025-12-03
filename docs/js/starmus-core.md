@@ -4,19 +4,6 @@
 
 ---
 
-<a name="initCore"></a>
-
-## initCore(store, instanceId, env)
-Wire submission logic for a specific instance.
-
-**Kind**: global function  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| store | <code>object</code> |  |
-| instanceId | <code>string</code> |  |
-| env | <code>object</code> | Environment payload from init (fallback if state is empty). |
-
 
 
 ---

@@ -9,7 +9,6 @@
  *
  * @since 0.7.4
  */
-
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 class StarmusTemplateLoaderHelper
@@ -79,7 +78,7 @@ class StarmusTemplateLoaderHelper
 
             if (! $template_path) {
                 error_log('[StarmusTemplateLoader] Template not found: ' . $template);
-                error_log('[StarmusTemplateLoader] STARMUS_PATH: ' . (defined('STARMUS_PATH') ? STARMUS_PATH : 'NOT DEFINED'));
+                error_log('[StarmusTemplateLoader] STARMUS_PATH: ' . (\defined('STARMUS_PATH') ? STARMUS_PATH : 'NOT DEFINED'));
                 return '<div class="notice notice-error"><p>Template not found: ' . esc_html($template) . '</p></div>';
             }
 
@@ -93,7 +92,7 @@ class StarmusTemplateLoaderHelper
 
             $output = self::post_template_render(self::render($template_path, $args));
 
-            error_log('[StarmusTemplateLoader] Template rendered successfully, output length: ' . strlen($output));
+            error_log('[StarmusTemplateLoader] Template rendered successfully, output length: ' . \strlen($output));
 
             return $output;
         } catch (\Throwable $throwable) {

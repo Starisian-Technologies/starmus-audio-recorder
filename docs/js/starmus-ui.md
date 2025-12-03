@@ -4,9 +4,26 @@
 
 ---
 
+## Members
+
+<dl>
+<dt><a href="#starmusClipWarned">starmusClipWarned</a></dt>
+<dd><p>Clipping coaching state (one warning per session)</p>
+</dd>
+</dl>
+
 ## Functions
 
 <dl>
+<dt><a href="#starmusMaybeCoachUser">starmusMaybeCoachUser(normalizedLevel, elements)</a></dt>
+<dd><p>Helper: Maybe show coaching message for clipping levels</p>
+</dd>
+<dt><a href="#formatTime">formatTime()</a></dt>
+<dd><p>Helper: Format seconds into MM:SS with units</p>
+</dd>
+<dt><a href="#escapeHtml">escapeHtml()</a></dt>
+<dd><p>Helper: Escape HTML to prevent XSS</p>
+</dd>
 <dt><a href="#render">render(state, elements)</a></dt>
 <dd><p>Renders the current state of a Starmus instance to the DOM.</p>
 </dd>
@@ -15,6 +32,36 @@
 </dd>
 </dl>
 
+<a name="starmusClipWarned"></a>
+
+## starmusClipWarned
+Clipping coaching state (one warning per session)
+
+**Kind**: global variable  
+<a name="starmusMaybeCoachUser"></a>
+
+## starmusMaybeCoachUser(normalizedLevel, elements)
+Helper: Maybe show coaching message for clipping levels
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| normalizedLevel | <code>number</code> | Volume level 0-1 |
+| elements | <code>Object</code> | DOM elements object |
+
+<a name="formatTime"></a>
+
+## formatTime()
+Helper: Format seconds into MM:SS with units
+
+**Kind**: global function  
+<a name="escapeHtml"></a>
+
+## escapeHtml()
+Helper: Escape HTML to prevent XSS
+
+**Kind**: global function  
 <a name="render"></a>
 
 ## render(state, elements)

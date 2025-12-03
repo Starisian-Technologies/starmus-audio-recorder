@@ -7,53 +7,57 @@
 ## Functions
 
 <dl>
-<dt><a href="#getDeviceMemory">getDeviceMemory()</a></dt>
-<dd><p>Safe navigator property access to prevent crashes on older browsers.</p>
+<dt><a href="#emitStarmusEventGlobal">emitStarmusEventGlobal()</a></dt>
+<dd><p>Emit global telemetry events via StarmusHooks.</p>
+</dd>
+<dt><a href="#starmusEnsureContext">starmusEnsureContext()</a></dt>
+<dd><p>PATCH 1: Unified AudioContext resume helper
+Ensures AudioContext is running before any recording/calibration operation.</p>
 </dd>
 <dt><a href="#detectTier">detectTier()</a></dt>
-<dd><p>Detect device tier for progressive degradation.</p>
+<dd><p>Detect Tier - Chromebook-safe.</p>
 </dd>
-<dt><a href="#wireInstance">wireInstance()</a></dt>
-<dd><p>Wire a single <form data-starmus="recorder"> into the Starmus system.</p>
+<dt><a href="#isRecordingSupported">isRecordingSupported()</a></dt>
+<dd><p>PATCH 6: Utility to check if recording is actually supported
+Exposed globally for SparxstarUEC tier detection override.</p>
 </dd>
-<dt><a href="#onEnvironmentReady">onEnvironmentReady()</a></dt>
-<dd><p>Entry point</p>
-</dd>
-<dt><a href="#initWithFallback">initWithFallback()</a></dt>
-<dd><p>Fallback initialization.
-Removed async Battery calls to ensure synchronous fallback execution.</p>
+<dt><a href="#populateHiddenFields">populateHiddenFields()</a></dt>
+<dd><p>CRITICAL FIX: Injects all internal state data into hidden form fields 
+before submission to bypass the REST API Session/Cache sync problem.</p>
 </dd>
 </dl>
 
-<a name="getDeviceMemory"></a>
+<a name="emitStarmusEventGlobal"></a>
 
-## getDeviceMemory()
-Safe navigator property access to prevent crashes on older browsers.
+## emitStarmusEventGlobal()
+Emit global telemetry events via StarmusHooks.
+
+**Kind**: global function  
+<a name="starmusEnsureContext"></a>
+
+## starmusEnsureContext()
+PATCH 1: Unified AudioContext resume helper
+Ensures AudioContext is running before any recording/calibration operation.
 
 **Kind**: global function  
 <a name="detectTier"></a>
 
 ## detectTier()
-Detect device tier for progressive degradation.
+Detect Tier - Chromebook-safe.
 
 **Kind**: global function  
-<a name="wireInstance"></a>
+<a name="isRecordingSupported"></a>
 
-## wireInstance()
-Wire a single <form data-starmus="recorder"> into the Starmus system.
-
-**Kind**: global function  
-<a name="onEnvironmentReady"></a>
-
-## onEnvironmentReady()
-Entry point
+## isRecordingSupported()
+PATCH 6: Utility to check if recording is actually supported
+Exposed globally for SparxstarUEC tier detection override.
 
 **Kind**: global function  
-<a name="initWithFallback"></a>
+<a name="populateHiddenFields"></a>
 
-## initWithFallback()
-Fallback initialization.
-Removed async Battery calls to ensure synchronous fallback execution.
+## populateHiddenFields()
+CRITICAL FIX: Injects all internal state data into hidden form fields 
+before submission to bypass the REST API Session/Cache sync problem.
 
 **Kind**: global function  
 

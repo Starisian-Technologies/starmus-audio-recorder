@@ -30,15 +30,22 @@ This class is the sole authority for enqueuing all Starmus client-side assets.
 @package Starmus
 @version 3.1.0
 /
-
 namespace Starisian\Sparxstar\Starmus\core;
 
-if (!defined('ABSPATH')) {
-    exit;
-}
+use function array_filter;
+use function array_map;
+use function defined;
+use function explode;
+use function json_encode;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
+
+use function trim;
+
+if (! \defined('ABSPATH')) {
+    exit;
+}
 
 final class StarmusAssetLoader
 {
@@ -46,19 +53,13 @@ final class StarmusAssetLoader
 Handle for the production bundle script.
 @var string
 /
-    private const HANDLE_PROD_BUNDLE = 'starmus-app-bundle';
-
-    /**
-Handle for the TUS.js vendor library.
-@var string
-/
-    private const HANDLE_VENDOR_TUS = 'tus-js';
+    private const HANDLE_PROD_BUNDLE = 'starmus-audio-recorder-script.bundle';
 
     /**
 Handle for the main stylesheet.
 @var string
 /
-    private const STYLE_HANDLE = 'starmus-audio-styles';
+    private const STYLE_HANDLE = 'starmus-audio-recorder-styles';
 
     /**
 Constructor - Registers WordPress hooks for asset enqueueing.

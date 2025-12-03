@@ -18,14 +18,17 @@ REST handler bridging HTTP endpoints to submission services.
 REST handler bridging HTTP endpoints to submission services.
 @package Starisian\Sparxstar\Starmus\api
 /
-
 namespace Starisian\Sparxstar\Starmus\api;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
-use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
+use function __;
+use function current_user_can;
+use function is_wp_error;
+use function register_rest_route;
+
 use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
@@ -33,20 +36,19 @@ use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
-use function register_rest_route;
-use function is_wp_error;
-use function current_user_can;
-use function __;
 
 /**
 Exposes WordPress REST API routes for audio submissions.
 /
-final readonly class StarmusRESTHandler {
+final readonly class StarmusRESTHandler
+{
+    private StarmusSubmissionHandler $submission_handler;
 
-	private StarmusSubmissionHandler $submission_handler;
-
-	/**
+    /**
 Constructor.
+@param StarmusAudioRecorderDALInterface $dal The data access layer.
+@param StarmusSettings $settings The settings instance.
+@param StarmusSubmissionHandler|null $submission_handler Optional submission handler.
 
 ### `register_routes()`
 
@@ -59,18 +61,21 @@ Register REST API routes.
 **Visibility:** `public`
 
 Handle fallback form-based upload.
+@phpstan-param WP_REST_Request<array<string,mixed>> $request
 
 ### `handle_chunk_upload()`
 
 **Visibility:** `public`
 
 Handle chunked uploads.
+@phpstan-param WP_REST_Request<array<string,mixed>> $request
 
 ### `handle_status()`
 
 **Visibility:** `public`
 
 Handle status check for a submission.
+@phpstan-param WP_REST_Request<array<string,mixed>> $request
 
 ---
 

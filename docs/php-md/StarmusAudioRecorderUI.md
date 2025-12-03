@@ -18,19 +18,16 @@ Front-end presentation layer for the Starmus recorder experience.
 Front-end presentation layer for the Starmus recorder experience.
 @package   Starmus
 /
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
-if (! defined('ABSPATH')) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
-use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
-use Exception;
-use Throwable;
+use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 
 /**
 Renders the user interface for the audio recorder and recordings list.
@@ -39,15 +36,12 @@ Assets are handled separately in StarmusAssets.
 /
 class StarmusAudioRecorderUI
 {
-
-
-
-	/**
+    /**
 REST namespace exposed to localized front-end scripts.
 /
-	public const STARMUS_REST_NAMESPACE = StarmusSubmissionHandler::STARMUS_REST_NAMESPACE;
+    public const STARMUS_REST_NAMESPACE = StarmusSubmissionHandler::STARMUS_REST_NAMESPACE;
 
-	/**
+    /**
 Prime the UI layer with optional settings for template hydration.
 @param StarmusSettings|null $settings Configuration object, if available.
 
@@ -62,7 +56,8 @@ Render the recorder form shortcode.
 **Visibility:** `public`
 
 Render the re-recorder (single-button variant).
-Usage: [starmus_audio_re_recorder title="..." language="..." recording_type="..."]
+Usage: [starmus_audio_re_recorder post_id="..." target_post_id="..."]
+If post_id is not provided, will check for 'recording_id' in query string.
 
 ### `clear_taxonomy_transients()`
 

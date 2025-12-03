@@ -18,113 +18,123 @@ Core submission service responsible for processing uploads using the DAL.
 Core submission service responsible for processing uploads using the DAL.
 @package   Starisian\Sparxstar\Starmus\includes
 /
-
 namespace Starisian\Sparxstar\Starmus\includes;
 
-if (! defined('ABSPATH')) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
-use Throwable;
-use WP_Error;
-use WP_REST_Request;
-
-use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
-use Starisian\Sparxstar\Starmus\core\StarmusSettings;
-use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
-
-use function is_wp_error;
-use function wp_upload_dir;
-use function wp_mkdir_p;
-use function trailingslashit;
-use function pathinfo;
-use function preg_match;
-use function file_put_contents;
-use function file_exists;
-use function is_dir;
-use function is_writable;
-use function uniqid;
-use function glob;
-use function filemtime;
-use function unlink;
-use function sanitize_text_field;
-use function wp_unslash;
-use function get_permalink;
-use function home_url;
-use function get_current_user_id;
-use function wp_get_attachment_url;
-use function wp_kses_post;
-use function wp_next_scheduled;
-use function wp_schedule_single_event;
+use function array_filter;
+use function array_map;
+use function array_values;
 
 use const DAY_IN_SECONDS;
+
+use function file_exists;
+use function file_put_contents;
+use function filemtime;
+use function filesize;
+use function get_current_user_id;
+use function get_permalink;
+use function glob;
+use function home_url;
+use function is_dir;
+use function is_wp_error;
+use function json_decode;
+use function mime_content_type;
+use function pathinfo;
+use function preg_match;
+use function sanitize_text_field;
+
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
+use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
+
+use function str_contains;
+use function strtolower;
+use function sys_get_temp_dir;
+
+use Throwable;
+
+use function time;
+use function trailingslashit;
+use function uniqid;
+use function wp_delete_file;
+
+use WP_Error;
+
+use function wp_get_attachment_url;
+use function wp_json_encode;
+use function wp_mkdir_p;
+use function wp_next_scheduled;
+
+use WP_REST_Request;
+use WP_REST_Response;
+
+use function wp_schedule_single_event;
+use function wp_set_post_terms;
+use function wp_unique_filename;
+use function wp_unslash;
+use function wp_upload_dir;
 
 /**
 Handles validation and persistence for audio submissions (DAL integrated).
 /
 final class StarmusSubmissionHandler
 {
+    public const STARMUS_REST_NAMESPACE = 'star-starmus-audio-recorder/v1';
 
-	public const STARMUS_REST_NAMESPACE = 'star-starmus-audio-recorder/v1';
+    private ?StarmusSettings $settings;
 
-	private ?StarmusSettings $settings;
+    private StarmusAudioRecorderDALInterface $dal;
 
-	private \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface $dal;
+    /** Allow a small list of safe upload keys the client might send. */
+    private array $fallback_file_keys = ['audio_file', 'file', 'upload'];
 
-	/** Allow a small list of safe upload keys the client might send. */
-	private array $fallback_file_keys = ['audio_file', 'file', 'upload'];
+    /** Default allowed mime types if settings are empty. */
+    private array $default_allowed_mimes = [
+        'audio/webm',
+        'audio/webm;codecs=opus',
+        'audio/ogg',
+        'audio/ogg;codecs=opus',
+        'audio/mpeg',
+        'audio/wav',
+    ];
 
-	/** Default allowed mime types if settings are empty. */
-	private array $default_allowed_mimes = [
-		'audio/webm',
-		'audio/webm;codecs=opus',
-		'audio/ogg',
-		'audio/ogg;codecs=opus',
-		'audio/mpeg',
-		'audio/wav',
-	];
+    public function __construct(StarmusAudioRecorderDALInterface $DAL, StarmusSettings $settings)
+    {
+        try {
+            $this->dal      = $DAL;
+            $this->settings = $settings;
 
-	public function __construct(StarmusAudioRecorderDALInterface $DAL, StarmusSettings $settings)
-	{
-		try {
+            // Scheduled cleanup of temp chunk files.
+            add_action('starmus_cleanup_temp_files', $this->cleanup_stale_temp_files(...));
 
-			$this->dal      = $DAL;
-			$this->settings = $settings;
+            StarmusLogger::info('SubmissionHandler', 'Constructed successfully');
+        } catch (Throwable $throwable) {
+            StarmusLogger::error('SubmissionHandler', $throwable, ['phase' => '__construct']);
+            throw $throwable;
+        }
+    }
 
-			// Scheduled cleanup of temp chunk files.
-			add_action('starmus_cleanup_temp_files', $this->cleanup_stale_temp_files(...));
-
-			StarmusLogger::info('SubmissionHandler', 'Constructed successfully');
-		} catch (Throwable $throwable) {
-			StarmusLogger::error('SubmissionHandler', $throwable, ['phase' => '__construct']);
-			// Let constructor throw in truly fatal cases:
-			throw $throwable;
-		}
-	}
-
-	/*
-	======================================================================
-CHUNKED UPLOAD HANDLER
+    /* ======================================================================
+UPLOAD HANDLERS
 ==================================================================== */
 
-	/**
+    /**
 Processes a file that is already fully present on the local filesystem.
 This is the new entry point for post-upload processing (e.g., from tusd).
-@param string $file_path   Absolute path to the completed file.
-@param array  $form_data   Sanitized metadata from the client.
-@return array|WP_Error     Success array with IDs or WP_Error.
+@param string $file_path Absolute path to the completed file.
+@param array $form_data Sanitized metadata from the client.
+@return array|WP_Error Success array with IDs or WP_Error.
 
 ### `process_fallback_upload()`
 
 **Visibility:** `public`
 
 Process standard multipart upload via media sideload.
-@param array  $files_data Full $_FILES-like array from request.
-@param array  $form_data  Sanitized form params.
-@param string $file_key   Which key contained the uploaded file.
 
 ## Properties
 

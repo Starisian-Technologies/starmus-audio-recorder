@@ -18,23 +18,22 @@ Handles all database and data persistence operations for Starmus.
 Handles all database and data persistence operations for Starmus.
 @package Starisian\Sparxstar\Starmus\core
 /
-
 namespace Starisian\Sparxstar\Starmus\core;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
-use WP_Error;
-use WP_Query;
-use Throwable;
 use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Throwable;
+use WP_Error;
+use WP_Query;
 
-final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface {
-
-	/*
-	------------------------------------*
+final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
+{
+    /*
+    ------------------------------------*
 🧩 CREATION
 ------------------------------------
 

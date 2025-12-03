@@ -22,17 +22,14 @@ Template Loaders Helper class
 @version 0.8.5
 @since 0.7.4
 /
-
 namespace Starisian\Sparxstar\Starmus\helpers;
 
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-
-class StarmusTemplateLoaderHelper {
-
-	/**
+class StarmusTemplateLoaderHelper
+{
+    /**
 Securely render a template for logged-in users only.
-@param string $template   Path or slug of the template to render.
-@param array  $args       Variables to pass into the template.
+@param string $template Path or slug of the template to render.
+@param array $args Variables to pass into the template.
 @param string $user_group Optional. User group required. Defaults to 'admin'.
 @return string Rendered HTML output.
 
@@ -42,7 +39,7 @@ Securely render a template for logged-in users only.
 
 Render the editor template with provided arguments.
 @param string $template Template file to be rendered.
-@param array  $args     Data exposed to the template during rendering.
+@param array $args Data exposed to the template during rendering.
 @return string Rendered markup or error notice.
 
 ### `locate_template()`

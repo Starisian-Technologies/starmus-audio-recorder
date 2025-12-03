@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\services;
 
 if (!\defined('ABSPATH')) {
@@ -42,7 +41,6 @@ final class StarPrivateSlugPrefix
      * Registers the wp_unique_post_slug filter to automatically prefix
      * slugs for posts marked as restricted.
      *
-     *
      * @since 0.8.0
      */
     public function star_boot(): void
@@ -57,8 +55,8 @@ final class StarPrivateSlugPrefix
      * to posts that have the _star_restricted meta key set to '1'.
      * Only applies the prefix if it's not already present.
      *
-     * @param string $slug          The unique post slug
-     * @param int    $post_id       The post ID
+     * @param string $slug The unique post slug
+     * @param int $post_id The post ID
      *
      * @return string The potentially modified slug with star- prefix
      *

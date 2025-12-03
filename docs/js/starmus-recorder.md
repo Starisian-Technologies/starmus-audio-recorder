@@ -4,88 +4,49 @@
 
 ---
 
-## Members
-
-<dl>
-<dt><a href="#sharedAudioContext">sharedAudioContext</a></dt>
-<dd><p>Shared AudioContext Singleton.
-Prevents &quot;dual-context&quot; freezes on Android and prevents iOS limits on active contexts.</p>
-</dd>
-</dl>
-
 ## Functions
 
 <dl>
-<dt><a href="#getSharedContext">getSharedContext()</a> ⇒ <code>AudioContext</code></dt>
-<dd><p>Get or create the shared AudioContext instance.</p>
+<dt><a href="#emitStarmusEvent">emitStarmusEvent()</a></dt>
+<dd><p>Emit telemetry events via StarmusHooks.</p>
 </dd>
-<dt><a href="#calibrateAudioLevels">calibrateAudioLevels(stream, onUpdate)</a> ⇒ <code>Promise.&lt;object&gt;</code></dt>
-<dd><p>Analyze audio stream to determine optimal gain adjustment.
-Uses 3-phase calibration: quiet → speech → quiet</p>
+<dt><a href="#starmusWaitForTrack">starmusWaitForTrack()</a></dt>
+<dd><p>PATCH 5: Wait for MediaStream track to be ready
+Prevents &quot;stream not ready&quot; errors on ChromeOS and other devices.</p>
 </dd>
-<dt><a href="#getOptimalAudioSettings">getOptimalAudioSettings()</a></dt>
-<dd><p>Determine optimal audio recording settings based on environment.</p>
+<dt><a href="#createMediaStreamDestinationSafe">createMediaStreamDestinationSafe()</a></dt>
+<dd><p>PATCH 8: Safe wrapper for createMediaStreamDestination with legacy fallback.
+Fixes method name typo (createMediaStreamAudioDestination doesn&#39;t exist).</p>
 </dd>
-<dt><a href="#setupAudioGraph">setupAudioGraph(rawStream)</a> ⇒ <code>object</code></dt>
-<dd><p>Builds the Web Audio API graph.
-Source -&gt; HighPass (85Hz) -&gt; Compressor -&gt; Destination</p>
-</dd>
-<dt><a href="#initRecorder">initRecorder()</a></dt>
-<dd><p>Wires microphone + file logic for a specific instance.</p>
+<dt><a href="#calibrateAudioLevels">calibrateAudioLevels()</a></dt>
+<dd><p>Analyze audio stream to determine optimal gain adjustment.</p>
 </dd>
 </dl>
 
-<a name="sharedAudioContext"></a>
+<a name="emitStarmusEvent"></a>
 
-## sharedAudioContext
-Shared AudioContext Singleton.
-Prevents "dual-context" freezes on Android and prevents iOS limits on active contexts.
-
-**Kind**: global variable  
-<a name="getSharedContext"></a>
-
-## getSharedContext() ⇒ <code>AudioContext</code>
-Get or create the shared AudioContext instance.
+## emitStarmusEvent()
+Emit telemetry events via StarmusHooks.
 
 **Kind**: global function  
-**Returns**: <code>AudioContext</code> - Shared audio context  
+<a name="starmusWaitForTrack"></a>
+
+## starmusWaitForTrack()
+PATCH 5: Wait for MediaStream track to be ready
+Prevents "stream not ready" errors on ChromeOS and other devices.
+
+**Kind**: global function  
+<a name="createMediaStreamDestinationSafe"></a>
+
+## createMediaStreamDestinationSafe()
+PATCH 8: Safe wrapper for createMediaStreamDestination with legacy fallback.
+Fixes method name typo (createMediaStreamAudioDestination doesn't exist).
+
+**Kind**: global function  
 <a name="calibrateAudioLevels"></a>
 
-## calibrateAudioLevels(stream, onUpdate) ⇒ <code>Promise.&lt;object&gt;</code>
+## calibrateAudioLevels()
 Analyze audio stream to determine optimal gain adjustment.
-Uses 3-phase calibration: quiet → speech → quiet
-
-**Kind**: global function  
-**Returns**: <code>Promise.&lt;object&gt;</code> - Calibration data  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| stream | <code>MediaStream</code> | The audio stream from getUserMedia |
-| onUpdate | <code>function</code> | Callback for UI updates (message, volumePercent, isDone) |
-
-<a name="getOptimalAudioSettings"></a>
-
-## getOptimalAudioSettings()
-Determine optimal audio recording settings based on environment.
-
-**Kind**: global function  
-<a name="setupAudioGraph"></a>
-
-## setupAudioGraph(rawStream) ⇒ <code>object</code>
-Builds the Web Audio API graph.
-Source -> HighPass (85Hz) -> Compressor -> Destination
-
-**Kind**: global function  
-**Returns**: <code>object</code> - { audioContext, destinationStream, nodes[] }  
-
-| Param | Type |
-| --- | --- |
-| rawStream | <code>MediaStream</code> | 
-
-<a name="initRecorder"></a>
-
-## initRecorder()
-Wires microphone + file logic for a specific instance.
 
 **Kind**: global function  
 

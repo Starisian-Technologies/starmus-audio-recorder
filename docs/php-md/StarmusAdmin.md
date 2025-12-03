@@ -22,16 +22,13 @@ Starmus Admin Handler - Refactored for Security & Performance
 @version 0.8.5
 @since 0.3.1
 /
-
 namespace Starisian\Sparxstar\Starmus\admin;
 
-if (! defined('ABSPATH')) {
-	return;
+if (! \defined('ABSPATH')) {
+    return;
 }
 
-use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
-
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 
 /**
@@ -39,46 +36,44 @@ Secure and optimized admin settings class.
 /
 class StarmusAdmin
 {
-
-
-	/**
+    /**
 Menu slug for the plugin settings page.
 @var string
 /
-	const STARMUS_MENU_SLUG = 'starmus-admin';
+    public const STARMUS_MENU_SLUG = 'starmus-admin';
 
-	/**
+    /**
 Settings group identifier for WordPress options API.
 @var string
 /
-	const STARMUS_SETTINGS_GROUP = 'starmus_settings_group';
+    public const STARMUS_SETTINGS_GROUP = 'starmus_settings_group';
 
-	// DELETED: const STARMUS_OPTION_KEY =   <-- This line should be gone.
+    // DELETED: const STARMUS_OPTION_KEY =   <-- This line should be gone.
 
-	/**
+    /**
 Mapping of option keys to field types for rendering.
 @var array<string, string>
 /
-	private array $field_types            = [];
+    private array $field_types = [];
 
-	/**
+    /**
 Settings service instance.
 /
-    private ?StarmusSettings $settings    = null;
+    private ?StarmusSettings $settings = null;
 
-	/**
+    /**
 Data Access Layer instance.
 /
     private ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface $dal = null;
 
-	/**
+    /**
 Constructor - initializes admin settings and hooks.
 Sets up DAL and Settings dependencies, defines field type mappings,
 and registers admin hooks for menu and settings registration.
-@param StarmusAudioRecorderDALInterface $DAL      Data Access Layer instance.
-@param StarmusSettings                  $settings Settings service instance.
-@return void
+@param StarmusAudioRecorderDALInterface $DAL Data Access Layer instance.
+@param StarmusSettings $settings Settings service instance.
 @throws \Throwable If initialization fails.
+@return void
 @since 0.3.1
 
 ### `add_admin_menu()`
@@ -124,6 +119,7 @@ converts page slugs to IDs, and returns sanitized array.
 
 Render form field with validation.
 REVERTED: Field name is back to using STARMUS_OPTION_KEY for Settings API.
+@param array<string,mixed> $args Field arguments.
 
 ## Properties
 

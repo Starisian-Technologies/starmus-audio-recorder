@@ -22,49 +22,65 @@ Starmus Audio Editor UI - Refactored for Security & Performance
 @version 0.8.5
 @since 0.3.1
 /
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
+use Exception;
+
+use function file_exists;
+use function is_numeric;
+use function json_decode;
+
+use const JSON_ERROR_NONE;
+
+use function json_last_error;
+use function json_last_error_msg;
+use function realpath;
+
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
+
+use function str_replace;
+
+use Throwable;
+
+use function usort;
+
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
-use Throwable;
-use Exception;
 
-if (! defined('ABSPATH')) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
 class StarmusAudioEditorUI
 {
-
-	/**
+    /**
 REST namespace for editor endpoints (must match other handlers)
 /
-	public const STARMUS_REST_NAMESPACE = 'star_uec/v1';
+    public const STARMUS_REST_NAMESPACE = 'star_uec/v1';
 
-	/**
+    /**
 REST namespace consumed by the editor for annotation endpoints.
 Use StarmusSubmissionHandler::STARMUS_REST_NAMESPACE directly where needed.
 /
 
-	/**
+    /**
 Upper bound for stored annotations to avoid overloading requests.
 /
-	public const STARMUS_MAX_ANNOTATIONS = 1000;
+    public const STARMUS_MAX_ANNOTATIONS = 1000;
 
-	/**
+    /**
 Time-based throttle applied when saving annotations.
 /
-	public const STARMUS_RATE_LIMIT_SECONDS = 2;
+    public const STARMUS_RATE_LIMIT_SECONDS = 2;
 
-	/**
+    /**
 Cached rendering context shared between hooks during a request.
 /
-	private ?array $cached_context = null;
+    private ?array $cached_context = null;
 
-	/**
+    /**
 Bootstrap the editor by registering its WordPress hooks.
 
 ### `register_hooks()`
@@ -77,8 +93,9 @@ Register shortcode, assets, and REST route hooks.
 
 **Visibility:** `public`
 
-Render the audio editor shortcode output for the current user.
-@return string HTML payload for the editor interface.
+Render the audio editor shortcode.
+@param array $atts Shortcode attributes.
+@return string Rendered HTML output.
 
 ### `enqueue_scripts()`
 
@@ -131,6 +148,14 @@ Determine whether the current request is authorized to save annotations.
 Persist sanitized annotations for a recording.
 @param WP_REST_Request $request REST request containing annotations.
 @return WP_REST_Response Success response with saved annotations.
+
+### `get_editor_context_public()`
+
+**Visibility:** `public`
+
+Public wrapper for get_editor_context to allow external access.
+@param array $atts Shortcode attributes.
+@return array|WP_Error Context array or WP_Error on failure.
 
 ## Properties
 

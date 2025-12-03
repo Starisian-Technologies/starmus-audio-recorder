@@ -24,16 +24,15 @@ and then passing the data to the appropriate handler for processing.
 @package   Starisian\Sparxstar\Starmus\includes
 @version   1.0.0
 /
-
 namespace Starisian\Sparxstar\Starmus\includes;
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
 // Import dependencies from the same namespace and WordPress core.
-use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -46,12 +45,11 @@ It validates the request and delegates the payload to a dedicated submission han
 /
 class StarmusTusdHookHandler
 {
+    protected string $namespace = 'starmus/v1';
 
-	protected string $namespace = 'starmus/v1';
+    protected string $rest_base = 'hook';
 
-	protected string $rest_base = 'hook';
-
-	/**
+    /**
 Constructor. Injects the submission handler dependency.
 @param StarmusSubmissionHandler $submission_handler An instance of the class that processes uploads.
 
@@ -62,11 +60,10 @@ Constructor. Injects the submission handler dependency.
 A dedicated handler for processing the submission data.
 /
         private readonly StarmusSubmissionHandler $submission_handler
-    )
-    {
+    ) {
     }
 
-	/**
+    /**
 Registers the WordPress hooks. This is the entry point for the class.
 
 ### `register_routes()`

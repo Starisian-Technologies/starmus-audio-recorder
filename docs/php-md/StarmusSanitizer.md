@@ -20,9 +20,7 @@ Handles general request params and structured metadata.
 /
 class StarmusSanitizer
 {
-
-
-	/**
+    /**
 Sanitize general submission data from forms or REST params.
 @param array $data Raw request parameters.
 @return array Sanitized data.

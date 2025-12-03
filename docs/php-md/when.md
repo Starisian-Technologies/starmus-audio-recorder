@@ -26,16 +26,15 @@ Handles waveform generation, post-processing, and temp cleanup via WP-Cron.
 @package   Starisian\Sparxstar\Starmus\cron
 @version   0.8.5
 /
-
 namespace Starisian\Sparxstar\Starmus\cron;
 
-if (! defined('ABSPATH')) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
+use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 
 use function trailingslashit;
 
@@ -47,26 +46,25 @@ safely in the background after uploads.
 /
 final readonly class StarmusCron
 {
+    /** Single-run job for background mastering. */
+    public const PROCESS_AUDIO_HOOK = 'starmus_process_audio_attachment';
 
-	/** Single-run job for background mastering. */
-	public const PROCESS_AUDIO_HOOK = 'starmus_process_audio_attachment';
+    /** Recurring hourly cleanup for stale temp upload chunks. */
+    public const CLEANUP_TEMP_FILES_HOOK = 'starmus_cleanup_temp_files';
 
-	/** Recurring hourly cleanup for stale temp upload chunks. */
-	public const CLEANUP_TEMP_FILES_HOOK = 'starmus_cleanup_temp_files';
+    private StarmusWaveformService $waveform;
 
-	private StarmusWaveformService $waveform;
+    private StarmusPostProcessingService $post;
 
-	private StarmusPostProcessingService $post;
+    public function __construct(
+        ?StarmusWaveformService $waveform_service = null,
+        ?StarmusPostProcessingService $post_service = null
+    ) {
+        $this->waveform = $waveform_service ?: new StarmusWaveformService();
+        $this->post     = $post_service ?: new StarmusPostProcessingService();
+    }
 
-	public function __construct(
-		?StarmusWaveformService $waveform_service = null,
-		?StarmusPostProcessingService $post_service = null
-	) {
-		$this->waveform = $waveform_service ?: new StarmusWaveformService();
-		$this->post     = $post_service     ?: new StarmusPostProcessingService();
-	}
-
-	/** Registers WP hooks for both the processor and cleanup jobs.
+    /** Registers WP hooks for both the processor and cleanup jobs.
 
 ### `schedule_audio_processing()`
 

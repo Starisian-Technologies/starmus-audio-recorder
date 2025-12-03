@@ -5,7 +5,6 @@
  *
  * @package   Starmus
  */
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 if (! \defined('ABSPATH')) {
@@ -115,34 +114,34 @@ class StarmusAudioRecorderUI
             }
 
             // Get existing post data to pre-fill the form
-            $post = get_post($post_id);
+            $post           = get_post($post_id);
             $existing_title = $post ? $post->post_title : '';
 
             // Get existing taxonomies
             $language_terms = wp_get_object_terms($post_id, 'language');
-            $language_id = (!is_wp_error($language_terms) && !empty($language_terms)) ? $language_terms[0]->term_id : 0;
+            $language_id    = (!is_wp_error($language_terms) && !empty($language_terms)) ? $language_terms[0]->term_id : 0;
 
             $type_terms = wp_get_object_terms($post_id, 'recording-type');
-            $type_id = (!is_wp_error($type_terms) && !empty($type_terms)) ? $type_terms[0]->term_id : 0;
+            $type_id    = (!is_wp_error($type_terms) && !empty($type_terms)) ? $type_terms[0]->term_id : 0;
 
             $template_args = [
-                'form_id'            => 'rerecord',
-                'post_id'            => $post_id,
-                'artifact_id'        => $post_id, // Link to original recording
-                'existing_title'     => $existing_title,
-                'existing_language'  => $language_id,
-                'existing_type'      => $type_id,
-                'consent_message'    => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
+                'form_id'           => 'rerecord',
+                'post_id'           => $post_id,
+                'artifact_id'       => $post_id, // Link to original recording
+                'existing_title'    => $existing_title,
+                'existing_language' => $language_id,
+                'existing_type'     => $type_id,
+                'consent_message'   => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
                     ? $this->settings->get('consent_message', 'I consent to the terms and conditions.')
                     : 'I consent to the terms and conditions.',
-                'data_policy_url'    => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
+                'data_policy_url' => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
                     ? $this->settings->get('data_policy_url', '')
                     : '',
                 'allowed_file_types' => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
                     ? $this->settings->get('allowed_file_types', 'webm')
                     : 'webm',
-                'recording_types'    => $this->get_cached_terms('recording-type', 'starmus_recording_types_list'),
-                'languages'          => $this->get_cached_terms('language', 'starmus_languages_list'),
+                'recording_types' => $this->get_cached_terms('recording-type', 'starmus_recording_types_list'),
+                'languages'       => $this->get_cached_terms('language', 'starmus_languages_list'),
             ];
 
             return \Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper::secure_render_template(
