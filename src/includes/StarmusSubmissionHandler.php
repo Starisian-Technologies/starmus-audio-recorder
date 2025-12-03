@@ -7,6 +7,7 @@ declare(strict_types=1);
  *
  * @package   Starisian\Sparxstar\Starmus\includes
  */
+
 namespace Starisian\Sparxstar\Starmus\includes;
 
 if (! \defined('ABSPATH')) {
@@ -254,7 +255,7 @@ final class StarmusSubmissionHandler
         }
     }
 
-    public function handle_fallback_upload_rest(WP_REST_Request $request): WP_REST_Response|WP_Error
+    public function handle_fallback_upload_rest(WP_REST_Request $request): array|WP_Error
     {
         try {
             StarmusLogger::setCorrelationId();
@@ -294,23 +295,13 @@ final class StarmusSubmissionHandler
                 return $result;
             }
 
-            return new WP_REST_Response(
-                [
-                    'success' => true,
-                    'data'    => $result['data'],
-                ],
-                200
-            );
+            return [
+                'success' => true,
+                'data'    => $result['data'],
+            ];
         } catch (Throwable $throwable) {
             StarmusLogger::error('SubmissionHandler', $throwable, ['phase' => 'fallback']);
-            return new WP_REST_Response(
-                new WP_Error(
-                    'server_error',
-                    __('Upload failed. Please try again later.', 'starmus-audio-recorder'),
-                    ['status' => 500]
-                ),
-                500
-            );
+            return $this->err('server_error', __('Upload failed. Please try again later.', 'starmus-audio-recorder'), 500);
         }
     }
 
@@ -922,7 +913,7 @@ final class StarmusSubmissionHandler
                 ? array_values(
                     array_filter(
                         array_map(trim(...), explode(',', $allowed_settings)),
-                        fn ($v): bool => $v !== ''
+                        fn($v): bool => $v !== ''
                     )
                 )
                 : $this->default_allowed_mimes;
