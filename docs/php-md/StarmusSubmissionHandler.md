@@ -18,6 +18,7 @@ Core submission service responsible for processing uploads using the DAL.
 Core submission service responsible for processing uploads using the DAL.
 @package   Starisian\Sparxstar\Starmus\includes
 /
+
 namespace Starisian\Sparxstar\Starmus\includes;
 
 if (! \defined('ABSPATH')) {

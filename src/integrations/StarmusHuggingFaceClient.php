@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\integrations;
 
 // Prevent direct access
@@ -22,10 +23,26 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
  */
 class StarmusHuggingFaceClient
 {
+    /**
+     * The API endpoint URL.
+     *
+     * @var string
+     */
     private readonly string $endpoint;
 
+    /**
+     * The API key for authentication.
+     *
+     * @var string
+     */
     private readonly string $api_key;
 
+    /**
+     * Constructor.
+     *
+     * @param string|null $endpoint The API endpoint URL.
+     * @param string|null $api_key The API key.
+     */
     public function __construct(?string $endpoint = null, ?string $api_key = null)
     {
         $this->endpoint = $endpoint ?: (string) get_option('aiwa_ai_endpoint', '');

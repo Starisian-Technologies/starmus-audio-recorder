@@ -9,10 +9,10 @@ if (! \defined('ABSPATH')) {
 }
 
 use Starisian\Sparxstar\Starmus\admin\interface\starmusSWMAdminInterface;
-use Starisian\Sparxstar\Starmus\integrations\StarmusSageMakerClient;
 use Starisian\Sparxstar\Starmus\includes\StarmusSageMakerJobRepository;
+use Starisian\Sparxstar\Starmus\integrations\StarmusSageMakerClient;
 
-final readonly class starmusSWMAdminJobs implements starmusSWMAdminInterface
+final readonly class StarmusSageMakerJobQueueManager implements starmusSWMAdminInterface
 {
     private StarmusSageMakerJobRepository $repository;
 
@@ -107,7 +107,7 @@ final readonly class starmusSWMAdminJobs implements starmusSWMAdminInterface
         echo '<th>' . esc_html__('Actions', 'starmus-audio-recoder') . '</th>';
         echo '</tr></thead><tbody>';
 
-        if (empty($jobs)) {
+        if ($jobs === []) {
             echo '<tr><td colspan="5">' . esc_html__('No jobs found.', 'starmus-audio-recoder') . '</td></tr>';
         } else {
             foreach ($jobs as $id => $job) {
@@ -119,7 +119,7 @@ final readonly class starmusSWMAdminJobs implements starmusSWMAdminInterface
                 echo '<td>' . esc_html($created) . '</td>';
 
                 $view_url   = add_query_arg(['page' => 'starmus-sagemaker-jobs', 'job_id' => $id], admin_url('admin.php'));
-                $delete_url = wp_nonce_url(admin_url('admin-post.php?action=starmus_delete_job&job_id=' . rawurlencode($id)), 'starmus_delete_job_' . $id);
+                $delete_url = wp_nonce_url(admin_url('admin-post.php?action=starmus_delete_job&job_id=' . rawurlencode((string) $id)), 'starmus_delete_job_' . $id);
                 echo '<td><a href="' . esc_url($view_url) . '">' . esc_html__('View', 'starmus-audio-recoder') . '</a> | <a href="' . esc_url($delete_url) . '">' . esc_html__('Delete', 'starmus-audio-recoder') . '</a></td>';
                 echo '</tr>';
             }

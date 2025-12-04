@@ -9,6 +9,7 @@
  *
  * @version 0.8.5
  */
+
 namespace Starisian\Sparxstar\Starmus\cli;
 
 use Starisian\Sparxstar\Starmus\cron\StarmusCron;
@@ -23,6 +24,11 @@ use WP_Query;
  */
 class StarmusCLI extends \WP_CLI_Command
 {
+    /**
+     * Waveform service instance.
+     *
+     * @var StarmusWaveformService|null
+     */
     private ?StarmusWaveformService $waveform_service = null;
 
     public function __construct()

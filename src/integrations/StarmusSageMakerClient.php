@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\integrations;
 
 use Starisian\Sparxstar\Starmus\includes\StarmusSageMakerJobRepository;
@@ -24,10 +25,11 @@ final readonly class StarmusSageMakerClient
     public function __construct(
         /**
          * Job repository.
+         *
+         * @var StarmusSageMakerJobRepository
          */
         private StarmusSageMakerJobRepository $repository
-    ) {
-    }
+    ) {}
 
     /**
      * Get job counts by status.

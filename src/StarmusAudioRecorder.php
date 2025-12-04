@@ -12,6 +12,7 @@
  *
  * @version 0.8.5
  */
+
 namespace Starisian\Sparxstar\Starmus;
 
 if (! \defined('ABSPATH')) {
@@ -45,6 +46,7 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 use Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler;
 use Throwable;
+use RuntimeException;
 
 /**
  * Main plugin bootstrapper.
@@ -73,9 +75,18 @@ final class StarmusAudioRecorder
     /** Whether we've registered WordPress hooks (guard). */
     private bool $hooksRegistered = false;
 
+    /**
+     * Data Access Layer instance.
+     *
+     * @var \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface|null
+     */
     private ?core\interfaces\StarmusAudioRecorderDALInterface $DAL = null;
 
-    /** Settings service (must be ready before other deps). */
+    /**
+     * Settings service (must be ready before other deps).
+     *
+     * @var StarmusSettings|null
+     */
     private ?StarmusSettings $settings = null;
 
     /**

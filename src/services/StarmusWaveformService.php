@@ -13,6 +13,7 @@
  *
  * @version 0.8.5
  */
+
 namespace Starisian\Sparxstar\Starmus\services;
 
 if (! \defined('ABSPATH')) {
@@ -24,8 +25,18 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 final readonly class StarmusWaveformService
 {
+    /**
+     * Data Access Layer instance.
+     *
+     * @var StarmusAudioRecorderDAL
+     */
     private StarmusAudioRecorderDAL $dal;
 
+    /**
+     * File service instance.
+     *
+     * @var StarmusFileService
+     */
     private StarmusFileService $files;
 
     public function __construct(?StarmusAudioRecorderDAL $dal = null, ?StarmusFileService $file_service = null)

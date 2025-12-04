@@ -5,6 +5,7 @@
  *
  * @package Starisian\Sparxstar\Starmus\core
  */
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 if (! \defined('ABSPATH')) {
@@ -17,12 +18,23 @@ use Throwable;
 use WP_Error;
 use WP_Query;
 
+/**
+ * Implements the Data Access Layer for the Starmus Audio Recorder.
+ *
+ * This class provides concrete implementations for all data operations defined in the
+ * StarmusAudioRecorderDALInterface, interacting directly with the WordPress database
+ * and file system.
+ */
 final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
 {
     /*
     ------------------------------------*
      * 🧩 CREATION
      *------------------------------------*/
+
+    /**
+     * {@inheritdoc}
+     */
     public function create_audio_post(string $title, string $cpt_slug, int $author_id): int|WP_Error
     {
         try {
@@ -40,6 +52,9 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function create_attachment_from_file(string $file_path, string $filename): int|WP_Error
     {
         try {
@@ -72,6 +87,9 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function create_attachment_from_sideload(array $file_data): int|WP_Error
     {
         try {
@@ -93,6 +111,14 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
     ------------------------------------*
      * ⚙️ ATTACHMENT OPERATIONS
      *------------------------------------*/
+
+    /**
+     * Updates the file path for an attachment.
+     *
+     * @param int    $attachment_id The ID of the attachment.
+     * @param string $file_path     The new file path.
+     * @return bool True on success, false on failure.
+     */
     public function update_attachment_file_path(int $attachment_id, string $file_path): bool
     {
         try {
@@ -116,6 +142,13 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
         }
     }
 
+    /**
+     * Updates the metadata for an attachment.
+     *
+     * @param int    $attachment_id The ID of the attachment.
+     * @param string $file_path     The path to the attachment file.
+     * @return bool True on success, false on failure.
+     */
     public function update_attachment_metadata(int $attachment_id, string $file_path): bool
     {
         try {
@@ -142,6 +175,9 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function set_attachment_parent(int $attachment_id, int $parent_post_id): bool
     {
         try {
@@ -165,6 +201,9 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function delete_attachment(int $attachment_id): void
     {
         try {
@@ -183,8 +222,167 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
 
     /*
     ------------------------------------*
-     * 🧠 POST & META OPERATIONS
+     * 📖 RETRIEVAL
      *------------------------------------*/
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get_user_recordings(int $user_id, string $cpt_slug, int $posts_per_page = 10, int $paged = 1): WP_Query
+    {
+        try {
+            return new WP_Query(
+                [
+                    'post_type'      => $cpt_slug,
+                    'author'         => $user_id,
+                    'posts_per_page' => $posts_per_page,
+                    'paged'          => $paged,
+                    'post_status'    => ['publish', 'draft', 'pending', 'private'],
+                ]
+            );
+        } catch (Throwable $throwable) {
+            StarmusLogger::error(
+                'DAL',
+                $throwable,
+                [
+                    'phase'   => 'get_user_recordings',
+                    'user_id' => $user_id,
+                ]
+            );
+            return new WP_Query();
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get_post_info(int $post_id): ?array
+    {
+        try {
+            $status = get_post_status($post_id);
+            if (! $status) {
+                return null;
+            }
+
+            return [
+                'status' => $status,
+                'type'   => get_post_type($post_id),
+            ];
+        } catch (Throwable $throwable) {
+            StarmusLogger::error(
+                'DAL',
+                $throwable,
+                [
+                    'phase'   => 'get_post_info',
+                    'post_id' => $post_id,
+                ]
+            );
+            return null;
+        }
+    }
+
+    /*
+    ------------------------------------*
+     * 🛠️ CONFIG & HELPERS
+     *------------------------------------*/
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get_ffmpeg_path(): ?string
+    {
+        $opt = trim((string) get_option('starmus_ffmpeg_path', ''));
+        if ($opt && file_exists($opt)) {
+            return $opt;
+        }
+
+        $env = getenv('FFMPEG_BIN');
+        if ($env && file_exists($env)) {
+            return $env;
+        }
+
+        $which = trim((string) shell_exec('command -v ffmpeg'));
+        return $which ?: null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get_edit_page_url_admin(string $cpt_slug): string
+    {
+        return admin_url('edit.php?post_type=' . $cpt_slug);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get_page_id_by_slug(string $slug): int
+    {
+        $page = get_page_by_path(sanitize_title($slug));
+        return $page ? (int) $page->ID : 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get_page_slug_by_id(int $id): string
+    {
+        $page = get_post($id);
+        return $page ? $page->post_name : '';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function is_rate_limited(int $user_id, int $limit = 10): bool
+    {
+        $key   = 'starmus_rate_' . $user_id;
+        $count = (int) get_transient($key);
+        if ($count > $limit) {
+            return true;
+        }
+
+        set_transient($key, $count + 1, MINUTE_IN_SECONDS);
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get_registration_key(): string
+    {
+        return \defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : '';
+    }
+
+    /*
+    ------------------------------------*
+     * 💾 POST META & STATE
+     *------------------------------------*/
+
+    /**
+     * {@inheritdoc}
+     */
+    public function update_audio_post_meta(int $post_id, string $meta_key, string $value): bool
+    {
+        try {
+            return update_post_meta($post_id, $meta_key, $value) !== false;
+        } catch (Throwable $throwable) {
+            StarmusLogger::error(
+                'DAL',
+                $throwable,
+                [
+                    'phase'    => 'update_audio_post_meta',
+                    'post_id'  => $post_id,
+                    'meta_key' => $meta_key,
+                ]
+            );
+            return false;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function save_post_meta(int $post_id, string $meta_key, mixed $value): void
     {
         try {
@@ -206,51 +404,64 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
         }
     }
 
-    public function update_audio_post_fields(int $audio_post_id, array $fields): bool
+    /**
+     * {@inheritdoc}
+     */
+    public function set_audio_state(int $attachment_id, string $state): void
     {
         try {
-            if (\function_exists('update_field')) {
-                foreach ($fields as $key => $val) {
-                    update_field($key, $val, $audio_post_id);
-                }
-            } else {
-                foreach ($fields as $key => $val) {
-                    update_post_meta($audio_post_id, $key, $val);
-                }
+            $this->save_post_meta($attachment_id, '_audio_processing_state', $state);
+        } catch (\Throwable $throwable) {
+            StarmusLogger::error(
+                'DAL',
+                $throwable,
+                [
+                    'phase'         => 'set_audio_state',
+                    'attachment_id' => $attachment_id,
+                    'state'         => $state,
+                ]
+            );
+            // Fallback: direct meta update
+            try {
+                update_post_meta($attachment_id, '_audio_processing_state', $state);
+            } catch (\Throwable) {
+                // swallow; we don't want processing to fatal because state couldn't be written
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function save_audio_outputs(int $post_id, ?string $waveform_json, ?string $mp3_path, ?string $wav_path): void
+    {
+        try {
+            if ($waveform_json) {
+                $this->save_post_meta($post_id, 'waveform_json', $waveform_json);
             }
 
-            return true;
+            if ($mp3_path) {
+                $this->save_post_meta($post_id, 'mastered_mp3', $mp3_path);
+            }
+
+            if ($wav_path) {
+                $this->save_post_meta($post_id, 'archival_wav', $wav_path);
+            }
         } catch (Throwable $throwable) {
             StarmusLogger::error(
                 'DAL',
                 $throwable,
                 [
-                    'phase'   => 'update_audio_post_fields',
-                    'post_id' => $audio_post_id,
+                    'phase'   => 'save_audio_outputs',
+                    'post_id' => $post_id,
                 ]
             );
-            return false;
         }
     }
 
-    public function update_audio_post_meta(int $post_id, string $meta_key, string $value): bool
-    {
-        try {
-            return update_post_meta($post_id, $meta_key, $value) !== false;
-        } catch (Throwable $throwable) {
-            StarmusLogger::error(
-                'DAL',
-                $throwable,
-                [
-                    'phase'    => 'update_audio_post_meta',
-                    'post_id'  => $post_id,
-                    'meta_key' => $meta_key,
-                ]
-            );
-            return false;
-        }
-    }
-
+    /**
+     * {@inheritdoc}
+     */
     public function persist_audio_outputs(int $attachment_id, string $mp3, string $wav): void
     {
         try {
@@ -324,166 +535,6 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
                     'post_id' => $post_id,
                 ]
             );
-        }
-    }
-
-    public function save_audio_outputs(int $post_id, ?string $waveform_json, ?string $mp3_path, ?string $wav_path): void
-    {
-        try {
-            if ($waveform_json) {
-                $this->save_post_meta($post_id, 'waveform_json', $waveform_json);
-            }
-
-            if ($mp3_path) {
-                $this->save_post_meta($post_id, 'mastered_mp3', $mp3_path);
-            }
-
-            if ($wav_path) {
-                $this->save_post_meta($post_id, 'archival_wav', $wav_path);
-            }
-        } catch (Throwable $throwable) {
-            StarmusLogger::error(
-                'DAL',
-                $throwable,
-                [
-                    'phase'   => 'save_audio_outputs',
-                    'post_id' => $post_id,
-                ]
-            );
-        }
-    }
-
-    /*
-    ------------------------------------*
-     * 🔍 LOOKUPS & HELPERS
-     *------------------------------------*/
-    public function get_post_info(int $post_id): ?array
-    {
-        try {
-            $status = get_post_status($post_id);
-            if (! $status) {
-                return null;
-            }
-
-            return [
-                'status' => $status,
-                'type'   => get_post_type($post_id),
-            ];
-        } catch (Throwable $throwable) {
-            StarmusLogger::error(
-                'DAL',
-                $throwable,
-                [
-                    'phase'   => 'get_post_info',
-                    'post_id' => $post_id,
-                ]
-            );
-            return null;
-        }
-    }
-
-    public function get_user_recordings(int $user_id, string $cpt_slug, int $per_page = 10, int $paged = 1): WP_Query
-    {
-        try {
-            return new WP_Query(
-                [
-                    'post_type'      => $cpt_slug,
-                    'author'         => $user_id,
-                    'posts_per_page' => $per_page,
-                    'paged'          => $paged,
-                    'post_status'    => ['publish', 'draft', 'pending', 'private'],
-                ]
-            );
-        } catch (Throwable $throwable) {
-            StarmusLogger::error(
-                'DAL',
-                $throwable,
-                [
-                    'phase'   => 'get_user_recordings',
-                    'user_id' => $user_id,
-                ]
-            );
-            return new WP_Query();
-        }
-    }
-
-    public function get_edit_page_url_admin(string $cpt_slug): string
-    {
-        return admin_url('edit.php?post_type=' . $cpt_slug);
-    }
-
-    public function get_page_id_by_slug(string $slug): int
-    {
-        $page = get_page_by_path(sanitize_title($slug));
-        return $page ? (int) $page->ID : 0;
-    }
-
-    public function get_page_slug_by_id(int $id): string
-    {
-        $page = get_post($id);
-        return $page ? $page->post_name : '';
-    }
-
-    /*
-    ------------------------------------*
-     * 🧩 UTILITIES
-     *------------------------------------*/
-    public function is_rate_limited(int $user_id, int $limit = 10): bool
-    {
-        $key   = 'starmus_rate_' . $user_id;
-        $count = (int) get_transient($key);
-        if ($count > $limit) {
-            return true;
-        }
-
-        set_transient($key, $count + 1, MINUTE_IN_SECONDS);
-        return false;
-    }
-
-    public function get_ffmpeg_path(): ?string
-    {
-        $opt = trim((string) get_option('starmus_ffmpeg_path', ''));
-        if ($opt && file_exists($opt)) {
-            return $opt;
-        }
-
-        $env = getenv('FFMPEG_BIN');
-        if ($env && file_exists($env)) {
-            return $env;
-        }
-
-        $which = trim((string) shell_exec('command -v ffmpeg'));
-        return $which ?: null;
-    }
-
-    public function get_registration_key(): string
-    {
-        return \defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : '';
-    }
-
-    /**
-     * Set a short processing state on an attachment (centralized).
-     */
-    public function set_audio_state(int $attachment_id, string $state): void
-    {
-        try {
-            $this->save_post_meta($attachment_id, '_audio_processing_state', $state);
-        } catch (\Throwable $throwable) {
-            StarmusLogger::error(
-                'DAL',
-                $throwable,
-                [
-                    'phase'         => 'set_audio_state',
-                    'attachment_id' => $attachment_id,
-                    'state'         => $state,
-                ]
-            );
-            // Fallback: direct meta update
-            try {
-                update_post_meta($attachment_id, '_audio_processing_state', $state);
-            } catch (\Throwable) {
-                // swallow; we don't want processing to fatal because state couldn't be written
-            }
         }
     }
 }

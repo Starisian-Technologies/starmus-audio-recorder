@@ -1,4 +1,5 @@
 <?php
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 /**
@@ -14,8 +15,19 @@ namespace Starisian\Sparxstar\Starmus\core;
  */
 class StarmusAudioRecorderUpdater
 {
+    /**
+     * The URL of the update server.
+     *
+     * @var string
+     */
     private string $update_api_url = 'https://updates.starisian.com/v1/info'; // Your update server URL
 
+    /**
+     * Constructor.
+     *
+     * @param string $plugin_file The main plugin file path.
+     * @param string $current_version The current version of the plugin.
+     */
     public function __construct(private $plugin_file, private $current_version)
     {
         $this->register_hooks();
@@ -55,7 +67,7 @@ class StarmusAudioRecorderUpdater
             // 3. A new version is available! Inject its data into the transient.
             $plugin_slug = plugin_basename($this->plugin_file);
 
-            $transient->response[ $plugin_slug ] = (object) [
+            $transient->response[$plugin_slug] = (object) [
                 'slug'        => 'starmus-audio-recorder',
                 'plugin'      => $plugin_slug,
                 'new_version' => $update_data->new_version,

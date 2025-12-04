@@ -5,6 +5,7 @@
  *
  * @package   Starmus
  */
+
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 if (! \defined('ABSPATH')) {
@@ -25,6 +26,8 @@ class StarmusAudioRecorderUI
 {
     /**
      * REST namespace exposed to localized front-end scripts.
+     *
+     * @var string
      */
     public const STARMUS_REST_NAMESPACE = StarmusSubmissionHandler::STARMUS_REST_NAMESPACE;
 

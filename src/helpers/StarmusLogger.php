@@ -1,4 +1,5 @@
 <?php
+
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 if (!\defined('ABSPATH')) {
@@ -11,28 +12,40 @@ if (!\defined('ABSPATH')) {
  */
 class StarmusLogger
 {
+    /** @var int Debug log level. */
     public const DEBUG = 100;
 
+    /** @var int Info log level. */
     public const INFO = 200;
 
+    /** @var int Notice log level. */
     public const NOTICE = 250;
 
+    /** @var int Warning log level. */
     public const WARNING = 300;
 
+    /** @var int Error log level. */
     public const ERROR = 400;
 
+    /** @var int Critical log level. */
     public const CRITICAL = 500;
 
+    /** @var int Alert log level. */
     public const ALERT = 550;
 
+    /** @var int Emergency log level. */
     public const EMERGENCY = 600;
 
     /**
      * Minimum log level to record.
+     *
+     * @var int
      */
     protected static int $min_log_level = self::INFO;
 
     /**
+     * Log levels.
+     *
      * @var array<string, int>
      */
     protected static array $levels = [
@@ -46,11 +59,23 @@ class StarmusLogger
         'emergency' => self::EMERGENCY,
     ];
 
+    /**
+     * Whether to log in JSON format.
+     *
+     * @var bool
+     */
     protected static bool $json_mode = false;
 
+    /**
+     * Correlation ID for tracking requests.
+     *
+     * @var string|null
+     */
     protected static ?string $correlation_id = null;
 
     /**
+     * Timers for performance tracking.
+     *
      * @var array<string, float>
      */
     protected static array $timers = [];

@@ -1,4 +1,5 @@
 <?php
+
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 if (! \defined('ABSPATH')) {
@@ -15,9 +16,9 @@ class StarmusSanitizer
     /**
      * Sanitize general submission data from forms or REST params.
      *
-     * @param array $data Raw request parameters.
+     * @param array<string, mixed> $data Raw request parameters.
      *
-     * @return array Sanitized data.
+     * @return array<string, mixed> Sanitized data.
      */
     public static function sanitize_submission_data(array $data): array
     {
@@ -35,9 +36,9 @@ class StarmusSanitizer
      *
      * Maps form fields into normalized meta keys.
      *
-     * @param array $form_data Sanitized form parameters.
+     * @param array<string, mixed> $form_data Sanitized form parameters.
      *
-     * @return array Key → Value metadata array.
+     * @return array<string, mixed> Key → Value metadata array.
      */
     public static function sanitize_metadata(array $form_data): array
     {

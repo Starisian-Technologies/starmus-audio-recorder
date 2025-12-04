@@ -4,7 +4,7 @@
  *
  * FIXED:
  * 1. Forces 'audio_file_type' to 'audio/webm' to prevent 415 Errors.
- * 2. Includes ALL HIDDEN FIELDS needed by JS for data injection.
+ * 2. Includes ALL CRITICAL HIDDEN FIELDS needed by JS for data injection.
  * 3. Includes CRITICAL hidden fields for Update logic (`action`, `recording_id`, `update_post_id`).
  *
  * @package Starisian\Sparxstar\Starmus\templates
@@ -80,6 +80,35 @@ $is_admin          = current_user_can('manage_options');
 			<!-- FIX: Always set to 'audio/webm' -->
 			<input type="hidden" name="audio_file_type" value="audio/webm">
 
+            <!-- CRITICAL HIDDEN FIELDS - JS TARGETS (COPIED FROM RECORDER TEMPLATE) -->
+			<!-- These must be present and named exactly for the JS to inject final telemetry, transcript, and calibration data -->
+			<input type="hidden" name="_starmus_calibration" value="">
+			<input type="hidden" name="_starmus_env" value="">
+			<input type="hidden" name="first_pass_transcription" value="">
+			<input type="hidden" name="recording_metadata" value="">
+			<input type="hidden" name="waveform_json" value="">
+
+			<!-- MANUAL / ARCHIVAL FIELDS - Should be present to ensure form submission includes them (COPIED FROM RECORDER TEMPLATE) -->
+			<input type="hidden" name="project_collection_id" value="">
+			<input type="hidden" name="accession_number" value="">
+			<input type="hidden" name="session_date" value="">
+			<input type="hidden" name="session_start_time" value="">
+			<input type="hidden" name="session_end_time" value="">
+			<input type="hidden" name="location" value="">
+			<input type="hidden" name="gps_coordinates" value="">
+			<input type="hidden" name="contributor_id" value="">
+			<input type="hidden" name="interviewers_recorders" value="">
+			<input type="hidden" name="recording_equipment" value="">
+			<input type="hidden" name="audio_files_originals" value="">
+			<input type="hidden" name="media_condition_notes" value="">
+			<input type="hidden" name="related_consent_agreement" value="">
+			<input type="hidden" name="usage_restrictions_rights" value="">
+			<input type="hidden" name="access_level" value="">
+			<input type="hidden" name="audio_quality_score" value="">
+			<input type="hidden" name="mic-rest-adjustments" value="">
+			<input type="hidden" name="device" value="">
+			<input type="hidden" name="user_agent" value="">
+            
 			<fieldset class="starmus-consent-fieldset">
 				<legend class="starmus-fieldset-legend">
 					<?php esc_html_e('Confirmation', 'starmus-audio-recorder'); ?>

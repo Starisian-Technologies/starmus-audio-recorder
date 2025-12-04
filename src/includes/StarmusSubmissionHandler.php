@@ -61,7 +61,6 @@ use function wp_mkdir_p;
 use function wp_next_scheduled;
 
 use WP_REST_Request;
-use WP_REST_Response;
 
 use function wp_schedule_single_event;
 use function wp_set_post_terms;
@@ -74,16 +73,39 @@ use function wp_upload_dir;
  */
 final class StarmusSubmissionHandler
 {
+    /**
+     * REST API namespace.
+     *
+     * @var string
+     */
     public const STARMUS_REST_NAMESPACE = 'star-starmus-audio-recorder/v1';
 
+    /**
+     * Settings service instance.
+     *
+     * @var StarmusSettings|null
+     */
     private ?StarmusSettings $settings;
 
+    /**
+     * Data Access Layer instance.
+     *
+     * @var StarmusAudioRecorderDALInterface
+     */
     private StarmusAudioRecorderDALInterface $dal;
 
-    /** Allow a small list of safe upload keys the client might send. */
+    /**
+     * Allow a small list of safe upload keys the client might send.
+     *
+     * @var string[]
+     */
     private array $fallback_file_keys = ['audio_file', 'file', 'upload'];
 
-    /** Default allowed mime types if settings are empty. */
+    /**
+     * Default allowed mime types if settings are empty.
+     *
+     * @var string[]
+     */
     private array $default_allowed_mimes = [
         'audio/webm',
         'audio/webm;codecs=opus',

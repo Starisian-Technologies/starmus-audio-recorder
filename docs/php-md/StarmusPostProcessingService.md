@@ -36,10 +36,15 @@ class StarmusPostProcessingService
 
     private readonly StarmusWaveformService $waveform_service;
 
+    // ADDED: Property for the new dedicated ID3 service
+    private readonly StarmusID3Service $id3_service;
+
     public function __construct()
     {
-        $this->dal              = new StarmusAudioRecorderDAL();
-        $this->waveform_service = new StarmusWaveformService();
+        $this->dal                = new StarmusAudioRecorderDAL();
+        $this->waveform_service   = new StarmusWaveformService();
+        // INITIALIZE: The new service that handles all ID3 logic
+        $this->id3_service        = new StarmusID3Service();
     }
 
     /**

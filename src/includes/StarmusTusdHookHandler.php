@@ -10,6 +10,7 @@
  *
  * @version   1.0.0
  */
+
 namespace Starisian\Sparxstar\Starmus\includes;
 
 // Exit if accessed directly.
@@ -32,8 +33,18 @@ use WP_REST_Server;
  */
 class StarmusTusdHookHandler
 {
+    /**
+     * REST API namespace.
+     *
+     * @var string
+     */
     protected string $namespace = 'starmus/v1';
 
+    /**
+     * REST API base route.
+     *
+     * @var string
+     */
     protected string $rest_base = 'hook';
 
     /**
@@ -46,8 +57,7 @@ class StarmusTusdHookHandler
          * A dedicated handler for processing the submission data.
          */
         private readonly StarmusSubmissionHandler $submission_handler
-    ) {
-    }
+    ) {}
 
     /**
      * Registers the WordPress hooks. This is the entry point for the class.

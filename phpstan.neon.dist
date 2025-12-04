@@ -1,3 +1,5 @@
+# phpstan.neon.dist
+
 parameters:
   level: 6
   paths:
@@ -7,17 +9,36 @@ parameters:
 
   tmpDir: .phpstan-cache
 
+  # Consolidated and cleaned-up exclusion paths
   excludePaths:
-    - vendor/*
-    - node_modules/*
-    - tests/*
-    - wp-admin/*
-    - wp-content/*
-    - wordpress-installer/*
-    - src/cli/*  # Exclude WP-CLI files (WP_CLI class not available during analysis)
+    analyse:
+      # Exclude the entire vendor directory from *source code* analysis
+      - vendor/*
+      # Exclude other known directories
+      - node_modules/*
+      - tests/*
+      - wp-admin/*
+      - wp-content/*
+      - wordpress-installer/*
+      - src/cli/*
 
-  # Ignore common WordPress dynamic behavior warnings
+  # Consolidated and cleaned-up ignore errors
   ignoreErrors:
     - '#Call to an undefined method ACF#'
     - '#Undefined variable: \$wpdb#'
     - '#Access to an undefined property#'
+    
+    # ----------------------------------------------------------------------
+    # CRITICAL FIX FOR getID3/WORDPRESS STUB CONFLICT
+    # ----------------------------------------------------------------------
+    # Exclude the real getID3 procedural files from being treated as regular source code.
+    # PHPStan will treat them as globally loaded because they are in composer.json "files".
+    - '#%rootDir%/vendor/james-heinrich/getid3/getid3/getid3.php#'
+    - '#%rootDir%/vendor/james-heinrich/getid3/getid3/write.php#'
+    
+    # Note: If the error persists, the only remaining solution is to manually edit 
+    # the stub file to wrap the conflicting class declarations in if (!class_exists()).
+
+  # The "excludePaths: analyse:" method is usually preferred over multiple exclusion entries.
+  # Since excludePaths: vendor/* is already there, we only need to ignore the error
+  # related to the file conflict, which is best solved by the manual stub edit.

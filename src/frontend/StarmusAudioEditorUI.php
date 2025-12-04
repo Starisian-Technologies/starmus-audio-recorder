@@ -9,6 +9,7 @@
  *
  * @since 0.3.1
  */
+
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 use Exception;
@@ -44,6 +45,8 @@ class StarmusAudioEditorUI
 {
     /**
      * REST namespace for editor endpoints (must match other handlers)
+     *
+     * @var string
      */
     public const STARMUS_REST_NAMESPACE = 'star_uec/v1';
 
@@ -54,16 +57,22 @@ class StarmusAudioEditorUI
 
     /**
      * Upper bound for stored annotations to avoid overloading requests.
+     *
+     * @var int
      */
     public const STARMUS_MAX_ANNOTATIONS = 1000;
 
     /**
      * Time-based throttle applied when saving annotations.
+     *
+     * @var int
      */
     public const STARMUS_RATE_LIMIT_SECONDS = 2;
 
     /**
      * Cached rendering context shared between hooks during a request.
+     *
+     * @var array<string, mixed>|null
      */
     private ?array $cached_context = null;
 
@@ -596,7 +605,7 @@ class StarmusAudioEditorUI
 
         usort(
             $annotations,
-            fn (array $a, array $b): int => $a['startTime'] <=> $b['startTime']
+            fn(array $a, array $b): int => $a['startTime'] <=> $b['startTime']
         );
         for ($i = 0; $i < \count($annotations) - 1; $i++) {
             $current = $annotations[$i];

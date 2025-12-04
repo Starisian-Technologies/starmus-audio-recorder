@@ -92,7 +92,7 @@ final readonly class StarmusRESTHandler
         );
     }
 
-  /**
+    /**
      * Handle fallback form-based upload.
      *
      * @phpstan-param WP_REST_Request<array<string,mixed>> $request

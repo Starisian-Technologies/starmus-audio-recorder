@@ -42,43 +42,46 @@ try {
         ? new StarmusFileService()
         : null;
 
-    // --- Resolve Audio Logic (Based on CLI Keys) ---
+    // --- 1. Audio Assets (Using Admin Logic for Robustness) ---
     $mastered_mp3_id = (int) get_post_meta($post_id, 'mastered_mp3', true);
+    $archival_wav_id = (int) get_post_meta($post_id, 'archival_wav', true);
     $original_id     = (int) get_post_meta($post_id, 'audio_files_originals', true);
-    $legacy_id       = (int) get_post_meta($post_id, '_audio_attachment_id', true);
 
-    // Priority: Mastered > Original > Legacy
-    $playback_id = 0;
-    if ($mastered_mp3_id > 0) {
-        $playback_id = $mastered_mp3_id;
-    } elseif ($original_id > 0) {
-        $playback_id = $original_id;
-    } elseif ($legacy_id > 0) {
-        $playback_id = $legacy_id;
-    }
-
-    // 3. Resolve Public URL
-    $playback_url = '';
-    if ($playback_id > 0) {
+    // Consistent URL Resolver function (from Admin template)
+    $get_url = function (int $att_id) use ($file_service) {
+        if ($att_id <= 0) {
+            return '';
+        }
         try {
             if ($file_service instanceof \Starisian\Sparxstar\Starmus\services\StarmusFileService) {
-                $playback_url = $file_service->star_get_public_url($playback_id);
-            } else {
-                throw new Exception('Service unavailable');
+                return $file_service->star_get_public_url($att_id);
             }
         } catch (\Throwable) {
-            $playback_url = wp_get_attachment_url($playback_id);
         }
+        return wp_get_attachment_url($att_id) ?: '';
+    };
+
+    $mp3_url      = $get_url($mastered_mp3_id);
+    $original_url = $get_url($original_id);
+    // Playback preference: Mastered MP3 > Original
+    $playback_url = $mp3_url ?: $original_url;
+
+    // --- 2. Transcription ---
+    $transcript_raw  = get_post_meta($post_id, 'first_pass_transcription', true);
+    $transcript_text = '';
+    if (! empty($transcript_raw)) {
+        $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
+        $transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
     }
 
-    // --- Resolve Duration ---
+    // --- 3. Resolve Duration (Using Admin Logic for Robustness) ---
     $duration_formatted = '';
     $duration_sec       = get_post_meta($post_id, 'audio_duration', true);
 
     if ($duration_sec) {
         $duration_formatted = gmdate('i:s', intval($duration_sec));
-    } elseif ($playback_id > 0) {
-        $att_meta = wp_get_attachment_metadata($playback_id);
+    } elseif ($mastered_mp3_id > 0) {
+        $att_meta = wp_get_attachment_metadata($mastered_mp3_id);
         if (isset($att_meta['length_formatted'])) {
             $duration_formatted = $att_meta['length_formatted'];
         } elseif (isset($att_meta['length'])) {
@@ -86,15 +89,15 @@ try {
         }
     }
 
-    // --- Fetch Metadata ---
+    // --- 4. Fetch Metadata ---
     $accession_number = get_post_meta($post_id, 'accession_number', true);
     $location_data    = get_post_meta($post_id, 'location', true);
 
-    // --- Taxonomies ---
+    // --- 5. Taxonomies ---
     $languages = get_the_terms($post_id, 'language');
     $rec_types = get_the_terms($post_id, 'recording_type');
 
-    // --- Action URLs ---
+    // --- 6. Action URLs ---
     $edit_page_slug     = $settings->get('edit_page_id', '');
     $recorder_page_slug = $settings->get('recorder_page_id', '');
     $edit_page_url      = $edit_page_slug ? get_permalink(get_page_by_path($edit_page_slug)) : '';
@@ -155,6 +158,16 @@ try {
 				<?php } ?>
 			</section>
 
+			<!-- Transcription (New Section from Admin Template) -->
+			<?php if ($transcript_text) { ?>
+			<section class="starmus-info-card sparxstar-glass-card">
+				<h3><?php esc_html_e('First-Pass Transcript', 'starmus-audio-recorder'); ?></h3>
+				<div class="starmus-transcript-box" style="background:#f9f9f9; padding:15px; border:1px solid #eee; border-radius:4px; max-height:200px; overflow-y:auto;">
+					<?php echo wp_kses_post(nl2br($transcript_text)); ?>
+				</div>
+			</section>
+			<?php } ?>
+
 			<!-- Public Metadata -->
 			<section class="starmus-info-card sparxstar-glass-card">
 				<h3><?php esc_html_e('About this Recording', 'starmus-audio-recorder'); ?></h3>
@@ -180,6 +193,20 @@ try {
 							<dd><?php echo esc_html($duration_formatted); ?></dd>
 						</div>
 					<?php } ?>
+					
+					<!-- Add a status field based on file IDs (New: User-friendly status) -->
+					<div class="starmus-dl-item">
+						<dt><?php esc_html_e('Processing Status', 'starmus-audio-recorder'); ?></dt>
+						<dd>
+							<?php if ($mastered_mp3_id > 0) { ?>
+								<span style="color:var(--starmus-success);font-weight:600;">Complete</span>
+							<?php } elseif ($original_id > 0) { ?>
+								<span style="color:var(--starmus-warning);font-weight:600;">In Queue</span>
+							<?php } else { ?>
+								<span style="color:var(--starmus-text-muted);">Awaiting Upload</span>
+							<?php } ?>
+						</dd>
+					</div>
 
 				</dl>
 			</section>

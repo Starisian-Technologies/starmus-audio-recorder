@@ -9,6 +9,7 @@
  *
  * @since 0.3.1
  */
+
 namespace Starisian\Sparxstar\Starmus\admin;
 
 if (! \defined('ABSPATH')) {
@@ -48,11 +49,15 @@ class StarmusAdmin
 
     /**
      * Settings service instance.
+     *
+     * @var StarmusSettings|null
      */
     private ?StarmusSettings $settings = null;
 
     /**
      * Data Access Layer instance.
+     *
+     * @var \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface|null
      */
     private ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface $dal = null;
 
@@ -160,22 +165,22 @@ class StarmusAdmin
             if (! current_user_can('manage_options')) {
                 wp_die(__('You do not have sufficient permissions.', 'starmus-audio-recorder'));
             }
-            ?>
-			<div class="wrap">
-				<h1><?php esc_html_e('SPARXSTAR<sup>&trade;</sup>S tarmus Audio Recorder Settings', 'starmus-audio-recorder'); ?></h1>
+?>
+            <div class="wrap">
+                <h1><?php esc_html_e('SPARXSTAR<sup>&trade;</sup>S tarmus Audio Recorder Settings', 'starmus-audio-recorder'); ?></h1>
 
-				<?php settings_errors(); // Display any admin notices/errors
-            ?>
+                <?php settings_errors(); // Display any admin notices/errors
+                ?>
 
-				<form action="<?php echo esc_url('options.php'); ?>" method="post">
-					<?php
-                // These are now correctly hooked by register_settings() again.
-                settings_fields(self::STARMUS_SETTINGS_GROUP);
-            do_settings_sections(self::STARMUS_MENU_SLUG);
-            submit_button(esc_html__('Save Settings', 'starmus-audio-recorder'));
-            ?>
-				</form>
-			</div>
+                <form action="<?php echo esc_url('options.php'); ?>" method="post">
+                    <?php
+                    // These are now correctly hooked by register_settings() again.
+                    settings_fields(self::STARMUS_SETTINGS_GROUP);
+                    do_settings_sections(self::STARMUS_MENU_SLUG);
+                    submit_button(esc_html__('Save Settings', 'starmus-audio-recorder'));
+                    ?>
+                </form>
+            </div>
 <?php
         } catch (\Throwable $throwable) {
             \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusAdmin::render_settings_page', $throwable);
@@ -252,7 +257,7 @@ class StarmusAdmin
                 $langs = array_map(trim(...), explode(',', $allowed_langs));
                 $langs = array_filter(
                     $langs,
-                    fn ($l): int|false => preg_match('/^[a-z]{2,4}$/', $l)
+                    fn($l): int|false => preg_match('/^[a-z]{2,4}$/', $l)
                 );
                 $sanitized['allowed_languages'] = implode(',', $langs);
             } else {

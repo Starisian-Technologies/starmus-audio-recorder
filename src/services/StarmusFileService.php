@@ -14,6 +14,7 @@
  *
  * @version 0.8.5-dal
  */
+
 namespace Starisian\Sparxstar\Starmus\services;
 
 if (! \defined('ABSPATH')) {
@@ -24,6 +25,11 @@ use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 
 final readonly class StarmusFileService
 {
+    /**
+     * Data Access Layer instance.
+     *
+     * @var StarmusAudioRecorderDAL
+     */
     private StarmusAudioRecorderDAL $dal;
 
     public function __construct(?StarmusAudioRecorderDAL $dal = null)

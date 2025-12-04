@@ -11,6 +11,7 @@
  *
  * @version   0.8.5
  */
+
 namespace Starisian\Sparxstar\Starmus\cron;
 
 if (! \defined('ABSPATH')) {
@@ -38,8 +39,18 @@ final readonly class StarmusCron
     /** Recurring hourly cleanup for stale temp upload chunks. */
     public const CLEANUP_TEMP_FILES_HOOK = 'starmus_cleanup_temp_files';
 
+    /**
+     * Waveform service instance.
+     *
+     * @var StarmusWaveformService
+     */
     private StarmusWaveformService $waveform;
 
+    /**
+     * Post-processing service instance.
+     *
+     * @var StarmusPostProcessingService
+     */
     private StarmusPostProcessingService $post;
 
     public function __construct(
