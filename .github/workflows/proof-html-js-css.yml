@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@5a4ac9002afc2a3b8d9a0e327669c9fe749ac181
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
         with:
           version: 8
 
@@ -87,7 +87,7 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
         with:
           version: 8
 
