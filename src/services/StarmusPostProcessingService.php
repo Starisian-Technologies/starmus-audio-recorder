@@ -7,9 +7,9 @@ if (! \defined('ABSPATH')) {
     exit;
 }
 
-use getID3;
-use getid3_lib;
-use getid3_writetags;
+
+use Starisian\Sparxstar\Starmus\services\StarmusId3Service; 
+use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
@@ -32,10 +32,15 @@ class StarmusPostProcessingService
 
     private readonly StarmusWaveformService $waveform_service;
 
+    // ADD: Property for the new dedicated ID3 service
+    private readonly StarmusID3Service $id3_service;
+
     public function __construct()
     {
-        $this->dal              = new StarmusAudioRecorderDAL();
-        $this->waveform_service = new StarmusWaveformService();
+        $this->dal                = new StarmusAudioRecorderDAL();
+        $this->waveform_service   = new StarmusWaveformService();
+        // INITIALIZE: The new service that handles all ID3 logic
+        $this->id3_service        = new StarmusID3Service();
     }
 
     /**
@@ -66,7 +71,7 @@ class StarmusPostProcessingService
                 wp_mkdir_p($output_dir);
             }
 
-            // 3. Resolve FFmpeg
+            // 3. Resolve FFmpeg (unchanged)
             $ffmpeg_path = $this->dal->get_ffmpeg_path();
             if (!$ffmpeg_path) {
                 // Fallback for local dev environments where 'ffmpeg' is in PATH
@@ -77,20 +82,20 @@ class StarmusPostProcessingService
                 throw new \RuntimeException('FFmpeg binary not found on server.');
             }
 
-            // 4. Determine Encoding Parameters
+            // 4. Determine Encoding Parameters (unchanged)
             $network_type = $params['network_type'] ?? '4g';
             $sample_rate  = \intval($params['samplerate'] ?? 44100);
             $bitrate      = $params['bitrate']      ?? '192k';
             $session_uuid = $params['session_uuid'] ?? 'unknown';
 
-            // 5. Build Filter Chain (Adaptive Highpass + Loudness Normalization)
+            // 5. Build Filter Chain (Adaptive Highpass + Loudness Normalization) (unchanged)
             $highpass = match ($network_type) {
                 '2g', 'slow-2g' => 'highpass=f=100,lowpass=f=4000',
                 '3g'    => 'highpass=f=80,lowpass=f=7000',
                 default => 'highpass=f=60',
             };
 
-            // Pass 1: Loudness Scan (EBU R128)
+            // Pass 1: Loudness Scan (EBU R128) (unchanged)
             $cmd_scan = \sprintf(
                 '%s -hide_banner -nostats -i %s -af "loudnorm=I=-23:LRA=7:tp=-2:print_format=json" -f null - 2>&1',
                 escapeshellarg($ffmpeg_path),
@@ -113,19 +118,19 @@ class StarmusPostProcessingService
 
             $full_filter = \sprintf('%s,%s', $highpass, $loudnorm_filter);
 
-            // 6. Define Output Paths
+            // 6. Define Output Paths (unchanged)
             $mp3_filename = $post_id . '_master.mp3';
             $wav_filename = $post_id . '_archival.wav';
             $mp3_path     = $output_dir . '/' . $mp3_filename;
             $wav_path     = $output_dir . '/' . $wav_filename;
 
-            // Metadata Tags for FFmpeg
+            // Metadata Tags for FFmpeg (unchanged)
             $ffmpeg_meta = \sprintf(
                 '-metadata comment=%s',
                 escapeshellarg(\sprintf('Source: Starmus | Profile: %s | Session: %s', $network_type, $session_uuid))
             );
 
-            // 7. Transcode (Pass 2)
+            // 7. Transcode (Pass 2) (unchanged)
             // MP3 Generation
             $cmd_mp3 = \sprintf(
                 '%s -hide_banner -y -i %s -ar %d -b:a %s -ac 1 -af "%s" %s %s 2>&1',
@@ -154,7 +159,19 @@ class StarmusPostProcessingService
             $log[] = "---\nMP3 Command:\n" . $cmd_mp3 . "\nOutput:\n" . shell_exec($cmd_mp3);
             $log[] = "---\nWAV Command:\n" . $cmd_wav . "\nOutput:\n" . shell_exec($cmd_wav);
 
-            // 8. Import Results to WordPress Media Library
+            // --- DELEGATE ID3 TAGGING LOGIC ---
+            $post        = get_post($post_id);
+            if (! $post instanceof \WP_Post) {
+                throw new \RuntimeException('Post not found for ID: ' . $post_id);
+            }
+            $author_name = get_the_author_meta('display_name', (int) $post->post_author) ?: get_bloginfo('name');
+            $site_name   = get_bloginfo('name');
+            $tag_data    = $this->build_tag_payload($post, $author_name, $site_name, $post_id);
+
+            // 8. Apply ID3 Tags (to the MP3) - CRITICAL: Call the new service
+            $this->id3_service->writeTags($mp3_path, $tag_data, $post_id); 
+
+            // 9. Import Results to WordPress Media Library (unchanged)
             $mp3_id = $this->import_to_media_library($mp3_path, $post_id, 'audio/mpeg');
             $wav_id = $this->import_to_media_library($wav_path, $post_id, 'audio/wav');
 
@@ -162,10 +179,7 @@ class StarmusPostProcessingService
                 throw new \RuntimeException('Failed to import MP3 to Media Library.');
             }
 
-            // 9. Apply ID3 Tags (to the MP3)
-            $this->apply_id3_tags($mp3_path, $post_id);
-
-            // 10. Generate Waveform Data
+            // 10. Generate Waveform Data (unchanged)
             // We use the WAV file for faster processing if available, otherwise MP3
             $waveform_source_id = $wav_id ?: $mp3_id;
             $this->waveform_service->generate_waveform_data($waveform_source_id);
@@ -179,7 +193,7 @@ class StarmusPostProcessingService
                 );
             }
 
-            // 11. Update Post Metadata (The "Verified Keys")
+            // 11. Update Post Metadata (The "Verified Keys") (unchanged)
             update_post_meta($post_id, 'mastered_mp3', $mp3_id);
             update_post_meta($post_id, 'archival_wav', $wav_id);
             update_post_meta($post_id, 'processing_log', implode("\n", $log));
@@ -203,12 +217,11 @@ class StarmusPostProcessingService
             StarmusLogger::timeEnd('audio_process', 'StarmusPostProcessing');
         }
     }
-
-    /**
-     * Helper to import physical files into WP Media Library.
-     */
+    
+    // The import_to_media_library method is UNCHANGED and remains here.
     private function import_to_media_library(string $filepath, int $parent_post_id, string $mime_type): int
     {
+        // ... (body of method unchanged)
         if (! file_exists($filepath)) {
             return 0;
         }
@@ -234,97 +247,8 @@ class StarmusPostProcessingService
     }
 
     /**
-     * Writes ID3 tags using getID3 library.
-     */
-    private function apply_id3_tags(string $filepath, int $post_id): void
-    {
-        if ($filepath === '' || ! file_exists($filepath)) {
-            return;
-        }
-
-        try {
-            $this->bootstrap_getid3();
-
-            $tagging_format = 'UTF-8';
-            $getid3         = new getID3();
-            $getid3->setOption(['encoding' => $tagging_format]);
-
-            $post = get_post($post_id);
-            if (! $post instanceof \WP_Post) {
-                return;
-            }
-
-            $author_name = get_the_author_meta('display_name', (int) $post->post_author) ?: get_bloginfo('name');
-            $site_name   = get_bloginfo('name');
-
-            $tag_writer                    = new getid3_writetags();
-            $tag_writer->filename          = $filepath;
-            $tag_writer->tagformats        = ['id3v2.3'];
-            $tag_writer->overwrite_tags    = true;
-            $tag_writer->tag_encoding      = $tagging_format;
-            $tag_writer->remove_other_tags = true;
-            $tag_writer->tag_data          = $this->build_tag_payload($post, $author_name, $site_name, $post_id);
-
-            if (! $tag_writer->WriteTags()) {
-                StarmusLogger::warning(
-                    'ID3 Writer',
-                    'Failed to write ID3 tags',
-                    [
-                        'errors'  => $tag_writer->errors,
-                        'file'    => $filepath,
-                        'post_id' => $post_id,
-                    ]
-                );
-                return;
-            }
-
-            if ($tag_writer->warnings !== []) {
-                StarmusLogger::warning(
-                    'ID3 Writer',
-                    'ID3 tags written with warnings',
-                    [
-                        'warnings' => $tag_writer->warnings,
-                        'file'     => $filepath,
-                        'post_id'  => $post_id,
-                    ]
-                );
-            }
-        } catch (\Throwable $throwable) {
-            StarmusLogger::warning('ID3 Write Failed', $throwable->getMessage(), ['file' => $filepath, 'post_id' => $post_id]);
-        }
-    }
-
-    /**
-     * Ensure getID3 library dependencies are loaded.
-     */
-    private function bootstrap_getid3(): void
-    {
-        $vendor_dir = \dirname(__DIR__, 2) . '/vendor/james-heinrich/getid3/getid3/';
-
-        if (! class_exists(getID3::class, false)) {
-            $library_path = $vendor_dir . 'getid3.php';
-            if (file_exists($library_path)) {
-                require_once $library_path;
-            }
-        }
-
-        if (! \defined('GETID3_INCLUDEPATH')) {
-            $reflection = new \ReflectionClass(getID3::class);
-            \define('GETID3_INCLUDEPATH', \dirname($reflection->getFileName()) . \DIRECTORY_SEPARATOR);
-        }
-
-        if (! class_exists(getid3_writetags::class, false)) {
-            $writer_path = $vendor_dir . 'write.php';
-            if (file_exists($writer_path)) {
-                require_once $writer_path;
-            } else {
-                getid3_lib::IncludeDependency(GETID3_INCLUDEPATH . 'write.php', __FILE__, true);
-            }
-        }
-    }
-
-    /**
      * Build ID3 metadata payload using WordPress post data.
+     * This method remains as it is the data preparation logic.
      */
     private function build_tag_payload(\WP_Post $post, string $author_name, string $site_name, int $post_id): array
     {

@@ -92,7 +92,7 @@ final readonly class StarmusRESTHandler
         );
     }
 
-    /**
+  /**
      * Handle fallback form-based upload.
      *
      * @phpstan-param WP_REST_Request<array<string,mixed>> $request
@@ -124,16 +124,27 @@ final readonly class StarmusRESTHandler
                 return $result;
             }
 
+            // CRITICAL FIX START: Safely handle if $result is an array (expected) or a WP_REST_Response object (current error cause).
+            $response_data = $result;
+            if ($result instanceof WP_REST_Response) {
+                // If the submission handler returned an object, get its data array.
+                $response_data = $result->get_data();
+            }
+
+            // We expect the final structure to contain a 'data' key with submission details.
+            $submission_data = $response_data['data'] ?? [];
+            // CRITICAL FIX END.
+
             do_action(
                 'starmus_submission_complete',
-                $result['data']['attachment_id'] ?? 0,
-                $result['data']['post_id']       ?? 0
+                $submission_data['attachment_id'] ?? 0,
+                $submission_data['post_id']       ?? 0
             );
 
             return new WP_REST_Response(
                 [
                     'success' => true,
-                    'data'    => $result['data'],
+                    'data'    => $submission_data,
                 ],
                 200
             );
