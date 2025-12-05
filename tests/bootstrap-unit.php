@@ -1,8 +1,9 @@
 <?php
+
 /**
  * Unit Test Bootstrap (No WordPress)
  *
- * @package Starisian\Sparxstar\Starmus\tests
+ * @package Starmus\Tests
  */
 
 // Load Composer autoloader
@@ -10,6 +11,9 @@ $autoload = dirname(__DIR__) . '/vendor/autoload.php';
 if (file_exists($autoload)) {
 	require $autoload;
 }
+
+// Load WordPress mocks
+require_once dirname(__DIR__) . '/wordpress-mocks.php';
 
 // Define WordPress constants for testing without WordPress
 if (!defined('ABSPATH')) {
@@ -142,16 +146,5 @@ if (!function_exists('apply_filters_ref_array')) {
 	function apply_filters_ref_array($tag, $args)
 	{
 		return $args[0] ?? null;
-	}
-}
-
-// Mock WordPress classes for unit testing
-if (!class_exists('WP_REST_Request')) {
-	class WP_REST_Request
-	{
-		public function get_header($key)
-		{
-			return 'mock_header_value';
-		}
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Starmus Re-Recorder UI Template
  *
@@ -13,7 +14,7 @@
  */
 
 if (! defined('ABSPATH')) {
-    exit;
+	exit;
 }
 
 /** @var string $form_id */
@@ -27,7 +28,7 @@ $form_id ??= 'rerecord';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 
 $allowed_file_types ??= 'webm';
-$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
 $is_admin          = current_user_can('manage_options');
 
 ?>
@@ -41,7 +42,7 @@ $is_admin          = current_user_can('manage_options');
 		novalidate
 		data-starmus="recorder"
 		data-starmus-mode="update"
-		data-starmus-update-id="<?php echo esc_attr($post_id); ?>"
+		data-starmus-update-id="<?php echo esc_attr((string) $post_id); ?>"
 		data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
 
 		<!-- Step 1: Confirmation -->
@@ -49,7 +50,7 @@ $is_admin          = current_user_can('manage_options');
 			id="starmus_step1_<?php echo esc_attr($instance_id); ?>"
 			class="starmus-step starmus-step-1"
 			data-starmus-step="1">
-			
+
 			<h2><?php esc_html_e('Re-Record Audio', 'starmus-audio-recorder'); ?></h2>
 
 			<div
@@ -69,18 +70,18 @@ $is_admin          = current_user_can('manage_options');
 
 			<!-- CRITICAL: Hidden fields for Update Logic -->
 			<input type="hidden" name="action" value="starmus_update_audio">
-			<input type="hidden" name="recording_id" value="<?php echo esc_attr($post_id); ?>">
-			<input type="hidden" name="update_post_id" value="<?php echo esc_attr($post_id); ?>">
-			
+			<input type="hidden" name="recording_id" value="<?php echo esc_attr((string) $post_id); ?>">
+			<input type="hidden" name="update_post_id" value="<?php echo esc_attr((string) $post_id); ?>">
+
 			<!-- Metadata Persistence -->
 			<input type="hidden" name="starmus_title" value="<?php echo esc_attr($existing_title); ?>">
-			<input type="hidden" name="starmus_language" value="<?php echo esc_attr($existing_language); ?>">
-			<input type="hidden" name="starmus_recording_type" value="<?php echo esc_attr($existing_type); ?>">
-			
+			<input type="hidden" name="starmus_language" value="<?php echo esc_attr((string) $existing_language); ?>">
+			<input type="hidden" name="starmus_recording_type" value="<?php echo esc_attr((string) $existing_type); ?>">
+
 			<!-- FIX: Always set to 'audio/webm' -->
 			<input type="hidden" name="audio_file_type" value="audio/webm">
 
-            <!-- CRITICAL HIDDEN FIELDS - JS TARGETS (COPIED FROM RECORDER TEMPLATE) -->
+			<!-- CRITICAL HIDDEN FIELDS - JS TARGETS (COPIED FROM RECORDER TEMPLATE) -->
 			<!-- These must be present and named exactly for the JS to inject final telemetry, transcript, and calibration data -->
 			<input type="hidden" name="_starmus_calibration" value="">
 			<input type="hidden" name="_starmus_env" value="">
@@ -108,7 +109,7 @@ $is_admin          = current_user_can('manage_options');
 			<input type="hidden" name="mic-rest-adjustments" value="">
 			<input type="hidden" name="device" value="">
 			<input type="hidden" name="user_agent" value="">
-            
+
 			<fieldset class="starmus-consent-fieldset">
 				<legend class="starmus-fieldset-legend">
 					<?php esc_html_e('Confirmation', 'starmus-audio-recorder'); ?>

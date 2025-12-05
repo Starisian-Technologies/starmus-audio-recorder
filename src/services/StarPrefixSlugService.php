@@ -19,7 +19,7 @@ if (!\defined('ABSPATH')) {
  *
  * @version 1.0.0
  */
-final class StarPrivateSlugPrefix
+final class StarPrefixSlugService
 {
     /**
      * Slug prefix for restricted posts

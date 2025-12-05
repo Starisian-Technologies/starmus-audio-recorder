@@ -3,35 +3,45 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
-	->withPaths(
-		array(
-			__DIR__ . '/src',
-		)
-	)
-	->withSkip(
-		array(
-			'*/vendor/*',
-			'*/tests/*',
-			'*/node_modules/*',
-			'*/wordpress-installer/*',
-			'*/wp-admin/*',
-			'*/wp-content/*',
-		)
-	)
-	// Use the modern "Prepared Sets" (Replaces the old LevelSetList/SetList)
+	// Set the working directory paths
+	->withPaths([
+		__DIR__ . '/src',
+	])
+
+	// Target PHP 8.2 for language features and compatibility
+	->withPhpVersion(PhpVersion::PHP_82)
+
+	// Enable PHP 8.2 features
+	->withPhpSets(php82: true)
+
+	// Use the modern "Prepared Sets"
 	->withPreparedSets(
 		deadCode: true,
 		codeQuality: true,
 		codingStyle: true,
 		typeDeclarations: true,
 		// Keep false for WP. Prevents removing 'public' from hook callbacks.
-		privatization: false, 
+		privatization: false,
 		earlyReturn: true,
-		// CAUTION: Set to false if you want to keep empty() checks. 
+		instanceOf: true,
+		// CAUTION: Set to false if you want to keep empty() checks.
 		// Set to true if you want strict comparisons (===).
-		strictBooleans: false, 
+		strictBooleans: false
 	)
-	// Targets PHP 8.2 features
-	->withPhpSets( php82: true );
+
+	// Skip paths and specific rules incompatible with WordPress VIP standards
+	->withSkip([
+		'*/vendor/*',
+		'*/tests/*',
+		'*/node_modules/*',
+		'*/wordpress-installer/*',
+		'*/wp-admin/*',
+		'*/wp-content/*',
+		// VIP Standards: Skip incompatible transformations
+		\Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class,
+		\Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class,
+		\Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector::class,
+	]);

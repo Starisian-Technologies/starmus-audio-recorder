@@ -19,14 +19,7 @@ if (! \defined('ABSPATH')) {
     exit;
 }
 
-use function current_user_can;
-use function is_admin;
-// Core + services you actually use here
-use function load_plugin_textdomain;
 
-use LogicException;
-
-use function plugin_basename;
 
 use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
 use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
@@ -47,44 +40,116 @@ use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 use Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler;
 use Throwable;
 use RuntimeException;
+use LogicException;
+use function current_user_can;
+use function is_admin;
+use function load_plugin_textdomain;
+use function plugin_basename;
 
 /**
- * Main plugin bootstrapper.
+ * Main plugin bootstrapper and singleton entry point.
  *
+ * This class coordinates the initialization and lifecycle of all plugin components.
+ * It implements the singleton pattern to ensure only one instance exists per request.
+ * 
  * Responsibilities:
- * - Initialize settings early.
- * - Instantiate/wire dependent components (Admin, Assets, UI, REST).
- * - Register global hooks once.
- * - Defer heavy logic to dedicated classes.
+ * - Initialize settings and DAL (Data Access Layer) early in the WordPress lifecycle
+ * - Instantiate and wire dependent components (Admin, Assets, UI, REST)
+ * - Register global WordPress hooks once
+ * - Defer heavy business logic to dedicated service classes
+ * - Provide plugin-wide capability constants
+ * - Handle runtime error collection and display
+ *
+ * Usage:
+ * ```php
+ * // Called from main plugin file
+ * StarmusAudioRecorder::starmus_run();
+ * 
+ * // Access singleton instance
+ * $plugin = StarmusAudioRecorder::starmus_get_instance();
+ * ```
+ *
+ * @package Starisian\Sparxstar\Starmus
+ * @since   0.1.0
  */
 final class StarmusAudioRecorder
 {
-    /** Capability allowing users to edit uploaded audio. */
+    /**
+     * Capability allowing users to edit uploaded audio recordings.
+     *
+     * Users with this capability can modify existing audio recordings,
+     * update metadata, and manage recording lifecycle.
+     *
+     * @since 0.1.0
+     * @var string
+     */
     public const STARMUS_CAP_EDIT_AUDIO = 'starmus_edit_audio';
 
-    /** Capability allowing users to create new recordings. */
+    /**
+     * Capability allowing users to create new audio recordings.
+     *
+     * Users with this capability can access the recorder interface,
+     * submit new recordings, and initiate recording sessions.
+     *
+     * @since 0.1.0
+     * @var string
+     */
     public const STARMUS_CAP_RECORD_AUDIO = 'starmus_record_audio';
 
-    /** Singleton instance. */
+    /**
+     * Singleton instance of the plugin.
+     *
+     * Stores the single instance of this class to implement the singleton pattern.
+     * Prevents multiple plugin initializations within the same request.
+     *
+     * @since 0.1.0
+     * @var StarmusAudioRecorder|null
+     */
     private static ?StarmusAudioRecorder $instance = null;
 
-    /** Collected runtime errors for admin notice. */
-    /** @var array<string, mixed> */
+    /**
+     * Collection of runtime errors for admin display.
+     *
+     * Stores non-fatal errors encountered during plugin execution
+     * that should be displayed to administrators as notices.
+     * Errors are deduplicated before display.
+     *
+     * @since 0.1.0
+     * @var array<string, mixed>
+     */
     private array $runtimeErrors = [];
 
-    /** Whether we've registered WordPress hooks (guard). */
+    /**
+     * WordPress hooks registration guard flag.
+     *
+     * Prevents duplicate hook registration when the same instance
+     * might be accessed multiple times during a request.
+     *
+     * @since 0.1.0
+     * @var bool
+     */
     private bool $hooksRegistered = false;
 
     /**
-     * Data Access Layer instance.
+     * Data Access Layer instance for database operations.
      *
+     * Provides abstraction layer for all plugin database interactions.
+     * Supports dependency injection through filters for testing and extensibility.
+     * Uses singleton pattern to ensure consistent data layer across components.
+     *
+     * @since 0.1.0
      * @var \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface|null
      */
     private ?core\interfaces\StarmusAudioRecorderDALInterface $DAL = null;
 
     /**
-     * Settings service (must be ready before other deps).
+     * Plugin settings and configuration manager.
      *
+     * Handles all plugin options, user preferences, and configuration values.
+     * Must be initialized before other components that depend on settings.
+     * Provides centralized access to WordPress options and plugin defaults.
+     *
+     * @since 0.1.0
      * @var StarmusSettings|null
      */
     private ?StarmusSettings $settings = null;
@@ -92,16 +157,18 @@ final class StarmusAudioRecorder
     /**
      * Private constructor for singleton pattern.
      *
-     * Initializes the plugin in the following order:
-     * 1. Configures logger (minimum level and file path)
-     * 2. Sets up DAL (Data Access Layer) instance
-     * 3. Initializes settings or throws exception
-     * 4. Instantiates component dependencies
-     * 5. Registers WordPress hooks
+     * Initializes the plugin in the following order to ensure proper dependency resolution:
+     * 1. Configures logger with minimum level and optional custom file path
+     * 2. Sets up DAL (Data Access Layer) with singleton pattern and filter support
+     * 3. Initializes settings service or throws exception on failure
+     * 4. Instantiates all dependent components (Admin, Assets, REST, etc.)
+     * 5. Registers global WordPress hooks
+     *
+     * The initialization order is critical - settings must be available before
+     * component instantiation, and DAL must be ready before settings.
      *
      * @throws \RuntimeException If settings initialization fails.
-     *
-     * @return void
+     * @since  0.1.0
      */
     private function __construct()
     {
@@ -125,9 +192,11 @@ final class StarmusAudioRecorder
     /**
      * Get singleton instance of the plugin.
      *
-     * Creates and returns the single instance of this class.
-     * Subsequent calls return the same instance.
+     * Creates and returns the single instance of this class using lazy initialization.
+     * Subsequent calls return the same instance without re-initialization.
+     * This is the primary way to access the plugin instance throughout the codebase.
      *
+     * @since  0.1.0
      * @return StarmusAudioRecorder The singleton instance.
      */
     public static function starmus_get_instance(): StarmusAudioRecorder
@@ -142,8 +211,14 @@ final class StarmusAudioRecorder
     /**
      * Entry point called from main plugin file.
      *
-     * Bootstraps the plugin by ensuring singleton instance is created.
-     * This is the method called by the 'plugins_loaded' action hook.
+     * Bootstraps the plugin by ensuring the singleton instance is created and initialized.
+     * This method is called by the 'plugins_loaded' WordPress action hook with priority 20
+     * to ensure SCF/ACF (priority 5) is already loaded.
+     *
+     * This is the main entry point for the entire plugin and should only be called once.
+     *
+     * @since 0.1.0
+     * @return void
      */
     public static function starmus_run(): void
     {
@@ -153,10 +228,14 @@ final class StarmusAudioRecorder
     /**
      * Check whether Secure Custom Fields (SCF) or Advanced Custom Fields (ACF) is active.
      *
-     * The recorder relies on one of these field frameworks to manage submission metadata.
-     * SCF exposes ACF-style global utility functions such as acf_get_instance().
-     * This is the authoritative presence signal.
+     * The recorder relies on one of these field frameworks to manage submission metadata
+     * and custom field definitions. SCF exposes ACF-compatible global utility functions
+     * such as acf_get_instance(), which serves as the authoritative presence signal.
      *
+     * This check is performed before plugin initialization to ensure graceful failure
+     * if the required dependency is not available.
+     *
+     * @since  0.1.0
      * @return bool True when a supported field framework is available, false otherwise.
      */
     public static function check_field_plugin_dependency(): bool
@@ -167,11 +246,16 @@ final class StarmusAudioRecorder
     /**
      * Ensure settings are instantiated before anything else.
      *
-     * Validates that StarmusSettings class exists via autoloader,
-     * creates instance, and throws exception on failure to prevent
-     * silent null returns that could cause downstream issues.
+     * Validates that StarmusSettings class exists via autoloader, creates instance,
+     * and throws exception on failure to prevent silent null returns that could
+     * cause downstream issues in dependent components.
      *
+     * Settings must be available before component initialization since most
+     * components require configuration values during their setup.
+     *
+     * @since  0.1.0
      * @throws \RuntimeException If StarmusSettings fails to initialize.
+     * @return void
      */
     private function init_settings_or_throw(): void
     {
@@ -263,6 +347,19 @@ final class StarmusAudioRecorder
 
     /**
      * Instantiate components that depend on settings and environment.
+     *
+     * Initializes all plugin components in the correct order:
+     * - Admin interface (only in admin context)
+     * - Asset loader for CSS/JS management
+     * - TUSD webhook handler for upload processing
+     * - REST API endpoints
+     * - Shortcode loader for frontend display
+     *
+     * Each component receives DAL and settings dependencies through constructor injection.
+     * Components are responsible for self-registering their WordPress hooks.
+     *
+     * @since 0.1.0
+     * @return void
      */
     private function init_components(): void
     {
@@ -299,8 +396,18 @@ final class StarmusAudioRecorder
     }
 
     /**
-     * Register cross-cutting hooks once.
-     * Note: most components self-register inside their constructors.
+     * Register cross-cutting WordPress hooks once.
+     *
+     * Handles plugin-wide hooks that don't belong to specific components:
+     * - Text domain loading for internationalization
+     * - WP-CLI command registration (if available)
+     * - Admin error notices display
+     *
+     * Uses guard flag to prevent duplicate registration if called multiple times.
+     * Most component-specific hooks are self-registered within component constructors.
+     *
+     * @since 0.1.0
+     * @return void
      */
     private function register_hooks(): void
     {
@@ -341,7 +448,16 @@ final class StarmusAudioRecorder
     }
 
     /**
-     * Admin notice for collected runtime errors.
+     * Display collected runtime errors as admin notices.
+     *
+     * Shows non-fatal errors that occurred during plugin execution as dismissible
+     * admin notices. Only visible to users with 'manage_options' capability.
+     * Errors are deduplicated before display to prevent notice spam.
+     *
+     * Called via 'admin_notices' action hook in admin context only.
+     *
+     * @since 0.1.0
+     * @return void
      */
     public function displayRuntimeErrorNotice(): void
     {
@@ -362,9 +478,14 @@ final class StarmusAudioRecorder
     }
 
     /**
-     * Strictly prevent cloning.
+     * Strictly prevent cloning of singleton instance.
      *
-     * @throws LogicException Always.
+     * Ensures singleton pattern integrity by preventing object cloning,
+     * which would create multiple instances and violate the singleton contract.
+     *
+     * @since  0.1.0
+     * @throws LogicException Always - cloning is not allowed.
+     * @return void
      */
     public function __clone()
     {
@@ -372,27 +493,61 @@ final class StarmusAudioRecorder
     }
 
     /**
-     * Strictly prevent (un)serialization.
+     * Strictly prevent unserialization of singleton instance.
      *
-     * @throws LogicException Always.
+     * Prevents recreation of singleton instance through unserialization,
+     * which would bypass the singleton pattern and constructor logic.
+     *
+     * @since  0.1.0
+     * @throws LogicException Always - unserialization is not allowed.
+     * @return void
      */
     public function __wakeup()
     {
         throw new LogicException('Unserializing of ' . self::class . ' is not allowed.');
     }
 
+    /**
+     * Strictly prevent serialization of singleton instance.
+     *
+     * Prevents singleton instance from being serialized, which could
+     * lead to unserialization and violation of the singleton pattern.
+     *
+     * @since  0.1.0
+     * @throws LogicException Always - serialization is not allowed.
+     * @return array Never returns - always throws exception.
+     */
+
     public function __sleep(): array
     {
         throw new LogicException('Serializing of ' . self::class . ' is not allowed.');
     }
 
+    /**
+     * Strictly prevent serialization of singleton instance (PHP 7.4+ method).
+     *
+     * Modern PHP serialization prevention method that works alongside __sleep().
+     * Prevents singleton instance from being serialized using the newer PHP API.
+     *
+     * @since  0.8.5
+     * @throws LogicException Always - serialization is not allowed.
+     * @return array Never returns - always throws exception.
+     */
     public function __serialize(): array
     {
         throw new LogicException('Serialization of ' . self::class . ' is not allowed.');
     }
 
     /**
-     * @param array<string, mixed> $data
+     * Strictly prevent unserialization of singleton instance (PHP 7.4+ method).
+     *
+     * Modern PHP unserialization prevention method that works alongside __wakeup().
+     * Prevents recreation of singleton instance through the newer PHP unserialize API.
+     *
+     * @since  0.8.5
+     * @param  array<string, mixed> $data Serialized data (ignored).
+     * @throws LogicException Always - unserialization is not allowed.
+     * @return void
      */
     public function __unserialize(array $data): void
     {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Registers and renders WordPress Dashboard widgets for Starmus transcription Workflow.
  *
@@ -7,7 +8,7 @@
 
 namespace Starisiam\Sparxstar\Starmus\admin\widgets;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -18,7 +19,8 @@ use Starisian\Sparxstar\Starmus\services\StarmusStatsDataService;
 /**
  * Dashboard Widgets for AIWA Workflow
  */
-class StarmusAdminWidgets {
+class StarmusAdminWidgets
+{
 
     /**
      * @var StarmusStatsDataService
@@ -30,7 +32,8 @@ class StarmusAdminWidgets {
      *
      * @param StarmusStatsDataService $data_service
      */
-    public function __construct( StarmusStatsDataService $data_service ) {
+    public function __construct(StarmusStatsDataService $data_service)
+    {
         try {
             $this->data_service = $data_service;
             $this->register_hooks();
@@ -45,9 +48,10 @@ class StarmusAdminWidgets {
     /**
      * Hook widget registration into WordPress.
      */
-    public function register_hooks(): void {
+    public function register_hooks(): void
+    {
         try {
-            add_action( 'wp_dashboard_setup', [ $this, 'register_widgets' ] );
+            add_action('wp_dashboard_setup', [$this, 'register_widgets']);
         } catch (Throwable $e) {
             StarmusLogger::log('StarmusAdminWidgets::register_hooks() failed: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -59,13 +63,14 @@ class StarmusAdminWidgets {
     /**
      * Register the dashboard widgets.
      */
-    public function register_widgets(): void {
+    public function register_widgets(): void
+    {
         try {
 
             wp_add_dashboard_widget(
                 'aiwa_jobs_widget',
-                __( 'AIWA: Transcription Jobs', 'aiwa' ),
-                [ $this, 'render_jobs_widget' ]
+                __('AIWA: Transcription Jobs', 'aiwa'),
+                [$this, 'render_jobs_widget']
             );
         } catch (Throwable $e) {
             StarmusLogger::log('StarmusAdminWidgets::register_widgets() failed: ' . $e->getMessage(), [
@@ -75,14 +80,15 @@ class StarmusAdminWidgets {
         }
     }
 
-    
+
 
     /**
      * Render recent transcription jobs widget.
      */
-    public function render_jobs_widget(): void {
+    public function render_jobs_widget(): void
+    {
         try {
-            $jobs = get_option( 'aiwa_sagemaker_jobs', [] );
+            $jobs = get_option('aiwa_sagemaker_jobs', []);
 
             $counts = [
                 'total' => 0,
@@ -92,46 +98,46 @@ class StarmusAdminWidgets {
                 'failed' => 0,
             ];
 
-            foreach ( $jobs as $job ) {
+            foreach ($jobs as $job) {
                 $counts['total']++;
-                $status = isset( $job['status'] ) ? $job['status'] : 'pending';
-                if ( isset( $counts[ $status ] ) ) {
-                    $counts[ $status ]++;
+                $status = isset($job['status']) ? $job['status'] : 'pending';
+                if (isset($counts[$status])) {
+                    $counts[$status]++;
                 }
             }
 
             echo '<div class="aiwa-jobs-widget">';
-            echo '<p><strong>' . esc_html__( 'Total jobs:', 'aiwa' ) . '</strong> ' . intval( $counts['total'] ) . '</p>';
-            echo '<p><strong>' . esc_html__( 'Pending:', 'aiwa' ) . '</strong> ' . intval( $counts['pending'] ) . ' — ' . esc_html__( 'Processing:', 'aiwa' ) . ' ' . intval( $counts['processing'] ) . ' — ' . esc_html__( 'Done:', 'aiwa' ) . ' ' . intval( $counts['done'] ) . ' — ' . esc_html__( 'Failed:', 'aiwa' ) . ' ' . intval( $counts['failed'] ) . '</p>';
+            echo '<p><strong>' . esc_html__('Total jobs:', 'aiwa') . '</strong> ' . intval($counts['total']) . '</p>';
+            echo '<p><strong>' . esc_html__('Pending:', 'aiwa') . '</strong> ' . intval($counts['pending']) . ' — ' . esc_html__('Processing:', 'aiwa') . ' ' . intval($counts['processing']) . ' — ' . esc_html__('Done:', 'aiwa') . ' ' . intval($counts['done']) . ' — ' . esc_html__('Failed:', 'aiwa') . ' ' . intval($counts['failed']) . '</p>';
 
-            if ( empty( $jobs ) ) {
-                echo '<p>' . esc_html__( 'No jobs queued.', 'aiwa' ) . '</p>';
+            if (empty($jobs)) {
+                echo '<p>' . esc_html__('No jobs queued.', 'aiwa') . '</p>';
                 echo '</div>';
                 return;
             }
 
             // Sort jobs by created_at desc and show 5 most recent
-            usort( $jobs, function( $a, $b ) {
-                $ta = isset( $a['created_at'] ) ? (int) $a['created_at'] : 0;
-                $tb = isset( $b['created_at'] ) ? (int) $b['created_at'] : 0;
+            usort($jobs, function ($a, $b) {
+                $ta = isset($a['created_at']) ? (int) $a['created_at'] : 0;
+                $tb = isset($b['created_at']) ? (int) $b['created_at'] : 0;
                 return $tb <=> $ta;
-            } );
+            });
 
-            $recent = array_slice( $jobs, 0, 5, true );
+            $recent = array_slice($jobs, 0, 5, true);
 
-            echo '<table class="widefat"><thead><tr><th>' . esc_html__( 'Job ID', 'aiwa' ) . '</th><th>' . esc_html__( 'Status', 'aiwa' ) . '</th><th>' . esc_html__( 'Attempts', 'aiwa' ) . '</th><th>' . esc_html__( 'Created', 'aiwa' ) . '</th></tr></thead><tbody>';
-            foreach ( $recent as $id => $job ) {
-                $created = isset( $job['created_at'] ) ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $job['created_at'] ) : '';
+            echo '<table class="widefat"><thead><tr><th>' . esc_html__('Job ID', 'aiwa') . '</th><th>' . esc_html__('Status', 'aiwa') . '</th><th>' . esc_html__('Attempts', 'aiwa') . '</th><th>' . esc_html__('Created', 'aiwa') . '</th></tr></thead><tbody>';
+            foreach ($recent as $id => $job) {
+                $created = isset($job['created_at']) ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $job['created_at']) : '';
                 echo '<tr>';
-                echo '<td>' . esc_html( $id ) . '</td>';
-                echo '<td>' . esc_html( $job['status'] ?? '' ) . '</td>';
-                echo '<td>' . esc_html( intval( $job['attempts'] ?? 0 ) ) . '</td>';
-                echo '<td>' . esc_html( $created ) . '</td>';
+                echo '<td>' . esc_html($id) . '</td>';
+                echo '<td>' . esc_html($job['status'] ?? '') . '</td>';
+                echo '<td>' . esc_html((string) intval($job['attempts'] ?? 0)) . '</td>';
+                echo '<td>' . esc_html($created) . '</td>';
                 echo '</tr>';
             }
             echo '</tbody></table>';
 
-            echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=aiwa-sagemaker-jobs' ) ) . '">' . esc_html__( 'View all jobs', 'aiwa' ) . '</a></p>';
+            echo '<p><a href="' . esc_url(admin_url('admin.php?page=aiwa-sagemaker-jobs')) . '">' . esc_html__('View all jobs', 'aiwa') . '</a></p>';
             echo '</div>';
 
             $this->enqueue_jobs_widget_script();
@@ -140,17 +146,18 @@ class StarmusAdminWidgets {
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
-            echo '<p>' . esc_html__( 'Unable to load job data.', 'aiwa' ) . '</p>';
+            echo '<p>' . esc_html__('Unable to load job data.', 'aiwa') . '</p>';
         }
     }
 
     /**
      * Enqueue small inline JS for polling and quick actions.
      */
-    private function enqueue_jobs_widget_script(): void {
+    private function enqueue_jobs_widget_script(): void
+    {
         try {
-            $nonce = wp_create_nonce( 'aiwa_jobs_nonce' );
-            $ajax_url = admin_url( 'admin-ajax.php' );
+            $nonce = wp_create_nonce('aiwa_jobs_nonce');
+            $ajax_url = admin_url('admin-ajax.php');
 
             $script = <<<JS
             <script>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin Detail Template (starmus-recording-detail-admin.php) - FINAL ROBUST VERSION
  *
@@ -9,7 +10,7 @@
  */
 
 if (! defined('ABSPATH')) {
-    exit;
+	exit;
 }
 
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
@@ -18,100 +19,99 @@ use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 // === 1. INITIALIZATION & DATA RESOLUTION ===
 
 try {
-    $post_id = get_the_ID();
+	$post_id = get_the_ID();
 
-    if (! $post_id && isset($args['post_id'])) {
-        $post_id = intval($args['post_id']);
-    }
+	if (! $post_id && isset($args['post_id'])) {
+		$post_id = intval($args['post_id']);
+	}
 
-    if (! $post_id) {
-        throw new \Exception('No post ID found.');
-    }
+	if (! $post_id) {
+		throw new \Exception('No post ID found.');
+	}
 
-    $settings = new StarmusSettings();
+	$settings = new StarmusSettings();
 
-    // Safe Service Instantiation
-    $file_service = class_exists(\Starisian\Sparxstar\Starmus\services\StarmusFileService::class)
-        ? new StarmusFileService()
-        : null;
+	// Safe Service Instantiation
+	$file_service = class_exists(\Starisian\Sparxstar\Starmus\services\StarmusFileService::class)
+		? new StarmusFileService()
+		: null;
 
-    // --- 1. Audio Assets ---
-    $mastered_mp3_id = (int) get_post_meta($post_id, 'mastered_mp3', true);
-    $archival_wav_id = (int) get_post_meta($post_id, 'archival_wav', true);
-    $original_id     = (int) get_post_meta($post_id, 'audio_files_originals', true);
+	// --- 1. Audio Assets ---
+	$mastered_mp3_id = (int) get_post_meta($post_id, 'mastered_mp3', true);
+	$archival_wav_id = (int) get_post_meta($post_id, 'archival_wav', true);
+	$original_id     = (int) get_post_meta($post_id, 'audio_files_originals', true);
 
-    $get_url = function (int $att_id) use ($file_service) {
-        if ($att_id <= 0) {
-            return '';
-        }
-        try {
-            if ($file_service instanceof \Starisian\Sparxstar\Starmus\services\StarmusFileService) {
-                return $file_service->star_get_public_url($att_id);
-            }
-        } catch (\Throwable) {
-        }
-        return wp_get_attachment_url($att_id) ?: '';
-    };
+	$get_url = function (int $att_id) use ($file_service) {
+		if ($att_id <= 0) {
+			return '';
+		}
+		try {
+			if ($file_service instanceof \Starisian\Sparxstar\Starmus\services\StarmusFileService) {
+				return $file_service->star_get_public_url($att_id);
+			}
+		} catch (\Throwable) {
+		}
+		return wp_get_attachment_url($att_id) ?: '';
+	};
 
-    $mp3_url      = $get_url($mastered_mp3_id);
-    $wav_url      = $get_url($archival_wav_id);
-    $original_url = $get_url($original_id); // Assuming _audio_attachment_id is covered by audio_files_originals
-    $playback_url = $mp3_url ?: $original_url;
+	$mp3_url      = $get_url($mastered_mp3_id);
+	$wav_url      = $get_url($archival_wav_id);
+	$original_url = $get_url($original_id); // Assuming _audio_attachment_id is covered by audio_files_originals
+	$playback_url = $mp3_url ?: $original_url;
 
-    // --- 2. Telemetry & Logs ---
-    $processing_log = get_post_meta($post_id, 'processing_log', true);
-    $transcript_raw = get_post_meta($post_id, 'first_pass_transcription', true);
-    $runtime_raw    = get_post_meta($post_id, 'runtime_metadata', true);
+	// --- 2. Telemetry & Logs ---
+	$processing_log = get_post_meta($post_id, 'processing_log', true);
+	$transcript_raw = get_post_meta($post_id, 'first_pass_transcription', true);
+	$runtime_raw    = get_post_meta($post_id, 'runtime_metadata', true);
 
-    // --- 3. Robust Data Parsing (Reads Saved Blobs) ---
-    $env_json_raw = get_post_meta($post_id, 'environment_data', true);
-    $env_data     = empty($env_json_raw) ? [] : json_decode($env_json_raw, true);
+	// --- 3. Robust Data Parsing (Reads Saved Blobs) ---
+	$env_json_raw = get_post_meta($post_id, 'environment_data', true);
+	$env_data     = empty($env_json_raw) ? [] : json_decode($env_json_raw, true);
 
-    // Fallback to post_meta if UEC parsing failed to save individual fields
-    $fingerprint_display   = get_post_meta($post_id, 'device_fingerprint', true) ?: ($env_data['identifiers']['visitorId'] ?? 'N/A');
-    $submission_ip_display = get_post_meta($post_id, 'submission_ip', true) ?: ($env_data['identifiers']['ipAddress'] ?? 'Unknown');
-    $mic_profile_display   = get_post_meta($post_id, 'mic_profile', true) ?: ($env_data['technical']['profile']['overallProfile'] ?? 'N/A');
+	// Fallback to post_meta if UEC parsing failed to save individual fields
+	$fingerprint_display   = get_post_meta($post_id, 'device_fingerprint', true) ?: ($env_data['identifiers']['visitorId'] ?? 'N/A');
+	$submission_ip_display = get_post_meta($post_id, 'submission_ip', true) ?: ($env_data['identifiers']['ipAddress'] ?? 'Unknown');
+	$mic_profile_display   = get_post_meta($post_id, 'mic_profile', true) ?: ($env_data['technical']['profile']['overallProfile'] ?? 'N/A');
 
-    // Construct User Agent from saved environment JSON (Robust Fallback)
-    $ua_construct       = ($env_data['technical']['raw']['browser']['name'] ?? '') . ' ' . ($env_data['technical']['raw']['browser']['version'] ?? '') . ' (' . ($env_data['deviceDetails']['os']['name'] ?? '') . ')';
-    $user_agent_display = trim($ua_construct) ?: (get_post_meta($post_id, 'user_agent', true) ?: 'N/A');
+	// Construct User Agent from saved environment JSON (Robust Fallback)
+	$ua_construct       = ($env_data['technical']['raw']['browser']['name'] ?? '') . ' ' . ($env_data['technical']['raw']['browser']['version'] ?? '') . ' (' . ($env_data['deviceDetails']['os']['name'] ?? '') . ')';
+	$user_agent_display = trim($ua_construct) ?: (get_post_meta($post_id, 'user_agent', true) ?: 'N/A');
 
-    // Parse Transcript
-    $transcript_text = '';
-    if (! empty($transcript_raw)) {
-        $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
-        $transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
-    }
+	// Parse Transcript
+	$transcript_text = '';
+	if (! empty($transcript_raw)) {
+		$decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
+		$transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
+	}
 
-    // --- 4. Standard Metadata ---
-    $accession_number = get_post_meta($post_id, 'accession_number', true);
-    $location_data    = get_post_meta($post_id, 'location', true);
-    $project_id       = get_post_meta($post_id, 'project_collection_id', true);
+	// --- 4. Standard Metadata ---
+	$accession_number = get_post_meta($post_id, 'accession_number', true);
+	$location_data    = get_post_meta($post_id, 'location', true);
+	$project_id       = get_post_meta($post_id, 'project_collection_id', true);
 
-    $languages = get_the_terms($post_id, 'language');
-    $rec_types = get_the_terms($post_id, 'recording_type');
+	$languages = get_the_terms($post_id, 'language');
+	$rec_types = get_the_terms($post_id, 'recording_type');
 
-    // --- 5. URLs ---
-    $edit_page_slug     = $settings->get('edit_page_id', '');
-    $recorder_page_slug = $settings->get('recorder_page_id', '');
-    $edit_page_url      = $edit_page_slug ? get_permalink(get_page_by_path($edit_page_slug)) : '';
-    $recorder_page_url  = $recorder_page_slug ? get_permalink(get_page_by_path($recorder_page_slug)) : '';
-
+	// --- 5. URLs ---
+	$edit_page_slug     = $settings->get('edit_page_id', '');
+	$recorder_page_slug = $settings->get('recorder_page_id', '');
+	$edit_page_url      = $edit_page_slug ? get_permalink(get_page_by_path($edit_page_slug)) : '';
+	$recorder_page_url  = $recorder_page_slug ? get_permalink(get_page_by_path($recorder_page_slug)) : '';
 } catch (\Throwable $throwable) {
-    echo '<div class="starmus-alert starmus-alert--error"><p>Error: ' . esc_html($throwable->getMessage()) . '</p></div>';
-    return;
+	echo '<div class="starmus-alert starmus-alert--error"><p>Error: ' . esc_html($throwable->getMessage()) . '</p></div>';
+	return;
 }
 ?>
 
-<main class="starmus-admin-detail" id="starmus-detail-<?php echo esc_attr($post_id); ?>">
-	
+<main class="starmus-admin-detail" id="starmus-detail-<?php echo esc_attr((string) $post_id); ?>">
+
 	<!-- Header -->
 	<header class="starmus-detail__header">
 		<h1>
 			<span class="screen-reader-text"><?php esc_html_e('Recording Title:', 'starmus-audio-recorder'); ?></span>
 			<?php echo esc_html(get_the_title($post_id)); ?>
 		</h1>
-		
+
 		<div class="starmus-detail__meta-badges">
 			<span class="starmus-badge"><strong>ID:</strong> <?php echo intval($post_id); ?></span>
 			<span class="starmus-badge"><strong>Date:</strong> <?php echo esc_html(get_the_date('Y-m-d H:i', $post_id)); ?></span>
@@ -171,34 +171,34 @@ try {
 
 	<!-- Waveform -->
 	<?php if (! empty($waveform_data)) {
-	    $width   = 800;
-	    $height  = 100;
-	    $count   = count($waveform_data);
-	    $step    = max(1, floor($count / 800));
-	    $points  = [];
-	    $max_val = max(array_map(abs(...), $waveform_data)) ?: 1;
-	    for ($i = 0; $i < $count; $i += $step) {
-	        $val      = (float) $waveform_data[$i];
-	        $x        = ($i / $count) * $width;
-	        $y        = $height - (($val / $max_val) * $height);
-	        $points[] = sprintf('%s,%s', $x, $y);
-	    }
-	    ?>
-	<section class="starmus-detail__section sparxstar-glass-card">
-		<h2><?php esc_html_e('Waveform Data', 'starmus-audio-recorder'); ?></h2>
-		<figure class="starmus-waveform-container" style="background:#f0f0f1; border:1px solid #ddd; padding:10px; border-radius: 8px;">
-			<svg viewBox="0 0 <?php echo $width; ?> <?php echo $height; ?>" preserveAspectRatio="none" width="100%" height="<?php echo $height; ?>">
-				<polyline fill="none" stroke="#2271b1" stroke-width="1" points="<?php echo esc_attr(implode(' ', $points)); ?>" />
-			</svg>
-		</figure>
-	</section>
+		$width   = 800;
+		$height  = 100;
+		$count   = count($waveform_data);
+		$step    = max(1, floor($count / 800));
+		$points  = [];
+		$max_val = max(array_map(abs(...), $waveform_data)) ?: 1;
+		for ($i = 0; $i < $count; $i += $step) {
+			$val      = (float) $waveform_data[$i];
+			$x        = ($i / $count) * $width;
+			$y        = $height - (($val / $max_val) * $height);
+			$points[] = sprintf('%s,%s', $x, $y);
+		}
+	?>
+		<section class="starmus-detail__section sparxstar-glass-card">
+			<h2><?php esc_html_e('Waveform Data', 'starmus-audio-recorder'); ?></h2>
+			<figure class="starmus-waveform-container" style="background:#f0f0f1; border:1px solid #ddd; padding:10px; border-radius: 8px;">
+				<svg viewBox="0 0 <?php echo $width; ?> <?php echo $height; ?>" preserveAspectRatio="none" width="100%" height="<?php echo $height; ?>">
+					<polyline fill="none" stroke="#2271b1" stroke-width="1" points="<?php echo esc_attr(implode(' ', $points)); ?>" />
+				</svg>
+			</figure>
+		</section>
 	<?php } ?>
 
 	<div class="starmus-grid-layout">
-		
+
 		<!-- LEFT: Metadata -->
 		<div class="starmus-col-main">
-			
+
 			<!-- Transcription -->
 			<section class="starmus-detail__section sparxstar-glass-card">
 				<h2><?php esc_html_e('Transcription', 'starmus-audio-recorder'); ?></h2>
@@ -216,15 +216,43 @@ try {
 				<h2><?php esc_html_e('Environment & Device', 'starmus-audio-recorder'); ?></h2>
 				<table class="starmus-info-table">
 					<tbody>
-						<tr><th>IP Address</th><td><code><?php echo esc_html($submission_ip_display); ?></code></td></tr>
-						<tr><th>Fingerprint</th><td><code><?php echo esc_html($fingerprint_display); ?></code></td></tr>
-						<tr><th>Browser/OS</th><td><?php echo esc_html($user_agent_display); ?></td></tr>
-						<tr><th>Mic Profile</th><td><?php echo esc_html($mic_profile_display); ?></td></tr>
+						<tr>
+							<th>IP Address</th>
+							<td><code><?php echo esc_html($submission_ip_display); ?></code></td>
+						</tr>
+						<tr>
+							<th>Fingerprint</th>
+							<td><code><?php echo esc_html($fingerprint_display); ?></code></td>
+						</tr>
+						<tr>
+							<th>Browser/OS</th>
+							<td><?php echo esc_html($user_agent_display); ?></td>
+						</tr>
+						<tr>
+							<th>Mic Profile</th>
+							<td><?php echo esc_html($mic_profile_display); ?></td>
+						</tr>
 						<?php if (! empty($runtime_raw)) { ?>
-						<tr><th>Raw Runtime</th><td><details><summary>View JSON</summary><pre style="font-size:0.8em; white-space:pre-wrap;"><?php echo esc_html($runtime_raw); ?></pre></details></td></tr>
+							<tr>
+								<th>Raw Runtime</th>
+								<td>
+									<details>
+										<summary>View JSON</summary>
+										<pre style="font-size:0.8em; white-space:pre-wrap;"><?php echo esc_html($runtime_raw); ?></pre>
+									</details>
+								</td>
+							</tr>
 						<?php } ?>
 						<?php if (! empty($env_json_raw)) { ?>
-						<tr><th>Raw Environment</th><td><details><summary>View JSON</summary><pre style="font-size:0.8em; white-space:pre-wrap;"><?php echo esc_html($env_json_raw); ?></pre></details></td></tr>
+							<tr>
+								<th>Raw Environment</th>
+								<td>
+									<details>
+										<summary>View JSON</summary>
+										<pre style="font-size:0.8em; white-space:pre-wrap;"><?php echo esc_html($env_json_raw); ?></pre>
+									</details>
+								</td>
+							</tr>
 						<?php } ?>
 					</tbody>
 				</table>
@@ -232,14 +260,14 @@ try {
 
 			<!-- Logs -->
 			<?php if ($processing_log) { ?>
-			<section class="starmus-detail__section sparxstar-glass-card">
-				<details class="starmus-logs">
-					<summary style="cursor: pointer; font-weight: 600; color: var(--starmus-primary);">View Technical Processing Log</summary>
-					<div style="margin-top: 10px;">
-						<pre class="starmus-processing-log" style="max-height: 300px; overflow-y: auto;"><?php echo esc_html($processing_log); ?></pre>
-					</div>
-				</details>
-			</section>
+				<section class="starmus-detail__section sparxstar-glass-card">
+					<details class="starmus-logs">
+						<summary style="cursor: pointer; font-weight: 600; color: var(--starmus-primary);">View Technical Processing Log</summary>
+						<div style="margin-top: 10px;">
+							<pre class="starmus-processing-log" style="max-height: 300px; overflow-y: auto;"><?php echo esc_html($processing_log); ?></pre>
+						</div>
+					</details>
+				</section>
 			<?php } ?>
 
 		</div>

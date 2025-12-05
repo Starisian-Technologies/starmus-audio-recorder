@@ -9,10 +9,6 @@
     "wpackagist-plugin/secure-custom-fields": "^6.4"
   },
   "autoload": {
-    "files": [
-            "vendor/james-heinrich/getid3/getid3/getid3.php",
-            "vendor/james-heinrich/getid3/getid3/write.php" 
-        ],
     "psr-4": {
       "Starisian\\Sparxstar\\Starmus\\": "src/"
     }

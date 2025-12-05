@@ -22,38 +22,67 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * UNIFIED POST-PROCESSING SERVICE
- * ---------------------------------------------------------
- * Combines Transcoding, EBU R128 Normalization, ID3 Tagging,
- * and Waveform Generation into a single atomic operation.
+ * Unified audio post-processing service.
+ *
+ * This service combines multiple audio processing operations into a single atomic workflow:
+ * - Audio transcoding with FFmpeg (MP3 and WAV generation)
+ * - EBU R128 loudness normalization for broadcast standards
+ * - Adaptive frequency filtering based on network conditions
+ * - ID3 metadata tagging for proper audio file identification
+ * - Waveform data generation for visual playback interfaces
+ * - WordPress media library integration
+ *
+ * The service processes uploaded audio recordings through a comprehensive pipeline
+ * that ensures consistent quality and metadata across different network conditions
+ * while maintaining broadcast-quality standards.
  *
  * @package Starisian\Sparxstar\Starmus\services
- *
+ * @since   0.1.0
  * @version 2.0.0 (Unified)
  */
 class StarmusPostProcessingService
 {
     /**
-     * Data Access Layer instance.
+     * Data Access Layer instance for database operations.
      *
+     * Provides access to plugin configuration, FFmpeg paths, and other
+     * database-stored settings required for audio processing.
+     *
+     * @since 0.1.0
      * @var StarmusAudioRecorderDAL
      */
     private readonly StarmusAudioRecorderDAL $dal;
 
     /**
-     * Waveform service instance.
+     * Waveform generation service instance.
      *
+     * Handles the creation of visual waveform data from processed audio files
+     * for use in frontend playback interfaces and audio visualization.
+     *
+     * @since 0.1.0
      * @var StarmusWaveformService
      */
     private readonly StarmusWaveformService $waveform_service;
 
     /**
-     * ID3 service instance.
+     * ID3 metadata tagging service instance.
      *
-     * @var StarmusId3Service
+     * Manages the application of ID3 tags to processed audio files,
+     * including artist, title, album, and custom metadata fields.
+     *
+     * @since 2.0.0
+     * @var StarmusID3Service
      */
     private readonly StarmusID3Service $id3_service;
 
+    /**
+     * Initialize the post-processing service with required dependencies.
+     *
+     * Sets up the Data Access Layer, waveform generation service, and ID3 tagging service.
+     * All dependencies are marked as readonly to ensure immutability after construction.
+     *
+     * @since 0.1.0
+     */
     public function __construct()
     {
         $this->dal              = new StarmusAudioRecorderDAL();
@@ -63,13 +92,35 @@ class StarmusPostProcessingService
     }
 
     /**
-     * Main Entry Point: Process an audio recording.
+     * Main entry point for processing an audio recording.
      *
-     * @param int $post_id The 'audio-recording' Post ID.
-     * @param int $attachment_id The ID of the uploaded 'original' file.
-     * @param array $params Context parameters (network_type, bitrates, etc).
+     * Executes a comprehensive audio processing pipeline:
+     * 1. Validates source file existence and accessibility
+     * 2. Prepares output directory structure
+     * 3. Resolves FFmpeg binary path
+     * 4. Determines encoding parameters based on network conditions
+     * 5. Builds adaptive filter chain (highpass + EBU R128 normalization)
+     * 6. Performs two-pass loudness analysis and normalization
+     * 7. Transcodes to MP3 and WAV formats
+     * 8. Applies ID3 metadata tags
+     * 9. Imports processed files to WordPress media library
+     * 10. Generates waveform visualization data
+     * 11. Updates post metadata with processing results
      *
-     * @return bool True on success.
+     * The process is atomic - either all steps succeed or the entire operation fails.
+     * All operations are logged for debugging and audit purposes.
+     *
+     * @since 0.1.0
+     *
+     * @param int   $post_id       The 'audio-recording' post ID to process.
+     * @param int   $attachment_id The WordPress attachment ID of the uploaded 'original' file.
+     * @param array $params        Context parameters including:
+     *                             - network_type: '2g', '3g', '4g' for adaptive filtering
+     *                             - bitrate: Target MP3 bitrate (default: '192k')
+     *                             - samplerate: Target sample rate (default: 44100)
+     *                             - session_uuid: Unique session identifier for logging
+     *
+     * @return bool True on successful processing, false on any error.
      */
     public function process(int $post_id, int $attachment_id, array $params = []): bool
     {
@@ -238,7 +289,21 @@ class StarmusPostProcessingService
         }
     }
 
-    // The import_to_media_library method is UNCHANGED and remains here.
+    /**
+     * Import a processed audio file to WordPress media library.
+     *
+     * Creates a new attachment entry in the WordPress media library for a processed
+     * audio file, linking it to the parent recording post. Generates attachment
+     * metadata and returns the new attachment ID.
+     *
+     * @since 0.1.0
+     *
+     * @param string $filepath       Full filesystem path to the audio file to import.
+     * @param int    $parent_post_id Post ID of the parent 'audio-recording' post.
+     * @param string $mime_type      MIME type of the file ('audio/mpeg' or 'audio/wav').
+     *
+     * @return int WordPress attachment ID on success, 0 on failure.
+     */
     private function import_to_media_library(string $filepath, int $parent_post_id, string $mime_type): int
     {
         // ... (body of method unchanged)
@@ -268,7 +333,27 @@ class StarmusPostProcessingService
 
     /**
      * Build ID3 metadata payload using WordPress post data.
-     * This method is KEPT as it is the data preparation logic.
+     *
+     * Constructs a standardized array of ID3 tag data from WordPress post information.
+     * Includes title, artist, album, year, copyright, and language metadata.
+     * The payload is prepared for consumption by the ID3 tagging service.
+     *
+     * @since 0.1.0
+     *
+     * @param \WP_Post $post        WordPress post object containing recording data.
+     * @param string   $author_name Display name of the recording author.
+     * @param string   $site_name   WordPress site name for album and publisher fields.
+     * @param int      $post_id     Post ID for reference in comment field.
+     *
+     * @return array Associative array of ID3 tag data with standardized structure:
+     *               - title: Recording title from post title
+     *               - artist: Author display name
+     *               - album: Site name + " Archives"
+     *               - year: Extracted from session_date or current year
+     *               - comment: Starmus identifier with post ID
+     *               - copyright_message: Site copyright notice
+     *               - publisher: Site name
+     *               - language: Recording language from taxonomy (if available)
      */
     private function build_tag_payload(\WP_Post $post, string $author_name, string $site_name, int $post_id): array
     {

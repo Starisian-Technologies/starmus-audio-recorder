@@ -8,11 +8,11 @@ if (! \defined('ABSPATH')) {
     exit;
 }
 
-use Starisian\Sparxstar\Starmus\admin\interface\starmusSWMAdminInterface;
+use Starisian\Sparxstar\Starmus\admin\interfaces\IStarmusAdminInterface;
 use Starisian\Sparxstar\Starmus\includes\StarmusSageMakerJobRepository;
 use Starisian\Sparxstar\Starmus\integrations\StarmusSageMakerClient;
 
-final readonly class StarmusSageMakerJobQueueManager implements starmusSWMAdminInterface
+final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInterface
 {
     private StarmusSageMakerJobRepository $repository;
 
