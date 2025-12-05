@@ -86,7 +86,18 @@
     "rector": "vendor/bin/rector process",
     "rector:dry": "vendor/bin/rector process --dry-run",
     "unittest": "vendor/bin/phpunit --colors=always",
-    "makepot": "wp i18n make-pot .",
+    "makepot": [
+      "wp i18n make-pot . languages/starmus-audio-recorder.pot --domain=starmus-audio-recorder --package-name='Starmus Audio Recorder' --headers='{\"Report-Msgid-Bugs-To\":\"support@starisian.com\",\"Language-Team\":\"Starisian Technologies <support@starisian.com>\"}' --file-comment='Translation file for the Starmus Audio Recorder plugin.\\nCopyright (C) 2025 Starisian Technologies\\nThis file is distributed under the same license as the Starmus Audio Recorder plugin.'",
+      "@echo 'POT file generated successfully in languages/starmus-audio-recorder.pot'"
+    ],
+    "makepot:js": [
+      "wp i18n make-pot . languages/starmus-audio-recorder-js.pot --domain=starmus-audio-recorder --include-js --skip-php --package-name='Starmus Audio Recorder' --headers='{\"Report-Msgid-Bugs-To\":\"support@starisian.com\",\"Language-Team\":\"Starisian Technologies <support@starisian.com>\"}' --file-comment='JavaScript translation file for the Starmus Audio Recorder plugin.\\nCopyright (C) 2025 Starisian Technologies\\nThis file is distributed under the same license as the Starmus Audio Recorder plugin.'",
+      "@echo 'JavaScript POT file generated successfully in languages/starmus-audio-recorder-js.pot'"
+    ],
+    "makepot:all": [
+      "composer run makepot",
+      "composer run makepot:js"
+    ],
     "lint": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full .",
     "lint:fix": [
       "@putenv COMPOSER_PROCESS_TIMEOUT=1200",
