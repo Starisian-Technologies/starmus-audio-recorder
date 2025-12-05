@@ -128,14 +128,18 @@ if ($query->have_posts()) { ?>
 									<?php echo esc_html($duration_formatted); ?>
 								</div>
 								<span class="screen-reader-text">
-									<?php printf(esc_html__('Duration: %s', 'starmus-audio-recorder'), $duration_formatted); ?>
+									<?php
+									/* translators: %s: Formatted duration time (e.g. "2:34") */
+									printf(esc_html__('Duration: %s', 'starmus-audio-recorder'), $duration_formatted); ?>
 								</span>
 							<?php } ?>
 						</div>
 					<?php } ?>
 
 					<div class="starmus-card__actions">
-						<a href="<?php echo esc_url(get_permalink($current_post_id)); ?>" class="starmus-btn starmus-btn--outline" aria-label="<?php echo esc_attr(sprintf(__('View details for %s', 'starmus-audio-recorder'), $post_title)); ?>">
+						<a href="<?php echo esc_url(get_permalink($current_post_id)); ?>" class="starmus-btn starmus-btn--outline" aria-label="<?php
+																																				/* translators: %s: Recording title/name */
+																																				echo esc_attr(sprintf(__('View details for %s', 'starmus-audio-recorder'), $post_title)); ?>">
 							<?php esc_html_e('View Details', 'starmus-audio-recorder'); ?>
 						</a>
 
@@ -145,7 +149,9 @@ if ($query->have_posts()) { ?>
 							$edit_link = add_query_arg('recording_id', $current_post_id, $edit_page_url);
 							$secure_edit_link            = wp_nonce_url($edit_link, 'starmus_edit_audio_' . $current_post_id, 'nonce');
 							?>
-							<a href="<?php echo esc_url($secure_edit_link); ?>" class="starmus-btn starmus-btn--primary" aria-label="<?php echo esc_attr(sprintf(__('Edit audio for %s', 'starmus-audio-recorder'), $post_title)); ?>">
+							<a href="<?php echo esc_url($secure_edit_link); ?>" class="starmus-btn starmus-btn--primary" aria-label="<?php
+																																		/* translators: %s: Recording title/name */
+																																		echo esc_attr(sprintf(__('Edit audio for %s', 'starmus-audio-recorder'), $post_title)); ?>">
 								<?php esc_html_e('Edit Audio', 'starmus-audio-recorder'); ?>
 							</a>
 						<?php } ?>

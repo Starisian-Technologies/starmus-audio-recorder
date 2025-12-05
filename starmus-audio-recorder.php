@@ -192,6 +192,11 @@ add_action('acf/init', 'starmus_acf_json_integration');
 // =========================================================================
 //  5. MAIN PLUGIN INITIALIZATION
 // =========================================================================
+
+// Initialize multi-language support
+require_once __DIR__ . '/src/i18n/Starmusi18NLanguage.php';
+new \Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage();
+
 /**
  * Initialize and run the main plugin application.
  *
