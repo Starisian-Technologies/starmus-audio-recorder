@@ -1,0 +1,44 @@
+# Example French translation template
+# Copy this file to create new translations
+# 
+# Steps to create a new translation:
+# 1. Copy this file to: starmus-audio-recorder-{locale}.po
+#    Example: starmus-audio-recorder-fr_FR.po for French (France)
+# 2. Update the header information below
+# 3. Translate all the msgid strings to your target language
+# 4. Generate the binary .mo file: msgfmt -o starmus-audio-recorder-fr_FR.mo starmus-audio-recorder-fr_FR.po
+#
+# For more information about WordPress translations:
+# https://developer.wordpress.org/plugins/internationalization/
+
+msgid ""
+msgstr ""
+"Project-Id-Version: Starmus Audio Recorder\n"
+"Report-Msgid-Bugs-To: support@starisian.com\n"
+"Language-Team: Starisian Technologies <support@starisian.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-12-05 00:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+# Example translations (replace with actual strings from your POT file)
+#: src/frontend/StarmusAudioRecorderUI.php:123
+msgid "Start Recording"
+msgstr ""
+
+#: src/frontend/StarmusAudioRecorderUI.php:124
+msgid "Stop Recording"
+msgstr ""
+
+#: src/frontend/StarmusAudioRecorderUI.php:125
+msgid "Recording..."
+msgstr ""
+
+#: src/i18n/Starmusi18NLanguage.php:135
+msgid "Save Settings"
+msgstr ""
+
+# Add your translations here following the same format
