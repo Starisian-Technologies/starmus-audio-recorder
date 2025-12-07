@@ -17,7 +17,7 @@ if (!\defined('ABSPATH')) {
  *
  * @since   0.8.0
  *
- * @version 1.0.0
+ * @version 0.9.1
  */
 final class StarPrefixSlugService
 {

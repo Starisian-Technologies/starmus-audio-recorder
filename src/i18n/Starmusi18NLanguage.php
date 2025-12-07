@@ -7,7 +7,7 @@
  * including text domain loading, translation management, and JavaScript localization strings.
  *
  * @package   Starisian\Sparxstar\Starmus\i18n
- * @version   1.0.0
+ * @version 0.9.1
  * @since     1.0.0
  * @author    Starisian Technologies <Max Barrett - support@starisian.com>
  * @copyright 2025 Starisian Technologies

@@ -12,7 +12,7 @@
  *
  * @package Starmus
  *
- * @version 3.1.0
+ * @version 0.9.1
  */
 
 namespace Starisian\Sparxstar\Starmus\core;

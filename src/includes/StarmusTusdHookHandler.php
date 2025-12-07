@@ -8,7 +8,7 @@
  *
  * @package   Starisian\Sparxstar\Starmus\includes
  *
- * @version   1.0.0
+ * @version 0.9.1
  */
 
 namespace Starisian\Sparxstar\Starmus\includes;

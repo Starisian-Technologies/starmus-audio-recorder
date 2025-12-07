@@ -38,7 +38,7 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
  *
  * @package Starisian\Sparxstar\Starmus\services
  * @since   0.1.0
- * @version 2.0.0 (Unified)
+ * @version 0.9.1 (Unified)
  */
 class StarmusPostProcessingService
 {

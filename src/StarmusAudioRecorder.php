@@ -10,7 +10,7 @@
  *
  * @since     0.1.0
  *
- * @version 0.8.5
+ * @version 0.9.1
  */
 
 namespace Starisian\Sparxstar\Starmus;

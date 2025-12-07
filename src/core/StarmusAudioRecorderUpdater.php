@@ -9,7 +9,7 @@ namespace Starisian\Sparxstar\Starmus\core;
  *
  * @package     Starmus\core
  *
- * @version 0.8.5
+ * @version 0.9.1
  *
  * @since       0.7.2
  */

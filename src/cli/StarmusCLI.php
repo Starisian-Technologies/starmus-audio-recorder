@@ -7,7 +7,7 @@
  *
  * @package Starisian\Sparxstar\Starmus\cli
  *
- * @version 0.8.5
+ * @version 0.9.1
  */
 
 namespace Starisian\Sparxstar\Starmus\cli;

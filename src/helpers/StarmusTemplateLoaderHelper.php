@@ -5,7 +5,7 @@
  *
  * @package Starisian\Sparxstar\Starmus\helpers
  *
- * @version 0.8.5
+ * @version 0.9.1
  *
  * @since 0.7.4
  */

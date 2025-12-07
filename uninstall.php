@@ -4,7 +4,7 @@
  * Fired when the plugin is uninstalled.
  *
  * @package Starmus
- * @version 0.8.5
+ * @version 0.9.1
  * @since 0.3.1
  */
 
