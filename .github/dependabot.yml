@@ -1,34 +1,48 @@
 version: 2
 registries: {}
 updates:
-  # Only monitor root composer.json dependencies (not bundled plugins)
+  # Only monitor production composer dependencies
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     allow:
-      - dependency-type: "all"
+      # Only production dependencies, not dev
+      - dependency-type: "production"
     ignore:
       # Bundled SCF plugin - managed separately
       - dependency-name: "secure-custom-fields/*"
       - dependency-name: "wpackagist-plugin/*"
+      # WordPress core and common dev tools
+      - dependency-name: "wordpress/*"
+      - dependency-name: "wp-cli/*"
+      - dependency-name: "phpunit/*"
+      - dependency-name: "squizlabs/*"
+      - dependency-name: "dealerdirect/*"
     commit-message:
       prefix: "chore"
       include: "scope"
-    insecure-external-code-execution: allow
     reviewers:
       - MaximillianGroup
 
-  # Only monitor root package.json dependencies
+  # Only monitor production npm dependencies  
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     allow:
-      - dependency-type: "all"
+      # Only production dependencies, not dev
+      - dependency-type: "production"
+    ignore:
+      # Development and build tools
+      - dependency-name: "eslint*"
+      - dependency-name: "prettier*"
+      - dependency-name: "stylelint*"
+      - dependency-name: "@playwright/*"
+      - dependency-name: "rollup*"
+      - dependency-name: "postcss*"
     commit-message:
       prefix: "chore"
       include: "scope"
-    insecure-external-code-execution: allow

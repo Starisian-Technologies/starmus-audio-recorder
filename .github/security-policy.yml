@@ -1,0 +1,55 @@
+# GitHub Advanced Security Policy
+# Controls what gets flagged in security alerts and dependency review
+
+# Dependency Review Configuration
+dependency_review:
+  # Only fail on high/critical severity issues in production dependencies
+  fail_on_severity: high
+  
+  # Exclude development dependencies from blocking PRs
+  allow_dependencies_licenses: 
+    - "MIT"
+    - "Apache-2.0"
+    - "BSD-2-Clause"
+    - "BSD-3-Clause"
+    - "ISC"
+    - "GPL-2.0"
+    - "GPL-3.0"
+    - "LGPL-2.1"
+    - "LGPL-3.0"
+    
+  # Don't block on dev dependencies
+  exclude_scopes:
+    - "devDependencies"
+    - "require-dev"
+
+# Code Scanning Configuration  
+code_scanning:
+  # Only scan source code we control
+  paths:
+    - "src/**"
+    - "*.php"
+    - "!vendor/**"
+    - "!node_modules/**"
+    - "!wordpress-installer/**"
+    
+  # Exclude common false positives
+  exclude_paths:
+    - "**/*.min.js"
+    - "**/*.min.css"
+    - "assets/js/vendor/**"
+    - "libraries/**"
+    - "tests/test-mocks/**"
+
+# Secret Scanning
+secret_scanning:
+  # Enable for all branches
+  enabled: true
+  
+  # Custom patterns for WordPress/PHP secrets
+  custom_patterns:
+    - name: "WordPress Security Keys"
+      pattern: "(?i)(AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|NONCE_KEY|AUTH_SALT|SECURE_AUTH_SALT|LOGGED_IN_SALT|NONCE_SALT).*['\"]([a-zA-Z0-9!@#$%^&*()_+{}|:<>?\\-=\\[\\];'\"\\\\,./`~]{64})['\"]"
+      
+    - name: "Database Credentials"  
+      pattern: "(?i)(DB_PASSWORD|DATABASE_PASSWORD).*['\"]([^'\"\\s]{8,})['\"]"

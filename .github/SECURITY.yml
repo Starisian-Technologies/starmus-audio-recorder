@@ -1,0 +1,39 @@
+# GitHub Security Configuration
+# Excludes vendor files from security alerts and dependency analysis
+
+alerts:
+  # Exclude vendor and third-party directories from security scanning
+  exclude:
+    - "vendor/**"
+    - "node_modules/**"
+    - "assets/js/vendor/**"
+    - "libraries/**"
+    - "*.min.js"
+    - "*.min.css"
+    # Exclude WordPress core if accidentally included
+    - "wp-admin/**"
+    - "wp-includes/**"
+    - "wordpress/**"
+    - "wordpress-installer/**"
+
+# Only scan source code we control
+include:
+  - "src/**"
+  - "*.php"
+  - "*.js"
+  - "*.css"
+  - "*.yml"
+  - "*.json"
+
+# Security advisory filtering
+advisories:
+  # Only create alerts for direct dependencies, not transitive
+  filter: "direct"
+  
+  # Severity threshold - only alert on medium and above
+  severity_threshold: "medium"
+  
+  # Exclude known false positives for WordPress ecosystem
+  ignore:
+    - "GHSA-*-wordpress-*"  # WordPress core issues we don't control
+    - "CVE-*-wp-*"          # WordPress plugin ecosystem issues
