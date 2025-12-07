@@ -25,15 +25,41 @@ examples/
 # Build artifacts and dev dependencies
 build/
 node_modules/
+pnpm-lock.yaml
+package-lock.json
+composer.lock
+
+# Exclude dev-only vendor packages (keep production packages)
 vendor/automattic/
 vendor/dealerdirect/
 vendor/friendsofphp/
 vendor/squizlabs/
 vendor/phpunit/
+vendor/sebastian/
+vendor/phpstan/
+vendor/phpcsstandards/
+vendor/phpcompatibility/
+vendor/php-stubs/
+vendor/phar-io/
+vendor/nikic/
+vendor/myclabs/
+vendor/mck89/
+vendor/gettext/
+vendor/fidry/
+vendor/evenement/
+vendor/eftec/
+vendor/clue/
+vendor/wp-coding-standards/
+vendor/wp-cli/
+vendor/theseer/
+vendor/szepeviktor/
+vendor/symfony/
+vendor/staabm/
+vendor/sirbrillig/
+vendor/rector/
+vendor/react/
+vendor/psr/
 vendor/bin/
-pnpm-lock.yaml
-package-lock.json
-composer.lock
 
 # Development configs (keep essential, exclude dev-only)
 build-starmus.js
