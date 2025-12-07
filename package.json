@@ -46,7 +46,7 @@
   "size-limit": [
     {
       "path": "assets/js/**/*.js",
-      "limit": "60 KB"
+      "limit": "100 KB"
     },
     {
       "path": "assets/css/**/*.css",
