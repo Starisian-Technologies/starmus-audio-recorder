@@ -7,13 +7,14 @@
  * including text domain loading, translation management, and JavaScript localization strings.
  *
  * @package   Starisian\Sparxstar\Starmus\i18n
-<<<<<<< HEAD
- * @version 0.9.2
-=======
+ * <<<<<<< HEAD
  *
  * @version 0.9.2
+ * =======
+ * @version 0.9.2
  *
->>>>>>> 1098d442 (fix: Use working auto-fixers in GitHub workflows)
+ * >>>>>>> 1098d442 (fix: Use working auto-fixers in GitHub workflows)
+ *
  * @since     1.0.0
  *
  * @author    Starisian Technologies <Max Barrett - support@starisian.com>

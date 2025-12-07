@@ -128,7 +128,6 @@ This plugin relies on the following excellent open-source libraries, which shoul
 
 - **tus-js-client:** For resumable file uploads.
 - **Peaks.js:** For the audio annotation editor.
-- **Recorder.js:** Used as a fallback for browsers that lack `MediaRecorder`.
 
 ### Core Hooks
 

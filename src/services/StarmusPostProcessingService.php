@@ -38,12 +38,12 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
  * @package Starisian\Sparxstar\Starmus\services
  *
  * @since   0.1.0
-<<<<<<< HEAD
- * @version 0.9.2 (Unified)
-=======
+ * <<<<<<< HEAD
  *
  * @version 0.9.2 (Unified)
->>>>>>> 1098d442 (fix: Use working auto-fixers in GitHub workflows)
+ * =======
+ * @version 0.9.2 (Unified)
+ * >>>>>>> 1098d442 (fix: Use working auto-fixers in GitHub workflows)
  */
 class StarmusPostProcessingService
 {
