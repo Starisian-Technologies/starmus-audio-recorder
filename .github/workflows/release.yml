@@ -19,13 +19,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.WORKFLOW_PAT }}
 
-      # Step 2: Configure Git for commits.
+      # Step 2: Set up Git for local operations only
       - name: Set up Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "🔧 Git configured for local operations (no push to protected branch)"
 
       # Step 3: Get the version number from the tag.
       - name: Get the version from the tag
@@ -43,19 +43,14 @@ jobs:
           # Update @version tags in source PHP files only
           find src/ -type f -name "*.php" -print0 | xargs -0 sed -i "s/@version\s\+[0-9.]\+/@version ${{ env.VERSION }}/g"
 
-      # Step 5: Commit version changes and update the tag.
-      - name: Commit version bump and update tag
+      # Step 5: Prepare version changes (no commit to protected branch)
+      - name: Prepare version changes for release build
         run: |
-          git add -A
-          if ! git diff --staged --quiet; then
-            git commit -m "chore(release): Bump version to ${{ env.VERSION }}"
-            DEFAULT_BRANCH=${{ github.event.repository.default_branch }}
-            git push origin HEAD:"refs/heads/$DEFAULT_BRANCH"
-            git tag -f $GITHUB_REF_NAME
-            git push origin $GITHUB_REF_NAME --force
-          else
-            echo "No version changes to commit."
-          fi
+          echo "📝 Version changes prepared for release build:"
+          git diff --stat || echo "No version changes detected"
+          echo "⚠️  Version changes are applied only to the build artifacts"
+          echo "🔒 Protected branch prevents automatic version commits"
+          echo "💡 Consider updating versions manually before tagging releases"
 
       # Step 6: Verify plugin entrypoint exists.
       - name: Verify plugin entrypoint
@@ -113,10 +108,20 @@ jobs:
         run: |
           SLUG="starmus-audio-recorder"
           VERSION=${{ env.VERSION }}
+          echo "🏗️ Building release ZIP with version $VERSION"
+          
+          # Verify version was applied to files
+          echo "📋 Verifying version numbers in key files:"
+          grep -n "Version:" starmus-audio-recorder.php || echo "⚠️ Plugin header version not found"
+          grep -n "STARMUS_VERSION" starmus-audio-recorder.php || echo "⚠️ Version constant not found"
+          grep -n "\"version\"" package.json || echo "⚠️ Package version not found"
+          
           rm -rf build
           mkdir -p build
           rsync -a --exclude-from=.distignore ./ build/${SLUG}/
           (cd build && zip -r "../${SLUG}-${VERSION}.zip" "${SLUG}")
+          
+          echo "📦 Release ZIP created: ${SLUG}-${VERSION}.zip"
 
       # NEW STEP: Ensure vendor exists and is packaged
       - name: Ensure vendor directory is preserved for ZIP
