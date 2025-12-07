@@ -221,8 +221,11 @@ class StarmusTranscript {
 }
 
 // Export for module bundlers or attach to window for global access
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = StarmusTranscript;
-} else {
+if (typeof window !== 'undefined') {
   window.StarmusTranscript = StarmusTranscript;
+}
+
+// Support CommonJS exports in Node.js environments  
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+  module.exports = StarmusTranscript;
 }

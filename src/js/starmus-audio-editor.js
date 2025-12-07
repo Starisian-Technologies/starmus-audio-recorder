@@ -253,14 +253,25 @@
         typeof StarmusTranscript !== 'undefined' &&
         document.getElementById('starmus-transcript-panel')
       ) {
-        // TODO: In production, fetch transcript from post meta:
-        // const transcriptData = STARMUS_EDITOR_DATA.transcript || mockTranscriptData;
+        // Check for real transcript data first, use mock data as fallback
+        const transcriptData = (
+          typeof STARMUS_EDITOR_DATA !== 'undefined' && 
+          STARMUS_EDITOR_DATA.transcript
+        ) ? STARMUS_EDITOR_DATA.transcript : mockTranscriptData;
+        
         transcriptController = new StarmusTranscript(
           peaks,
           'starmus-transcript-panel',
-          mockTranscriptData
+          transcriptData
         );
+        // Note: transcriptController sets up its own event listeners and is self-managing
+        // Store reference for potential future cleanup or API access
         console.log('Starmus Linguistic Engine: Online');
+        
+        // Optional: Provide access for debugging/testing
+        if (window.STARMUS_DEBUG) {
+          window.StarmusTranscriptInstance = transcriptController;
+        }
       }
 
       // --- Time Display ---

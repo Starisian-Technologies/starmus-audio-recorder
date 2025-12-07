@@ -34,6 +34,7 @@ export default [
       sourceType: "module",
       globals: {
         ...globals.browser,
+        ...globals.node,
         ...globals.jquery,
         fetch: "readonly",
         Audio: "readonly",
@@ -46,6 +47,7 @@ export default [
         STARMUS_EDITOR_DATA: "readonly",
         STARMUS_RECORDER_DATA: "readonly",
         StarmusAudioRecorder: "readonly",
+        StarmusTranscript: "readonly",
       },
     },
     rules: {

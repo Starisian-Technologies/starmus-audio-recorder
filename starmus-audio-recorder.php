@@ -37,7 +37,7 @@ if (defined('STARMUS_LOADED')) {
 define('STARMUS_LOADED', true);
 
 /** @var string Current plugin version */
-define('STARMUS_VERSION', '0.8.5');
+define('STARMUS_VERSION', '0.9.2');
 
 /** @var string Main plugin file path */
 define('STARMUS_MAIN_FILE', __FILE__);
