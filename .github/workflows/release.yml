@@ -16,8 +16,7 @@ jobs:
     steps:
       # Step 1: Check out the repository's code.
       - name: Checkout
-        # v4.1.6 commit pin prevents release automation from using mutable checkout code.
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.WORKFLOW_PAT }}
@@ -66,7 +65,7 @@ jobs:
 
       # Step 7: Set up PHP and install Composer dependencies.
       - name: Set up PHP
-        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4
+        uses: shivammathur/setup-php@v2
         with:
           php-version: "8.3"
           tools: composer:v2
@@ -76,12 +75,12 @@ jobs:
 
       # Step 8: Set up Node.js and build frontend assets.
       - name: Setup pnpm
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+        uses: pnpm/action-setup@v4
         with:
           version: 8
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6.0.0
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
           cache: "pnpm"
@@ -129,7 +128,7 @@ jobs:
 
       # Step 11: Create GitHub Release
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             starmus-audio-recorder-${{ env.VERSION }}.zip

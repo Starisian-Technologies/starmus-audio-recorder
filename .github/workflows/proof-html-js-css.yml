@@ -33,12 +33,12 @@ jobs:
         uses: actions/checkout@5a4ac9002afc2a3b8d9a0e327669c9fe749ac181
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+        uses: pnpm/action-setup@v4
         with:
           version: 8
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6.0.0
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
           cache: "pnpm"
@@ -55,14 +55,9 @@ jobs:
         run: pnpm exec stylelint "src/css/**/*.css"
 
       - name: Proof HTML files
-        # This action checks for issues like broken links, invalid tags, etc.
-        uses: anishathalye/proof-html@121673da047796671cf7391fdeee2d8c7b911f8c
+        uses: anishathalye/proof-html@v2
         with:
-          # Tell the proofer which directory to scan for HTML files.
-          # You can change this to '.' to scan the whole repository.
-          directory: "./templates"
-          # Optional: Add flags to ignore certain checks if needed.
-          # options: '--disable-external'
+          directory: "./src/templates"
 
   ################################################################
   # JOB 2: AUTO-FIXER (The "Helper Bot")
@@ -80,19 +75,17 @@ jobs:
 
     steps:
       - name: Checkout code
-        # v4.1.6 commit pin prevents tampering with checkout action.
-        uses: actions/checkout@5a4ac9002afc2a3b8d9a0e327669c9fe749ac181
-        # CRITICAL: Check out the actual branch of the pull request.
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+        uses: pnpm/action-setup@v4
         with:
           version: 8
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6.0.0
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
           cache: "pnpm"
@@ -109,7 +102,7 @@ jobs:
       - name: Commit and push fixes
         # This dedicated action is the most reliable way to commit changes.
         # It will only create a commit if the --fix command actually changed files.
-        uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-fix JS/CSS lint issues"
           branch: ${{ github.head_ref }}
