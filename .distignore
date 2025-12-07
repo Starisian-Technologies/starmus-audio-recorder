@@ -1,71 +1,87 @@
-# Development files
+# Development and testing files
 wp-admin/
+wp-content/
+wp-includes/
+wordpress/
+wordpress-installer/
 tests/
+test-results/
 docs/
 scripts/
 tools/
+bin/
 .github/
 .phpdoc/
 .vscode/
-.devcontainer
+.devcontainer/
 playwright-report/
-test-results/
 test.js
-scripts/
+examples/
 
-
-# WordPress Dev-Related
-wp-admin/
-wp-content/
-wp-plugins/
-wordpress/
+# WordPress Dev Environment  
 .wp-env/
 .wp-env.json
 
-# Build files
+# Build artifacts and dev dependencies
 build/
 node_modules/
-package*.json
+vendor/automattic/
+vendor/dealerdirect/
+vendor/friendsofphp/
+vendor/squizlabs/
+vendor/phpunit/
+vendor/bin/
+pnpm-lock.yaml
+package-lock.json
+composer.lock
+
+# Development configs (keep essential, exclude dev-only)
 build-starmus.js
+build-starmus.cjs
 sync-version.js
-validate-build.js
+validate-build.cjs
 postcss.config.cjs
 eslint.config.js
+eslintrc.cjs
 stylelint.config.js
 playwright.config.js
 phpunit*.xml*
 phpcs.xml*
 phpstan.neon*
-*.tgz
-
-# Config files
-.git/
+rector.php
+markdownlint.json
+.prettierrc.json
 .editorconfig
 .gitignore
 .gitattributes
 .distignore
 .prettierignore
 .stylelintcache
-.wp-env.json
-.markdownlint.js
+.eslintcache
 .commitlintrc.js
-markdownlint.json
-prettierrc.json
 gl-codequality.yml
-*.yml
-*.xml
-*.cjs
-*.mjs
-*.dist
+rollup.config.mjs
+roll-up.config.mjs
 
-# Documentation
+# Source control
+.git/
+
+# Documentation (keep README.md, LICENSE.md)
 CHANGELOG.md
 ARCHITECTURE.md
 INSTRUCTIONS.md
 TESTING.md
 WORKSPACE.md
 AGENTS.md
-
-# Composer dev dependencies
-composer.lock
-auth.json*
+MAINTAINERS.md
+SUPPORT.md
+TERMS.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+SECURITY-FIXES.md
+DEV-TOOLS.md
+DIAGNOSTIC.md
+DOCUMENTATION.md
+FEATURE-AUDIT.md
+*.dist
+*.bak

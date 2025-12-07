@@ -35,13 +35,13 @@ jobs:
       # Step 4: Update version numbers in all files.
       - name: Update version numbers
         run: |
-          # Update package.json
-          sed -i -E 's/("version":\s*").*(")/'\\1'${{ env.VERSION }}'\\2'/' package.json
+          # Update package.json version
+          sed -i -E 's/("version":\s*").*(")/\1'${{ env.VERSION }}'\2/' package.json
           # Update plugin header version
-          sed -i -E "s/^(\\s*\\* Version:\\s*).*/\\1${{ env.VERSION }}/" starmus-audio-recorder.php
+          sed -i -E "s/^(\s*\* Version:\s*).*/\1${{ env.VERSION }}/" starmus-audio-recorder.php
           sed -i "s/define( 'STARMUS_VERSION', '[^']*' );/define( 'STARMUS_VERSION', '${{ env.VERSION }}' );/" starmus-audio-recorder.php
-          # Update @version tags in PHP files
-          find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 sed -i "s/@version\\s\\+[0-9.]\\+/@version ${{ env.VERSION }}/g"
+          # Update @version tags in source PHP files only
+          find src/ -type f -name "*.php" -print0 | xargs -0 sed -i "s/@version\s\+[0-9.]\+/@version ${{ env.VERSION }}/g"
 
       # Step 5: Commit version changes and update the tag.
       - name: Commit version bump and update tag
@@ -92,13 +92,23 @@ jobs:
         run: |
           test -f assets/js/starmus-audio-recorder-script.bundle.min.js || { echo "Missing ES module bundle"; exit 1; }
           test -f assets/css/starmus-audio-recorder-styles.min.css || { echo "Missing bundled CSS"; exit 1; }
-          test -f vendor/js/peaks.min.js || { echo "Missing Peaks.js"; exit 1; }
-          test -f vendor/js/tus.min.js || { echo "Missing tus.js"; exit 1; }
-
+          test -f assets/build-hash.txt || { echo "Missing build hash"; exit 1; }
+          echo "✅ All required build artifacts present"
 
       # Step 9: Build the distributable plugin ZIP file.
       - name: Ensure .distignore exists
         run: test -f .distignore || { echo ".distignore is missing"; exit 1; }
+      
+      - name: Verify production files are ready
+        run: |
+          echo "🔍 Verifying production-ready files..."
+          test -d src/ || { echo "❌ Missing src/ directory"; exit 1; }
+          test -f starmus-audio-recorder.php || { echo "❌ Missing plugin main file"; exit 1; }
+          test -f assets/js/starmus-audio-recorder-script.bundle.min.js || { echo "❌ Missing bundled JS"; exit 1; }
+          test -f assets/css/starmus-audio-recorder-styles.min.css || { echo "❌ Missing bundled CSS"; exit 1; }
+          test -d vendor/autoload.php || { echo "❌ Missing Composer autoloader"; exit 1; }
+          echo "✅ All production files verified"
+          
       - name: Build plugin ZIP
         run: |
           SLUG="starmus-audio-recorder"
