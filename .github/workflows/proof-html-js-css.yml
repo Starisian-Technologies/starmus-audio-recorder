@@ -93,11 +93,39 @@ jobs:
           pnpm exec eslint "src/js/**/*.js" --fix || true
           pnpm exec stylelint "src/css/**/*.css" --fix || true
 
-      - name: Commit and push fixes
-        # This dedicated action is the most reliable way to commit changes.
-        # It will only create a commit if the --fix command actually changed files.
+      - name: Check for auto-fixable changes
+        id: check-changes
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "📝 No auto-fixable changes detected"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "📝 Auto-fixable changes detected:"
+            git diff --stat
+          fi
+
+      - name: Commit and push fixes (PR only)
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-fix JS/CSS lint issues"
           branch: ${{ github.head_ref }}
           file_pattern: "src/js/**/*.js src/css/**/*.css"
+        if: github.event_name == 'pull_request' && steps.check-changes.outputs.changed == 'true'
+
+      - name: Upload fixes as artifact (protected branch)
+        if: github.event_name != 'pull_request' && steps.check-changes.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-fixes
+          path: |
+            src/js/**/*.js
+            src/css/**/*.css
+          retention-days: 7
+
+      - name: Branch protection notice
+        if: github.event_name != 'pull_request' && steps.check-changes.outputs.changed == 'true'
+        run: |
+          echo "⚠️  Auto-fixes available but cannot commit to protected branch"
+          echo "📦 Fixed files uploaded as workflow artifact"
+          echo "📝 Download artifact or run 'npm run fix' locally and commit manually"

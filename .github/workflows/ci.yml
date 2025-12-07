@@ -68,12 +68,31 @@ jobs:
           composer run analyze
           echo "✅ Static analysis complete"
 
-      - name: Commit fixes
+      - name: Check for auto-fixable changes
+        id: check-changes
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "📝 No auto-fixable changes detected"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "📝 Auto-fixable changes detected:"
+            git diff --stat
+          fi
+
+      - name: Commit fixes (PR only)
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style: auto-fix linting issues"
           branch: ${{ github.head_ref }}
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.check-changes.outputs.changed == 'true'
+
+      - name: Branch protection notice
+        if: github.event_name != 'pull_request' && steps.check-changes.outputs.changed == 'true'
+        run: |
+          echo "⚠️  Auto-fixable changes detected but cannot auto-commit to protected branch"
+          echo "📝 Run 'npm run fix' locally and commit manually"
+          echo "🔒 Branch protection rules prevent direct commits to main"
 
       - name: Start WordPress test environment
         run: pnpm run env:start
