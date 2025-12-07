@@ -7,6 +7,7 @@ declare(strict_types=1);
  *
  * @package Starisian\Sparxstar\Starmus\api
  */
+
 namespace Starisian\Sparxstar\Starmus\api;
 
 if (! \defined('ABSPATH')) {
@@ -119,7 +120,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'POST',
                 'callback'            => $this->handle_fallback_upload(...),
-                'permission_callback' => static fn () => current_user_can('upload_files'),
+                'permission_callback' => static fn() => current_user_can('upload_files'),
             ]
         );
 
@@ -129,7 +130,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'POST',
                 'callback'            => $this->handle_chunk_upload(...),
-                'permission_callback' => static fn () => current_user_can('upload_files'),
+                'permission_callback' => static fn() => current_user_can('upload_files'),
             ]
         );
 
@@ -139,7 +140,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'GET',
                 'callback'            => $this->handle_status(...),
-                'permission_callback' => static fn () => current_user_can('upload_files'),
+                'permission_callback' => static fn() => current_user_can('upload_files'),
                 'args'                => [
                     'id' => [
                         'validate_callback' => 'is_numeric',
@@ -202,12 +203,9 @@ final readonly class StarmusRESTHandler
                 return $result;
             }
 
-            // CRITICAL FIX START: Safely handle if $result is an array (expected) or a WP_REST_Response object (current error cause).
+            // CRITICAL FIX START: $result is array|WP_Error from handle_fallback_upload_rest()
+            // No need to check instanceof WP_REST_Response since method doesn't return that type
             $response_data = $result;
-            if ($result instanceof WP_REST_Response) {
-                // If the submission handler returned an object, get its data array.
-                $response_data = $result->get_data();
-            }
 
             // We expect the final structure to contain a 'data' key with submission details.
             $submission_data = $response_data['data'] ?? [];

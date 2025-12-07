@@ -5,7 +5,9 @@
  *
  * @package Starisian\Sparxstar\Starmus\admin\widgets
  */
-namespace Starisiam\Sparxstar\Starmus\admin\widgets;
+
+namespace Starisian\Sparxstar\Starmus\admin\widgets;
+
 
 if (! \defined('ABSPATH')) {
     exit;
@@ -14,6 +16,7 @@ if (! \defined('ABSPATH')) {
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\services\StarmusStatsDataService;
 use Throwable;
+use Exception;
 
 /**
  * Dashboard Widgets for AIWA Workflow
@@ -39,8 +42,8 @@ class StarmusAdminWidgets
             StarmusLogger::log(
                 'StarmusAdminWidgets::__construct() failed: ' . $e->getMessage(),
                 [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
                 ]
             );
         }
@@ -57,8 +60,8 @@ class StarmusAdminWidgets
             StarmusLogger::log(
                 'StarmusAdminWidgets::register_hooks() failed: ' . $e->getMessage(),
                 [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
                 ]
             );
         }
@@ -80,8 +83,8 @@ class StarmusAdminWidgets
             StarmusLogger::log(
                 'StarmusAdminWidgets::register_widgets() failed: ' . $e->getMessage(),
                 [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
                 ]
             );
         }
@@ -152,8 +155,8 @@ class StarmusAdminWidgets
             StarmusLogger::log(
                 'StarmusAdminWidgets::render_jobs_widget() failed: ' . $e->getMessage(),
                 [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
                 ]
             );
             echo '<p>' . esc_html__('Unable to load job data.', 'starmus-audio-recorder') . '</p>';
@@ -215,8 +218,8 @@ class StarmusAdminWidgets
             StarmusLogger::log(
                 'StarmusAdminWidgets::enqueue_jobs_widget_script() failed: ' . $e->getMessage(),
                 [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
                 ]
             );
         }

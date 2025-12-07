@@ -1,0 +1,661 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^If condition is always false\.$#'
+			identifier: if.alwaysFalse
+			count: 1
+			path: src/StarmusAudioRecorder.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\StarmusAudioRecorder\:\:__serialize\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/StarmusAudioRecorder.php
+
+		-
+			message: '#^Property Starisian\\Sparxstar\\Starmus\\admin\\widgets\\StarmusAdminWidgets\:\:\$data_service is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/admin/widgets/StarmusAdminWidgets.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 1
+			path: src/core/StarmusAssetLoader.php
+
+		-
+			message: '#^Call to function is_wp_error\(\) with int\<0, max\> will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: src/core/StarmusAudioRecorderDAL.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\:\:get_post_info\(\) never returns array\{id\: int, title\: string, type\: string, status\: string\} so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/core/StarmusAudioRecorderDAL.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\:\:get_post_info\(\) should return array\{id\: int, title\: string, type\: string, status\: string\}\|null but returns array\{status\: non\-falsy\-string, type\: string\|false\}\.$#'
+			identifier: return.type
+			count: 1
+			path: src/core/StarmusAudioRecorderDAL.php
+
+		-
+			message: '#^Offset ''type'' on array\{ext\: string\|false, type\: string\|false\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/core/StarmusAudioRecorderDAL.php
+
+		-
+			message: '#^PHPDoc tag @implements has invalid value \(StarmusAudioRecorderDALInterface\)\: Unexpected token "\\n ", expected ''\<'' at offset 951 on line 25$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/core/StarmusAudioRecorderDAL.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\core\\StarmusSettings\:\:filter_filetype_and_ext\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/core/StarmusSettings.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\core\\StarmusSettings\:\:filter_upload_mimes\(\) has parameter \$mimes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/core/StarmusSettings.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\core\\StarmusSettings\:\:filter_upload_mimes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/core/StarmusSettings.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\core\\StarmusSettings\:\:get_allowed_mimes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/core/StarmusSettings.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\core\\StarmusSettings\:\:starmus_get_option\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: src/core/StarmusSettings.php
+
+		-
+			message: '#^Parameter \#4 \$autoload of function add_option expects bool\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/core/StarmusSettings.php
+
+		-
+			message: '#^Access to undefined constant Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\:\:STATE_COMPLETED\.$#'
+			identifier: classConstant.notFound
+			count: 1
+			path: src/cron/StarmusCron.php
+
+		-
+			message: '#^Access to undefined constant Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\:\:STATE_ERR_UNKNOWN\.$#'
+			identifier: classConstant.notFound
+			count: 2
+			path: src/cron/StarmusCron.php
+
+		-
+			message: '#^Access to undefined constant Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\:\:STATE_PROCESSING\.$#'
+			identifier: classConstant.notFound
+			count: 1
+			path: src/cron/StarmusCron.php
+
+		-
+			message: '#^Access to undefined constant Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\:\:STATE_WAVEFORM\.$#'
+			identifier: classConstant.notFound
+			count: 1
+			path: src/cron/StarmusCron.php
+
+		-
+			message: '#^Call to an undefined method Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\:\:process_and_archive_audio\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/cron/StarmusCron.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\cron\\StarmusCron\:\:register_custom_schedules\(\) has parameter \$schedules with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/cron/StarmusCron.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\cron\\StarmusCron\:\:register_custom_schedules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/cron/StarmusCron.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/frontend/StarmusAudioEditorUI.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\frontend\\StarmusAudioEditorUI\:\:get_editor_context\(\) has parameter \$atts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/frontend/StarmusAudioEditorUI.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\frontend\\StarmusAudioEditorUI\:\:get_editor_context\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/frontend/StarmusAudioEditorUI.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\frontend\\StarmusAudioEditorUI\:\:get_editor_context_public\(\) has parameter \$atts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/frontend/StarmusAudioEditorUI.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\frontend\\StarmusAudioEditorUI\:\:get_editor_context_public\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/frontend/StarmusAudioEditorUI.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\frontend\\StarmusAudioEditorUI\:\:parse_annotations_json\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/frontend/StarmusAudioEditorUI.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\frontend\\StarmusAudioEditorUI\:\:render_audio_editor_shortcode\(\) has parameter \$atts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/frontend/StarmusAudioEditorUI.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\frontend\\StarmusAudioEditorUI\:\:sanitize_annotations\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/frontend/StarmusAudioEditorUI.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\frontend\\StarmusAudioEditorUI\:\:validate_annotation_consistency\(\) has parameter \$annotations with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/frontend/StarmusAudioEditorUI.php
+
+		-
+			message: '#^PHPDoc tag @return with type bool\|WP_Error is not subtype of native type WP_Error\|true\.$#'
+			identifier: return.phpDocType
+			count: 1
+			path: src/frontend/StarmusAudioEditorUI.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\frontend\\StarmusAudioRecorderUI\:\:get_cached_terms\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/frontend/StarmusAudioRecorderUI.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\frontend\\StarmusAudioRecorderUI\:\:render_re_recorder_shortcode\(\) has parameter \$atts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/frontend/StarmusAudioRecorderUI.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\frontend\\StarmusShortcodeLoader\:\:render_editor_with_bootstrap\(\) has parameter \$atts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/frontend/StarmusShortcodeLoader.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\frontend\\StarmusShortcodeLoader\:\:render_my_recordings_shortcode\(\) has parameter \$atts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/frontend/StarmusShortcodeLoader.php
+
+		-
+			message: '#^Property Starisian\\Sparxstar\\Starmus\\frontend\\StarmusShortcodeLoader\:\:\$dal \(Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\) does not accept Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/frontend/StarmusShortcodeLoader.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between ''parts/starmus…'' and ''0'' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/frontend/StarmusShortcodeLoader.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between ''starmus\-recording…'' and ''0'' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/frontend/StarmusShortcodeLoader.php
+
+		-
+			message: '#^Variable \$dal on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: src/frontend/StarmusShortcodeLoader.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:alert\(\) has parameter \$extra with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:alert\(\) has parameter \$msg with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:critical\(\) has parameter \$extra with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:critical\(\) has parameter \$msg with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:emergency\(\) has parameter \$extra with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:emergency\(\) has parameter \$msg with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:error\(\) has parameter \$extra with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:error\(\) has parameter \$msg with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:formatMessageContent\(\) has parameter \$msg with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:info\(\) has parameter \$extra with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:info\(\) has parameter \$msg with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:notice\(\) has parameter \$extra with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:notice\(\) has parameter \$msg with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:warn\(\) has parameter \$extra with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:warn\(\) has parameter \$msg with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:warning\(\) has parameter \$extra with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:warning\(\) has parameter \$msg with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/helpers/StarmusLogger.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusTemplateLoaderHelper\:\:locate_template\(\) never returns false so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/helpers/StarmusTemplateLoaderHelper.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusTemplateLoaderHelper\:\:locate_template\(\) should return string\|false but returns null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/helpers/StarmusTemplateLoaderHelper.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSageMakerJobRepository\:\:find\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSageMakerJobRepository.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSageMakerJobRepository\:\:get_all\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSageMakerJobRepository.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSageMakerJobRepository\:\:get_paged_jobs\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSageMakerJobRepository.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSageMakerJobRepository\:\:get_recent_jobs\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSageMakerJobRepository.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSageMakerJobRepository\:\:save\(\) has parameter \$job_data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSageMakerJobRepository.php
+
+		-
+			message: '#^Call to an undefined static method Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger\:\:getCorrelationId\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 4
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:detect_file_key\(\) has parameter \$files with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:err\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:finalize_submission\(\) has parameter \$form_data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:finalize_submission\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:handle_fallback_upload_rest\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:handle_upload_chunk_rest\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:process_completed_file\(\) has parameter \$form_data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:process_completed_file\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:process_fallback_upload\(\) has parameter \$files_data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:process_fallback_upload\(\) has parameter \$form_data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:process_fallback_upload\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:sanitize_submission_data\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:sanitize_submission_data\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:save_all_metadata\(\) has parameter \$form_data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:trigger_post_processing\(\) has parameter \$params with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:update_acf_field\(\) has parameter \$value with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:validate_chunk_data\(\) has parameter \$params with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:write_chunk_streamed\(\) has parameter \$params with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Offset ''basedir'' on array\{path\: string, url\: string, subdir\: string, basedir\: string, baseurl\: string, error\: string\|false\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Property Starisian\\Sparxstar\\Starmus\\includes\\StarmusSubmissionHandler\:\:\$settings \(Starisian\\Sparxstar\\Starmus\\core\\StarmusSettings\|null\) is never assigned null so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Variable \$metadata on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 2
+			path: src/includes/StarmusSubmissionHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusTusdHookHandler\:\:process_completed_upload\(\) has parameter \$upload_info with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusTusdHookHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\includes\\StarmusTusdHookHandler\:\:process_completed_upload\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/includes/StarmusTusdHookHandler.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\integrations\\StarmusHuggingFaceClient\:\:sendFileWithFirstPass\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/integrations/StarmusHuggingFaceClient.php
+
+		-
+			message: '#^Offset ''type'' on array\{ext\: string\|false, type\: string\|false\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/integrations/StarmusHuggingFaceClient.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\integrations\\StarmusSageMakerClient\:\:get_all_jobs\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/integrations/StarmusSageMakerClient.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\integrations\\StarmusSageMakerClient\:\:get_job_counts\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/integrations/StarmusSageMakerClient.php
+
+		-
+			message: '#^Callback expects 2 parameters, \$accepted_args is set to 6\.$#'
+			identifier: arguments.count
+			count: 1
+			path: src/services/StarPrefixSlugService.php
+
+		-
+			message: '#^Call to function method_exists\(\) with getID3 and ''CopyTagsToComments'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/services/StarmusId3Service.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\services\\StarmusId3Service\:\:analyzeFile\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/services/StarmusId3Service.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\services\\StarmusId3Service\:\:writeTags\(\) has parameter \$tagData with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/services/StarmusId3Service.php
+
+		-
+			message: '#^Call to function is_wp_error\(\) with int\<0, max\> will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: src/services/StarmusPostProcessingService.php
+
+		-
+			message: '#^Class Starisian\\Sparxstar\\Starmus\\services\\StarmusId3Service referenced with incorrect case\: Starisian\\Sparxstar\\Starmus\\services\\StarmusID3Service\.$#'
+			identifier: class.nameCase
+			count: 3
+			path: src/services/StarmusPostProcessingService.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\:\:build_tag_payload\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/services/StarmusPostProcessingService.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\services\\StarmusPostProcessingService\:\:process\(\) has parameter \$params with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/services/StarmusPostProcessingService.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: src/services/StarmusPostProcessingService.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\services\\StarmusWaveformService\:\:extract_waveform_from_file\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/services/StarmusWaveformService.php
+
+		-
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\services\\StarmusWaveformService\:\:get_config\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/services/StarmusWaveformService.php
+
+		-
+			message: '#^Variable \$allowed_file_types on left side of \?\?\= always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: src/templates/starmus-audio-re-recorder-ui.php
+
+		-
+			message: '#^Variable \$consent_message might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/templates/starmus-audio-re-recorder-ui.php
+
+		-
+			message: '#^Variable \$form_id on left side of \?\?\= always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: src/templates/starmus-audio-re-recorder-ui.php
+
+		-
+			message: '#^Variable \$consent_message might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/templates/starmus-audio-recorder-ui.php
+
+		-
+			message: '#^PHPDoc tag @var does not specify variable name\.$#'
+			identifier: varTag.noVariable
+			count: 10
+			path: starmus-audio-recorder.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: uninstall.php
