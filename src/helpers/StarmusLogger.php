@@ -1,4 +1,5 @@
 <?php
+
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 if (!\defined('ABSPATH')) {
@@ -37,10 +38,8 @@ class StarmusLogger
 
     /**
      * Minimum log level to record.
-     *
-     * @var int
      */
-    protected static int $min_log_level = self::INFO;
+    protected static int $min_log_level = self::DEBUG;
 
     /**
      * Log levels.
@@ -60,15 +59,11 @@ class StarmusLogger
 
     /**
      * Whether to log in JSON format.
-     *
-     * @var bool
      */
     protected static bool $json_mode = false;
 
     /**
      * Correlation ID for tracking requests.
-     *
-     * @var string|null
      */
     protected static ?string $correlation_id = null;
 
@@ -144,6 +139,13 @@ class StarmusLogger
      * @param array<string|int, mixed> $extra
      * @param mixed $msg
      */
+    /**
+     * Main logging method.
+     * Writes directly to PHP error_log (standard WP debug.log).
+     *
+     * @param array<string|int, mixed> $extra
+     * @param mixed $msg
+     */
     public static function log(string $context, $msg, string $level = 'error', array $extra = []): void
     {
         $current_level_int = self::getLevelInt($level);
@@ -162,6 +164,7 @@ class StarmusLogger
 
         $prefix = self::$correlation_id ? '[' . self::$correlation_id . '] ' : '';
 
+        // FIX: Changed hardcoded [STARMUS] to [AIWA ORCH]
         // Construct the log line
         if (self::$json_mode) {
             $log_entry = json_encode([
@@ -172,10 +175,9 @@ class StarmusLogger
                 'cid'     => self::$correlation_id,
             ], JSON_UNESCAPED_UNICODE);
         } else {
-            // Format: [STARMUS] [LEVEL] [Context] Message | Data: {...}
-            // Note: error_log automatically adds the Timestamp.
+            // Format: [AIWA ORCH] [LEVEL] [Context] Message | Data: {...}
             $log_entry = \sprintf(
-                '%s[STARMUS] [%s] [%s] %s%s',
+                '%s[AIWA ORCH] [%s] [%s] %s%s',
                 $prefix,
                 $level_name,
                 $context,
@@ -185,10 +187,10 @@ class StarmusLogger
         }
 
         // Send to standard WordPress debug.log
-        error_log($log_entry);
+        \error_log($log_entry); // Also qualify error_log for consistency
 
-        // Fire hooks for external integrations
-        do_action('starmus_log_event', $level_name, $context, $msg, $extra);
+        // FIX: Changed hardcoded action hook name from starmus_log_event to aiwa_log_event
+        do_action('aiwa_log_event', $level_name, $context, $msg, $extra);
     }
 
     protected static function formatMessageContent($msg): string
