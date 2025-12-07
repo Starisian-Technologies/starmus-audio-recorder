@@ -11,7 +11,7 @@
  *
  * @package Starisian\Sparxstar\Starmus\services
  *
- * @version 0.9.1
+ * @version 0.9.2
  */
 namespace Starisian\Sparxstar\Starmus\services;
 

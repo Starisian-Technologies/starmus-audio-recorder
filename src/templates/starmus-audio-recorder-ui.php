@@ -10,7 +10,7 @@
  *
  * @package Starisian\Sparxstar\Starmus\templates
  *
- * @version 0.9.1
+ * @version 0.9.2
  */
 
 if (! defined('ABSPATH')) {

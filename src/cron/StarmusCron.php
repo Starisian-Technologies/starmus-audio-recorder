@@ -9,7 +9,7 @@
  *
  * @package   Starisian\Sparxstar\Starmus\cron
  *
- * @version 0.9.1
+ * @version 0.9.2
  */
 namespace Starisian\Sparxstar\Starmus\cron;
 

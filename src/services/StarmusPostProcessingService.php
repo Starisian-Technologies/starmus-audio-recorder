@@ -39,10 +39,10 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
  *
  * @since   0.1.0
 <<<<<<< HEAD
- * @version 0.9.1 (Unified)
+ * @version 0.9.2 (Unified)
 =======
  *
- * @version 2.0.0 (Unified)
+ * @version 0.9.2 (Unified)
 >>>>>>> 1098d442 (fix: Use working auto-fixers in GitHub workflows)
  */
 class StarmusPostProcessingService
