@@ -101,7 +101,7 @@ jobs:
           test -f starmus-audio-recorder.php || { echo "❌ Missing plugin main file"; exit 1; }
           test -f assets/js/starmus-audio-recorder-script.bundle.min.js || { echo "❌ Missing bundled JS"; exit 1; }
           test -f assets/css/starmus-audio-recorder-styles.min.css || { echo "❌ Missing bundled CSS"; exit 1; }
-          test -d vendor/autoload.php || { echo "❌ Missing Composer autoloader"; exit 1; }
+          test -f vendor/autoload.php || { echo "❌ Missing Composer autoloader"; exit 1; }
           echo "✅ All production files verified"
           
       - name: Build plugin ZIP
