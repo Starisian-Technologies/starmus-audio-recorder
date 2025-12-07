@@ -47,11 +47,31 @@ jobs:
       - name: Generate unified documentation
         run: bash bin/generate-unified-docs.sh
 
-      - name: Commit and push documentation
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Check for documentation changes
+        id: verify-changed-files
+        run: |
+          if git diff --quiet docs/; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "📝 No documentation changes detected"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "📝 Documentation changes detected"
+            git diff --stat docs/
+          fi
+
+      - name: Upload documentation artifacts
+        if: steps.verify-changed-files.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
         with:
-          commit_message: "docs: auto-generate API documentation [skip ci]"
-          file_pattern: 'docs/**'
-          commit_user_name: 'GitHub Actions Bot'
-          commit_user_email: 'actions@github.com'
-          commit_author: 'GitHub Actions <actions@github.com>'
+          name: generated-docs
+          path: docs/
+          retention-days: 30
+
+      - name: Documentation generation complete
+        run: |
+          echo "✅ Documentation generation completed successfully"
+          echo "📋 Generated docs are available as workflow artifacts"
+          if [ "${{ steps.verify-changed-files.outputs.changed }}" == "true" ]; then
+            echo "⚠️  Documentation changes detected but not auto-committed due to branch protection"
+            echo "📝 Manual review and commit may be required"
+          fi
