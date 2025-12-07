@@ -14,7 +14,6 @@
  *
  * @version 0.9.1-dal
  */
-
 namespace Starisian\Sparxstar\Starmus\services;
 
 if (! \defined('ABSPATH')) {

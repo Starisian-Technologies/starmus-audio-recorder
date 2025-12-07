@@ -11,7 +11,6 @@
  *
  * @version 0.9.1
  */
-
 namespace Starisian\Sparxstar\Starmus\cron;
 
 if (! \defined('ABSPATH')) {

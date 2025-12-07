@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\admin;
 
 if (! \defined('ABSPATH')) {
@@ -14,7 +13,6 @@ use Starisian\Sparxstar\Starmus\integrations\StarmusSageMakerClient;
 
 final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInterface
 {
-
     private StarmusSageMakerJobRepository $repository;
 
     private StarmusSageMakerClient $manager;
@@ -119,7 +117,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
         echo '<th>' . esc_html__('Actions', 'starmus-audio-recorder') . '</th>';
         echo '</tr></thead><tbody>';
 
-        if ($jobs === array()) {
+        if ($jobs === []) {
             echo '<tr><td colspan="5">' . esc_html__('No jobs found.', 'starmus-audio-recorder') . '</td></tr>';
         } else {
             foreach ($jobs as $id => $job) {
@@ -130,10 +128,10 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
                 echo '<td>' . esc_html($job['attempts'] ?? 0) . '</td>';
                 echo '<td>' . esc_html($created) . '</td>';
 
-                $view_url   = add_query_arg(array(
+                $view_url = add_query_arg([
                     'page'   => 'starmus-sagemaker-jobs',
-                    'job_id' => $id
-                ), admin_url('admin.php'));
+                    'job_id' => $id,
+                ], admin_url('admin.php'));
                 $delete_url = wp_nonce_url(admin_url('admin-post.php?action=starmus_delete_job&job_id=' . rawurlencode((string) $id)), 'starmus_delete_job_' . $id);
                 echo '<td><a href="' . esc_url($view_url) . '">' . esc_html__('View', 'starmus-audio-recorder') . '</a> | <a href="' . esc_url($delete_url) . '">' . esc_html__('Delete', 'starmus-audio-recorder') . '</a></td>';
                 echo '</tr>';
@@ -146,14 +144,14 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
         if ($total_pages > 1) {
             echo '<div class="tablenav"><div class="tablenav-pages">';
             echo paginate_links(
-                array(
+                [
                     'base'      => add_query_arg('paged', '%#%'),
                     'format'    => '',
                     'prev_text' => __('&laquo;', 'starmus-audio-recorder'),
                     'next_text' => __('&raquo;', 'starmus-audio-recorder'),
                     'total'     => $total_pages,
                     'current'   => $page,
-                )
+                ]
             );
             echo '</div></div>';
         }
@@ -195,10 +193,10 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
         $counts = $this->manager->get_job_counts();
         $recent = $this->repository->get_recent_jobs(10);
 
-        wp_send_json_success(array(
+        wp_send_json_success([
             'counts' => $counts,
-            'recent' => $recent
-        ));
+            'recent' => $recent,
+        ]);
     }
 
     /**
@@ -220,7 +218,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
         $result = $this->manager->retry_job($job_id);
 
         if ($result) {
-            wp_send_json_success(array('message' => 'scheduled'));
+            wp_send_json_success(['message' => 'scheduled']);
         } else {
             wp_send_json_error('job_not_found', 404);
         }
@@ -243,7 +241,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
         }
 
         $this->manager->delete_job($job_id);
-        wp_send_json_success(array('message' => 'deleted'));
+        wp_send_json_success(['message' => 'deleted']);
     }
 
     /**

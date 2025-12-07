@@ -7,7 +7,6 @@ declare(strict_types=1);
  *
  * @package Starisian\Sparxstar\Starmus\api
  */
-
 namespace Starisian\Sparxstar\Starmus\api;
 
 if (! \defined('ABSPATH')) {
@@ -43,6 +42,7 @@ use WP_REST_Response;
  * action hooks for completed submissions to enable third-party integrations.
  *
  * @package Starisian\Sparxstar\Starmus\api
+ *
  * @since   0.1.0
  */
 final readonly class StarmusRESTHandler
@@ -55,6 +55,7 @@ final readonly class StarmusRESTHandler
      * constructor for dependency inversion and testability.
      *
      * @since 0.1.0
+     *
      * @var StarmusSubmissionHandler
      */
     private StarmusSubmissionHandler $submission_handler;
@@ -71,9 +72,9 @@ final readonly class StarmusRESTHandler
      *
      * @since 0.1.0
      *
-     * @param StarmusAudioRecorderDALInterface $dal                Data access layer for database operations.
-     * @param StarmusSettings                   $settings           Plugin settings and configuration.
-     * @param StarmusSubmissionHandler|null     $submission_handler Optional submission handler for dependency injection.
+     * @param StarmusAudioRecorderDALInterface $dal Data access layer for database operations.
+     * @param StarmusSettings $settings Plugin settings and configuration.
+     * @param StarmusSubmissionHandler|null $submission_handler Optional submission handler for dependency injection.
      */
     public function __construct(
         private StarmusAudioRecorderDALInterface $dal,
@@ -107,6 +108,7 @@ final readonly class StarmusRESTHandler
      * Called automatically via 'rest_api_init' action hook during WordPress initialization.
      *
      * @since 0.1.0
+     *
      * @return void
      */
     public function register_routes(): void
@@ -117,7 +119,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'POST',
                 'callback'            => $this->handle_fallback_upload(...),
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn () => current_user_can('upload_files'),
             ]
         );
 
@@ -127,7 +129,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'POST',
                 'callback'            => $this->handle_chunk_upload(...),
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn () => current_user_can('upload_files'),
             ]
         );
 
@@ -137,7 +139,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'GET',
                 'callback'            => $this->handle_status(...),
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn () => current_user_can('upload_files'),
                 'args'                => [
                     'id' => [
                         'validate_callback' => 'is_numeric',
@@ -165,13 +167,13 @@ final readonly class StarmusRESTHandler
      *
      * @since 0.1.0
      *
-     * @phpstan-param WP_REST_Request<array<string,mixed>> $request
-     *
      * @param WP_REST_Request $request WordPress REST request object containing file and form data.
      *
+     * @phpstan-param WP_REST_Request<array<string,mixed>> $request
+     *
      * @return WP_REST_Response|WP_Error Success response with submission data or error object.
-     *                                    Success: {success: true, data: {attachment_id, post_id, ...}}
-     *                                    Error: WP_Error with appropriate HTTP status code
+     *                                   Success: {success: true, data: {attachment_id, post_id, ...}}
+     *                                   Error: WP_Error with appropriate HTTP status code
      */
     public function handle_fallback_upload(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
@@ -254,13 +256,13 @@ final readonly class StarmusRESTHandler
      *
      * @since 0.1.0
      *
-     * @phpstan-param WP_REST_Request<array<string,mixed>> $request
-     *
      * @param WP_REST_Request $request WordPress REST request object containing chunk data and metadata.
      *
+     * @phpstan-param WP_REST_Request<array<string,mixed>> $request
+     *
      * @return WP_REST_Response|WP_Error Success response with chunk status or error object.
-     *                                    Success: {success: true, data: {chunk_info, progress, ...}}
-     *                                    Error: WP_Error with appropriate HTTP status code
+     *                                   Success: {success: true, data: {chunk_info, progress, ...}}
+     *                                   Error: WP_Error with appropriate HTTP status code
      */
     public function handle_chunk_upload(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
@@ -303,13 +305,13 @@ final readonly class StarmusRESTHandler
      *
      * @since 0.1.0
      *
-     * @phpstan-param WP_REST_Request<array<string,mixed>> $request
-     *
      * @param WP_REST_Request $request WordPress REST request object with 'id' parameter.
      *
+     * @phpstan-param WP_REST_Request<array<string,mixed>> $request
+     *
      * @return WP_REST_Response|WP_Error Status response or error object.
-     *                                    Success: {success: true, data: {id, status, type}}
-     *                                    Error: WP_Error with 404 (not found), 403 (wrong type), or 500 (server error)
+     *                                   Success: {success: true, data: {id, status, type}}
+     *                                   Error: WP_Error with 404 (not found), 403 (wrong type), or 500 (server error)
      */
     public function handle_status(WP_REST_Request $request): WP_REST_Response|WP_Error
     {

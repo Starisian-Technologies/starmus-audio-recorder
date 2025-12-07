@@ -9,7 +9,6 @@
  *
  * @since 0.7.4
  */
-
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 class StarmusTemplateLoaderHelper
@@ -17,9 +16,9 @@ class StarmusTemplateLoaderHelper
     /**
      * Securely render a template for logged-in users only.
      *
-     * @param string               $template   Path or slug of the template to render.
-     * @param array<string, mixed> $args       Variables to pass into the template.
-     * @param string               $user_group Optional. User group required. Defaults to 'admin'.
+     * @param string $template Path or slug of the template to render.
+     * @param array<string, mixed> $args Variables to pass into the template.
+     * @param string $user_group Optional. User group required. Defaults to 'admin'.
      *
      * @return string Rendered HTML output.
      */
@@ -42,6 +41,7 @@ class StarmusTemplateLoaderHelper
      * Run after rendering a template.
      *
      * @param string $output The rendered output.
+     *
      * @return string The rendered output.
      */
     private static function post_template_render(string $output): string
@@ -53,8 +53,9 @@ class StarmusTemplateLoaderHelper
     /**
      * Render a PHP template file with variables.
      *
-     * @param string               $template Full template path.
-     * @param array<string, mixed> $args     Variables.
+     * @param string $template Full template path.
+     * @param array<string, mixed> $args Variables.
+     *
      * @return string The rendered output.
      */
     private static function render(string $template, array $args): string
@@ -69,8 +70,8 @@ class StarmusTemplateLoaderHelper
     /**
      * Render the editor template with provided arguments.
      *
-     * @param string               $template Template file to be rendered.
-     * @param array<string, mixed> $args     Data exposed to the template during rendering.
+     * @param string $template Template file to be rendered.
+     * @param array<string, mixed> $args Data exposed to the template during rendering.
      *
      * @return string Rendered markup or error notice.
      */
@@ -112,6 +113,7 @@ class StarmusTemplateLoaderHelper
      * Locate a template file.
      *
      * @param string $template The template file to locate.
+     *
      * @return string|false The path to the template file, or false if not found.
      */
     private static function locate_template(string $template): string|false

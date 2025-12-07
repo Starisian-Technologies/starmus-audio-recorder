@@ -7,7 +7,6 @@ declare(strict_types=1);
  *
  * @package   Starisian\Sparxstar\Starmus\includes
  */
-
 namespace Starisian\Sparxstar\Starmus\includes;
 
 if (! \defined('ABSPATH')) {
@@ -935,7 +934,7 @@ final class StarmusSubmissionHandler
                 ? array_values(
                     array_filter(
                         array_map(trim(...), explode(',', $allowed_settings)),
-                        fn($v): bool => $v !== ''
+                        fn ($v): bool => $v !== ''
                     )
                 )
                 : $this->default_allowed_mimes;

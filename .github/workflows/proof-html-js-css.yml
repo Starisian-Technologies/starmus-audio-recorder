@@ -94,10 +94,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Fix JavaScript and CSS issues
-        # Run WITH --fix. The goal is to apply changes.
         run: |
-          pnpm exec eslint "src/js/**/*.js" --fix
-          pnpm exec stylelint "src/css/**/*.css" --fix
+          pnpm exec eslint "src/js/**/*.js" --fix || true
+          pnpm exec stylelint "src/css/**/*.css" --fix || true
 
       - name: Commit and push fixes
         # This dedicated action is the most reliable way to commit changes.

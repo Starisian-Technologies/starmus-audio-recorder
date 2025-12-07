@@ -5,7 +5,6 @@
  *
  * @package Starisian\Sparxstar\Starmus\core
  */
-
 namespace Starisian\Sparxstar\Starmus\core;
 
 if (! \defined('ABSPATH')) {
@@ -39,7 +38,9 @@ use WP_Query;
  * to ensure graceful degradation and debugging capabilities.
  *
  * @package Starisian\Sparxstar\Starmus\core
+ *
  * @since   0.1.0
+ *
  * @implements StarmusAudioRecorderDALInterface
  */
 final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
@@ -138,8 +139,8 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
      *
      * @since 0.1.0
      *
-     * @param int    $attachment_id The WordPress attachment ID to update.
-     * @param string $file_path     The new absolute file system path.
+     * @param int $attachment_id The WordPress attachment ID to update.
+     * @param string $file_path The new absolute file system path.
      *
      * @return bool True on successful update, false on failure.
      */
@@ -175,8 +176,8 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
      *
      * @since 0.1.0
      *
-     * @param int    $attachment_id The WordPress attachment ID to update.
-     * @param string $file_path     The absolute file system path to analyze.
+     * @param int $attachment_id The WordPress attachment ID to update.
+     * @param string $file_path The absolute file system path to analyze.
      *
      * @return bool True if metadata was successfully generated and updated, false on failure.
      */
@@ -384,7 +385,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
      * @since 0.1.0
      *
      * @param int $user_id WordPress user ID to check.
-     * @param int $limit   Maximum allowed submissions per minute (default: 10).
+     * @param int $limit Maximum allowed submissions per minute (default: 10).
      *
      * @return bool True if user is rate limited, false if within limits.
      */
@@ -559,6 +560,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
      * Record timestamp when ID3 tags were written to an audio file.
      *
      * @param int $attachment_id WordPress attachment ID.
+     *
      * @return void
      */
     public function record_id3_timestamp(int $attachment_id): void
@@ -585,7 +587,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
      *
      * @since 0.1.0
      *
-     * @param int    $attachment_id  WordPress attachment ID.
+     * @param int $attachment_id WordPress attachment ID.
      * @param string $copyright_text Copyright notice or source attribution.
      *
      * @return void
@@ -593,8 +595,9 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
     /**
      * Set copyright source information for an audio attachment.
      *
-     * @param int    $attachment_id  WordPress attachment ID.
+     * @param int $attachment_id WordPress attachment ID.
      * @param string $copyright_text Copyright notice or source attribution.
+     *
      * @return void
      */
     public function set_copyright_source(int $attachment_id, string $copyright_text): void
@@ -622,18 +625,19 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
      *
      * @since 0.1.0
      *
-     * @param int      $post_id     WordPress post ID to assign terms to.
+     * @param int $post_id WordPress post ID to assign terms to.
      * @param int|null $language_id Term ID from 'language' taxonomy (optional).
-     * @param int|null $type_id     Term ID from 'recording-type' taxonomy (optional).
+     * @param int|null $type_id Term ID from 'recording-type' taxonomy (optional).
      *
      * @return void
      */
     /**
      * Assign taxonomy terms to an audio recording post.
      *
-     * @param int      $post_id     WordPress post ID to assign terms to.
+     * @param int $post_id WordPress post ID to assign terms to.
      * @param int|null $language_id Term ID from 'language' taxonomy (optional).
-     * @param int|null $type_id     Term ID from 'recording-type' taxonomy (optional).
+     * @param int|null $type_id Term ID from 'recording-type' taxonomy (optional).
+     *
      * @return void
      */
     public function assign_taxonomies(int $post_id, ?int $language_id = null, ?int $type_id = null): void

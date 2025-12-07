@@ -9,7 +9,6 @@
  *
  * @since 0.3.1
  */
-
 namespace Starisian\Sparxstar\Starmus\admin;
 
 if (! \defined('ABSPATH')) {
@@ -165,20 +164,20 @@ class StarmusAdmin
             if (! current_user_can('manage_options')) {
                 wp_die(__('You do not have sufficient permissions.', 'starmus-audio-recorder'));
             }
-?>
+            ?>
             <div class="wrap">
                 <h1><?php esc_html_e('SPARXSTAR<sup>&trade;</sup>S tarmus Audio Recorder Settings', 'starmus-audio-recorder'); ?></h1>
 
                 <?php settings_errors(); // Display any admin notices/errors
-                ?>
+            ?>
 
                 <form action="<?php echo esc_url('options.php'); ?>" method="post">
                     <?php
-                    // These are now correctly hooked by register_settings() again.
-                    settings_fields(self::STARMUS_SETTINGS_GROUP);
-                    do_settings_sections(self::STARMUS_MENU_SLUG);
-                    submit_button(esc_html__('Save Settings', 'starmus-audio-recorder'));
-                    ?>
+                // These are now correctly hooked by register_settings() again.
+                settings_fields(self::STARMUS_SETTINGS_GROUP);
+            do_settings_sections(self::STARMUS_MENU_SLUG);
+            submit_button(esc_html__('Save Settings', 'starmus-audio-recorder'));
+            ?>
                 </form>
             </div>
 <?php
@@ -257,7 +256,7 @@ class StarmusAdmin
                 $langs = array_map(trim(...), explode(',', $allowed_langs));
                 $langs = array_filter(
                     $langs,
-                    fn($l): int|false => preg_match('/^[a-z]{2,4}$/', $l)
+                    fn ($l): int|false => preg_match('/^[a-z]{2,4}$/', $l)
                 );
                 $sanitized['allowed_languages'] = implode(',', $langs);
             } else {

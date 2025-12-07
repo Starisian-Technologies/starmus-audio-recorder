@@ -1,5 +1,4 @@
 <?php
-
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 if (!\defined('ABSPATH')) {

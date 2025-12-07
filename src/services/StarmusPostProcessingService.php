@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\services;
 
 if (! \defined('ABSPATH')) {
@@ -37,8 +36,14 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
  * while maintaining broadcast-quality standards.
  *
  * @package Starisian\Sparxstar\Starmus\services
+ *
  * @since   0.1.0
+<<<<<<< HEAD
  * @version 0.9.1 (Unified)
+=======
+ *
+ * @version 2.0.0 (Unified)
+>>>>>>> 1098d442 (fix: Use working auto-fixers in GitHub workflows)
  */
 class StarmusPostProcessingService
 {
@@ -49,6 +54,7 @@ class StarmusPostProcessingService
      * database-stored settings required for audio processing.
      *
      * @since 0.1.0
+     *
      * @var StarmusAudioRecorderDAL
      */
     private readonly StarmusAudioRecorderDAL $dal;
@@ -60,6 +66,7 @@ class StarmusPostProcessingService
      * for use in frontend playback interfaces and audio visualization.
      *
      * @since 0.1.0
+     *
      * @var StarmusWaveformService
      */
     private readonly StarmusWaveformService $waveform_service;
@@ -71,6 +78,7 @@ class StarmusPostProcessingService
      * including artist, title, album, and custom metadata fields.
      *
      * @since 2.0.0
+     *
      * @var StarmusID3Service
      */
     private readonly StarmusID3Service $id3_service;
@@ -112,13 +120,13 @@ class StarmusPostProcessingService
      *
      * @since 0.1.0
      *
-     * @param int   $post_id       The 'audio-recording' post ID to process.
-     * @param int   $attachment_id The WordPress attachment ID of the uploaded 'original' file.
-     * @param array $params        Context parameters including:
-     *                             - network_type: '2g', '3g', '4g' for adaptive filtering
-     *                             - bitrate: Target MP3 bitrate (default: '192k')
-     *                             - samplerate: Target sample rate (default: 44100)
-     *                             - session_uuid: Unique session identifier for logging
+     * @param int $post_id The 'audio-recording' post ID to process.
+     * @param int $attachment_id The WordPress attachment ID of the uploaded 'original' file.
+     * @param array $params Context parameters including:
+     *                      - network_type: '2g', '3g', '4g' for adaptive filtering
+     *                      - bitrate: Target MP3 bitrate (default: '192k')
+     *                      - samplerate: Target sample rate (default: 44100)
+     *                      - session_uuid: Unique session identifier for logging
      *
      * @return bool True on successful processing, false on any error.
      */
@@ -298,9 +306,9 @@ class StarmusPostProcessingService
      *
      * @since 0.1.0
      *
-     * @param string $filepath       Full filesystem path to the audio file to import.
-     * @param int    $parent_post_id Post ID of the parent 'audio-recording' post.
-     * @param string $mime_type      MIME type of the file ('audio/mpeg' or 'audio/wav').
+     * @param string $filepath Full filesystem path to the audio file to import.
+     * @param int $parent_post_id Post ID of the parent 'audio-recording' post.
+     * @param string $mime_type MIME type of the file ('audio/mpeg' or 'audio/wav').
      *
      * @return int WordPress attachment ID on success, 0 on failure.
      */
@@ -340,10 +348,10 @@ class StarmusPostProcessingService
      *
      * @since 0.1.0
      *
-     * @param \WP_Post $post        WordPress post object containing recording data.
-     * @param string   $author_name Display name of the recording author.
-     * @param string   $site_name   WordPress site name for album and publisher fields.
-     * @param int      $post_id     Post ID for reference in comment field.
+     * @param \WP_Post $post WordPress post object containing recording data.
+     * @param string $author_name Display name of the recording author.
+     * @param string $site_name WordPress site name for album and publisher fields.
+     * @param int $post_id Post ID for reference in comment field.
      *
      * @return array Associative array of ID3 tag data with standardized structure:
      *               - title: Recording title from post title

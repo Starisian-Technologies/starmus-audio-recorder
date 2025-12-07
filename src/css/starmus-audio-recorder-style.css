@@ -13,6 +13,7 @@
    ======================================================================== */
 :root {
   /* --- WordPress Core Color Mapping (Theme-Driven) --- */
+
   /* Primary interaction color derives from Contrast-2 (3rd palette color) */
   --starmus-primary: var(--wp--preset--color--contrast-2, #4b5563);
   --starmus-primary-soft: color-mix(in srgb, var(--starmus-primary) 80%, transparent 20%);
@@ -27,16 +28,20 @@
   --starmus-theme-glass-border: var(--wp--preset--color--contrast-3, #d1d5db);
 
   /* --- Calculated Glass Variables --- */
+
   /* Card Background: ~85% opacity of theme color */
   --starmus-glass-bg: color-mix(in srgb, var(--starmus-theme-glass-base) 85%, transparent 15%);
 
   /* Inner Input Background: ~40% opacity */
-  --starmus-glass-inner-bg: color-mix(in srgb, var(--starmus-theme-glass-base) 40%, transparent 60%);
-
+  --starmus-glass-inner-bg: color-mix(
+    in srgb,
+    var(--starmus-theme-glass-base) 40%,
+    transparent 60%
+  );
   --starmus-glass-border-color: var(--starmus-theme-glass-border);
 
   /* Blur is 0 on mobile. Desktop overrides below. */
-  --starmus-glass-blur: 0px;
+  --starmus-glass-blur: 0;
 
   /* Shadow tinted from text color */
   --starmus-glass-shadow: 0 10px 30px color-mix(in srgb, var(--starmus-text) 12%, transparent 88%);
@@ -48,7 +53,7 @@
 }
 
 /* Desktop & large screens: enable blur */
-@media (min-width: 768px) {
+@media (width >= 768px) {
   :root {
     --starmus-glass-blur: 12px;
   }
@@ -73,12 +78,15 @@
   border-radius: 16px;
   box-shadow: var(--starmus-glass-shadow);
   padding: 1.5rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
   margin-bottom: 1.5rem;
 }
 
 /* Add blur only on larger screens to protect low-end mobiles */
-@media (min-width: 768px) {
+@media (width >= 768px) {
   .sparxstar-glass-card,
   .starmus-glass,
   .starmus-recorder-form,
@@ -115,7 +123,7 @@
   gap: 20px;
 }
 
-@media (min-width: 1024px) {
+@media (width >= 1024px) {
   .starmus-grid-layout {
     grid-template-columns: 2fr 1fr;
   }
@@ -137,7 +145,7 @@
   font-size: 0.9375rem;
 }
 
-.starmus-recorder-form input[type="text"],
+.starmus-recorder-form input[type='text'],
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
   width: 100%;
@@ -148,7 +156,10 @@
   color: var(--starmus-text);
   font-size: 1rem;
   line-height: 1.5;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
   box-sizing: border-box;
 }
 
@@ -158,7 +169,11 @@
   outline: none;
   border-color: var(--starmus-primary-strong);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--starmus-primary) 20%, transparent 80%);
-  background-color: color-mix(in srgb, var(--starmus-glass-inner-bg) 80%, var(--starmus-theme-glass-base) 20%);
+  background-color: color-mix(
+    in srgb,
+    var(--starmus-glass-inner-bg) 80%,
+    var(--starmus-theme-glass-base) 20%
+  );
 }
 
 .starmus-consent-fieldset {
@@ -200,7 +215,12 @@
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease, filter 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    filter 0.2s ease;
   border: none;
   line-height: 1.2;
   font-size: 0.9375rem;
@@ -212,23 +232,23 @@
 
 /* Primary Action */
 .starmus-btn--primary,
-button[data-starmus-action="record"],
-button[data-starmus-action="submit"],
-button[data-starmus-action="continue"],
-button[data-starmus-action="setup-mic"] {
+button[data-starmus-action='record'],
+button[data-starmus-action='submit'],
+button[data-starmus-action='continue'],
+button[data-starmus-action='setup-mic'] {
   background-color: var(--starmus-primary);
-  color: #ffffff;
+  color: #fff;
   box-shadow: 0 4px 12px color-mix(in srgb, var(--starmus-text) 15%, transparent 85%);
 }
 
 .starmus-btn--primary:hover,
-button[data-starmus-action="record"]:hover,
-button[data-starmus-action="submit"]:hover,
-button[data-starmus-action="continue"]:hover,
-button[data-starmus-action="setup-mic"]:hover {
+button[data-starmus-action='record']:hover,
+button[data-starmus-action='submit']:hover,
+button[data-starmus-action='continue']:hover,
+button[data-starmus-action='setup-mic']:hover {
   filter: brightness(1.05);
   transform: translateY(-1px);
-  color: #ffffff;
+  color: #fff;
   box-shadow: 0 6px 18px color-mix(in srgb, var(--starmus-text) 20%, transparent 80%);
 }
 
@@ -247,14 +267,14 @@ button[data-starmus-action="setup-mic"]:hover {
 .starmus-btn--resume:hover,
 .starmus-btn--pause:hover {
   background: var(--starmus-primary);
-  color: #ffffff;
+  color: #fff;
 }
 
 /* Danger / Stop */
 .starmus-btn--stop,
 .starmus-btn--record.is-recording {
   background-color: var(--starmus-danger);
-  color: #ffffff;
+  color: #fff;
 }
 
 /* Disabled */
@@ -292,20 +312,26 @@ button[data-starmus-action="setup-mic"]:hover {
 }
 
 @keyframes starmus-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .starmus-meter-bar {
   height: 12px;
-  background: rgba(0, 0, 0, 0.06);
+  background: rgb(0, 0, 0, 6%);
   border-radius: 6px;
   overflow: hidden;
   width: 100%;
 }
 
 .starmus-meter-bar::after {
-  content: "";
+  content: '';
   display: block;
   height: 100%;
   width: var(--starmus-audio-level, 0%);
@@ -353,26 +379,28 @@ button[data-starmus-action="setup-mic"]:hover {
 
 /* Fill */
 .starmus-duration-progress[data-starmus-duration-progress]::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
   width: var(--starmus-recording-progress, 0%);
   background-color: var(--starmus-primary);
-  transition: width 0.2s linear, background-color 0.2s ease;
+  transition:
+    width 0.2s linear,
+    background-color 0.2s ease;
 }
 
 /* Status Colors */
-.starmus-duration-progress[data-level="safe"]::after {
+.starmus-duration-progress[data-level='safe']::after {
   background-color: var(--starmus-success);
 }
 
-.starmus-duration-progress[data-level="warning"]::after {
+.starmus-duration-progress[data-level='warning']::after {
   background-color: var(--starmus-warning);
 }
 
-.starmus-duration-progress[data-level="danger"]::after {
+.starmus-duration-progress[data-level='danger']::after {
   background-color: var(--starmus-danger);
 }
 
@@ -479,13 +507,17 @@ button[data-starmus-action="setup-mic"]:hover {
   color: var(--starmus-text);
   text-decoration: none;
   font-weight: 600;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 .starmus-pagination__item .page-numbers.current,
 .starmus-pagination__item .page-numbers:hover {
   background: var(--starmus-primary);
-  color: #ffffff;
+  color: #fff;
   border-color: var(--starmus-primary);
   transform: translateY(-1px);
 }
@@ -510,7 +542,7 @@ button[data-starmus-action="setup-mic"]:hover {
   margin-bottom: 2rem;
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
   .starmus-detail__header,
   .starmus-header-clean {
     -webkit-backdrop-filter: blur(var(--starmus-glass-blur));
@@ -553,7 +585,7 @@ button[data-starmus-action="setup-mic"]:hover {
   gap: 20px;
 }
 
-@media (min-width: 1024px) {
+@media (width >= 1024px) {
   .starmus-layout-split,
   .starmus-admin-detail__grid {
     grid-template-columns: 2fr 1fr;
@@ -622,7 +654,7 @@ button[data-starmus-action="setup-mic"]:hover {
   gap: 1.5rem;
 }
 
-@media (min-width: 1024px) {
+@media (width >= 1024px) {
   .starmus-editor__layout {
     grid-template-columns: 2fr 1fr;
   }
@@ -642,33 +674,35 @@ button[data-starmus-action="setup-mic"]:hover {
   cursor: pointer;
   padding: 2px 4px;
   border-radius: 4px;
-  transition: background 0.1s ease, color 0.1s ease;
+  transition:
+    background 0.1s ease,
+    color 0.1s ease;
 }
 
 .starmus-word:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgb(0, 0, 0, 5%);
 }
 
 .starmus-word.is-active {
   background: var(--starmus-primary);
-  color: #ffffff;
+  color: #fff;
 }
 
 /* Inline critical styles for layout stability */
 .starmus-editor__id-badge {
   font-size: 0.5em;
-  background: #eeeeee;
+  background: #eee;
   padding: 2px 6px;
   border-radius: 4px;
   vertical-align: middle;
   margin-left: 10px;
-  color: #555555;
+  color: #555;
 }
 
 .starmus-empty-state {
   padding: 20px;
   text-align: center;
-  color: #888888;
+  color: #888;
   font-style: italic;
 }
 
@@ -706,13 +740,13 @@ button[data-starmus-action="setup-mic"]:hover {
 }
 
 /* Spinner */
-.starmus-btn[aria-busy="true"] {
+.starmus-btn[aria-busy='true'] {
   color: transparent !important;
   position: relative;
 }
 
-.starmus-btn[aria-busy="true"]::after {
-  content: "";
+.starmus-btn[aria-busy='true']::after {
+  content: '';
   position: absolute;
   left: 50%;
   top: 50%;
@@ -720,21 +754,23 @@ button[data-starmus-action="setup-mic"]:hover {
   height: 18px;
   margin-left: -9px;
   margin-top: -9px;
-  border: 2px solid #ffffff;
+  border: 2px solid #fff;
   border-radius: 50%;
   border-left-color: transparent;
   animation: starmus-spin 1s linear infinite;
 }
 
 @keyframes starmus-spin {
-  100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Mobile Immersive */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .starmus-recorder-form.starmus-immersive {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    inset: 0;
     z-index: 99999;
     margin: 0;
     border-radius: 0;

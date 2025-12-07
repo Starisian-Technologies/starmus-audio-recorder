@@ -9,7 +9,6 @@
  *
  * @version 0.9.1
  */
-
 namespace Starisian\Sparxstar\Starmus\cli;
 
 use Starisian\Sparxstar\Starmus\cron\StarmusCron;

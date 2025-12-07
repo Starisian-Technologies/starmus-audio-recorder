@@ -5,7 +5,6 @@
  *
  * @package   Starmus
  */
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 if (! \defined('ABSPATH')) {
