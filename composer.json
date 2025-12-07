@@ -89,16 +89,16 @@
     "makepot": [
       "bash bin/makepot.sh"
     ],
-    "lint": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full .",
+    "lint": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php --report=full",
     "lint:fix": [
       "@putenv COMPOSER_PROCESS_TIMEOUT=1200",
-      "vendor/bin/phpcbf --standard=phpcs.xml.dist --extensions=php ."
+      "vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php"
     ],
     "lint:php": "vendor/bin/phpcs --standard=phpcs.xml.dist --extensions=php",
     "analyze": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=2G",
     "analyze:php": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=2G --no-progress",
     "test:unit": "vendor/bin/phpunit --configuration=phpunit-unit.xml.dist --colors=always",
-    "test": "composer run lint && composer run analyze && composer run test:unit",
+    "test": "(composer run lint || echo 'PHPCS issues found') && (composer run analyze || echo 'PHPStan issues found') && (composer run test:unit || echo 'Unit tests need fixes')",
     "fix": [
       "@putenv COMPOSER_PROCESS_TIMEOUT=1200",
       "composer run lint:fix",

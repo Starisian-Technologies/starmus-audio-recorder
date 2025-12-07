@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\admin;
 
 if (! \defined('ABSPATH')) {
@@ -151,7 +150,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
                     'prev_text' => __('&laquo;', 'starmus-audio-recorder'),
                     'next_text' => __('&raquo;', 'starmus-audio-recorder'),
                     'total'     => (int) $total_pages,
-                    'current'   => \max(1, (int) $page),
+                    'current'   => max(1, (int) $page),
                 ]
             );
             echo '</div></div>';

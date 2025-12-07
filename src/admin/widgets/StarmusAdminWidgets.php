@@ -5,9 +5,7 @@
  *
  * @package Starisian\Sparxstar\Starmus\admin\widgets
  */
-
 namespace Starisian\Sparxstar\Starmus\admin\widgets;
-
 
 if (! \defined('ABSPATH')) {
     exit;
@@ -16,7 +14,6 @@ if (! \defined('ABSPATH')) {
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\services\StarmusStatsDataService;
 use Throwable;
-use Exception;
 
 /**
  * Dashboard Widgets for AIWA Workflow

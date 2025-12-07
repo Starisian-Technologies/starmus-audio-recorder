@@ -7,7 +7,6 @@ declare(strict_types=1);
  *
  * @package Starisian\Sparxstar\Starmus\api
  */
-
 namespace Starisian\Sparxstar\Starmus\api;
 
 if (! \defined('ABSPATH')) {
@@ -120,7 +119,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'POST',
                 'callback'            => $this->handle_fallback_upload(...),
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn () => current_user_can('upload_files'),
             ]
         );
 
@@ -130,7 +129,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'POST',
                 'callback'            => $this->handle_chunk_upload(...),
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn () => current_user_can('upload_files'),
             ]
         );
 
@@ -140,7 +139,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'GET',
                 'callback'            => $this->handle_status(...),
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn () => current_user_can('upload_files'),
                 'args'                => [
                     'id' => [
                         'validate_callback' => 'is_numeric',

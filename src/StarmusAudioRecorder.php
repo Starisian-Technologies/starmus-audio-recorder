@@ -12,7 +12,6 @@
  *
  * @version 0.9.2
  */
-
 namespace Starisian\Sparxstar\Starmus;
 
 if (! \defined('ABSPATH')) {
@@ -444,7 +443,7 @@ final class StarmusAudioRecorder
 
             // WP-CLI commands (optional). Load your CLI files and register commands here.
             if (\defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
-                $cli_path = \plugin_dir_path(\STARMUS_MAIN_FILE) . 'src/cli/';
+                $cli_path = plugin_dir_path(\STARMUS_MAIN_FILE) . 'src/cli/';
                 if (file_exists($cli_path . 'StarmusCLI.php') && file_exists($cli_path . 'StarmusCacheCommand.php')) {
                     require_once $cli_path . 'StarmusCLI.php';
                     \WP_CLI::add_command('starmus', 'Starmus\\cli\\StarmusCLI');
