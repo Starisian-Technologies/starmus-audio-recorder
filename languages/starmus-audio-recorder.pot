@@ -10,7 +10,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-05T05:47:50+00:00\n"
+"POT-Creation-Date: 2025-12-05T22:02:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: starmus-audio-recorder\n"
@@ -202,6 +202,130 @@ msgstr ""
 msgid "— Select a Page —"
 msgstr ""
 
+#: src/admin/StarmusSageMakerJobQueueManager.php:42
+#: src/admin/StarmusSageMakerJobQueueManager.php:148
+msgid "Insufficient permissions"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:47
+msgid "starmus SageMaker Jobs"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:62
+msgid "Job not found."
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:63
+#: src/admin/StarmusSageMakerJobQueueManager.php:89
+msgid "Back to list"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:68
+msgid "Status:"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:69
+msgid "Attempts:"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:72
+msgid "Created:"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:76
+msgid "Finished:"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:80
+msgid "Error"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:85
+msgid "Result"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:103
+#: src/admin/widgets/StarmusAdminWidgets.php:127
+msgid "Job ID"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:104
+#: src/admin/widgets/StarmusAdminWidgets.php:127
+#: src/templates/starmus-recording-detail-admin.php:148
+msgid "Status"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:105
+#: src/admin/widgets/StarmusAdminWidgets.php:127
+msgid "Attempts"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:106
+#: src/admin/widgets/StarmusAdminWidgets.php:127
+msgid "Created"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:107
+#: src/templates/starmus-recording-detail-user.php:220
+msgid "Actions"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:111
+msgid "No jobs found."
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:123
+msgid "View"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:123
+msgid "Delete"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:136
+msgid "&laquo;"
+msgstr ""
+
+#: src/admin/StarmusSageMakerJobQueueManager.php:137
+msgid "&raquo;"
+msgstr ""
+
+#: src/admin/widgets/StarmusAdminWidgets.php:72
+msgid "AIWA: Transcription Jobs"
+msgstr ""
+
+#: src/admin/widgets/StarmusAdminWidgets.php:110
+msgid "Total jobs:"
+msgstr ""
+
+#: src/admin/widgets/StarmusAdminWidgets.php:111
+msgid "Pending:"
+msgstr ""
+
+#: src/admin/widgets/StarmusAdminWidgets.php:111
+msgid "Processing:"
+msgstr ""
+
+#: src/admin/widgets/StarmusAdminWidgets.php:111
+msgid "Done:"
+msgstr ""
+
+#: src/admin/widgets/StarmusAdminWidgets.php:111
+msgid "Failed:"
+msgstr ""
+
+#: src/admin/widgets/StarmusAdminWidgets.php:113
+msgid "No jobs queued."
+msgstr ""
+
+#: src/admin/widgets/StarmusAdminWidgets.php:139
+msgid "View all jobs"
+msgstr ""
+
+#: src/admin/widgets/StarmusAdminWidgets.php:148
+msgid "Unable to load job data."
+msgstr ""
+
 #: src/api/StarmusRESTHandler.php:191
 msgid "Missing or invalid file upload data."
 msgstr ""
@@ -308,34 +432,34 @@ msgstr ""
 msgid "You have not submitted any recordings yet."
 msgstr ""
 
-#: src/templates/starmus-audio-editor-ui.php:98
+#: src/templates/starmus-audio-editor-ui.php:100
 msgid "Audio editor"
 msgstr ""
 
-#: src/templates/starmus-audio-editor-ui.php:103
+#: src/templates/starmus-audio-editor-ui.php:105
 msgid "Audio Editor"
 msgstr ""
 
 #. translators: %d: Recording ID number
-#: src/templates/starmus-audio-editor-ui.php:108
+#: src/templates/starmus-audio-editor-ui.php:110
 #, php-format
 msgid "ID: %d"
 msgstr ""
 
-#: src/templates/starmus-audio-editor-ui.php:110
+#: src/templates/starmus-audio-editor-ui.php:112
 msgid "No Recording Selected"
 msgstr ""
 
-#: src/templates/starmus-audio-editor-ui.php:122
+#: src/templates/starmus-audio-editor-ui.php:124
 msgid "Please select a recording to edit."
 msgstr ""
 
-#: src/templates/starmus-audio-editor-ui.php:127
+#: src/templates/starmus-audio-editor-ui.php:129
 msgid "Error:"
 msgstr ""
 
 #. translators: %d: Recording ID number
-#: src/templates/starmus-audio-editor-ui.php:130
+#: src/templates/starmus-audio-editor-ui.php:132
 #, php-format
 msgid "Audio file missing for recording #%d."
 msgstr ""
@@ -563,10 +687,6 @@ msgstr ""
 msgid "Asset Type"
 msgstr ""
 
-#: src/templates/starmus-recording-detail-admin.php:148
-msgid "Status"
-msgstr ""
-
 #: src/templates/starmus-recording-detail-admin.php:149
 msgid "Action"
 msgstr ""
@@ -621,10 +741,6 @@ msgstr ""
 
 #: src/templates/starmus-recording-detail-user.php:199
 msgid "Processing Status"
-msgstr ""
-
-#: src/templates/starmus-recording-detail-user.php:220
-msgid "Actions"
 msgstr ""
 
 #: src/templates/starmus-recording-detail-user.php:235

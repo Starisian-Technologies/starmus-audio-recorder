@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
-    bootstrap="tests/bootstrap.php"
-    colors="true"
-    verbose="true"
-    stopOnFailure="false"
-    backupGlobals="false"
-    failOnWarning="true"
-    failOnRisky="true"
->
+<phpunit bootstrap="tests/bootstrap.php" colors="true" verbose="true" stopOnFailure="false" backupGlobals="false" failOnWarning="true" failOnRisky="true">
   <php>
     <ini name="error_reporting" value="-1"/>
     <ini name="display_errors" value="1"/>
@@ -18,7 +10,7 @@
 
   <testsuites>
     <testsuite name="Integration Tests">
-      <directory>./tests/integration</directory>
+      <directory>./tests/Integration</directory>
     </testsuite>
   </testsuites>
 

@@ -579,7 +579,7 @@ final class StarmusSubmissionHandler
 
             // User Agent (PRIORITY: UEC Data > Server Header)
             $full_ua_uec = ($browser_data['name'] ?? '') . ' ' . ($browser_data['version'] ?? '') . ' (' . ($os_data['name'] ?? '') . ')';
-            $final_ua    = trim($full_ua_uec) ?: ($form_data['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+            $final_ua    = trim($full_ua_uec) ?: ($form_data['user_agent'] ?? (esc_html(wp_unslash($_SERVER['HTTP_USER_AGENT'])) ?? ''));
             $this->update_acf_field('user_agent', sanitize_text_field($final_ua), $audio_post_id);
 
             // IP & Fingerprint

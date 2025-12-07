@@ -100,7 +100,7 @@ class StarmusAudioRecorderUI
             // Get post_id from shortcode attribute or URL parameter
             $post_id = absint($atts['post_id']);
             if ($post_id <= 0 && isset($_GET['recording_id'])) {
-                $post_id = absint($_GET['recording_id']);
+                $post_id = absint($_GET['recording_id']); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only parameter
             }
 
             // Validate post exists and is an audio-recording

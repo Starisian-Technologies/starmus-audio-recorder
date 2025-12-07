@@ -7,15 +7,17 @@ use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
 	// Set the working directory paths
-	->withPaths([
-		__DIR__ . '/src',
-	])
+	->withPaths(
+		array(
+			__DIR__ . '/src',
+		)
+	)
 
 	// Target PHP 8.2 for language features and compatibility
-	->withPhpVersion(PhpVersion::PHP_82)
+	->withPhpVersion( PhpVersion::PHP_82 )
 
 	// Enable PHP 8.2 features
-	->withPhpSets(php82: true)
+	->withPhpSets( php82: true )
 
 	// Use the modern "Prepared Sets"
 	->withPreparedSets(
@@ -33,15 +35,17 @@ return RectorConfig::configure()
 	)
 
 	// Skip paths and specific rules incompatible with WordPress VIP standards
-	->withSkip([
-		'*/vendor/*',
-		'*/tests/*',
-		'*/node_modules/*',
-		'*/wordpress-installer/*',
-		'*/wp-admin/*',
-		'*/wp-content/*',
-		// VIP Standards: Skip incompatible transformations
-		\Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class,
-		\Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class,
-		\Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector::class,
-	]);
+	->withSkip(
+		array(
+			'*/vendor/*',
+			'*/tests/*',
+			'*/node_modules/*',
+			'*/wordpress-installer/*',
+			'*/wp-admin/*',
+			'*/wp-content/*',
+			// VIP Standards: Skip incompatible transformations
+			\Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class,
+			\Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class,
+			\Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector::class,
+		)
+	);

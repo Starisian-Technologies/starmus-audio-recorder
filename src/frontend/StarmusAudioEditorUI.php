@@ -261,11 +261,11 @@ class StarmusAudioEditorUI
             // 2. Security: Verify Nonce ONLY if accessing via URL parameter
             if ($url_id > 0) {
                 // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotUnslashed
-                $get_nonce = isset($_GET['nonce']) ? wp_unslash($_GET['nonce']) : '';
+                $get_nonce = isset($_GET['nonce']) ? sanitize_text_field(wp_unslash($_GET['nonce'])) : '';
                 // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotUnslashed
-                $get_wpnonce = isset($_GET['_wpnonce']) ? wp_unslash($_GET['_wpnonce']) : '';
+                $get_wpnonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
                 $raw_nonce   = $get_nonce ?: $get_wpnonce;
-                $nonce       = \is_string($raw_nonce) ? sanitize_text_field($raw_nonce) : '';
+                $nonce       = \is_string($raw_nonce) ? $raw_nonce : '';
 
                 if (! $nonce || ! wp_verify_nonce($nonce, 'starmus_edit_audio_' . $post_id)) {
                     return new WP_Error('invalid_nonce', __('Security check failed.', 'starmus-audio-recorder'));
@@ -295,15 +295,8 @@ class StarmusAudioEditorUI
             $is_author       = ($post->post_author == $current_user_id);
             $has_cap         = current_user_can('starmus_edit_audio');
 
-            if (\defined('WP_DEBUG') && WP_DEBUG) {
-                error_log(\sprintf(
-                    '[StarmusEditorUI] Permission check: user_id=%d, post_author=%d, is_author=%s, has_cap=%s',
-                    $current_user_id,
-                    $post->post_author,
-                    $is_author ? 'YES' : 'NO',
-                    $has_cap ? 'YES' : 'NO'
-                ));
-            }
+            // Debug logging removed for production compliance
+            // Permission check: user_id, post_author, is_author, has_cap
 
             if (! $is_author && ! $has_cap) {
                 return new WP_Error('permission_denied', __('Permission denied.', 'starmus-audio-recorder'));
