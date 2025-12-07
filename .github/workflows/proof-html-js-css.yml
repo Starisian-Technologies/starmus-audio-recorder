@@ -29,8 +29,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        # v4.1.6 commit pin prevents tampering with checkout action.
-        uses: actions/checkout@5a4ac9002afc2a3b8d9a0e327669c9fe749ac181
+        uses: actions/checkout@v4
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
