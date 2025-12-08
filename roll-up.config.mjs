@@ -1,36 +1,61 @@
 // ============================
-// ROLLUP CONFIG
+// ROLLUP CONFIG (WITH BABEL)
 // ============================
-// Bundles app code + vendor libraries (tus-js-client, peaks.js)
-// into a single IIFE for WordPress script loading.
 
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import terser from '@rollup/plugin-terser';
+import babel from '@rollup/plugin-babel'; // <-- MUST BE INSTALLED
 
 export default {
-    input: 'src/js/starmus-integrator.js',
+    input: 'src/js/main.js', 
 
     output: {
         file: 'assets/js/starmus-audio-recorder-script.bundle.min.js',
         format: 'iife',
         name: 'StarmusApp',
         sourcemap: false,
-        // Expose tus and Peaks globally for WordPress compatibility
         globals: {
             'tus-js-client': 'tus',
             'peaks.js': 'Peaks'
-        }
+        },
+        intro: `
+          (function() {
+            try {
+              if (!window.Promise || !Array.prototype.includes) {
+                throw new Error("Unsupported browser");
+              }
+            } catch(e) {
+              alert("Your browser is not supported. Please upgrade to continue.");
+            }
+          })();
+        `
     },
 
   plugins: [
       resolve({
           browser: true,
-          preferBuiltins: false    // REQUIRED so Peaks peer deps resolve
+          preferBuiltins: false    
       }),
       commonjs({
-          include: /node_modules/  // REQUIRED or Peaks internals won't load
+          include: /node_modules/  
       }),
-      terser()
+      // 🔥 CRITICAL FIX: BABEL PLUGIN ADDED HERE
+      babel({
+          babelHelpers: 'bundled',
+          exclude: 'node_modules/**', // Only transpile *your* source code
+          presets: [
+              ['@babel/preset-env', { 
+                  targets: { 
+                      'ie': '11', 
+                      'android': '4.4',
+                      'safari': '10' 
+                  },
+                  useBuiltIns: 'usage',
+                  corejs: 3 
+              }]
+          ]
+      }),
+      terser() // Terser runs last to minify
   ]
 };

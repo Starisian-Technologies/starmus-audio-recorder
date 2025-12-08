@@ -147,5 +147,17 @@
   global.StarmusHooks.subscribe = subscribe;
   global.StarmusHooks.dispatch = dispatch;
   global.StarmusHooks.debugLog = debugLog; // 🔥 New export
-  
-})(typeof window !== 'undefined' ? window : this);
+    
+})(typeof window !== 'undefined' ? window : globalThis);
+
+// ------------------------------------------------------------
+// ES Module Export Bridge
+// Allows Rollup imports without breaking the legacy global IIFE
+// ------------------------------------------------------------
+// ------------------------------------------------------------
+// ES Module Export Bridge (Correct global reference)
+// ------------------------------------------------------------
+const _G = (typeof window !== 'undefined' ? window : globalThis);
+
+export const debugLog = (_G.StarmusHooks && _G.StarmusHooks.debugLog) || function () {};
+

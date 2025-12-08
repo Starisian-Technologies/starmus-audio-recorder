@@ -6,8 +6,9 @@
 
 'use strict';
 
-import { debugLog } from './starmus-hooks.js';
-
+// NEW (Corrected)
+import './starmus-hooks.js'; 
+const debugLog = window.StarmusHooks.debugLog; 
 // ------------------------------------------------------------
 // CONFIG
 // ------------------------------------------------------------

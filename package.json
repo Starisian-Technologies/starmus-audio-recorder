@@ -74,12 +74,15 @@
   "engines": {
     "node": ">=18.17"
   },
-  "packageManager": "pnpm@10.22.0",
+  "packageManager": "pnpm@10.25.0",
   "devDependencies": {
+    "@babel/core": "^7.28.5",
     "@babel/eslint-parser": "latest",
+    "@babel/preset-env": "^7.28.5",
     "@eslint/js": "latest",
     "@microsoft/tsdoc": "latest",
     "@playwright/test": "latest",
+    "@rollup/plugin-babel": "^6.1.0",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
