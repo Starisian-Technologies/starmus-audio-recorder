@@ -19,13 +19,13 @@
   /* Fallback if no color-mix */
   --starmus-primary-rgb: 75,85,99;
   --starmus-primary-soft: rgba(var(--starmus-primary-rgb), 0.65);
-  --starmus-card-bg: rgba(var(--starmus-primary-rgb), 0.14);
+  --starmus-card-bg: rgba(var(--starmus-primary-rgb), 0.10);
 
   /* BASE MUST MATCH THE PRIMARY FAMILY (This was wrong before) */
   --starmus-base-bg: var(--starmus-primary);
 
   /* Fallback card background from PRIMARY, not white */
-  --starmus-card-bg: rgba(75,85,99,0.14); /* 14% tint */
+  --starmus-card-bg: rgba(75,85,99,0.10); /* 10% tint */
 }
 
 
@@ -131,6 +131,22 @@
     background: #fff; /* Explicitly set base background to white for typing areas */
     /* Remove the conflicting progressive enhancement tint for typing fields */
 }
+
+
+/* INPUT PHYSICALITY CORRECTION */
+.starmus-recorder-form input[type="text"],
+.starmus-recorder-form select,
+.starmus-recorder-form textarea {
+  height: 48px; /* correct touch target */
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #fff;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: #111;
+}
+
 
 
 /* 2. Fix checkbox layout inside consent area */
