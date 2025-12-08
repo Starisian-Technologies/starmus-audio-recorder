@@ -47,7 +47,7 @@ final class StarmusShortcodeLoader
             $this->dal      = $dal ?? new StarmusAudioRecorderDAL();
             add_action('init', $this->register_shortcodes(...));
         } catch (Throwable $throwable) {
-            error_log('StarmusShortcodeLoader', $throwable->getMessage(), ['context' => '__construct', 'throwable' => $throwable], 'ERROR');
+            error_log($throwable);
         }
     }
 
@@ -65,7 +65,7 @@ final class StarmusShortcodeLoader
 
             add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);
         } catch (\Throwable $throwable) {
-            error_log('StarmusShortcodeLoader', $throwable->getMessage(), ['context' => 'register_shortcodes', 'throwable' => $throwable], 'ERROR');
+            error_log($throwable);
         }
     }
 
@@ -77,7 +77,7 @@ final class StarmusShortcodeLoader
         try {
             return $renderer();
         } catch (\Throwable $throwable) {
-            error_log('Shortcode:' . $context, $throwable->getMessage(), ['throwable' => $throwable], 'ERROR');
+            error_log($throwable);
             return '<p>' . esc_html__('Component unavailable.', 'starmus-audio-recorder') . '</p>';
         }
     }
@@ -106,7 +106,7 @@ final class StarmusShortcodeLoader
                 ]
             );
         } catch (\Throwable $throwable) {
-            error_log('UI:render_my_recordings', $throwable->getMessage(), ['throwable' => $throwable], 'ERROR');
+            error_log($throwable);
             return '<p>' . esc_html__('Unable to load recordings.', 'starmus-audio-recorder') . '</p>';
         }
     }
@@ -171,14 +171,14 @@ final class StarmusShortcodeLoader
         if (is_wp_error($context)) {
             $error_message = $context->get_error_message();
             if (\defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('[StarmusShortcodeLoader] Editor context error: ' . $error_message);
+                error_log($error_message);
             }
 
             return '<div class="notice notice-error"><p>' . esc_html($error_message) . '</p></div>';
         }
 
         if (\defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[StarmusShortcodeLoader] Editor context loaded: post_id=' . $context['post_id']);
+            // Removed debug log
         }
 
         // Get transcript data
@@ -218,7 +218,7 @@ final class StarmusShortcodeLoader
         );
 
         if (\defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[StarmusShortcodeLoader] JS data localized. Audio URL: ' . $context['audio_url']);
+            // Removed debug log
         }
 
         // Render the UI with context

@@ -279,7 +279,7 @@ final class StarmusAudioRecorder
                 return;
             }
         } catch (Throwable $throwable) {
-            error_log('StarmusAudioRecorder', $throwable, ['context' => 'Settings Init']);
+            error_log($throwable);
         }
 
         // If we reach here, settings is not available — fail loudly to avoid null downstream.
@@ -324,7 +324,7 @@ final class StarmusAudioRecorder
             $override_key = \defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
             $filtered_dal = apply_filters('starmus_register_dal', $default_dal, $override_key);
         } catch (\Throwable $throwable) {
-            error_log('StarmusAudioRecorder', $throwable, ['context' => 'DAL filter']);
+            error_log($throwable);
             $dal_singleton = $default_dal; // Store the default DAL in the singleton
             $this->DAL     = $dal_singleton;
             return;
@@ -332,7 +332,7 @@ final class StarmusAudioRecorder
 
         // Must implement our interface.
         if (!($filtered_dal instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface)) {
-            error_log('StarmusAudioRecorder', 'Invalid DAL replacement: must implement StarmusAudioRecorderDALInterface.');
+            error_log('StarmusAudioRecorder: Invalid DAL replacement - must implement StarmusAudioRecorderDALInterface');
             $dal_singleton = $default_dal; // Store the default DAL in the singleton
             $this->DAL     = $dal_singleton;
             return;
@@ -458,7 +458,7 @@ final class StarmusAudioRecorder
 
             $this->hooksRegistered = true;
         } catch (Throwable $throwable) {
-            error_log('StarmusAudioRecorder', $throwable, ['context' => 'register_hooks']);
+            error_log($throwable);
         }
     }
 
@@ -489,7 +489,7 @@ final class StarmusAudioRecorder
                     '</p></div>';
             }
         } catch (Throwable $throwable) {
-            error_log('StarmusAudioRecorder', $throwable, ['context' => 'displayRuntimeErrorNotice']);
+            error_log($throwable);
         }
     }
 

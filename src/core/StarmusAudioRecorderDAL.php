@@ -66,7 +66,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
                 ]
             );
         } catch (Throwable $throwable) {
-            error_log('DAL', $throwable, ['phase' => 'create_audio_post']);
+            error_log($throwable);
             return new WP_Error('create_post_failed', $throwable->getMessage());
         }
     }
@@ -121,7 +121,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
             $attachment_id = media_handle_sideload($file_data, 0);
             return is_wp_error($attachment_id) ? $attachment_id : $attachment_id;
         } catch (Throwable $throwable) {
-            error_log('DAL', $throwable, ['phase' => 'create_attachment_from_sideload']);
+            error_log($throwable);
             return new WP_Error('sideload_failed', $throwable->getMessage());
         }
     }

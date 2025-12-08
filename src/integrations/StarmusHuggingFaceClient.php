@@ -92,7 +92,7 @@ class StarmusHuggingFaceClient
         }
 
         if ($audio_base64 === '' || $audio_base64 === '0') {
-            error_log('Failed to read audio file for attachment', ['attachment_id' => $attachment_id, 'file_path' => $file_path]);
+            error_log('Failed to read audio file for attachment ID: ' . $attachment_id);
             return null;
         }
 
@@ -115,24 +115,24 @@ class StarmusHuggingFaceClient
 
         $response = wp_remote_post(esc_url_raw($this->endpoint), $args);
         if (is_wp_error($response)) {
-            error_log('HuggingFace client wp_remote_post error', ['error' => $response->get_error_message(), 'endpoint' => $this->endpoint]);
+            error_log($response);
             return null;
         }
 
         $code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
         if ($code < 200 || $code >= 300 || empty($body)) {
-            error_log('HuggingFace client received non-2xx or empty body', ['code' => $code, 'body' => substr($body, 0, 1000), 'endpoint' => $this->endpoint]);
+            error_log('HuggingFace client received non-2xx or empty body');
             return null;
         }
 
         $decoded = json_decode($body, true);
         if (! \is_array($decoded)) {
-            error_log('HuggingFace client response could not be decoded as JSON', ['body' => substr($body, 0, 1000)]);
+            error_log('HuggingFace client response could not be decoded as JSON');
             return null;
         }
 
-        error_log('HuggingFace client success', ['attachment_id' => $attachment_id, 'endpoint' => $this->endpoint, 'response_keys' => array_keys($decoded)]);
+        // Removed success debug log
         return $decoded;
     }
 }

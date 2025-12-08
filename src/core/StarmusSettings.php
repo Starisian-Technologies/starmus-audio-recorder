@@ -93,7 +93,7 @@ final class StarmusSettings
             $this->obj_cache         = $this->all(); // This will now fetch from options
             $this->register_hooks();
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::__construct', $throwable);
+            error_log($throwable);
             // Initialize with defaults on error
             $this->default_obj_cache = [];
             $this->obj_cache         = [];
