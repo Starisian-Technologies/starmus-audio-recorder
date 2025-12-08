@@ -10,6 +10,7 @@
  *
  * @version 0.9.2
  */
+
 namespace Starisian\Sparxstar\Starmus\includes;
 
 // Exit if accessed directly.
@@ -56,8 +57,7 @@ class StarmusTusdHookHandler
          * A dedicated handler for processing the submission data.
          */
         private readonly StarmusSubmissionHandler $submission_handler
-    ) {
-    }
+    ) {}
 
     /**
      * Registers the WordPress hooks. This is the entry point for the class.
@@ -118,7 +118,7 @@ class StarmusTusdHookHandler
             $result = $this->process_completed_upload($data['Event']['Upload']);
 
             if (is_wp_error($result)) {
-                StarmusLogger::error('StarmusTusdHookHandler', $result->get_error_message(), ['error_code' => $result->get_error_code()]);
+                StarmusLogger::log('StarmusTusdHookHandler', $result->get_error_message(), ['error_code' => $result->get_error_code()]);
                 return $result;
             }
 
@@ -177,7 +177,7 @@ class StarmusTusdHookHandler
         $expected_secret = \defined('TUSD_WEBHOOK_SECRET') ? TUSD_WEBHOOK_SECRET : null;
 
         if (empty($expected_secret)) {
-            StarmusLogger::error('StarmusTusdHookHandler', 'TUSD_WEBHOOK_SECRET is not defined in wp-config.php');
+            StarmusLogger::log('StarmusTusdHookHandler', 'TUSD_WEBHOOK_SECRET is not defined in wp-config.php');
             return new WP_Error('unauthorized', 'Endpoint not configured.', ['status' => 500]);
         }
 

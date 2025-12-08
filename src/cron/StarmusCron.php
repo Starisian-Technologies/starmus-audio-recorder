@@ -11,6 +11,7 @@
  *
  * @version 0.9.2
  */
+
 namespace Starisian\Sparxstar\Starmus\cron;
 
 if (! \defined('ABSPATH')) {
@@ -126,11 +127,11 @@ final readonly class StarmusCron
                 );
             } else {
                 update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN);
-                StarmusLogger::error('Cron', 'Background processing failed', ['attachment_id' => $attachment_id]);
+                StarmusLogger::log('Cron', 'Background processing failed', ['attachment_id' => $attachment_id]);
             }
         } catch (\Throwable $throwable) {
             update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN);
-            StarmusLogger::error(
+            StarmusLogger::log(
                 'Cron',
                 'Fatal exception during cron pipeline',
                 [
@@ -201,7 +202,7 @@ final readonly class StarmusCron
                 'display'  => __('Every 15 Minutes (Starmus)', 'starmus-audio-recorder'),
             ];
         } catch (\Throwable $throwable) {
-            StarmusLogger::error('StarmusCron', $throwable, ['context' => 'register_custom_schedules']);
+            StarmusLogger::log('StarmusCron', $throwable, ['context' => 'register_custom_schedules']);
         }
 
         return $schedules;

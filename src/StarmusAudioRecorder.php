@@ -12,6 +12,7 @@
  *
  * @version 0.9.2
  */
+
 namespace Starisian\Sparxstar\Starmus;
 
 if (! \defined('ABSPATH')) {
@@ -278,7 +279,7 @@ final class StarmusAudioRecorder
                 return;
             }
         } catch (Throwable $throwable) {
-            StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'Settings Init']);
+            StarmusLogger::log('StarmusAudioRecorder', $throwable, ['context' => 'Settings Init']);
         }
 
         // If we reach here, settings is not available — fail loudly to avoid null downstream.
@@ -323,7 +324,7 @@ final class StarmusAudioRecorder
             $override_key = \defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
             $filtered_dal = apply_filters('starmus_register_dal', $default_dal, $override_key);
         } catch (\Throwable $throwable) {
-            StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'DAL filter']);
+            StarmusLogger::log('StarmusAudioRecorder', $throwable, ['context' => 'DAL filter']);
             $dal_singleton = $default_dal; // Store the default DAL in the singleton
             $this->DAL     = $dal_singleton;
             return;
@@ -331,7 +332,7 @@ final class StarmusAudioRecorder
 
         // Must implement our interface.
         if (!($filtered_dal instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface)) {
-            StarmusLogger::error('StarmusAudioRecorder', 'Invalid DAL replacement: must implement StarmusAudioRecorderDALInterface.');
+            StarmusLogger::log('StarmusAudioRecorder', 'Invalid DAL replacement: must implement StarmusAudioRecorderDALInterface.');
             $dal_singleton = $default_dal; // Store the default DAL in the singleton
             $this->DAL     = $dal_singleton;
             return;
@@ -457,7 +458,7 @@ final class StarmusAudioRecorder
 
             $this->hooksRegistered = true;
         } catch (Throwable $throwable) {
-            StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'register_hooks']);
+            StarmusLogger::log('StarmusAudioRecorder', $throwable, ['context' => 'register_hooks']);
         }
     }
 
@@ -488,7 +489,7 @@ final class StarmusAudioRecorder
                     '</p></div>';
             }
         } catch (Throwable $throwable) {
-            StarmusLogger::error('StarmusAudioRecorder', $throwable, ['context' => 'displayRuntimeErrorNotice']);
+            StarmusLogger::log('StarmusAudioRecorder', $throwable, ['context' => 'displayRuntimeErrorNotice']);
         }
     }
 

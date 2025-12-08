@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\services;
 
 if (! \defined('ABSPATH')) {
@@ -289,7 +290,7 @@ class StarmusPostProcessingService
             StarmusLogger::info('StarmusPostProcessing', 'Processing Complete', ['post_id' => $post_id, 'mp3_id' => $mp3_id]);
             return true;
         } catch (\Throwable $throwable) {
-            StarmusLogger::error('StarmusPostProcessing', $throwable, ['post_id' => $post_id]);
+            StarmusLogger::log('StarmusPostProcessing', $throwable, ['post_id' => $post_id]);
             update_post_meta($post_id, 'processing_log', "CRITICAL ERROR:\n" . $throwable->getMessage());
             return false;
         } finally {

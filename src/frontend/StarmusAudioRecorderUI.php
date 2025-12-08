@@ -5,6 +5,7 @@
  *
  * @package   Starmus
  */
+
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 if (! \defined('ABSPATH')) {
@@ -74,7 +75,7 @@ class StarmusAudioRecorderUI
 
             return StarmusTemplateLoaderHelper::secure_render_template('starmus-audio-recorder-ui.php', $template_args);
         } catch (\Throwable $throwable) {
-            StarmusLogger::error('StarmusAudioRecorderUI', $throwable, ['context' => 'render_recorder_shortcode']);
+            StarmusLogger::log('StarmusAudioRecorderUI', $throwable, ['context' => 'render_recorder_shortcode']);
             return '<p>' . esc_html__('The audio recorder is temporarily unavailable.', 'starmus-audio-recorder') . '</p>';
         }
     }
