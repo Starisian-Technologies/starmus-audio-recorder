@@ -47,7 +47,7 @@ final class StarmusShortcodeLoader
             $this->dal      = $dal ?? new StarmusAudioRecorderDAL();
             add_action('init', $this->register_shortcodes(...));
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -65,7 +65,7 @@ final class StarmusShortcodeLoader
 
             add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -77,7 +77,7 @@ final class StarmusShortcodeLoader
         try {
             return $renderer();
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return '<p>' . esc_html__('Component unavailable.', 'starmus-audio-recorder') . '</p>';
         }
     }
@@ -106,7 +106,7 @@ final class StarmusShortcodeLoader
                 ]
             );
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return '<p>' . esc_html__('Unable to load recordings.', 'starmus-audio-recorder') . '</p>';
         }
     }

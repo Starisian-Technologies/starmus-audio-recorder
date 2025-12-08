@@ -126,7 +126,7 @@ final class StarmusSubmissionHandler
 
             StarmusLogger::info('SubmissionHandler', 'Constructed successfully');
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             throw $throwable;
         }
     }
@@ -223,7 +223,7 @@ final class StarmusSubmissionHandler
                 'url'           => wp_get_attachment_url((int) $attachment_id),
             ];
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $this->err('server_error', 'Failed to process completed file.', 500);
         }
     }
@@ -272,7 +272,7 @@ final class StarmusSubmissionHandler
                 ],
             ];
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $this->err('server_error', 'Failed to process chunk.', 500);
         }
     }
@@ -322,7 +322,7 @@ final class StarmusSubmissionHandler
                 'data'    => $result['data'],
             ];
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $this->err('server_error', __('Upload failed. Please try again later.', 'starmus-audio-recorder'), 500);
         }
     }
@@ -370,7 +370,7 @@ final class StarmusSubmissionHandler
             try {
                 $attachment_id = $this->dal->create_attachment_from_file($destination, $filename);
             } catch (Throwable $e) {
-                error_log($e);
+                error_log($e->getMessage());
                 wp_delete_file($destination);
                 return $this->err('attachment_create_failed', 'Could not create attachment.', 500);
             }
@@ -387,7 +387,7 @@ final class StarmusSubmissionHandler
                     get_current_user_id()
                 );
             } catch (Throwable $e) {
-                error_log($e);
+                error_log($e->getMessage());
                 $this->dal->delete_attachment((int) $attachment_id);
                 return $this->err('post_create_failed', 'Could not create audio post.', 500);
             }
@@ -404,7 +404,7 @@ final class StarmusSubmissionHandler
                 // Save metadata and trigger post processing
                 $this->save_all_metadata((int) $cpt_post_id, (int) $attachment_id, $form_data);
             } catch (Throwable $e) {
-                error_log($e);
+                error_log($e->getMessage());
             }
 
             StarmusLogger::timeEnd('finalize_submission', 'SubmissionHandler');
@@ -419,7 +419,7 @@ final class StarmusSubmissionHandler
                 ],
             ];
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $this->err('server_error', 'Finalize failed.', 500);
         }
     }
@@ -476,7 +476,7 @@ final class StarmusSubmissionHandler
                 ],
             ];
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $this->err('server_error', 'Failed to process fallback upload.', 500);
         }
     }
@@ -507,7 +507,7 @@ final class StarmusSubmissionHandler
             }
         } catch (Throwable $throwable) {
             // If the service threw a fatal error, log it and schedule a retry
-            error_log($throwable);
+            error_log($throwable->getMessage());
 
             if (! wp_next_scheduled('starmus_cron_process_pending_audio', [$post_id, $attachment_id])) {
                 wp_schedule_single_event(time() + 120, 'starmus_cron_process_pending_audio', [$post_id, $attachment_id]);
@@ -653,7 +653,7 @@ final class StarmusSubmissionHandler
 
             $this->trigger_post_processing($audio_post_id, $attachment_id, $processing_params);
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -674,7 +674,7 @@ final class StarmusSubmissionHandler
 
             return 'audio-recording';
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return 'audio-recording';
         }
     }
@@ -684,7 +684,7 @@ final class StarmusSubmissionHandler
         try {
             $this->dal->save_post_meta($post_id, $field_key, $value);
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -693,7 +693,7 @@ final class StarmusSubmissionHandler
         try {
             return StarmusSanitizer::sanitize_submission_data($data);
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             // Fall back to shallow sanitization
             foreach ($data as $k => $v) {
                 if (\is_string($v)) {
@@ -710,7 +710,7 @@ final class StarmusSubmissionHandler
         try {
             return $this->dal->is_rate_limited($user_id);
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return false; // Fail-open to avoid blocking users due to a DAL fault.
         }
     }
@@ -725,7 +725,7 @@ final class StarmusSubmissionHandler
 
             return trailingslashit($base) . 'starmus_tmp/';
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return trailingslashit(sys_get_temp_dir()) . 'starmus_tmp/';
         }
     }
@@ -746,7 +746,7 @@ final class StarmusSubmissionHandler
 
             StarmusLogger::info('SubmissionHandler', 'Stale temp cleanup complete', ['dir' => $dir]);
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -756,7 +756,7 @@ final class StarmusSubmissionHandler
             $redirect_page_id = $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings ? (int) $this->settings->get('redirect_page_id', 0) : 0;
             return $redirect_page_id !== 0 ? (string) get_permalink($redirect_page_id) : (string) home_url('/my-submissions');
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return (string) home_url('/my-submissions');
         }
     }
@@ -783,7 +783,7 @@ final class StarmusSubmissionHandler
 
             return true;
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $this->err('server_error', 'Validation failed.', 500);
         }
     }
@@ -810,7 +810,7 @@ final class StarmusSubmissionHandler
 
             return $file_path;
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $this->err('server_error', 'Could not persist chunk.', 500);
         }
     }
@@ -875,7 +875,7 @@ final class StarmusSubmissionHandler
 
             return true;
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $this->err('server_error', 'Uploads not writable (internal error).', 500);
         }
     }
@@ -897,7 +897,7 @@ final class StarmusSubmissionHandler
 
             return null;
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return null;
         }
     }
@@ -957,7 +957,7 @@ final class StarmusSubmissionHandler
 
             return true;
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $this->err('server_error', 'File validation failed.', 500);
         }
     }

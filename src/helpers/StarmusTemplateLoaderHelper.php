@@ -103,7 +103,7 @@ class StarmusTemplateLoaderHelper
 
             return $output;
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return '<div class="notice notice-error"><p>' . esc_html__('Template loading failed: ', 'starmus-audio-recorder') . esc_html($throwable->getMessage()) . '</p></div>';
         }
     }

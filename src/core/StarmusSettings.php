@@ -93,7 +93,7 @@ final class StarmusSettings
             $this->obj_cache         = $this->all(); // This will now fetch from options
             $this->register_hooks();
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             // Initialize with defaults on error
             $this->default_obj_cache = [];
             $this->obj_cache         = [];
@@ -112,7 +112,7 @@ final class StarmusSettings
             add_filter('wp_check_filetype_and_ext', $this->filter_filetype_and_ext(...), 10, 5);
             add_filter('upload_mimes', $this->filter_upload_mimes(...));
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -133,7 +133,7 @@ final class StarmusSettings
             $settings = $this->all();
             return $settings[$key] ?? $default;
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $default;
         }
     }
@@ -164,7 +164,7 @@ final class StarmusSettings
 
             return $this->obj_cache;
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $this->get_defaults();
         }
     }
@@ -198,7 +198,7 @@ final class StarmusSettings
 
             return $updated;
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return false;
         }
     }
@@ -235,7 +235,7 @@ final class StarmusSettings
 
             return $updated;
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return false;
         }
     }
@@ -274,7 +274,7 @@ final class StarmusSettings
 
             return $this->default_obj_cache;
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             // Return hardcoded minimal defaults on error
             return [
                 'cpt_slug'                => 'audio-recording',
@@ -313,7 +313,7 @@ final class StarmusSettings
 
             $this->clear_cache(); // Clear internal cache to ensure new default is used immediately
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -416,7 +416,7 @@ final class StarmusSettings
             $this->clear_cache();
             return delete_option(self::STARMUS_OPTION_KEY);
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return false;
         }
     }
@@ -458,7 +458,7 @@ final class StarmusSettings
 
             return \is_array($types) ? $types : [];
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return \is_array($types) ? $types : [];
         }
     }
@@ -475,7 +475,7 @@ final class StarmusSettings
 
             return $mimes;
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $mimes;
         }
     }

@@ -202,7 +202,7 @@ final readonly class StarmusCron
                 'display'  => __('Every 15 Minutes (Starmus)', 'starmus-audio-recorder'),
             ];
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
 
         return $schedules;

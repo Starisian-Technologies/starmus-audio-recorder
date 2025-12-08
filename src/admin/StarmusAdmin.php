@@ -96,7 +96,7 @@ class StarmusAdmin
             ];
             $this->register_hooks();
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             throw $throwable;
         }
     }
@@ -133,7 +133,7 @@ class StarmusAdmin
                 $this->render_settings_page(...)
             );
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -183,7 +183,7 @@ class StarmusAdmin
             </div>
 <?php
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             echo '<div class="error"><p>' . esc_html__('Error loading settings page.', 'starmus-audio-recorder') . '</p></div>';
         }
     }
@@ -210,7 +210,7 @@ class StarmusAdmin
             $this->add_settings_sections();
             $this->add_settings_fields();
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -317,7 +317,7 @@ class StarmusAdmin
 
             return $sanitized; // Return the sanitized array for WordPress to save
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return $this->settings->get_defaults(); // Return safe defaults on error
         }
     }
@@ -362,7 +362,7 @@ class StarmusAdmin
                 self::STARMUS_MENU_SLUG
             );
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -450,7 +450,7 @@ class StarmusAdmin
                 );
             }
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -556,7 +556,7 @@ class StarmusAdmin
                 );
             }
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 }

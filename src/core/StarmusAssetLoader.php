@@ -145,7 +145,7 @@ final class StarmusAssetLoader
             error_log('[Starmus AssetLoader] JS enqueued successfully');
         } catch (\Throwable $throwable) {
             error_log('[Starmus AssetLoader] ERROR in enqueue_production_assets: ' . $throwable->getMessage());
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -169,7 +169,7 @@ final class StarmusAssetLoader
             error_log('[Starmus AssetLoader] CSS enqueued successfully');
         } catch (\Throwable $throwable) {
             error_log('[Starmus AssetLoader] ERROR in enqueue_styles: ' . $throwable->getMessage());
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -227,7 +227,7 @@ final class StarmusAssetLoader
                 'myRecordingsUrl'       => esc_url_raw($my_recordings_url), // Redirect URL after successful submission
             ];
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return [
                 'endpoints' => [
                     'directUpload' => '',
@@ -256,7 +256,7 @@ final class StarmusAssetLoader
         try {
             return (\defined('STARMUS_VERSION') && STARMUS_VERSION) ? STARMUS_VERSION : '1.0.0';
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return '1.0.0';
         }
     }

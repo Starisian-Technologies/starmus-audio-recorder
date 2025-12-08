@@ -75,7 +75,7 @@ class StarmusAudioRecorderUI
 
             return StarmusTemplateLoaderHelper::secure_render_template('starmus-audio-recorder-ui.php', $template_args);
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return '<p>' . esc_html__('The audio recorder is temporarily unavailable.', 'starmus-audio-recorder') . '</p>';
         }
     }
@@ -152,7 +152,7 @@ class StarmusAudioRecorderUI
                 $template_args
             );
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return '<p>' . esc_html__('The re-recorder is temporarily unavailable.', 'starmus-audio-recorder') . '</p>';
         }
     }

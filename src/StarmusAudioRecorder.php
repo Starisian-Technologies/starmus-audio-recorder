@@ -182,7 +182,7 @@ final class StarmusAudioRecorder
             $this->init_components();
             $this->register_hooks();
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
         if (($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class) !== \Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL::class) {
             StarmusLogger::info('StarmusAudioRecorder', 'DAL initialized to: ' . ($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class));
@@ -271,7 +271,7 @@ final class StarmusAudioRecorder
                 return;
             }
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
 
         // If we reach here, settings is not available — fail loudly to avoid null downstream.
@@ -316,7 +316,7 @@ final class StarmusAudioRecorder
             $override_key = \defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
             $filtered_dal = apply_filters('starmus_register_dal', $default_dal, $override_key);
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             $dal_singleton = $default_dal; // Store the default DAL in the singleton
             $this->DAL     = $dal_singleton;
             return;
@@ -450,7 +450,7 @@ final class StarmusAudioRecorder
 
             $this->hooksRegistered = true;
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -481,7 +481,7 @@ final class StarmusAudioRecorder
                     '</p></div>';
             }
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 

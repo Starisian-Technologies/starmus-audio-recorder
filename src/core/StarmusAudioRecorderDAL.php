@@ -66,7 +66,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
                 ]
             );
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return new WP_Error('create_post_failed', $throwable->getMessage());
         }
     }
@@ -94,7 +94,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
                 ? $attachment_id
                 : new WP_Error('metadata_failed', 'Metadata update failed.');
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return new WP_Error('create_attachment_failed', $throwable->getMessage());
         }
     }
@@ -114,7 +114,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
             $attachment_id = media_handle_sideload($file_data, 0);
             return is_wp_error($attachment_id) ? $attachment_id : $attachment_id;
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return new WP_Error('sideload_failed', $throwable->getMessage());
         }
     }
@@ -149,7 +149,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
                 ]
             );
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return false;
         }
     }
@@ -181,7 +181,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
             );
             return true;
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return false;
         }
     }
@@ -199,7 +199,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
                 ]
             );
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return false;
         }
     }
@@ -212,7 +212,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
         try {
             wp_delete_attachment($attachment_id, true);
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -237,7 +237,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
                 ]
             );
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return new WP_Query();
         }
     }
@@ -258,7 +258,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
                 'type'   => get_post_type($post_id),
             ];
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return null;
         }
     }
@@ -380,7 +380,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
         try {
             return update_post_meta($post_id, $meta_key, $value) !== false;
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             return false;
         }
     }
@@ -397,7 +397,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
                 update_post_meta($post_id, $meta_key, $value);
             }
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 
@@ -409,7 +409,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
         try {
             $this->save_post_meta($attachment_id, '_audio_processing_state', $state);
         } catch (\Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
             // Fallback: direct meta update
             try {
                 update_post_meta($attachment_id, '_audio_processing_state', $state);
@@ -437,7 +437,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
                 $this->save_post_meta($post_id, 'archival_wav', $wav_path);
             }
         } catch (Throwable $throwable) {
-            error_log($throwable);
+            error_log($throwable->getMessage());
         }
     }
 

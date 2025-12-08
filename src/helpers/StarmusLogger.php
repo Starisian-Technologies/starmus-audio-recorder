@@ -155,11 +155,10 @@ final class StarmusLogger
         // Encode the optional data for appending to the line.
         $data_str = $data ? ' ' . \wp_json_encode($data) : '';
 
-        // Format: [YYYY-MM-DD HH:MM:SS] [LEVEL] [Context] Message {data}
+        // Format: [YYYY-MM-DD HH:MM:SS] [Context] Message {data}
         $line = \sprintf(
-            "[%s] [%s] [%s] %s%s%s",
+            "[%s] [%s] %s%s%s",
             $timestamp,
-            //$level_str,
             $context,
             $message,
             $data_str,

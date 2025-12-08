@@ -631,7 +631,7 @@ class StarmusAudioEditorUI
     private function log_error(Throwable $e): void
     {
         if (\defined('WP_DEBUG') && WP_DEBUG && \defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
-            error_log($e);
+            error_log($e->getMessage());
         }
     }
 }
