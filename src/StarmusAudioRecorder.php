@@ -176,17 +176,14 @@ final class StarmusAudioRecorder
      */
     private function __construct()
     {
-        // Example: Only log messages of WARNING level or higher
-        StarmusLogger::set_min_log_level(STARMUS_LOG_LEVEL);
-        if (STARMUS_LOG_FILE) {
-            // Example: Log to a specific file (overrides the default daily file in uploads)
+        try{
+            $this->set_DAL();
+            $this->init_settings_or_throw();
+            $this->init_components();
+            $this->register_hooks();
+        } catch (\Throwable $throwable) {
+            error_log($throwable);
         }
-
-        $this->set_DAL();
-        $this->init_settings_or_throw();
-        $this->init_components();
-        $this->register_hooks();
-
         if (($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class) !== \Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL::class) {
             StarmusLogger::info('StarmusAudioRecorder', 'DAL initialized to: ' . ($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class));
         }
