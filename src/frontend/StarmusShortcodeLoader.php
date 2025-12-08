@@ -84,7 +84,7 @@ final class StarmusShortcodeLoader
 
     /**
      * Render the "My Recordings" shortcode.
-     */
+     */`
     public function render_my_recordings_shortcode(array $atts = []): string
     {
         if (! is_user_logged_in()) {
@@ -225,3 +225,4 @@ final class StarmusShortcodeLoader
         return $editor->render_audio_editor_shortcode($atts);
     }
 }
+`

@@ -181,10 +181,9 @@ final class StarmusAudioRecorder
     private function __construct()
     {
         // Example: Only log messages of WARNING level or higher
-        StarmusLogger::setMinLogLevel(STARMUS_LOG_LEVEL);
+        StarmusLogger::set_min_log_level(STARMUS_LOG_LEVEL);
         if (STARMUS_LOG_FILE) {
             // Example: Log to a specific file (overrides the default daily file in uploads)
-            StarmusLogger::setLogFilePath(ABSPATH . STARMUS_LOG_FILE);
         }
 
         $this->set_DAL();
