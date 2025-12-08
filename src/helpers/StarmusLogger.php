@@ -131,7 +131,7 @@ final class StarmusLogger
      * @param string $message The human-readable message.
      * @param array<string|int, mixed> $data Optional associative array of extra data.
      */
-    protected static function log(string $context, string $message, array $data = [], string $level = 'DEBUG'): void
+    public static function log(string $context, string $message, array $data = [], string $level = 'DEBUG'): void
     {
         // Check internal minimum level setting
         if ($level < self::$min_log_level) {

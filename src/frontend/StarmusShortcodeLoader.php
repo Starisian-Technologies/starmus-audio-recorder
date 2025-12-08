@@ -47,7 +47,7 @@ final class StarmusShortcodeLoader
             $this->dal      = $dal ?? new StarmusAudioRecorderDAL();
             add_action('init', $this->register_shortcodes(...));
         } catch (Throwable $throwable) {
-            StarmusLogger::error('StarmusShortcodeLoader', $throwable, ['context' => '__construct']);
+            StarmusLogger::log('StarmusShortcodeLoader', $throwable->getMessage(), ['context' => '__construct', 'throwable' => $throwable], 'ERROR');
         }
     }
 
@@ -65,7 +65,7 @@ final class StarmusShortcodeLoader
 
             add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);
         } catch (\Throwable $throwable) {
-            StarmusLogger::error('StarmusShortcodeLoader', $throwable, ['context' => 'register_shortcodes']);
+            StarmusLogger::log('StarmusShortcodeLoader', $throwable->getMessage(), ['context' => 'register_shortcodes', 'throwable' => $throwable], 'ERROR');
         }
     }
 
@@ -77,14 +77,14 @@ final class StarmusShortcodeLoader
         try {
             return $renderer();
         } catch (\Throwable $throwable) {
-            StarmusLogger::log('Shortcode:' . $context, $throwable);
+            StarmusLogger::log('Shortcode:' . $context, $throwable->getMessage(), ['throwable' => $throwable], 'ERROR');
             return '<p>' . esc_html__('Component unavailable.', 'starmus-audio-recorder') . '</p>';
         }
     }
 
     /**
      * Render the "My Recordings" shortcode.
-     */`
+     */
     public function render_my_recordings_shortcode(array $atts = []): string
     {
         if (! is_user_logged_in()) {
@@ -106,7 +106,7 @@ final class StarmusShortcodeLoader
                 ]
             );
         } catch (\Throwable $throwable) {
-            StarmusLogger::log('UI:render_my_recordings', $throwable);
+            StarmusLogger::log('UI:render_my_recordings', $throwable->getMessage(), ['throwable' => $throwable], 'ERROR');
             return '<p>' . esc_html__('Unable to load recordings.', 'starmus-audio-recorder') . '</p>';
         }
     }
@@ -225,4 +225,3 @@ final class StarmusShortcodeLoader
         return $editor->render_audio_editor_shortcode($atts);
     }
 }
-`
