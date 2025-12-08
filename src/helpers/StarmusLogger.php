@@ -133,7 +133,7 @@ final class StarmusLogger
      */
     protected static function log(string $context, string $message, array $data = [], int $level_int = 100): void
     {
-        error_log($context . $message)
+        error_log($context . $message);
         // Check int$ernal minimum level setting
         // Correctly compares two integers
         if ($level_int < self::$min_log_level) {
