@@ -45,6 +45,11 @@ final class StarmusLogger
         return \sys_get_temp_dir() . '/starmus_fallback.log';
     }
 
+     protected static function setCorrelationId(?string $id = null): void
+    {
+        self::$correlation_id = $id ?? wp_generate_uuid4();
+    }
+
     /*==============================================================
      * CONFIGURATION
      *=============================================================*/
@@ -63,6 +68,27 @@ final class StarmusLogger
         if (isset($map[$level])) {
             self::$min_log_level = $map[$level];
         }
+    }
+
+    /*==============================================================
+     * TIMER UTILITIES
+     *=============================================================*/
+
+    protected static function timeStart(string $label): void
+    {
+        self::$timers[$label] = microtime(true);
+    }
+
+    protected static function timeEnd(string $label, string $context = 'Timer'): void
+    {
+        if (!isset(self::$timers[$label])) {
+            return;
+        }
+
+        $duration = round((microtime(true) - self::$timers[$label]) * 1000, 2);
+        unset(self::$timers[$label]);
+        // Log timer results as debug
+        self::debug($context, \sprintf('%s completed in %sms', $label, $duration));
     }
 
     /*==============================================================
