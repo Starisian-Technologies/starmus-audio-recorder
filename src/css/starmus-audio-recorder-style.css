@@ -109,17 +109,33 @@
   color: var(--starmus-text);
 }
 
-.starmus-recorder-form input,
+/* 1. Text fields should fill the card, not overflow it */
+.starmus-recorder-form input[type="text"],
+.starmus-recorder-form input[type="email"],
+.starmus-recorder-form input[type="url"],
+.starmus-recorder-form input[type="number"],
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
+  box-sizing: border-box;
   width: 100%;
-  padding: .75rem;
-  border-radius: 8px;
-  border: 1px solid rgba(0,0,0,.1);
-  background: rgba(255,255,255,.82); /* fallback */
-  color: var(--starmus-text);
-  transition: border-color .2s ease, background-color .2s ease;
 }
+
+/* 2. Fix checkbox layout inside consent area */
+.starmus-recorder-form input[type="checkbox"],
+.starmus-recorder-form input[type="radio"] {
+  width: auto;
+  padding: 0;
+  margin-right: 0.5rem;
+  background: #fff;
+}
+
+.starmus-consent-fieldset label,
+.starmus-recorder-form .starmus-consent-label {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
 
 @supports (background: color-mix(in srgb, #fff, transparent)) {
   .starmus-recorder-form input,
