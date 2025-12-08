@@ -166,7 +166,7 @@ final class StarmusLogger
         );
 
         $log_file = self::get_log_path();
-
+        error_log($line);
         // The core fix: error_log mode 3 forces writing/appending to the specified file path.
         // @ suppresses any warnings if the file path is unwritable (due to permissions).
         @\error_log($line, 3, $log_file);
