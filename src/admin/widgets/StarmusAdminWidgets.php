@@ -5,6 +5,7 @@
  *
  * @package Starisian\Sparxstar\Starmus\admin\widgets
  */
+
 namespace Starisian\Sparxstar\Starmus\admin\widgets;
 
 if (! \defined('ABSPATH')) {
@@ -36,7 +37,7 @@ class StarmusAdminWidgets
             $this->data_service = $data_service;
             $this->register_hooks();
         } catch (Throwable $e) {
-            StarmusLogger::log(
+            error_log(
                 'StarmusAdminWidgets::__construct() failed: ' . $e->getMessage(),
                 [
                     'file' => $e->getFile(),
@@ -54,7 +55,7 @@ class StarmusAdminWidgets
         try {
             add_action('wp_dashboard_setup', [$this, 'register_widgets']);
         } catch (Throwable $e) {
-            StarmusLogger::log(
+            error_log(
                 'StarmusAdminWidgets::register_hooks() failed: ' . $e->getMessage(),
                 [
                     'file' => $e->getFile(),
@@ -77,7 +78,7 @@ class StarmusAdminWidgets
                 [$this, 'render_jobs_widget']
             );
         } catch (Throwable $e) {
-            StarmusLogger::log(
+            error_log(
                 'StarmusAdminWidgets::register_widgets() failed: ' . $e->getMessage(),
                 [
                     'file' => $e->getFile(),
@@ -149,7 +150,7 @@ class StarmusAdminWidgets
 
             $this->enqueue_jobs_widget_script();
         } catch (Throwable $e) {
-            StarmusLogger::log(
+            error_log(
                 'StarmusAdminWidgets::render_jobs_widget() failed: ' . $e->getMessage(),
                 [
                     'file' => $e->getFile(),
@@ -212,7 +213,7 @@ class StarmusAdminWidgets
 
             echo $script;
         } catch (Throwable $e) {
-            StarmusLogger::log(
+            error_log(
                 'StarmusAdminWidgets::enqueue_jobs_widget_script() failed: ' . $e->getMessage(),
                 [
                     'file' => $e->getFile(),

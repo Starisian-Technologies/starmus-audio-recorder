@@ -7,6 +7,7 @@ declare(strict_types=1);
  *
  * @package Starisian\Sparxstar\Starmus\api
  */
+
 namespace Starisian\Sparxstar\Starmus\api;
 
 if (! \defined('ABSPATH')) {
@@ -119,7 +120,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'POST',
                 'callback'            => $this->handle_fallback_upload(...),
-                'permission_callback' => static fn () => current_user_can('upload_files'),
+                'permission_callback' => static fn() => current_user_can('upload_files'),
             ]
         );
 
@@ -129,7 +130,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'POST',
                 'callback'            => $this->handle_chunk_upload(...),
-                'permission_callback' => static fn () => current_user_can('upload_files'),
+                'permission_callback' => static fn() => current_user_can('upload_files'),
             ]
         );
 
@@ -139,7 +140,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'GET',
                 'callback'            => $this->handle_status(...),
-                'permission_callback' => static fn () => current_user_can('upload_files'),
+                'permission_callback' => static fn() => current_user_can('upload_files'),
                 'args'                => [
                     'id' => [
                         'validate_callback' => 'is_numeric',
@@ -224,7 +225,7 @@ final readonly class StarmusRESTHandler
                 200
             );
         } catch (\Throwable $throwable) {
-            StarmusLogger::log('RestHandler:fallback', $throwable, 'error');
+            error_log('RestHandler:fallback', $throwable, 'error');
             return new WP_Error(
                 'server_error',
                 __('Upload failed. Please try again later.', 'starmus-audio-recorder'),
@@ -282,7 +283,7 @@ final readonly class StarmusRESTHandler
                 200
             );
         } catch (\Throwable $throwable) {
-            StarmusLogger::log('RestHandler:chunk', $throwable, 'error');
+            error_log('RestHandler:chunk', $throwable, 'error');
             return new WP_Error('server_error', 'Chunk upload failed', ['status' => 500]);
         }
     }
@@ -336,7 +337,7 @@ final readonly class StarmusRESTHandler
                 200
             );
         } catch (\Throwable $throwable) {
-            StarmusLogger::log('RestHandler:status', $throwable, 'error');
+            error_log('RestHandler:status', $throwable, 'error');
             return new WP_Error('server_error', 'Could not fetch status', ['status' => 500]);
         }
     }

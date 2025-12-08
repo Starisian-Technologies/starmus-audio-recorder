@@ -9,6 +9,7 @@
  *
  * @since 0.7.4
  */
+
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 class StarmusTemplateLoaderHelper
@@ -104,7 +105,7 @@ class StarmusTemplateLoaderHelper
         } catch (\Throwable $throwable) {
             error_log('[StarmusTemplateLoader] ERROR: ' . $throwable->getMessage());
             error_log('[StarmusTemplateLoader] Stack trace: ' . $throwable->getTraceAsString());
-            StarmusLogger::log('UI:render_template', 'Starmus Template Loader Error: ' . $throwable->getMessage());
+            error_log('UI:render_template', 'Starmus Template Loader Error: ' . $throwable->getMessage());
             return '<div class="notice notice-error"><p>' . esc_html__('Template loading failed: ', 'starmus-audio-recorder') . esc_html($throwable->getMessage()) . '</p></div>';
         }
     }
@@ -132,7 +133,7 @@ class StarmusTemplateLoaderHelper
         }
 
         // Log for debugging if template not found.
-        StarmusLogger::log('UI:locate_template', 'Template not found: ' . $template_name);
+        error_log('UI:locate_template', 'Template not found: ' . $template_name);
         return null;
     }
 

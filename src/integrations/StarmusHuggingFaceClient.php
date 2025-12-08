@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\integrations;
 
 // Prevent direct access
@@ -91,7 +92,7 @@ class StarmusHuggingFaceClient
         }
 
         if ($audio_base64 === '' || $audio_base64 === '0') {
-            StarmusLogger::log('Failed to read audio file for attachment', ['attachment_id' => $attachment_id, 'file_path' => $file_path]);
+            error_log('Failed to read audio file for attachment', ['attachment_id' => $attachment_id, 'file_path' => $file_path]);
             return null;
         }
 
@@ -114,24 +115,24 @@ class StarmusHuggingFaceClient
 
         $response = wp_remote_post(esc_url_raw($this->endpoint), $args);
         if (is_wp_error($response)) {
-            StarmusLogger::log('HuggingFace client wp_remote_post error', ['error' => $response->get_error_message(), 'endpoint' => $this->endpoint]);
+            error_log('HuggingFace client wp_remote_post error', ['error' => $response->get_error_message(), 'endpoint' => $this->endpoint]);
             return null;
         }
 
         $code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
         if ($code < 200 || $code >= 300 || empty($body)) {
-            StarmusLogger::log('HuggingFace client received non-2xx or empty body', ['code' => $code, 'body' => substr($body, 0, 1000), 'endpoint' => $this->endpoint]);
+            error_log('HuggingFace client received non-2xx or empty body', ['code' => $code, 'body' => substr($body, 0, 1000), 'endpoint' => $this->endpoint]);
             return null;
         }
 
         $decoded = json_decode($body, true);
         if (! \is_array($decoded)) {
-            StarmusLogger::log('HuggingFace client response could not be decoded as JSON', ['body' => substr($body, 0, 1000)]);
+            error_log('HuggingFace client response could not be decoded as JSON', ['body' => substr($body, 0, 1000)]);
             return null;
         }
 
-        StarmusLogger::log('HuggingFace client success', ['attachment_id' => $attachment_id, 'endpoint' => $this->endpoint, 'response_keys' => array_keys($decoded)]);
+        error_log('HuggingFace client success', ['attachment_id' => $attachment_id, 'endpoint' => $this->endpoint, 'response_keys' => array_keys($decoded)]);
         return $decoded;
     }
 }

@@ -115,7 +115,7 @@ final class StarmusSubmissionHandler
 
             StarmusLogger::info('SubmissionHandler', 'Constructed successfully');
         } catch (Throwable $throwable) {
-            StarmusLogger::log('SubmissionHandler', $throwable, ['phase' => '__construct']);
+            error_log('SubmissionHandler', $throwable, ['phase' => '__construct']);
             throw $throwable;
         }
     }

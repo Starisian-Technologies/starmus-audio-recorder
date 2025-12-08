@@ -9,6 +9,7 @@
  *
  * @since 0.3.1
  */
+
 namespace Starisian\Sparxstar\Starmus\admin;
 
 if (! \defined('ABSPATH')) {
@@ -95,7 +96,7 @@ class StarmusAdmin
             ];
             $this->register_hooks();
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusAdmin::__construct', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::__construct', $throwable);
             throw $throwable;
         }
     }
@@ -132,7 +133,7 @@ class StarmusAdmin
                 $this->render_settings_page(...)
             );
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusAdmin::add_admin_menu', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::add_admin_menu', $throwable);
         }
     }
 
@@ -164,25 +165,25 @@ class StarmusAdmin
             if (! current_user_can('manage_options')) {
                 wp_die(__('You do not have sufficient permissions.', 'starmus-audio-recorder'));
             }
-            ?>
+?>
             <div class="wrap">
                 <h1><?php esc_html_e('SPARXSTAR<sup>&trade;</sup>S tarmus Audio Recorder Settings', 'starmus-audio-recorder'); ?></h1>
 
                 <?php settings_errors(); // Display any admin notices/errors
-            ?>
+                ?>
 
                 <form action="<?php echo esc_url('options.php'); ?>" method="post">
                     <?php
-                // These are now correctly hooked by register_settings() again.
-                settings_fields(self::STARMUS_SETTINGS_GROUP);
-            do_settings_sections(self::STARMUS_MENU_SLUG);
-            submit_button(esc_html__('Save Settings', 'starmus-audio-recorder'));
-            ?>
+                    // These are now correctly hooked by register_settings() again.
+                    settings_fields(self::STARMUS_SETTINGS_GROUP);
+                    do_settings_sections(self::STARMUS_MENU_SLUG);
+                    submit_button(esc_html__('Save Settings', 'starmus-audio-recorder'));
+                    ?>
                 </form>
             </div>
 <?php
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusAdmin::render_settings_page', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::render_settings_page', $throwable);
             echo '<div class="error"><p>' . esc_html__('Error loading settings page.', 'starmus-audio-recorder') . '</p></div>';
         }
     }
@@ -209,7 +210,7 @@ class StarmusAdmin
             $this->add_settings_sections();
             $this->add_settings_fields();
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusAdmin::register_settings', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::register_settings', $throwable);
         }
     }
 
@@ -256,7 +257,7 @@ class StarmusAdmin
                 $langs = array_map(trim(...), explode(',', $allowed_langs));
                 $langs = array_filter(
                     $langs,
-                    fn ($l): int|false => preg_match('/^[a-z]{2,4}$/', $l)
+                    fn($l): int|false => preg_match('/^[a-z]{2,4}$/', $l)
                 );
                 $sanitized['allowed_languages'] = implode(',', $langs);
             } else {
@@ -316,7 +317,7 @@ class StarmusAdmin
 
             return $sanitized; // Return the sanitized array for WordPress to save
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusAdmin::sanitize_settings', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::sanitize_settings', $throwable);
             return $this->settings->get_defaults(); // Return safe defaults on error
         }
     }
@@ -361,7 +362,7 @@ class StarmusAdmin
                 self::STARMUS_MENU_SLUG
             );
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusAdmin::add_settings_sections', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::add_settings_sections', $throwable);
         }
     }
 
@@ -449,7 +450,7 @@ class StarmusAdmin
                 );
             }
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusAdmin::add_settings_fields', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::add_settings_fields', $throwable);
         }
     }
 
@@ -555,7 +556,7 @@ class StarmusAdmin
                 );
             }
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusAdmin::render_field', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::render_field', $throwable);
         }
     }
 }

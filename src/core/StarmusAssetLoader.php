@@ -14,6 +14,7 @@
  *
  * @version 0.9.2
  */
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;
@@ -144,7 +145,7 @@ final class StarmusAssetLoader
             error_log('[Starmus AssetLoader] JS enqueued successfully');
         } catch (\Throwable $throwable) {
             error_log('[Starmus AssetLoader] ERROR in enqueue_production_assets: ' . $throwable->getMessage());
-            StarmusLogger::log('StarmusAssetLoader::enqueue_production_assets', $throwable);
+            error_log('StarmusAssetLoader::enqueue_production_assets', $throwable);
         }
     }
 
@@ -168,7 +169,7 @@ final class StarmusAssetLoader
             error_log('[Starmus AssetLoader] CSS enqueued successfully');
         } catch (\Throwable $throwable) {
             error_log('[Starmus AssetLoader] ERROR in enqueue_styles: ' . $throwable->getMessage());
-            StarmusLogger::log('StarmusAssetLoader::enqueue_styles', $throwable);
+            error_log('StarmusAssetLoader::enqueue_styles', $throwable);
         }
     }
 
@@ -192,7 +193,7 @@ final class StarmusAssetLoader
 
             // Get allowed file types from settings (comma-separated string like 'mp3,wav,webm')
             $allowed_file_types = $settings->get('allowed_file_types', 'mp3,wav,webm');
-            $allowed_types_arr  = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+            $allowed_types_arr  = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
 
             // Map extensions to MIME types
             $allowed_mimes = [];
@@ -226,7 +227,7 @@ final class StarmusAssetLoader
                 'myRecordingsUrl'       => esc_url_raw($my_recordings_url), // Redirect URL after successful submission
             ];
         } catch (\Throwable $throwable) {
-            StarmusLogger::log('StarmusAssetLoader::get_localization_data', $throwable);
+            error_log('StarmusAssetLoader::get_localization_data', $throwable);
             return [
                 'endpoints' => [
                     'directUpload' => '',
@@ -255,7 +256,7 @@ final class StarmusAssetLoader
         try {
             return (\defined('STARMUS_VERSION') && STARMUS_VERSION) ? STARMUS_VERSION : '1.0.0';
         } catch (\Throwable $throwable) {
-            StarmusLogger::log('StarmusAssetLoader::resolve_version', $throwable);
+            error_log('StarmusAssetLoader::resolve_version', $throwable);
             return '1.0.0';
         }
     }

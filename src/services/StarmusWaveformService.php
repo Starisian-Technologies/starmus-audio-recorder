@@ -63,7 +63,7 @@ final readonly class StarmusWaveformService
         $path = trim((string) shell_exec('command -v audiowaveform'));
 
         if ($path === '') {
-            StarmusLogger::log('StarmusWaveformService', 'audiowaveform binary not found.');
+            error_log('StarmusWaveformService', 'audiowaveform binary not found.');
             return false;
         }
 
@@ -89,7 +89,7 @@ final readonly class StarmusWaveformService
         // Parent Recording
         $recording_id = (int) get_post_meta($attachment_id, '_parent_recording_id', true);
         if ($recording_id <= 0) {
-            StarmusLogger::log('StarmusWaveformService', 'Missing parent recording reference.', ['attachment_id' => $attachment_id]);
+            error_log('StarmusWaveformService', 'Missing parent recording reference.', ['attachment_id' => $attachment_id]);
             return false;
         }
 
@@ -102,14 +102,14 @@ final readonly class StarmusWaveformService
         // Get audio file
         $file_path = (new $this->files())->get_local_copy($attachment_id);
         if (! $file_path || ! file_exists($file_path)) {
-            StarmusLogger::log('StarmusWaveformService', 'Audio file not found.', ['attachment_id' => $attachment_id]);
+            error_log('StarmusWaveformService', 'Audio file not found.', ['attachment_id' => $attachment_id]);
             return false;
         }
 
         // Extract waveform data
         $data = $this->extract_waveform_from_file($file_path);
         if ($data === null || $data === []) {
-            StarmusLogger::log('StarmusWaveformService', 'Waveform extraction failed.', ['attachment_id' => $attachment_id]);
+            error_log('StarmusWaveformService', 'Waveform extraction failed.', ['attachment_id' => $attachment_id]);
             return false;
         }
 
@@ -125,7 +125,7 @@ final readonly class StarmusWaveformService
                 ]
             );
         } catch (\Throwable $throwable) {
-            StarmusLogger::log(
+            error_log(
                 'StarmusWaveformService',
                 $throwable,
                 [
@@ -187,7 +187,7 @@ final readonly class StarmusWaveformService
 
         $temp = tempnam(sys_get_temp_dir(), 'waveform-');
         if (! $temp) {
-            StarmusLogger::log('StarmusWaveformService', 'Failed to create temp file.');
+            error_log('StarmusWaveformService', 'Failed to create temp file.');
             return null;
         }
 
@@ -232,7 +232,7 @@ final readonly class StarmusWaveformService
                 'json_path' => $file_path . '.waveform.json',
             ];
         } catch (\Throwable $throwable) {
-            StarmusLogger::log(
+            error_log(
                 'StarmusWaveformService',
                 'Waveform extraction error',
                 [

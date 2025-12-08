@@ -9,6 +9,7 @@
  *
  * @since 0.3.1
  */
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 if (! \defined('ABSPATH')) {
@@ -92,7 +93,7 @@ final class StarmusSettings
             $this->obj_cache         = $this->all(); // This will now fetch from options
             $this->register_hooks();
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::__construct', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::__construct', $throwable);
             // Initialize with defaults on error
             $this->default_obj_cache = [];
             $this->obj_cache         = [];
@@ -111,7 +112,7 @@ final class StarmusSettings
             add_filter('wp_check_filetype_and_ext', $this->filter_filetype_and_ext(...), 10, 5);
             add_filter('upload_mimes', $this->filter_upload_mimes(...));
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::register_hooks', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::register_hooks', $throwable);
         }
     }
 
@@ -132,7 +133,7 @@ final class StarmusSettings
             $settings = $this->all();
             return $settings[$key] ?? $default;
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::get', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::get', $throwable);
             return $default;
         }
     }
@@ -163,7 +164,7 @@ final class StarmusSettings
 
             return $this->obj_cache;
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::all', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::all', $throwable);
             return $this->get_defaults();
         }
     }
@@ -197,7 +198,7 @@ final class StarmusSettings
 
             return $updated;
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::set', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::set', $throwable);
             return false;
         }
     }
@@ -234,7 +235,7 @@ final class StarmusSettings
 
             return $updated;
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::update_all', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::update_all', $throwable);
             return false;
         }
     }
@@ -273,7 +274,7 @@ final class StarmusSettings
 
             return $this->default_obj_cache;
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::get_defaults', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::get_defaults', $throwable);
             // Return hardcoded minimal defaults on error
             return [
                 'cpt_slug'                => 'audio-recording',
@@ -312,7 +313,7 @@ final class StarmusSettings
 
             $this->clear_cache(); // Clear internal cache to ensure new default is used immediately
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::add_defaults_on_activation', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::add_defaults_on_activation', $throwable);
         }
     }
 
@@ -372,16 +373,16 @@ final class StarmusSettings
                 return absint($value);
             case 'allowed_file_types':
                 $list = \is_array($value) ? $value : explode(',', (string) $value);
-                $list = array_map(static fn ($s) => trim(strtolower((string) $s)), $list);
-                $list = array_filter($list, static fn ($s): bool => $s !== '');
-                $list = array_map(static fn ($s) => preg_replace('/[^a-z0-9\.\-+\/]/', '', $s), $list);
+                $list = array_map(static fn($s) => trim(strtolower((string) $s)), $list);
+                $list = array_filter($list, static fn($s): bool => $s !== '');
+                $list = array_map(static fn($s) => preg_replace('/[^a-z0-9\.\-+\/]/', '', $s), $list);
                 $list = array_unique($list);
                 return implode(',', $list);
             case 'allowed_languages':
                 $list = \is_array($value) ? $value : explode(',', (string) $value);
-                $list = array_map(static fn ($s) => trim(strtolower((string) $s)), $list);
-                $list = array_filter($list, static fn ($s): bool => $s !== '');
-                $list = array_map(static fn ($s) => preg_replace('/[^a-z0-9\-]/', '', $s), $list);
+                $list = array_map(static fn($s) => trim(strtolower((string) $s)), $list);
+                $list = array_filter($list, static fn($s): bool => $s !== '');
+                $list = array_map(static fn($s) => preg_replace('/[^a-z0-9\-]/', '', $s), $list);
                 $list = array_unique($list);
                 return implode(',', $list);
             case 'speech_recognition_lang':
@@ -415,7 +416,7 @@ final class StarmusSettings
             $this->clear_cache();
             return delete_option(self::STARMUS_OPTION_KEY);
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::delete_all', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::delete_all', $throwable);
             return false;
         }
     }
@@ -457,7 +458,7 @@ final class StarmusSettings
 
             return \is_array($types) ? $types : [];
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::filter_filetype_and_ext', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::filter_filetype_and_ext', $throwable);
             return \is_array($types) ? $types : [];
         }
     }
@@ -474,7 +475,7 @@ final class StarmusSettings
 
             return $mimes;
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('StarmusSettings::filter_upload_mimes', $throwable);
+            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::filter_upload_mimes', $throwable);
             return $mimes;
         }
     }
