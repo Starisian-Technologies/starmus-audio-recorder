@@ -26,15 +26,11 @@ final readonly class StarmusWaveformService
 {
     /**
      * Data Access Layer instance.
-     *
-     * @var StarmusAudioRecorderDAL
      */
     private StarmusAudioRecorderDAL $dal;
 
     /**
      * File service instance.
-     *
-     * @var StarmusFileService
      */
     private StarmusFileService $files;
 

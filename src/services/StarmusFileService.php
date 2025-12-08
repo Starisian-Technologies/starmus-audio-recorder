@@ -26,8 +26,6 @@ final readonly class StarmusFileService
 {
     /**
      * Data Access Layer instance.
-     *
-     * @var StarmusAudioRecorderDAL
      */
     private StarmusAudioRecorderDAL $dal;
 

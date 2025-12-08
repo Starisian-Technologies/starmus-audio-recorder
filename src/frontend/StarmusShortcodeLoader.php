@@ -22,15 +22,11 @@ final class StarmusShortcodeLoader
 {
     /**
      * Settings service instance.
-     *
-     * @var StarmusSettings
      */
     private StarmusSettings $settings;
 
     /**
      * Data Access Layer instance.
-     *
-     * @var StarmusAudioRecorderDAL
      */
     private StarmusAudioRecorderDAL $dal;
 
@@ -55,11 +51,11 @@ final class StarmusShortcodeLoader
     public function register_shortcodes(): void
     {
         try {
-            add_shortcode('starmus_audio_recorder', fn (): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode(), 'starmus_audio_recorder'));
-            add_shortcode('starmus_audio_editor', fn (array $atts = []): string => $this->safe_render(fn (): string => $this->render_editor_with_bootstrap($atts), 'starmus_audio_editor'));
+            add_shortcode('starmus_audio_recorder', fn (): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode()));
+            add_shortcode('starmus_audio_editor', fn (array $atts = []): string => $this->safe_render(fn (): string => $this->render_editor_with_bootstrap($atts)));
             add_shortcode('starmus_my_recordings', $this->render_my_recordings_shortcode(...));
             add_shortcode('starmus_recording_detail', $this->render_submission_detail_shortcode(...));
-            add_shortcode('starmus_audio_re_recorder', fn (array $atts = []): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts), 'starmus_audio_re_recorder'));
+            add_shortcode('starmus_audio_re_recorder', fn (array $atts = []): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts)));
 
             add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);
         } catch (\Throwable $throwable) {
@@ -70,7 +66,7 @@ final class StarmusShortcodeLoader
     /**
      * Safely render UI blocks with logging.
      */
-    private function safe_render(callable $renderer, string $context): string
+    private function safe_render(callable $renderer): string
     {
         try {
             return $renderer();

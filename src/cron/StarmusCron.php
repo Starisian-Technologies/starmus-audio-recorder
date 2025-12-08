@@ -40,15 +40,11 @@ final readonly class StarmusCron
 
     /**
      * Waveform service instance.
-     *
-     * @var StarmusWaveformService
      */
     private StarmusWaveformService $waveform;
 
     /**
      * Post-processing service instance.
-     *
-     * @var StarmusPostProcessingService
      */
     private StarmusPostProcessingService $post;
 

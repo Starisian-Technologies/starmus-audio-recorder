@@ -103,8 +103,6 @@ final class StarmusAudioRecorder
      * Prevents multiple plugin initializations within the same request.
      *
      * @since 0.1.0
-     *
-     * @var StarmusAudioRecorder|null
      */
     private static ?StarmusAudioRecorder $instance = null;
 
@@ -128,8 +126,6 @@ final class StarmusAudioRecorder
      * might be accessed multiple times during a request.
      *
      * @since 0.1.0
-     *
-     * @var bool
      */
     private bool $hooksRegistered = false;
 
@@ -141,8 +137,6 @@ final class StarmusAudioRecorder
      * Uses singleton pattern to ensure consistent data layer across components.
      *
      * @since 0.1.0
-     *
-     * @var \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface|null
      */
     private ?core\interfaces\StarmusAudioRecorderDALInterface $DAL = null;
 
@@ -154,8 +148,6 @@ final class StarmusAudioRecorder
      * Provides centralized access to WordPress options and plugin defaults.
      *
      * @since 0.1.0
-     *
-     * @var StarmusSettings|null
      */
     private ?StarmusSettings $settings = null;
 
@@ -186,6 +178,7 @@ final class StarmusAudioRecorder
         } catch (\Throwable $throwable) {
             error_log($throwable->getMessage());
         }
+
         if (($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class) !== \Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL::class) {
             StarmusLogger::info('StarmusAudioRecorder', 'DAL initialized to: ' . ($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class));
         }
@@ -221,8 +214,6 @@ final class StarmusAudioRecorder
      * This is the main entry point for the entire plugin and should only be called once.
      *
      * @since 0.1.0
-     *
-     * @return void
      */
     public static function starmus_run(): void
     {
@@ -261,8 +252,6 @@ final class StarmusAudioRecorder
      * @since  0.1.0
      *
      * @throws \RuntimeException If StarmusSettings fails to initialize.
-     *
-     * @return void
      */
     private function init_settings_or_throw(): void
     {
@@ -366,8 +355,6 @@ final class StarmusAudioRecorder
      * Components are responsible for self-registering their WordPress hooks.
      *
      * @since 0.1.0
-     *
-     * @return void
      */
     private function init_components(): void
     {
@@ -415,8 +402,6 @@ final class StarmusAudioRecorder
      * Most component-specific hooks are self-registered within component constructors.
      *
      * @since 0.1.0
-     *
-     * @return void
      */
     private function register_hooks(): void
     {
@@ -466,8 +451,6 @@ final class StarmusAudioRecorder
      * Called via 'admin_notices' action hook in admin context only.
      *
      * @since 0.1.0
-     *
-     * @return void
      */
     public function displayRuntimeErrorNotice(): void
     {
@@ -567,8 +550,6 @@ final class StarmusAudioRecorder
      * @param array<string, mixed> $data Serialized data (ignored).
      *
      * @throws LogicException Always - unserialization is not allowed.
-     *
-     * @return void
      */
     public function __unserialize(array $data): void
     {

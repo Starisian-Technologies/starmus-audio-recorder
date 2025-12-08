@@ -46,8 +46,6 @@ final readonly class StarmusRESTHandler
      * Submission handler service for processing audio uploads.
      *
      * @since 0.1.0
-     *
-     * @var StarmusSubmissionHandler
      */
     private StarmusSubmissionHandler $submission_handler;
 
@@ -75,8 +73,6 @@ final readonly class StarmusRESTHandler
      * Register WordPress REST API routes for audio submissions.
      *
      * @since 0.1.0
-     *
-     * @return void
      */
     public function register_routes(): void
     {
@@ -86,7 +82,7 @@ final readonly class StarmusRESTHandler
             '/upload-chunk',
             [
                 'methods'             => 'POST',
-                'callback'            => [$this->submission_handler, 'handle_upload_chunk_rest_multipart'], // <-- WIRED CORRECTLY
+                'callback'            => $this->submission_handler->handle_upload_chunk_rest_multipart(...), // <-- WIRED CORRECTLY
                 'permission_callback' => static fn () => current_user_can('upload_files'),
             ]
         );
@@ -108,7 +104,7 @@ final readonly class StarmusRESTHandler
             '/upload-chunk-legacy', // <-- NEW ROUTE NAME
             [
                 'methods'             => 'POST',
-                'callback'            => [$this->submission_handler, 'handle_upload_chunk_rest_base64'], // <-- WIRED CORRECTLY
+                'callback'            => $this->submission_handler->handle_upload_chunk_rest_base64(...), // <-- WIRED CORRECTLY
                 'permission_callback' => static fn () => current_user_can('upload_files'),
             ]
         );

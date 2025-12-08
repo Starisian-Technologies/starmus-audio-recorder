@@ -109,8 +109,6 @@ interface StarmusAudioRecorderDALInterface
      * Deletes an attachment.
      *
      * @param int $attachment_id The ID of the attachment to delete.
-     *
-     * @return void
      */
     public function delete_attachment(int $attachment_id): void;
 
@@ -148,8 +146,6 @@ interface StarmusAudioRecorderDALInterface
      * @param int $post_id The ID of the post.
      * @param string $meta_key The meta key.
      * @param mixed $value The meta value.
-     *
-     * @return void
      */
     public function save_post_meta(int $post_id, string $meta_key, mixed $value): void;
 
@@ -159,8 +155,6 @@ interface StarmusAudioRecorderDALInterface
      * @param int $attachment_id The ID of the attachment.
      * @param string $mp3 The path to the MP3 file.
      * @param string $wav The path to the WAV file.
-     *
-     * @return void
      */
     public function persist_audio_outputs(int $attachment_id, string $mp3, string $wav): void;
 
@@ -171,8 +165,6 @@ interface StarmusAudioRecorderDALInterface
      * @param string|null $waveform_json The waveform data in JSON format.
      * @param string|null $mp3_path The path to the MP3 file.
      * @param string|null $wav_path The path to the WAV file.
-     *
-     * @return void
      */
     public function save_audio_outputs(int $post_id, ?string $waveform_json, ?string $mp3_path, ?string $wav_path): void;
 
@@ -181,8 +173,6 @@ interface StarmusAudioRecorderDALInterface
      *
      * @param int $attachment_id The ID of the attachment.
      * @param string $state The processing state.
-     *
-     * @return void
      */
     public function set_audio_state(int $attachment_id, string $state): void;
 

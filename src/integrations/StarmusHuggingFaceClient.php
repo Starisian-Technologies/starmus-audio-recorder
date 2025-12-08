@@ -22,15 +22,11 @@ class StarmusHuggingFaceClient
 {
     /**
      * The API endpoint URL.
-     *
-     * @var string
      */
     private readonly string $endpoint;
 
     /**
      * The API key for authentication.
-     *
-     * @var string
      */
     private readonly string $api_key;
 

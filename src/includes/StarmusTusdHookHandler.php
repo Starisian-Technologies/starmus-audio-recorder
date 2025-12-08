@@ -34,15 +34,11 @@ class StarmusTusdHookHandler
 {
     /**
      * REST API namespace.
-     *
-     * @var string
      */
     protected string $namespace = 'starmus/v1';
 
     /**
      * REST API base route.
-     *
-     * @var string
      */
     protected string $rest_base = 'hook';
 

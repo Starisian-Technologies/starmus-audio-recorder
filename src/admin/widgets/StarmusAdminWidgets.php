@@ -20,26 +20,18 @@ use Throwable;
 class StarmusAdminWidgets
 {
     /**
-     * @var StarmusStatsDataService
-     */
-    private StarmusStatsDataService $data_service;
-
-    /**
      * Constructor.
-     *
-     * @param StarmusStatsDataService $data_service
      */
-    public function __construct(StarmusStatsDataService $data_service)
+    public function __construct()
     {
         try {
-            $this->data_service = $data_service;
             $this->register_hooks();
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             error_log(
-                'StarmusAdminWidgets::__construct() failed: ' . $e->getMessage(),
+                'StarmusAdminWidgets::__construct() failed: ' . $throwable->getMessage(),
                 [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
+                    'file' => $throwable->getFile(),
+                    'line' => $throwable->getLine(),
                 ]
             );
         }
@@ -51,13 +43,13 @@ class StarmusAdminWidgets
     public function register_hooks(): void
     {
         try {
-            add_action('wp_dashboard_setup', [$this, 'register_widgets']);
-        } catch (Throwable $e) {
+            add_action('wp_dashboard_setup', $this->register_widgets(...));
+        } catch (Throwable $throwable) {
             error_log(
-                'StarmusAdminWidgets::register_hooks() failed: ' . $e->getMessage(),
+                'StarmusAdminWidgets::register_hooks() failed: ' . $throwable->getMessage(),
                 [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
+                    'file' => $throwable->getFile(),
+                    'line' => $throwable->getLine(),
                 ]
             );
         }
@@ -73,14 +65,14 @@ class StarmusAdminWidgets
             wp_add_dashboard_widget(
                 'aiwa_jobs_widget',
                 __('AIWA: Transcription Jobs', 'starmus-audio-recorder'),
-                [$this, 'render_jobs_widget']
+                $this->render_jobs_widget(...)
             );
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             error_log(
-                'StarmusAdminWidgets::register_widgets() failed: ' . $e->getMessage(),
+                'StarmusAdminWidgets::register_widgets() failed: ' . $throwable->getMessage(),
                 [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
+                    'file' => $throwable->getFile(),
+                    'line' => $throwable->getLine(),
                 ]
             );
         }
@@ -122,7 +114,7 @@ class StarmusAdminWidgets
             // Sort jobs by created_at desc and show 5 most recent
             usort(
                 $jobs,
-                function ($a, $b) {
+                function (array $a, array $b): int {
                     $ta = isset($a['created_at']) ? (int) $a['created_at'] : 0;
                     $tb = isset($b['created_at']) ? (int) $b['created_at'] : 0;
                     return $tb <=> $ta;
@@ -141,18 +133,19 @@ class StarmusAdminWidgets
                 echo '<td>' . esc_html($created) . '</td>';
                 echo '</tr>';
             }
+
             echo '</tbody></table>';
 
             echo '<p><a href="' . esc_url(admin_url('admin.php?page=aiwa-sagemaker-jobs')) . '">' . esc_html__('View all jobs', 'starmus-audio-recorder') . '</a></p>';
             echo '</div>';
 
             $this->enqueue_jobs_widget_script();
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             error_log(
-                'StarmusAdminWidgets::render_jobs_widget() failed: ' . $e->getMessage(),
+                'StarmusAdminWidgets::render_jobs_widget() failed: ' . $throwable->getMessage(),
                 [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
+                    'file' => $throwable->getFile(),
+                    'line' => $throwable->getLine(),
                 ]
             );
             echo '<p>' . esc_html__('Unable to load job data.', 'starmus-audio-recorder') . '</p>';
@@ -210,12 +203,12 @@ class StarmusAdminWidgets
                 JS;
 
             echo $script;
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             error_log(
-                'StarmusAdminWidgets::enqueue_jobs_widget_script() failed: ' . $e->getMessage(),
+                'StarmusAdminWidgets::enqueue_jobs_widget_script() failed: ' . $throwable->getMessage(),
                 [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
+                    'file' => $throwable->getFile(),
+                    'line' => $throwable->getLine(),
                 ]
             );
         }

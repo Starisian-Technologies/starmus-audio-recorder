@@ -91,15 +91,11 @@ final class StarmusSubmissionHandler
 
     /**
      * Settings service instance.
-     *
-     * @var StarmusSettings|null
      */
     private ?StarmusSettings $settings;
 
     /**
      * Data Access Layer instance.
-     *
-     * @var StarmusAudioRecorderDALInterface
      */
     private StarmusAudioRecorderDALInterface $dal;
 
@@ -266,6 +262,7 @@ final class StarmusSubmissionHandler
             return $this->err('server_error', 'Failed to process completed file.', 500);
         }
     }
+
     // --- END UNIFIED CORE FINALIZATION METHOD ---
 
     // --- LEGACY BASE64 CHUNK HANDLER ---
@@ -356,6 +353,7 @@ final class StarmusSubmissionHandler
             if (!$chunk_file || (int) $chunk_file['error'] !== 0) {
                 return $this->err('missing_chunk_file', 'Chunk file missing or upload failed.', 400);
             }
+
             if ($chunk_index < 0 || $total_chunks < 1) {
                 return $this->err('invalid_chunk_params', 'Invalid chunk index or total chunk count.', 400);
             }
@@ -370,7 +368,7 @@ final class StarmusSubmissionHandler
 
             // PROTECT AGAINST RE-PLAY / DUPLICATE
             if (file_exists($chunk_dest) && $chunk_index !== 0) {
-                return $this->err('duplicate_chunk', "Chunk {$chunk_index} already exists.", 409);
+                return $this->err('duplicate_chunk', sprintf('Chunk %d already exists.', $chunk_index), 409);
             }
 
             if (!move_uploaded_file($chunk_file['tmp_name'], $chunk_dest)) {
@@ -402,8 +400,8 @@ final class StarmusSubmissionHandler
                     'chunk_index' => $chunk_index,
                 ],
             ];
-        } catch (\Throwable $t) {
-            error_log($t->getMessage());
+        } catch (\Throwable $throwable) {
+            error_log($throwable->getMessage());
             return $this->err('server_error', 'Multipart chunk upload failed.', 500);
         }
     }
@@ -459,15 +457,8 @@ final class StarmusSubmissionHandler
     }
 
     /* ======================================================================
-         * FILE PROCESSING (Finalization)
-         * ==================================================================== */
-
-    /**
-     * @param string $file_path
-     * @param array $form_data
-     *
-     * @return array|WP_Error
-     */
+     * FILE PROCESSING (Finalization)
+     * ==================================================================== */
     private function finalize_submission(string $file_path, array $form_data): array|WP_Error
     {
         StarmusLogger::timeStart('finalize_submission');
@@ -1041,7 +1032,7 @@ final class StarmusSubmissionHandler
      *
      * @param mixed $path
      */
-    private function cleanup_chunks_dir($path)
+    private function cleanup_chunks_dir(string $path): void
     {
         // Only delete if path is inside the expected temp directory as a safety measure
         if (str_contains($path, $this->get_temp_dir())) {
@@ -1049,6 +1040,7 @@ final class StarmusSubmissionHandler
             foreach ($files as $file) {
                 @unlink($file);
             }
+
             @rmdir($path);
         }
     }
@@ -1071,14 +1063,16 @@ final class StarmusSubmissionHandler
             if (!file_exists($chunk)) {
                 fclose($fp);
                 @unlink($final);
-                return $this->err('missing_chunk', "Missing chunk {$i} during combine.", 400);
+                return $this->err('missing_chunk', sprintf('Missing chunk %d during combine.', $i), 400);
             }
+
             $chunk_fp = @fopen($chunk, 'rb');
             if ($chunk_fp === false) {
                 fclose($fp);
                 @unlink($final);
-                return $this->err('read_chunk_failed', "Could not read chunk $i during combination.", 500);
+                return $this->err('read_chunk_failed', sprintf('Could not read chunk %d during combination.', $i), 500);
             }
+
             stream_copy_to_stream($chunk_fp, $fp);
             @fclose($chunk_fp);
         }

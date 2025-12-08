@@ -48,8 +48,6 @@ final class StarmusAssetLoader
 
     /**
      * Editor data to be localized, set by shortcode loader
-     *
-     * @var array|null
      */
     private static ?array $editor_data = null;
 

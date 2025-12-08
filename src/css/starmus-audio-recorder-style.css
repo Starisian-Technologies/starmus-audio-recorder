@@ -98,7 +98,7 @@
   }
 }
 
-/* ===========================================================================
+ /* ===========================================================================
    4. FORMS & INPUTS — LEGIBLE ON ALL DEVICES
    =========================================================================== */
 
@@ -118,7 +118,20 @@
 .starmus-recorder-form textarea {
   box-sizing: border-box;
   width: 100%;
+  max-width: 100%; /* 🔥 FIX: Ensure input does not exceed container width */
 }
+
+/* 🔥 FIX #1: Ensure standard inputs have a WHITE background for typing/selecting */
+.starmus-recorder-form input[type="text"],
+.starmus-recorder-form input[type="email"],
+.starmus-recorder-form input[type="url"],
+.starmus-recorder-form input[type="number"],
+.starmus-recorder-form select,
+.starmus-recorder-form textarea {
+    background: #fff; /* Explicitly set base background to white for typing areas */
+    /* Remove the conflicting progressive enhancement tint for typing fields */
+}
+
 
 /* 2. Fix checkbox layout inside consent area */
 .starmus-recorder-form input[type="checkbox"],
@@ -127,16 +140,23 @@
   padding: 0;
   margin-right: 0.5rem;
   background: #fff;
+  /* 🔥 NO CHANGE: existing styles below are correct */
 }
 
 .starmus-consent-fieldset label,
 .starmus-recorder-form .starmus-consent-label {
+  /* 🔥 FIX #2: Align the text and checkbox to the top, not center (flex-start) */
   display: inline-flex;
-  align-items: flex-start;
+  align-items: flex-start; 
   gap: 0.5rem;
+  margin-bottom: 0; /* Clean up vertical rhythm in fieldset */
 }
 
+/* --- RE-EVALUATE AND CORRECT PROGRESSIVE ENHANCEMENT BLOCK --- */
+/* The general rule for all inputs must be white, not a mix that makes it hard to read. */
 
+/* Remove this block as it conflicts with the "white background" requirement */
+/*
 @supports (background: color-mix(in srgb, #fff, transparent)) {
   .starmus-recorder-form input,
   .starmus-recorder-form select,
@@ -144,6 +164,8 @@
     background: color-mix(in srgb, var(--starmus-base-bg) 40%, transparent 60%);
   }
 }
+*/
+/* The background: #fff; added in Fix #1 above overrides this and satisfies the requirement. */
 
 .starmus-recorder-form input:focus,
 .starmus-recorder-form select:focus,
@@ -152,6 +174,7 @@
   border-color: var(--starmus-primary-strong);
   box-shadow: 0 0 0 3px rgba(75,85,99,0.25);
 }
+
 
 /* ===========================================================================
    5. BUTTON SYSTEM — ACCESSIBLE EVEN WITHOUT VARIABLES

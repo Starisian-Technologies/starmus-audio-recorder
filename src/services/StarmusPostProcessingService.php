@@ -54,8 +54,6 @@ class StarmusPostProcessingService
      * database-stored settings required for audio processing.
      *
      * @since 0.1.0
-     *
-     * @var StarmusAudioRecorderDAL
      */
     private readonly StarmusAudioRecorderDAL $dal;
 
@@ -66,8 +64,6 @@ class StarmusPostProcessingService
      * for use in frontend playback interfaces and audio visualization.
      *
      * @since 0.1.0
-     *
-     * @var StarmusWaveformService
      */
     private readonly StarmusWaveformService $waveform_service;
 
@@ -78,8 +74,6 @@ class StarmusPostProcessingService
      * including artist, title, album, and custom metadata fields.
      *
      * @since 2.0.0
-     *
-     * @var StarmusID3Service
      */
     private readonly StarmusID3Service $id3_service;
 

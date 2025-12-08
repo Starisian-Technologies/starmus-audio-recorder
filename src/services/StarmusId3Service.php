@@ -103,7 +103,7 @@ final class StarmusId3Service
     public function analyzeFile(string $filepath): array
     {
         $engine = $this->getID3Engine();
-        if (!$engine || !file_exists($filepath)) {
+        if (!$engine instanceof \getID3 || !file_exists($filepath)) {
             return ['error' => 'File not found or engine failed to initialize.'];
         }
 

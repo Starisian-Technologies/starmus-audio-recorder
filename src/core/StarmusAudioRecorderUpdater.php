@@ -16,8 +16,6 @@ class StarmusAudioRecorderUpdater
 {
     /**
      * The URL of the update server.
-     *
-     * @var string
      */
     private string $update_api_url = 'https://updates.starisian.com/v1/info'; // Your update server URL
 

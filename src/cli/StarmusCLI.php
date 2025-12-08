@@ -25,8 +25,6 @@ class StarmusCLI extends \WP_CLI_Command
 {
     /**
      * Waveform service instance.
-     *
-     * @var StarmusWaveformService|null
      */
     private ?StarmusWaveformService $waveform_service = null;
 
@@ -432,7 +430,7 @@ class StarmusCLI extends \WP_CLI_Command
 
             \WP_CLI::log(\sprintf('Recording %d (Attachment %d): Missing waveform_json', $recording->ID, $attachment_id));
 
-            if ($repair && $cron) {
+            if ($repair && $cron instanceof \Starisian\Sparxstar\Starmus\cron\StarmusCron) {
                 \WP_CLI::log(\sprintf('  → Regenerating waveform for attachment %d...', $attachment_id));
                 $cron->run_audio_processing_pipeline($attachment_id);
                 $repaired++;

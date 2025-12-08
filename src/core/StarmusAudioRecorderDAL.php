@@ -477,8 +477,6 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
      * Record timestamp when ID3 tags were written to an audio file.
      *
      * @param int $attachment_id WordPress attachment ID.
-     *
-     * @return void
      */
     public function record_id3_timestamp(int $attachment_id): void
     {
@@ -514,8 +512,6 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
      *
      * @param int $attachment_id WordPress attachment ID.
      * @param string $copyright_text Copyright notice or source attribution.
-     *
-     * @return void
      */
     public function set_copyright_source(int $attachment_id, string $copyright_text): void
     {
@@ -554,8 +550,6 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
      * @param int $post_id WordPress post ID to assign terms to.
      * @param int|null $language_id Term ID from 'language' taxonomy (optional).
      * @param int|null $type_id Term ID from 'recording-type' taxonomy (optional).
-     *
-     * @return void
      */
     public function assign_taxonomies(int $post_id, ?int $language_id = null, ?int $type_id = null): void
     {

@@ -48,15 +48,11 @@ class StarmusAdmin
 
     /**
      * Settings service instance.
-     *
-     * @var StarmusSettings|null
      */
     private ?StarmusSettings $settings = null;
 
     /**
      * Data Access Layer instance.
-     *
-     * @var \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface|null
      */
     private ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface $dal = null;
 
@@ -271,7 +267,7 @@ class StarmusAdmin
 
             // TUS endpoint URL
             $tus_url                   = esc_url_raw($input['tus_endpoint'] ?? 'https://contribute.sparxstar.com/files/');
-            $sanitized['tus_endpoint'] = !empty($tus_url) ? trailingslashit($tus_url) : 'https://contribute.sparxstar.com/files/';
+            $sanitized['tus_endpoint'] = empty($tus_url) ? 'https://contribute.sparxstar.com/files/' : trailingslashit($tus_url);
 
             // Consent message
             $sanitized['consent_message'] = wp_kses_post($input['consent_message'] ?? $defaults['consent_message'] ?? '');
