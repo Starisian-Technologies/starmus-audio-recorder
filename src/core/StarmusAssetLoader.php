@@ -235,7 +235,7 @@ final class StarmusAssetLoader
             }
 
             // TUS endpoint from settings
-            $tus_endpoint = get_option('starmus_tus_endpoint', '');
+            $tus_endpoint = $settings->get('tus_endpoint', 'https://contribute.sparxstar.com/files/');
 
             // Speech recognition language from settings
             $speech_lang = $settings->get('speech_recognition_lang', 'en-US');
@@ -261,7 +261,7 @@ final class StarmusAssetLoader
             return [
                 'endpoints' => [
                     'directUpload' => '',
-                    'tusUpload'    => '',
+                    'tusUpload'    => 'https://contribute.sparxstar.com/files/',
                 ],
                 'nonce'                 => '',
                 'user_id'               => 0,

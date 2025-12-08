@@ -26,6 +26,9 @@ use function filemtime;
 use function filesize;
 use function get_current_user_id;
 use function get_permalink;
+use function get_post_meta;
+use function get_post_type;
+use function get_userdata;
 use function glob;
 use function home_url;
 use function is_dir;
@@ -34,6 +37,7 @@ use function json_decode;
 use function mime_content_type;
 use function pathinfo;
 use function preg_match;
+use function sanitize_key;
 use function sanitize_text_field;
 
 use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
@@ -146,13 +150,37 @@ final class StarmusSubmissionHandler
      */
     public function process_completed_file(string $file_path, array $form_data): array|WP_Error
     {
+        StarmusLogger::timeStart('process_completed_file');
         try {
-            StarmusLogger::timeStart('process_completed_file');
+            $result = $this->_finalize_from_local_disk($file_path, $form_data);
+            StarmusLogger::timeEnd('process_completed_file', 'SubmissionHandler');
+            return $result;
+        } catch (Throwable $throwable) {
+            error_log($throwable->getMessage());
+            return $this->err('server_error', 'Failed to process completed file.', 500);
+        }
+    }
+
+    // --- REFACTORED: UNIFIED CORE FINALIZATION METHOD ---
+    /**
+     * UNIFIED Core finalization pipeline for a completed file already on the local disk.
+     * Used by: TUS Webhook (via process_completed_file) and Chunked Upload (via finalize_submission).
+     *
+     * @param string $file_path Absolute path to the completed file (from tusd or chunked temp).
+     * @param array $form_data Sanitized metadata from the client.
+     *
+     * @return array|WP_Error Success array with IDs or WP_Error.
+     */
+    private function _finalize_from_local_disk(string $file_path, array $form_data): array|WP_Error
+    {
+        try {
+            StarmusLogger::timeStart('finalize_from_disk');
 
             if (! file_exists($file_path)) {
                 return $this->err('file_missing', 'No file to process.', 400, ['path' => $file_path]);
             }
 
+            // --- 1. Validation & Destination Setup ---
             $filename    = $form_data['filename'] ?? pathinfo($file_path, PATHINFO_BASENAME);
             $upload_dir  = wp_upload_dir();
             $destination = trailingslashit($upload_dir['path']) . wp_unique_filename($upload_dir['path'], $filename);
@@ -165,6 +193,7 @@ final class StarmusSubmissionHandler
                 return $valid;
             }
 
+            // --- 2. File System Move ---
             global $wp_filesystem;
             if (empty($wp_filesystem)) {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -176,25 +205,27 @@ final class StarmusSubmissionHandler
                 return $this->err('move_failed', 'Failed to move upload into uploads path.', 500, ['dest' => $destination]);
             }
 
+            // --- 3. Attachment Creation ---
             $attachment_id = $this->dal->create_attachment_from_file($destination, $filename);
             if (is_wp_error($attachment_id)) {
                 wp_delete_file($destination);
                 return $attachment_id;
             }
 
+            // --- 4. Post Creation/Update Logic ---
+            $cpt_post_id = 0;
             $existing_post_id = isset($form_data['post_id']) ? absint($form_data['post_id']) : 0;
 
             if ($existing_post_id > 0 && get_post_type($existing_post_id) === $this->get_cpt_slug()) {
+                // Update existing post (TUS use case)
                 $cpt_post_id       = $existing_post_id;
                 $old_attachment_id = (int) get_post_meta($cpt_post_id, '_audio_attachment_id', true);
                 if ($old_attachment_id > 0) {
-                    $this->dal->delete_attachment($old_attachment_id);
+                    $this->dal->delete_attachment($old_attachment_id); // Clean up old attachment
                 }
             } else {
-                $user_id = isset($form_data['user_id']) ? absint($form_data['user_id']) : 0;
-                if ($user_id && ! get_userdata($user_id)) {
-                    $user_id = 0;
-                }
+                // Create new post (Chunked/Fallback use case)
+                $user_id = isset($form_data['user_id']) ? absint($form_data['user_id']) : get_current_user_id();
 
                 $cpt_post_id = $this->dal->create_audio_post(
                     $form_data['starmus_title'] ?? pathinfo($filename, PATHINFO_FILENAME),
@@ -207,6 +238,7 @@ final class StarmusSubmissionHandler
                 }
             }
 
+            // --- 5. Post Metadata and Post Processing ---
             $this->dal->save_post_meta((int) $cpt_post_id, '_audio_attachment_id', (int) $attachment_id);
             $this->dal->set_attachment_parent((int) $attachment_id, (int) $cpt_post_id);
 
@@ -214,7 +246,7 @@ final class StarmusSubmissionHandler
 
             do_action('starmus_after_audio_saved', (int) $cpt_post_id, $form_data);
 
-            StarmusLogger::timeEnd('process_completed_file', 'SubmissionHandler');
+            StarmusLogger::timeEnd('finalize_from_disk', 'SubmissionHandler');
 
             return [
                 'success'       => true,
@@ -222,11 +254,14 @@ final class StarmusSubmissionHandler
                 'post_id'       => (int) $cpt_post_id,
                 'url'           => wp_get_attachment_url((int) $attachment_id),
             ];
+
         } catch (Throwable $throwable) {
             error_log($throwable->getMessage());
             return $this->err('server_error', 'Failed to process completed file.', 500);
         }
     }
+    // --- END UNIFIED CORE FINALIZATION METHOD ---
+
 
     public function handle_upload_chunk_rest(WP_REST_Request $request): array|WP_Error
     {
@@ -331,91 +366,33 @@ final class StarmusSubmissionHandler
          * FILE PROCESSING (Finalization)
          * ==================================================================== */
 
+    /**
+     * @param string $file_path
+     * @param array $form_data
+     * @return array|WP_Error
+     */
     private function finalize_submission(string $file_path, array $form_data): array|WP_Error
     {
+        StarmusLogger::timeStart('finalize_submission');
         try {
-            StarmusLogger::timeStart('finalize_submission');
-
-            if (! file_exists($file_path)) {
-                return $this->err('file_missing', 'No file to finalize.', 400, ['path' => $file_path]);
-            }
-
-            $filename   = $form_data['filename'] ?? uniqid('starmus_', true) . '.webm';
-            $upload_dir = wp_upload_dir();
-            if (empty($upload_dir['path']) || ! is_dir($upload_dir['path'])) {
-                return $this->err('uploads_unavailable', 'Uploads directory not available.', 500, $upload_dir);
-            }
-
-            $destination = trailingslashit($upload_dir['path']) . $filename;
-
-            $mime  = (string) ($form_data['mime'] ?? 'audio/webm');
-            $size  = (int) @filesize($file_path);
-            $valid = $this->validate_file_against_settings($mime, $size);
-            if (is_wp_error($valid)) {
-                wp_delete_file($file_path);
-                return $valid;
-            }
-
-            global $wp_filesystem;
-            if (empty($wp_filesystem)) {
-                require_once ABSPATH . 'wp-admin/includes/file.php';
-                WP_Filesystem();
-            }
-
-            if (! $wp_filesystem->move($file_path, $destination, true)) {
-                wp_delete_file($file_path);
-                return $this->err('move_failed', 'Failed to move upload into uploads path.', 500, ['dest' => $destination]);
-            }
-
-            try {
-                $attachment_id = $this->dal->create_attachment_from_file($destination, $filename);
-            } catch (Throwable $e) {
-                error_log($e->getMessage());
-                wp_delete_file($destination);
-                return $this->err('attachment_create_failed', 'Could not create attachment.', 500);
-            }
-
-            if (is_wp_error($attachment_id)) {
-                wp_delete_file($destination);
-                return $attachment_id;
-            }
-
-            try {
-                $cpt_post_id = $this->dal->create_audio_post(
-                    $form_data['starmus_title'] ?? pathinfo((string) $filename, PATHINFO_FILENAME),
-                    $this->get_cpt_slug(),
-                    get_current_user_id()
-                );
-            } catch (Throwable $e) {
-                error_log($e->getMessage());
-                $this->dal->delete_attachment((int) $attachment_id);
-                return $this->err('post_create_failed', 'Could not create audio post.', 500);
-            }
-
-            if (is_wp_error($cpt_post_id)) {
-                $this->dal->delete_attachment((int) $attachment_id);
-                return $cpt_post_id;
-            }
-
-            try {
-                $this->dal->save_post_meta((int) $cpt_post_id, '_audio_attachment_id', (int) $attachment_id);
-                $this->dal->set_attachment_parent((int) $attachment_id, (int) $cpt_post_id);
-
-                // Save metadata and trigger post processing
-                $this->save_all_metadata((int) $cpt_post_id, (int) $attachment_id, $form_data);
-            } catch (Throwable $e) {
-                error_log($e->getMessage());
-            }
-
+            // Calls the UNIFIED Core Method
+            $result = $this->_finalize_from_local_disk($file_path, $form_data);
             StarmusLogger::timeEnd('finalize_submission', 'SubmissionHandler');
+
+            if (is_wp_error($result)) {
+                return $result;
+            }
+
+            // Reformat the result to include redirect_url, as required by the Chunked REST handler
+            $redirect_url = esc_url($this->get_redirect_url());
 
             return [
                 'success' => true,
                 'data'    => [
-                    'attachment_id' => (int) $attachment_id,
-                    'post_id'       => (int) $cpt_post_id,
-                    'url'           => wp_get_attachment_url((int) $attachment_id),
-                    'redirect_url'  => esc_url($this->get_redirect_url()),
+                    'attachment_id' => $result['attachment_id'],
+                    'post_id'       => $result['post_id'],
+                    'url'           => $result['url'],
+                    'redirect_url'  => $redirect_url,
                 ],
             ];
         } catch (Throwable $throwable) {

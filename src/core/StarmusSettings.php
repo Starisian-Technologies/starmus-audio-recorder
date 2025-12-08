@@ -261,6 +261,7 @@ final class StarmusSettings
                     'allowed_file_types'      => '',
                     'allowed_languages'       => '',
                     'speech_recognition_lang' => 'en-US',
+                    'tus_endpoint'            => 'https://contribute.sparxstar.com/files/',
                     'consent_message'         => 'I consent to having this audio recording stored and used.', // FIXED SYNTAX
                     'collect_ip_ua'           => 0,
                     'delete_on_uninstall'     => 0,
@@ -283,6 +284,7 @@ final class StarmusSettings
                 'allowed_file_types'      => '',
                 'allowed_languages'       => '',
                 'speech_recognition_lang' => 'en-US',
+                'tus_endpoint'            => 'https://contribute.sparxstar.com/files/',
                 'consent_message'         => 'I consent to having this audio recording stored and used.',
                 'collect_ip_ua'           => 0,
                 'delete_on_uninstall'     => 0,
@@ -388,6 +390,9 @@ final class StarmusSettings
             case 'speech_recognition_lang':
                 $sanitized = preg_replace('/[^a-zA-Z0-9\-]/', '', (string) $value);
                 return ! empty($sanitized) ? $sanitized : 'en-US';
+            case 'tus_endpoint':
+                $url = esc_url_raw((string) $value);
+                return ! empty($url) ? trailingslashit($url) : 'https://contribute.sparxstar.com/files/';
             case 'consent_message':
                 return wp_kses_post((string) $value);
             case 'data_policy_url':

@@ -87,6 +87,7 @@ class StarmusAdmin
                 'allowed_file_types'      => 'textarea',
                 'allowed_languages'       => 'text',
                 'speech_recognition_lang' => 'text',
+                'tus_endpoint'            => 'url',
                 'consent_message'         => 'textarea',
                 'collect_ip_ua'           => 'checkbox',
                 'delete_on_uninstall'     => 'checkbox',
@@ -269,6 +270,10 @@ class StarmusAdmin
             $speech_lang                          = preg_replace('/[^a-zA-Z0-9\-]/', '', $speech_lang);
             $sanitized['speech_recognition_lang'] = empty($speech_lang) ? 'en-US' : $speech_lang;
 
+            // TUS endpoint URL
+            $tus_url = esc_url_raw($input['tus_endpoint'] ?? 'https://contribute.sparxstar.com/files/');
+            $sanitized['tus_endpoint'] = !empty($tus_url) ? trailingslashit($tus_url) : 'https://contribute.sparxstar.com/files/';
+
             // Consent message
             $sanitized['consent_message'] = wp_kses_post($input['consent_message'] ?? $defaults['consent_message'] ?? '');
 
@@ -341,6 +346,14 @@ class StarmusAdmin
                 '__return_empty_string',
                 self::STARMUS_MENU_SLUG
             );
+
+            add_settings_section(
+                'starmus_upload_section',
+                __('Upload Configuration', 'starmus-audio-recorder'),
+                '__return_empty_string',
+                self::STARMUS_MENU_SLUG
+            );
+
             add_settings_section(
                 'starmus_language_section',
                 __('Language Validation', 'starmus-audio-recorder'),
@@ -388,6 +401,11 @@ class StarmusAdmin
                     'title'       => __('Allowed File Extensions', 'starmus-audio-recorder'),
                     'section'     => 'starmus_rules_section',
                     'description' => __('Comma-separated list of allowed extensions (e.g., mp3, wav, webm).', 'starmus-audio-recorder'),
+                ],
+                'tus_endpoint' => [
+                    'title'       => __('TUS Resumable Upload Endpoint', 'starmus-audio-recorder'),
+                    'section'     => 'starmus_upload_section',
+                    'description' => __('URL where TUS resumable uploads are handled. Default: https://contribute.sparxstar.com/files/', 'starmus-audio-recorder'),
                 ],
                 'allowed_languages' => [
                     'title'       => __('Allowed Languages (ISO codes)', 'starmus-audio-recorder'),
@@ -510,6 +528,15 @@ class StarmusAdmin
                         esc_attr($id),
                         esc_attr($name),
                         esc_attr($value)
+                    );
+                    break;
+
+                case 'url':
+                    printf(
+                        '<input type="url" id="%s" name="%s" value="%s" class="regular-text" placeholder="https://contribute.sparxstar.com/files/" />',
+                        esc_attr($id),
+                        esc_attr($name),
+                        esc_attr((string) $value)
                     );
                     break;
 
