@@ -164,7 +164,7 @@ final class StarmusSettings
 
             return $this->obj_cache;
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::all', $throwable);
+            error_log($throwable);
             return $this->get_defaults();
         }
     }
@@ -198,7 +198,7 @@ final class StarmusSettings
 
             return $updated;
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::set', $throwable);
+            error_log($throwable);
             return false;
         }
     }
@@ -235,7 +235,7 @@ final class StarmusSettings
 
             return $updated;
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::update_all', $throwable);
+            error_log($throwable);
             return false;
         }
     }
@@ -274,7 +274,7 @@ final class StarmusSettings
 
             return $this->default_obj_cache;
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::get_defaults', $throwable);
+            error_log($throwable);
             // Return hardcoded minimal defaults on error
             return [
                 'cpt_slug'                => 'audio-recording',
@@ -416,7 +416,7 @@ final class StarmusSettings
             $this->clear_cache();
             return delete_option(self::STARMUS_OPTION_KEY);
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::delete_all', $throwable);
+            error_log($throwable);
             return false;
         }
     }
@@ -458,7 +458,7 @@ final class StarmusSettings
 
             return \is_array($types) ? $types : [];
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::filter_filetype_and_ext', $throwable);
+            error_log($throwable);
             return \is_array($types) ? $types : [];
         }
     }
@@ -475,7 +475,7 @@ final class StarmusSettings
 
             return $mimes;
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::filter_upload_mimes', $throwable);
+            error_log($throwable);
             return $mimes;
         }
     }
