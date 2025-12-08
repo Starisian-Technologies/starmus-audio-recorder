@@ -112,7 +112,7 @@ final class StarmusSettings
             add_filter('wp_check_filetype_and_ext', $this->filter_filetype_and_ext(...), 10, 5);
             add_filter('upload_mimes', $this->filter_upload_mimes(...));
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::register_hooks', $throwable);
+            error_log($throwable);
         }
     }
 
@@ -133,7 +133,7 @@ final class StarmusSettings
             $settings = $this->all();
             return $settings[$key] ?? $default;
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::get', $throwable);
+            error_log($throwable);
             return $default;
         }
     }
@@ -313,7 +313,7 @@ final class StarmusSettings
 
             $this->clear_cache(); // Clear internal cache to ensure new default is used immediately
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusSettings::add_defaults_on_activation', $throwable);
+            error_log($throwable);
         }
     }
 

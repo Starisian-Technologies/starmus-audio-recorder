@@ -111,12 +111,12 @@ if (! file_exists($autoloader)) {
     // Do not return here; let the activation hook handle the hard stop if this is an activation attempt.
 } else {
     require_once $autoloader;
-
+    require_once STARMUS_PATH . 'src/helpers/StarmusLogger.php';
     // APPLY CONFIGURED LOG LEVEL (this was missing)
     if (defined('STARMUS_LOG_LEVEL')) {
         \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::setMinLogLevel(STARMUS_LOG_LEVEL);
     }
-    Starisian\Sparxstar\Starmus\helpers\error_log('Bootstrap', 'Composer autoloader loaded successfully.', [], 'INFO');
+    Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('Bootstrap', 'Composer autoloader loaded successfully.', [], 'INFO');
 }
 
 // =========================================================================

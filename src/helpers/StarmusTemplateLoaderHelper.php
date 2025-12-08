@@ -131,7 +131,7 @@ class StarmusTemplateLoaderHelper
         }
 
         // Log for debugging if template not found.
-        error_log('UI:locate_template', 'Template not found: ' . $template_name);
+        error_log('Template not found: ' . $template_name);
         return null;
     }
 
