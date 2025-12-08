@@ -14,6 +14,7 @@
  *
  * @version 0.9.2
  */
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;
@@ -131,6 +132,14 @@ final class StarmusAssetLoader
                 true
             );
 
+            // Add type="module" to the script tag for ES Module support
+            add_filter('script_loader_tag', function ($tag, $handle) {
+                if ($handle === self::HANDLE_PROD_BUNDLE) {
+                    return str_replace('<script ', '<script type="module" ', $tag);
+                }
+                return $tag;
+            }, 10, 2);
+
             $config = $this->get_localization_data();
             error_log('[Starmus AssetLoader] Localizing script with config: ' . json_encode($config));
 
@@ -219,7 +228,7 @@ final class StarmusAssetLoader
 
             // Get allowed file types from settings (comma-separated string like 'mp3,wav,webm')
             $allowed_file_types = $settings->get('allowed_file_types', 'mp3,wav,webm');
-            $allowed_types_arr  = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+            $allowed_types_arr  = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
 
             // Map extensions to MIME types
             $allowed_mimes = [];

@@ -9,6 +9,7 @@ const requiredFiles = [
   'src/js/starmus-core.js',
   'src/js/starmus-hooks.js',
   'src/js/starmus-integrator.js',
+  'src/js/starmus-main.js',
   'src/js/starmus-recorder.js',
   'src/js/starmus-state-store.js',
   'src/js/starmus-transcript-controller.js',

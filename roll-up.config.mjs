@@ -8,28 +8,19 @@ import terser from '@rollup/plugin-terser';
 import babel from '@rollup/plugin-babel'; // <-- MUST BE INSTALLED
 
 export default {
-    input: 'src/js/main.js', 
+    input: 'src/js/starmus-main.js', 
 
     output: {
         file: 'assets/js/starmus-audio-recorder-script.bundle.min.js',
-        format: 'iife',
-        name: 'StarmusApp',
+        format: 'esm', // <-- CHANGE TO ES MODULE FORMAT
+        // name: 'StarmusApp', // Remove name property for ES module
         sourcemap: false,
         globals: {
             'tus-js-client': 'tus',
             'peaks.js': 'Peaks'
         },
-        intro: `
-          (function() {
-            try {
-              if (!window.Promise || !Array.prototype.includes) {
-                throw new Error("Unsupported browser");
-              }
-            } catch(e) {
-              alert("Your browser is not supported. Please upgrade to continue.");
-            }
-          })();
-        `
+        // REMOVE THE ENTIRE 'intro' BLOCK
+        intro: undefined 
     },
 
   plugins: [
