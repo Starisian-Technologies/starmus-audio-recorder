@@ -1,20 +1,24 @@
 /**
  * @file starmus-ui.js
- * @version 4.2.2 (ES Module)
- * @description Pure view layer. Maps store state to DOM elements.
- * Supports Timer, Volume Meter, Live Transcript, and Review Controls.
+ * @version 4.2.3
+ * @description Pure view layer + user interaction wiring.
+ * Maps store state to DOM and dispatches UI actions to CommandBus.
  */
 
 'use strict';
 
+// --- LOCAL STATE ---
 let starmusClipWarned = false;
+
+/* -------------------------------------------------------------------------
+ * UTILITIES
+ * ------------------------------------------------------------------------- */
 
 function starmusMaybeCoachUser(normalizedLevel, elements) {
   if (normalizedLevel >= 0.85 && !starmusClipWarned) {
     starmusClipWarned = true;
 
-    const msg =
-      elements.messageBox || document.querySelector('[data-starmus-message-box]');
+    const msg = elements.messageBox || document.querySelector('[data-starmus-message-box]');
     if (msg) {
       msg.textContent =
         '⚠️ Your microphone is too loud. Move back 6–12 inches or speak softer for a cleaner recording.';
@@ -32,9 +36,7 @@ function starmusMaybeCoachUser(normalizedLevel, elements) {
 }
 
 function formatTime(seconds) {
-  if (seconds === undefined || seconds === null || isNaN(seconds)) {
-    return '00m 00s';
-  }
+  if (!Number.isFinite(seconds)) return '00m 00s';
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
   return `${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`;
@@ -46,6 +48,10 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+/* -------------------------------------------------------------------------
+ * RENDER LOOP (STORE → DOM)
+ * ------------------------------------------------------------------------- */
+
 export function render(state, elements) {
   const {
     status,
@@ -54,9 +60,10 @@ export function render(state, elements) {
     submission = {},
     calibration = {},
     recorder = {},
-    instanceId,
+    instanceId
   } = state;
 
+  /* -------------------- TIER C FALLBACK -------------------- */
   if (state.tier === 'C' || state.fallbackActive === true) {
     ['recordBtn','pauseBtn','resumeBtn','stopBtn','recorderContainer'].forEach((k) => {
       if (elements[k]) elements[k].style.display = 'none';
@@ -67,6 +74,7 @@ export function render(state, elements) {
     return;
   }
 
+  /* -------------------- STEP MANAGEMENT -------------------- */
   if (elements.step1 && elements.step2) {
     if (status === 'uninitialized') {
       elements.step1.style.display = 'block';
@@ -78,18 +86,19 @@ export function render(state, elements) {
     elements.step2.style.display = showStep2 ? 'block' : 'none';
   }
 
+  /* -------------------- TIMER -------------------- */
   const MAX_DURATION = 1200;
   const ORANGE_THRESHOLD = 900;
   const RED_THRESHOLD = 1020;
 
   if (elements.timer || elements.timerElapsed) {
     const time = recorder.duration || 0;
-    const formattedTime = formatTime(time);
+    const formatted = formatTime(time);
 
     if (elements.timerElapsed) {
-      elements.timerElapsed.textContent = formattedTime;
+      elements.timerElapsed.textContent = formatted;
     } else if (elements.timer) {
-      elements.timer.textContent = formattedTime;
+      elements.timer.textContent = formatted;
     }
 
     if (elements.timer) {
@@ -101,29 +110,22 @@ export function render(state, elements) {
     }
   }
 
+  /* -------------------- PROGRESS BAR -------------------- */
   if (elements.durationProgress) {
     const time = recorder.duration || 0;
-    const showProgress =
+    const show =
       status === 'recording' ||
       status === 'paused' ||
       status === 'calibrating';
 
     if (elements.durationProgress.parentElement) {
-      elements.durationProgress.parentElement.style.display = showProgress
-        ? 'block'
-        : 'none';
+      elements.durationProgress.parentElement.style.display = show ? 'block' : 'none';
     }
 
-    if (showProgress) {
-      const progressPercent = Math.min(100, (time / MAX_DURATION) * 100);
-      elements.durationProgress.style.setProperty(
-        '--starmus-recording-progress',
-        `${progressPercent}%`
-      );
-      elements.durationProgress.setAttribute(
-        'aria-valuenow',
-        Math.floor(time)
-      );
+    if (show) {
+      const pct = Math.min(100, (time / MAX_DURATION) * 100);
+      elements.durationProgress.style.setProperty('--starmus-recording-progress', `${pct}%`);
+      elements.durationProgress.setAttribute('aria-valuenow', Math.floor(time));
 
       if (time >= RED_THRESHOLD) {
         elements.durationProgress.setAttribute('data-level', 'danger');
@@ -133,97 +135,62 @@ export function render(state, elements) {
         elements.durationProgress.setAttribute('data-level', 'safe');
       }
 
-      if (time >= MAX_DURATION && status === 'recording') {
-        if (window.CommandBus) {
-          window.CommandBus.dispatch(
-            'stop-mic',
-            {},
-            { instanceId: instanceId }
-          );
-        }
+      if (time >= MAX_DURATION && status === 'recording' && window.CommandBus) {
+        window.CommandBus.dispatch('stop-mic', {}, { instanceId });
       }
     }
   }
 
+  /* -------------------- VOLUME METER -------------------- */
   if (elements.volumeMeter) {
-    const showMeter =
-      status === 'calibrating' ||
+    const active =
       status === 'recording' ||
-      status === 'paused';
+      status === 'paused' ||
+      status === 'calibrating';
 
     if (elements.volumeMeter.parentElement) {
-      elements.volumeMeter.parentElement.style.display = showMeter
-        ? 'block'
-        : 'none';
+      elements.volumeMeter.parentElement.style.display = active ? 'block' : 'none';
     }
 
-    if (showMeter) {
-      let vol = 0;
-      if (status === 'calibrating') {
-        vol = calibration.volumePercent || 0;
-      } else {
-        vol = recorder.amplitude || 0;
-      }
-
-      vol = Math.max(0, Math.min(100, vol));
-      const normalizedLevel = vol / 100;
-
-      elements.volumeMeter.style.setProperty(
-        '--starmus-audio-level',
-        `${vol}%`
-      );
-
-      if (normalizedLevel < 0.6) {
-        elements.volumeMeter.setAttribute('data-level', 'safe');
-      } else if (normalizedLevel < 0.85) {
-        elements.volumeMeter.setAttribute('data-level', 'hot');
-      } else {
-        elements.volumeMeter.setAttribute('data-level', 'clip');
-      }
-
-      if (status === 'recording') {
-        starmusMaybeCoachUser(normalizedLevel, elements);
-      }
-    } else {
+    if (!active) {
       elements.volumeMeter.style.setProperty('--starmus-audio-level', '0%');
       elements.volumeMeter.removeAttribute('data-level');
+    } else {
+      const vol = Math.max(0, Math.min(100,
+        status === 'calibrating'
+          ? calibration.volumePercent || 0
+          : recorder.amplitude || 0
+      ));
+
+      elements.volumeMeter.style.setProperty('--starmus-audio-level', `${vol}%`);
+
+      const norm = vol / 100;
+      if (norm < 0.6) elements.volumeMeter.setAttribute('data-level', 'safe');
+      else if (norm < 0.85) elements.volumeMeter.setAttribute('data-level', 'hot');
+      else elements.volumeMeter.setAttribute('data-level', 'clip');
+
+      if (status === 'recording') starmusMaybeCoachUser(norm, elements);
     }
   }
 
-  const isRecorded = status === 'ready_to_submit';
-  const isRecording = status === 'recording';
-  const isCalibrating = status === 'calibrating';
-  const isReady = status === 'ready';
-  const isCalibrated = calibration && calibration.complete === true;
+  /* -------------------- BUTTON STATES -------------------- */
+  const isRec = status === 'recording';
   const isPaused = status === 'paused';
-  const showStopBtn = isRecording || isCalibrating;
-
-  if (elements.setupMicBtn && elements.setupContainer) {
-    const showSetup = status === 'ready_to_record' && !isCalibrated;
-    elements.setupContainer.style.display = showSetup ? 'block' : 'none';
-  }
+  const isReady = status === 'ready';
+  const isCalibrating = status === 'calibrating';
+  const isRecorded = status === 'ready_to_submit';
+  const isCalibrated = calibration && calibration.complete === true;
+  const showStop = isRec || isPaused || isCalibrating;
 
   if (elements.recordBtn) {
-    const showRecordBtn =
-      isReady &&
-      isCalibrated &&
-      !isRecorded &&
-      !showStopBtn &&
-      !isPaused &&
-      status !== 'submitting' &&
-      status !== 'processing';
-    elements.recordBtn.style.display = showRecordBtn
-      ? 'inline-flex'
-      : 'none';
-
-    if (isReady && isCalibrated) {
-      elements.recordBtn.innerHTML =
-        '<span class="dashicons dashicons-microphone"></span> Start Recording';
-    }
+    elements.recordBtn.style.display =
+      isReady && isCalibrated && !showStop && !isRecorded
+        ? 'inline-flex'
+        : 'none';
   }
 
   if (elements.pauseBtn) {
-    elements.pauseBtn.style.display = isRecording ? 'inline-flex' : 'none';
+    elements.pauseBtn.style.display = isRec ? 'inline-flex' : 'none';
   }
 
   if (elements.resumeBtn) {
@@ -231,174 +198,94 @@ export function render(state, elements) {
   }
 
   if (elements.stopBtn) {
-    const showStop = isRecording || isCalibrating || isPaused;
     elements.stopBtn.style.display = showStop ? 'inline-flex' : 'none';
-
-    if (isCalibrating) {
-      elements.stopBtn.innerHTML =
-        '<span class="dashicons dashicons-update"></span> Calibrating...';
-      elements.stopBtn.disabled = true;
-    } else {
-      elements.stopBtn.innerHTML =
-        '<span class="dashicons dashicons-media-default"></span> Stop';
-      elements.stopBtn.disabled = false;
-    }
-  }
-
-  if (elements.reviewControls) {
-    elements.reviewControls.style.display =
-      isRecorded || isPaused ? 'flex' : 'none';
-  }
-
-  if (elements.playBtn) {
-    const isPlaying = !!recorder.isPlaying;
-    elements.playBtn.textContent = isPlaying ? 'Pause' : 'Play Preview';
-    elements.playBtn.setAttribute(
-      'aria-label',
-      isPlaying ? 'Pause audio' : 'Play recorded audio'
-    );
+    elements.stopBtn.disabled = isCalibrating;
+    elements.stopBtn.innerHTML = isCalibrating
+      ? '<span class="dashicons dashicons-update"></span> Calibrating...'
+      : '<span class="dashicons dashicons-media-default"></span> Stop';
   }
 
   if (elements.submitBtn) {
     elements.submitBtn.disabled = status !== 'ready_to_submit';
-
-    if (status === 'submitting') {
-      elements.submitBtn.innerHTML =
-        '<span class="starmus-spinner"></span> Uploading...';
-      elements.submitBtn.classList.add('starmus-btn--loading');
-    } else {
-      elements.submitBtn.textContent = 'Submit Recording';
-      elements.submitBtn.classList.remove('starmus-btn--loading');
-    }
+    elements.submitBtn.textContent =
+      status === 'submitting' ? 'Uploading…' : 'Submit Recording';
   }
 
-  if (elements.progressEl && elements.progressWrap) {
-    if (status === 'submitting') {
-      elements.progressWrap.style.display = 'block';
-      const pct = (submission.progress || 0) * 100;
-      elements.progressEl.style.width = `${Math.max(0, Math.min(100, pct))}%`;
-    } else {
-      elements.progressWrap.style.display = 'none';
-    }
-  }
-
+  /* -------------------- TRANSCRIPT -------------------- */
   if (elements.transcriptBox) {
-    const hasFinal = source.transcript && source.transcript.length > 0;
-    const hasInterim =
-      source.interimTranscript && source.interimTranscript.length > 0;
+    const hasFinal = source.transcript?.length > 0;
+    const hasInterim = source.interimTranscript?.length > 0;
 
     if (hasFinal || hasInterim) {
       elements.transcriptBox.style.display = 'block';
-
-      const finalHTML = hasFinal
-        ? `<span class="starmus-transcript--final">${escapeHtml(
-            source.transcript
-          )}</span>`
-        : '';
-      const interimHTML = hasInterim
-        ? `<span class="starmus-transcript--interim">${escapeHtml(
-            source.interimTranscript
-          )}</span>`
-        : '';
-
-      elements.transcriptBox.innerHTML = finalHTML + (interimHTML ? ' ' + interimHTML : '');
-
-      if (hasFinal && status !== 'calibrating') {
-        elements.transcriptBox.classList.remove('starmus-transcript--pulse');
-        void elements.transcriptBox.offsetWidth;
-        elements.transcriptBox.classList.add('starmus-transcript--pulse');
-      }
+      elements.transcriptBox.innerHTML =
+        (hasFinal ? `<span class="starmus-transcript--final">${escapeHtml(source.transcript)}</span>` : '')
+        + (hasInterim ? ` <span class="starmus-transcript--interim">${escapeHtml(source.interimTranscript)}</span>` : '');
     } else {
       elements.transcriptBox.style.display = 'none';
-      elements.transcriptBox.textContent = '';
     }
   }
 
+  /* -------------------- STATUS MESSAGES -------------------- */
   if (elements.statusEl) {
-    const messageEl = elements.statusEl;
-    let message = '';
-    let msgClass = 'starmus-status';
+    const el = elements.statusEl;
+    let msg = '';
+    let cls = 'starmus-status';
 
     if (error) {
-      msgClass += ' starmus-status--error';
-      message = error.message || 'An error occurred.';
-      if (error.retryable) {
-        message += ' Please try again.';
-      }
+      msg = error.message || 'An error occurred.';
+      cls += ' starmus-status--error';
     } else {
       switch (status) {
-        case 'idle':
-          message = 'Please fill out the details to continue.';
-          break;
-        case 'calibrating':
-          message = calibration.message || 'Adjusting microphone...';
-          break;
-        case 'ready':
-          message = calibration.complete
-            ? `Mic calibrated (Gain: ${(calibration.gain || 1.0).toFixed(
-                1
-              )}x). Click "Start Recording" to begin.`
-            : 'Ready to record.';
-          msgClass += ' starmus-status--success';
-          break;
-        case 'ready_to_record':
-          message = 'Ready to record.';
-          break;
-        case 'recording':
-          message = 'Recording in progress...';
-          msgClass += ' starmus-status--recording';
-          break;
-        case 'paused':
-          message =
-            'Recording paused. Click Resume to continue or Stop to finish.';
-          msgClass += ' starmus-status--info';
-          break;
-        case 'processing':
-          message = 'Processing audio... Please wait.';
-          msgClass += ' starmus-status--info';
-          break;
-        case 'ready_to_submit':
-          if (submission.isQueued) {
-            message = 'Network offline. Recording saved to queue.';
-            msgClass += ' starmus-status--warning';
-          } else {
-            message = 'Recording complete. Review or Submit.';
-            msgClass += ' starmus-status--success';
-          }
-          break;
-        case 'submitting':
-          message = `Uploading... ${Math.round(
-            (submission.progress || 0) * 100
-          )}%`;
-          break;
-        case 'complete':
-          if (submission.isQueued) {
-            message =
-              'Saved to offline queue. Will upload automatically when online.';
-            msgClass += ' starmus-status--warning';
-          } else {
-            message = 'Upload successful! Redirecting...';
-            msgClass += ' starmus-status--success';
-            setTimeout(() => {
-              const redirectUrl =
-                window.starmusConfig?.myRecordingsUrl || '/my-submissions/';
-              window.location.href = redirectUrl;
-            }, 2000);
-          }
-          break;
-        default:
-          message = '';
+        case 'ready': msg = 'Mic calibrated. Click Start Recording.'; cls += ' starmus-status--success'; break;
+        case 'recording': msg = 'Recording...'; cls += ' starmus-status--recording'; break;
+        case 'paused': msg = 'Paused — Resume or Stop.'; break;
+        case 'submitting': msg = `Uploading ${Math.round(submission.progress * 100)}%`; break;
+        case 'complete': msg = 'Upload successful!'; cls += ' starmus-status--success'; break;
+        default: msg = '';
       }
     }
 
-    messageEl.className = msgClass;
-    messageEl.textContent = message;
-    messageEl.style.display = message ? 'block' : 'none';
+    el.className = cls;
+    el.textContent = msg;
+    el.style.display = msg ? 'block' : 'none';
   }
 }
 
+/* -------------------------------------------------------------------------
+ * UI INITIALIZATION (WIRING DOM EVENTS → COMMAND BUS)
+ * ------------------------------------------------------------------------- */
+
 export function initInstance(store, elements) {
-  const unsubscribe = store.subscribe((nextState) => render(nextState, elements));
+  const instId = store.getState().instanceId;
+  const BUS = window.CommandBus || window.StarmusHooks;
+
+  function dispatch(action) {
+    if (!BUS) return console.warn('[StarmusUI] No CommandBus detected.');
+    BUS.dispatch(action, {}, { instanceId: instId });
+  }
+
+  /* BUTTON EVENT LISTENERS — THIS WAS WHAT YOU LOST */
+  elements.recordBtn?.addEventListener('click', () => dispatch('start-recording'));
+  elements.pauseBtn?.addEventListener('click', () => dispatch('pause-mic'));
+  elements.resumeBtn?.addEventListener('click', () => dispatch('resume-mic'));
+  elements.stopBtn?.addEventListener('click', () => dispatch('stop-mic'));
+  elements.submitBtn?.addEventListener('click', () => dispatch('submit'));
+  elements.resetBtn?.addEventListener('click', () => dispatch('reset'));
+
+  elements.setupMicBtn?.addEventListener('click', () => dispatch('setup-mic'));
+
+  if (elements.fileInput) {
+    elements.fileInput.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      BUS.dispatch('file-attached', { file }, { instanceId: instId });
+    });
+  }
+
+  // SUBSCRIBE TO STORE
+  const unsubscribe = store.subscribe((next) => render(next, elements));
   render(store.getState(), elements);
+
   return unsubscribe;
 }
