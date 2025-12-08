@@ -23,14 +23,9 @@ use function current_user_can;
 use function is_admin;
 // Admin/UI/Assets
 use function load_plugin_textdomain;
-
 use LogicException;
-
 use function plugin_basename;
-
 // if directly referenced (not required here)
-// if directly referenced (not required here)
-
 // REST layer
 use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
 // Cron

@@ -131,26 +131,26 @@ final class StarmusLogger
      * @param string $message The human-readable message.
      * @param array<string|int, mixed> $data Optional associative array of extra data.
      */
-    protected static function log(string $context, string $message, array $data = [], int $level_int = 100): void
+    protected static function log(string $context, string $message='', array $data = [], int $level_int = 101): void
     {
         error_log($context . $message);
         // Check int$ernal minimum level setting
         // Correctly compares two integers
-        if ($level_int < self::$min_log_level) {
-            return;
-        }
+        //if ($level_int < self::$min_log_level) {
+        //    return;
+        //}
 
         $timestamp = \gmdate('Y-m-d H:i:s');
         
         // Match expression now correctly matches an integer against integer constants
-        $level_str = match ($level_int) {
-            self::DEBUG   => 'DEBUG',
-            self::INFO    => 'INFO',
-            self::NOTICE  => 'NOTICE',
-            self::WARNING => 'WARNING',
-            self::ERROR   => 'ERROR',
-            default       => 'UNKNOWN',
-        };
+        //$level_str = match ($level_int) {
+         //   self::DEBUG   => 'DEBUG',
+        //    self::INFO    => 'INFO',
+          //  self::NOTICE  => 'NOTICE',
+          //  self::WARNING => 'WARNING',
+          //  self::ERROR   => 'ERROR',
+           // default       => 'UNKNOWN',
+        //};
 
         // Encode the optional data for appending to the line.
         $data_str = $data ? ' ' . \wp_json_encode($data) : '';
@@ -159,7 +159,7 @@ final class StarmusLogger
         $line = \sprintf(
             "[%s] [%s] [%s] %s%s%s",
             $timestamp,
-            $level_str,
+            //$level_str,
             $context,
             $message,
             $data_str,
@@ -170,6 +170,6 @@ final class StarmusLogger
         error_log($line);
         // The core fix: error_log mode 3 forces writing/appending to the specified file path.
         // @ suppresses any warnings if the file path is unwritable (due to permissions).
-        @\error_log($line, 3, $log_file);
+        \error_log($line, 3, $log_file);
     }
 }
