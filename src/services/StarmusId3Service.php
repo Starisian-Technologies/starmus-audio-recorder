@@ -32,7 +32,7 @@ final class StarmusId3Service
     private function getID3Engine(): ?\getID3
     {
         if (!class_exists('getID3')) {
-            error_log('ID3 Service', 'Cannot load getID3 library. Check Composer autoload config.', ['class' => 'getID3']);
+            error_log('Cannot load getID3 library. Check Composer autoload config.');
             return null;
         }
 
@@ -57,7 +57,7 @@ final class StarmusId3Service
     public function writeTags(string $filepath, array $tagData, int $post_id): bool
     {
         if (!file_exists($filepath) || !class_exists('getid3_writetags')) {
-            error_log('ID3 Writer', 'Required ID3 writer class not available or file is missing.', ['file' => $filepath]);
+            error_log('Required ID3 writer class not available or file is missing: ' . $filepath);
             return false;
         }
 
@@ -78,11 +78,7 @@ final class StarmusId3Service
             $tagwriter->tag_data          = $tagData;
 
             if (! $tagwriter->WriteTags()) {
-                error_log(
-                    'ID3 Writer Error',
-                    'Failed to write ID3 tags: ' . implode('; ', $tagwriter->errors),
-                    ['file' => $filepath, 'post_id' => $post_id]
-                );
+                error_log('Failed to write ID3 tags: ' . implode('; ', $tagwriter->errors) . ' File: ' . $filepath . ' Post ID: ' . $post_id);
                 return false;
             }
 
@@ -92,7 +88,7 @@ final class StarmusId3Service
 
             return true;
         } catch (\Throwable $throwable) {
-            error_log('ID3 Writer Exception', $throwable->getMessage(), ['file' => $filepath, 'post_id' => $post_id]);
+            error_log('ID3 Writer Exception: ' . $throwable->getMessage() . ' File: ' . $filepath . ' Post ID: ' . $post_id);
             return false;
         }
     }

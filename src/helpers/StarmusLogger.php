@@ -76,7 +76,7 @@ final class StarmusLogger
      */
     public static function debug(string $context, string $message, array $data = []): void
     {
-        self::log(self::DEBUG, $context, $message, $data);
+        self::log($context, $message, $data, self::DEBUG);
     }
 
     /**
@@ -86,7 +86,7 @@ final class StarmusLogger
      */
     public static function info(string $context, string $message, array $data = []): void
     {
-        self::log(self::INFO, $context, $message, $data);
+        self::log($context, $message, $data, self::INFO);
     }
 
     /**
@@ -96,7 +96,7 @@ final class StarmusLogger
      */
     public static function notice(string $context, string $message, array $data = []): void
     {
-        self::log(self::NOTICE, $context, $message, $data);
+        self::log($context, $message, $data, self::NOTICE);
     }
 
     /**
@@ -106,7 +106,7 @@ final class StarmusLogger
      */
     public static function warning(string $context, string $message, array $data = []): void
     {
-        self::log(self::WARNING, $context, $message, $data);
+        self::log($context, $message, $data, self::WARNING);
     }
 
     /**
@@ -116,7 +116,7 @@ final class StarmusLogger
      */
     public static function error(string $context, string $message, array $data = []): void
     {
-        self::log(self::ERROR, $context, $message, $data);
+        self::log($context, $message, $data, self::ERROR);
     }
 
     /*==============================================================
@@ -131,7 +131,7 @@ final class StarmusLogger
      * @param string $message The human-readable message.
      * @param array<string|int, mixed> $data Optional associative array of extra data.
      */
-    protected static function log(string $context, string $message='', array $data = [], int $level_int = 101): void
+    protected static function log(string $context, string $message = '', array $data = [], int $level_int = 101): void
     {
         error_log($context . $message);
         // Check int$ernal minimum level setting
@@ -141,15 +141,15 @@ final class StarmusLogger
         //}
 
         $timestamp = \gmdate('Y-m-d H:i:s');
-        
+
         // Match expression now correctly matches an integer against integer constants
         //$level_str = match ($level_int) {
-         //   self::DEBUG   => 'DEBUG',
+        //   self::DEBUG   => 'DEBUG',
         //    self::INFO    => 'INFO',
-          //  self::NOTICE  => 'NOTICE',
-          //  self::WARNING => 'WARNING',
-          //  self::ERROR   => 'ERROR',
-           // default       => 'UNKNOWN',
+        //  self::NOTICE  => 'NOTICE',
+        //  self::WARNING => 'WARNING',
+        //  self::ERROR   => 'ERROR',
+        // default       => 'UNKNOWN',
         //};
 
         // Encode the optional data for appending to the line.

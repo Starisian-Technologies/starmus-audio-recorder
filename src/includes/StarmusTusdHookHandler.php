@@ -118,7 +118,7 @@ class StarmusTusdHookHandler
             $result = $this->process_completed_upload($data['Event']['Upload']);
 
             if (is_wp_error($result)) {
-                error_log('StarmusTusdHookHandler', $result->get_error_message(), ['error_code' => $result->get_error_code()]);
+                error_log($result->get_error_message());
                 return $result;
             }
 
@@ -177,7 +177,7 @@ class StarmusTusdHookHandler
         $expected_secret = \defined('TUSD_WEBHOOK_SECRET') ? TUSD_WEBHOOK_SECRET : null;
 
         if (empty($expected_secret)) {
-            error_log('StarmusTusdHookHandler', 'TUSD_WEBHOOK_SECRET is not defined in wp-config.php');
+            error_log('TUSD_WEBHOOK_SECRET is not defined in wp-config.php');
             return new WP_Error('unauthorized', 'Endpoint not configured.', ['status' => 500]);
         }
 

@@ -90,7 +90,7 @@ class StarmusTemplateLoaderHelper
             }
 
             error_log('[StarmusTemplateLoader] Template found at: ' . $template_path);
-            error_log('[StarmusTemplateLoader] Template args: ' . print_r(array_keys($args), true));
+            error_log('[StarmusTemplateLoader] Template args logged');
 
             do_action('starmus_before_template_render');
 
@@ -99,7 +99,7 @@ class StarmusTemplateLoaderHelper
 
             $output = self::post_template_render(self::render($template_path, $args));
 
-            error_log('[StarmusTemplateLoader] Template rendered successfully, output length: ' . \strlen($output));
+            error_log('[StarmusTemplateLoader] Template rendered successfully');
 
             return $output;
         } catch (\Throwable $throwable) {

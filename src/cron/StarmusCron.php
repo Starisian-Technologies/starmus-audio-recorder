@@ -127,7 +127,7 @@ final readonly class StarmusCron
                 );
             } else {
                 update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN);
-                error_log('Cron', 'Background processing failed', ['attachment_id' => $attachment_id]);
+                error_log('Background processing failed for attachment: ' . $attachment_id);
             }
         } catch (\Throwable $throwable) {
             update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN);
@@ -202,7 +202,7 @@ final readonly class StarmusCron
                 'display'  => __('Every 15 Minutes (Starmus)', 'starmus-audio-recorder'),
             ];
         } catch (\Throwable $throwable) {
-            error_log('StarmusCron', $throwable, ['context' => 'register_custom_schedules']);
+            error_log($throwable);
         }
 
         return $schedules;

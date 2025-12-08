@@ -63,7 +63,7 @@ final readonly class StarmusWaveformService
         $path = trim((string) shell_exec('command -v audiowaveform'));
 
         if ($path === '') {
-            error_log('StarmusWaveformService', 'audiowaveform binary not found.');
+            error_log('audiowaveform binary not found.');
             return false;
         }
 
@@ -89,7 +89,7 @@ final readonly class StarmusWaveformService
         // Parent Recording
         $recording_id = (int) get_post_meta($attachment_id, '_parent_recording_id', true);
         if ($recording_id <= 0) {
-            error_log('StarmusWaveformService', 'Missing parent recording reference.', ['attachment_id' => $attachment_id]);
+            error_log('Missing parent recording reference for attachment: ' . $attachment_id);
             return false;
         }
 
@@ -102,14 +102,14 @@ final readonly class StarmusWaveformService
         // Get audio file
         $file_path = (new $this->files())->get_local_copy($attachment_id);
         if (! $file_path || ! file_exists($file_path)) {
-            error_log('StarmusWaveformService', 'Audio file not found.', ['attachment_id' => $attachment_id]);
+            error_log('Audio file not found for attachment: ' . $attachment_id);
             return false;
         }
 
         // Extract waveform data
         $data = $this->extract_waveform_from_file($file_path);
         if ($data === null || $data === []) {
-            error_log('StarmusWaveformService', 'Waveform extraction failed.', ['attachment_id' => $attachment_id]);
+            error_log('Waveform extraction failed for attachment: ' . $attachment_id);
             return false;
         }
 
@@ -187,7 +187,7 @@ final readonly class StarmusWaveformService
 
         $temp = tempnam(sys_get_temp_dir(), 'waveform-');
         if (! $temp) {
-            error_log('StarmusWaveformService', 'Failed to create temp file.');
+            error_log('Failed to create temp file.');
             return null;
         }
 

@@ -96,7 +96,7 @@ class StarmusAdmin
             ];
             $this->register_hooks();
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::__construct', $throwable);
+            error_log($throwable);
             throw $throwable;
         }
     }
@@ -133,7 +133,7 @@ class StarmusAdmin
                 $this->render_settings_page(...)
             );
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::add_admin_menu', $throwable);
+            error_log($throwable);
         }
     }
 
@@ -183,7 +183,7 @@ class StarmusAdmin
             </div>
 <?php
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::render_settings_page', $throwable);
+            error_log($throwable);
             echo '<div class="error"><p>' . esc_html__('Error loading settings page.', 'starmus-audio-recorder') . '</p></div>';
         }
     }
@@ -210,7 +210,7 @@ class StarmusAdmin
             $this->add_settings_sections();
             $this->add_settings_fields();
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::register_settings', $throwable);
+            error_log($throwable);
         }
     }
 
@@ -317,7 +317,7 @@ class StarmusAdmin
 
             return $sanitized; // Return the sanitized array for WordPress to save
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::sanitize_settings', $throwable);
+            error_log($throwable);
             return $this->settings->get_defaults(); // Return safe defaults on error
         }
     }
@@ -362,7 +362,7 @@ class StarmusAdmin
                 self::STARMUS_MENU_SLUG
             );
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::add_settings_sections', $throwable);
+            error_log($throwable);
         }
     }
 
@@ -450,7 +450,7 @@ class StarmusAdmin
                 );
             }
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::add_settings_fields', $throwable);
+            error_log($throwable);
         }
     }
 
@@ -556,7 +556,7 @@ class StarmusAdmin
                 );
             }
         } catch (\Throwable $throwable) {
-            \Starisian\Sparxstar\Starmus\helpers\error_log('StarmusAdmin::render_field', $throwable);
+            error_log($throwable);
         }
     }
 }
