@@ -5,7 +5,6 @@
  *
  * @package Starisian\Sparxstar\Starmus\core
  */
-
 namespace Starisian\Sparxstar\Starmus\core;
 
 if (! \defined('ABSPATH')) {
@@ -13,7 +12,6 @@ if (! \defined('ABSPATH')) {
 }
 
 use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 use WP_Error;
 use WP_Query;

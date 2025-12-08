@@ -12,7 +12,6 @@
  *
  * @version 0.9.2
  */
-
 namespace Starisian\Sparxstar\Starmus;
 
 if (! \defined('ABSPATH')) {
@@ -23,8 +22,11 @@ use function current_user_can;
 use function is_admin;
 // Admin/UI/Assets
 use function load_plugin_textdomain;
+
 use LogicException;
+
 use function plugin_basename;
+
 // if directly referenced (not required here)
 // REST layer
 use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
@@ -176,7 +178,7 @@ final class StarmusAudioRecorder
      */
     private function __construct()
     {
-        try{
+        try {
             $this->set_DAL();
             $this->init_settings_or_throw();
             $this->init_components();

@@ -1,5 +1,4 @@
 <?php
-
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 if (!\defined('ABSPATH')) {
@@ -52,7 +51,7 @@ final class StarmusLogger
         }
 
         // 3. Final fallback (should not be reached in a WP context)
-        return \sys_get_temp_dir() . '/starmus_fallback.log';
+        return sys_get_temp_dir() . '/starmus_fallback.log';
     }
 
     public static function setCorrelationId(?string $id = null): void
@@ -74,7 +73,7 @@ final class StarmusLogger
             'error'   => self::ERROR,
         ];
 
-        $level = \strtolower($level);
+        $level = strtolower($level);
         if (isset($map[$level])) {
             self::$min_log_level = $map[$level];
         }
@@ -176,7 +175,7 @@ final class StarmusLogger
         //    return;
         //}
 
-        $timestamp = \gmdate('Y-m-d H:i:s');
+        $timestamp = gmdate('Y-m-d H:i:s');
 
         // Match expression now correctly matches an integer against integer constants
         //$level_str = match ($level_int) {
@@ -189,11 +188,11 @@ final class StarmusLogger
         //};
 
         // Encode the optional data for appending to the line.
-        $data_str = $data ? ' ' . \wp_json_encode($data) : '';
+        $data_str = $data ? ' ' . wp_json_encode($data) : '';
 
         // Format: [YYYY-MM-DD HH:MM:SS] [Context] Message {data}
         $line = \sprintf(
-            "[%s] [%s] %s%s%s",
+            '[%s] [%s] %s%s%s',
             $timestamp,
             $context,
             $message,
@@ -205,6 +204,6 @@ final class StarmusLogger
         error_log($line);
         // The core fix: error_log mode 3 forces writing/appending to the specified file path.
         // @ suppresses any warnings if the file path is unwritable (due to permissions).
-        \error_log($line, 3, $log_file);
+        error_log($line, 3, $log_file);
     }
 }

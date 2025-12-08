@@ -1,113 +1,151 @@
 /**
  * @file starmus-hooks.js
- * @version 4.1.0
- * @description Lightweight command bus and debug helpers.
- * Optimized for low-resource devices with recursion guards and memory safety.
+ * @version 5.0.1
+ * @description Unified Command Bus with backward‑compatible ES5 fallbacks.
+ * Correctly integrates with starmusConfig.debug and exports debugLog.
  */
 
-'use strict';
+;(function (global) {
+  'use strict';
 
-/**
- * Command handlers registry.
- * Object.create(null) prevents prototype pollution.
- */
-const handlers = Object.create(null);
+  /**
+   * ---------------------------------------------------------------------------
+   * SECTION 1 — CORE UTILITIES (Logging & Fallbacks)
+   * ---------------------------------------------------------------------------
+   */
 
-/**
- * Recursion guard to prevent infinite dispatch loops.
- * Tracks currently executing commands with instance scope.
- */
-const activeDispatches = new Set();
+  // Unified debug logger (ES5-safe)
+  var DEBUG = !!(global.starmusConfig && global.starmusConfig.debug);
 
-/**
- * Subscribe to a command.
- * Returns a cleanup function to unsubscribe.
- *
- * @param {string} commandName
- * @param {function} handler
- * @returns {function} unsubscribe
- */
-function subscribe(commandName, handler) {
-  if (!handlers[commandName]) {
-    handlers[commandName] = new Set();
+  function debugLog() {
+    if (!DEBUG) return;
+    try {
+      (console.log || function(){})
+        .apply(console, arguments);
+    } catch (_) {}
   }
-  handlers[commandName].add(handler);
-  return () => {
-    if (handlers[commandName]) {
-      handlers[commandName].delete(handler);
+  
+  // Feature detect Set; fallback to array‑based storage
+  var hasSet = typeof Set === 'function';
+  var createHandlerStore = function () {
+    return hasSet ? new Set() : [];
+  };
+
+  var addHandler = function (store, fn) {
+    if (hasSet) {
+      store.add(fn);
+    } else if (store.indexOf(fn) === -1) {
+      store.push(fn);
     }
   };
-}
 
-/**
- * Dispatch a command to all subscribers.
- * Includes safeguards against recursive loops and handler errors.
- *
- * @param {string} commandName
- * @param {object} payload
- * @param {object} meta
- */
-function dispatch(commandName, payload = {}, meta = {}) {
-  const key = commandName + '::' + (meta?.instanceId || '');
+  var removeHandler = function (store, fn) {
+    if (hasSet) {
+      store.delete(fn);
+    } else {
+      var i = store.indexOf(fn);
+      if (i !== -1) store.splice(i, 1);
+    }
+  };
 
-  if (activeDispatches.has(key)) {
-    console.warn('[Starmus] Prevented recursive dispatch:', commandName);
-    return;
-  }
-
-  const group = handlers[commandName];
-  if (!group || !group.size) {
-    return;
-  }
-
-  activeDispatches.add(key);
-  try {
-    // Array.from creates a snapshot, safe against handlers unsubscribing during execution
-    for (const handler of Array.from(group)) {
-      try {
-        handler(payload, meta);
-      } catch (e) {
-        // Swallow individual handler errors so others still run
-        console.error('[Starmus] Command handler error:', commandName, e);
+  var iterateHandlers = function (store, cb) {
+    if (hasSet) {
+      store.forEach(cb);
+    } else {
+      // copy to avoid mutation during iteration
+      var clone = store.slice();
+      for (var i = 0; i < clone.length; i++) {
+        cb(clone[i]);
       }
     }
-  } finally {
-    // Always release the guard, even if a handler crashes hard
-    activeDispatches.delete(key);
-  }
-}
+  };
 
-/**
- * Nuke all handlers.
- * Critical for SPA transitions, AJAX reloads, or "Reset" actions
- * to prevent duplicate event listeners accumulating in memory.
- */
-function clearAllHandlers() {
-  for (const key in handlers) {
-    if (handlers[key]) {
-      handlers[key].clear();
+
+  /**
+   * ---------------------------------------------------------------------------
+   * SECTION 2 — CORE REGISTRIES
+   * ---------------------------------------------------------------------------
+   */
+
+  // Handler registry keyed by command names
+  var handlers = {}; // safer than Object.create(null) on old Safari/WebView
+
+  // Recursion guard
+  var activeDispatches = {}; // { "cmd::instanceId": true }
+
+  /**
+   * ---------------------------------------------------------------------------
+   * SECTION 3 — API: subscribe()
+   * ---------------------------------------------------------------------------
+   */
+
+  function subscribe(commandName, handler) {
+    if (!handlers[commandName]) {
+      handlers[commandName] = createHandlerStore();
+    }
+    addHandler(handlers[commandName], handler);
+
+    // Return explicitly ES5-safe unsubscribe
+    return function unsubscribe() {
+      if (handlers[commandName]) {
+        removeHandler(handlers[commandName], handler);
+      }
+    };
+  }
+
+  /**
+   * ---------------------------------------------------------------------------
+   * SECTION 4 — API: dispatch()
+   * ---------------------------------------------------------------------------
+   */
+
+  function dispatch(commandName, payload, meta) {
+    payload = payload || {};
+    meta = meta || {};
+
+    var key = commandName + '::' + (meta.instanceId || '');
+
+    if (activeDispatches[key]) {
+      debugLog('Prevented recursive dispatch:', commandName); 
+      return;
+    }
+
+    activeDispatches[key] = true;
+
+    try {
+        var handlerStore = handlers[commandName];
+
+        if (!handlerStore) {
+            return;
+        }
+
+        iterateHandlers(handlerStore, function (handler) {
+            // Execute the handler inside try-catch to prevent one bad handler from stopping the bus
+            try {
+                handler(payload, meta);
+            } catch (e) {
+                console.error('Error executing handler for command ' + commandName + ':', e);
+            }
+        });
+    } finally {
+        // Crucial: always clean up the recursion guard
+        delete activeDispatches[key];
     }
   }
-}
+  
+  /**
+   * ---------------------------------------------------------------------------
+   * SECTION 5 — GLOBAL EXPORTS (Must match your expected API)
+   * ---------------------------------------------------------------------------
+   */
 
-export const CommandBus = {
-  subscribe,
-  dispatch,
-  clearAllHandlers,
-};
-
-/**
- * Optimized Debug Logger.
- * Checks config ONCE at load time to avoid repeated DOM/Global lookups
- * in tight loops (audio callbacks, animation frames).
- */
-const IS_DEBUG =
-  typeof window !== 'undefined' &&
-  (window.STARMUS_DEBUG || new URLSearchParams(window.location.search).has('debug'));
-
-export function debugLog(...args) {
-  if (IS_DEBUG) {
-    // Use apply to preserve browser console formatting/line numbers
-    console.log.apply(console, ['[Starmus]', ...args]);
+  // Define the global namespace object if it doesn't exist
+  if (typeof global.StarmusHooks === 'undefined') {
+    global.StarmusHooks = {};
   }
-}
+  
+  global.StarmusHooks.subscribe = subscribe;
+  global.StarmusHooks.dispatch = dispatch;
+  global.StarmusHooks.debugLog = debugLog; // 🔥 New export
+  
+})(typeof window !== 'undefined' ? window : this);

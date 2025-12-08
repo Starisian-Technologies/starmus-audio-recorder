@@ -9,7 +9,6 @@
  *
  * @since 0.3.1
  */
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 use Exception;
@@ -24,7 +23,6 @@ use function json_last_error;
 use function json_last_error_msg;
 use function realpath;
 
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 
 use function str_replace;
@@ -598,7 +596,7 @@ class StarmusAudioEditorUI
 
         usort(
             $annotations,
-            fn(array $a, array $b): int => $a['startTime'] <=> $b['startTime']
+            fn (array $a, array $b): int => $a['startTime'] <=> $b['startTime']
         );
         for ($i = 0; $i < \count($annotations) - 1; $i++) {
             $current = $annotations[$i];

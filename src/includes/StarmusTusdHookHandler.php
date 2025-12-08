@@ -10,7 +10,6 @@
  *
  * @version 0.9.2
  */
-
 namespace Starisian\Sparxstar\Starmus\includes;
 
 // Exit if accessed directly.
@@ -57,7 +56,8 @@ class StarmusTusdHookHandler
          * A dedicated handler for processing the submission data.
          */
         private readonly StarmusSubmissionHandler $submission_handler
-    ) {}
+    ) {
+    }
 
     /**
      * Registers the WordPress hooks. This is the entry point for the class.

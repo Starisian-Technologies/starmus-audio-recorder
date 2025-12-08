@@ -1,727 +1,351 @@
 /**
  * @file starmus-integrator.js
- * @version 4.3.4
- * @description Master orchestrator with CRITICAL fix for submission payload injection.
+ * @version 4.3.5‑loader
+ * @description Master orchestrator with dynamic recorder loader for Tier‑A/B or Tier‑C fallback.
  */
 
-'use strict';
+(function (global) {
+  'use strict';
 
-// BOOTSTRAP ADAPTER: Normalize editor/recorder/re-recorder data into single contract
-(function () {
-  // Detect page type and assign to unified bootstrap object
-  if (window.STARMUS_EDITOR_DATA) {
-    window.STARMUS_BOOTSTRAP = window.STARMUS_EDITOR_DATA;
-    window.STARMUS_BOOTSTRAP.pageType = 'editor';
-  } else if (window.STARMUS_RERECORDER_DATA) {
-    window.STARMUS_BOOTSTRAP = window.STARMUS_RERECORDER_DATA;
-    window.STARMUS_BOOTSTRAP.pageType = 'rerecorder';
-  } else if (window.STARMUS_RECORDER_DATA) {
-    window.STARMUS_BOOTSTRAP = window.STARMUS_RECORDER_DATA;
-    window.STARMUS_BOOTSTRAP.pageType = 'recorder';
-  }
-})();
+  global.Starmus = global.Starmus || {};
 
-// PATCH 4: Disable optional audio nodes for cross-browser stability
-window.Starmus_DisableOptionalNodes = true;
-
-if (window.Starmus_DisableOptionalNodes) {
-  // Hard block optional effects to avoid cross-browser crashes
-  const CtxProto = (window.AudioContext || window.webkitAudioContext)?.prototype;
-  if (CtxProto) {
-    if (CtxProto.createConstantSource) {
-      CtxProto.createConstantSource = function () {
-        throw new Error('ConstantSourceNode disabled for stability.');
-      };
+  (function () {
+    if (global.STARMUS_EDITOR_DATA) {
+      global.STARMUS_BOOTSTRAP = global.STARMUS_EDITOR_DATA;
+      global.STARMUS_BOOTSTRAP.pageType = 'editor';
+    } else if (global.STARMUS_RERECORDER_DATA) {
+      global.STARMUS_BOOTSTRAP = global.STARMUS_RERECORDER_DATA;
+      global.STARMUS_BOOTSTRAP.pageType = 'rerecorder';
+    } else if (global.STARMUS_RECORDER_DATA) {
+      global.STARMUS_BOOTSTRAP = global.STARMUS_RECORDER_DATA;
+      global.STARMUS_BOOTSTRAP.pageType = 'recorder';
     }
-    if (CtxProto.createIIRFilter) {
-      CtxProto.createIIRFilter = function () {
-        throw new Error('IIRFilterNode disabled for stability.');
-      };
+  })();
+
+  global.Starmus_DisableOptionalNodes = true;
+  if (global.Starmus_DisableOptionalNodes) {
+    var CtxProto = (global.AudioContext || global.webkitAudioContext || {}).prototype;
+    if (CtxProto) {
+      if (CtxProto.createConstantSource) {
+        CtxProto.createConstantSource = function () {
+          throw new Error('ConstantSourceNode disabled');
+        };
+      }
+      if (CtxProto.createIIRFilter) {
+        CtxProto.createIIRFilter = function () {
+          throw new Error('IIRFilterNode disabled');
+        };
+      }
     }
   }
-}
 
-// VENDORS
-import * as tus from 'tus-js-client';
-window.tus = tus;
-
-import Peaks from 'peaks.js';
-
-window.Peaks = Peaks;
-
-window.PeaksVersion = Peaks.prototype ? 'loaded' : 'missing';
-
-// CORE
-import { CommandBus } from './starmus-hooks.js';
-import { createStore } from './starmus-state-store.js';
-import { initInstance as initUI } from './starmus-ui.js';
-import { initRecorder } from './starmus-recorder.js';
-import { initCore } from './starmus-core.js';
-import './starmus-tus.js';
-import './starmus-transcript-controller.js';
-import { getOfflineQueue } from './starmus-offline.js';
-// Starmus Audio Editor (Peaks.js + annotation manager)
-import './starmus-audio-editor.js';
-
-/**
- * Emit global telemetry events via StarmusHooks.
- */
-function emitStarmusEventGlobal(event, payload = {}) {
-  try {
-    if (window.StarmusHooks && typeof window.StarmusHooks.doAction === 'function') {
-      window.StarmusHooks.doAction('starmus_event', {
-        instanceId: payload.instanceId || null,
-        event,
-        severity: payload.severity || 'info',
-        message: payload.message || '',
-        data: payload.data || {},
+  (function exposePeaksBridge(g) {
+    try {
+      if (typeof g.Peaks === 'function' || typeof g.Peaks === 'object') {
+        g.Starmus.Peaks = g.Peaks;
+        return;
+      }
+      Object.defineProperty(g, 'Peaks', {
+        get: function () {
+          return g.Starmus.Peaks;
+        },
+        set: function (v) {
+          g.Starmus.Peaks = v;
+        },
+        configurable: true
       });
+    } catch (e) {
+      console.warn('[Starmus] Peaks.js exposure failed:', e);
     }
-  } catch (e) {
-    console.warn('[Starmus] Global telemetry emit failed:', e);
-  }
-}
+  })(global);
 
-/**
- * PATCH 1: Unified AudioContext resume helper
- * Ensures AudioContext is running before any recording/calibration operation.
- */
-async function starmusEnsureContext(ctx) {
-  if (!ctx) {
+  var CommandBus = global.StarmusHooks;
+  var createStore = global.StarmusStateStore;
+  var initUI = global.StarmusUI_initInstance;
+  var initCore = global.StarmusCore_init;
+  var initOfflineQueue = global.StarmusOffline_init;
+
+  if (!CommandBus || !createStore || !initUI || !initCore || !initOfflineQueue) {
+    console.error('[Starmus Integrator] Critical dependencies missing — cannot initialize.');
     return;
   }
-  if (ctx.state === 'suspended') {
+
+  function emitStarmusEventGlobal(event, payload) {
     try {
-      await ctx.resume();
-      console.log('[Starmus] AudioContext resumed');
-    } catch {
-      console.warn('[Starmus] Failed to resume AudioContext');
+      if (global.StarmusHooks && typeof global.StarmusHooks.doAction === 'function') {
+        global.StarmusHooks.doAction('starmus_event', {
+          instanceId: payload.instanceId || null,
+          event: event,
+          severity: payload.severity || 'info',
+          message: payload.message || '',
+          data: payload.data || {}
+        });
+      }
+    } catch (e) {
+      console.warn('[Starmus] Global telemetry emit failed:', e);
     }
   }
-}
 
-getOfflineQueue()
-  .then(() => console.log('[Starmus] Offline queue initialized'))
-  .catch((err) => console.error('[Starmus] Offline queue init failed:', err));
-
-// PATCH 7: Signal to SparxstarUEC that Starmus is present
-window.SPARXSTAR = window.SPARXSTAR || {};
-window.SPARXSTAR.StarmusReady = true;
-
-const instances = new Map();
-
-function getDeviceMemory() {
-  try {
-    return navigator.deviceMemory || null;
-  } catch {
-    return null;
+  function getDeviceMemory() {
+    try {
+      return navigator.deviceMemory || null;
+    } catch (_) {
+      return null;
+    }
   }
-}
-function getHardwareConcurrency() {
-  try {
-    return navigator.hardwareConcurrency || null;
-  } catch {
-    return null;
-  }
-}
-function getConnection() {
-  try {
-    return navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
-  } catch {
-    return null;
-  }
-}
 
-/**
- * Detect Tier - Chromebook-safe.
- */
-function detectTier(env) {
-  const caps = env.capabilities || {};
-  const network = env.network || {};
+  function getHardwareConcurrency() {
+    try {
+      return navigator.hardwareConcurrency || null;
+    } catch (_) {
+      return null;
+    }
+  }
 
-  // Chromebook override
-  if (/\bCrOS\b|Chrome OS/i.test(navigator.userAgent)) {
+  function getConnectionInfo() {
+    try {
+      return navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function detectTier(env) {
+    var caps = env.capabilities || {};
+    var network = env.network || {};
+
+    if (/\bCrOS\b|Chrome OS/i.test(navigator.userAgent)) {
+      return 'A';
+    }
+    if (!caps.mediaRecorder || !caps.webrtc) {
+      return 'C';
+    }
+
+    var mem = getDeviceMemory();
+    var threads = getHardwareConcurrency();
+    if (mem && mem < 1) return 'C';
+    if (threads) {
+      if (threads === 1) return 'C';
+      if (threads === 2) return 'B';
+    }
+
+    if (/wv|Crosswalk|Android WebView|Opera Mini/i.test(navigator.userAgent)) {
+      return 'C';
+    }
+
+    if (network.effectiveType === '2g' || network.effectiveType === 'slow-2g') {
+      return 'B';
+    }
+    if (mem && mem < 2) return 'B';
+
     return 'A';
   }
 
-  if (!caps.mediaRecorder || !caps.webrtc) {
-    return 'C';
-  }
-
-  const mem = getDeviceMemory();
-  const threads = getHardwareConcurrency();
-
-  if (mem && mem < 1) {
-    return 'C';
-  }
-
-  if (threads) {
-    if (threads === 1) {
-      return 'C';
-    }
-    if (threads === 2) {
-      return 'B';
-    }
-  }
-
-  if (/wv|Crosswalk|Android WebView|Opera Mini/i.test(navigator.userAgent)) {
-    return 'C';
-  }
-
-  if (network.effectiveType === '2g' || network.effectiveType === 'slow-2g') {
-    return 'B';
-  }
-
-  if (mem && mem < 2) {
-    return 'B';
-  }
-
-  return 'A';
-}
-
-async function refineTierAsync(tier) {
-  if (tier === 'C') {
-    return 'C';
-  }
-
-  if (navigator.storage && navigator.storage.estimate) {
-    try {
-      const estimate = await navigator.storage.estimate();
-      const quotaMB = (estimate.quota || 0) / 1024 / 1024;
-      if (quotaMB && quotaMB < 80) {
-        return 'C';
-      }
-    } catch {
-      // Storage API not available or failed
-    }
-  }
-
-  if (navigator.permissions && navigator.permissions.query) {
-    try {
-      const status = await navigator.permissions.query({ name: 'microphone' });
-      if (status.state === 'denied') {
-        return 'C';
-      }
-    } catch {
-      // Permissions API not available or failed
-    }
-  }
-
-  return tier;
-}
-
-/**
- * PATCH 6: Utility to check if recording is actually supported
- * Exposed globally for SparxstarUEC tier detection override.
- */
-function isRecordingSupported() {
-  try {
-    const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-    const hasMediaRecorder = !!window.MediaRecorder;
-    const hasAudioContext = !!(window.AudioContext || window.webkitAudioContext);
-
-    return hasMediaDevices && hasMediaRecorder && hasAudioContext;
-  } catch {
-    return false;
-  }
-}
-
-// Expose for SparxstarUEC
-window.StarmusApp = window.StarmusApp || {};
-window.StarmusApp.isRecordingSupported = isRecordingSupported;
-
-/**
- * CRITICAL FIX: Injects all internal state data into hidden form fields
- * before submission to bypass the REST API Session/Cache sync problem.
- */
-// --- FINAL CORRECTED populateHiddenFields (The definitive fix for missing telemetry) ---
-function populateHiddenFields(store, formEl) {
-  const state = store.getState();
-  const env = state.env || {};
-  const calibration = state.calibration || {};
-  const source = state.source || {};
-
-  // Helper function for safe injection: checks if element exists before setting value
-  const inject = (name, value) => {
-    const el = formEl.querySelector(`[name="${name}"]`);
-    if (el) {
-      el.value = value;
-    }
-  };
-
-  // 1. Telemetry Blobs (CRITICAL)
-  if (env && Object.keys(env).length > 0) {
-    inject('_starmus_env', JSON.stringify(env));
-  }
-
-  // 2. Calibration Blobs
-  if (calibration.complete) {
-    inject('_starmus_calibration', JSON.stringify(calibration));
-  }
-
-  // 3. Transcript Text (FINAL FIX: Use source.transcript)
-  if (source.transcript) {
-    inject('first_pass_transcription', source.transcript.trim());
-  }
-
-  // 4. Waveform Data
-  if (source.waveform_data) {
-    inject('waveform_json', JSON.stringify(source.waveform_data));
-  }
-
-  // 5. User Agent (Uses the most reliable source: navigator.userAgent)
-  inject('user_agent', navigator.userAgent || '');
-
-  // 6. Device Fingerprint (CRITICAL FIX: Access top-level property)
-  // The visitorId is the fingerprint
-  inject('device_fingerprint', env?.identifiers?.visitorId || '');
-}
-// --- END FINAL CORRECTED populateHiddenFields ---
-
-async function wireInstance(env, formEl) {
-  let instanceId = formEl.getAttribute('data-starmus-id');
-  if (!instanceId) {
-    instanceId = 'starmus_' + Date.now() + '_' + Math.random().toString(16).slice(2);
-    formEl.setAttribute('data-starmus-id', instanceId);
-  }
-
-  if (instances.has(instanceId)) {
-    return instanceId;
-  }
-
-  let tier = detectTier(env);
-  tier = await refineTierAsync(tier);
-
-  console.log(`[Starmus] Instance ${instanceId} -> Tier ${tier}`);
-
-  emitStarmusEventGlobal('TIER_ASSIGN', {
-    instanceId,
-    severity: 'info',
-    message: `Tier ${tier} assigned`,
-    data: { tier },
-  });
-
-  const store = createStore({ instanceId, env, tier });
-
-  const elements = {
-    step1: formEl.querySelector('.starmus-step-1'),
-    step2: formEl.querySelector('.starmus-step-2'),
-    continueBtn: formEl.querySelector('[data-starmus-action="continue"]'),
-    messageBox: formEl.querySelector('[data-starmus-message-box]'),
-    setupMicBtn: formEl.querySelector('[data-starmus-action="setup-mic"]'),
-    setupContainer: formEl.querySelector('[data-starmus-setup-container]'),
-    recordBtn: formEl.querySelector('[data-starmus-action="record"]'),
-    pauseBtn: formEl.querySelector('[data-starmus-action="pause"]'),
-    resumeBtn: formEl.querySelector('[data-starmus-action="resume"]'),
-    stopBtn: formEl.querySelector('[data-starmus-action="stop"]'),
-    submitBtn: formEl.querySelector('[data-starmus-action="submit"]'),
-    resetBtn: formEl.querySelector('[data-starmus-action="reset"]'),
-    fileInput: formEl.querySelector('input[type="file"]'),
-    statusEl: formEl.querySelector('[data-starmus-status]'),
-    progressEl: formEl.querySelector('[data-starmus-progress]'),
-    progressWrap: formEl.querySelector('.starmus-progress-wrap'),
-    recorderContainer: formEl.querySelector('[data-starmus-recorder-container]'),
-    fallbackContainer: formEl.querySelector('[data-starmus-fallback-container]'),
-
-    // New UI elements
-    timer: formEl.querySelector('[data-starmus-timer]'),
-    timerElapsed: formEl.querySelector('.starmus-timer-elapsed'),
-    durationProgress: formEl.querySelector('[data-starmus-duration-progress]'),
-    volumeMeter: formEl.querySelector('[data-starmus-volume-meter]'),
-    waveformBox: formEl.querySelector('[data-starmus-waveform]'),
-    reviewControls: formEl.querySelector('.starmus-review-controls'),
-    playBtn: formEl.querySelector('[data-starmus-action="play"]'),
-    transcriptBox: formEl.querySelector('[data-starmus-transcript]'),
-  };
-
-  if (tier === 'C') {
-    if (elements.recorderContainer) {
-      elements.recorderContainer.style.display = 'none';
-    }
-    if (elements.fallbackContainer) {
-      elements.fallbackContainer.style.display = 'block';
-    }
-    if (window.StarmusHooks && window.StarmusHooks.doAction) {
-      window.StarmusHooks.doAction('starmus_tier_c_revealed', instanceId, env);
-    }
-  }
-
-  initUI(store, elements);
-  initCore(store, instanceId, env);
-  if (tier !== 'C') {
-    initRecorder(store, instanceId);
-  }
-
-  instances.set(instanceId, { store, form: formEl, elements, tier });
-
-  // PATCH 10: Subscribe to tier changes - but be defensive about downgrades
-  // Only downgrade if explicitly set by unrecoverable errors, not transient failures
-  store.subscribe(() => {
-    const state = store.getState();
-    // Only downgrade if state.fallbackActive is explicitly true AND tier is C
-    // This prevents automatic downgrades from calibration or audio graph issues
-    if (state.tier === 'C' && tier !== 'C' && state.fallbackActive === true) {
-      // Runtime tier downgrade - show fallback UI
-      const previousTier = tier;
-      tier = 'C';
-
-      if (elements.recorderContainer) {
-        elements.recorderContainer.style.display = 'none';
-      }
-      if (elements.fallbackContainer) {
-        elements.fallbackContainer.style.display = 'block';
-      }
-
-      console.log(`[Starmus] Instance ${instanceId} downgraded to Tier C`);
-
-      // Emit telemetry for runtime tier downgrade
-      emitStarmusEventGlobal('TIER_DOWNGRADE', {
-        instanceId,
-        severity: 'warning',
-        message: `Runtime tier downgrade from ${previousTier} to C`,
-        data: { previousTier, currentTier: 'C', reason: 'audio_graph_failure' },
-      });
-    }
-  });
-
-  const speechSupported =
-    tier === 'A' ? !!(window.SpeechRecognition || window.webkitSpeechRecognition) : false;
-
-  store.dispatch({
-    type: 'starmus/init',
-    payload: { instanceId, env, tier, speechSupported },
-  });
-
-  // CONTINUE (Step 1 -> Step 2) with full validation
-  if (elements.continueBtn) {
-    elements.continueBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-
-      const step1 = elements.step1;
-      if (!step1) {
-        return;
-      }
-
-      const title = step1.querySelector('[name="starmus_title"]');
-      const lang = step1.querySelector('[name="starmus_language"]');
-      const type = step1.querySelector('[name="starmus_recording_type"]');
-      const consent = step1.querySelector('[name="agreement_to_terms"]');
-      const msgEl = elements.messageBox;
-
-      const missing = [];
-      if (!title || !title.value.trim()) {
-        missing.push('Title');
-      }
-      if (!lang || !lang.value.trim()) {
-        missing.push('Language');
-      }
-      if (!type || !type.value.trim()) {
-        missing.push('Recording Type');
-      }
-      if (!consent || !consent.checked) {
-        missing.push('Consent');
-      }
-
-      if (missing.length > 0) {
-        if (msgEl) {
-          msgEl.textContent = 'Missing: ' + missing.join(', ');
-          msgEl.style.display = 'block';
-        }
-        return;
-      }
-
-      if (msgEl) {
-        msgEl.textContent = '';
-        msgEl.style.display = 'none';
-      }
-
-      store.dispatch({ type: 'starmus/ui/step-continue' });
-
-      // === IMMERSIVE MOBILE MODE ===
-      if (window.innerWidth < 768) {
-        const formContainer = formEl.closest('.starmus-recorder-form') || formEl;
-
-        // Add CSS Classes for fullscreen mode
-        formContainer.classList.add('starmus-immersive');
-        document.body.classList.add('starmus-lock-scroll');
-
-        // Push state to browser history (enables back button handling)
-        history.pushState(
-          { starmusMode: 'immersive', instanceId: instanceId },
-          '',
-          '#recording-mode'
-        );
-
-        // Handle Back Button
-        const handlePopState = () => {
-          formContainer.classList.remove('starmus-immersive');
-          document.body.classList.remove('starmus-lock-scroll');
-
-          // Remove close button if exists
-          const closeBtn = formContainer.querySelector('.starmus-close-immersive');
-          if (closeBtn) {
-            closeBtn.remove();
-          }
-
-          window.removeEventListener('popstate', handlePopState);
-        };
-
-        window.addEventListener('popstate', handlePopState);
-
-        // Create floating close button
-        if (!formContainer.querySelector('.starmus-close-immersive')) {
-          const closeBtn = document.createElement('button');
-          closeBtn.innerHTML = '&times;';
-          closeBtn.className = 'starmus-close-immersive';
-          closeBtn.setAttribute('aria-label', 'Close fullscreen mode');
-
-          closeBtn.onclick = (e) => {
-            e.preventDefault();
-            history.back(); // Triggers the popstate event
-          };
-
-          formContainer.style.position = 'relative';
-          formContainer.insertBefore(closeBtn, formContainer.firstChild);
-        }
-      }
-    });
-  }
-
-  if (formEl.dataset.starmusRerecord === 'true') {
-    store.dispatch({ type: 'starmus/ui/step-continue' });
-  }
-
-  // Recording controls
-  if (tier !== 'C') {
-    // Setup microphone (calibration)
-    if (elements.setupMicBtn) {
-      elements.setupMicBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        // PATCH 1: Ensure AudioContext is running
-        const ctx = window.AudioContext || window.webkitAudioContext;
-        if (ctx) {
-          const sharedCtx = new ctx({ latencyHint: 'interactive' });
-          await starmusEnsureContext(sharedCtx);
-        }
-        CommandBus.dispatch('setup-mic', {}, { instanceId });
-      });
-    }
-
-    if (elements.recordBtn) {
-      elements.recordBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        // PATCH 1: Ensure AudioContext is running
-        const ctx = window.AudioContext || window.webkitAudioContext;
-        if (ctx) {
-          const sharedCtx = new ctx({ latencyHint: 'interactive' });
-          await starmusEnsureContext(sharedCtx);
-        }
-        CommandBus.dispatch('start-recording', {}, { instanceId });
-      });
-    }
-    if (elements.pauseBtn) {
-      elements.pauseBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        CommandBus.dispatch('pause-mic', {}, { instanceId });
-      });
-    }
-    if (elements.resumeBtn) {
-      elements.resumeBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        CommandBus.dispatch('resume-mic', {}, { instanceId });
-      });
-    }
-    if (elements.stopBtn) {
-      elements.stopBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        CommandBus.dispatch('stop-mic', {}, { instanceId });
-      });
-    }
-  }
-
-  // Tier C / file-upload attach
-  if (elements.fileInput) {
-    elements.fileInput.addEventListener('change', () => {
-      const file = elements.fileInput.files && elements.fileInput.files[0];
-      if (file) {
-        CommandBus.dispatch('attach-file', { file }, { instanceId });
-      }
-    });
-  }
-
-  // Submit
-  formEl.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    // --- CRITICAL FIX: INJECT DATA FROM STORE INTO HIDDEN FIELDS BEFORE SUBMISSION ---
-    populateHiddenFields(store, formEl);
-    // ---------------------------------------------------------------------------------
-
-    const formData = new FormData(formEl);
-    const formFields = {};
-    formData.forEach((value, key) => {
-      formFields[key] = value;
-    });
-    CommandBus.dispatch('submit', { formFields }, { instanceId });
-  });
-
-  // Reset
-  if (elements.resetBtn) {
-    elements.resetBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      store.dispatch({ type: 'starmus/reset' });
-      CommandBus.dispatch('reset', {}, { instanceId });
-    });
-  }
-
-  // Playback wiring (simple <audio> element, no Peaks for initial capture)
-  let audioEl = null;
-  let audioUrl = null;
-
-  if (elements.playBtn) {
-    elements.playBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-
-      const state = store.getState();
-      const source = state.source || {};
-      const recorder = state.recorder || {};
-      const blob = source.blob || source.file;
-
-      if (!blob) {
-        return;
-      }
-
-      if (!audioEl) {
-        audioEl = new Audio();
-        audioUrl = URL.createObjectURL(blob);
-        audioEl.src = audioUrl;
-
-        audioEl.addEventListener('ended', () => {
-          store.dispatch({
-            type: 'starmus/recorder-playback-state',
-            payload: { isPlaying: false },
-            isPlaying: false,
-          });
-        });
-      }
-
-      if (recorder.isPlaying) {
-        audioEl.pause();
-        store.dispatch({
-          type: 'starmus/recorder-playback-state',
-          payload: { isPlaying: false },
-          isPlaying: false,
-        });
-      } else {
-        audioEl
-          .play()
-          .then(() => {
-            store.dispatch({
-              type: 'starmus/recorder-playback-state',
-              payload: { isPlaying: true },
-              isPlaying: true,
-            });
-          })
-          .catch((err) => {
-            console.error('[Starmus] Playback failed:', err);
-          });
-      }
-    });
-  }
-
-  // Cleanup audio on reset
-  CommandBus.subscribe('reset', (_payload, meta) => {
-    if (meta.instanceId !== instanceId) {
-      return;
-    }
-    if (audioEl) {
+  async function refineTierAsync(tier) {
+    if (tier === 'C') return 'C';
+    if (navigator.storage && navigator.storage.estimate) {
       try {
-        audioEl.pause();
-      } catch {
-        // Ignore playback errors during cleanup
-      }
-      audioEl = null;
+        var est = await navigator.storage.estimate();
+        var quotaMB = (est.quota || 0) / 1024 / 1024;
+        if (quotaMB && quotaMB < 80) return 'C';
+      } catch (_) {}
     }
-    if (audioUrl) {
-      URL.revokeObjectURL(audioUrl);
-      audioUrl = null;
+    if (navigator.permissions && navigator.permissions.query) {
+      try {
+        var status = await navigator.permissions.query({ name: 'microphone' });
+        if (status.state === 'denied') return 'C';
+      } catch (_) {}
     }
+    return tier;
+  }
+
+  function isRecordingSupportedEnv() {
+    try {
+      var hasGet = !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function');
+      var hasMR = typeof global.MediaRecorder === 'function';
+      var hasAC = !!(global.AudioContext || global.webkitAudioContext);
+      return hasGet && hasMR && hasAC;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  global.StarmusApp = global.StarmusApp || {};
+  global.StarmusApp.isRecordingSupported = isRecordingSupportedEnv;
+
+  initOfflineQueue().catch(function (e) {
+    console.error('[Starmus] Offline queue init failed:', e);
   });
 
-  return instanceId;
-}
+  var instances = {};
 
-// Entry point
-async function onEnvironmentReady(event) {
-  const env = event.detail || {};
-  const forms = document.querySelectorAll('form[data-starmus="recorder"]');
-  if (!forms || !forms.length) {
-    return;
+  function loadScript(url, onload, onerror) {
+    var s = document.createElement('script');
+    s.src = url;
+    s.async = true;
+    s.onload = onload;
+    s.onerror = onerror;
+    document.head.appendChild(s);
   }
 
-  for (const formEl of forms) {
-    await wireInstance(env, formEl);
-  }
-}
+  function wireInstance(env, formEl) {
+    var instanceId = formEl.getAttribute('data-starmus-id');
+    if (!instanceId) {
+      instanceId = 'starmus_' + Date.now() + '_' + Math.random().toString(16).slice(2);
+      formEl.setAttribute('data-starmus-id', instanceId);
+    }
+    if (instances[instanceId]) return instanceId;
 
-function initWithFallback() {
-  const connection = getConnection();
-  const networkInfo = connection
-    ? {
-        effectiveType: connection.effectiveType || 'unknown',
-        downlink: connection.downlink || null,
-        saveData: connection.saveData || false,
+    var tier = detectTier(env);
+    refineTierAsync(tier).then(function (finalTier) {
+      console.log('[Starmus] Instance', instanceId, '-> Tier', finalTier);
+      emitStarmusEventGlobal('TIER_ASSIGN', {
+        instanceId: instanceId,
+        severity: 'info',
+        message: 'Tier ' + finalTier + ' assigned',
+        data: { tier: finalTier }
+      });
+
+      var store = createStore({ instanceId: instanceId, env: env, tier: finalTier });
+
+      // Tier‑ready dispatch, once
+      if (!store.getState().tier) {
+        store.dispatch({ type: 'starmus/tier-ready', payload: { tier: finalTier } });
       }
-    : { effectiveType: 'unknown', downlink: null, saveData: false };
 
-  const fallbackEnv = {
-    browser: { userAgent: navigator.userAgent },
-    device: {
-      type: /mobile|android|iphone|ipad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-      memory: getDeviceMemory(),
-      concurrency: getHardwareConcurrency(),
-    },
-    capabilities: {
-      webrtc: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
-      mediaRecorder: !!(navigator.mediaDevices && window.MediaRecorder),
-      indexedDB: !!window.indexedDB,
-    },
-    network: networkInfo,
-  };
+      var elements = {
+        step1: formEl.querySelector('.starmus-step-1'),
+        step2: formEl.querySelector('.starmus-step-2'),
+        continueBtn: formEl.querySelector('[data-starmus-action="continue"]'),
+        messageBox: formEl.querySelector('[data-starmus-message-box]'),
+        setupMicBtn: formEl.querySelector('[data-starmus-action="setup-mic"]'),
+        recordBtn: formEl.querySelector('[data-starmus-action="record"]'),
+        pauseBtn: formEl.querySelector('[data-starmus-action="pause"]'),
+        resumeBtn: formEl.querySelector('[data-starmus-action="resume"]'),
+        stopBtn: formEl.querySelector('[data-starmus-action="stop"]'),
+        submitBtn: formEl.querySelector('[data-starmus-action="submit"]'),
+        resetBtn: formEl.querySelector('[data-starmus-action="reset"]'),
+        fileInput: formEl.querySelector('input[type="file"]'),
+        statusEl: formEl.querySelector('[data-starmus-status]'),
+        progressEl: formEl.querySelector('[data-starmus-progress]'),
+        progressWrap: formEl.querySelector('.starmus-progress-wrap'),
+        recorderContainer: formEl.querySelector('[data-starmus-recorder-container]'),
+        fallbackContainer: formEl.querySelector('[data-starmus-fallback-container]')
+      };
 
-  emitStarmusEventGlobal('E_ENV_FALLBACK_INIT', {
-    severity: 'warning',
-    message: 'Environment-ready event not fired; using fallback env',
-    data: { fallbackEnv },
+      initUI(store, elements);
+      initCore(store, instanceId, env);
+
+      function loadAppropriateRecorder() {
+        var useLegacy = (finalTier === 'C') || !isRecordingSupportedEnv();
+
+        if (useLegacy) {
+          if (elements.recorderContainer) elements.recorderContainer.style.display = 'none';
+          if (elements.fallbackContainer) elements.fallbackContainer.style.display = 'block';
+
+          loadScript(
+            'starmus-recorder-legacy.js',
+            function () {
+              if (typeof global.initStarmusRecorderLegacy === 'function') {
+                global.initStarmusRecorderLegacy(store, instanceId);
+              } else {
+                store.dispatch({ type: 'starmus/error', payload: { message: 'Legacy recorder not available', retryable: false } });
+              }
+            },
+            function () {
+              console.error('[Starmus] Failed to load legacy recorder.');
+              store.dispatch({ type: 'starmus/error', payload: { message: 'Legacy recorder load failed', retryable: false } });
+            }
+          );
+        } else {
+          loadScript(
+            'starmus-recorder.js',
+            function () {
+              if (typeof global.initStarmusRecorder === 'function') {
+                global.initStarmusRecorder(store, instanceId);
+              } else {
+                console.warn('[Starmus] Recorder init missing — falling back');
+                loadScript('starmus-recorder-legacy.js', function () {
+                  if (typeof global.initStarmusRecorderLegacy === 'function') {
+                    global.initStarmusRecorderLegacy(store, instanceId);
+                  } else {
+                    store.dispatch({ type: 'starmus/error', payload: { message: 'Recorder init failed', retryable: false } });
+                  }
+                });
+              }
+            },
+            function () {
+              console.warn('[Starmus] Full recorder load failed — falling back to legacy');
+              loadScript('starmus-recorder-legacy.js', function () {
+                if (typeof global.initStarmusRecorderLegacy === 'function') {
+                  global.initStarmusRecorderLegacy(store, instanceId);
+                } else {
+                  store.dispatch({ type: 'starmus/error', payload: { message: 'Recorder fallback load failed', retryable: false } });
+                }
+              });
+            }
+          );
+        }
+      }
+
+      loadAppropriateRecorder();
+
+      instances[instanceId] = { store: store, form: formEl, elements: elements, tier: finalTier };
+    });
+  }
+
+  function onEnvReady(event) {
+    var env = event.detail || {};
+    var forms = document.querySelectorAll('form[data-starmus="recorder"]');
+    if (!forms || forms.length === 0) return;
+    for (var i = 0; i < forms.length; i++) {
+      wireInstance(env, forms[i]);
+    }
+  }
+
+  function fallbackInit() {
+    var conn = getConnectionInfo() || {};
+    var fallbackEnv = {
+      browser: { userAgent: navigator.userAgent },
+      device: {
+        type: /mobile|android|iphone|ipad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+        memory: getDeviceMemory(),
+        concurrency: getHardwareConcurrency()
+      },
+      capabilities: {
+        webrtc: !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function'),
+        mediaRecorder: !!global.MediaRecorder,
+        indexedDB: !!global.indexedDB
+      },
+      network: {
+        effectiveType: conn.effectiveType || 'unknown',
+        downlink: conn.downlink || null,
+        saveData: conn.saveData || false
+      }
+    };
+    emitStarmusEventGlobal('E_ENV_FALLBACK_INIT', { severity: 'warning', message: 'Fallback env used', data: { fallbackEnv } });
+    onEnvReady({ detail: fallbackEnv });
+  }
+
+  var envReady = false;
+  var fallbackTimer = null;
+
+  document.addEventListener('sparxstar:environment-ready', function (event) {
+    envReady = true;
+    if (fallbackTimer) {
+      clearTimeout(fallbackTimer);
+      fallbackTimer = null;
+    }
+    onEnvReady(event);
   });
 
-  onEnvironmentReady({ detail: fallbackEnv });
-}
+  fallbackTimer = setTimeout(function () {
+    if (!envReady) {
+      console.warn('[Starmus] environment-ready not fired; using fallback.');
+      fallbackInit();
+    }
+  }, 2000);
 
-let environmentReady = false;
-let fallbackTimer = null;
+  global.Starmus.instances = instances;
 
-document.addEventListener('sparxstar:environment-ready', (event) => {
-  environmentReady = true;
-  if (fallbackTimer) {
-    clearTimeout(fallbackTimer);
-    fallbackTimer = null;
-  }
-  onEnvironmentReady(event);
-});
-
-fallbackTimer = setTimeout(() => {
-  if (!environmentReady) {
-    console.warn('[Starmus] Using fallback initialization');
-    initWithFallback();
-  }
-}, 2000);
-
-if (typeof window !== 'undefined') {
-  window.STARMUS = window.STARMUS || {};
-  window.STARMUS.instances = instances;
-
-  // Expose for console testing, cross-plugin communication, and telemetry
-  window.StarmusHooks = window.StarmusHooks || { doAction: CommandBus.dispatch };
-  window.CommandBus = CommandBus;
-}
+})(typeof window !== 'undefined' ? window : globalThis);

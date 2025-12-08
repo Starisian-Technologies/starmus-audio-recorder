@@ -14,7 +14,6 @@
  *
  * @version 0.9.2
  */
-
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;
@@ -23,7 +22,6 @@ use function defined;
 use function explode;
 use function json_encode;
 
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 
 use function trim;
@@ -157,13 +155,13 @@ final class StarmusAssetLoader
 
             // Localize editor data - either from shortcode loader or defaults
             $default_editor_data = [
-                'enabled'      => false,
-                'post_id'      => get_the_ID() ?: 0,
-                'mode'         => 'recorder',
-                'audio'        => null,
-                'waveform'     => [],
-                'transcript'   => '',
-                'annotations'  => [],
+                'enabled'     => false,
+                'post_id'     => get_the_ID() ?: 0,
+                'mode'        => 'recorder',
+                'audio'       => null,
+                'waveform'    => [],
+                'transcript'  => '',
+                'annotations' => [],
             ];
 
             wp_localize_script(
@@ -223,7 +221,7 @@ final class StarmusAssetLoader
 
             // Get allowed file types from settings (comma-separated string like 'mp3,wav,webm')
             $allowed_file_types = $settings->get('allowed_file_types', 'mp3,wav,webm');
-            $allowed_types_arr  = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
+            $allowed_types_arr  = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
 
             // Map extensions to MIME types
             $allowed_mimes = [];

@@ -9,7 +9,6 @@
  *
  * @since 0.3.1
  */
-
 namespace Starisian\Sparxstar\Starmus\core;
 
 if (! \defined('ABSPATH')) {
@@ -375,16 +374,16 @@ final class StarmusSettings
                 return absint($value);
             case 'allowed_file_types':
                 $list = \is_array($value) ? $value : explode(',', (string) $value);
-                $list = array_map(static fn($s) => trim(strtolower((string) $s)), $list);
-                $list = array_filter($list, static fn($s): bool => $s !== '');
-                $list = array_map(static fn($s) => preg_replace('/[^a-z0-9\.\-+\/]/', '', $s), $list);
+                $list = array_map(static fn ($s) => trim(strtolower((string) $s)), $list);
+                $list = array_filter($list, static fn ($s): bool => $s !== '');
+                $list = array_map(static fn ($s) => preg_replace('/[^a-z0-9\.\-+\/]/', '', $s), $list);
                 $list = array_unique($list);
                 return implode(',', $list);
             case 'allowed_languages':
                 $list = \is_array($value) ? $value : explode(',', (string) $value);
-                $list = array_map(static fn($s) => trim(strtolower((string) $s)), $list);
-                $list = array_filter($list, static fn($s): bool => $s !== '');
-                $list = array_map(static fn($s) => preg_replace('/[^a-z0-9\-]/', '', $s), $list);
+                $list = array_map(static fn ($s) => trim(strtolower((string) $s)), $list);
+                $list = array_filter($list, static fn ($s): bool => $s !== '');
+                $list = array_map(static fn ($s) => preg_replace('/[^a-z0-9\-]/', '', $s), $list);
                 $list = array_unique($list);
                 return implode(',', $list);
             case 'speech_recognition_lang':

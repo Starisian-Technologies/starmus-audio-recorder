@@ -1,955 +1,432 @@
 /**
  * @file starmus-recorder.js
- * @version 4.5.3
- * @description Handles microphone recording, Calibration, Speech Rec, and Visualizer.
- * Production-ready: payload-compatible actions and safe meter loop.
+ * @version 5.0.0‑final
+ * @description Handles microphone recording, calibration, speech rec (optional), and visualizer/audio graph.
+ *   Tier‑aware, resilient: supports fallback for browsers missing full WebAudio, safe mediaRecorder lifecycle, clean teardown.
  */
 
-'use strict';
+(function (global) {
+  'use strict';
 
-import { CommandBus, debugLog } from './starmus-hooks.js';
+  var CommandBus = global.StarmusHooks;
+  var debugLog = (CommandBus && CommandBus.debugLog) || function () {};
 
-const recorderRegistry = new Map();
-let sharedAudioContext = null;
+  var recorderRegistry = {};
+  var sharedAudioContext = null;
 
-/**
- * Emit telemetry events via StarmusHooks.
- */
-function emitStarmusEvent(instanceId, event, payload = {}) {
-  try {
-    if (window.StarmusHooks && typeof window.StarmusHooks.doAction === 'function') {
-      window.StarmusHooks.doAction('starmus_event', {
-        instanceId,
-        event,
-        severity: payload.severity || 'info',
-        message: payload.message || '',
-        data: payload.data || {},
-      });
+  function emitStarmusEvent(instanceId, event, payload) {
+    try {
+      if (CommandBus && typeof CommandBus.dispatch === 'function') {
+        CommandBus.dispatch('starmus_event', {
+          instanceId: instanceId,
+          event: event,
+          severity: payload.severity || 'info',
+          message: payload.message || '',
+          data: payload.data || {}
+        });
+      }
+    } catch (e) {
+      console.warn('[Starmus] Telemetry emit failed:', e);
     }
-  } catch (e) {
-    console.warn('[Starmus] Telemetry emit failed:', e);
-  }
-}
-
-/**
- * PATCH 5: Wait for MediaStream track to be ready
- * Prevents "stream not ready" errors on ChromeOS and other devices.
- */
-async function starmusWaitForTrack(stream) {
-  const audioTrack = stream.getAudioTracks()[0];
-  if (!audioTrack) {
-    return;
   }
 
-  if (audioTrack.readyState !== 'live') {
-    await new Promise((resolve) => {
-      const check = setInterval(() => {
-        if (audioTrack.readyState === 'live') {
-          clearInterval(check);
+  function starmusWaitForTrack(stream) {
+    return new Promise(function (resolve) {
+      var tracks = (stream.getAudioTracks && stream.getAudioTracks()) || [];
+      if (!tracks.length) {
+        resolve();
+        return;
+      }
+      var t = tracks[0];
+      if (t.readyState === 'live') {
+        resolve();
+        return;
+      }
+      var checks = 0;
+      var iv = setInterval(function () {
+        if (t.readyState === 'live' || checks > 100) {
+          clearInterval(iv);
           resolve();
         }
+        checks += 1;
       }, 50);
-      // Timeout after 5 seconds
-      setTimeout(() => {
-        clearInterval(check);
+      setTimeout(function () {
+        clearInterval(iv);
         resolve();
       }, 5000);
     });
   }
-}
 
-function getSharedContext() {
-  if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
-    const Ctx = window.AudioContext || window.webkitAudioContext;
+  function getSharedContext() {
+    var Ctx = global.AudioContext || global.webkitAudioContext;
     if (!Ctx) {
-      throw new Error('AudioContext not supported in this browser');
+      throw new Error('AudioContext not supported');
     }
-    // PATCH 2: Create suspended, resume on user gesture
-    sharedAudioContext = new Ctx({ latencyHint: 'interactive' });
-    debugLog('[Recorder] Created new AudioContext, state:', sharedAudioContext.state);
-
-    // Validate required AudioContext methods
-    if (typeof sharedAudioContext.createMediaStreamSource !== 'function') {
-      debugLog('[Recorder] ERROR: createMediaStreamSource not available');
-      throw new Error('Browser does not support required audio API');
-    }
-    // Note: createMediaStreamDestination is optional - we fall back to minimal graph
-  }
-  return sharedAudioContext;
-}
-
-/**
- * PATCH 8: Safe wrapper for createMediaStreamDestination with legacy fallback.
- * Fixes method name typo (createMediaStreamAudioDestination doesn't exist).
- */
-function createMediaStreamDestinationSafe(audioContext) {
-  if (!audioContext) {
-    throw new Error('No AudioContext provided');
-  }
-
-  const fn =
-    audioContext.createMediaStreamDestination || audioContext.createMediaStreamAudioDestination; // legacy fallback if it ever exists
-
-  if (typeof fn !== 'function') {
-    throw new Error('MediaStreamDestination not supported on this AudioContext');
-  }
-
-  const destNode = fn.call(audioContext);
-
-  if (!destNode || !destNode.stream) {
-    throw new Error('MediaStreamDestination node has no stream');
-  }
-
-  return destNode;
-}
-
-// PATCH 2: Resume AudioContext on first user interaction
-document.addEventListener(
-  'click',
-  async () => {
-    if (sharedAudioContext && sharedAudioContext.state === 'suspended') {
-      try {
-        await sharedAudioContext.resume();
-        debugLog('[Recorder] AudioContext resumed on user gesture');
-      } catch (e) {
-        debugLog('[Recorder] Failed to resume AudioContext:', e);
+    if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
+      sharedAudioContext = new Ctx({ latencyHint: 'interactive' });
+      debugLog('[Recorder] Created AudioContext, state:', sharedAudioContext.state);
+      if (typeof sharedAudioContext.createMediaStreamSource !== 'function') {
+        throw new Error('AudioContext lacks createMediaStreamSource');
       }
     }
-  },
-  { once: true }
-);
-
-// PATCH 9: ChromeOS AudioContext watchdog - prevents auto-suspend after 0.3s
-setInterval(async () => {
-  if (!sharedAudioContext) {
-    return;
+    return sharedAudioContext;
   }
-  if (sharedAudioContext.state === 'suspended') {
+
+  function createDestinationSafe(audioContext) {
+    var fn = audioContext.createMediaStreamDestination ||
+             audioContext.createMediaStreamAudioDestination;
+    if (typeof fn !== 'function') {
+      throw new Error('MediaStreamDestination not supported');
+    }
+    var dest = fn.call(audioContext);
+    if (!dest || !dest.stream) {
+      throw new Error('Destination stream invalid');
+    }
+    return dest;
+  }
+
+  function setupAudioGraph(rawStream) {
+    var audioContext = getSharedContext();
+    var source = audioContext.createMediaStreamSource(rawStream);
+
     try {
-      await sharedAudioContext.resume();
-      debugLog('[Recorder] Watchdog resumed AudioContext');
-    } catch {
-      // Silent fail
-    }
-  }
-}, 500);
+      var destNode = createDestinationSafe(audioContext);
 
-/**
- * Analyze audio stream to determine optimal gain adjustment.
- */
-async function calibrateAudioLevels(stream, onUpdate) {
-  return new Promise((resolve) => {
-    const audioContext = getSharedContext();
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 2048;
+      var highPass = audioContext.createBiquadFilter();
+      highPass.type = 'highpass';
+      highPass.frequency.value = 85;
 
-    const microphone = audioContext.createMediaStreamSource(stream);
-    microphone.connect(analyser);
+      var compressor = audioContext.createDynamicsCompressor();
+      compressor.threshold.value = -20;
+      compressor.knee.value = 40;
+      compressor.ratio.value = 12;
+      compressor.attack.value = 0;
+      compressor.release.value = 0.25;
 
-    const buffer = new Float32Array(analyser.fftSize);
-    const samples = [];
-    const startTime = performance.now();
-    const DURATION = 15000;
-    const VOLUME_SCALE_FACTOR = 2000;
+      var analyser = audioContext.createAnalyser();
+      analyser.fftSize = 2048;
 
-    function tick() {
-      const elapsed = performance.now() - startTime;
-      const remaining = Math.max(0, Math.ceil((DURATION - elapsed) / 1000));
+      source.connect(highPass);
+      highPass.connect(compressor);
+      compressor.connect(analyser);
+      analyser.connect(destNode);
 
-      let message = '';
-      if (elapsed < 5000) {
-        message = `Be quiet for background noise (${remaining}s)`;
-      } else if (elapsed < 10000) {
-        message = `Now speak at normal volume (${remaining}s)`;
-      } else {
-        message = `Be quiet again (${remaining}s)`;
-      }
-
-      // PATCH 3: Skip RMS when AudioContext not running (prevents false tier downgrade)
-      if (audioContext.state !== 'running') {
-        requestAnimationFrame(tick);
-        return;
-      }
-
-      analyser.getFloatTimeDomainData(buffer);
-      let sum = 0;
-      for (let i = 0; i < buffer.length; i++) {
-        sum += buffer[i] * buffer[i];
-      }
-      const rms = Math.sqrt(sum / buffer.length);
-
-      if (!Number.isFinite(rms)) {
-        requestAnimationFrame(tick);
-        return;
-      }
-
-      samples.push(rms);
-      const volumePercent = Math.min(100, rms * VOLUME_SCALE_FACTOR);
-
-      if (onUpdate) {
-        onUpdate(message, volumePercent, false);
-      }
-
-      if (elapsed < DURATION) {
-        requestAnimationFrame(tick);
-      } else {
-        done();
-      }
-    }
-
-    function done() {
-      const third = Math.max(1, Math.floor(samples.length / 3));
-      const quietSamples = samples.slice(0, third);
-      const speechSamples = samples.slice(third, third * 2);
-
-      const avg = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
-
-      const noiseFloor = avg(quietSamples);
-      const speechLevel = avg(speechSamples);
-      const snr = speechLevel / Math.max(noiseFloor, 1e-6);
-
-      const gain = snr < 3 ? 6.0 : Math.max(1.0, Math.min(4.0, 0.1 / Math.max(speechLevel, 1e-6)));
-
-      const calibration = {
-        gain: parseFloat(gain.toFixed(3)),
-        snr: parseFloat(snr.toFixed(3)),
-        noiseFloor: parseFloat(noiseFloor.toFixed(6)),
-        speechLevel: parseFloat(speechLevel.toFixed(6)),
-        timestamp: new Date().toISOString(),
+      return {
+        audioContext: audioContext,
+        destinationStream: destNode.stream,
+        analyser: analyser,
+        nodes: [source, highPass, compressor, analyser, destNode],
+        fallbackActive: false
       };
+    } catch (e) {
+      debugLog('[Recorder] Audio graph failed — fallback to raw stream:', e.message);
+      var analyser2 = audioContext.createAnalyser();
+      analyser2.fftSize = 2048;
+      source.connect(analyser2);
+      return {
+        audioContext: audioContext,
+        destinationStream: rawStream,
+        analyser: analyser2,
+        nodes: [source, analyser2],
+        fallbackActive: true
+      };
+    }
+  }
 
+  function calibrateAudioLevels(stream, onUpdate) {
+    return new Promise(function (resolve) {
+      var audioContext;
       try {
-        microphone.disconnect();
-      } catch {
-        // Microphone may already be disconnected
+        audioContext = getSharedContext();
+      } catch (e) {
+        // Fallback — return default calibration if no AudioContext
+        resolve({
+          gain: 1.0,
+          snr: 1.0,
+          noiseFloor: 0,
+          speechLevel: 0,
+          timestamp: new Date().toISOString()
+        });
+        return;
       }
-      try {
-        analyser.disconnect();
-      } catch {
-        // Analyser may already be disconnected
-      }
 
-      if (onUpdate) {
-        onUpdate(`Ready. Mic calibrated (gain ×${gain.toFixed(1)})`, null, true);
-      }
-      resolve(calibration);
-    }
+      var analyser = audioContext.createAnalyser();
+      analyser.fftSize = 2048;
+      var mic = audioContext.createMediaStreamSource(stream);
+      mic.connect(analyser);
 
-    tick();
-  });
-}
+      var buffer = new Float32Array(analyser.fftSize);
+      var samples = [];
+      var start = Date.now();
+      var DURATION = 15000;
 
-function getOptimalAudioSettings(env, config) {
-  const network = (env && env.network) || {};
-  const allowedMimes = (config && config.allowedMimeTypes) || {};
-
-  let mimeType = 'audio/webm;codecs=opus';
-  if (allowedMimes.mp4) {
-    mimeType = 'audio/mp4';
-  } else if (allowedMimes.wav) {
-    mimeType = 'audio/wav';
-  }
-
-  const settings = {
-    constraints: {
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-        sampleRate: 16000,
-        channelCount: 1,
-      },
-    },
-    options: {
-      mimeType,
-      audioBitsPerSecond: 24000,
-    },
-  };
-
-  if (network.effectiveType === '4g' || (network.downlink || 0) > 2) {
-    settings.constraints.audio.sampleRate = 48000;
-    settings.options.audioBitsPerSecond = 128000;
-  }
-
-  return settings;
-}
-
-function setupAudioGraph(rawStream) {
-  const audioContext = getSharedContext();
-
-  const source = audioContext.createMediaStreamSource(rawStream);
-
-  // PATCH 8: Try createMediaStreamDestinationSafe first, fallback to minimal graph
-  let destination;
-  try {
-    destination = createMediaStreamDestinationSafe(audioContext);
-  } catch (err) {
-    debugLog('[Recorder] createMediaStreamDestination not available:', err.message);
-    debugLog('[Recorder] Using minimal graph fallback (MDN baseline)');
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 2048;
-    source.connect(analyser);
-
-    return {
-      audioContext,
-      destinationStream: rawStream, // Use raw stream for MediaRecorder
-      analyser,
-      nodes: [source, analyser],
-      fallbackActive: true,
-    };
-  }
-
-  // Full processing graph when API available
-  const highPass = audioContext.createBiquadFilter();
-  highPass.type = 'highpass';
-  highPass.frequency.value = 85;
-
-  const compressor = audioContext.createDynamicsCompressor();
-  compressor.threshold.value = -20;
-  compressor.knee.value = 40;
-  compressor.ratio.value = 12;
-  compressor.attack.value = 0;
-  compressor.release.value = 0.25;
-
-  const analyser = audioContext.createAnalyser();
-  analyser.fftSize = 2048;
-
-  source.connect(highPass);
-  highPass.connect(compressor);
-  compressor.connect(analyser);
-  analyser.connect(destination);
-
-  return {
-    audioContext,
-    destinationStream: destination.stream,
-    analyser,
-    nodes: [source, highPass, compressor, analyser, destination],
-    fallbackActive: false,
-  };
-}
-
-export function initRecorder(store, instanceId) {
-  // SETUP MIC (Calibration only)
-  CommandBus.subscribe('setup-mic', async (_payload, meta) => {
-    if (meta.instanceId !== instanceId) {
-      return;
-    }
-
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      const msg = 'Microphone not supported.';
-      emitStarmusEvent(instanceId, 'E_RECORDER_UNSUPPORTED', {
-        severity: 'error',
-        message: msg,
-      });
-      store.dispatch({
-        type: 'starmus/error',
-        payload: { message: msg, retryable: false },
-        error: { message: msg, retryable: false },
-      });
-      return;
-    }
-
-    try {
-      const state = store.getState();
-      const env = state.env || {};
-      const config = window.starmusConfig || {};
-
-      const audioSettings = getOptimalAudioSettings(env, config);
-
-      const rawStream = await navigator.mediaDevices.getUserMedia(audioSettings.constraints);
-
-      emitStarmusEvent(instanceId, 'E_MIC_ACCESS', {
-        severity: 'info',
-        message: 'Microphone access granted, starting calibration',
-      });
-
-      store.dispatch({ type: 'starmus/calibration-start' });
-
-      const calibrationResult = await calibrateAudioLevels(
-        rawStream,
-        (message, volumePercent, isDone) => {
-          if (!isDone) {
-            store.dispatch({
-              type: 'starmus/calibration-update',
-              payload: { message, volumePercent },
-              message,
-              volumePercent,
-            });
+      function tick() {
+        if (audioContext.state !== 'running') {
+          requestAnimationFrame(tick);
+          return;
+        }
+        analyser.getFloatTimeDomainData(buffer);
+        var sum = 0;
+        for (var i = 0; i < buffer.length; i++) sum += buffer[i] * buffer[i];
+        var rms = Math.sqrt(sum / buffer.length);
+        if (!isFinite(rms)) {
+          requestAnimationFrame(tick);
+        } else {
+          samples.push(rms);
+          if (onUpdate) {
+            var volumePercent = Math.min(100, rms * 2000);
+            onUpdate('Calibrating…', volumePercent, false);
+          }
+          if (Date.now() - start < DURATION) {
+            requestAnimationFrame(tick);
+          } else {
+            var third = Math.max(1, Math.floor(samples.length / 3));
+            var quiet = samples.slice(0, third);
+            var speech = samples.slice(third, third * 2);
+            var avg = function (arr) {
+              var s = 0;
+              for (var i = 0; i < arr.length; i++) s += arr[i];
+              return s / arr.length;
+            };
+            var noiseFloor = avg(quiet);
+            var speechLevel = avg(speech);
+            var snr = speechLevel / Math.max(noiseFloor, 1e-6);
+            var gain = snr < 3 ? 6.0 : Math.max(1.0, Math.min(4.0, 0.1 / Math.max(speechLevel, 1e-6)));
+            var calibration = {
+              gain: parseFloat(gain.toFixed(3)),
+              snr: parseFloat(snr.toFixed(3)),
+              noiseFloor: parseFloat(noiseFloor.toFixed(6)),
+              speechLevel: parseFloat(speechLevel.toFixed(6)),
+              timestamp: new Date().toISOString()
+            };
+            try { mic.disconnect(); } catch (_) {}
+            try { analyser.disconnect(); } catch (_) {}
+            if (onUpdate) onUpdate('Mic calibrated', null, true);
+            resolve(calibration);
           }
         }
-      );
+      }
 
-      // Stop calibration stream
-      rawStream.getTracks().forEach((track) => track.stop());
+      tick();
+    });
+  }
 
-      store.dispatch({
-        type: 'starmus/calibration-complete',
-        payload: { calibration: calibrationResult },
-        calibration: calibrationResult,
-      });
-    } catch (error) {
-      const errorMsg =
-        error.name === 'NotAllowedError'
+  function initRecorder(store, instanceId) {
+    // Tier awareness (optional future logic)
+    var tier = (store.getState && store.getState().tier) || 'A';
+    debugLog('[Recorder][' + instanceId + '] Tier:', tier);
+
+    CommandBus.subscribe('setup-mic', function (_p, meta) {
+      if (!meta || meta.instanceId !== instanceId) return;
+
+      if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        var msg = 'Microphone not supported.';
+        emitStarmusEvent(instanceId, 'E_RECORDER_UNSUPPORTED', { severity: 'error', message: msg });
+        store.dispatch({ type: 'starmus/error', payload: { message: msg, retryable: false } });
+        return;
+      }
+
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(function (rawStream) {
+        emitStarmusEvent(instanceId, 'E_MIC_ACCESS', { severity: 'info', message: 'Mic access granted' });
+        store.dispatch({ type: 'starmus/calibration-start' });
+
+        return calibrateAudioLevels(rawStream, function (msg, volume) {
+          store.dispatch({ type: 'starmus/calibration-update', message: msg, volumePercent: volume });
+        }).then(function (cal) {
+          try { rawStream.getTracks().forEach(function (t) { t.stop(); }); } catch (_) {}
+          // Correct payload key
+          store.dispatch({ type: 'starmus/calibration-complete', calibration: cal });
+        });
+
+      }).catch(function (err) {
+        var msg = err && err.name === 'NotAllowedError'
           ? 'Microphone permission denied.'
           : 'Failed to access microphone.';
-
-      emitStarmusEvent(instanceId, 'E_MIC_ACCESS', {
-        severity: 'error',
-        message: errorMsg,
-        error: error.message,
+        emitStarmusEvent(instanceId, 'E_MIC_ACCESS', { severity: 'error', message: msg, data: { error: err.message } });
+        store.dispatch({ type: 'starmus/error', payload: { message: msg, retryable: true } });
       });
-
-      store.dispatch({
-        type: 'starmus/error',
-        payload: { message: errorMsg, retryable: true },
-        error: { message: errorMsg, retryable: true },
-      });
-    }
-  });
-
-  // START RECORDING (after calibration)
-  CommandBus.subscribe('start-recording', async (_payload, meta) => {
-    if (meta.instanceId !== instanceId) {
-      return;
-    }
-
-    console.log('[Recorder] start-recording command received for instance:', instanceId);
-
-    const state = store.getState();
-    console.log('[Recorder] Current state:', {
-      status: state.status,
-      calibrationComplete: state.calibration?.complete,
-      tier: state.tier,
     });
 
-    // PATCH 4: Prevent recording during calibration
-    if (state.status === 'calibrating') {
-      console.warn('[Recorder] Cannot start recording while calibrating');
-      store.dispatch({
-        type: 'starmus/error',
-        payload: { message: 'Please wait for calibration to complete.', retryable: true },
-        error: { message: 'Cannot start recording during calibration', retryable: true },
-      });
-      return;
-    }
+    CommandBus.subscribe('start-recording', function (_p, meta) {
+      if (!meta || meta.instanceId !== instanceId) return;
+      var state = store.getState();
 
-    // Ensure calibration was completed
-    if (!state.calibration || !state.calibration.complete) {
-      console.error('[Recorder] Calibration not complete, cannot start recording');
-      store.dispatch({
-        type: 'starmus/error',
-        payload: { message: 'Please setup your microphone first.', retryable: true },
-        error: { message: 'Please setup your microphone first.', retryable: true },
-      });
-      return;
-    }
-
-    try {
-      console.log('[Recorder] Getting audio settings...');
-      const env = state.env || {};
-      const config = window.starmusConfig || {};
-
-      const audioSettings = getOptimalAudioSettings(env, config);
-      console.log('[Recorder] Audio settings:', audioSettings);
-
-      console.log('[Recorder] Requesting microphone access...');
-      const rawStream = await navigator.mediaDevices.getUserMedia(audioSettings.constraints);
-      console.log('[Recorder] Got rawStream:', rawStream, 'tracks:', rawStream.getTracks());
-
-      const calibrationResult = state.calibration;
-
-      // Proceed directly to recording (calibration already done)
-      let audioContext, destinationStream, analyser, nodes;
-      try {
-        console.log('[Recorder] Setting up audio graph...');
-        const audioGraph = setupAudioGraph(rawStream);
-        audioContext = audioGraph.audioContext;
-        destinationStream = audioGraph.destinationStream;
-        analyser = audioGraph.analyser;
-        nodes = audioGraph.nodes;
-
-        console.log('[Recorder] Audio graph created successfully:', {
-          hasContext: !!audioContext,
-          hasDestStream: !!destinationStream,
-          hasAnalyser: !!analyser,
-          contextState: audioContext?.state,
-        });
-      } catch (graphError) {
-        console.error('[Recorder] Audio graph setup FAILED:', graphError);
-        debugLog('[Recorder] Audio graph setup failed:', graphError);
-
-        emitStarmusEvent(instanceId, 'E_AUDIO_GRAPH_FAIL', {
-          severity: 'warning',
-          message: 'Using minimal audio graph (MDN baseline)',
-        });
-
-        // PATCH 10: Do NOT downgrade tier - minimal graph is still Tier A
-        // The setupAudioGraph already provides fallback with raw stream
-        // So this error should not occur, but if it does, don't break recording
-
-        rawStream.getTracks().forEach((track) => track.stop());
-
-        store.dispatch({
-          type: 'starmus/error',
-          payload: { message: 'Audio processing error. Please try again.', retryable: true },
-          error: graphError,
-        });
+      if (state.status === 'calibrating') {
+        store.dispatch({ type: 'starmus/error', payload: { message: 'Please wait for calibration to complete.', retryable: true } });
+        return;
+      }
+      if (!state.calibration || state.calibration.complete !== true) {
+        store.dispatch({ type: 'starmus/error', payload: { message: 'Please setup your microphone first.', retryable: true } });
+        return;
+      }
+      if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        store.dispatch({ type: 'starmus/error', payload: { message: 'Microphone not available.', retryable: false } });
         return;
       }
 
-      if (audioContext.state === 'suspended') {
-        await audioContext.resume();
-      }
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(function (rawStream) {
+        var graph = setupAudioGraph(rawStream);
+        var destinationStream = graph.destinationStream;
+        var analyser = graph.analyser;
 
-      // PATCH 5: Wait for audio track to be ready
-      await starmusWaitForTrack(destinationStream);
-
-      // PATCH 3: Validate stream before creating MediaRecorder
-      if (!destinationStream || typeof destinationStream.getTracks !== 'function') {
-        console.error('[Recorder] No valid audio stream available before MediaRecorder');
-        rawStream.getTracks().forEach((t) => t.stop());
-        store.dispatch({
-          type: 'starmus/error',
-          payload: { message: 'Microphone stream unavailable.', retryable: true },
-          error: { message: 'Invalid destination stream', retryable: true },
-        });
-        return;
-      }
-
-      const audioTracks = destinationStream.getAudioTracks();
-      if (!audioTracks.length) {
-        console.error('[Recorder] No audio tracks on stream');
-        rawStream.getTracks().forEach((t) => t.stop());
-        store.dispatch({
-          type: 'starmus/error',
-          payload: { message: 'No audio tracks available.', retryable: true },
-          error: { message: 'Stream has no audio tracks', retryable: true },
-        });
-        return;
-      }
-
-      console.log('[Recorder] Stream validation passed:', {
-        hasStream: !!destinationStream,
-        trackCount: audioTracks.length,
-        trackStates: audioTracks.map((t) => ({
-          kind: t.kind,
-          enabled: t.enabled,
-          readyState: t.readyState,
-        })),
-      });
-
-      const recorderOptions = {};
-      if (MediaRecorder.isTypeSupported(audioSettings.options.mimeType)) {
-        recorderOptions.mimeType = audioSettings.options.mimeType;
-        recorderOptions.audioBitsPerSecond = audioSettings.options.audioBitsPerSecond;
-      }
-
-      // PATCH 1: Harden MediaRecorder creation with try/catch
-      let mediaRecorder = null;
-      try {
-        mediaRecorder = new MediaRecorder(destinationStream, recorderOptions);
-        console.log('[Recorder] MediaRecorder created successfully, state:', mediaRecorder.state);
-      } catch (err) {
-        console.error('[Recorder] MediaRecorder constructor failed:', err);
-        rawStream.getTracks().forEach((t) => t.stop());
-        if (destinationStream !== rawStream) {
-          destinationStream.getTracks().forEach((t) => t.stop());
+        if (graph.audioContext.state === 'suspended') {
+          graph.audioContext.resume().catch(function () {});
         }
-        store.dispatch({
-          type: 'starmus/error',
-          payload: {
-            message: 'MediaRecorder could not be created: ' + (err.message || 'Unknown error'),
-            retryable: true,
-          },
-          error: err,
-        });
-        emitStarmusEvent(instanceId, 'E_RECORDER_CREATE_FAIL', {
-          severity: 'error',
-          message: 'MediaRecorder constructor failed',
-          error: err.message,
-        });
-        return;
-      }
 
-      if (!mediaRecorder || mediaRecorder.state !== 'inactive') {
-        console.error(
-          '[Recorder] MediaRecorder did not initialize properly, state:',
-          mediaRecorder?.state
-        );
-        rawStream.getTracks().forEach((t) => t.stop());
-        if (destinationStream !== rawStream) {
-          destinationStream.getTracks().forEach((t) => t.stop());
-        }
-        store.dispatch({
-          type: 'starmus/error',
-          payload: { message: 'MediaRecorder initialization failed.', retryable: true },
-          error: { message: 'MediaRecorder state invalid after creation', retryable: true },
-        });
-        return;
-      }
-      const chunks = [];
-      let transcript = '';
+        starmusWaitForTrack(destinationStream).then(function () {
+          var tracks = (destinationStream.getAudioTracks && destinationStream.getAudioTracks()) || [];
+          if (!tracks.length) {
+            try { rawStream.getTracks().forEach(function (t) { t.stop(); }); } catch (_) {}
+            store.dispatch({ type: 'starmus/error', payload: { message: 'Invalid audio stream', retryable: true } });
+            return;
+          }
 
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      let recognition = null;
+          var chunks = [];
+          var mediaRecorder;
+          try {
+            mediaRecorder = new (global.MediaRecorder)(destinationStream, {});
+          } catch (e) {
+            debugLog('[Recorder] MediaRecorder creation failed:', e);
+            try { rawStream.getTracks().forEach(function (t) { t.stop(); }); } catch (_) {}
+            store.dispatch({ type: 'starmus/error', payload: { message: 'Unable to start recording', retryable: true } });
+            return;
+          }
 
-      const speechSupported = !!(SpeechRecognition && env.speechSupported);
+          var recObj = {
+            mediaRecorder: mediaRecorder,
+            rawStream: rawStream,
+            processedStream: destinationStream,
+            audioContext: graph.audioContext,
+            analyser: analyser,
+            nodes: graph.nodes,
+            fallbackActive: graph.fallbackActive
+          };
+          recorderRegistry[instanceId] = recObj;
 
-      if (speechSupported) {
-        try {
-          recognition = new SpeechRecognition();
-          recognition.continuous = true;
-          recognition.interimResults = true;
-          recognition.lang = config.speechRecognitionLang || 'en-US';
-          recognition.onresult = (event) => {
-            let finalTranscript = '';
-            let interimTranscript = '';
+          mediaRecorder.ondataavailable = function (e) {
+            if (e.data && e.data.size > 0) chunks.push(e.data);
+          };
 
-            for (let i = 0; i < event.results.length; i++) {
-              const transcriptPiece = event.results[i][0].transcript;
-              if (event.results[i].isFinal) {
-                finalTranscript += transcriptPiece + ' ';
-              } else {
-                interimTranscript += transcriptPiece;
-              }
-            }
+          mediaRecorder.onstop = function () {
+            if (recorderRegistry[instanceId] === recObj) {
+              try {
+                if (recObj.audioContext && recObj.audioContext.close) recObj.audioContext.close();
+              } catch (_) {}
+              var blob = new Blob(chunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+              var fileName = 'starmus-recording-' + Date.now() + '.webm';
+              store.dispatch({ type: 'starmus/recording-available', payload: { blob: blob, fileName: fileName } });
 
-            // Fix 5: Dispatch interim results for real-time UX
-            if (interimTranscript) {
-              store.dispatch({
-                type: 'starmus/transcript-interim',
-                payload: { interim: interimTranscript },
-                interim: interimTranscript,
+              try { rawStream.getTracks().forEach(function (t) { t.stop(); }); } catch (_) {}
+              try { destinationStream.getTracks().forEach(function (t) { t.stop(); }); } catch (_) {}
+              recObj.nodes.forEach(function (n) {
+                try { n.disconnect(); } catch (_) {}
               });
-            }
-
-            if (finalTranscript) {
-              transcript += finalTranscript;
-              const normalized = transcript.trim();
-              store.dispatch({
-                type: 'starmus/transcript-update',
-                payload: { transcript: normalized },
-                transcript: normalized,
-              });
+              delete recorderRegistry[instanceId];
             }
           };
 
-          recognition.start();
-        } catch (err) {
-          debugLog('Speech Rec failed:', err);
-          emitStarmusEvent(instanceId, 'E_SPEECH_FAIL', {
-            severity: 'warning',
-            message: err?.message || 'Speech recognition initialization failed',
-          });
-        }
-      }
+          mediaRecorder.onerror = function (err) {
+            debugLog('[Recorder] MediaRecorder error:', err);
+            emitStarmusEvent(instanceId, 'E_RECORDER_ERROR', { severity: 'error', message: err.message });
+            store.dispatch({ type: 'starmus/error', payload: { message: 'Recording error', retryable: true } });
+          };
 
-      // VISUALIZER LOOP
-      const startTime = performance.now();
-      const meterBuffer = new Float32Array(analyser.fftSize);
-
-      const recRef = {};
-
-      // PATCH 9: 2-STEP INIT - Register empty object immediately to prevent ReferenceError
-      recorderRegistry.set(instanceId, recRef);
-      debugLog('[Recorder] Registry entry created (step 1/2 - object allocated)');
-
-      // PATCH 9: 2-STEP INIT - Step 2: Safely populate properties using Object.assign
-      Object.assign(recRef, {
-        mediaRecorder,
-        chunks,
-        rawStream,
-        processedStream: destinationStream,
-        audioContext,
-        audioNodes: nodes,
-        analyser,
-        recognition,
-        transcript,
-        calibration: calibrationResult,
-        startTime,
-        rafId: null,
-      });
-
-      // PATCH 7: Add telemetry on registry population
-      debugLog('[Recorder] Registry populated (step 2/2)', {
-        instanceId,
-        hasRecorder: !!mediaRecorder,
-        streamTracks: destinationStream.getTracks().length,
-        recorderState: mediaRecorder.state,
-        hasAnalyser: !!analyser,
-        hasContext: !!audioContext,
-        contextState: audioContext.state,
-      });
-
-      function meterLoop() {
-        const active = recorderRegistry.get(instanceId);
-        if (!active) {
-          return;
-        }
-
-        // Only stop the loop if recording is completely stopped
-        const recState = active.mediaRecorder?.state;
-
-        if (recState !== 'recording' && recState !== 'paused') {
-          return;
-        }
-
-        // AudioContext suspension recovery
-        if (active.audioContext && active.audioContext.state === 'suspended') {
-          active.audioContext.resume().catch((e) => {
-            emitStarmusEvent(instanceId, 'E_CTX_SUSPEND', {
-              severity: 'warning',
-              message: e?.message || 'AudioContext resume failed after suspension',
-            });
-          });
-        }
-
-        // Only read amplitude if actively recording (not paused)
-        let amplitude = 0;
-        if (recState === 'recording' && active.analyser) {
-          active.analyser.getFloatTimeDomainData(meterBuffer);
-          let sum = 0;
-          for (let i = 0; i < meterBuffer.length; i++) {
-            sum += meterBuffer[i] * meterBuffer[i];
-          }
-          const rms = Math.sqrt(sum / meterBuffer.length);
-          amplitude = Math.min(100, Math.max(0, rms * 4000));
-        }
-
-        const elapsed = (performance.now() - startTime) / 1000;
-
-        store.dispatch({
-          type: 'starmus/recorder-tick',
-          payload: { duration: elapsed, amplitude },
-          duration: elapsed,
-          amplitude,
-        });
-
-        // Schedule next frame
-        active.rafId = requestAnimationFrame(meterLoop);
-      }
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) {
-          chunks.push(e.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const activeRec = recorderRegistry.get(instanceId);
-        if (!activeRec) {
-          return;
-        }
-
-        if (activeRec.rafId) {
-          cancelAnimationFrame(activeRec.rafId);
-        }
-
-        if (activeRec.recognition) {
           try {
-            activeRec.recognition.stop();
-          } catch {
-            // Speech recognition may already be stopped
+            if (mediaRecorder.state === 'inactive') {
+              mediaRecorder.start(3000);
+              store.dispatch({ type: 'starmus/mic-start' });
+            } else {
+              throw new Error('MediaRecorder not in inactive state');
+            }
+          } catch (e) {
+            debugLog('[Recorder] mediaRecorder.start failed:', e);
+            try { rawStream.getTracks().forEach(function (t) { t.stop(); }); } catch (_) {}
+            delete recorderRegistry[instanceId];
+            store.dispatch({ type: 'starmus/error', payload: { message: 'Cannot start recording', retryable: true } });
+            emitStarmusEvent(instanceId, 'E_RECORDER_START_FAIL', { severity: 'error', message: e.message });
+            return;
           }
-        }
 
-        const blob = new Blob(chunks, {
-          type: mediaRecorder.mimeType || 'audio/webm',
-        });
-        const fileName = `starmus-recording-${Date.now()}.webm`;
+          var meterBuffer = new Float32Array(analyser.fftSize);
+          recObj.startTime = Date.now();
 
-        emitStarmusEvent(instanceId, 'REC_COMPLETE', {
-          severity: 'info',
-          message: 'Recording stopped and blob created',
-          data: {
-            mimeType: mediaRecorder.mimeType || 'audio/webm',
-            chunkCount: chunks.length,
-          },
-        });
+          function meterLoop() {
+            var rec = recorderRegistry[instanceId];
+            if (!rec || !rec.mediaRecorder) return;
+            if (rec.mediaRecorder.state !== 'recording' && rec.mediaRecorder.state !== 'paused')
+              return;
 
-        store.dispatch({
-          type: 'starmus/recording-available',
-          payload: { blob, fileName },
-        });
-
-        if (activeRec.rawStream) {
-          activeRec.rawStream.getTracks().forEach((t) => t.stop());
-        }
-        if (activeRec.processedStream) {
-          activeRec.processedStream.getTracks().forEach((t) => t.stop());
-        }
-        if (activeRec.audioNodes) {
-          activeRec.audioNodes.forEach((n) => {
             try {
-              n.disconnect();
-            } catch {
-              // Node may already be disconnected
+              rec.analyser.getFloatTimeDomainData(meterBuffer);
+              var sum = 0;
+              for (var i = 0; i < meterBuffer.length; i++) sum += meterBuffer[i] * meterBuffer[i];
+              var rms = Math.sqrt(sum / meterBuffer.length);
+              var amplitude = Math.min(100, Math.max(0, rms * 4000));
+              var elapsed = (Date.now() - recObj.startTime) / 1000;
+              store.dispatch({ type: 'starmus/recorder-tick', duration: elapsed, amplitude: amplitude });
+            } catch (_) {
+              // ignore
             }
-          });
-        }
+            recObj.rafId = requestAnimationFrame(meterLoop);
+          }
+          recObj.rafId = requestAnimationFrame(meterLoop);
 
-        recorderRegistry.delete(instanceId);
-      };
-
-      // PATCH 2: Now that registry is populated, change UI state
-      console.log('[Recorder] Registry populated, now dispatching mic-start');
-      store.dispatch({ type: 'starmus/mic-start' });
-
-      // PATCH 2: Only then start the underlying recorder
-      console.log('[Recorder] About to call mediaRecorder.start()');
-      console.log('[Recorder] Pre-start state check:', {
-        recorderExists: !!mediaRecorder,
-        recorderState: mediaRecorder?.state,
-        streamActive: destinationStream?.active,
-        trackCount: destinationStream?.getTracks()?.length,
+        });
+      }).catch(function (err) {
+        var msg = 'Could not access microphone.';
+        emitStarmusEvent(instanceId, 'E_MIC_ACCESS', { severity: 'error', message: msg, data: { error: err.message } });
+        store.dispatch({ type: 'starmus/error', payload: { message: msg, retryable: true } });
       });
+    });
 
-      try {
-        mediaRecorder.start(3000); // 3-second chunks reduce memory pressure and offline queue size
-        console.log('[Recorder] mediaRecorder.start() completed successfully');
-        console.log('[Recorder] MediaRecorder state after start:', mediaRecorder.state);
-      } catch (startError) {
-        console.error('[Recorder] CRITICAL ERROR: mediaRecorder.start() failed:', startError);
-        console.error('[Recorder] Error details:', {
-          name: startError.name,
-          message: startError.message,
-          recorderState: mediaRecorder?.state,
-          streamActive: destinationStream?.active,
-        });
-
-        // Clean up the registry entry since recording failed
-        recorderRegistry.delete(instanceId);
-
-        // Stop all streams
-        if (rawStream) {
-          rawStream.getTracks().forEach((t) => t.stop());
-        }
-        if (destinationStream !== rawStream && destinationStream) {
-          destinationStream.getTracks().forEach((t) => t.stop());
-        }
-
-        // Clean up audio nodes
-        if (nodes) {
-          nodes.forEach((n) => {
-            try {
-              n.disconnect();
-            } catch {
-              // Node may already be disconnected
-            }
-          });
-        }
-
-        // Dispatch error to UI
-        store.dispatch({
-          type: 'starmus/error',
-          payload: {
-            message: 'Failed to start recording: ' + (startError.message || 'Unknown error'),
-            retryable: true,
-          },
-          error: startError,
-        });
-
-        emitStarmusEvent(instanceId, 'E_RECORDER_START_FAIL', {
-          severity: 'error',
-          message: 'MediaRecorder.start() failed',
-          error: startError.message,
-        });
-
-        return;
+    CommandBus.subscribe('stop-mic', function (_p, meta) {
+      if (!meta || meta.instanceId !== instanceId) return;
+      var rec = recorderRegistry[instanceId];
+      if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'recording') {
+        store.dispatch({ type: 'starmus/mic-stop' });
+        try { rec.mediaRecorder.stop(); } catch (_) {}
       }
+    });
 
-      // Initial amplitude sample to avoid flat meter at start
-      analyser.getFloatTimeDomainData(meterBuffer);
-      let initialSum = 0;
-      for (let i = 0; i < meterBuffer.length; i++) {
-        initialSum += meterBuffer[i] * meterBuffer[i];
+    CommandBus.subscribe('pause-mic', function (_p, meta) {
+      if (!meta || meta.instanceId !== instanceId) return;
+      var rec = recorderRegistry[instanceId];
+      if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'recording' &&
+          typeof rec.mediaRecorder.pause === 'function') {
+        store.dispatch({ type: 'starmus/mic-pause' });
+        rec.mediaRecorder.pause();
       }
-      const initialRms = Math.sqrt(initialSum / meterBuffer.length);
-      const initialAmplitude = Math.min(100, Math.max(0, initialRms * 4000));
-      store.dispatch({
-        type: 'starmus/recorder-tick',
-        payload: { duration: 0, amplitude: initialAmplitude },
-        duration: 0,
-        amplitude: initialAmplitude,
-      });
+    });
 
-      recRef.rafId = requestAnimationFrame(meterLoop);
-    } catch (error) {
-      console.error(error);
-      emitStarmusEvent(instanceId, 'E_MIC_ACCESS', {
-        severity: 'error',
-        message: error?.message || 'Could not access microphone.',
-      });
-      store.dispatch({
-        type: 'starmus/error',
-        payload: { message: 'Could not access microphone.' },
-        error: { message: 'Could not access microphone.' },
-      });
-    }
-  });
+    CommandBus.subscribe('resume-mic', function (_p, meta) {
+      if (!meta || meta.instanceId !== instanceId) return;
+      var rec = recorderRegistry[instanceId];
+      if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'paused' &&
+          typeof rec.mediaRecorder.resume === 'function') {
+        store.dispatch({ type: 'starmus/mic-resume' });
+        rec.mediaRecorder.resume();
+      }
+    });
 
-  // STOP MIC
-  CommandBus.subscribe('stop-mic', (_payload, meta) => {
-    if (meta.instanceId !== instanceId) {
-      return;
-    }
-    const rec = recorderRegistry.get(instanceId);
-    if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'recording') {
-      store.dispatch({ type: 'starmus/mic-stop' });
-      rec.mediaRecorder.stop();
-    }
-  });
-
-  // PAUSE MIC
-  CommandBus.subscribe('pause-mic', (_payload, meta) => {
-    if (meta.instanceId !== instanceId) {
-      return;
-    }
-    const rec = recorderRegistry.get(instanceId);
-    if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'recording') {
-      store.dispatch({ type: 'starmus/mic-pause' });
-      rec.mediaRecorder.pause();
-      // Don't cancel rafId - let the meter loop continue for duration updates
-    }
-  });
-
-  // RESUME MIC
-  CommandBus.subscribe('resume-mic', (_payload, meta) => {
-    if (meta.instanceId !== instanceId) {
-      return;
-    }
-    const rec = recorderRegistry.get(instanceId);
-    if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'paused') {
-      store.dispatch({ type: 'starmus/mic-resume' });
-      rec.mediaRecorder.resume();
-      // The meter loop is already running - it will pick up the new state
-    }
-  });
-
-  // RESET
-  CommandBus.subscribe('reset', (_payload, meta) => {
-    if (meta.instanceId !== instanceId) {
-      return;
-    }
-    const rec = recorderRegistry.get(instanceId);
-    if (rec) {
-      if (rec.mediaRecorder && rec.mediaRecorder.state !== 'inactive') {
+    CommandBus.subscribe('reset', function (_p, meta) {
+      if (!meta || meta.instanceId !== instanceId) return;
+      var rec = recorderRegistry[instanceId];
+      if (rec) {
         try {
-          rec.mediaRecorder.stop();
-        } catch {
-          // MediaRecorder may already be stopped
-        }
+          if (rec.mediaRecorder && rec.mediaRecorder.state !== 'inactive')
+            rec.mediaRecorder.stop();
+        } catch (_) {}
+        if (rec.rafId) cancelAnimationFrame(rec.rafId);
+        if (rec.rawStream) rec.rawStream.getTracks().forEach(function (t) { t.stop(); });
+        if (rec.processedStream) rec.processedStream.getTracks().forEach(function (t) { t.stop(); });
+        if (rec.nodes) rec.nodes.forEach(function (n) {
+          try { n.disconnect(); } catch (_) {}
+        });
+        delete recorderRegistry[instanceId];
       }
-      if (rec.rafId) {
-        cancelAnimationFrame(rec.rafId);
-      }
-      if (rec.rawStream) {
-        rec.rawStream.getTracks().forEach((t) => t.stop());
-      }
-      if (rec.processedStream) {
-        rec.processedStream.getTracks().forEach((t) => t.stop());
-      }
-      recorderRegistry.delete(instanceId);
-    }
-  });
-}
+    });
+  }
+
+  global.initStarmusRecorder = initRecorder;
+
+})(typeof window !== 'undefined' ? window : this);

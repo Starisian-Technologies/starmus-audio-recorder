@@ -7,7 +7,6 @@ declare(strict_types=1);
  *
  * @package   Starisian\Sparxstar\Starmus\includes
  */
-
 namespace Starisian\Sparxstar\Starmus\includes;
 
 if (! \defined('ABSPATH')) {
@@ -17,33 +16,30 @@ if (! \defined('ABSPATH')) {
 use function array_filter;
 use function array_map;
 use function array_values;
+
+use const DAY_IN_SECONDS; // Added
+
 use function fclose; // Added
-use function fopen; // Added
-use function intval; // Added
-use function move_uploaded_file; // Added
-use function rmdir; // Added
-use function stream_copy_to_stream; // Added
-use function unlink; // Added
-
-use const DAY_IN_SECONDS;
-
-use function file_exists;
-use function file_put_contents;
-use function filemtime;
-use function filesize;
+// Added
+use function file_exists; // Added
+use function file_put_contents; // Added
+use function filemtime; // Added
+use function filesize; // Added
+use function fopen;
 use function get_current_user_id;
 use function get_permalink;
 use function get_post_meta;
 use function get_post_type;
-use function get_userdata;
 use function glob;
 use function home_url;
 use function is_dir;
 use function is_wp_error;
 use function json_decode;
 use function mime_content_type;
+use function move_uploaded_file;
 use function pathinfo;
 use function preg_match;
+use function rmdir;
 use function sanitize_key;
 use function sanitize_text_field;
 
@@ -54,6 +50,7 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 
 use function str_contains;
+use function stream_copy_to_stream;
 use function strtolower;
 use function sys_get_temp_dir;
 
@@ -62,13 +59,14 @@ use Throwable;
 use function time;
 use function trailingslashit;
 use function uniqid;
+use function unlink;
 use function wp_delete_file;
-use function wp_mkdir_p;
 
 use WP_Error;
 
 use function wp_get_attachment_url;
 use function wp_json_encode;
+use function wp_mkdir_p;
 use function wp_next_scheduled;
 
 use WP_REST_Request;
@@ -171,7 +169,7 @@ final class StarmusSubmissionHandler
     // --- REFACTORED: UNIFIED CORE FINALIZATION METHOD ---
     /**
      * UNIFIED Core finalization pipeline for a completed file already on the local disk.
-     * Used by: TUS Webhook (via process_completed_file), Chunked Upload (via finalize_submission), 
+     * Used by: TUS Webhook (via process_completed_file), Chunked Upload (via finalize_submission),
      *          and Multipart Chunked Upload (via handle_upload_chunk_rest_multipart).
      *
      * @param string $file_path Absolute path to the completed file (from tusd or chunked temp).
@@ -221,7 +219,7 @@ final class StarmusSubmissionHandler
             }
 
             // --- 4. Post Creation/Update Logic ---
-            $cpt_post_id = 0;
+            $cpt_post_id      = 0;
             $existing_post_id = isset($form_data['post_id']) ? absint($form_data['post_id']) : 0;
 
             if ($existing_post_id > 0 && get_post_type($existing_post_id) === $this->get_cpt_slug()) {
@@ -270,10 +268,9 @@ final class StarmusSubmissionHandler
     }
     // --- END UNIFIED CORE FINALIZATION METHOD ---
 
-
     // --- LEGACY BASE64 CHUNK HANDLER ---
     /**
-     * Handles LEGACY Base64/JSON chunk uploads. 
+     * Handles LEGACY Base64/JSON chunk uploads.
      * Kept for backwards compatibility if a client still uses it.
      */
     public function handle_upload_chunk_rest_base64(WP_REST_Request $request): array|WP_Error
@@ -306,7 +303,7 @@ final class StarmusSubmissionHandler
 
             if (! empty($params['is_last_chunk'])) {
                 // Assuming client-side Base64 logic finalizes into a single temp file path.
-                $final = $this->finalize_submission($tmp_file, $params); 
+                $final = $this->finalize_submission($tmp_file, $params);
                 StarmusLogger::timeEnd('chunk_upload_base64', 'SubmissionHandler');
                 return $final;
             }
@@ -343,11 +340,11 @@ final class StarmusSubmissionHandler
 
             // CRITICAL ESCAPE HATCH: If no file is present, try the full fallback immediately.
             if (!isset($files['audio_chunk']) && empty($params['finalize'])) {
-                 return $this->handle_fallback_upload_rest($request);
+                return $this->handle_fallback_upload_rest($request);
             }
 
             $chunk_file   = $files['audio_chunk'] ?? null;
-            $chunk_index  = isset($params['chunk_index'])  ? (int) $params['chunk_index']  : -1;
+            $chunk_index  = isset($params['chunk_index']) ? (int) $params['chunk_index'] : -1;
             $total_chunks = isset($params['total_chunks']) ? (int) $params['total_chunks'] : -1;
             $upload_id    = sanitize_key($params['upload_id'] ?? '');
             $create_new   = isset($params['create_upload_id']);
@@ -373,7 +370,7 @@ final class StarmusSubmissionHandler
 
             // PROTECT AGAINST RE-PLAY / DUPLICATE
             if (file_exists($chunk_dest) && $chunk_index !== 0) {
-                 return $this->err('duplicate_chunk', "Chunk {$chunk_index} already exists.", 409);
+                return $this->err('duplicate_chunk', "Chunk {$chunk_index} already exists.", 409);
             }
 
             if (!move_uploaded_file($chunk_file['tmp_name'], $chunk_dest)) {
@@ -381,7 +378,7 @@ final class StarmusSubmissionHandler
             }
 
             // --- FINALIZATION REQUEST ---
-            if (intval($params['finalize'] ?? 0) === 1) {
+            if (\intval($params['finalize'] ?? 0) === 1) {
 
                 $combined = $this->combine_chunks_multipart($upload_id, $base_path, $total_chunks);
                 if (is_wp_error($combined)) {
@@ -468,6 +465,7 @@ final class StarmusSubmissionHandler
     /**
      * @param string $file_path
      * @param array $form_data
+     *
      * @return array|WP_Error
      */
     private function finalize_submission(string $file_path, array $form_data): array|WP_Error
@@ -996,7 +994,7 @@ final class StarmusSubmissionHandler
                 ? array_values(
                     array_filter(
                         array_map(trim(...), explode(',', $allowed_settings)),
-                        fn($v): bool => $v !== ''
+                        fn ($v): bool => $v !== ''
                     )
                 )
                 : $this->default_allowed_mimes;
@@ -1040,8 +1038,11 @@ final class StarmusSubmissionHandler
 
     /**
      * Delete temporary chunk files for an upload session.
+     *
+     * @param mixed $path
      */
-    private function cleanup_chunks_dir($path) {
+    private function cleanup_chunks_dir($path)
+    {
         // Only delete if path is inside the expected temp directory as a safety measure
         if (str_contains($path, $this->get_temp_dir())) {
             $files = glob($path . '*');
@@ -1054,12 +1055,13 @@ final class StarmusSubmissionHandler
 
     /**
      * Combine chunk files written via handle_upload_chunk_rest_multipart
+     *
      * @return string|WP_Error Final file path or WP_Error.
      */
     private function combine_chunks_multipart(string $upload_id, string $base, int $total): string|WP_Error
     {
         $final = $this->get_temp_dir() . $upload_id . '.tmp.file';
-        $fp = @fopen($final, 'wb');
+        $fp    = @fopen($final, 'wb');
         if (!$fp) {
             return $this->err('combine_open_failed', 'Could not create final file.', 500);
         }
@@ -1073,9 +1075,9 @@ final class StarmusSubmissionHandler
             }
             $chunk_fp = @fopen($chunk, 'rb');
             if ($chunk_fp === false) {
-                 fclose($fp);
-                 @unlink($final);
-                 return $this->err('read_chunk_failed', "Could not read chunk $i during combination.", 500);
+                fclose($fp);
+                @unlink($final);
+                return $this->err('read_chunk_failed', "Could not read chunk $i during combination.", 500);
             }
             stream_copy_to_stream($chunk_fp, $fp);
             @fclose($chunk_fp);

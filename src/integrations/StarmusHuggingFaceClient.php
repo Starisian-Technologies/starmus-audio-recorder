@@ -1,15 +1,12 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\integrations;
 
 // Prevent direct access
 if (! \defined('ABSPATH')) {
     exit;
 }
-
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 /**
  * Minimal client to send audio files + first-pass transcription to a HuggingFace-compatible endpoint.

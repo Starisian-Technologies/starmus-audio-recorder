@@ -7,7 +7,6 @@ declare(strict_types=1);
  *
  * @package Starisian\Sparxstar\Starmus\api
  */
-
 namespace Starisian\Sparxstar\Starmus\api;
 
 if (! \defined('ABSPATH')) {
@@ -88,7 +87,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'POST',
                 'callback'            => [$this->submission_handler, 'handle_upload_chunk_rest_multipart'], // <-- WIRED CORRECTLY
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn () => current_user_can('upload_files'),
             ]
         );
 
@@ -99,7 +98,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'POST',
                 'callback'            => $this->handle_fallback_upload(...),
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn () => current_user_can('upload_files'),
             ]
         );
 
@@ -110,7 +109,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'POST',
                 'callback'            => [$this->submission_handler, 'handle_upload_chunk_rest_base64'], // <-- WIRED CORRECTLY
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn () => current_user_can('upload_files'),
             ]
         );
 
@@ -121,7 +120,7 @@ final readonly class StarmusRESTHandler
             [
                 'methods'             => 'GET',
                 'callback'            => $this->handle_status(...),
-                'permission_callback' => static fn() => current_user_can('upload_files'),
+                'permission_callback' => static fn () => current_user_can('upload_files'),
                 'args'                => [
                     'id' => [
                         'validate_callback' => 'is_numeric',
@@ -170,7 +169,7 @@ final readonly class StarmusRESTHandler
             }
 
             // Extract submission data
-            $response_data = $result;
+            $response_data   = $result;
             $submission_data = $response_data['data'] ?? [];
 
             do_action(
@@ -195,7 +194,7 @@ final readonly class StarmusRESTHandler
             );
         }
     }
-    
+
     /**
      * Handle status check requests for submitted audio recordings.
      *

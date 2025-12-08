@@ -9,7 +9,6 @@
  *
  * @since 0.7.4
  */
-
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 class StarmusTemplateLoaderHelper
