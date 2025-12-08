@@ -264,3 +264,12 @@ export async function getPendingCount() {
 }
 
 export default offlineQueue;
+
+function initOffline() {
+  // idempotent: calling twice won’t re-init because offlineQueue.db persists
+  return getOfflineQueue();
+}
+
+if (typeof window !== 'undefined') {
+  window.initOffline = initOffline;
+}

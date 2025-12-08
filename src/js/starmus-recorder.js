@@ -430,3 +430,13 @@
   global.initStarmusRecorder = initRecorder;
 
 })(typeof window !== 'undefined' ? window : globalThis);
+// ES5-friendly global exposure
+// ES5-friendly global exposure
+if (typeof window !== 'undefined') {
+    // Primary initializer
+    window.initRecorder = initRecorder;
+
+    // Alias for backward-compatibility if required by older integrators
+    window.initStarmusRecorder = initRecorder;
+}
+

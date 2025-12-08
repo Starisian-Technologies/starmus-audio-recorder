@@ -181,3 +181,10 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = StarmusTranscript;
 }
+
+if (typeof window !== 'undefined') {
+    window.StarmusTranscriptController = StarmusTranscript;
+    window.initTranscriptController = function(peaks, containerId, transcriptData) {
+        return new StarmusTranscript(peaks, containerId, transcriptData);
+    };
+}

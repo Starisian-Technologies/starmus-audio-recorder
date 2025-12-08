@@ -289,3 +289,7 @@ export function initInstance(store, elements) {
 
   return unsubscribe;
 }
+// at end of the file
+if (typeof window !== 'undefined') {
+    window.initUI = initInstance;
+}

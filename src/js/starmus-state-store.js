@@ -213,3 +213,8 @@
   }
 
 })(typeof window !== 'undefined' ? window : globalThis);
+
+// at end of the file
+if (typeof window !== 'undefined') {
+    window.initStateStore = createStore;
+}

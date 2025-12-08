@@ -123,3 +123,7 @@ export function initCore(store, instanceId, env) {
 
   return { handleSubmit: handleSubmit };
 }
+// at end of the file
+if (typeof window !== 'undefined') {
+    window.initCore = initCore;
+}
