@@ -18,55 +18,29 @@
  * @description This script initializes the audio waveform editor, handles user interactions
  * (playback, zoom, annotations), manages unsaved changes, and communicates with the
  * WordPress REST API to save annotation data.
- *
- * @typedef {object} Annotation
- * @property {string} id - A unique identifier for the annotation.
- * @property {number} startTime - The start time of the annotation in seconds.
- * @property {number} endTime - The end time of the annotation in seconds.
- * @property {string} [label] - The user-defined text for the annotation.
  */
 
 (function () {
   'use strict';
-
-  // --- Basic Setup & Data Validation ---
 
   if (typeof STARMUS_EDITOR_DATA === 'undefined') {
     console.error('Starmus Error: Editor data (STARMUS_EDITOR_DATA) not found. Cannot initialize.');
     return;
   }
 
-  /**
-   * @const {object} STARMUS_EDITOR_DATA - Data localized from PHP.
-   * @property {string} restUrl - The URL for the REST API endpoint.
-   * @property {string} nonce - The nonce for REST API authentication.
-   * @property {number} postId - The ID of the post being edited.
-   * @property {string} audioUrl - The URL of the audio file to load.
-   * @property {Annotation[]} [annotations=[]] - The initial array of annotation objects.
-   */
   const { restUrl, nonce, postId, audioUrl, annotations = [] } = STARMUS_EDITOR_DATA;
 
-  // --- DOM Element Caching & Validation ---
-
-  /** @type {HTMLElement} */
   const editorRoot = document.querySelector('.starmus-editor');
   if (!editorRoot) {
     return;
-  } // No editor on this page, exit gracefully.
+  }
 
-  /** @type {HTMLElement} */
   const overviewEl = document.getElementById('overview');
-  /** @type {HTMLElement} */
   const zoomviewEl = document.getElementById('zoomview');
-  /** @type {HTMLButtonElement} */
   const btnPlay = document.getElementById('play');
-  /** @type {HTMLButtonElement} */
   const btnAdd = document.getElementById('add-region');
-  /** @type {HTMLButtonElement} */
   const btnSave = document.getElementById('save');
-  /** @type {HTMLTableSectionElement} */
   const list = document.getElementById('regions-list');
-  /** @type {HTMLElement} */
   const peaksContainer = document.getElementById('peaks-container');
 
   if (
@@ -83,42 +57,26 @@
     return;
   }
 
-  // --- State Management ---
-
-  /**
-   * @type {boolean}
-   */
   let dirty = false;
 
-  /**
-   * Sets the editor's dirty state and updates the Save button's disabled status.
-   * @param {boolean} val - The new dirty state.
-   */
   function setDirty(val) {
     dirty = val;
     btnSave.disabled = !dirty;
   }
 
-  // Warn the user before they leave the page with unsaved changes.
+  // Disable save initially — ensures clean start
+  setDirty(false);
+
   window.addEventListener('beforeunload', function (e) {
     if (dirty) {
       e.preventDefault();
-      e.returnValue = ''; // Required for modern browsers.
+      e.returnValue = '';
     }
   });
 
-  // --- UI Helpers ---
-
-  /**
-   * Displays a message in the inline notice bar.
-   * @param {string|null} msg - The message to display. If null, the notice is hidden.
-   * @param {string} [type='error'] - The type of notice (e.g., 'error', 'success').
-   */
   function showInlineNotice(msg, type = 'error') {
     const notice = document.getElementById('starmus-editor-notice');
-    if (!notice) {
-      return;
-    }
+    if (!notice) return;
     if (!msg) {
       notice.hidden = true;
       return;
@@ -128,11 +86,8 @@
     notice.hidden = false;
   }
 
-  /**
-   * @const {HTMLAudioElement} - The main audio element for playback.
-   */
   const audio = new Audio(audioUrl);
-  audio.crossOrigin = 'anonymous'; // Required for Peaks.js to process audio from a different origin.
+  audio.crossOrigin = 'anonymous';
 
   audio.addEventListener('error', function () {
     showInlineNotice(
@@ -140,23 +95,13 @@
     );
   });
 
-  // Initialize the editor only after the audio file's metadata (like duration) is loaded.
   audio.addEventListener('loadedmetadata', function () {
     if (!Number.isFinite(audio.duration) || audio.duration === 0) {
       showInlineNotice('Audio failed to load or has an invalid duration.');
       return;
     }
 
-    // --- Data Normalization ---
-
-    /**
-     * Cleans, sorts, and removes overlaps from an array of annotations.
-     * This is a critical defensive function to ensure data integrity.
-     * @param {Annotation[]} arr - The raw array of annotations.
-     * @returns {Annotation[]} The sanitized and sorted array of annotations.
-     */
     function normalizeAnnotations(arr) {
-      // 1. Filter out any invalid or out-of-bounds segments.
       const sorted = arr
         .slice()
         .filter(
@@ -167,10 +112,7 @@
             a.startTime >= 0 &&
             a.endTime <= audio.duration
         );
-      // 2. Sort by start time.
       sorted.sort((a, b) => a.startTime - b.startTime);
-
-      // 3. Iterate and remove any segments that overlap with the previous one.
       const result = [];
       let lastEnd = -1;
       for (const ann of sorted) {
@@ -182,11 +124,6 @@
       return result;
     }
 
-    /**
-     * Generates a universally unique identifier (UUID).
-     * Falls back to a less-unique ID if crypto is unavailable.
-     * @returns {string} The generated UUID.
-     */
     function getUUID() {
       return window.crypto?.randomUUID
         ? window.crypto.randomUUID()
@@ -199,13 +136,11 @@
       label: (a.label || '').trim().slice(0, 200),
     }));
 
-    // Check if Peaks.js is loaded
     if (typeof Peaks === 'undefined') {
       showInlineNotice('Peaks.js library not loaded. Please ensure it is included.');
       return;
     }
 
-    // --- Peaks.js Initialization ---
     const peaksOptions = {
       containers: { overview: overviewEl, zoomview: zoomviewEl },
       mediaElement: audio,
@@ -230,11 +165,8 @@
         return;
       }
 
-      // --- Initialize Transcript Controller ---
       let transcriptController = null;
 
-      // Mock transcript data for development/testing
-      // In production, this should be fetched from post meta or REST API
       const mockTranscriptData = [
         { start: 0.5, end: 1.2, text: 'Welcome', confidence: 0.95 },
         { start: 1.2, end: 1.8, text: 'to', confidence: 0.99 },
@@ -248,39 +180,30 @@
         { start: 8.2, end: 8.8, text: 'test.', confidence: 0.93 },
       ];
 
-      // Initialize transcript sync if StarmusTranscript class is available
       if (
         typeof StarmusTranscript !== 'undefined' &&
         document.getElementById('starmus-transcript-panel')
       ) {
-        // Check for real transcript data first, use mock data as fallback
-        const transcriptData = (
-          typeof STARMUS_EDITOR_DATA !== 'undefined' && 
-          STARMUS_EDITOR_DATA.transcript
-        ) ? STARMUS_EDITOR_DATA.transcript : mockTranscriptData;
-        
+        const transcriptData =
+          (typeof STARMUS_EDITOR_DATA !== 'undefined' && STARMUS_EDITOR_DATA.transcript)
+            ? STARMUS_EDITOR_DATA.transcript
+            : mockTranscriptData;
+
         transcriptController = new StarmusTranscript(
           peaks,
           'starmus-transcript-panel',
           transcriptData
         );
-        // Note: transcriptController sets up its own event listeners and is self-managing
-        // Store reference for potential future cleanup or API access
         console.log('Starmus Linguistic Engine: Online');
-        
-        // Optional: Provide access for debugging/testing
         if (window.STARMUS_DEBUG) {
           window.StarmusTranscriptInstance = transcriptController;
         }
       }
 
-      // --- Time Display ---
       const elCur = document.getElementById('starmus-time-cur');
       const elDur = document.getElementById('starmus-time-dur');
       const fmt = (s) => {
-        if (!Number.isFinite(s)) {
-          return '0:00';
-        }
+        if (!Number.isFinite(s)) return '0:00';
         const m = Math.floor(s / 60);
         const sec = Math.floor(s % 60);
         return m + ':' + String(sec).padStart(2, '0');
@@ -301,7 +224,6 @@
         btnPlay.setAttribute('aria-pressed', 'false');
       });
 
-      // --- Transport & Seek ---
       document.getElementById('back5').onclick = () => {
         audio.currentTime = Math.max(0, audio.currentTime - 5);
       };
@@ -309,12 +231,10 @@
         audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 5);
       };
 
-      // --- Zoom Controls ---
       document.getElementById('zoom-in').onclick = () => peaks.zoom.zoomIn();
       document.getElementById('zoom-out').onclick = () => peaks.zoom.zoomOut();
-      document.getElementById('zoom-fit').onclick = () => peaks.zoom.setZoom(0);
+      document.getElementById('zoom-fit').onclick = () => peaks.zoom.zoom(0);
 
-      // --- Loop Control ---
       let loopOn = false;
       let loopRegion = null;
       const loopCb = document.getElementById('loop');
@@ -322,25 +242,18 @@
         loopOn = loopCb.checked;
       });
       audio.addEventListener('timeupdate', () => {
-        if (!loopOn) {
-          return;
-        }
+        if (!loopOn) return;
         const t = audio.currentTime;
         const regs = peaks.segments.getSegments();
-        if (!regs.length) {
-          return;
-        }
+        if (!regs.length) return;
         loopRegion = regs.find((r) => t >= r.startTime && t < r.endTime) || loopRegion || regs[0];
         if (t >= loopRegion.endTime) {
           audio.currentTime = loopRegion.startTime;
         }
       });
 
-      // --- Keyboard Shortcuts ---
       document.addEventListener('keydown', (e) => {
-        if (e.target.matches('input,textarea')) {
-          return;
-        } // Ignore keypresses in input fields.
+        if (e.target.matches('input,textarea')) return;
         if (e.code === 'Space') {
           e.preventDefault();
           btnPlay.click();
@@ -361,11 +274,14 @@
           e.preventDefault();
           peaks.zoom.zoomOut();
         }
+        // ➕ New: Escape to blur (end editing mode)
+        if (e.key === 'Escape') {
+          if (document.activeElement) {
+            document.activeElement.blur();
+          }
+        }
       });
 
-      /**
-       * Renders the list of annotations/regions into the HTML table.
-       */
       function renderRegions() {
         const tbody = document.getElementById('regions-list');
         tbody.innerHTML = '';
@@ -374,48 +290,39 @@
           const tr = document.createElement('tr');
           tr.innerHTML = '<td colspan="5">No annotations yet. Click "Add Region" to start.</td>';
           tbody.appendChild(tr);
-          setDirty(dirty); // Re-evaluate save button state
+          setDirty(dirty);
           return;
         }
 
         regs.forEach((seg) => {
           const dur = seg.endTime - seg.startTime;
           const tr = document.createElement('tr');
+
+          // Escape annotation label for HTML safety
+          const safeLabel = (seg.label || '').replace(/[&<>"']/g, (c) =>
+            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+          );
+
           tr.innerHTML = `
-            <td><input data-k="label" data-id="${seg.id}" value="${
-              seg.label ? String(seg.label).replace(/"/g, '&quot;') : ''
-            }" maxlength="200" placeholder="Annotation" class="widefat" /></td>
-            <td><input data-k="startTime" data-id="${
-              seg.id
-            }" type="number" step="0.01" min="0" value="${seg.startTime.toFixed(
-              2
-            )}" class="small-text" /></td>
-            <td><input data-k="endTime" data-id="${
-              seg.id
-            }" type="number" step="0.01" min="0" value="${seg.endTime.toFixed(
-              2
-            )}" class="small-text" /></td>
+            <td><input data-k="label" data-id="${seg.id}" value="${safeLabel}" maxlength="200" placeholder="Annotation" class="widefat" /></td>
+            <td><input data-k="startTime" data-id="${seg.id}" type="number" step="0.01" min="0" value="${seg.startTime.toFixed(2)}" class="small-text" /></td>
+            <td><input data-k="endTime" data-id="${seg.id}" type="number" step="0.01" min="0" value="${seg.endTime.toFixed(2)}" class="small-text" /></td>
             <td>${fmt(dur)}</td>
             <td>
               <button class="button" data-act="jump" data-id="${seg.id}">Jump</button>
-              <button class="button button-link-delete" data-act="del" data-id="${
-                seg.id
-              }">Delete</button>
+              <button class="button button-link-delete" data-act="del" data-id="${seg.id}">Delete</button>
             </td>`;
           tbody.appendChild(tr);
         });
       }
 
       renderRegions();
+      setDirty(false); // ensure save button remains disabled after initial render
 
-      // --- Event Listeners for Annotation List (Delegated) ---
-      let inputTimeout;
       list.addEventListener('input', (e) => {
-        if (!e.target.dataset.id) {
-          return;
-        }
+        if (!e.target.dataset.id) return;
+        let inputTimeout;
         clearTimeout(inputTimeout);
-        // Debounce input to avoid excessive updates while typing.
         inputTimeout = setTimeout(() => {
           setDirty(true);
           const id = e.target.dataset.id;
@@ -431,9 +338,7 @@
       list.addEventListener('click', (e) => {
         const id = e.target.dataset.id;
         const act = e.target.dataset.act;
-        if (!id || !act) {
-          return;
-        }
+        if (!id || !act) return;
 
         if (act === 'jump') {
           const seg = peaks.segments.getSegment(id);
@@ -451,7 +356,6 @@
         }
       });
 
-      // --- Event Listeners for Main Controls ---
       btnAdd.onclick = () => {
         const currentTime = audio.currentTime || 0;
         const start = Math.max(0, currentTime - 2);
@@ -470,13 +374,11 @@
 
       let saveLock = false;
       btnSave.onclick = async () => {
-        if (saveLock) {
-          return;
-        }
+        if (saveLock) return;
         saveLock = true;
         btnSave.textContent = 'Saving...';
         btnSave.disabled = true;
-        showInlineNotice(null); // Clear previous notices.
+        showInlineNotice(null);
 
         let payload = peaks.segments.getSegments().map((s) => ({
           id: s.id,
@@ -484,34 +386,32 @@
           endTime: s.endTime,
           label: (s.labelText || s.label || '').trim().slice(0, 200),
         }));
-        payload = normalizeAnnotations(payload); // Final client-side cleanup
+        payload = normalizeAnnotations(payload);
 
         try {
           const response = await fetch(restUrl, {
             method: 'POST',
             headers: {
               'X-WP-Nonce': nonce,
-              'Content-Type': 'application/json',
+              'Content-Type': 'application/json; charset=utf-8'  // ➕ enforce utf8 charset
             },
             body: JSON.stringify({
               postId: postId,
               annotations: payload,
             }),
           });
-          const data = await response.json(); // Try to parse JSON even on error
+          const data = await response.json();
 
           if (!response.ok) {
-            // Use server message if available, otherwise use generic status text.
             throw new Error(data.message || response.statusText);
           }
 
           if (data.success) {
             setDirty(false);
             showInlineNotice('Annotations saved successfully!', 'success');
-            // Re-render regions with the sanitized data from the server for consistency.
             if (data.annotations) {
               peaks.segments.removeAll();
-              peaks.segments.add(data.annotations); // Server data is the source of truth.
+              peaks.segments.add(data.annotations);
               renderRegions();
             }
           } else {
@@ -523,10 +423,22 @@
         } finally {
           saveLock = false;
           btnSave.textContent = 'Save';
-          // Re-evaluate save button state based on dirty flag.
           btnSave.disabled = !dirty;
         }
       };
     });
   });
+
+  // Function declaration needs to come after its use
+  function showInlineNotice(msg, type = 'error') {
+    const notice = document.getElementById('starmus-editor-notice');
+    if (!notice) return;
+    if (!msg) {
+      notice.hidden = true;
+      return;
+    }
+    notice.textContent = msg;
+    notice.className = `starmus-editor__notice starmus-editor__notice--${type}`;
+    notice.hidden = false;
+  }
 })();

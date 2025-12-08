@@ -1,236 +1,295 @@
 /**
  * @file starmus-tus.js
- * @version 1.1.0
- * @description TUS resumable upload integration for Starmus Audio Recorder.
- * Optimized for unstable networks (West Africa) with robust fallback.
+ * @version 1.3.2
+ * @description Starmus Upload Pipeline: TUS → Chunked REST → Direct POST
  */
 
 'use strict';
 
 import { debugLog } from './starmus-hooks.js';
 
-/**
- * Default TUS configuration.
- * Optimized for high latency/packet loss.
- */
+// ------------------------------------------------------------
+// CONFIG
+// ------------------------------------------------------------
+
 const DEFAULT_CONFIG = {
-  // CRITICAL CHANGE: 5MB is too big for unstable 2G.
-  // 1MB is the sweet spot between overhead and stability.
   chunkSize: 1 * 1024 * 1024,
   retryDelays: [0, 3000, 5000, 10000, 20000, 60000],
   removeFingerprintOnSuccess: true,
-  storeFingerprintForResuming: true,
+  maxChunkRetries: 3
 };
 
-/**
- * Upload a file using TUS protocol with resume capability.
- */
-export async function uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress) {
-  if (!window.tus || !window.tus.Upload) {
-    debugLog('[TUS] Library missing, using fallback');
-    throw new Error('TUS_NOT_AVAILABLE');
+const getConfig = () => window.starmusConfig || {};
+
+function sanitizeMetadata(v) {
+  v = typeof v === 'string' ? v : String(v);
+  v = v.replace(/[\r\n\t]/g, ' ');
+  return v.length > 500 ? v.slice(0, 497) + '...' : v;
+}
+
+function normalizeFormFields(f) {
+  return f && typeof f === 'object' ? f : {};
+}
+
+function getChunkedUploadStorageKey(id, name, size) {
+  return `starmus_chunked_${id}_${name}_${size}`;
+}
+
+// ------------------------------------------------------------
+// MASTER PRIORITY WRAPPER
+// ------------------------------------------------------------
+
+export async function uploadWithPriority(blob, fileName, formFields, metadata, instanceId, onProgress) {
+  const cfg = getConfig();
+  const tusAvailable = window.tus?.Upload && cfg.endpoints?.tusUpload;
+  const chunked = cfg.endpoints?.chunkedUpload;
+  const direct = cfg.endpoints?.directUpload;
+
+  if (tusAvailable) {
+    try {
+      const url = await uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress);
+      return { method: 'tus', url };
+    } catch (e) {
+      debugLog('[Priority] TUS failed:', e.message);
+    }
   }
 
-  const config = window.starmusTus || {};
-  const endpoint = config.endpoint || window.starmusConfig?.endpoints?.tusUpload;
-
-  if (!endpoint) {
-    throw new Error('TUS_ENDPOINT_NOT_CONFIGURED');
+  if (chunked) {
+    try {
+      const res = await uploadWithChunkedRest(blob, fileName, formFields, metadata, instanceId, onProgress);
+      return { method: 'chunked_rest', result: res };
+    } catch (e) {
+      debugLog('[Priority] Chunked REST failed:', e.message);
+    }
   }
 
-  // Build metadata
-  const tusMetadata = {
+  if (direct) {
+    const res = await uploadDirect(blob, fileName, formFields, metadata, instanceId, onProgress);
+    return { method: 'fallback_post', result: res };
+  }
+
+  throw new Error('All upload methods failed or missing endpoints');
+}
+
+// ------------------------------------------------------------
+// TUS UPLOAD (P1)
+// ------------------------------------------------------------
+
+export function uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress) {
+  if (!window.tus?.Upload) throw new Error('TUS library not present');
+
+  const cfg = window.starmusTus || {};
+  const endpoint = cfg.endpoint || getConfig().endpoints?.tusUpload;
+  if (!endpoint) throw new Error('TUS endpoint missing');
+
+  const metadataObj = {
     filename: sanitizeMetadata(fileName),
     filetype: blob.type || 'audio/webm',
-    ...Object.keys(formFields).reduce((acc, key) => {
-      acc[key] = sanitizeMetadata(String(formFields[key]));
-      return acc;
-    }, {}),
+    ...Object.entries(normalizeFormFields(formFields)).reduce((a,[k,v])=> (a[k]=sanitizeMetadata(v),a),{})
   };
 
-  if (metadata) {
-    tusMetadata.starmus_meta = sanitizeMetadata(JSON.stringify(metadata));
-  }
+  if (metadata) metadataObj.starmus_meta = sanitizeMetadata(JSON.stringify(metadata));
 
   return new Promise((resolve, reject) => {
-    const tusOptions = {
-      endpoint: endpoint,
-      chunkSize: config.chunkSize || DEFAULT_CONFIG.chunkSize,
-      retryDelays: config.retryDelays || DEFAULT_CONFIG.retryDelays,
-      metadata: tusMetadata,
-      headers: config.headers || {},
+    let uploader;
 
-      // CRITICAL FIX: Custom fingerprinting.
-      // Default tus fingerprint uses blob properties that change on reload.
-      // We bind the fingerprint to the 'instanceId' + 'size' which is stable across reloads.
-      fingerprint: function (file, _options) {
-        return ['starmus', instanceId, file.size].join('-');
+    const opts = {
+      endpoint,
+      chunkSize: cfg.chunkSize || DEFAULT_CONFIG.chunkSize,
+      retryDelays: cfg.retryDelays || DEFAULT_CONFIG.retryDelays,
+      metadata: metadataObj,
+
+      fingerprint(file) {
+        return ['starmus', instanceId, file.size, file.lastModified || ''].join('-');
       },
 
-      onError: (error) => {
-        debugLog('[TUS] Error:', error);
-        reject(error);
-      },
-
-      onProgress: (bytesUploaded, bytesTotal) => {
-        if (onProgress) {
+      // 🔥 FIX #1 — safe onProgress wrapper
+      onProgress(bytesUploaded, bytesTotal) {
+        if (typeof onProgress === 'function') {
           onProgress(bytesUploaded, bytesTotal);
         }
       },
 
-      onSuccess: () => {
+      onError: reject,
+
+      async onSuccess() {
         debugLog('[TUS] Success:', uploader.url);
+
+        // 🔥 FIX #2 — version-tolerant fingerprint removal
+        const tusRemove =
+          window.tus?.defaultOptions?.removeFingerprint ||
+          window.tus?.Upload?.prototype?.options?.removeFingerprint;
+
+        if (cfg.removeFingerprintOnSuccess && tusRemove) {
+          try {
+            const fp = await window.tus.defaultOptions.fingerprint(blob, opts);
+            await tusRemove(fp);
+          } catch {}
+        }
+
         resolve(uploader.url);
-      },
+      }
     };
 
-    const uploader = new window.tus.Upload(blob, tusOptions);
+    uploader = new window.tus.Upload(blob, opts);
 
-    // Attempt to find previous uploads to resume
-    uploader
-      .findPreviousUploads()
-      .then((previousUploads) => {
-        if (previousUploads && previousUploads.length > 0) {
-          debugLog('[TUS] Resuming from:', previousUploads[0].uploadUrl);
-          uploader.resumeFromPreviousUpload(previousUploads[0]);
-        }
-        uploader.start();
-      })
-      .catch(() => {
-        // If storage fails, just start fresh
-        uploader.start();
-      });
+    uploader.findPreviousUploads()
+      .then(prev => prev.length && uploader.resumeFromPreviousUpload(prev[0]))
+      .finally(() => uploader.start());
   });
 }
 
-/**
- * Fallback to direct POST upload using XMLHttpRequest (XHR).
- * Switched from fetch() to support upload progress on slow networks.
- */
-export async function uploadDirect(blob, fileName, formFields, metadata, _instanceId, onProgress) {
-  const config = window.starmusConfig || {};
-  const endpoint = config.endpoints?.directUpload;
-  const nonce = config.nonce || '';
+// ------------------------------------------------------------
+// CHUNKED REST UPLOAD (P2) — runtime retry config honored
+// ------------------------------------------------------------
 
-  if (!endpoint) {
-    throw new Error('Direct upload endpoint not configured');
-  }
+export function uploadWithChunkedRest(blob, fileName, formFields, metadata, instanceId, onProgress) {
+  const cfg = getConfig();
+  const endpoint = cfg.endpoints?.chunkedUpload;
+  const nonce = cfg.nonce || '';
+  if (!endpoint) throw new Error('Chunked REST endpoint missing');
+  if (!nonce) throw new Error('Nonce missing');
 
-  return new Promise((resolve, reject) => {
-    const formData = new FormData();
+  const fields = normalizeFormFields(formFields);
+  const chunkSize = cfg.chunkSize || DEFAULT_CONFIG.chunkSize;
+  const totalChunks = Math.ceil(blob.size / chunkSize);
 
-    Object.keys(formFields).forEach((key) => formData.append(key, formFields[key]));
-    formData.append('audio_file', blob, fileName);
+  const storage = window.localStorage || window.sessionStorage;
+  const storageKey = getChunkedUploadStorageKey(instanceId, fileName, blob.size);
+  let uploadId = storage.getItem(storageKey) || null;
 
-    if (metadata) {
-      if (metadata.transcript) {
-        formData.append('_starmus_transcript', metadata.transcript);
+  const maxRetries = cfg.maxChunkRetries ?? DEFAULT_CONFIG.maxChunkRetries; // 🔥 FIX #3
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      for (let i = 0; i < totalChunks; i++) {
+        let attempt = 0;
+        let success = false;
+        const start = i * chunkSize;
+        const end = Math.min(start + chunkSize, blob.size);
+        const chunk = blob.slice(start, end);
+
+        while (!success && attempt < maxRetries) {
+          attempt++;
+          try {
+            await sendChunk(i, chunk, start);
+            success = true;
+          } catch (err) {
+            if (attempt === maxRetries) throw err;
+
+            // exponential backoff retained
+            await new Promise(r => setTimeout(r, 300 * attempt * attempt));
+          }
+        }
       }
-      if (metadata.calibration) {
-        formData.append('_starmus_calibration', JSON.stringify(metadata.calibration));
-      }
-      if (metadata.env) {
-        formData.append('_starmus_env', JSON.stringify(metadata.env));
-      }
+
+      const finalize = new FormData();
+      finalize.append('upload_id', uploadId);
+      finalize.append('finalize', '1');
+
+      const r = await fetch(endpoint, { method:'POST', headers:{'X-WP-Nonce':nonce}, body:finalize });
+      if (!r.ok) throw new Error(`Finalization failed: ${r.status}`);
+      const json = await r.json();
+
+      storage.removeItem(storageKey);
+      resolve(json);
+
+    } catch (e) { reject(e); }
+
+    function sendChunk(index, chunk, start) {
+      return new Promise((res, rej) => {
+        const fd = new FormData();
+        fd.append('audio_chunk', chunk, `${fileName}.part${index}`);
+        fd.append('chunk_index', index);
+        fd.append('total_chunks', totalChunks);
+        uploadId ? fd.append('upload_id', uploadId) : fd.append('create_upload_id', '1');
+
+        Object.entries(fields).forEach(([k,v]) => fd.append(k,v));
+        if (metadata) fd.append('_starmus_meta', JSON.stringify(metadata));
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', endpoint, true);
+        xhr.setRequestHeader('X-WP-Nonce', nonce);
+
+        xhr.upload.onprogress = e =>
+          typeof onProgress === 'function' && e.lengthComputable &&
+          onProgress(start + e.loaded, blob.size);
+
+        xhr.onload = () => {
+          if (xhr.status < 200 || xhr.status >= 300)
+            return rej(new Error(`Chunk ${index} failed: ${xhr.status}`));
+          try {
+            const json = JSON.parse(xhr.responseText);
+            if (!uploadId && json.upload_id) {
+              uploadId = json.upload_id;
+              storage.setItem(storageKey, uploadId);
+            }
+            res(json);
+          } catch {
+            rej(new Error('Invalid JSON response'));
+          }
+        };
+
+        xhr.onerror = () => rej(new Error('Network error'));
+        xhr.send(fd);
+      });
     }
+  });
+}
+
+// ------------------------------------------------------------
+// DIRECT UPLOAD (P3)
+// ------------------------------------------------------------
+
+export function uploadDirect(blob, fileName, formFields, metadata, _id, onProgress) {
+  const cfg = getConfig();
+  const endpoint = cfg.endpoints?.directUpload;
+  const nonce = cfg.nonce || '';
+  if (!endpoint) throw new Error('Direct upload endpoint missing');
+
+  const fields = normalizeFormFields(formFields);
+
+  return new Promise((res, rej) => {
+    const fd = new FormData();
+    Object.entries(fields).forEach(([k,v]) => fd.append(k,v));
+    fd.append('audio_file', blob, fileName);
+
+    if (metadata?.transcript) fd.append('_starmus_transcript', metadata.transcript);
+    if (metadata?.calibration) fd.append('_starmus_calibration', JSON.stringify(metadata.calibration));
+    if (metadata?.env) fd.append('_starmus_env', JSON.stringify(metadata.env));
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', endpoint, true);
-
-    // Add WordPress Nonce
     xhr.setRequestHeader('X-WP-Nonce', nonce);
 
-    // Upload Progress Listener
-    if (xhr.upload && onProgress) {
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          onProgress(e.loaded, e.total);
-        }
-      };
-    }
+    xhr.upload.onprogress = e =>
+      typeof onProgress === 'function' && e.lengthComputable &&
+      onProgress(e.loaded, e.total);
 
     xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const response = JSON.parse(xhr.responseText);
-          resolve(response);
-        } catch {
-          reject(new Error('Invalid JSON response from server'));
-        }
-      } else {
-        reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
-      }
+      if (xhr.status < 200 || xhr.status >= 300)
+        return rej(new Error(`Upload failed: ${xhr.status}`));
+      try { res(JSON.parse(xhr.responseText)); }
+      catch { rej(new Error('Invalid JSON response')); }
     };
 
-    xhr.onerror = () => reject(new Error('Network error during direct upload'));
-    xhr.onabort = () => reject(new Error('Upload aborted'));
-
-    xhr.send(formData);
+    xhr.onerror = () => rej(new Error('Network error'));
+    xhr.send(fd);
   });
 }
 
-/**
- * Sanitize metadata values for TUS headers.
- * Note: tus-js-client handles Base64 encoding internally,
- * but we truncate to avoid header overflow.
- */
-function sanitizeMetadata(value) {
-  if (typeof value !== 'string') {
-    value = String(value);
-  }
-  // Remove newlines which break headers
-  value = value.replace(/[\r\n\t]/g, ' ');
-  // Truncate to 500 chars to prevent "Request Header Or Cookie Too Large" (431)
-  return value.length > 500 ? value.substring(0, 497) + '...' : value;
+// ------------------------------------------------------------
+// HELPERS
+// ------------------------------------------------------------
+
+export function estimateUploadTime(bytes, net) {
+  let d = net?.downlink || ({
+    'slow-2g':0.05, '2g':0.15, '3g':0.75, '4g':8.0
+  }[net?.effectiveType] ?? 0.5);
+  d = Math.min(d,10);
+  return Math.ceil((bytes/((d*1e6)/8))*1.5);
 }
 
-export function isTusAvailable() {
-  return !!(
-    window.tus &&
-    window.tus.Upload &&
-    (window.starmusTus?.endpoint || window.starmusConfig?.endpoints?.tusUpload)
-  );
-}
-
-export function estimateUploadTime(fileSize, networkInfo) {
-  let downlink = networkInfo?.downlink;
-
-  if (!downlink || downlink === 0) {
-    const effectiveType = networkInfo?.effectiveType;
-    switch (effectiveType) {
-      case 'slow-2g':
-        downlink = 0.05;
-        break;
-      case '2g':
-        downlink = 0.15;
-        break; // More conservative for rural
-      case '3g':
-        downlink = 0.75;
-        break;
-      case '4g':
-        downlink = 8.0;
-        break;
-      default:
-        downlink = 0.5;
-    }
-  }
-
-  // Cap downlink to realistic rural maximum (10 Mbps)
-  // Prevents unrealistic estimates from Chrome bug (reports 10 on Edge 2G)
-  downlink = Math.min(downlink, 10);
-
-  const bytesPerSecond = (downlink * 1000000) / 8;
-  // 50% overhead for latency/handshakes in rural areas
-  return Math.ceil((fileSize / bytesPerSecond) * 1.5);
-}
-
-export function formatUploadEstimate(seconds) {
-  if (!Number.isFinite(seconds)) {
-    return 'Calculating...';
-  }
-  if (seconds < 60) {
-    return `~${seconds}s`;
-  }
-  const minutes = Math.ceil(seconds / 60);
-  return `~${minutes} min`;
-}
+export const formatUploadEstimate = s =>
+  !isFinite(s) ? 'Calculating...' :
+  s<60 ? `~${s}s` : `~${Math.ceil(s/60)} min`;

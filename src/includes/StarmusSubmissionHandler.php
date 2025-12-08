@@ -17,6 +17,13 @@ if (! \defined('ABSPATH')) {
 use function array_filter;
 use function array_map;
 use function array_values;
+use function fclose; // Added
+use function fopen; // Added
+use function intval; // Added
+use function move_uploaded_file; // Added
+use function rmdir; // Added
+use function stream_copy_to_stream; // Added
+use function unlink; // Added
 
 use const DAY_IN_SECONDS;
 
@@ -56,12 +63,12 @@ use function time;
 use function trailingslashit;
 use function uniqid;
 use function wp_delete_file;
+use function wp_mkdir_p;
 
 use WP_Error;
 
 use function wp_get_attachment_url;
 use function wp_json_encode;
-use function wp_mkdir_p;
 use function wp_next_scheduled;
 
 use WP_REST_Request;
@@ -164,7 +171,8 @@ final class StarmusSubmissionHandler
     // --- REFACTORED: UNIFIED CORE FINALIZATION METHOD ---
     /**
      * UNIFIED Core finalization pipeline for a completed file already on the local disk.
-     * Used by: TUS Webhook (via process_completed_file) and Chunked Upload (via finalize_submission).
+     * Used by: TUS Webhook (via process_completed_file), Chunked Upload (via finalize_submission), 
+     *          and Multipart Chunked Upload (via handle_upload_chunk_rest_multipart).
      *
      * @param string $file_path Absolute path to the completed file (from tusd or chunked temp).
      * @param array $form_data Sanitized metadata from the client.
@@ -263,11 +271,16 @@ final class StarmusSubmissionHandler
     // --- END UNIFIED CORE FINALIZATION METHOD ---
 
 
-    public function handle_upload_chunk_rest(WP_REST_Request $request): array|WP_Error
+    // --- LEGACY BASE64 CHUNK HANDLER ---
+    /**
+     * Handles LEGACY Base64/JSON chunk uploads. 
+     * Kept for backwards compatibility if a client still uses it.
+     */
+    public function handle_upload_chunk_rest_base64(WP_REST_Request $request): array|WP_Error
     {
         try {
             StarmusLogger::setCorrelationId();
-            StarmusLogger::timeStart('chunk_upload');
+            StarmusLogger::timeStart('chunk_upload_base64');
 
             if ($this->is_rate_limited(get_current_user_id())) {
                 return $this->err('rate_limited', 'You are uploading too frequently.', 429);
@@ -292,12 +305,13 @@ final class StarmusSubmissionHandler
             }
 
             if (! empty($params['is_last_chunk'])) {
-                $final = $this->finalize_submission($tmp_file, $params);
-                StarmusLogger::timeEnd('chunk_upload', 'SubmissionHandler');
+                // Assuming client-side Base64 logic finalizes into a single temp file path.
+                $final = $this->finalize_submission($tmp_file, $params); 
+                StarmusLogger::timeEnd('chunk_upload_base64', 'SubmissionHandler');
                 return $final;
             }
 
-            StarmusLogger::timeEnd('chunk_upload', 'SubmissionHandler');
+            StarmusLogger::timeEnd('chunk_upload_base64', 'SubmissionHandler');
             return [
                 'success' => true,
                 'data'    => [
@@ -308,7 +322,92 @@ final class StarmusSubmissionHandler
             ];
         } catch (Throwable $throwable) {
             error_log($throwable->getMessage());
-            return $this->err('server_error', 'Failed to process chunk.', 500);
+            return $this->err('server_error', 'Failed to process base64 chunk.', 500);
+        }
+    }
+
+    // --- NEW MULTIPART CHUNK HANDLER (Priority 2 Target) ---
+    /**
+     * Handles the new multipart FormData chunk upload method from starmus-tus.js.
+     * Route: POST /star-starmus-audio-recorder/v1/upload-chunk (Must be mapped by StarmusRESTHandler)
+     */
+    public function handle_upload_chunk_rest_multipart(WP_REST_Request $request): array|WP_Error
+    {
+        try {
+            StarmusLogger::setCorrelationId();
+            StarmusLogger::timeStart('chunk_upload_multipart');
+
+            // --- PARAM EXTRACTION ---
+            $params = $this->sanitize_submission_data($request->get_params() ?? []);
+            $files  = $request->get_file_params() ?? [];
+
+            // CRITICAL ESCAPE HATCH: If no file is present, try the full fallback immediately.
+            if (!isset($files['audio_chunk']) && empty($params['finalize'])) {
+                 return $this->handle_fallback_upload_rest($request);
+            }
+
+            $chunk_file   = $files['audio_chunk'] ?? null;
+            $chunk_index  = isset($params['chunk_index'])  ? (int) $params['chunk_index']  : -1;
+            $total_chunks = isset($params['total_chunks']) ? (int) $params['total_chunks'] : -1;
+            $upload_id    = sanitize_key($params['upload_id'] ?? '');
+            $create_new   = isset($params['create_upload_id']);
+
+            if ($create_new || $upload_id === '') {
+                $upload_id = uniqid('upload_', true);
+            }
+
+            if (!$chunk_file || (int) $chunk_file['error'] !== 0) {
+                return $this->err('missing_chunk_file', 'Chunk file missing or upload failed.', 400);
+            }
+            if ($chunk_index < 0 || $total_chunks < 1) {
+                return $this->err('invalid_chunk_params', 'Invalid chunk index or total chunk count.', 400);
+            }
+
+            // --- DIRECTORY SETUP ---
+            $base_path = trailingslashit($this->get_temp_dir()) . $upload_id . '/';
+            if (!is_dir($base_path)) {
+                wp_mkdir_p($base_path);
+            }
+
+            $chunk_dest = $base_path . 'chunk_' . $chunk_index;
+
+            // PROTECT AGAINST RE-PLAY / DUPLICATE
+            if (file_exists($chunk_dest) && $chunk_index !== 0) {
+                 return $this->err('duplicate_chunk', "Chunk {$chunk_index} already exists.", 409);
+            }
+
+            if (!move_uploaded_file($chunk_file['tmp_name'], $chunk_dest)) {
+                return $this->err('chunk_write_failed', 'Failed to save chunk.', 500);
+            }
+
+            // --- FINALIZATION REQUEST ---
+            if (intval($params['finalize'] ?? 0) === 1) {
+
+                $combined = $this->combine_chunks_multipart($upload_id, $base_path, $total_chunks);
+                if (is_wp_error($combined)) {
+                    return $combined;
+                }
+
+                // Delegate to the UNIFIED, safe finalization pipeline
+                $result = $this->_finalize_from_local_disk($combined, $params);
+
+                $this->cleanup_chunks_dir($base_path);
+                StarmusLogger::timeEnd('chunk_upload_multipart', 'SubmissionHandler');
+                return $result;
+            }
+
+            StarmusLogger::timeEnd('chunk_upload_multipart', 'SubmissionHandler');
+            return [
+                'success' => true,
+                'data'    => [
+                    'status'      => 'chunk_received',
+                    'upload_id'   => $upload_id,
+                    'chunk_index' => $chunk_index,
+                ],
+            ];
+        } catch (\Throwable $t) {
+            error_log($t->getMessage());
+            return $this->err('server_error', 'Multipart chunk upload failed.', 500);
         }
     }
 
@@ -938,4 +1037,52 @@ final class StarmusSubmissionHandler
             return $this->err('server_error', 'File validation failed.', 500);
         }
     }
+
+    /**
+     * Delete temporary chunk files for an upload session.
+     */
+    private function cleanup_chunks_dir($path) {
+        // Only delete if path is inside the expected temp directory as a safety measure
+        if (str_contains($path, $this->get_temp_dir())) {
+            $files = glob($path . '*');
+            foreach ($files as $file) {
+                @unlink($file);
+            }
+            @rmdir($path);
+        }
+    }
+
+    /**
+     * Combine chunk files written via handle_upload_chunk_rest_multipart
+     * @return string|WP_Error Final file path or WP_Error.
+     */
+    private function combine_chunks_multipart(string $upload_id, string $base, int $total): string|WP_Error
+    {
+        $final = $this->get_temp_dir() . $upload_id . '.tmp.file';
+        $fp = @fopen($final, 'wb');
+        if (!$fp) {
+            return $this->err('combine_open_failed', 'Could not create final file.', 500);
+        }
+
+        for ($i = 0; $i < $total; $i++) {
+            $chunk = $base . 'chunk_' . $i;
+            if (!file_exists($chunk)) {
+                fclose($fp);
+                @unlink($final);
+                return $this->err('missing_chunk', "Missing chunk {$i} during combine.", 400);
+            }
+            $chunk_fp = @fopen($chunk, 'rb');
+            if ($chunk_fp === false) {
+                 fclose($fp);
+                 @unlink($final);
+                 return $this->err('read_chunk_failed', "Could not read chunk $i during combination.", 500);
+            }
+            stream_copy_to_stream($chunk_fp, $fp);
+            @fclose($chunk_fp);
+        }
+
+        @fclose($fp);
+        return $final;
+    }
+
 }
