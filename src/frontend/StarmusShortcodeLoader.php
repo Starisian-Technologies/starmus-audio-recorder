@@ -200,22 +200,18 @@ final class StarmusShortcodeLoader
             }
         }
 
-        // Provide complete editor bootstrap config to JS
-        wp_localize_script(
-            'starmus-audio-recorder-script.bundle',
-            'STARMUS_EDITOR_DATA',
-            [
-                'postId'          => $context['post_id'],
-                'restUrl'         => esc_url_raw(rest_url('star_uec/v1/annotations')),
-                'audioUrl'        => esc_url($context['audio_url']),
-                'waveformDataUrl' => esc_url($context['waveform_url']),
-                'annotations'     => $annotations_data,
-                'transcript'      => $transcript_data,
-                'nonce'           => wp_create_nonce('wp_rest'),
-                'mode'            => 'editor',
-                'canCommit'       => current_user_can('publish_posts'),
-            ]
-        );
+        // Set editor data for asset loader to localize
+        \Starisian\Sparxstar\Starmus\core\StarmusAssetLoader::set_editor_data([
+            'postId'          => $context['post_id'],
+            'restUrl'         => esc_url_raw(rest_url('star_uec/v1/annotations')),
+            'audioUrl'        => esc_url($context['audio_url']),
+            'waveformDataUrl' => esc_url($context['waveform_url']),
+            'annotations'     => $annotations_data,
+            'transcript'      => $transcript_data,
+            'nonce'           => wp_create_nonce('wp_rest'),
+            'mode'            => 'editor',
+            'canCommit'       => current_user_can('publish_posts'),
+        ]);
 
         if (\defined('WP_DEBUG') && WP_DEBUG) {
             // Removed debug log

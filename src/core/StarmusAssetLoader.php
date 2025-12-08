@@ -49,6 +49,13 @@ final class StarmusAssetLoader
     private const STYLE_HANDLE = 'starmus-audio-recorder-styles';
 
     /**
+     * Editor data to be localized, set by shortcode loader
+     *
+     * @var array|null
+     */
+    private static ?array $editor_data = null;
+
+    /**
      * Constructor - Registers WordPress hooks for asset enqueueing.
      */
     public function __construct()
@@ -87,6 +94,15 @@ final class StarmusAssetLoader
             'STARMUS_RERECORDER_DATA',
             ['mode' => 'rerecorder']
         );
+    }
+
+    /**
+     * Set editor data to be localized when assets are enqueued.
+     * Called by shortcode loader with specific editor context.
+     */
+    public static function set_editor_data(array $editor_data): void
+    {
+        self::$editor_data = $editor_data;
     }
 
     /**
@@ -139,8 +155,22 @@ final class StarmusAssetLoader
                 ]
             );
 
-            // Editor data is now localized in StarmusShortcodeLoader::render_editor_with_bootstrap()
-            // to ensure correct context with all required fields (audio, waveform, transcript, annotations)
+            // Localize editor data - either from shortcode loader or defaults
+            $default_editor_data = [
+                'enabled'      => false,
+                'post_id'      => get_the_ID() ?: 0,
+                'mode'         => 'recorder',
+                'audio'        => null,
+                'waveform'     => [],
+                'transcript'   => '',
+                'annotations'  => [],
+            ];
+
+            wp_localize_script(
+                self::HANDLE_PROD_BUNDLE,
+                'STARMUS_EDITOR_DATA',
+                self::$editor_data ?? $default_editor_data
+            );
 
             error_log('[Starmus AssetLoader] JS enqueued successfully');
         } catch (\Throwable $throwable) {
