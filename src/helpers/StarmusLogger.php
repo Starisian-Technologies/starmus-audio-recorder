@@ -8,12 +8,12 @@ if (!\defined('ABSPATH')) {
 
 /**
  * Centralized logger for Starmus, configured to write strictly to wp-content/debug.log
- * using forced file writing mode (error_log mode 3). This bypasses the need for
- * WP_DEBUG_LOG being set to true, making the logger reliable.
+ * using forced file writing mode (error_log mode 3). This logger is reliable as it
+ * bypasses the need for WP_DEBUG_LOG being set to true.
  */
 final class StarmusLogger
 {
-    // Log Levels - Kept the reduced set from your second example
+    // Log Levels
     public const DEBUG   = 100;
     public const INFO    = 200;
     public const NOTICE  = 250;
@@ -49,7 +49,7 @@ final class StarmusLogger
      * CONFIGURATION
      *=============================================================*/
 
-    public static function set_min_log_level(string $level): void
+    public static function setMinLogLevel(string $level): void
     {
         $map = [
             'debug'   => self::DEBUG,
@@ -76,7 +76,7 @@ final class StarmusLogger
      */
     public static function debug(string $context, string $message, array $data = []): void
     {
-        self::log($context, $message, $data, self::DEBUG);
+        self::log(self::DEBUG, $context, $message, $data);
     }
 
     /**
@@ -86,7 +86,7 @@ final class StarmusLogger
      */
     public static function info(string $context, string $message, array $data = []): void
     {
-        self::log($context, $message, $data, self::INFO);
+        self::log(self::INFO, $context, $message, $data);
     }
 
     /**
@@ -96,7 +96,7 @@ final class StarmusLogger
      */
     public static function notice(string $context, string $message, array $data = []): void
     {
-        self::log($context, $message, $data, self::NOTICE);
+        self::log(self::NOTICE, $context, $message, $data);
     }
 
     /**
@@ -106,7 +106,7 @@ final class StarmusLogger
      */
     public static function warning(string $context, string $message, array $data = []): void
     {
-        self::log($context, $message, $data, self::WARNING);
+        self::log(self::WARNING, $context, $message, $data);
     }
 
     /**
@@ -116,7 +116,7 @@ final class StarmusLogger
      */
     public static function error(string $context, string $message, array $data = []): void
     {
-        self::log($context, $message, $data, self::ERROR);
+        self::log(self::ERROR, $context, $message, $data);
     }
 
     /*==============================================================
@@ -126,20 +126,23 @@ final class StarmusLogger
     /**
      * Main logging method.
      *
-     * @param int $level The log level constant.
+     * @param int $level_int The log level constant (e.g., self::DEBUG, self::ERROR).
      * @param string $context The source of the log message.
      * @param string $message The human-readable message.
      * @param array<string|int, mixed> $data Optional associative array of extra data.
      */
-    public static function log(string $context, string $message, array $data = [], string $level = 'DEBUG'): void
+    protected static function log(int $level_int, string $context, string $message, array $data = []): void
     {
         // Check internal minimum level setting
-        if ($level < self::$min_log_level) {
+        // Correctly compares two integers
+        if ($level_int < self::$min_log_level) {
             return;
         }
 
         $timestamp = \gmdate('Y-m-d H:i:s');
-        $level_str = match ($level) {
+        
+        // Match expression now correctly matches an integer against integer constants
+        $level_str = match ($level_int) {
             self::DEBUG   => 'DEBUG',
             self::INFO    => 'INFO',
             self::NOTICE  => 'NOTICE',
@@ -149,7 +152,6 @@ final class StarmusLogger
         };
 
         // Encode the optional data for appending to the line.
-        // Using wp_json_encode ensures a safe JSON output for logs.
         $data_str = $data ? ' ' . \wp_json_encode($data) : '';
 
         // Format: [YYYY-MM-DD HH:MM:SS] [LEVEL] [Context] Message {data}
