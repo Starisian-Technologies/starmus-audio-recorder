@@ -26,6 +26,16 @@ final class StarmusLogger
     protected static int $min_log_level = self::DEBUG;
 
     /**
+     * Current correlation ID for tracking related operations.
+     */
+    protected static ?string $correlation_id = null;
+
+    /**
+     * Timer storage for performance tracking.
+     */
+    protected static array $timers = [];
+
+    /**
      * Single source of truth for the log file path.
      * Forces the path to wp-content/debug.log using standard WP constants.
      */
@@ -45,7 +55,7 @@ final class StarmusLogger
         return \sys_get_temp_dir() . '/starmus_fallback.log';
     }
 
-     protected static function setCorrelationId(?string $id = null): void
+    public static function setCorrelationId(?string $id = null): void
     {
         self::$correlation_id = $id ?? wp_generate_uuid4();
     }
@@ -74,12 +84,12 @@ final class StarmusLogger
      * TIMER UTILITIES
      *=============================================================*/
 
-    protected static function timeStart(string $label): void
+    public static function timeStart(string $label): void
     {
         self::$timers[$label] = microtime(true);
     }
 
-    protected static function timeEnd(string $label, string $context = 'Timer'): void
+    public static function timeEnd(string $label, string $context = 'Timer'): void
     {
         if (!isset(self::$timers[$label])) {
             return;
