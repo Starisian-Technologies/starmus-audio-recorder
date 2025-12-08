@@ -7,34 +7,18 @@ if (!\defined('ABSPATH')) {
 }
 
 /**
- * Centralized logger for Starmus.
- * Version 1.0.0: Standardized. Writes strictly to wp-content/debug.log via error_log().
+ * Centralized logger for Starmus, configured to write strictly to wp-content/debug.log
+ * using forced file writing mode (error_log mode 3). This bypasses the need for
+ * WP_DEBUG_LOG being set to true, making the logger reliable.
  */
-class StarmusLogger
+final class StarmusLogger
 {
-    /** @var int Debug log level. */
-    public const DEBUG = 100;
-
-    /** @var int Info log level. */
-    public const INFO = 200;
-
-    /** @var int Notice log level. */
-    public const NOTICE = 250;
-
-    /** @var int Warning log level. */
+    // Log Levels - Kept the reduced set from your second example
+    public const DEBUG   = 100;
+    public const INFO    = 200;
+    public const NOTICE  = 250;
     public const WARNING = 300;
-
-    /** @var int Error log level. */
-    public const ERROR = 400;
-
-    /** @var int Critical log level. */
-    public const CRITICAL = 500;
-
-    /** @var int Alert log level. */
-    public const ALERT = 550;
-
-    /** @var int Emergency log level. */
-    public const EMERGENCY = 600;
+    public const ERROR   = 400;
 
     /**
      * Minimum log level to record.
@@ -42,250 +26,147 @@ class StarmusLogger
     protected static int $min_log_level = self::DEBUG;
 
     /**
-     * Log levels.
-     *
-     * @var array<string, int>
+     * Single source of truth for the log file path.
+     * Forces the path to wp-content/debug.log using standard WP constants.
      */
-    protected static array $levels = [
-        'debug'     => self::DEBUG,
-        'info'      => self::INFO,
-        'notice'    => self::NOTICE,
-        'warning'   => self::WARNING,
-        'error'     => self::ERROR,
-        'critical'  => self::CRITICAL,
-        'alert'     => self::ALERT,
-        'emergency' => self::EMERGENCY,
-    ];
+    protected static function get_log_path(): string
+    {
+        // 1. Use the standard WordPress constant for the absolute path to wp-content
+        if (\defined('WP_CONTENT_DIR')) {
+            return WP_CONTENT_DIR . '/debug.log';
+        }
 
-    /**
-     * Whether to log in JSON format.
-     */
-    protected static bool $json_mode = false;
+        // 2. Fallback: If WP_CONTENT_DIR isn't defined, use the standard path relative to ABSPATH
+        if (\defined('ABSPATH')) {
+            return ABSPATH . 'wp-content/debug.log';
+        }
 
-    /**
-     * Correlation ID for tracking requests.
-     */
-    protected static ?string $correlation_id = null;
-
-    /**
-     * Timers for performance tracking.
-     *
-     * @var array<string, float>
-     */
-    protected static array $timers = [];
+        // 3. Final fallback (should not be reached in a WP context)
+        return \sys_get_temp_dir() . '/starmus_fallback.log';
+    }
 
     /*==============================================================
      * CONFIGURATION
      *=============================================================*/
 
-    public static function setMinLogLevel(string $level_name): void
+    public static function set_min_log_level(string $level): void
     {
-        $level_name = strtolower($level_name);
-        if (isset(self::$levels[$level_name])) {
-            self::$min_log_level = self::$levels[$level_name];
+        $map = [
+            'debug'   => self::DEBUG,
+            'info'    => self::INFO,
+            'notice'  => self::NOTICE,
+            'warning' => self::WARNING,
+            'error'   => self::ERROR,
+        ];
+
+        $level = \strtolower($level);
+        if (isset($map[$level])) {
+            self::$min_log_level = $map[$level];
         }
     }
 
+    /*==============================================================
+     * CONVENIENCE WRAPPERS
+     *=============================================================*/
+
     /**
-     * Legacy method kept for backward compatibility.
-     * Does nothing as we now rely on standard WP debug.log.
+     * @param string $context The source of the log message (e.g., 'Setup', 'AJAX', 'API').
+     * @param string $message The human-readable message.
+     * @param array<string|int, mixed> $data Optional associative array of extra data to log.
      */
-    public static function setLogFilePath(string $path): void
+    public static function debug(string $context, string $message, array $data = []): void
     {
-        // No-op
+        self::log(self::DEBUG, $context, $message, $data);
     }
 
-    public static function enableJsonMode(bool $enabled = true): void
+    /**
+     * @param string $context The source of the log message.
+     * @param string $message The human-readable message.
+     * @param array<string|int, mixed> $data Optional associative array of extra data to log.
+     */
+    public static function info(string $context, string $message, array $data = []): void
     {
-        self::$json_mode = $enabled;
+        self::log(self::INFO, $context, $message, $data);
     }
 
-    public static function setCorrelationId(?string $id = null): void
+    /**
+     * @param string $context The source of the log message.
+     * @param string $message The human-readable message.
+     * @param array<string|int, mixed> $data Optional associative array of extra data to log.
+     */
+    public static function notice(string $context, string $message, array $data = []): void
     {
-        self::$correlation_id = $id ?? wp_generate_uuid4();
+        self::log(self::NOTICE, $context, $message, $data);
+    }
+
+    /**
+     * @param string $context The source of the log message.
+     * @param string $message The human-readable message.
+     * @param array<string|int, mixed> $data Optional associative array of extra data to log.
+     */
+    public static function warning(string $context, string $message, array $data = []): void
+    {
+        self::log(self::WARNING, $context, $message, $data);
+    }
+
+    /**
+     * @param string $context The source of the log message.
+     * @param string $message The human-readable message.
+     * @param array<string|int, mixed> $data Optional associative array of extra data to log.
+     */
+    public static function error(string $context, string $message, array $data = []): void
+    {
+        self::log(self::ERROR, $context, $message, $data);
     }
 
     /*==============================================================
      * CORE LOGGING
      *=============================================================*/
 
-    protected static function getLevelInt(string $level_name): int
-    {
-        return self::$levels[strtolower($level_name)] ?? self::ERROR;
-    }
-
-    /**
-     * @param array<string|int, mixed> $data
-     *
-     * @return array<string|int, mixed>
-     */
-    protected static function sanitizeData(array $data): array
-    {
-        foreach ($data as $k => &$v) {
-            if (\is_string($v) && preg_match('/(ip|email|user|token|auth|fingerprint)/i', (string) $k)) {
-                $v = '[REDACTED]';
-            } elseif (\is_array($v)) {
-                $v = self::sanitizeData($v);
-            }
-        }
-
-        return $data;
-    }
-
     /**
      * Main logging method.
-     * Writes directly to PHP error_log (standard WP debug.log).
      *
-     * @param array<string|int, mixed> $extra
-     * @param mixed $msg
+     * @param int $level The log level constant.
+     * @param string $context The source of the log message.
+     * @param string $message The human-readable message.
+     * @param array<string|int, mixed> $data Optional associative array of extra data.
      */
-    /**
-     * Main logging method.
-     * Writes directly to PHP error_log (standard WP debug.log).
-     *
-     * @param array<string|int, mixed> $extra
-     * @param mixed $msg
-     */
-    public static function log(string $context, $msg, string $level = 'error', array $extra = []): void
+    protected static function log(string $context, string $message, array $data = [], string $level='DEBUG'): void
     {
-        $current_level_int = self::getLevelInt($level);
-
         // Check internal minimum level setting
-        if ($current_level_int < self::$min_log_level) {
+        if ($level < self::$min_log_level) {
             return;
         }
 
-        $level_name      = strtoupper($level);
-        $message_content = self::formatMessageContent($msg);
+        $timestamp = \gmdate('Y-m-d H:i:s');
+        $level_str = match ($level) {
+            self::DEBUG   => 'DEBUG',
+            self::INFO    => 'INFO',
+            self::NOTICE  => 'NOTICE',
+            self::WARNING => 'WARNING',
+            self::ERROR   => 'ERROR',
+            default       => 'UNKNOWN',
+        };
 
-        // Prepare context data
-        $extra_clean = self::sanitizeData($extra);
-        $extra_str   = $extra_clean === [] ? '' : ' | Data: ' . json_encode($extra_clean, JSON_UNESCAPED_SLASHES);
+        // Encode the optional data for appending to the line.
+        // Using wp_json_encode ensures a safe JSON output for logs.
+        $data_str = $data ? ' ' . \wp_json_encode($data) : '';
 
-        $prefix = self::$correlation_id ? '[' . self::$correlation_id . '] ' : '';
+        // Format: [YYYY-MM-DD HH:MM:SS] [LEVEL] [Context] Message {data}
+        $line = \sprintf(
+            "[%s] [%s] [%s] %s%s%s",
+            $timestamp,
+            $level_str,
+            $context,
+            $message,
+            $data_str,
+            PHP_EOL // Ensure a newline for file appending
+        );
 
-        // FIX: Changed hardcoded [STARMUS] to [AIWA ORCH]
-        // Construct the log line
-        if (self::$json_mode) {
-            $log_entry = json_encode([
-                'level'   => $level_name,
-                'context' => $context,
-                'message' => $message_content,
-                'extra'   => $extra_clean,
-                'cid'     => self::$correlation_id,
-            ], JSON_UNESCAPED_UNICODE);
-        } else {
-            // Format: [AIWA ORCH] [LEVEL] [Context] Message | Data: {...}
-            $log_entry = \sprintf(
-                '%s[AIWA ORCH] [%s] [%s] %s%s',
-                $prefix,
-                $level_name,
-                $context,
-                $message_content,
-                $extra_str
-            );
-        }
+        $log_file = self::get_log_path();
 
-        // Send to standard WordPress debug.log
-        \error_log($log_entry); // Also qualify error_log for consistency
-
-        // FIX: Changed hardcoded action hook name from starmus_log_event to aiwa_log_event
-        do_action('aiwa_log_event', $level_name, $context, $msg, $extra);
-    }
-
-    protected static function formatMessageContent($msg): string
-    {
-        if ($msg instanceof \Throwable) {
-            return \sprintf(
-                '%s: %s in %s:%d',
-                $msg::class,
-                $msg->getMessage(),
-                $msg->getFile(),
-                $msg->getLine()
-            );
-        }
-
-        return \is_array($msg) || \is_object($msg) ? print_r($msg, true) : (string) $msg;
-    }
-
-    /*==============================================================
-     * TIMER UTILITIES
-     *=============================================================*/
-
-    public static function timeStart(string $label): void
-    {
-        self::$timers[$label] = microtime(true);
-    }
-
-    public static function timeEnd(string $label, string $context = 'Timer'): void
-    {
-        if (!isset(self::$timers[$label])) {
-            return;
-        }
-
-        $duration = round((microtime(true) - self::$timers[$label]) * 1000, 2);
-        unset(self::$timers[$label]);
-        // Log timer results as debug
-        self::debug($context, \sprintf('%s completed in %sms', $label, $duration));
-    }
-
-    /*==============================================================
-     * CONVENIENCE WRAPPERS
-     *=============================================================*/
-    /**
-     * @param array<string|int, mixed> $extra
-     * @param mixed $msg
-     */
-    public static function debug(string $context, $msg, array $extra = []): void
-    {
-        self::log($context, $msg, 'debug', $extra);
-    }
-
-    public static function info(string $context, $msg, array $extra = []): void
-    {
-        self::log($context, $msg, 'info', $extra);
-    }
-
-    public static function notice(string $context, $msg, array $extra = []): void
-    {
-        self::log($context, $msg, 'notice', $extra);
-    }
-
-    public static function warning(string $context, $msg, array $extra = []): void
-    {
-        self::log($context, $msg, 'warning', $extra);
-    }
-
-    public static function warn(string $context, $msg, array $extra = []): void
-    {
-        self::log($context, $msg, 'warning', $extra);
-    }
-
-    public static function error(string $context, $msg, array $extra = []): void
-    {
-        self::log($context, $msg, 'error', $extra);
-    }
-
-    public static function critical(string $context, $msg, array $extra = []): void
-    {
-        self::log($context, $msg, 'critical', $extra);
-    }
-
-    public static function alert(string $context, $msg, array $extra = []): void
-    {
-        self::log($context, $msg, 'alert', $extra);
-    }
-
-    public static function emergency(string $context, $msg, array $extra = []): void
-    {
-        self::log($context, $msg, 'emergency', $extra);
-    }
-
-    /*==============================================================
-     * BOOTSTRAP
-     *=============================================================*/
-    public static function boot(): void
-    {
-        // No special boot logic needed for standard error_log
+        // The core fix: error_log mode 3 forces writing/appending to the specified file path.
+        // @ suppresses any warnings if the file path is unwritable (due to permissions).
+        @\error_log($line, 3, $log_file);
     }
 }
