@@ -116,7 +116,6 @@ if (! file_exists($autoloader)) {
     if (defined('STARMUS_LOG_LEVEL')) {
         \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::setMinLogLevel(STARMUS_LOG_LEVEL);
     }
-    Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log('Bootstrap', 'Composer autoloader loaded successfully.', [], 'INFO');
 }
 
 // =========================================================================
