@@ -170,3 +170,10 @@ if (typeof module !== 'undefined' && module.exports) {
     dispatch: _G.StarmusHooks.dispatch,
   };
 } 
+
+// also support ES module export
+export default {
+  debugLog,
+  subscribe,
+  dispatch,
+};

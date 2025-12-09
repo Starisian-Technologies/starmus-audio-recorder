@@ -229,3 +229,5 @@ if (typeof module !== 'undefined' && module.exports) {
 // (Note: in bundler context this may be tree‑shaken / replaced)
 export { StarmusTranscript, init };
 export default { StarmusTranscript, init };
+
+

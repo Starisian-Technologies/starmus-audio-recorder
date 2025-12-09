@@ -329,4 +329,3 @@ if (typeof window !== 'undefined') {
     window.StarmusAudioEditor = StarmusAudioEditor;
 } 
 })();
-

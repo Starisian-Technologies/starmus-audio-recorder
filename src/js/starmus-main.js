@@ -44,3 +44,20 @@ window.StarmusQueueSubmission = queueSubmission;
 window.initOffline = initOffline;
 
 console.log('[Starmus] Runtime globals wired');
+
+// EXPORTS (ES MODULE)
+export {
+  createStore,
+  // StarmusHooks, // REMOVED: This overwrites the IIFE globals
+  initCore,
+  initUI,
+  initRecorder,
+  StarmusTus,
+  StarmusTranscript,
+  getOfflineQueue,
+  queueSubmission,
+  initOffline
+};
+
+
+

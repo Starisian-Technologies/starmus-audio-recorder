@@ -293,3 +293,5 @@ export function initInstance(store, elements) {
 if (typeof window !== 'undefined') {
     window.initUI = initInstance;
 }
+
+

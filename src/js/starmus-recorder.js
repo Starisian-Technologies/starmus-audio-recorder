@@ -444,4 +444,14 @@ if (typeof window !== 'undefined') {
 export function initRecorder(store, instanceId) {
   return window.initRecorder(store, instanceId);
 }
+// ES5-friendly global exposure
+if (typeof window !== 'undefined') {
+    // Primary initializer
+    window.initRecorder = initRecorder;
+
+    // Alias for backward-compatibility if required by older integrators
+    window.initStarmusRecorder = initRecorder;
+}
+
+
 

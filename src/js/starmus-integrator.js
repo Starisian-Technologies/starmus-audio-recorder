@@ -391,3 +391,6 @@ import './starmus-hooks.js';
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = global.Starmus;
 }
+
+// also support ES module export
+export default global.Starmus;
