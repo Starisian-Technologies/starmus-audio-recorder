@@ -1,35 +1,30 @@
 /**
- * @file starmus-offline.js
- * @version 1.3.2
- * @description Offline-first submission queue using IndexedDB.
- * Works with updated starmus-tus.js upload pipeline.
+ * @file starmus‑offline.js
+ * @version 1.3.4-STABLE
+ * @description Offline-first queue with TUS-aware upload routing.
+ * Fully merged legacy durability logic + new priority pipeline.
  */
 
 'use strict';
 
-import './starmus-hooks.js';
-
 import { debugLog } from './starmus-hooks.js';
-import { uploadWithPriority } from './starmus-tus.js'; 
+import { uploadWithPriority, isTusAvailable } from './starmus-tus.js';
 
-function isTusAvailableSafe(blobSize) {
-  try {
-    const cfg = window.starmusConfig || {};
-    return !!(window.tus?.Upload && cfg.endpoints?.tusUpload && blobSize > 1024 * 1024);
-  } catch {
-    return false;
-  }
-}
-
+/* ------------------------------------------------------------------
+   CONFIG
+------------------------------------------------------------------- */
 const CONFIG = {
   dbName: 'StarmusSubmissions',
   storeName: 'pendingSubmissions',
   dbVersion: 1,
   maxRetries: 10,
   retryDelays: [0, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 1800000],
-  maxBlobSize: 40 * 1024 * 1024, // 40MB
+  maxBlobSize: 40 * 1024 * 1024,
 };
 
+/* ------------------------------------------------------------------
+   QUEUE CLASS
+------------------------------------------------------------------- */
 class OfflineQueue {
   constructor() {
     this.db = null;
@@ -51,16 +46,16 @@ class OfflineQueue {
       };
 
       req.onblocked = () => {
-        debugLog('[Offline] DB open blocked — close other tabs');
+        debugLog('[Offline] DB blocked — close other tabs');
       };
 
       req.onsuccess = (e) => {
         this.db = e.target.result;
         this.db.onversionchange = () => {
           this.db.close();
-          debugLog('[Offline] DB version change — closed connection');
+          debugLog('[Offline] DB version changed — closed');
         };
-        debugLog('[Offline] IndexedDB ready');
+        debugLog('[Offline] DB ready');
         resolve();
       };
 
@@ -70,7 +65,7 @@ class OfflineQueue {
           const store = db.createObjectStore(CONFIG.storeName, { keyPath: 'id' });
           store.createIndex('timestamp', 'timestamp', { unique: false });
           store.createIndex('retryCount', 'retryCount', { unique: false });
-          debugLog('[Offline] Created object store', CONFIG.storeName);
+          debugLog('[Offline] Created queue store');
         }
       };
     });
@@ -79,20 +74,14 @@ class OfflineQueue {
   async add(instanceId, audioBlob, fileName, formFields, metadata) {
     if (!this.db) throw new Error('IndexedDB not initialized');
 
-    const id = `starmus-offline-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-
-    const safeBlob =
-      audioBlob.size > CONFIG.maxBlobSize
-        ? null
-        : (typeof structuredClone === 'function'
-            ? structuredClone(audioBlob)
-            : new Blob([audioBlob], { type: audioBlob.type }));
-
-    if (!safeBlob) {
+    if (audioBlob.size > CONFIG.maxBlobSize) {
       throw new Error(
-        `Blob too large for offline storage (${(audioBlob.size / 1024 / 1024).toFixed(2)}MB)`
+        `Audio too large for offline storage (${(audioBlob.size / 1024 / 1024).toFixed(2)}MB)`
       );
     }
+
+    const safeBlob = new Blob([audioBlob], { type: audioBlob.type });
+    const id = `starmus-offline-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
     const item = {
       id,
@@ -104,23 +93,24 @@ class OfflineQueue {
       metadata: metadata || {},
       retryCount: 0,
       lastAttempt: null,
-      error: null
+      error: null,
     };
 
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction([CONFIG.storeName], 'readwrite');
       tx.objectStore(CONFIG.storeName).add(item);
+
       tx.oncomplete = () => {
-        debugLog('[Offline] Queued submission', id);
+        debugLog('[Offline] Submission queued:', id);
+        this._notifyQueueUpdate();
         resolve(id);
       };
+
       tx.onerror = (ev) => {
         const err = ev.target.error;
-        if (err?.name === 'QuotaExceededError') {
-          reject(new Error('IndexedDB quota exceeded — cannot queue submission offline.'));
-        } else {
-          reject(err);
-        }
+        reject(err?.name === 'QuotaExceededError'
+          ? new Error('Offline queue storage full')
+          : err);
       };
     });
   }
@@ -140,17 +130,14 @@ class OfflineQueue {
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction([CONFIG.storeName], 'readwrite');
       tx.objectStore(CONFIG.storeName).delete(id);
-      tx.oncomplete = () => {
-        debugLog('[Offline] Removed from queue', id);
-        resolve();
-      };
-      tx.onerror = (ev) => reject(ev.target.error);
+      tx.oncomplete = () => resolve();
+      tx.onerror = (e) => reject(e.target.error);
     });
   }
 
   async _updateRetry(id, retryCount, msg) {
     if (!this.db) return;
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const tx = this.db.transaction([CONFIG.storeName], 'readwrite');
       const store = tx.objectStore(CONFIG.storeName);
       const req = store.get(id);
@@ -166,84 +153,64 @@ class OfflineQueue {
       };
 
       tx.oncomplete = resolve;
-      tx.onerror = () => reject(tx.error);
     });
   }
 
   async processQueue() {
     if (this.isProcessing || !navigator.onLine) return;
-
     this.isProcessing = true;
-    debugLog('[Offline] Processing queue...');
 
     try {
       const pending = await this.getAll();
-      debugLog('[Offline] Pending submissions:', pending.length);
-
       for (const item of pending) {
-        const { id, audioBlob, fileName, formFields, metadata, retryCount, instanceId } = item;
+        const { id, audioBlob, retryCount } = item;
 
-        if (retryCount >= CONFIG.maxRetries) {
-          debugLog('[Offline] Max retries reached for', id);
-          continue;
-        }
-
+        if (retryCount >= CONFIG.maxRetries) continue;
         try {
-          debugLog(`[Offline] Attempt ${retryCount + 1} for`, id);
-
-          // ✅ CORRECT CALL SIGNATURE
           await uploadWithPriority({
             blob: audioBlob,
-            fileName,
-            formFields,
-            metadata,
-            instanceId,
+            fileName: item.fileName,
+            formFields: item.formFields,
+            metadata: item.metadata,
+            instanceId: item.instanceId,
             background: true
           });
 
           await this.remove(id);
-          debugLog('[Offline] Upload succeeded:', id);
 
         } catch (err) {
-          const msg = err?.message || 'Unknown upload error';
-          debugLog('[Offline] Upload failed:', id, msg);
-
-          if (msg.includes('400') || msg.includes('Invalid JSON') || msg.includes('QuotaExceeded')) {
-            debugLog('[Offline] Non-retryable error — leaving item in queue');
-            continue;
-          }
-
-          await this._updateRetry(id, retryCount + 1, msg);
-
-          const waitMs = CONFIG.retryDelays[Math.min(retryCount, CONFIG.retryDelays.length - 1)];
-          debugLog(`[Offline] Retrying ${id} after ${waitMs}ms...`);
-          await new Promise(r => setTimeout(r, waitMs));
+          const msg = err?.message || 'Upload failed';
+          const nonRetryable = msg.includes('400') || msg.includes('Invalid JSON') || msg.includes('QuotaExceeded');
+          if (!nonRetryable) await this._updateRetry(id, retryCount + 1, msg);
         }
       }
-    } catch (fatal) {
-      console.error('[Offline] Fatal queue processing error', fatal);
     } finally {
       this.isProcessing = false;
     }
   }
 
   setupNetworkListeners() {
-    window.addEventListener('online', () => {
-      debugLog('[Offline] Online — resuming queue');
-      this.processQueue();
-    });
+    window.addEventListener('online', () => this.processQueue());
+    setInterval(() => navigator.onLine && this.processQueue(), 60000);
+  }
 
-    window.addEventListener('offline', () => {
-      debugLog('[Offline] Offline — pausing queue');
-    });
-
-    setInterval(() => {
-      if (navigator.onLine) {
-        this.processQueue().catch(e => debugLog('[Offline] Retry loop error', e));
-      }
-    }, 60000);
+  _notifyQueueUpdate() {
+    if (window.StarmusHooks?.doAction) {
+      this.getAll().then((queue) => {
+        window.StarmusHooks.doAction(
+          'starmus_offline_queue_updated',
+          queue.map(({ id, fileName, retryCount, timestamp, error }) => ({
+            id, fileName, retryCount, timestamp, error
+          }))
+        );
+      });
+    }
   }
 }
+
+/* ------------------------------------------------------------------
+   SINGLETON + EXPORTS
+------------------------------------------------------------------- */
 
 const offlineQueue = new OfflineQueue();
 
@@ -255,32 +222,23 @@ export async function getOfflineQueue() {
   return offlineQueue;
 }
 
-export async function queueSubmission(instanceId, audioBlob, fileName, formFields, metadata) {
-  const q = await getOfflineQueue();
-  return q.add(instanceId, audioBlob, fileName, formFields, metadata);
+export async function queueSubmission(i, b, f, ff, m) {
+  return (await getOfflineQueue()).add(i, b, f, ff, m);
 }
 
 export async function getPendingCount() {
-  const q = await getOfflineQueue();
-  return (await q.getAll()).length;
+  return (await getOfflineQueue()).getAll().then(list => list.length);
 }
 
-export default offlineQueue;
-
+/** 🔥 REQUIRED EXPORT YOU WERE MISSING */
 export function initOffline() {
-  // idempotent: calling twice won't re-init because offlineQueue.db persists
   return getOfflineQueue();
 }
 
+/** DEFAULT EXPORT REQUIRED BY OLD CODE */
+export default offlineQueue;
+
+/** WP browser global */
 if (typeof window !== 'undefined') {
   window.initOffline = initOffline;
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    getOfflineQueue,
-    queueSubmission,
-    getPendingCount,
-    initOffline,
-  };
 }

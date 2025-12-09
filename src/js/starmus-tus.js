@@ -297,21 +297,28 @@ export const formatUploadEstimate = s =>
   s<60 ? `~${s}s` : `~${Math.ceil(s/60)} min`;
 
 // FINAL EXPORT TARGET (BROWSER + WORDPRESS SAFE)
+// Browser global for WordPress
+if (typeof window !== 'undefined') {
+  window.StarmusTus = StarmusTus;
+}
 const StarmusTus = {
   uploadWithTus,
   uploadWithChunkedRest,
   uploadDirect,
   uploadWithPriority,
   estimateUploadTime,
-  formatUploadEstimate
+  formatUploadEstimate,
+  isTusAvailable // ✅ include here
 };
-
-// Browser global for WordPress
-if (typeof window !== 'undefined') {
-  window.StarmusTus = StarmusTus;
-}
 
 // ES module + CommonJS export
 export default StarmusTus;
 
-
+export function isTusAvailable(blobSize = 0) {
+  try {
+    const cfg = window.starmusConfig || {};
+    return !!(window.tus?.Upload && cfg.endpoints?.tusUpload && blobSize > 1024 * 1024);
+  } catch {
+    return false;
+  }
+}
