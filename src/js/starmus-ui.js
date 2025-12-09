@@ -334,7 +334,19 @@ export function initInstance(store, elements) {
   elements.pauseBtn?.addEventListener('click', () => dispatch('pause-mic'));
   elements.resumeBtn?.addEventListener('click', () => dispatch('resume-mic'));
   elements.stopBtn?.addEventListener('click', () => dispatch('stop-mic'));
-  elements.submitBtn?.addEventListener('click', () => dispatch('submit'));
+  elements.submitBtn?.addEventListener('click', () => {
+    // Collect form fields from the form element
+    const formEl = elements.submitBtn.closest('form');
+    const formData = formEl ? new FormData(formEl) : new FormData();
+    const formFields = {};
+    
+    // Convert FormData to object
+    for (const [key, value] of formData.entries()) {
+      formFields[key] = value;
+    }
+    
+    dispatch('submit', { formFields });
+  });
   elements.resetBtn?.addEventListener('click', () => dispatch('reset'));
   elements.playBtn?.addEventListener('click', () => dispatch('play'));
 
