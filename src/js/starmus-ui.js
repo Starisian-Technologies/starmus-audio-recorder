@@ -290,6 +290,18 @@ export function initInstance(store, elements) {
       console.log('[StarmusUI] Button disabled at click time:', elements.recordBtn.disabled);
       dispatch('start-recording');
     });
+    
+    // Add a second listener to test if ANY events work
+    elements.recordBtn.addEventListener('mousedown', function(e) {
+      console.log('[StarmusUI] Record button MOUSEDOWN detected!', e);
+    });
+    
+    // Try to manually test the button
+    setTimeout(() => {
+      console.log('[StarmusUI] Testing manual click...');
+      elements.recordBtn.click();
+    }, 2000);
+    
     console.log('[StarmusUI] Record button listener attached');
   } else {
     console.log('[StarmusUI] No record button found!');
