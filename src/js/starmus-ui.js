@@ -87,11 +87,6 @@ export function render(state, elements) {
 
   /* -------------------- STEP MANAGEMENT -------------------- */
   if (elements.step1 && elements.step2) {
-    if (status === 'uninitialized') {
-      elements.step1.style.display = 'block';
-      elements.step2.style.display = 'none';
-      return;
-    }
     const showStep2 = status !== 'idle' && status !== 'uninitialized';
     elements.step1.style.display = showStep2 ? 'none' : 'block';
     elements.step2.style.display = showStep2 ? 'block' : 'none';
@@ -260,35 +255,6 @@ export function render(state, elements) {
     el.className = cls;
     el.textContent = msg;
     el.style.display = msg ? 'block' : 'none';
-  }
-
-  /* -------------------- SETUP MIC BUTTON -------------------- */
-  if (elements.setupMicBtn) {
-    // Show setup button when uninitialized or permission denied
-    const showSetup = status === 'uninitialized' || status === 'permission_denied' || status === 'failed';
-    elements.setupMicBtn.style.display = showSetup ? 'inline-flex' : 'none';
-    elements.setupMicBtn.disabled = status === 'calibrating';
-  }
-
-  /* -------------------- CONTINUE BUTTON -------------------- */
-  if (elements.continueBtn) {
-    // Show continue button after setup is complete but before starting recording workflow
-    const showContinue = (status === 'ready' && !isRecorded) || (isCalibrated && status === 'uninitialized');
-    elements.continueBtn.style.display = showContinue ? 'inline-flex' : 'none';
-  }
-
-  /* -------------------- RESET BUTTON -------------------- */
-  if (elements.resetBtn) {
-    // Show reset button when there's recorded content or in error states
-    const showReset = isRecorded || status === 'failed' || status === 'complete';
-    elements.resetBtn.style.display = showReset ? 'inline-flex' : 'none';
-  }
-
-  /* -------------------- PLAY BUTTON -------------------- */
-  if (elements.playBtn) {
-    // Show play button when there's recorded content
-    const showPlay = isRecorded;
-    elements.playBtn.style.display = showPlay ? 'inline-flex' : 'none';
   }
 }
 
