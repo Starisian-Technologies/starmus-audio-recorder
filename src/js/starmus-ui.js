@@ -53,6 +53,13 @@ function escapeHtml(text) {
  * ------------------------------------------------------------------------- */
 
 export function render(state, elements) {
+  console.log('[StarmusUI] Render called with state:', {
+    status: state.status,
+    calibrationComplete: state.calibration?.complete,
+    instanceId: state.instanceId,
+    fullState: state
+  });
+  
   const {
     status,
     error,
@@ -300,6 +307,22 @@ export function initInstance(store, elements) {
     setTimeout(() => {
       console.log('[StarmusUI] Testing manual click...');
       elements.recordBtn.click();
+      
+      // Check what element is actually at the button's position
+      const rect = elements.recordBtn.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const elementAtPosition = document.elementFromPoint(centerX, centerY);
+      
+      console.log('[StarmusUI] Button position:', {x: centerX, y: centerY});
+      console.log('[StarmusUI] Element at button center:', elementAtPosition);
+      console.log('[StarmusUI] Is the button the top element?', elementAtPosition === elements.recordBtn);
+      
+      if (elementAtPosition !== elements.recordBtn) {
+        console.log('[StarmusUI] *** FOUND THE PROBLEM! Another element is covering the button ***');
+        console.log('[StarmusUI] Covering element classes:', elementAtPosition?.className);
+        console.log('[StarmusUI] Covering element z-index:', getComputedStyle(elementAtPosition).zIndex);
+      }
     }, 2000);
     
     console.log('[StarmusUI] Record button listener attached');

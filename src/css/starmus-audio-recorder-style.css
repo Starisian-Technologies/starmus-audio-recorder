@@ -220,7 +220,7 @@ button[data-starmus-action='submit'] {
 }
 
 .starmus-btn--primary:hover {
-  transform:translateY(-2px);
+  /* transform:translateY(-2px); -- TEMPORARILY DISABLED FOR CLICK TESTING */
   filter:brightness(1.05);
 }
 
