@@ -216,14 +216,7 @@ import './starmus-hooks.js';
   function wireInstance(env, formEl) {
     // Check dependencies before proceeding
     if (!checkDependencies()) {
-      console.warn('[Starmus] Retrying dependency check in 500ms...');
-      setTimeout(function() {
-        if (checkDependencies()) {
-          wireInstance(env, formEl);
-        } else {
-          console.error('[Starmus] Final dependency check failed - cannot proceed');
-        }
-      }, 500);
+      console.error('[Starmus] Dependencies not available - cannot initialize');
       return;
     }
 
