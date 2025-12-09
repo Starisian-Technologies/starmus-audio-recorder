@@ -8,7 +8,8 @@ export default {
 
   output: {
     file: 'assets/js/starmus-audio-recorder-script.bundle.min.js',
-    format: 'esm',
+    format: 'iife',
+    name: 'StarmusBundle',
     sourcemap: false,
     globals: {
       'tus-js-client': 'tus',
