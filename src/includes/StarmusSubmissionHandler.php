@@ -848,7 +848,7 @@ final class StarmusSubmissionHandler
 
             return true;
         } catch (Throwable $throwable) {
-            error_log($throwable->getMessage());
+            error_log($throwable);
             return $this->err('server_error', 'Validation failed.', 500);
         }
     }
@@ -875,7 +875,7 @@ final class StarmusSubmissionHandler
 
             return $file_path;
         } catch (Throwable $throwable) {
-            error_log($throwable->getMessage());
+            error_log($throwable);
             return $this->err('server_error', 'Could not persist chunk.', 500);
         }
     }
@@ -940,7 +940,7 @@ final class StarmusSubmissionHandler
 
             return true;
         } catch (Throwable $throwable) {
-            error_log($throwable->getMessage());
+            error_log($throwable);
             return $this->err('server_error', 'Uploads not writable (internal error).', 500);
         }
     }
@@ -962,8 +962,7 @@ final class StarmusSubmissionHandler
 
             return null;
         } catch (Throwable $throwable) {
-            error_log($throwable->getMessage());
-            return null;
+            error_log($throwable);
         }
     }
 
@@ -1022,7 +1021,7 @@ final class StarmusSubmissionHandler
 
             return true;
         } catch (Throwable $throwable) {
-            error_log($throwable->getMessage());
+            error_log($throwable);
             return $this->err('server_error', 'File validation failed.', 500);
         }
     }
@@ -1045,7 +1044,7 @@ final class StarmusSubmissionHandler
                 @rmdir($path);
             }
         } catch (Throwable $throwable) {
-            error_log($throwable->getMessage());
+            error_log($throwable);
         }
     }
 
@@ -1085,7 +1084,7 @@ final class StarmusSubmissionHandler
             @fclose($fp);
             return $final;
         } catch (Throwable $throwable) {
-            error_log($throwable->getMessage());
+            error_log($throwable);
             return $this->err('server_error', 'Failed to combine chunks.', 500);
         }
     }

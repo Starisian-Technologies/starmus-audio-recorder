@@ -59,6 +59,11 @@ final class StarmusLogger
         self::$correlation_id = $id ?? wp_generate_uuid4();
     }
 
+    public static function getCorrelationId(): ?string
+    {
+        return self::$correlation_id;
+    }
+
     /*==============================================================
      * CONFIGURATION
      *=============================================================*/
