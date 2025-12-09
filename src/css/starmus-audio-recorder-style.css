@@ -258,8 +258,7 @@ button[data-starmus-action='submit'] {
 
 /* ===========================================================================
    9. ACCESSIBILITY UTILITIES (from original)  
-   ===========================================================================
-*/
+   =========================================================================== */
 .starmus-visually-hidden,
 .screen-reader-text {
   position: absolute;
@@ -614,4 +613,3 @@ button, input, select, textarea {
     font-size: 0.9rem;
   }
 }
-
