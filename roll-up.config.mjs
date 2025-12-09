@@ -10,14 +10,11 @@ export default {
     file: 'assets/js/starmus-audio-recorder-script.bundle.min.js',
     format: 'iife',
     name: 'StarmusBundle',
-    sourcemap: false,
-    globals: {
-      'peaks.js': 'Peaks'
-    }
+    sourcemap: false
   },
 
   external: [
-    'peaks.js'
+    // All dependencies are now bundled for self-contained deployment
   ],
 
   plugins: [

@@ -1,3 +1,7 @@
+// 0. PEAKS.JS GLOBAL SETUP (needed by editor)
+import Peaks from 'peaks.js';
+window.Peaks = Peaks;
+
 // 1. MUST RUN FIRST: Defines global StarmusHooks + Store
 import './starmus-hooks.js';
 import './starmus-state-store.js';
@@ -11,6 +15,7 @@ import './starmus-ui.js';
 import './starmus-core.js';
 import './starmus-recorder.js';
 import './starmus-transcript-controller.js';
+import './starmus-audio-editor.js';
 import './starmus-metadata-auto.js';
 
 // 4. LAST: The orchestrator (starmus-integrator.js)

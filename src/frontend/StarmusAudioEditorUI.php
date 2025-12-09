@@ -9,6 +9,7 @@
  *
  * @since 0.3.1
  */
+
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 use Exception;
@@ -139,7 +140,13 @@ class StarmusAudioEditorUI
     }
 
     /**
-     * Conditionally enqueue front-end assets required by the editor.
+     * Legacy method for conditionally enqueueing editor assets.
+     * 
+     * NOTE: This method is not currently hooked and is not used in the current architecture.
+     * Asset loading is handled globally by StarmusAssetLoader, which loads the bundled
+     * script containing all modules including Peaks.js and starmus-audio-editor.
+     * 
+     * @deprecated Not used in current bundled architecture
      */
     public function enqueue_scripts(): void
     {
@@ -596,7 +603,7 @@ class StarmusAudioEditorUI
 
         usort(
             $annotations,
-            fn (array $a, array $b): int => $a['startTime'] <=> $b['startTime']
+            fn(array $a, array $b): int => $a['startTime'] <=> $b['startTime']
         );
         for ($i = 0; $i < \count($annotations) - 1; $i++) {
             $current = $annotations[$i];

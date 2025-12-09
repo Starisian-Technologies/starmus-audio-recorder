@@ -44,14 +44,14 @@ if (window.Starmus_DisableOptionalNodes) {
 import * as tus from 'tus-js-client';
 window.tus = tus;
 
-// Peaks.js waveform/annotation library — global bridge
-import Peaks from 'peaks.js';
-window.Peaks = Peaks;
-window.PeaksVersion = Peaks.prototype ? 'loaded' : 'missing';
-
+// Peaks.js is now set up in starmus-main.js before any modules that need it
+// But we still provide the Starmus.Peaks bridge for external systems
 (function exposePeaksBridge(g) {
   if (!g.Starmus) g.Starmus = {};
-  g.Starmus.Peaks = Peaks;
+  // Peaks global is already set up by starmus-main.js
+  if (g.Peaks) {
+    g.Starmus.Peaks = g.Peaks;
+  }
 })(typeof window !== 'undefined' ? window : globalThis);
 
 // ─── CORE MODULES & DEPENDENCIES ────────────────────────────────────
@@ -64,8 +64,7 @@ import './starmus-tus.js';
 import './starmus-transcript-controller.js';
 import { getOfflineQueue } from './starmus-offline.js';
 
-// The audio editor UI (annotations via Peaks.js) depends on window.Peaks
-import './starmus-audio-editor.js';
+// Audio editor is imported in main sequence where Peaks is available
 
 // ─── GLOBAL PRESENCE SIGNAL FOR EXTERNAL SYSTEMS (e.g. SparxstarUEC) ─
 window.SPARXSTAR = window.SPARXSTAR || {};
