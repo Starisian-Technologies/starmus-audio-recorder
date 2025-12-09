@@ -23,7 +23,6 @@ import './starmus-integrator.js';
 
 // IMPORTS
 import { createStore } from './starmus-state-store.js';
-import * as StarmusHooks from './starmus-hooks.js';
 import { initCore } from './starmus-core.js';
 import { initInstance as initUI } from './starmus-ui.js';
 import { initRecorder } from './starmus-recorder.js';
@@ -33,7 +32,8 @@ import { getOfflineQueue, queueSubmission, initOffline } from './starmus-offline
 
 // GLOBAL ASSIGNMENTS (UN-SHAKEABLE)
 window.createStore = createStore;
-window.StarmusHooks = StarmusHooks;
+// NOTE: StarmusHooks is already set by the IIFE - don't overwrite!
+// window.StarmusHooks = StarmusHooks; // REMOVED: This overwrites the IIFE globals
 window.initCore = initCore;
 window.initUI = initUI;
 window.initRecorder = initRecorder; // ✅ FIXED: don't access global.*
