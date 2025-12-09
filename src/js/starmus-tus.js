@@ -1,19 +1,16 @@
 /**
- * @file starmus-transcript-controller.js
- * @version 1.2.0
- * @description Handles the "karaoke-style" transcript panel that syncs with audio playback.
- * Provides click-to-seek, auto-scroll with user-scroll detection, and confidence indicators.
+ * @file starmus-tus.js
+ * @version 1.3.0‑full
+ * @description Full uploader module for :contentReference[oaicite:0]{index=0} Audio Recorder.
+ * Implements three‑tier upload strategy (TUS resumable → chunked‑REST → direct POST),
+ * optimized for unstable networks and fallback compatibility.
  */
 
 'use strict';
 
-// NEW (Corrected)
-import './starmus-hooks.js'; 
-const debugLog = window.StarmusHooks.debugLog; 
-// ------------------------------------------------------------
-// CONFIG
-// ------------------------------------------------------------
+import { debugLog } from './starmus-hooks.js';
 
+// Default config parameters — You can override via window.starmusTus or window.starmusConfig
 const DEFAULT_CONFIG = {
   chunkSize: 1 * 1024 * 1024,
   retryDelays: [0, 3000, 5000, 10000, 20000, 60000],
@@ -21,112 +18,88 @@ const DEFAULT_CONFIG = {
   maxChunkRetries: 3
 };
 
-const getConfig = () => window.starmusConfig || {};
+/** Retrieve runtime config */
+function getConfig() {
+  return window.starmusTus || window.starmusConfig || {};
+}
 
-function sanitizeMetadata(v) {
-  v = typeof v === 'string' ? v : String(v);
-  v = v.replace(/[\r\n\t]/g, ' ');
+/** Sanitize metadata (filename, form‑fields) for safe headers / transmission */
+function sanitizeMetadata(value) {
+  let v = (typeof value === 'string' ? value : String(value)).replace(/[\r\n\t]/g, ' ');
   return v.length > 500 ? v.slice(0, 497) + '...' : v;
 }
 
-function normalizeFormFields(f) {
-  return f && typeof f === 'object' ? f : {};
+function normalizeFormFields(fields) {
+  if (fields && typeof fields === 'object') return fields;
+  return {};
 }
 
-function getChunkedUploadStorageKey(id, name, size) {
-  return `starmus_chunked_${id}_${name}_${size}`;
-}
+/**
+ * TUS upload (resumable, chunked, fault‑tolerant)
+ */
+export async function uploadWithTus(blob, fileName, formFields = {}, metadata = {}, instanceId = '', onProgress) {
+  if (!window.tus || !window.tus.Upload) {
+    debugLog('[TUS] No tus library — failing over');
+    throw new Error('TUS_NOT_AVAILABLE');
+  }
 
-// ------------------------------------------------------------
-// MASTER PRIORITY WRAPPER
-// ------------------------------------------------------------
-
-export async function uploadWithPriority(blob, fileName, formFields, metadata, instanceId, onProgress) {
   const cfg = getConfig();
-  const tusAvailable = window.tus?.Upload && cfg.endpoints?.tusUpload;
-  const chunked = cfg.endpoints?.chunkedUpload;
-  const direct = cfg.endpoints?.directUpload;
-
-  if (tusAvailable) {
-    try {
-      const url = await uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress);
-      return { method: 'tus', url };
-    } catch (e) {
-      debugLog('[Priority] TUS failed:', e.message);
-    }
+  const endpoint = cfg.endpoint || (window.starmusConfig && window.starmusConfig.endpoints && window.starmusConfig.endpoints.tusUpload);
+  if (!endpoint) {
+    throw new Error('TUS_ENDPOINT_NOT_CONFIGURED');
   }
 
-  if (chunked) {
-    try {
-      const res = await uploadWithChunkedRest(blob, fileName, formFields, metadata, instanceId, onProgress);
-      return { method: 'chunked_rest', result: res };
-    } catch (e) {
-      debugLog('[Priority] Chunked REST failed:', e.message);
-    }
-  }
-
-  if (direct) {
-    const res = await uploadDirect(blob, fileName, formFields, metadata, instanceId, onProgress);
-    return { method: 'fallback_post', result: res };
-  }
-
-  throw new Error('All upload methods failed or missing endpoints');
-}
-
-// ------------------------------------------------------------
-// TUS UPLOAD (P1)
-// ------------------------------------------------------------
-
-export function uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress) {
-  if (!window.tus?.Upload) throw new Error('TUS library not present');
-
-  const cfg = window.starmusTus || {};
-  const endpoint = cfg.endpoint || getConfig().endpoints?.tusUpload;
-  if (!endpoint) throw new Error('TUS endpoint missing');
-
-  const metadataObj = {
+  const meta = {
     filename: sanitizeMetadata(fileName),
     filetype: blob.type || 'audio/webm',
-    ...Object.entries(normalizeFormFields(formFields)).reduce((a,[k,v])=> (a[k]=sanitizeMetadata(v),a),{})
+    ...Object.entries(normalizeFormFields(formFields)).reduce((acc, [k, v]) => {
+      acc[k] = sanitizeMetadata(v);
+      return acc;
+    }, {})
   };
 
-  if (metadata) metadataObj.starmus_meta = sanitizeMetadata(JSON.stringify(metadata));
+  if (metadata) {
+    try {
+      meta.starmus_meta = sanitizeMetadata(JSON.stringify(metadata));
+    } catch (e) {
+      debugLog('[TUS] Metadata sanitization failed', e);
+    }
+  }
 
   return new Promise((resolve, reject) => {
     let uploader;
 
     const opts = {
-      endpoint,
+      endpoint: endpoint,
       chunkSize: cfg.chunkSize || DEFAULT_CONFIG.chunkSize,
       retryDelays: cfg.retryDelays || DEFAULT_CONFIG.retryDelays,
-      metadata: metadataObj,
+      metadata: meta,
 
-      fingerprint(file) {
+      fingerprint(file /*, options*/) {
         return ['starmus', instanceId, file.size, file.lastModified || ''].join('-');
       },
 
-      // 🔥 FIX #1 — safe onProgress wrapper
-      onProgress(bytesUploaded, bytesTotal) {
+      onError(error) {
+        debugLog('[TUS] Upload error', error);
+        reject(error);
+      },
+
+      onProgress(uploaded, total) {
         if (typeof onProgress === 'function') {
-          onProgress(bytesUploaded, bytesTotal);
+          onProgress(uploaded, total);
         }
       },
 
-      onError: reject,
-
       async onSuccess() {
-        debugLog('[TUS] Success:', uploader.url);
+        debugLog('[TUS] Upload success', uploader.url);
 
-        // 🔥 FIX #2 — version-tolerant fingerprint removal
-        const tusRemove =
-          window.tus?.defaultOptions?.removeFingerprint ||
-          window.tus?.Upload?.prototype?.options?.removeFingerprint;
-
-        if (cfg.removeFingerprintOnSuccess && tusRemove) {
+        if (cfg.removeFingerprintOnSuccess && window.tus?.defaultOptions?.removeFingerprint) {
           try {
             const fp = await window.tus.defaultOptions.fingerprint(blob, opts);
-            await tusRemove(fp);
-          } catch {}
+            await window.tus.defaultOptions.removeFingerprint(fp);
+          } catch (e) {
+            debugLog('[TUS] Failed to remove fingerprint', e);
+          }
         }
 
         resolve(uploader.url);
@@ -136,124 +109,153 @@ export function uploadWithTus(blob, fileName, formFields, metadata, instanceId, 
     uploader = new window.tus.Upload(blob, opts);
 
     uploader.findPreviousUploads()
-      .then(prev => prev.length && uploader.resumeFromPreviousUpload(prev[0]))
-      .finally(() => uploader.start());
+      .then((previous) => {
+        if (previous && previous.length > 0) {
+          debugLog('[TUS] Resuming from previous upload', previous[0].uploadUrl);
+          uploader.resumeFromPreviousUpload(previous[0]);
+        }
+      })
+      .finally(() => {
+        uploader.start();
+      });
   });
 }
 
-// ------------------------------------------------------------
-// CHUNKED REST UPLOAD (P2) — runtime retry config honored
-// ------------------------------------------------------------
-
-export function uploadWithChunkedRest(blob, fileName, formFields, metadata, instanceId, onProgress) {
+/**
+ * Chunked‑REST fallback upload (slices + POST per chunk + finalization)
+ */
+export async function uploadWithChunkedRest(blob, fileName, formFields = {}, metadata = {}, instanceId = '', onProgress) {
   const cfg = getConfig();
-  const endpoint = cfg.endpoints?.chunkedUpload;
-  const nonce = cfg.nonce || '';
-  if (!endpoint) throw new Error('Chunked REST endpoint missing');
-  if (!nonce) throw new Error('Nonce missing');
+  const endpoint = cfg.chunkedUpload || (window.starmusConfig && window.starmusConfig.endpoints && window.starmusConfig.endpoints.chunkedUpload);
+  const nonce = cfg.nonce || (window.starmusConfig && window.starmusConfig.nonce) || '';
+  if (!endpoint) {
+    throw new Error('CHUNKED_UPLOAD_ENDPOINT_NOT_CONFIGURED');
+  }
+  if (!nonce) {
+    throw new Error('CHUNKED_UPLOAD_NONCE_MISSING');
+  }
 
   const fields = normalizeFormFields(formFields);
   const chunkSize = cfg.chunkSize || DEFAULT_CONFIG.chunkSize;
   const totalChunks = Math.ceil(blob.size / chunkSize);
+  const storageKey = `starmus_chunked_${instanceId}_${fileName}_${blob.size}`;
+  let uploadId = localStorage.getItem(storageKey) || null;
 
-  const storage = window.localStorage || window.sessionStorage;
-  const storageKey = getChunkedUploadStorageKey(instanceId, fileName, blob.size);
-  let uploadId = storage.getItem(storageKey) || null;
+  for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+    let attempt = 0;
+    let success = false;
 
-  const maxRetries = cfg.maxChunkRetries ?? DEFAULT_CONFIG.maxChunkRetries; // 🔥 FIX #3
+    const start = chunkIndex * chunkSize;
+    const end = Math.min(start + chunkSize, blob.size);
+    const chunk = blob.slice(start, end);
 
-  return new Promise(async (resolve, reject) => {
-    try {
-      for (let i = 0; i < totalChunks; i++) {
-        let attempt = 0;
-        let success = false;
-        const start = i * chunkSize;
-        const end = Math.min(start + chunkSize, blob.size);
-        const chunk = blob.slice(start, end);
-
-        while (!success && attempt < maxRetries) {
-          attempt++;
-          try {
-            await sendChunk(i, chunk, start);
-            success = true;
-          } catch (err) {
-            if (attempt === maxRetries) throw err;
-
-            // exponential backoff retained
-            await new Promise(r => setTimeout(r, 300 * attempt * attempt));
-          }
+    while (!success && attempt < (cfg.maxChunkRetries || DEFAULT_CONFIG.maxChunkRetries)) {
+      try {
+        await sendChunk(chunkIndex, chunk, fileName, metadata, instanceId, uploadId, fields, endpoint, nonce, onProgress);
+        success = true;
+      } catch (err) {
+        attempt++;
+        if (attempt >= (cfg.maxChunkRetries || DEFAULT_CONFIG.maxChunkRetries)) {
+          throw err;
         }
+        await new Promise(r => setTimeout(r, 300 * attempt * attempt));
+      }
+    }
+
+    if (!uploadId && chunkIndex === 0 && window.lastUploadId) {
+      uploadId = window.lastUploadId;
+      localStorage.setItem(storageKey, uploadId);
+    }
+  }
+
+  // Finalize
+  const finalize = new FormData();
+  finalize.append('upload_id', uploadId);
+  finalize.append('finalize', '1');
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', endpoint, true);
+  xhr.setRequestHeader('X-WP-Nonce', nonce);
+  return new Promise((resolve, reject) => {
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const json = JSON.parse(xhr.responseText);
+          localStorage.removeItem(storageKey);
+          resolve(json);
+        } catch (e) {
+          reject(new Error('Invalid JSON on finalize'));
+        }
+      } else {
+        reject(new Error(`Finalize failed: ${xhr.status}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Network error on finalize'));
+    xhr.send(finalize);
+  });
+
+  async function sendChunk(index, chunkData, fileName, metadata, instanceId, uploadId, fields, endpoint, nonce, onProgress) {
+    return new Promise((resolve, reject) => {
+      const fd = new FormData();
+      fd.append('audio_chunk', chunkData, `${fileName}.part${index}`);
+      fd.append('chunk_index', index);
+      fd.append('total_chunks', totalChunks);
+      if (uploadId) fd.append('upload_id', uploadId);
+      else fd.append('create_upload_id', '1');
+      Object.entries(fields).forEach(([k, v]) => fd.append(k, v));
+      if (metadata) {
+        fd.append('_starmus_meta', JSON.stringify(metadata));
       }
 
-      const finalize = new FormData();
-      finalize.append('upload_id', uploadId);
-      finalize.append('finalize', '1');
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', endpoint, true);
+      xhr.setRequestHeader('X-WP-Nonce', nonce);
 
-      const r = await fetch(endpoint, { method:'POST', headers:{'X-WP-Nonce':nonce}, body:finalize });
-      if (!r.ok) throw new Error(`Finalization failed: ${r.status}`);
-      const json = await r.json();
-
-      storage.removeItem(storageKey);
-      resolve(json);
-
-    } catch (e) { reject(e); }
-
-    function sendChunk(index, chunk, start) {
-      return new Promise((res, rej) => {
-        const fd = new FormData();
-        fd.append('audio_chunk', chunk, `${fileName}.part${index}`);
-        fd.append('chunk_index', index);
-        fd.append('total_chunks', totalChunks);
-        uploadId ? fd.append('upload_id', uploadId) : fd.append('create_upload_id', '1');
-
-        Object.entries(fields).forEach(([k,v]) => fd.append(k,v));
-        if (metadata) fd.append('_starmus_meta', JSON.stringify(metadata));
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', endpoint, true);
-        xhr.setRequestHeader('X-WP-Nonce', nonce);
-
-        xhr.upload.onprogress = e =>
-          typeof onProgress === 'function' && e.lengthComputable &&
-          onProgress(start + e.loaded, blob.size);
-
-        xhr.onload = () => {
-          if (xhr.status < 200 || xhr.status >= 300)
-            return rej(new Error(`Chunk ${index} failed: ${xhr.status}`));
-          try {
-            const json = JSON.parse(xhr.responseText);
-            if (!uploadId && json.upload_id) {
-              uploadId = json.upload_id;
-              storage.setItem(storageKey, uploadId);
-            }
-            res(json);
-          } catch {
-            rej(new Error('Invalid JSON response'));
+      if (xhr.upload && typeof onProgress === 'function') {
+        xhr.upload.onprogress = e => {
+          if (e.lengthComputable) {
+            onProgress(start + e.loaded, blob.size);
           }
         };
+      }
 
-        xhr.onerror = () => rej(new Error('Network error'));
-        xhr.send(fd);
-      });
-    }
-  });
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const r = JSON.parse(xhr.responseText);
+            if (!uploadId && r.upload_id) {
+              window.lastUploadId = r.upload_id;
+            }
+            resolve(r);
+          } catch (e) {
+            reject(new Error('Invalid JSON chunk response'));
+          }
+        } else {
+          reject(new Error(`Chunk ${index} failed: ${xhr.status}`));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Network error during chunk upload'));
+      xhr.send(fd);
+    });
+  }
 }
 
-// ------------------------------------------------------------
-// DIRECT UPLOAD (P3)
-// ------------------------------------------------------------
-
-export function uploadDirect(blob, fileName, formFields, metadata, _id, onProgress) {
+/**
+ * Direct (single‑POST) upload fallback
+ */
+export async function uploadDirect(blob, fileName, formFields = {}, metadata = {}, _instanceId = '', onProgress) {
   const cfg = getConfig();
-  const endpoint = cfg.endpoints?.directUpload;
-  const nonce = cfg.nonce || '';
-  if (!endpoint) throw new Error('Direct upload endpoint missing');
+  const endpoint = cfg.directUpload || (window.starmusConfig && window.starmusConfig.endpoints && window.starmusConfig.endpoints.directUpload);
+  const nonce = cfg.nonce || (window.starmusConfig && window.starmusConfig.nonce) || '';
+  if (!endpoint) {
+    throw new Error('DIRECT_UPLOAD_ENDPOINT_NOT_CONFIGURED');
+  }
 
   const fields = normalizeFormFields(formFields);
 
-  return new Promise((res, rej) => {
+  return new Promise((resolve, reject) => {
     const fd = new FormData();
-    Object.entries(fields).forEach(([k,v]) => fd.append(k,v));
+    Object.entries(fields).forEach(([k,v]) => fd.append(k, v));
     fd.append('audio_file', blob, fileName);
 
     if (metadata?.transcript) fd.append('_starmus_transcript', metadata.transcript);
@@ -262,63 +264,97 @@ export function uploadDirect(blob, fileName, formFields, metadata, _id, onProgre
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', endpoint, true);
-    xhr.setRequestHeader('X-WP-Nonce', nonce);
+    if (nonce) xhr.setRequestHeader('X-WP-Nonce', nonce);
 
-    xhr.upload.onprogress = e =>
-      typeof onProgress === 'function' && e.lengthComputable &&
-      onProgress(e.loaded, e.total);
+    if (xhr.upload && typeof onProgress === 'function') {
+      xhr.upload.onprogress = e => {
+        if (e.lengthComputable) onProgress(e.loaded, e.total);
+      };
+    }
 
     xhr.onload = () => {
-      if (xhr.status < 200 || xhr.status >= 300)
-        return rej(new Error(`Upload failed: ${xhr.status}`));
-      try { res(JSON.parse(xhr.responseText)); }
-      catch { rej(new Error('Invalid JSON response')); }
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(JSON.parse(xhr.responseText));
+        } catch (e) {
+          reject(new Error('Invalid JSON response'));
+        }
+      } else {
+        reject(new Error(`Upload failed: ${xhr.status}`));
+      }
     };
 
-    xhr.onerror = () => rej(new Error('Network error'));
+    xhr.onerror = () => reject(new Error('Network error on direct upload'));
     xhr.send(fd);
   });
 }
 
-// ------------------------------------------------------------
-// HELPERS
-// ------------------------------------------------------------
-
-export function estimateUploadTime(bytes, net) {
-  let d = net?.downlink || ({
-    'slow-2g':0.05, '2g':0.15, '3g':0.75, '4g':8.0
-  }[net?.effectiveType] ?? 0.5);
-  d = Math.min(d,10);
-  return Math.ceil((bytes/((d*1e6)/8))*1.5);
+/**
+ * Tertiary upload wrapper (prioritized)
+ *  — TUS
+ *  — chunked REST
+ *  — direct POST
+ */
+export async function uploadWithPriority(blob, fileName, formFields, metadata, instanceId, onProgress) {
+  try {
+    return await uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress);
+  } catch (eTus) {
+    debugLog('[Uploader] TUS failed, trying fallback', eTus);
+    // try chunked REST if configured
+    try {
+      return await uploadWithChunkedRest(blob, fileName, formFields, metadata, instanceId, onProgress);
+    } catch (eChunked) {
+      debugLog('[Uploader] Chunked REST failed, trying direct', eChunked);
+      return await uploadDirect(blob, fileName, formFields, metadata, instanceId, onProgress);
+    }
+  }
 }
 
-export const formatUploadEstimate = s =>
-  !isFinite(s) ? 'Calculating...' :
-  s<60 ? `~${s}s` : `~${Math.ceil(s/60)} min`;
-
-// FINAL EXPORT TARGET (BROWSER + WORDPRESS SAFE)
-// Browser global for WordPress
-if (typeof window !== 'undefined') {
-  window.StarmusTus = StarmusTus;
+/**
+ * Utility: is TUS upload available (library + endpoint + minimum size)
+ */
+export function isTusAvailable(blobSize = 0) {
+  try {
+    const cfg = getConfig();
+    return !!(window.tus && window.tus.Upload && cfg.endpoint && blobSize > 1024 * 1024);
+  } catch {
+    return false;
+  }
 }
+
+export function estimateUploadTime(fileSize, networkInfo) {
+  let downlink = networkInfo?.downlink;
+  if (!downlink || downlink === 0) {
+    const effectiveType = networkInfo?.effectiveType;
+    downlink = {
+      'slow-2g': 0.05,
+      '2g': 0.15,
+      '3g': 0.75,
+      '4g': 8.0
+    }[effectiveType] || 0.5;
+  }
+  downlink = Math.min(downlink, 10);
+  const bytesPerSec = (downlink * 1000000) / 8;
+  return Math.ceil((fileSize / bytesPerSec) * 1.5);
+}
+
+export function formatUploadEstimate(s) {
+  return !isFinite(s) ? 'Calculating...' : (s < 60 ? `~${s}s` : `~${Math.ceil(s/60)} min`);
+}
+
+// Global export for WordPress compatibility / legacy code
 const StarmusTus = {
   uploadWithTus,
   uploadWithChunkedRest,
   uploadDirect,
   uploadWithPriority,
+  isTusAvailable,
   estimateUploadTime,
-  formatUploadEstimate,
-  isTusAvailable // ✅ include here
+  formatUploadEstimate
 };
 
-// ES module + CommonJS export
-export default StarmusTus;
-
-export function isTusAvailable(blobSize = 0) {
-  try {
-    const cfg = window.starmusConfig || {};
-    return !!(window.tus?.Upload && cfg.endpoints?.tusUpload && blobSize > 1024 * 1024);
-  } catch {
-    return false;
-  }
+if (typeof window !== 'undefined') {
+  window.StarmusTus = StarmusTus;
 }
+
+export default StarmusTus;
