@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Test Starmus Form</title>
+</head>
+
+<body>
+    <h1>Form Function Test</h1>
+
+    <!-- Bootstrap data that the JavaScript expects -->
+    <script>
+        window.STARMUS_BOOTSTRAP = {
+            pageType: 'recorder',
+            postId: 123,
+            restUrl: '/wp-json/',
+            mode: 'new',
+            canCommit: true,
+            instances: {}
+        };
+
+        // Mock store and state for testing
+        window.createStore = function () {
+            return {
+                getState: function () {
+                    return {
+                        status: 'uninitialized',
+                        starmus_title: 'Test Title',
+                        starmus_language: 'en',
+                        audio_file_type: 'wav',
+                        agreement_to_terms: true
+                    };
+                },
+                subscribe: function (callback) {
+                    console.log('Store subscribed:', callback);
+                    return function () { console.log('Unsubscribed'); };
+                }
+            };
+        };
+    </script>
+
+    <form id="starmus-form" method="post">
+        <div>
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="starmus_title" value="" />
+        </div>
+
+        <div>
+            <label for="language">Language:</label>
+            <select id="language" name="starmus_language">
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+            </select>
+        </div>
+
+        <button type="button" id="test-metadata-btn">Test Metadata Auto-Population</button>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="debug"></div>
+
+    <script src="assets/js/starmus-audio-recorder-script.bundle.min.js"></script>
+
+    <script>
+        console.log('=== FORM TEST START ===');
+
+        // Test the metadata auto-population directly
+        document.getElementById('test-metadata-btn').addEventListener('click', function () {
+            console.log('Testing metadata auto-population...');
+
+            const form = document.getElementById('starmus-form');
+            if (!form) {
+                console.error('Form not found');
+                return;
+            }
+
+            // Check if the metadata auto function is available
+            if (window.Starmus && window.Starmus.metadataUtils) {
+                console.log('Metadata utils available:', window.Starmus.metadataUtils);
+            } else {
+                console.warn('Metadata utils not available');
+            }
+
+            // Test the clearHiddenFields function
+            try {
+                const testFieldNames = ['starmus_title', 'starmus_language', 'audio_file_type'];
+                console.log('Testing clearHiddenFields with:', testFieldNames);
+
+                // This should work without throwing DOM errors now
+                if (window.clearHiddenFields) {
+                    window.clearHiddenFields(form, testFieldNames);
+                    console.log('✅ clearHiddenFields completed without errors');
+                } else {
+                    console.log('clearHiddenFields function not globally available');
+                }
+            } catch (error) {
+                console.error('❌ clearHiddenFields failed:', error);
+            }
+
+            // Show current form state
+            const debugEl = document.getElementById('debug');
+            debugEl.innerHTML = '<h3>Form Elements:</h3>';
+            const formData = new FormData(form);
+            for (let [key, value] of formData.entries()) {
+                debugEl.innerHTML += `<p><strong>${key}:</strong> ${value}</p>`;
+            }
+
+            // Show hidden inputs
+            const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+            debugEl.innerHTML += `<h3>Hidden Inputs (${hiddenInputs.length}):</h3>`;
+            hiddenInputs.forEach(input => {
+                debugEl.innerHTML += `<p><strong>${input.name}:</strong> ${input.value}</p>`;
+            });
+        });
+    </script>
+</body>
+
+</html>
