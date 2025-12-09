@@ -43,6 +43,13 @@ window.StarmusOfflineQueue = getOfflineQueue;
 window.StarmusQueueSubmission = queueSubmission;
 window.initOffline = initOffline;
 
+// Assign integrator to global so it can be detected
+window.StarmusIntegrator = true;
+
+// Assign recorder functions to satisfy integrator expectations
+window.StarmusRecorder = initRecorder;
+window.initStarmusRecorder = initRecorder;
+
 console.log('[Starmus] Runtime globals wired');
 
 // EXPORTS (ES MODULE)

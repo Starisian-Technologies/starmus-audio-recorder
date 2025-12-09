@@ -278,51 +278,18 @@ import './starmus-hooks.js';
         var useLegacy = (finalTier === 'C') || !isRecordingSupportedEnv();
 
         if (useLegacy) {
+          // For Tier C, show fallback container and set fallback state
           if (elements.recorderContainer) elements.recorderContainer.style.display = 'none';
           if (elements.fallbackContainer) elements.fallbackContainer.style.display = 'block';
-
-          loadScript(
-            'starmus-recorder-legacy.js',
-            function () {
-              if (typeof global.initStarmusRecorderLegacy === 'function') {
-                global.initStarmusRecorderLegacy(store, instanceId);
-              } else {
-                store.dispatch({ type: 'starmus/error', payload: { message: 'Legacy recorder not available', retryable: false } });
-              }
-            },
-            function () {
-              console.error('[Starmus] Failed to load legacy recorder.');
-              store.dispatch({ type: 'starmus/error', payload: { message: 'Legacy recorder load failed', retryable: false } });
-            }
-          );
+          store.dispatch({ type: 'starmus/tier-ready', payload: { tier: 'C', fallbackActive: true } });
         } else {
-          loadScript(
-            'starmus-recorder.js',
-            function () {
-              if (typeof global.initStarmusRecorder === 'function') {
-                global.initStarmusRecorder(store, instanceId);
-              } else {
-                console.warn('[Starmus] Recorder init missing — falling back');
-                loadScript('starmus-recorder-legacy.js', function () {
-                  if (typeof global.initStarmusRecorderLegacy === 'function') {
-                    global.initStarmusRecorderLegacy(store, instanceId);
-                  } else {
-                    store.dispatch({ type: 'starmus/error', payload: { message: 'Recorder init failed', retryable: false } });
-                  }
-                });
-              }
-            },
-            function () {
-              console.warn('[Starmus] Full recorder load failed — falling back to legacy');
-              loadScript('starmus-recorder-legacy.js', function () {
-                if (typeof global.initStarmusRecorderLegacy === 'function') {
-                  global.initStarmusRecorderLegacy(store, instanceId);
-                } else {
-                  store.dispatch({ type: 'starmus/error', payload: { message: 'Recorder fallback load failed', retryable: false } });
-                }
-              });
-            }
-          );
+          // Use bundled recorder function directly - no external script loading
+          if (typeof global.initRecorder === 'function') {
+            global.initRecorder(store, instanceId);
+          } else {
+            console.error('[Starmus] initRecorder function not available');
+            store.dispatch({ type: 'starmus/error', payload: { message: 'Recorder init failed', retryable: false } });
+          }
         }
       }
 
@@ -394,3 +361,5 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // also support ES module export
 export default global.Starmus;
+
+
