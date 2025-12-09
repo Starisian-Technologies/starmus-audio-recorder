@@ -49,6 +49,11 @@ import Peaks from 'peaks.js';
 window.Peaks = Peaks;
 window.PeaksVersion = Peaks.prototype ? 'loaded' : 'missing';
 
+(function exposePeaksBridge(g) {
+  if (!g.Starmus) g.Starmus = {};
+  g.Starmus.Peaks = Peaks;
+})(typeof window !== 'undefined' ? window : globalThis);
+
 // ─── CORE MODULES & DEPENDENCIES ────────────────────────────────────
 import { CommandBus } from './starmus-hooks.js';
 import { createStore } from './starmus-state-store.js';
