@@ -269,8 +269,10 @@ import './starmus-hooks.js';
         durationProgress: formEl.querySelector('[data-starmus-duration-progress]')
       };
 
-      initUI(store, elements);
       initCore(store, instanceId, env);
+
+      // UI initialization deferred until after sparxstar:environment-ready
+      // to ensure DOM elements are fully rendered before attaching listeners
 
       function loadAppropriateRecorder() {
         var useLegacy = (finalTier === 'C') || !isRecordingSupportedEnv();
@@ -292,6 +294,15 @@ import './starmus-hooks.js';
       }
 
       loadAppropriateRecorder();
+
+      // Defer UI initialization until environment is fully ready
+      document.addEventListener('sparxstar:environment-ready', function(envReadyEvent) {
+        var envDetail = envReadyEvent.detail || {};
+        // Only initialize UI for this specific instance
+        if (envDetail.instanceId === instanceId) {
+          initUI(store, elements);
+        }
+      });
 
       instances[instanceId] = { store: store, form: formEl, elements: elements, tier: finalTier };
     });
