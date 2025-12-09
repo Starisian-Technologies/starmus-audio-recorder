@@ -7,6 +7,8 @@
 
 'use strict';
 
+window.StarmusInstances = window.StarmusInstances || {};
+
 // --- LOCAL STATE ---
 let starmusClipWarned = false;
 
@@ -363,5 +365,51 @@ export function initInstance(store, elements) {
 if (typeof window !== 'undefined') {
     window.initUI = initInstance;
 }
+
+// FIX – ENABLE CONTINUE BUTTON
+document.addEventListener('DOMContentLoaded', function () {
+    // Locate ANY continue button on any Starmus instance
+    const buttons = document.querySelectorAll('[data-starmus-action="continue"]');
+
+    if (!buttons.length) return;
+
+    buttons.forEach(btn => {
+        btn.addEventListener('click', function () {
+            try {
+                if (!window.StarmusStore || !window.StarmusStore.createStore) {
+                    console.error('[Starmus] Store not available');
+                    return;
+                }
+
+                // Find form root for this instance
+                const form = btn.closest('[data-starmus-instance]');
+                if (!form) return;
+
+                const instanceId = form.getAttribute('data-starmus-instance');
+
+                // Get the existing Starmus store for this instance
+                const store = window.StarmusInstances?.[instanceId]?.store;
+                if (!store) {
+                    console.error('[Starmus] No store for instance', instanceId);
+                    return;
+                }
+
+                // Dispatch UI continue action
+                store.dispatch({ type: 'starmus/ui/step-continue' });
+
+                // Swap UI panels
+                const step1 = document.querySelector('#starmus_step1_' + instanceId);
+                const step2 = document.querySelector('#starmus_step2_' + instanceId);
+
+                if (step1) step1.style.display = 'none';
+                if (step2) step2.style.display = 'block';
+
+                console.log('[Starmus] Continue → Recording step enabled', instanceId);
+            } catch (e) {
+                console.error('[Starmus Continue Error]', e);
+            }
+        });
+    });
+});
 
 
