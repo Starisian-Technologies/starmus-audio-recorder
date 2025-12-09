@@ -14,7 +14,7 @@
  */
 
 if (! defined('ABSPATH')) {
-    exit;
+	exit;
 }
 
 /** @var string $form_id */
@@ -28,7 +28,7 @@ $form_id ??= 'rerecord';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 
 $allowed_file_types ??= 'webm';
-$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
 $is_admin          = current_user_can('manage_options');
 
 ?>
@@ -137,7 +137,7 @@ $is_admin          = current_user_can('manage_options');
 				type="button"
 				id="starmus_continue_btn_<?php echo esc_attr($instance_id); ?>"
 				class="starmus-btn starmus-btn--primary"
-				data-starmus-action="continue">
+				data-starmus-action="next">
 				<?php esc_html_e('Proceed to Recorder', 'starmus-audio-recorder'); ?>
 			</button>
 		</div>

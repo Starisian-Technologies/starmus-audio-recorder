@@ -247,7 +247,7 @@ import './starmus-hooks.js';
       var elements = {
         step1: formEl.querySelector('.starmus-step-1'),
         step2: formEl.querySelector('.starmus-step-2'),
-        continueBtn: formEl.querySelector('[data-starmus-action="continue"]'),
+        continueBtn: formEl.querySelector('[data-starmus-action="next"]'),
         messageBox: formEl.querySelector('[data-starmus-message-box]'),
         setupMicBtn: formEl.querySelector('[data-starmus-action="setup-mic"]'),
         recordBtn: formEl.querySelector('[data-starmus-action="record"]'),
@@ -256,6 +256,7 @@ import './starmus-hooks.js';
         stopBtn: formEl.querySelector('[data-starmus-action="stop"]'),
         submitBtn: formEl.querySelector('[data-starmus-action="submit"]'),
         resetBtn: formEl.querySelector('[data-starmus-action="reset"]'),
+        playBtn: formEl.querySelector('[data-starmus-action="play"]'),
         fileInput: formEl.querySelector('input[type="file"]'),
         statusEl: formEl.querySelector('[data-starmus-status]'),
         progressEl: formEl.querySelector('[data-starmus-progress]'),

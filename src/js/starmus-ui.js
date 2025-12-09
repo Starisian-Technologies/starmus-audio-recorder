@@ -336,6 +336,7 @@ export function initInstance(store, elements) {
   elements.stopBtn?.addEventListener('click', () => dispatch('stop-mic'));
   elements.submitBtn?.addEventListener('click', () => dispatch('submit'));
   elements.resetBtn?.addEventListener('click', () => dispatch('reset'));
+  elements.playBtn?.addEventListener('click', () => dispatch('play'));
 
   elements.setupMicBtn?.addEventListener('click', () => dispatch('setup-mic'));
 
@@ -343,7 +344,8 @@ export function initInstance(store, elements) {
   if (elements.continueBtn) {
     elements.continueBtn.addEventListener('click', () => {
       console.log('[StarmusUI] Continue button clicked!');
-      dispatch('continue');
+      // Dispatch store action directly, not through command bus
+      store.dispatch({ type: 'starmus/ui/step-continue', payload: {} });
     });
   }
 
@@ -369,7 +371,7 @@ if (typeof window !== 'undefined') {
 // FIX – ENABLE CONTINUE BUTTON
 document.addEventListener('DOMContentLoaded', function () {
     // Locate ANY continue button on any Starmus instance
-    const buttons = document.querySelectorAll('[data-starmus-action="continue"]');
+    const buttons = document.querySelectorAll('[data-starmus-action="next"]');
 
     if (!buttons.length) return;
 
