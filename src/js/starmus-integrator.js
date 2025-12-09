@@ -1,425 +1,308 @@
 /**
- * @file starmus-integrator.js
- * @version 4.3.5‑loader
- * @description Master orchestrator with dynamic recorder loader for Tier‑A/B or Tier‑C fallback.
+ * @file starmus‑integrator.js
+ * @version 5.0.0‑integrator (with correct global bridges)
+ * @description Master orchestrator: sets up store, UI, recorder (if supported), offline queue, tier detection/fallback, and global bridges for external libs (StarmusTus, Peaks).
  */
-import './starmus-hooks.js';
-import './starmus-state-store.js';
-import './starmus-ui.js';
-import './starmus-core.js';
-import './starmus-recorder.js';
-import './starmus-tus.js';
-import './starmus-transcript-controller.js';
-import './starmus-offline.js';
-import { initAutoMetadata } from './starmus-metadata-auto.js';
 
-(function (global) {
-  'use strict'; 
+'use strict';
 
-  global.Starmus = global.Starmus || {};
+// --- External / vendor libraries — import and re‑expose globally under original names ---
 
-  (function () {
-    if (global.STARMUS_EDITOR_DATA) {
-      global.STARMUS_BOOTSTRAP = global.STARMUS_EDITOR_DATA;
-      global.STARMUS_BOOTSTRAP.pageType = 'editor';
-    } else if (global.STARMUS_RERECORDER_DATA) {
-      global.STARMUS_BOOTSTRAP = global.STARMUS_RERECORDER_DATA;
-      global.STARMUS_BOOTSTRAP.pageType = 'rerecorder';
-    } else if (global.STARMUS_RECORDER_DATA) {
-      global.STARMUS_BOOTSTRAP = global.STARMUS_RECORDER_DATA;
-      global.STARMUS_BOOTSTRAP.pageType = 'recorder';
-    }
-  })();
+import * as tus from 'tus-js-client';
+if (typeof window !== 'undefined') {
+  window.StarmusTus = tus;
+}
 
-  global.Starmus_DisableOptionalNodes = true;
-  if (global.Starmus_DisableOptionalNodes) {
-    var CtxProto = (global.AudioContext || global.webkitAudioContext || {}).prototype;
-    if (CtxProto) {
-      if (CtxProto.createConstantSource) {
-        CtxProto.createConstantSource = function () {
-          throw new Error('ConstantSourceNode disabled');
-        };
-      }
-      if (CtxProto.createIIRFilter) {
-        CtxProto.createIIRFilter = function () {
-          throw new Error('IIRFilterNode disabled');
-        };
-      }
-    }
-  }
-
+import Peaks from 'peaks.js';
+if (typeof window !== 'undefined') {
+  // original‑style global bridge wrapper for Peaks
   (function exposePeaksBridge(g) {
     try {
       if (typeof g.Peaks === 'function' || typeof g.Peaks === 'object') {
+        g.Starmus = g.Starmus || {};
         g.Starmus.Peaks = g.Peaks;
         return;
       }
       Object.defineProperty(g, 'Peaks', {
         get: function () {
+          g.Starmus = g.Starmus || {};
           return g.Starmus.Peaks;
         },
         set: function (v) {
+          g.Starmus = g.Starmus || {};
           g.Starmus.Peaks = v;
         },
         configurable: true
       });
+      // Assign the imported Peaks to global
+      g.Peaks = Peaks;
+      g.Starmus.Peaks = Peaks;
     } catch (e) {
       console.warn('[Starmus] Peaks.js exposure failed:', e);
     }
-  })(global);
+  })(window);
+}
 
-  var CommandBus = global.StarmusHooks;
-  var createStore = global.createStore;
-  var initUI = global.initUI;
-  var initCore = global.initCore;
-  var initOfflineQueue = global.initOffline;
+// --- Core modules & API imports ---
 
-  function checkDependencies() {
-    // Re-check globals in case they were set after initial load
-    CommandBus = global.StarmusHooks;
-    createStore = global.createStore;
-    initUI = global.initUI;
-    initCore = global.initCore;
-    initOfflineQueue = global.initOffline;
+import { subscribe as busSubscribe, dispatch as busDispatch, debugLog } from './starmus-hooks.js';
+import { createStore } from './starmus-state-store.js';
+import { initInstance as initUI } from './starmus-ui.js';
+import { initRecorder } from './starmus-recorder.js';
+import { initCore } from './starmus-core.js';
+import { initOffline } from './starmus-offline.js';
 
-    if (!CommandBus || !createStore || !initUI || !initCore || !initOfflineQueue) {
-      console.error('[Starmus Integrator] Critical dependencies missing — cannot initialize.');
-      console.error('Available:', {
-        CommandBus: !!CommandBus,
-        createStore: !!createStore,
-        initUI: !!initUI,
-        initCore: !!initCore,
-        initOfflineQueue: !!initOfflineQueue
+// --- Internal state for instances ---
+
+const instances = new Map();
+
+// --- Utility / environment detection ---
+
+function emitGlobalEvent(event, payload = {}) {
+  try {
+    if (window.StarmusHooks && typeof window.StarmusHooks.doAction === 'function') {
+      window.StarmusHooks.doAction('starmus_event', {
+        instanceId: payload.instanceId || null,
+        event,
+        severity: payload.severity || 'info',
+        message: payload.message || '',
+        data: payload.data || {}
       });
-      return false;
     }
-    return true;
+  } catch (e) {
+    console.warn('[Starmus Integrator] emitGlobalEvent failed:', e);
   }
+}
 
-  function emitStarmusEventGlobal(event, payload) {
-    try {
-      if (global.StarmusHooks && typeof global.StarmusHooks.doAction === 'function') {
-        global.StarmusHooks.doAction('starmus_event', {
-          instanceId: payload.instanceId || null,
-          event: event,
-          severity: payload.severity || 'info',
-          message: payload.message || '',
-          data: payload.data || {}
-        });
-      }
-    } catch (e) {
-      console.warn('[Starmus] Global telemetry emit failed:', e);
-    }
+function getDeviceMemory() {
+  try {
+    return navigator.deviceMemory || null;
+  } catch (_) {
+    return null;
   }
+}
 
-  function getDeviceMemory() {
-    try {
-      return navigator.deviceMemory || null;
-    } catch (_) {
-      return null;
-    }
+function getHardwareConcurrency() {
+  try {
+    return navigator.hardwareConcurrency || null;
+  } catch (_) {
+    return null;
   }
+}
 
-  function getHardwareConcurrency() {
-    try {
-      return navigator.hardwareConcurrency || null;
-    } catch (_) {
-      return null;
-    }
+function getConnectionInfo() {
+  try {
+    return navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+  } catch (_) {
+    return null;
   }
+}
 
-  function getConnectionInfo() {
-    try {
-      return navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
-    } catch (_) {
-      return null;
-    }
-  }
+function detectTier(env) {
+  const caps = env.capabilities || {};
+  const network = env.network || {};
 
-  function detectTier(env) {
-    var caps = env.capabilities || {};
-    var network = env.network || {};
-
-    if (/\bCrOS\b|Chrome OS/i.test(navigator.userAgent)) {
-      return 'A';
-    }
-    if (!caps.mediaRecorder || !caps.webrtc) {
-      return 'C';
-    }
-
-    var mem = getDeviceMemory();
-    var threads = getHardwareConcurrency();
-    if (mem && mem < 1) return 'C';
-    if (threads) {
-      if (threads === 1) return 'C';
-      if (threads === 2) return 'B';
-    }
-
-    if (/wv|Crosswalk|Android WebView|Opera Mini/i.test(navigator.userAgent)) {
-      return 'C';
-    }
-
-    if (network.effectiveType === '2g' || network.effectiveType === 'slow-2g') {
-      return 'B';
-    }
-    if (mem && mem < 2) return 'B';
-
+  if (/\bCrOS\b|Chrome OS/i.test(navigator.userAgent)) {
     return 'A';
   }
-
-  async function refineTierAsync(tier) {
-    if (tier === 'C') return 'C';
-    if (navigator.storage && navigator.storage.estimate) {
-      try {
-        var est = await navigator.storage.estimate();
-        var quotaMB = (est.quota || 0) / 1024 / 1024;
-        if (quotaMB && quotaMB < 80) return 'C';
-      } catch (_) {}
-    }
-    if (navigator.permissions && navigator.permissions.query) {
-      try {
-        var status = await navigator.permissions.query({ name: 'microphone' });
-        if (status.state === 'denied') return 'C';
-      } catch (_) {}
-    }
-    return tier;
+  if (!caps.mediaRecorder || !caps.webrtc) {
+    return 'C';
   }
+  const mem = getDeviceMemory();
+  const threads = getHardwareConcurrency();
+  if (mem && mem < 1) return 'C';
+  if (threads) {
+    if (threads === 1) return 'C';
+    if (threads === 2) return 'B';
+  }
+  if (/wv|Crosswalk|Android WebView|Opera Mini/i.test(navigator.userAgent)) {
+    return 'C';
+  }
+  if (network.effectiveType === '2g' || network.effectiveType === 'slow-2g') {
+    return 'B';
+  }
+  if (mem && mem < 2) return 'B';
 
-  function isRecordingSupportedEnv() {
+  return 'A';
+}
+
+async function refineTierAsync(tier) {
+  if (tier === 'C') return 'C';
+
+  if (navigator.storage && navigator.storage.estimate) {
     try {
-      var hasGet = !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function');
-      var hasMR = typeof global.MediaRecorder === 'function';
-      var hasAC = !!(global.AudioContext || global.webkitAudioContext);
-      return hasGet && hasMR && hasAC;
-    } catch (_) {
-      return false;
-    }
+      const est = await navigator.storage.estimate();
+      const quotaMB = (est.quota || 0) / 1024 / 1024;
+      if (quotaMB && quotaMB < 80) {
+        return 'C';
+      }
+    } catch (_) { /* ignore */ }
   }
 
-  global.StarmusApp = global.StarmusApp || {};
-  global.StarmusApp.isRecordingSupported = isRecordingSupportedEnv;
+  if (navigator.permissions && navigator.permissions.query) {
+    try {
+      const perm = await navigator.permissions.query({ name: 'microphone' });
+      if (perm.state === 'denied') {
+        return 'C';
+      }
+    } catch (_) { /* ignore */ }
+  }
 
-  initOfflineQueue().catch(function (e) {
-    console.error('[Starmus] Offline queue init failed:', e);
+  return tier;
+}
+
+// --- Core wiring per form / recorder instance ---
+
+async function wireInstance(env, formEl) {
+  let instanceId = formEl.getAttribute('data-starmus-id');
+  if (!instanceId) {
+    instanceId = 'starmus_' + Date.now() + '_' + Math.random().toString(16).substr(2);
+    formEl.setAttribute('data-starmus-id', instanceId);
+  }
+  if (instances.has(instanceId)) {
+    return instanceId;
+  }
+
+  let tier = detectTier(env);
+  tier = await refineTierAsync(tier);
+
+  debugLog(`[Starmus] Instance ${instanceId} → Tier ${tier}`);
+  emitGlobalEvent('TIER_ASSIGN', { instanceId, severity: 'info', message: `Tier ${tier} assigned`, data: { tier } });
+
+  const store = createStore({ instanceId, env, tier });
+
+  // Collect UI elements relevant to recorder + fallback UI
+  const elements = {
+    formEl,
+    step1: formEl.querySelector('.starmus-step-1'),
+    step2: formEl.querySelector('.starmus-step-2'),
+    messageBox: formEl.querySelector('[data-starmus-message-box]'),
+    statusEl: formEl.querySelector('[data-starmus-status]'),
+    recorderContainer: formEl.querySelector('[data-starmus-recorder-container]'),
+    fallbackContainer: formEl.querySelector('[data-starmus-fallback-container]'),
+    recordBtn: formEl.querySelector('[data-starmus-action="record"]'),
+    pauseBtn: formEl.querySelector('[data-starmus-action="pause"]'),
+    resumeBtn: formEl.querySelector('[data-starmus-action="resume"]'),
+    stopBtn: formEl.querySelector('[data-starmus-action="stop"]'),
+    submitBtn: formEl.querySelector('[data-starmus-action="submit"]'),
+    resetBtn: formEl.querySelector('[data-starmus-action="reset"]'),
+    playBtn: formEl.querySelector('[data-starmus-action="play"]'),
+    timer: formEl.querySelector('[data-starmus-timer]'),
+    volumeMeter: formEl.querySelector('[data-starmus-volume-meter]'),
+    durationProgress: formEl.querySelector('[data-starmus-duration-progress]'),
+    // Additional UI elements (waveform, transcript, etc.) can be added similarly
+  };
+
+  // Initialize UI module
+  initUI(store, elements);
+
+  // Core logic
+  initCore(store, instanceId, env);
+
+  // Offline queue
+  await initOffline().catch(err => {
+    console.warn('[Starmus] offline init error', err);
   });
 
-  var instances = {};
+  // Dispatch init action
+  store.dispatch({ type: 'starmus/init', payload: { instanceId, env, tier } });
 
-  function loadScript(url, onload, onerror) {
-    var s = document.createElement('script');
-    s.src = url;
-    s.async = true;
-    s.onload = onload;
-    s.onerror = onerror;
-    document.head.appendChild(s);
+  const supportsRecording = !!(
+    navigator.mediaDevices &&
+    navigator.mediaDevices.getUserMedia &&
+    window.MediaRecorder &&
+    (window.AudioContext || window.webkitAudioContext)
+  );
+
+  if (tier === 'C' || !supportsRecording) {
+    // Show fallback UI
+    if (elements.recorderContainer) elements.recorderContainer.style.display = 'none';
+    if (elements.fallbackContainer) elements.fallbackContainer.style.display = 'block';
+    store.dispatch({ type: 'starmus/tier-ready', payload: { tier: 'C', fallbackActive: true } });
+  } else {
+    // Initialize recorder for real recording
+    initRecorder(store, instanceId);
   }
 
-  function wireInstance(env, formEl) {
-    // Check dependencies before proceeding
-    if (!checkDependencies()) {
-      console.error('[Starmus] Dependencies not available - cannot initialize');
-      return;
-    }
+  // Form submit handler
+  formEl.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // Gather form fields if needed
+    busDispatch('submit', { /* payload: form data */ }, { instanceId });
+  });
 
-    var instanceId = formEl.getAttribute('data-starmus-id');
-    if (!instanceId) {
-      instanceId = 'starmus_' + Date.now() + '_' + Math.random().toString(16).slice(2);
-      formEl.setAttribute('data-starmus-id', instanceId);
-    }
-    if (instances[instanceId]) return instanceId;
-
-    var tier = detectTier(env);
-    refineTierAsync(tier).then(function (finalTier) {
-      console.log('[Starmus] Instance', instanceId, '-> Tier', finalTier);
-      emitStarmusEventGlobal('TIER_ASSIGN', {
-        instanceId: instanceId,
-        severity: 'info',
-        message: 'Tier ' + finalTier + ' assigned',
-        data: { tier: finalTier }
-      });
-
-      var store = createStore({ instanceId: instanceId, env: env, tier: finalTier });
-
-      // Tier‑ready dispatch, once
-      if (!store.getState().tier) {
-        store.dispatch({ type: 'starmus/tier-ready', payload: { tier: finalTier } });
-      }
-
-      var elements = {
-        step1: formEl.querySelector('.starmus-step-1'),
-        step2: formEl.querySelector('.starmus-step-2'),
-        continueBtn: formEl.querySelector('[data-starmus-action="next"]'),
-        messageBox: formEl.querySelector('[data-starmus-message-box]'),
-        setupMicBtn: formEl.querySelector('[data-starmus-action="setup-mic"]'),
-        recordBtn: formEl.querySelector('[data-starmus-action="record"]'),
-        pauseBtn: formEl.querySelector('[data-starmus-action="pause"]'),
-        resumeBtn: formEl.querySelector('[data-starmus-action="resume"]'),
-        stopBtn: formEl.querySelector('[data-starmus-action="stop"]'),
-        submitBtn: formEl.querySelector('[data-starmus-action="submit"]'),
-        resetBtn: formEl.querySelector('[data-starmus-action="reset"]'),
-        playBtn: formEl.querySelector('[data-starmus-action="play"]'),
-        fileInput: formEl.querySelector('input[type="file"]'),
-        statusEl: formEl.querySelector('[data-starmus-status]'),
-        progressEl: formEl.querySelector('[data-starmus-progress]'),
-        progressWrap: formEl.querySelector('.starmus-progress-wrap'),
-        recorderContainer: formEl.querySelector('[data-starmus-recorder-container]'),
-        fallbackContainer: formEl.querySelector('[data-starmus-fallback-container]'),
-        // Essential UI elements for recorder functionality
-        timer: formEl.querySelector('[data-starmus-timer]'),
-        timerElapsed: formEl.querySelector('.starmus-timer-elapsed'),
-        volumeMeter: formEl.querySelector('[data-starmus-volume-meter]'),
-        durationProgress: formEl.querySelector('[data-starmus-duration-progress]')
-      };
-
-      console.log('[Starmus] Elements collected for instance:', instanceId, {
-        recordBtn: !!elements.recordBtn,
-        setupMicBtn: !!elements.setupMicBtn,
-        volumeMeter: !!elements.volumeMeter,
-        timer: !!elements.timer,
-        formEl: !!formEl
-      });
-
-      console.log('[Starmus] About to call initUI');
-      initUI(store, elements);
-      console.log('[Starmus] UI initialization complete');
-      
-      initCore(store, instanceId, env);
-
-      // Initialize metadata auto-population with conservative settings
-      try {
-        if (typeof initAutoMetadata === 'function') {
-          var metadataUnsubscribe = initAutoMetadata(store, formEl, {
-            trigger: ['ready_to_submit'], // Only populate when actually ready to submit
-            clearOn: [], // Don't clear fields automatically to avoid conflicts
-            requiredFields: [] // Don't enforce validation initially
-          });
-          console.log('[Starmus] Metadata auto-population initialized for instance:', instanceId);
-          // Store unsubscribe function for cleanup if needed
-          instances[instanceId] = instances[instanceId] || {};
-          instances[instanceId].metadataUnsubscribe = metadataUnsubscribe;
-        } else {
-          console.warn('[Starmus] initAutoMetadata function not available - metadata will need manual population');
-        }
-      } catch (metadataError) {
-        console.warn('[Starmus] Metadata auto-population failed to initialize:', metadataError.message);
-        // Continue without metadata auto-population
-      }
-
-      // TEMPORARILY DISABLED: Initialize metadata auto-population to sync state into hidden form fields (defensive)
-      // This is commented out to isolate form functionality issues
-      /*
-      try {
-        if (typeof initAutoMetadata === 'function') {
-          var metadataUnsubscribe = initAutoMetadata(store, formEl, {
-            trigger: ['ready_to_submit', 'submitting'],
-            clearOn: ['reset', 'uninitialized'],
-            requiredFields: ['starmus_title', 'starmus_language', 'audio_file_type', 'agreement_to_terms']
-          });
-          console.log('[Starmus] Metadata auto-population initialized for instance:', instanceId);
-          // Store unsubscribe function for cleanup if needed
-          instances[instanceId] = instances[instanceId] || {};
-          instances[instanceId].metadataUnsubscribe = metadataUnsubscribe;
-        } else {
-          console.warn('[Starmus] initAutoMetadata function not available - metadata may not populate correctly');
-        }
-      } catch (error) {
-        console.error('[Starmus] Failed to initialize metadata auto-population:', error);
-      }
-      */
-
-      function loadAppropriateRecorder() {
-        var useLegacy = (finalTier === 'C') || !isRecordingSupportedEnv();
-
-        if (useLegacy) {
-          // For Tier C, show fallback container and set fallback state
-          if (elements.recorderContainer) elements.recorderContainer.style.display = 'none';
-          if (elements.fallbackContainer) elements.fallbackContainer.style.display = 'block';
-          store.dispatch({ type: 'starmus/tier-ready', payload: { tier: 'C', fallbackActive: true } });
-        } else {
-          // Use bundled recorder function directly - no external script loading
-          if (typeof global.initRecorder === 'function') {
-            global.initRecorder(store, instanceId);
-          } else {
-            console.error('[Starmus] initRecorder function not available');
-            store.dispatch({ type: 'starmus/error', payload: { message: 'Recorder init failed', retryable: false } });
-          }
-        }
-      }
-
-      loadAppropriateRecorder();
-
-      // Defer UI initialization until environment is fully ready
-      document.addEventListener('sparxstar:environment-ready', function(envReadyEvent) {
-        var envDetail = envReadyEvent.detail || {};
-        console.log('[Starmus] Environment ready for instance:', instanceId, 'Event detail:', envDetail);
-        // Initialize UI for this instance after environment is ready
-        // Since the event doesn't contain instanceId, initialize all pending instances
-        initUI(store, elements);
-        console.log('[Starmus] UI initialized for instance:', instanceId, 'Elements:', {
-          recordBtn: !!elements.recordBtn,
-          volumeMeter: !!elements.volumeMeter,
-          timer: !!elements.timer
-        });
-      }, { once: true }); // Only run once per instance
-
-      instances[instanceId] = { store: store, form: formEl, elements: elements, tier: finalTier };
+  // Reset / cleanup handler
+  if (elements.resetBtn) {
+    elements.resetBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      store.dispatch({ type: 'starmus/reset' });
+      busDispatch('reset', {}, { instanceId });
     });
   }
 
-  function onEnvReady(event) {
-    var env = event.detail || {};
-    var forms = document.querySelectorAll('form[data-starmus="recorder"]');
-    if (!forms || forms.length === 0) return;
-    for (var i = 0; i < forms.length; i++) {
-      wireInstance(env, forms[i]);
+  // Recording controls wiring
+  if (supportsRecording && tier !== 'C') {
+    if (elements.recordBtn) {
+      elements.recordBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        busDispatch('start-recording', {}, { instanceId });
+      });
+    }
+    if (elements.pauseBtn) {
+      elements.pauseBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        busDispatch('pause-mic', {}, { instanceId });
+      });
+    }
+    if (elements.resumeBtn) {
+      elements.resumeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        busDispatch('resume-mic', {}, { instanceId });
+      });
+    }
+    if (elements.stopBtn) {
+      elements.stopBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        busDispatch('stop-mic', {}, { instanceId });
+      });
     }
   }
 
-  function fallbackInit() {
-    var conn = getConnectionInfo() || {};
-    var fallbackEnv = {
-      browser: { userAgent: navigator.userAgent },
-      device: {
-        type: /mobile|android|iphone|ipad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-        memory: getDeviceMemory(),
-        concurrency: getHardwareConcurrency()
-      },
-      capabilities: {
-        webrtc: !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function'),
-        mediaRecorder: !!global.MediaRecorder,
-        indexedDB: !!global.indexedDB
-      },
-      network: {
-        effectiveType: conn.effectiveType || 'unknown',
-        downlink: conn.downlink || null,
-        saveData: conn.saveData || false
-      }
-    };
-    emitStarmusEventGlobal('E_ENV_FALLBACK_INIT', { severity: 'warning', message: 'Fallback env used', data: { fallbackEnv } });
-    onEnvReady({ detail: fallbackEnv });
-  }
+  instances.set(instanceId, { store, elements, tier });
+  return instanceId;
+}
 
-  var envReady = false;
-  var fallbackTimer = null;
-
-  document.addEventListener('sparxstar:environment-ready', function (event) {
-    envReady = true;
-    if (fallbackTimer) {
-      clearTimeout(fallbackTimer);
-      fallbackTimer = null;
+function initAll() {
+  const connection = getConnectionInfo() || {};
+  const fallbackEnv = {
+    browser: { userAgent: navigator.userAgent },
+    device: {
+      type: /mobile|android|iphone|ipad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+      memory: getDeviceMemory(),
+      concurrency: getHardwareConcurrency()
+    },
+    capabilities: {
+      webrtc: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
+      mediaRecorder: !!window.MediaRecorder,
+      indexedDB: !!window.indexedDB
+    },
+    network: {
+      effectiveType: connection.effectiveType || 'unknown',
+      downlink: connection.downlink || null,
+      saveData: connection.saveData || false
     }
-    onEnvReady(event);
+  };
+
+  const forms = document.querySelectorAll('form[data-starmus="recorder"]');
+  forms.forEach(formEl => {
+    wireInstance(fallbackEnv, formEl).catch(err => {
+      console.error('[Starmus] wireInstance failed for form', formEl, err);
+    });
   });
+}
 
-  fallbackTimer = setTimeout(function () {
-    if (!envReady) {
-      console.warn('[Starmus] environment-ready not fired; using fallback.');
-      fallbackInit();
-    }
-  }, 2000);
+// Kick off initialization
+initAll();
 
-  global.Starmus.instances = instances;
-
-})(typeof window !== 'undefined' ? window : globalThis);
-
-
+// Export for external usage
+export { wireInstance, instances as StarmusInstances };
