@@ -43,10 +43,25 @@ function populateHiddenFields(dataMap, formEl) {
  * @param {string[]} fieldNames
  */
 function clearHiddenFields(formEl, fieldNames) {
+  if (!formEl || !Array.isArray(fieldNames) || formEl.nodeType !== 1) {
+    console.warn('[StarmusMetadataAuto] Invalid form element or field names for clearHiddenFields');
+    return;
+  }
+
   fieldNames.forEach((key) => {
-    const input = formEl.querySelector(`input[name="${key}"]`);
-    if (input) {
-      formEl.removeChild(input);
+    try {
+      const input = formEl.querySelector(`input[name="${key}"]`);
+      if (input && input.parentNode) {
+        // Double-check the element is actually a child of the form
+        if (formEl.contains(input)) {
+          input.parentNode.removeChild(input);
+          console.debug('[StarmusMetadataAuto] Removed field:', key);
+        } else {
+          console.debug('[StarmusMetadataAuto] Field not a child of form:', key);
+        }
+      }
+    } catch (e) {
+      console.warn('[StarmusMetadataAuto] Could not remove field', key, e.message);
     }
   });
 }

@@ -4,14 +4,14 @@
  * @description Master orchestrator with dynamic recorder loader for Tier‑A/B or Tier‑C fallback.
  */
 import './starmus-hooks.js';
-  import './starmus-state-store.js';
-  import './starmus-ui.js';
-  import './starmus-core.js';
-  import './starmus-recorder.js';
-  import './starmus-tus.js';
-  import './starmus-transcript-controller.js';
-  import './starmus-offline.js';
-  import { initAutoMetadata } from './starmus-metadata-auto.js'; 
+import './starmus-state-store.js';
+import './starmus-ui.js';
+import './starmus-core.js';
+import './starmus-recorder.js';
+import './starmus-tus.js';
+import './starmus-transcript-controller.js';
+import './starmus-offline.js';
+import { initAutoMetadata } from './starmus-metadata-auto.js';
 
 (function (global) {
   'use strict'; 
@@ -285,20 +285,47 @@ import './starmus-hooks.js';
       
       initCore(store, instanceId, env);
 
-      // Initialize metadata auto-population to sync state into hidden form fields
-      if (typeof initAutoMetadata === 'function') {
-        var metadataUnsubscribe = initAutoMetadata(store, formEl, {
-          trigger: ['ready_to_submit', 'submitting'],
-          clearOn: ['reset', 'uninitialized'],
-          requiredFields: ['starmus_title', 'starmus_language', 'audio_file_type', 'agreement_to_terms']
-        });
-        console.log('[Starmus] Metadata auto-population initialized for instance:', instanceId);
-        // Store unsubscribe function for cleanup if needed
-        instances[instanceId] = instances[instanceId] || {};
-        instances[instanceId].metadataUnsubscribe = metadataUnsubscribe;
-      } else {
-        console.warn('[Starmus] initAutoMetadata function not available - metadata may not populate correctly');
+      // Initialize metadata auto-population with conservative settings
+      try {
+        if (typeof initAutoMetadata === 'function') {
+          var metadataUnsubscribe = initAutoMetadata(store, formEl, {
+            trigger: ['ready_to_submit'], // Only populate when actually ready to submit
+            clearOn: [], // Don't clear fields automatically to avoid conflicts
+            requiredFields: [] // Don't enforce validation initially
+          });
+          console.log('[Starmus] Metadata auto-population initialized for instance:', instanceId);
+          // Store unsubscribe function for cleanup if needed
+          instances[instanceId] = instances[instanceId] || {};
+          instances[instanceId].metadataUnsubscribe = metadataUnsubscribe;
+        } else {
+          console.warn('[Starmus] initAutoMetadata function not available - metadata will need manual population');
+        }
+      } catch (metadataError) {
+        console.warn('[Starmus] Metadata auto-population failed to initialize:', metadataError.message);
+        // Continue without metadata auto-population
       }
+
+      // TEMPORARILY DISABLED: Initialize metadata auto-population to sync state into hidden form fields (defensive)
+      // This is commented out to isolate form functionality issues
+      /*
+      try {
+        if (typeof initAutoMetadata === 'function') {
+          var metadataUnsubscribe = initAutoMetadata(store, formEl, {
+            trigger: ['ready_to_submit', 'submitting'],
+            clearOn: ['reset', 'uninitialized'],
+            requiredFields: ['starmus_title', 'starmus_language', 'audio_file_type', 'agreement_to_terms']
+          });
+          console.log('[Starmus] Metadata auto-population initialized for instance:', instanceId);
+          // Store unsubscribe function for cleanup if needed
+          instances[instanceId] = instances[instanceId] || {};
+          instances[instanceId].metadataUnsubscribe = metadataUnsubscribe;
+        } else {
+          console.warn('[Starmus] initAutoMetadata function not available - metadata may not populate correctly');
+        }
+      } catch (error) {
+        console.error('[Starmus] Failed to initialize metadata auto-population:', error);
+      }
+      */
 
       function loadAppropriateRecorder() {
         var useLegacy = (finalTier === 'C') || !isRecordingSupportedEnv();
@@ -394,12 +421,5 @@ import './starmus-hooks.js';
   global.Starmus.instances = instances;
 
 })(typeof window !== 'undefined' ? window : globalThis);
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = global.Starmus;
-}
-
-// also support ES module export
-export default global.Starmus;
 
 
