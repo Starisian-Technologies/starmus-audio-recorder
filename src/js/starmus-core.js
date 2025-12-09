@@ -115,6 +115,14 @@ export function initCore(store, instanceId, env) {
     }
   });
 
+  subscribe('continue', function (payload, meta) {
+    if (meta && meta.instanceId === instanceId) {
+      debugLog('[StarmusCore] Continue command received');
+      // Transition from uninitialized to ready_to_record to show Step 2
+      store.dispatch({ type: 'starmus/ui/step-continue', payload: {} });
+    }
+  });
+
   subscribe('reset', function (_payload, meta) {
     if (meta && meta.instanceId === instanceId) {
       store.dispatch({ type: 'starmus/reset' });

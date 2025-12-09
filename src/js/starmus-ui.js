@@ -337,6 +337,14 @@ export function initInstance(store, elements) {
 
   elements.setupMicBtn?.addEventListener('click', () => dispatch('setup-mic'));
 
+  // Add missing Continue button handler
+  if (elements.continueBtn) {
+    elements.continueBtn.addEventListener('click', () => {
+      console.log('[StarmusUI] Continue button clicked!');
+      dispatch('continue');
+    });
+  }
+
   if (elements.fileInput) {
     elements.fileInput.addEventListener('change', (e) => {
       const file = e.target.files?.[0];

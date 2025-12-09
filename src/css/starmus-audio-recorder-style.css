@@ -17,7 +17,7 @@
   --starmus-text: var(--wp--preset--color--contrast, #111827);
 
   /* Fallback if no color-mix */
-  --starmus-primary-rgb: 75,85,99;
+  --starmus-primary-rgb: 75, 85, 99;
   --starmus-primary-soft: rgba(var(--starmus-primary-rgb), 0.65);
   --starmus-card-bg: rgba(var(--starmus-primary-rgb), 0.10);
 
@@ -25,7 +25,8 @@
   --starmus-base-bg: var(--starmus-primary);
 
   /* Fallback card background from PRIMARY, not white */
-  --starmus-card-bg: rgba(75,85,99,0.10); /* 10% tint */
+  --starmus-card-bg: rgba(75, 85, 99, 0.10);
+  /* 10% tint */
 }
 
 
@@ -49,16 +50,17 @@
 .starmus-editor__list,
 .starmus-actions-card {
   background: var(--starmus-card-bg);
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 16px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.03);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
   transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
 /* Upgrade to transparency if supported */
 @supports (background: color-mix(in srgb, #fff, transparent)) {
+
   .starmus-glass,
   .sparxstar-glass-card,
   .starmus-recorder-form {
@@ -68,6 +70,7 @@
 
 /* Upgrade blur *only if supported* */
 @supports ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
+
   .starmus-glass,
   .sparxstar-glass-card,
   .starmus-recorder-form {
@@ -79,7 +82,7 @@
 /* Hover elevation — safe even without blur */
 .sparxstar-glass-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
 }
 
 /* ===========================================================================
@@ -98,7 +101,7 @@
   }
 }
 
- /* ===========================================================================
+/* ===========================================================================
    4. FORMS & INPUTS — LEGIBLE ON ALL DEVICES
    =========================================================================== */
 
@@ -118,7 +121,8 @@
 .starmus-recorder-form textarea {
   box-sizing: border-box;
   width: 100%;
-  max-width: 100%; /* 🔥 FIX: Ensure input does not exceed container width */
+  max-width: 100%;
+  /* 🔥 FIX: Ensure input does not exceed container width */
 }
 
 /* 🔥 FIX #1: Ensure standard inputs have a WHITE background for typing/selecting */
@@ -128,8 +132,9 @@
 .starmus-recorder-form input[type="number"],
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
-    background: #fff; /* Explicitly set base background to white for typing areas */
-    /* Remove the conflicting progressive enhancement tint for typing fields */
+  background: #fff;
+  /* Explicitly set base background to white for typing areas */
+  /* Remove the conflicting progressive enhancement tint for typing fields */
 }
 
 
@@ -137,10 +142,11 @@
 .starmus-recorder-form input[type="text"],
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
-  height: 48px; /* correct touch target */
+  height: 48px;
+  /* correct touch target */
   padding: 0 14px;
   border-radius: 8px;
-  border: 1px solid rgba(0,0,0,0.25);
+  border: 1px solid rgba(0, 0, 0, 0.25);
   background: #fff;
   font-size: 1rem;
   line-height: 1.4;
@@ -163,9 +169,10 @@
 .starmus-recorder-form .starmus-consent-label {
   /* 🔥 FIX #2: Align the text and checkbox to the top, not center (flex-start) */
   display: inline-flex;
-  align-items: flex-start; 
+  align-items: flex-start;
   gap: 0.5rem;
-  margin-bottom: 0; /* Clean up vertical rhythm in fieldset */
+  margin-bottom: 0;
+  /* Clean up vertical rhythm in fieldset */
 }
 
 /* --- RE-EVALUATE AND CORRECT PROGRESSIVE ENHANCEMENT BLOCK --- */
@@ -188,7 +195,7 @@
 .starmus-recorder-form textarea:focus {
   outline: none;
   border-color: var(--starmus-primary-strong);
-  box-shadow: 0 0 0 3px rgba(75,85,99,0.25);
+  box-shadow: 0 0 0 3px rgba(75, 85, 99, 0.25);
 }
 
 
@@ -197,17 +204,17 @@
    =========================================================================== */
 
 .starmus-btn {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:.75rem 1.5rem;
-  font-weight:600;
-  border-radius:8px;
-  cursor:pointer;
-  border:none;
-  text-decoration:none;
-  transition:transform .2s ease, box-shadow .2s ease;
-  font-size:.9375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: transform .2s ease, box-shadow .2s ease;
+  font-size: .9375rem;
 }
 
 /* Primary */
@@ -215,31 +222,38 @@
 button[data-starmus-action='record'],
 button[data-starmus-action='submit'] {
   background: var(--starmus-primary);
-  color:#fff;
-  box-shadow:0 4px 12px rgba(0,0,0,.1);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
 }
 
 .starmus-btn--primary:hover {
   /* transform:translateY(-2px); -- TEMPORARILY DISABLED FOR CLICK TESTING */
-  filter:brightness(1.05);
+  filter: brightness(1.05);
 }
 
 /* Outline */
 .starmus-btn--outline {
-  border:2px solid var(--starmus-primary);
-  background:transparent;
-  color:var(--starmus-primary);
+  border: 2px solid var(--starmus-primary);
+  background: transparent;
+  color: var(--starmus-primary);
 }
-.starmus-btn--outline:hover { background:var(--starmus-primary); color:#fff; }
+
+.starmus-btn--outline:hover {
+  background: var(--starmus-primary);
+  color: #fff;
+}
 
 /* Danger */
-.starmus-btn--stop { background:#b91c1c; color:#fff; }
+.starmus-btn--stop {
+  background: #b91c1c;
+  color: #fff;
+}
 
 /* Disabled */
 .starmus-btn:disabled {
-  opacity:.5;
-  cursor:not-allowed;
-  filter:grayscale(1);
+  opacity: .5;
+  cursor: not-allowed;
+  filter: grayscale(1);
 }
 
 /* ===========================================================================
@@ -247,19 +261,19 @@ button[data-starmus-action='submit'] {
    =========================================================================== */
 
 .starmus-meter-bar {
-  height:12px;
-  border-radius:6px;
-  overflow:hidden;
-  background:rgba(0,0,0,0.1);
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .starmus-meter-bar::after {
-  content:'';
-  display:block;
-  height:100%;
-  width:var(--starmus-audio-level, 0%);
-  background:linear-gradient(90deg,#16a34a 0%,#ea580c 70%,#b91c1c 100%);
-  transition:width .06s linear;
+  content: '';
+  display: block;
+  height: 100%;
+  width: var(--starmus-audio-level, 0%);
+  background: linear-gradient(90deg, #16a34a 0%, #ea580c 70%, #b91c1c 100%);
+  transition: width .06s linear;
 }
 
 /* ===========================================================================
@@ -267,22 +281,23 @@ button[data-starmus-action='submit'] {
    =========================================================================== */
 
 .starmus-editor {
-  max-width:1400px;
-  margin:0 auto;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .starmus-transcript-panel {
-  height:400px;
-  overflow-y:auto;
-  line-height:1.8;
-  border-radius:8px;
-  padding:1rem;
-  background:#fff; /* Fallback readable layer */
+  height: 400px;
+  overflow-y: auto;
+  line-height: 1.8;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #fff;
+  /* Fallback readable layer */
 }
 
 @supports (background: color-mix(in srgb, #fff, transparent)) {
   .starmus-transcript-panel {
-    background:color-mix(in srgb, var(--starmus-base-bg) 30%, transparent 70%);
+    background: color-mix(in srgb, var(--starmus-base-bg) 30%, transparent 70%);
   }
 }
 
@@ -292,13 +307,14 @@ button[data-starmus-action='submit'] {
 
 @media (max-width:768px) {
   .starmus-recorder-form.starmus-immersive {
-    position:fixed;
-    inset:0;
-    z-index:99999;
-    border-radius:0;
-    padding:1rem;
-    overflow:auto;
-    background:#fff; /* ALWAYS readable on mobile */
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    border-radius: 0;
+    padding: 1rem;
+    overflow: auto;
+    background: #fff;
+    /* ALWAYS readable on mobile */
   }
 }
 
@@ -307,9 +323,10 @@ button[data-starmus-action='submit'] {
    =========================================================================== */
 .starmus-visually-hidden,
 .screen-reader-text {
-  position:absolute;
-  width:1px; height:1px;
-  overflow:hidden;
-  clip-path:inset(100%);
-  border:0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(100%);
+  border: 0;
 }
