@@ -10,7 +10,8 @@ import './starmus-hooks.js';
   import './starmus-recorder.js';
   import './starmus-tus.js';
   import './starmus-transcript-controller.js';
-  import './starmus-offline.js'; 
+  import './starmus-offline.js';
+  import { initAutoMetadata } from './starmus-metadata-auto.js'; 
 
 (function (global) {
   'use strict'; 
@@ -283,6 +284,21 @@ import './starmus-hooks.js';
       console.log('[Starmus] UI initialization complete');
       
       initCore(store, instanceId, env);
+
+      // Initialize metadata auto-population to sync state into hidden form fields
+      if (typeof initAutoMetadata === 'function') {
+        var metadataUnsubscribe = initAutoMetadata(store, formEl, {
+          trigger: ['ready_to_submit', 'submitting'],
+          clearOn: ['reset', 'uninitialized'],
+          requiredFields: ['starmus_title', 'starmus_language', 'audio_file_type', 'agreement_to_terms']
+        });
+        console.log('[Starmus] Metadata auto-population initialized for instance:', instanceId);
+        // Store unsubscribe function for cleanup if needed
+        instances[instanceId] = instances[instanceId] || {};
+        instances[instanceId].metadataUnsubscribe = metadataUnsubscribe;
+      } else {
+        console.warn('[Starmus] initAutoMetadata function not available - metadata may not populate correctly');
+      }
 
       function loadAppropriateRecorder() {
         var useLegacy = (finalTier === 'C') || !isRecordingSupportedEnv();

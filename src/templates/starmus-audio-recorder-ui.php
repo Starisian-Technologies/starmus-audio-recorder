@@ -153,7 +153,7 @@ $is_admin          = current_user_can('manage_options');
             <input type="hidden" name="usage_restrictions_rights" value="">
             <input type="hidden" name="access_level" value="">
             <input type="hidden" name="audio_quality_score" value="">
-            <input type="hidden" name="mic-rest-adjustments" value="">
+            <input type="hidden" name="mic_rest_adjustments" value="">
             <input type="hidden" name="device" value="">
             <input type="hidden" name="user_agent" value="">
 

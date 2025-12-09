@@ -1,36 +1,23 @@
 /**
- * STARISIAN TECHNOLOGIES CONFIDENTIAL
- * © 2023–2025 Starisian Technologies. All Rights Reserved.
- *
- * @file    starmus-audio-plugin.css
- * @version 3.1.0
- * @desc    Mobile-first, glass-enhanced UI theme for Recorder, Editor & Admin areas.
- *          Graceful degradation ensured for older browsers (no blur / no color-mix).
+ * @file starmus-audio-plugin.css
+ * @version 3.1.1
+ * @desc  Revised UI theme for Recorder, Editor & Admin areas.
+ *         Includes spacing/layout fixes, waveform & control styling, fallback support.
  */
 
 /* ===========================================================================
-   1. ROOT VARIABLES: WITH FALLBACKS FOR OLD BROWSERS
+   1. ROOT VARIABLES & COLOR / GLASS CONFIGURATION (unchanged)
    =========================================================================== */
 :root {
-  /* Core anchor stays Contrast-2 */
   --starmus-primary: var(--wp--preset--color--contrast-2, #4b5563);
   --starmus-text: var(--wp--preset--color--contrast, #111827);
-
-  /* Fallback if no color-mix */
   --starmus-primary-rgb: 75, 85, 99;
   --starmus-primary-soft: rgba(var(--starmus-primary-rgb), 0.65);
   --starmus-card-bg: rgba(var(--starmus-primary-rgb), 0.10);
-
-  /* BASE MUST MATCH THE PRIMARY FAMILY (This was wrong before) */
   --starmus-base-bg: var(--starmus-primary);
-
-  /* Fallback card background from PRIMARY, not white */
-  --starmus-card-bg: rgba(75, 85, 99, 0.10);
-  /* 10% tint */
 }
 
-
-/* If browser supports color-mix, upgrade surface tokens */
+/* Transparency & glass effect if supported */
 @supports (background: color-mix(in srgb, #fff, transparent)) {
   :root {
     --starmus-primary-soft: color-mix(in srgb, var(--starmus-primary) 80%, transparent 20%);
@@ -38,11 +25,7 @@
   }
 }
 
-/* ===========================================================================
-   2. GLASS SURFACE CONFIG — PROGRESSIVE ENHANCEMENT
-   =========================================================================== */
-
-/* Default mobile card style: NO blur, high readability */
+/* Glass card styling for containers */
 .starmus-glass,
 .sparxstar-glass-card,
 .starmus-recorder-form,
@@ -58,19 +41,7 @@
   transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
-/* Upgrade to transparency if supported */
-@supports (background: color-mix(in srgb, #fff, transparent)) {
-
-  .starmus-glass,
-  .sparxstar-glass-card,
-  .starmus-recorder-form {
-    background: color-mix(in srgb, var(--starmus-base-bg) 85%, transparent 15%);
-  }
-}
-
-/* Upgrade blur *only if supported* */
 @supports ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
-
   .starmus-glass,
   .sparxstar-glass-card,
   .starmus-recorder-form {
@@ -79,32 +50,29 @@
   }
 }
 
-/* Hover elevation — safe even without blur */
 .sparxstar-glass-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
 }
 
 /* ===========================================================================
-   3. GRID & LAYOUT RESPONSIVE
+   2. GRID & LAYOUT RESPONSIVE
    =========================================================================== */
-
 .starmus-grid-layout {
   display: grid;
   gap: 20px;
   grid-template-columns: 1fr;
 }
 
-@media (min-width:1024px) {
+@media (min-width: 1024px) {
   .starmus-grid-layout {
     grid-template-columns: 2fr 1fr;
   }
 }
 
 /* ===========================================================================
-   4. FORMS & INPUTS — LEGIBLE ON ALL DEVICES
+   3. FORMS & INPUTS — LEGIBLE ON ALL DEVICES
    =========================================================================== */
-
 .starmus-recorder-form label {
   display: block;
   margin-bottom: .5rem;
@@ -112,7 +80,6 @@
   color: var(--starmus-text);
 }
 
-/* 1. Text fields should fill the card, not overflow it */
 .starmus-recorder-form input[type="text"],
 .starmus-recorder-form input[type="email"],
 .starmus-recorder-form input[type="url"],
@@ -122,87 +89,59 @@
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  /* 🔥 FIX: Ensure input does not exceed container width */
-}
-
-/* 🔥 FIX #1: Ensure standard inputs have a WHITE background for typing/selecting */
-.starmus-recorder-form input[type="text"],
-.starmus-recorder-form input[type="email"],
-.starmus-recorder-form input[type="url"],
-.starmus-recorder-form input[type="number"],
-.starmus-recorder-form select,
-.starmus-recorder-form textarea {
   background: #fff;
-  /* Explicitly set base background to white for typing areas */
-  /* Remove the conflicting progressive enhancement tint for typing fields */
 }
 
-
-/* INPUT PHYSICALITY CORRECTION */
 .starmus-recorder-form input[type="text"],
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
   height: 48px;
-  /* correct touch target */
   padding: 0 14px;
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.25);
-  background: #fff;
   font-size: 1rem;
   line-height: 1.4;
   color: #111;
 }
 
-
-
-/* 2. Fix checkbox layout inside consent area */
 .starmus-recorder-form input[type="checkbox"],
 .starmus-recorder-form input[type="radio"] {
   width: auto;
   padding: 0;
   margin-right: 0.5rem;
   background: #fff;
-  /* 🔥 NO CHANGE: existing styles below are correct */
 }
 
-.starmus-consent-fieldset label,
-.starmus-recorder-form .starmus-consent-label {
-  /* 🔥 FIX #2: Align the text and checkbox to the top, not center (flex-start) */
+.starmus-recorder-form .starmus-consent-fieldset label {
   display: inline-flex;
   align-items: flex-start;
   gap: 0.5rem;
   margin-bottom: 0;
-  /* Clean up vertical rhythm in fieldset */
 }
-
-/* --- RE-EVALUATE AND CORRECT PROGRESSIVE ENHANCEMENT BLOCK --- */
-/* The general rule for all inputs must be white, not a mix that makes it hard to read. */
-
-/* Remove this block as it conflicts with the "white background" requirement */
-/*
-@supports (background: color-mix(in srgb, #fff, transparent)) {
-  .starmus-recorder-form input,
-  .starmus-recorder-form select,
-  .starmus-recorder-form textarea {
-    background: color-mix(in srgb, var(--starmus-base-bg) 40%, transparent 60%);
-  }
-}
-*/
-/* The background: #fff; added in Fix #1 above overrides this and satisfies the requirement. */
 
 .starmus-recorder-form input:focus,
 .starmus-recorder-form select:focus,
 .starmus-recorder-form textarea:focus {
   outline: none;
   border-color: var(--starmus-primary-strong);
-  box-shadow: 0 0 0 3px rgba(75, 85, 99, 0.25);
+  box-shadow: 0 0 0 3px rgba(var(--starmus-primary-rgb), 0.25);
 }
 
+/* Spacing between form groups / steps */
+.starmus-field-group {
+  margin-bottom: 1.5rem;
+}
+.starmus-step {
+  margin-bottom: 2rem;
+}
+.starmus-consent-fieldset {
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
 
 /* ===========================================================================
-   5. BUTTON SYSTEM — ACCESSIBLE EVEN WITHOUT VARIABLES
+   4. BUTTONS
    =========================================================================== */
-
 .starmus-btn {
   display: inline-flex;
   align-items: center;
@@ -217,21 +156,18 @@
   font-size: .9375rem;
 }
 
-/* Primary */
 .starmus-btn--primary,
 button[data-starmus-action='record'],
 button[data-starmus-action='submit'] {
   background: var(--starmus-primary);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .starmus-btn--primary:hover {
-  /* transform:translateY(-2px); -- TEMPORARILY DISABLED FOR CLICK TESTING */
   filter: brightness(1.05);
 }
 
-/* Outline */
 .starmus-btn--outline {
   border: 2px solid var(--starmus-primary);
   background: transparent;
@@ -243,13 +179,11 @@ button[data-starmus-action='submit'] {
   color: #fff;
 }
 
-/* Danger */
 .starmus-btn--stop {
   background: #b91c1c;
   color: #fff;
 }
 
-/* Disabled */
 .starmus-btn:disabled {
   opacity: .5;
   cursor: not-allowed;
@@ -257,16 +191,58 @@ button[data-starmus-action='submit'] {
 }
 
 /* ===========================================================================
-   6. RECORDER VISUALIZER / PROGRESS UI
+   5. RECORDER VISUALIZER / PROGRESS / METER / CONTROLS LAYOUT
    =========================================================================== */
-
-.starmus-meter-bar {
-  height: 12px;
-  border-radius: 6px;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.1);
+.starmus-visualizer-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
+/* waveform view container (Peaks.js) */
+.starmus-waveform-view {
+  width: 100%;
+  height: 180px;
+  min-height: 120px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+/* Timer + progress layout */
+.starmus-timer-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--starmus-text);
+}
+
+.starmus-duration-progress-wrapper {
+  flex: 1 1 100%;
+}
+
+.starmus-duration-progress {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 0.25rem;
+}
+
+/* Volume meter styling */
+.starmus-meter-wrap {
+  width: 100%;
+}
+.starmus-meter-bar {
+  width: 100%;
+  height: 14px;
+  border-radius: 7px;
+  overflow: hidden;
+}
 .starmus-meter-bar::after {
   content: '';
   display: block;
@@ -276,15 +252,45 @@ button[data-starmus-action='submit'] {
   transition: width .06s linear;
 }
 
-/* ===========================================================================
-   7. EDITOR + TRANSCRIPT PANELS
-   =========================================================================== */
+/* Controls layout */
+.starmus-recorder-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-start;
+  align-items: center;
+}
+.starmus-recorder-controls button,
+.starmus-recorder-controls .starmus-btn {
+  flex: 1 1 auto;
+  min-width: 80px;
+}
 
+/* Review controls container */
+.starmus-review-controls {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Fallback upload styling */
+.starmus-fallback-container {
+  margin-top: 1rem;
+  text-align: center;
+}
+.starmus-fallback-container input[type="file"] {
+  display: block;
+  margin: 0.5rem auto;
+  width: auto;
+}
+
+/* ===========================================================================
+   6. EDITOR + TRANSCRIPT PANEL STYLES
+   =========================================================================== */
 .starmus-editor {
   max-width: 1400px;
   margin: 0 auto;
 }
-
 .starmus-transcript-panel {
   height: 400px;
   overflow-y: auto;
@@ -292,9 +298,7 @@ button[data-starmus-action='submit'] {
   border-radius: 8px;
   padding: 1rem;
   background: #fff;
-  /* Fallback readable layer */
 }
-
 @supports (background: color-mix(in srgb, #fff, transparent)) {
   .starmus-transcript-panel {
     background: color-mix(in srgb, var(--starmus-base-bg) 30%, transparent 70%);
@@ -302,10 +306,9 @@ button[data-starmus-action='submit'] {
 }
 
 /* ===========================================================================
-   8. MOBILE IMMERSIVE MODE
+   7. MOBILE IMMERSIVE MODE & RESPONSIVE UTILITY
    =========================================================================== */
-
-@media (max-width:768px) {
+@media (max-width: 768px) {
   .starmus-recorder-form.starmus-immersive {
     position: fixed;
     inset: 0;
@@ -314,19 +317,5 @@ button[data-starmus-action='submit'] {
     padding: 1rem;
     overflow: auto;
     background: #fff;
-    /* ALWAYS readable on mobile */
   }
-}
-
-/* ===========================================================================
-   9. ACCESSIBILITY UTILITIES
-   =========================================================================== */
-.starmus-visually-hidden,
-.screen-reader-text {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(100%);
-  border: 0;
 }

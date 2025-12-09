@@ -11,6 +11,7 @@ import './starmus-ui.js';
 import './starmus-core.js';
 import './starmus-recorder.js';
 import './starmus-transcript-controller.js';
+import './starmus-metadata-auto.js';
 
 // 4. LAST: The orchestrator (starmus-integrator.js)
 import './starmus-integrator.js';
@@ -29,6 +30,7 @@ import { initRecorder } from './starmus-recorder.js';
 import StarmusTus from './starmus-tus.js';
 import { StarmusTranscript } from './starmus-transcript-controller.js';
 import { getOfflineQueue, queueSubmission, initOffline } from './starmus-offline.js';
+import { initAutoMetadata } from './starmus-metadata-auto.js';
 
 // GLOBAL ASSIGNMENTS (UN-SHAKEABLE)
 window.createStore = createStore;
@@ -42,6 +44,7 @@ window.StarmusTranscriptController = StarmusTranscript;
 window.StarmusOfflineQueue = getOfflineQueue;
 window.StarmusQueueSubmission = queueSubmission;
 window.initOffline = initOffline;
+window.initAutoMetadata = initAutoMetadata;
 
 // Assign integrator to global so it can be detected
 window.StarmusIntegrator = true;
@@ -63,7 +66,8 @@ export {
   StarmusTranscript,
   getOfflineQueue,
   queueSubmission,
-  initOffline
+  initOffline,
+  initAutoMetadata
 };
 
 

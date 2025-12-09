@@ -7,6 +7,7 @@ declare(strict_types=1);
  *
  * @package   Starisian\Sparxstar\Starmus\includes
  */
+
 namespace Starisian\Sparxstar\Starmus\includes;
 
 if (! \defined('ABSPATH')) {
@@ -256,7 +257,6 @@ final class StarmusSubmissionHandler
                 'post_id'       => (int) $cpt_post_id,
                 'url'           => wp_get_attachment_url((int) $attachment_id),
             ];
-
         } catch (Throwable $throwable) {
             error_log($throwable->getMessage());
             return $this->err('server_error', 'Failed to process completed file.', 500);
@@ -979,13 +979,13 @@ final class StarmusSubmissionHandler
                 return $this->err('file_too_large', \sprintf('File exceeds maximum size of %dMB.', $max_mb), 413, ['size_bytes' => $size_bytes]);
             }
 
-            $allowed_settings = $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings ? $this->settings->get('allowed_file_types', '') : '';
+            $allowed_settings = $this->settings instanceof StarmusSettings ? $this->settings->get('allowed_file_types', '') : '';
 
             $allowed_exts = \is_string($allowed_settings)
                 ? array_values(
                     array_filter(
                         array_map(trim(...), explode(',', $allowed_settings)),
-                        fn ($v): bool => $v !== ''
+                        fn($v): bool => $v !== ''
                     )
                 )
                 : $this->default_allowed_mimes;
@@ -1034,14 +1034,18 @@ final class StarmusSubmissionHandler
      */
     private function cleanup_chunks_dir(string $path): void
     {
-        // Only delete if path is inside the expected temp directory as a safety measure
-        if (str_contains($path, $this->get_temp_dir())) {
-            $files = glob($path . '*');
-            foreach ($files as $file) {
-                @unlink($file);
-            }
+        try {
+            // Only delete if path is inside the expected temp directory as a safety measure
+            if (str_contains($path, $this->get_temp_dir())) {
+                $files = glob($path . '*');
+                foreach ($files as $file) {
+                    @unlink($file);
+                }
 
-            @rmdir($path);
+                @rmdir($path);
+            }
+        } catch (Throwable $throwable) {
+            error_log($throwable->getMessage());
         }
     }
 
@@ -1052,33 +1056,37 @@ final class StarmusSubmissionHandler
      */
     private function combine_chunks_multipart(string $upload_id, string $base, int $total): string|WP_Error
     {
-        $final = $this->get_temp_dir() . $upload_id . '.tmp.file';
-        $fp    = @fopen($final, 'wb');
-        if (!$fp) {
-            return $this->err('combine_open_failed', 'Could not create final file.', 500);
-        }
-
-        for ($i = 0; $i < $total; $i++) {
-            $chunk = $base . 'chunk_' . $i;
-            if (!file_exists($chunk)) {
-                fclose($fp);
-                @unlink($final);
-                return $this->err('missing_chunk', sprintf('Missing chunk %d during combine.', $i), 400);
+        try {
+            $final = $this->get_temp_dir() . $upload_id . '.tmp.file';
+            $fp    = @fopen($final, 'wb');
+            if (!$fp) {
+                return $this->err('combine_open_failed', 'Could not create final file.', 500);
             }
 
-            $chunk_fp = @fopen($chunk, 'rb');
-            if ($chunk_fp === false) {
-                fclose($fp);
-                @unlink($final);
-                return $this->err('read_chunk_failed', sprintf('Could not read chunk %d during combination.', $i), 500);
+            for ($i = 0; $i < $total; $i++) {
+                $chunk = $base . 'chunk_' . $i;
+                if (!file_exists($chunk)) {
+                    fclose($fp);
+                    @unlink($final);
+                    return $this->err('missing_chunk', sprintf('Missing chunk %d during combine.', $i), 400);
+                }
+
+                $chunk_fp = @fopen($chunk, 'rb');
+                if ($chunk_fp === false) {
+                    fclose($fp);
+                    @unlink($final);
+                    return $this->err('read_chunk_failed', sprintf('Could not read chunk %d during combination.', $i), 500);
+                }
+
+                stream_copy_to_stream($chunk_fp, $fp);
+                @fclose($chunk_fp);
             }
 
-            stream_copy_to_stream($chunk_fp, $fp);
-            @fclose($chunk_fp);
+            @fclose($fp);
+            return $final;
+        } catch (Throwable $throwable) {
+            error_log($throwable->getMessage());
+            return $this->err('server_error', 'Failed to combine chunks.', 500);
         }
-
-        @fclose($fp);
-        return $final;
     }
-
 }

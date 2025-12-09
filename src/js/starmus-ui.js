@@ -55,12 +55,14 @@ function escapeHtml(text) {
  * ------------------------------------------------------------------------- */
 
 export function render(state, elements) {
-  console.log('[StarmusUI] Render called with state:', {
-    status: state.status,
-    calibrationComplete: state.calibration?.complete,
-    instanceId: state.instanceId,
-    fullState: state
-  });
+  // Only log during debug or significant state changes to prevent infinite loops
+  if (state.status === 'error' || state.status === 'complete') {
+    console.log('[StarmusUI] Render called with state:', {
+      status: state.status,
+      calibrationComplete: state.calibration?.complete,
+      instanceId: state.instanceId
+    });
+  }
   
   const {
     status,
