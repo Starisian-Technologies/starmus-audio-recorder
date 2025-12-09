@@ -16,23 +16,37 @@ export default {
     }
   },
 
+  external: [
+    'tus-js-client',
+    'peaks.js'
+  ],
+
   plugins: [
     resolve({
       browser: true,
       preferBuiltins: false
     }),
 
-    commonjs(),
+    commonjs({
+      include: /node_modules/
+    }),
 
     babel({
       babelHelpers: 'bundled',
-      exclude: /node_modules/,
+      exclude: 'node_modules/**',
       presets: [
-        ['@babel/preset-env', {
-          targets: '> 0.25%, not dead',
-          useBuiltIns: false,
-          corejs: false
-        }]
+        [
+          '@babel/preset-env',
+          {
+            targets: {
+              ie: '11',
+              android: '4.4',
+              safari: '10'
+            },
+            useBuiltIns: 'usage',
+            corejs: 3
+          }
+        ]
       ]
     }),
 
