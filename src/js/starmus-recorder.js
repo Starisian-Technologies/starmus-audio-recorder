@@ -430,19 +430,23 @@
   global.initStarmusRecorder = initRecorder;
 
 })(typeof window !== 'undefined' ? window : globalThis);
-// ES5-friendly global exposure
+
+// Store reference to the IIFE-defined function before ES5 overwrites it
+const _iifeInitRecorder = (typeof window !== 'undefined' ? window : globalThis).initStarmusRecorder;
+
 // ES5-friendly global exposure
 if (typeof window !== 'undefined') {
     // Primary initializer
-    window.initRecorder = initRecorder;
+    window.initRecorder = _iifeInitRecorder;
 
     // Alias for backward-compatibility if required by older integrators
-    window.initStarmusRecorder = initRecorder;
+    window.initStarmusRecorder = _iifeInitRecorder;
 }
 
 // ES6 named export for module bundlers
 export function initRecorder(store, instanceId) {
-  return window.initRecorder(store, instanceId);
+  // Call the IIFE-defined function directly to avoid circular reference
+  return _iifeInitRecorder(store, instanceId);
 }
 // ES5-friendly global exposure
 if (typeof window !== 'undefined') {
