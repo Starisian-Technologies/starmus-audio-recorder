@@ -269,10 +269,8 @@ import './starmus-hooks.js';
         durationProgress: formEl.querySelector('[data-starmus-duration-progress]')
       };
 
+      initUI(store, elements);
       initCore(store, instanceId, env);
-
-      // UI initialization deferred until after sparxstar:environment-ready
-      // to ensure DOM elements are fully rendered before attaching listeners
 
       function loadAppropriateRecorder() {
         var useLegacy = (finalTier === 'C') || !isRecordingSupportedEnv();
@@ -298,11 +296,16 @@ import './starmus-hooks.js';
       // Defer UI initialization until environment is fully ready
       document.addEventListener('sparxstar:environment-ready', function(envReadyEvent) {
         var envDetail = envReadyEvent.detail || {};
-        // Only initialize UI for this specific instance
-        if (envDetail.instanceId === instanceId) {
-          initUI(store, elements);
-        }
-      });
+        console.log('[Starmus] Environment ready for instance:', instanceId, 'Event detail:', envDetail);
+        // Initialize UI for this instance after environment is ready
+        // Since the event doesn't contain instanceId, initialize all pending instances
+        initUI(store, elements);
+        console.log('[Starmus] UI initialized for instance:', instanceId, 'Elements:', {
+          recordBtn: !!elements.recordBtn,
+          volumeMeter: !!elements.volumeMeter,
+          timer: !!elements.timer
+        });
+      }, { once: true }); // Only run once per instance
 
       instances[instanceId] = { store: store, form: formEl, elements: elements, tier: finalTier };
     });
