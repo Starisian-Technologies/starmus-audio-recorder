@@ -261,7 +261,12 @@ import './starmus-hooks.js';
         progressEl: formEl.querySelector('[data-starmus-progress]'),
         progressWrap: formEl.querySelector('.starmus-progress-wrap'),
         recorderContainer: formEl.querySelector('[data-starmus-recorder-container]'),
-        fallbackContainer: formEl.querySelector('[data-starmus-fallback-container]')
+        fallbackContainer: formEl.querySelector('[data-starmus-fallback-container]'),
+        // Essential UI elements for recorder functionality
+        timer: formEl.querySelector('[data-starmus-timer]'),
+        timerElapsed: formEl.querySelector('.starmus-timer-elapsed'),
+        volumeMeter: formEl.querySelector('[data-starmus-volume-meter]'),
+        durationProgress: formEl.querySelector('[data-starmus-duration-progress]')
       };
 
       initUI(store, elements);
