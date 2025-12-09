@@ -279,11 +279,20 @@ export function initInstance(store, elements) {
   /* BUTTON EVENT LISTENERS — THIS WAS WHAT YOU LOST */
   console.log('[StarmusUI] Attaching event listeners...');
   if (elements.recordBtn) {
-    elements.recordBtn.addEventListener('click', () => {
-      console.log('[StarmusUI] Record button clicked!');
+    console.log('[StarmusUI] Record button element:', elements.recordBtn);
+    console.log('[StarmusUI] Button disabled:', elements.recordBtn.disabled);
+    console.log('[StarmusUI] Button style display:', getComputedStyle(elements.recordBtn).display);
+    console.log('[StarmusUI] Button style visibility:', getComputedStyle(elements.recordBtn).visibility);
+    console.log('[StarmusUI] Button style pointer-events:', getComputedStyle(elements.recordBtn).pointerEvents);
+    
+    elements.recordBtn.addEventListener('click', function(e) {
+      console.log('[StarmusUI] Record button clicked! Event:', e);
+      console.log('[StarmusUI] Button disabled at click time:', elements.recordBtn.disabled);
       dispatch('start-recording');
     });
     console.log('[StarmusUI] Record button listener attached');
+  } else {
+    console.log('[StarmusUI] No record button found!');
   }
   elements.pauseBtn?.addEventListener('click', () => dispatch('pause-mic'));
   elements.resumeBtn?.addEventListener('click', () => dispatch('resume-mic'));
