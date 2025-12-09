@@ -1,24 +1,22 @@
 /**
  * @file starmus-core.js
- * @version 5.0.2
- * @description Handles submission logic. Uses the unified priority upload pipeline.
- * Corrected: Uses global access for StarmusHooks to match starmus-hooks.js ES5 structure.
+ * @version 5.1.0
+ * @description Unified upload logic. Preserves full original submission pipeline with retry + offline queue.
  */
 
 'use strict';
 
 import './starmus-hooks.js'; 
-import { uploadWithPriority } from './starmus-tus.js'; 
-import { queueSubmission } from './starmus-offline.js';
+import { uploadWithPriority, estimateUploadTime, formatUploadEstimate } from './starmus-tus.js'; 
+import { queueSubmission, getPendingCount } from './starmus-offline.js';
 
-// ✅ Defensive fallback for WKWebView race conditions
+// Defensive fallback for global integration
 var Hooks = window.StarmusHooks || {};
 var subscribe = Hooks.subscribe || function(){};
 var debugLog  = Hooks.debugLog  || function(){};
 
 export function initCore(store, instanceId, env) {
 
-  // Function is now synchronous and relies on the global access
   function handleSubmit(formFields) {
     const state = store.getState();
     const source = state.source || {};
@@ -27,8 +25,8 @@ export function initCore(store, instanceId, env) {
 
     if (state.status === 'submitting') return;
 
-    var audioBlob = source.blob || source.file;
-    var fileName = source.fileName || (source.file && source.file.name) || 'recording.webm';
+    const audioBlob = source.blob || source.file;
+    const fileName = source.fileName || (source.file && source.file.name) || 'recording.webm';
 
     if (!audioBlob) {
       store.dispatch({
@@ -38,12 +36,22 @@ export function initCore(store, instanceId, env) {
       return;
     }
 
-    var metadata = {
+    const metadata = {
       transcript: (source.transcript || '').trim() || null,
-      // Deep copy to ensure original state isn't mutated during async ops
-      calibration: calibration.complete ? JSON.parse(JSON.stringify(calibration)) : null, 
+      calibration: calibration.complete ? {
+        gain: calibration.gain,
+        snr: calibration.snr,
+        noiseFloor: calibration.noiseFloor,
+        speechLevel: calibration.speechLevel,
+        timestamp: calibration.timestamp || new Date().toISOString()
+      } : null,
       env: stateEnv
     };
+
+    // Upload estimation for user context
+    const estimatedSeconds = estimateUploadTime(audioBlob.size, stateEnv.network);
+    const estimateText = formatUploadEstimate(estimatedSeconds);
+    debugLog(`[Upload] Estimated duration: ${estimateText}, size: ${(audioBlob.size / 1024 / 1024).toFixed(2)}MB`);
 
     store.dispatch({ type: 'starmus/submit-start' });
 
@@ -54,91 +62,95 @@ export function initCore(store, instanceId, env) {
       });
     }
 
-    // Wrap the entire async flow in a Promise.resolve() chain for ES5 safety
-    // and consistent error handling (even on synchronous failures like the OFFLINE_FAST_PATH)
-    Promise.resolve().then(function () {
-      if (!navigator.onLine) {
-        throw new Error('OFFLINE_FAST_PATH');
-      }
+    Promise.resolve().then(() => {
+      if (!navigator.onLine) throw new Error('OFFLINE_FAST_PATH');
+      debugLog('[Upload] Starting unified upload pipeline...');
 
-      debugLog('[Upload] Starting Priority Upload Pipeline...');
-      
-      // CRITICAL: Call with the single object payload (as determined in the previous step)
       return uploadWithPriority({
         blob: audioBlob,
-        fileName: fileName,
-        formFields: formFields,
-        metadata: metadata,
-        instanceId: instanceId,
-        onProgress: onProgress
+        fileName,
+        formFields,
+        metadata,
+        instanceId,
+        onProgress
       });
 
-    }).then(function (uploadResult) {
-      debugLog('[Upload] Upload Succeeded via', uploadResult.method, uploadResult);
+    }).then(uploadResult => {
+      debugLog('[Upload] Success:', uploadResult.method);
       store.dispatch({
         type: 'starmus/submit-complete',
         payload: uploadResult
       });
-      
-    }).catch(function (error) {
-      var isConfigError = error && error.message && error.message.indexOf('not configured') !== -1;
 
-      if (error.message === 'OFFLINE_FAST_PATH' || !isConfigError) {
-        debugLog('[Upload] Upload failed/offline. Attempting offline queue...');
-        
-        // Queue submission
+    }).catch(error => {
+      const errMsg = error?.message || String(error);
+      const isConfigError = /not configured/i.test(errMsg);
+      const isRetryable = !isConfigError && errMsg !== 'TUS_ENDPOINT_NOT_CONFIGURED';
+
+      if (errMsg === 'OFFLINE_FAST_PATH' || isRetryable) {
+        debugLog('[Upload] Failed or offline. Attempting offline queue...');
         queueSubmission(instanceId, audioBlob, fileName, formFields, metadata)
-          .then(function (submissionId) {
-            store.dispatch({ type: 'starmus/submit-queued', submissionId: submissionId });
+          .then(submissionId => {
+            debugLog('[Upload] Queued offline:', submissionId);
+            store.dispatch({ type: 'starmus/submit-queued', submissionId });
+            return getPendingCount();
           })
-          .catch(function (queueError) {
-            console.error('[Upload] Offline save failed:', queueError);
+          .then(pendingCount => {
+            debugLog(`[Upload] Offline queue size: ${pendingCount}`);
+          })
+          .catch(queueError => {
+            console.error('[Upload] Queue save failed:', queueError);
             store.dispatch({
               type: 'starmus/error',
-              payload: { message: 'Upload failed and could not be saved offline.' }
+              payload: {
+                message: 'Upload failed and could not be saved offline. ' +
+                         (queueError.message === 'STORAGE_QUOTA_EXCEEDED'
+                          ? 'Storage quota exceeded.'
+                          : 'Please try again.')
+              }
             });
           });
+
       } else {
-        // Handle fatal configuration error
         store.dispatch({
           type: 'starmus/error',
-          payload: { message: error.message || 'Upload failed.' }
+          payload: { message: errMsg || 'Upload failed.' }
         });
       }
     });
   }
 
   // Command Bus Subscriptions
-  subscribe('submit', function (payload, meta) {
-    if (meta && meta.instanceId === instanceId) {
+  subscribe('submit', (payload, meta) => {
+    if (meta?.instanceId === instanceId) {
       handleSubmit(payload.formFields || {});
     }
   });
 
-  subscribe('continue', function (payload, meta) {
-    if (meta && meta.instanceId === instanceId) {
-      debugLog('[StarmusCore] Continue command received');
-      // Transition from uninitialized to ready_to_record to show Step 2
+  subscribe('continue', (payload, meta) => {
+    if (meta?.instanceId === instanceId) {
+      debugLog('[StarmusCore] Continue command');
       store.dispatch({ type: 'starmus/ui/step-continue', payload: {} });
     }
   });
 
-  subscribe('reset', function (_payload, meta) {
-    if (meta && meta.instanceId === instanceId) {
+  subscribe('reset', (_payload, meta) => {
+    if (meta?.instanceId === instanceId) {
       store.dispatch({ type: 'starmus/reset' });
     }
   });
 
-  return { handleSubmit: handleSubmit };
+  return { handleSubmit };
 }
-// at end of the file
+
+// Browser global export
 if (typeof window !== 'undefined') {
-    window.initCore = initCore;
+  window.initCore = initCore;
 }
 
+// CommonJS/Node export
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        initCore
-    };
-} 
-
+  module.exports = {
+    initCore
+  };
+}
