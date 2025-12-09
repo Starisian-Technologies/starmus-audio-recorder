@@ -11,6 +11,9 @@ importers:
       axios:
         specifier: latest
         version: 1.13.2
+      core-js:
+        specifier: ^3.47.0
+        version: 3.47.0
       konva:
         specifier: latest
         version: 10.0.12
