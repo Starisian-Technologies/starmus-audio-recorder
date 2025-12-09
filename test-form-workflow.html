@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starmus Form Workflow Test</title>
+    <link rel="stylesheet" href="assets/css/starmus-audio-recorder-styles.min.css">
+</head>
+
+<body>
+    <div id="test-container">
+        <h2>Form Workflow Test</h2>
+        <div id="starmus-audio-recorder-test" class="starmus-container">
+            <!-- Step 1: Form Fields -->
+            <div class="form-step" id="step-1">
+                <h3>Step 1: Basic Information</h3>
+                <input type="text" name="test-field" placeholder="Test input" />
+                <button type="button" data-starmus-action="continue" class="btn-continue">
+                    Continue to Recording
+                </button>
+            </div>
+
+            <!-- Step 2: Recording Interface -->
+            <div class="recording-step" id="step-2" style="display: none;">
+                <h3>Step 2: Recording</h3>
+                <div class="recorder-controls">
+                    <button type="button" data-starmus-action="setup-mic" class="btn-setup">
+                        Setup Microphone
+                    </button>
+                    <button type="button" data-starmus-action="start-recording" class="btn-record">
+                        Start Recording
+                    </button>
+                    <button type="button" data-starmus-action="stop-recording" class="btn-stop">
+                        Stop Recording
+                    </button>
+                </div>
+                <div class="recorder-info">
+                    <div class="timer">00:00</div>
+                    <div class="volume-meter">
+                        <div class="volume-bar"></div>
+                    </div>
+                    <div class="duration-progress">
+                        <div class="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="debug-output">
+            <h3>Debug Output</h3>
+            <pre id="debug-log"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Bootstrap object that Starmus expects
+        window.STARMUS_BOOTSTRAP = {
+            pageType: 'recorder',
+            postId: 'test-123',
+            restUrl: 'https://example.com/wp-json/star-/v1/',
+            mode: 'test',
+            canCommit: false,
+            instanceId: 'test-instance-' + Date.now()
+        };
+
+        // Simple debug logger
+        window.testLogger = {
+            log: function (message) {
+                const debugLog = document.getElementById('debug-log');
+                const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+                debugLog.textContent += '[' + timestamp + '] ' + message + '\n';
+                debugLog.scrollTop = debugLog.scrollHeight;
+                console.log('[TEST]', message);
+            }
+        };
+
+        // Test the form workflow
+        function testFormWorkflow() {
+            window.testLogger.log('Starting form workflow test...');
+
+            // Check if Starmus is initialized
+            if (window.StarmusHooks && window.StarmusHooks.subscribe) {
+                window.testLogger.log('✅ StarmusHooks available');
+
+                // Subscribe to state changes to monitor workflow
+                if (window.StarmusHooks.subscribe) {
+                    window.StarmusHooks.subscribe('state-change', function (payload) {
+                        window.testLogger.log('State change: ' + JSON.stringify(payload));
+
+                        // Show/hide steps based on status
+                        if (payload && payload.status) {
+                            const step1 = document.getElementById('step-1');
+                            const step2 = document.getElementById('step-2');
+
+                            if (payload.status === 'uninitialized' || payload.status === 'idle') {
+                                step1.style.display = 'block';
+                                step2.style.display = 'none';
+                                window.testLogger.log('Showing Step 1 (form fields)');
+                            } else if (payload.status === 'ready_to_record') {
+                                step1.style.display = 'none';
+                                step2.style.display = 'block';
+                                window.testLogger.log('Showing Step 2 (recording interface)');
+                            }
+                        }
+                    });
+                }
+
+                // Test continue button click
+                setTimeout(function () {
+                    const continueBtn = document.querySelector('[data-starmus-action="continue"]');
+                    if (continueBtn) {
+                        window.testLogger.log('Testing Continue button click...');
+                        continueBtn.click();
+                    } else {
+                        window.testLogger.log('❌ Continue button not found');
+                    }
+                }, 2000);
+
+            } else {
+                window.testLogger.log('❌ StarmusHooks not available');
+            }
+        }
+
+        // Start test when page loads
+        window.addEventListener('load', function () {
+            setTimeout(testFormWorkflow, 1000);
+        });
+    </script>
+
+    <!-- Load the Starmus bundle -->
+    <script src="assets/js/starmus-audio-recorder-script.bundle.min.js"></script>
+</body>
+
+</html>
