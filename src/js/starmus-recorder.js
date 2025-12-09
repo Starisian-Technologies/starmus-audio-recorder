@@ -440,3 +440,8 @@ if (typeof window !== 'undefined') {
     window.initStarmusRecorder = initRecorder;
 }
 
+// ES6 named export for module bundlers
+export function initRecorder(store, instanceId) {
+  return window.initRecorder(store, instanceId);
+}
+

@@ -4,7 +4,9 @@
  *
  * SPDX‑License‑Identifier: LicenseRef‑Starisian-Technologies-Proprietary
  *
- * @file Manages the Starmus Audio Editor interface using Peaks.js.
+ * @file Implements a simple CommandBus for Starmus using the publish-subscribe pattern.
+ *   Allows components to subscribe to commands and dispatch events with payloads.
+ *   Manages the Starmus Audio Editor interface using Peaks.js.
  *   Initializes waveform editor, handles playback, annotations, unsaved changes,
  *   communicates with WordPress REST API to save annotation data, and dispatches
  *   annotation events into the Starmus CommandBus for unified governance.
@@ -12,6 +14,19 @@
 
 (function () {
   'use strict';
+
+  import { debugLog } from './starmus-hooks.js';
+
+  class StarmusAudioEditor {
+    constructor() {
+      this.peaks = null;
+      this.audio = null;
+      this.dirty = false;
+    }
+  }
+
+  StarmusAudioEditor.prototype.init = function () { 
+
 
   if (typeof STARMUS_EDITOR_DATA === 'undefined') {
     console.error('Starmus Error: Editor data not found. Cannot initialize.');
@@ -310,3 +325,8 @@
   });
 
 })();
+if (typeof window !== 'undefined') {
+    window.StarmusAudioEditor = StarmusAudioEditor;
+} 
+})();
+

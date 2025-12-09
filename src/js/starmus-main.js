@@ -16,40 +16,30 @@ import './starmus-transcript-controller.js';
 import './starmus-integrator.js';
 
 // ======================================================================
-// STARMUS GLOBAL EXPORT BRIDGE (MANDATORY FOR WORDPRESS RUNTIME)
+// ABSOLUTE EXPORT BRIDGE (UN-SHAKEABLE)
 // ======================================================================
 
-/* eslint-disable no-undef */
+/* global window */
 
-// Core state + dispatch
+// IMPORTS
+import { createStore } from './starmus-state-store.js';
+import * as StarmusHooks from './starmus-hooks.js';
+import { initCore } from './starmus-core.js';
+import { initInstance as initUI } from './starmus-ui.js';
+import { initRecorder } from './starmus-recorder.js';
+import StarmusTus from './starmus-tus.js';
+import { StarmusTranscript } from './starmus-transcript-controller.js';
+import { getOfflineQueue, queueSubmission } from './starmus-offline.js';
+
+// GLOBAL ASSIGNMENTS (UN-SHAKEABLE)
 window.createStore = createStore;
 window.StarmusHooks = StarmusHooks;
-
-// Core initializers
 window.initCore = initCore;
 window.initUI = initUI;
-
-// Recorder APIs
-window.StarmusRecorder = StarmusRecorder;
-window.StarmusRecorderLegacy = StarmusRecorderLegacy;
-
-// TUS Upload
+window.initRecorder = initRecorder; // ✅ FIXED: don't access global.*
 window.StarmusTus = StarmusTus;
-
-// Transcript Controller
-window.StarmusTranscriptController = StarmusTranscriptController;
-
-// Offline Queue
+window.StarmusTranscriptController = StarmusTranscript;
 window.StarmusOfflineQueue = getOfflineQueue;
 window.StarmusQueueSubmission = queueSubmission;
 
-// Debug flag confirmation
-console.log('[Starmus] Globals wired:', {
-  createStore: typeof window.createStore,
-  initCore: typeof window.initCore,
-  initUI: typeof window.initUI,
-  Recorder: typeof window.StarmusRecorder,
-  Tus: typeof window.StarmusTus,
-  Transcript: typeof window.StarmusTranscriptController
-});
-
+console.log('[Starmus] Runtime globals wired');

@@ -3,9 +3,17 @@
  * @version 4.3.5‑loader
  * @description Master orchestrator with dynamic recorder loader for Tier‑A/B or Tier‑C fallback.
  */
+import './starmus-hooks.js';
+  import './starmus-state-store.js';
+  import './starmus-ui.js';
+  import './starmus-core.js';
+  import './starmus-recorder.js';
+  import './starmus-tus.js';
+  import './starmus-transcript-controller.js';
+  import './starmus-offline.js'; 
 
 (function (global) {
-  'use strict';
+  'use strict'; 
 
   global.Starmus = global.Starmus || {};
 
@@ -349,3 +357,7 @@
   global.Starmus.instances = instances;
 
 })(typeof window !== 'undefined' ? window : globalThis);
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = global.Starmus;
+}

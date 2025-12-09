@@ -1,7 +1,8 @@
 /**
- * @file starmus-tus.js
- * @version 1.3.2
- * @description Starmus Upload Pipeline: TUS → Chunked REST → Direct POST
+ * @file starmus-transcript-controller.js
+ * @version 1.2.0
+ * @description Handles the "karaoke-style" transcript panel that syncs with audio playback.
+ * Provides click-to-seek, auto-scroll with user-scroll detection, and confidence indicators.
  */
 
 'use strict';
@@ -294,3 +295,21 @@ export function estimateUploadTime(bytes, net) {
 export const formatUploadEstimate = s =>
   !isFinite(s) ? 'Calculating...' :
   s<60 ? `~${s}s` : `~${Math.ceil(s/60)} min`;
+
+// FINAL EXPORT TARGET (BROWSER + WORDPRESS SAFE)
+const StarmusTus = {
+  uploadWithTus,
+  uploadWithChunkedRest,
+  uploadDirect,
+  uploadWithPriority,
+  estimateUploadTime,
+  formatUploadEstimate
+};
+
+// Browser global for WordPress
+if (typeof window !== 'undefined') {
+  window.StarmusTus = StarmusTus;
+}
+
+// ES module + CommonJS export
+export default StarmusTus;

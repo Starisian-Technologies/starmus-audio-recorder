@@ -161,3 +161,10 @@ const _G = (typeof window !== 'undefined' ? window : globalThis);
 
 export const debugLog = (_G.StarmusHooks && _G.StarmusHooks.debugLog) || function () {};
 
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    debugLog,
+    subscribe: _G.StarmusHooks.subscribe,
+    dispatch: _G.StarmusHooks.dispatch,
+  };
+} 

@@ -7,6 +7,8 @@
 
 'use strict';
 
+import './starmus-hooks.js';
+
 import { debugLog } from './starmus-hooks.js';
 import { uploadWithPriority } from './starmus-tus.js'; 
 
@@ -272,4 +274,13 @@ function initOffline() {
 
 if (typeof window !== 'undefined') {
   window.initOffline = initOffline;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    getOfflineQueue,
+    queueSubmission,
+    getPendingCount,
+    initOffline,
+  };
 }

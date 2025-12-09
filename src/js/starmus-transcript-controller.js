@@ -1,190 +1,231 @@
 /**
- * STARISIAN TECHNOLOGIES CONFIDENTIAL
- * © 2023–2025 Starisian Technologies. All Rights Reserved.
- *
- * SPDX-License-Identifier:  LicenseRef-Starisian-Technologies-Proprietary
- * License URI:              https://github.com/Starisian-Technologies/starmus-audio-recorder/LICENSE.md
+ * @file starmus-transcript-controller.js
+ * @version 1.3.0
+ * @description Handles the "karaoke‑style" transcript panel that syncs with audio playback.
+ *   Provides click-to-seek, auto-scroll with user-scroll detection, confidence indicators,
+ *   clean re-init/destroy, and fallback safety for older browsers.
  */
 
-/**
- * @file Starmus Transcript Controller - Bidirectional audio-text synchronization
- * @description Handles the "karaoke-style" transcript panel that syncs with audio playback.
- * Provides click-to-seek, auto-scroll with user-scroll detection, and confidence indicators.
- */
+'use strict';
+
+// --- Dependency Import (ensure global hooks exist) ---
+import './starmus-hooks.js';
+const BUS = window.StarmusHooks || window.CommandBus;
+const debugLog = BUS && BUS.debugLog ? BUS.debugLog : function() {};
+
+// ------------------------------------------------------------
+// CORE CLASS
+// ------------------------------------------------------------
 
 class StarmusTranscript {
   constructor(peaksInstance, containerId, transcriptData) {
     this.peaks = peaksInstance;
     this.container = document.getElementById(containerId);
-    this.data = transcriptData || [];
+    this.data = Array.isArray(transcriptData) ? transcriptData : [];
     this.activeTokenIndex = -1;
     this.isUserScrolling = false;
     this.scrollTimeout = null;
+    this.boundOnTimeUpdate = null;
+    this.boundOnSeeked = null;
+    this.boundOnClick = null;
+    this.boundOnScroll = null;
 
     this.init();
   }
 
   init() {
     if (!this.container) {
-      console.warn('Starmus Transcript: Container not found. Transcript sync disabled.');
+      console.warn('[StarmusTranscript] Container not found. Transcript sync disabled.');
       return;
     }
-
     this.render();
     this.bindEvents();
   }
 
   render() {
-    const tmpContainer = document.createElement('div');
-
-    this.data.forEach((token, index) => {
+    const frag = document.createDocumentFragment();
+    this.data.forEach((token, idx) => {
       const span = document.createElement('span');
       span.textContent = token.text;
       span.className = 'starmus-word';
-
-      span.dataset.index = index;
+      span.dataset.index = idx;
       span.dataset.start = token.start;
       span.dataset.end = token.end;
 
-      if (token.confidence && token.confidence < 0.8) {
+      if ('confidence' in token && token.confidence < 0.8) {
         span.dataset.confidence = 'low';
         span.title = `Low confidence: ${Math.round(token.confidence * 100)}%`;
       }
 
-      tmpContainer.appendChild(span);
-      if (index < this.data.length - 1) {
-        tmpContainer.appendChild(document.createTextNode(' '));
+      frag.appendChild(span);
+
+      if (idx < this.data.length - 1) {
+        frag.appendChild(document.createTextNode(' '));
       }
     });
 
-    // 🚀 Fragment Optimization (swap in bulk)
-    this.container.replaceChildren(...tmpContainer.childNodes);
+    // Bulk replace for performance
+    this.container.innerHTML = '';
+    this.container.appendChild(frag);
+
+    // reset any existing highlight index
+    this.activeTokenIndex = -1;
   }
 
   bindEvents() {
-    this.container.addEventListener('click', (e) => {
-      if (e.target.classList.contains('starmus-word')) {
-        const startTime = parseFloat(e.target.dataset.start);
-        this.peaks.player.seek(startTime);
-      }
-    });
+    // Click-to-seek on word
+    this.boundOnClick = (e) => {
+      const w = e.target;
+      if (w.classList.contains('starmus-word')) {
+        const start = parseFloat(w.dataset.start);
+        if (this.peaks && this.peaks.player && typeof this.peaks.player.seek === 'function') {
+          this.peaks.player.seek(start);
 
-    this.container.addEventListener('scroll', () => {
+          // Dispatch an event for external logic (analytics, UI state, etc.)
+          if (BUS && typeof BUS.dispatch === 'function') {
+            BUS.dispatch('starmus/transcript/seek', { time: start }, { instanceId: this.peaks.instanceId });
+          }
+        }
+      }
+    };
+    this.container.addEventListener('click', this.boundOnClick);
+
+    // Scroll detection (user scroll vs auto-scroll)
+    this.boundOnScroll = () => {
       this.isUserScrolling = true;
-      clearTimeout(this.scrollTimeout);
+      if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
       this.scrollTimeout = setTimeout(() => {
         this.isUserScrolling = false;
       }, 1000);
-    });
+    };
+    this.container.addEventListener('scroll', this.boundOnScroll);
 
-    const mediaElement = this.peaks.player.getMediaElement();
-    if (mediaElement) {
-      mediaElement.addEventListener('timeupdate', () => {
-        this.syncHighlight(this.peaks.player.getCurrentTime());
-      });
+    // Playback sync: timeupdate + seeked
+    const media = this.peaks && this.peaks.player && this.peaks.player.getMediaElement
+      ? this.peaks.player.getMediaElement()
+      : null;
+
+    if (media && typeof media.addEventListener === 'function') {
+      this.boundOnTimeUpdate = () => {
+        const ct = media.currentTime;
+        if (typeof ct === 'number' && !isNaN(ct)) {
+          this.syncHighlight(ct);
+        }
+      };
+      media.addEventListener('timeupdate', this.boundOnTimeUpdate);
+
+      this.boundOnSeeked = () => {
+        const ct = media.currentTime;
+        if (typeof ct === 'number' && !isNaN(ct)) {
+          this.syncHighlight(ct);
+        }
+      };
+      media.addEventListener('seeked', this.boundOnSeeked);
+    } else {
+      debugLog('[StarmusTranscript] Player media element not found — sync disabled');
     }
   }
 
-  /**
-   * Efficient binary search for the current token based on playback time
-   */
-  findTokenIndex(currentTime) {
-    let low = 0;
-    let high = this.data.length - 1;
+  findTokenIndex(time) {
+    if (typeof time !== 'number' || this.data.length === 0) return -1;
+
+    let low = 0, high = this.data.length - 1;
 
     while (low <= high) {
-      const mid = Math.floor((low + high) / 2);
+      const mid = (low + high) >> 1;
       const token = this.data[mid];
-
-      if (currentTime >= token.start && currentTime <= token.end) {
-        return mid;
-      } else if (currentTime < token.start) {
-        high = mid - 1;
-      } else {
-        low = mid + 1;
-      }
+      if (time >= token.start && time <= token.end) return mid;
+      if (time < token.start) high = mid - 1;
+      else low = mid + 1;
     }
-
     return -1;
   }
 
   syncHighlight(currentTime) {
-    const currentToken = this.data[this.activeTokenIndex];
-
-    if (currentToken && currentTime >= currentToken.start && currentTime <= currentToken.end) {
-      return; // still in same token
-    }
-
     const newIndex = this.findTokenIndex(currentTime);
-    if (newIndex !== -1 && newIndex !== this.activeTokenIndex) {
+    if (newIndex === -1) {
+      this.clearHighlight();
+    } else if (newIndex !== this.activeTokenIndex) {
       this.updateDOM(newIndex);
     }
   }
 
   updateDOM(newIndex) {
     const words = this.container.querySelectorAll('.starmus-word');
-
-    if (this.activeTokenIndex !== -1) {
-      const oldNode = words[this.activeTokenIndex];
-      if (oldNode) {
-        oldNode.classList.remove('is-active');
-      }
+    if (this.activeTokenIndex >= 0 && words[this.activeTokenIndex]) {
+      words[this.activeTokenIndex].classList.remove('is-active');
     }
-
     this.activeTokenIndex = newIndex;
-
-    const newNode = words[newIndex];
-    if (newNode) {
-      newNode.classList.add('is-active');
-
+    const el = words[newIndex];
+    if (el) {
+      el.classList.add('is-active');
       if (!this.isUserScrolling) {
-        this.scrollToWord(newNode);
+        this.scrollToWord(el);
       }
     }
   }
 
-  scrollToWord(element) {
-    const parentRect = this.container.getBoundingClientRect();
-    const elementRect = element.getBoundingClientRect();
+  clearHighlight() {
+    const prev = this.container.querySelector('.starmus-word.is-active');
+    if (prev) prev.classList.remove('is-active');
+    this.activeTokenIndex = -1;
+  }
 
-    const isAbove = elementRect.top < parentRect.top;
-    const isBelow = elementRect.bottom > parentRect.bottom;
-
-    if (isAbove || isBelow) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
+  scrollToWord(el) {
+    if (el.scrollIntoView) {
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }
   }
 
   updateData(newData) {
-    this.data = newData || [];
-    this.activeTokenIndex = -1;
+    this.data = Array.isArray(newData) ? newData : [];
     this.render();
+    this.unbindEvents();
+    this.bindEvents();
+  }
+
+  unbindEvents() {
+    if (!this.container) return;
+
+    if (this.boundOnClick) this.container.removeEventListener('click', this.boundOnClick);
+    if (this.boundOnScroll) this.container.removeEventListener('scroll', this.boundOnScroll);
+
+    const media = this.peaks && this.peaks.player && this.peaks.player.getMediaElement
+      ? this.peaks.player.getMediaElement()
+      : null;
+
+    if (media && typeof media.removeEventListener === 'function') {
+      if (this.boundOnTimeUpdate) media.removeEventListener('timeupdate', this.boundOnTimeUpdate);
+      if (this.boundOnSeeked) media.removeEventListener('seeked', this.boundOnSeeked);
+    }
   }
 
   destroy() {
-    if (this.scrollTimeout) {
-      clearTimeout(this.scrollTimeout);
-    }
-    if (this.container) {
-      this.container.innerHTML = '';
-    }
+    this.unbindEvents();
+    if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
+    if (this.container) this.container.innerHTML = '';
+    this.data = [];
+    this.activeTokenIndex = -1;
+    this.isUserScrolling = false;
   }
+}
+
+// --- EXPORT / GLOBAL EXPOSURE ---
+
+function init(peaksInstance, containerId, transcriptData) {
+  return new StarmusTranscript(peaksInstance, containerId, transcriptData);
 }
 
 if (typeof window !== 'undefined') {
   window.StarmusTranscript = StarmusTranscript;
+  window.StarmusTranscriptController = { StarmusTranscript, init };
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = StarmusTranscript;
+  module.exports = { StarmusTranscript, init };
 }
 
-if (typeof window !== 'undefined') {
-    window.StarmusTranscriptController = StarmusTranscript;
-    window.initTranscriptController = function(peaks, containerId, transcriptData) {
-        return new StarmusTranscript(peaks, containerId, transcriptData);
-    };
-}
+// also support ES module export
+// (Note: in bundler context this may be tree‑shaken / replaced)
+export { StarmusTranscript, init };
+export default { StarmusTranscript, init };

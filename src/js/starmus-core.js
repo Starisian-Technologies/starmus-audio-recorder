@@ -127,3 +127,9 @@ export function initCore(store, instanceId, env) {
 if (typeof window !== 'undefined') {
     window.initCore = initCore;
 }
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        initCore
+    };
+} 
