@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starmus Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .pass {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .fail {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        .pending {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Starmus Audio Recorder Integration Test</h1>
+
+    <div id="test-results">
+        <div class="test-result pending" id="test-1">
+            <strong>Test 1: Script Loading</strong> - Pending...
+        </div>
+        <div class="test-result pending" id="test-2">
+            <strong>Test 2: Global Dependencies</strong> - Pending...
+        </div>
+        <div class="test-result pending" id="test-3">
+            <strong>Test 3: Integrator Initialization</strong> - Pending...
+        </div>
+        <div class="test-result pending" id="test-4">
+            <strong>Test 4: Form Detection</strong> - Pending...
+        </div>
+    </div>
+
+    <!-- Mock recorder form -->
+    <form data-starmus="recorder" id="test-recorder-form">
+        <div class="starmus-step starmus-step-1">
+            <button type="button" data-starmus-action="continue">Continue</button>
+        </div>
+        <div class="starmus-step starmus-step-2" style="display:none;">
+            <button type="button" data-starmus-action="setup-mic">Setup Mic</button>
+            <button type="button" data-starmus-action="record">Record</button>
+            <button type="button" data-starmus-action="pause">Pause</button>
+            <button type="button" data-starmus-action="resume">Resume</button>
+            <button type="button" data-starmus-action="stop">Stop</button>
+            <button type="button" data-starmus-action="submit">Submit</button>
+        </div>
+    </form>
+
+    <!-- Load the bundle -->
+    <script src="./assets/js/starmus-audio-recorder-script.bundle.min.js"></script>
+
+    <script>
+        function updateTest(testId, pass, message) {
+            const el = document.getElementById(testId);
+            el.className = `test-result ${pass ? 'pass' : 'fail'}`;
+            el.innerHTML = `<strong>${el.querySelector('strong').textContent}</strong> - ${message}`;
+        }
+
+        function runTests() {
+            // Test 1: Script Loading
+            const scriptLoaded = !!document.querySelector("script[src*='starmus-audio-recorder-script.bundle']");
+            updateTest('test-1', scriptLoaded, scriptLoaded ? 'Bundle loaded successfully' : 'Bundle failed to load');
+
+            // Test 2: Global Dependencies
+            const dependencies = {
+                StarmusHooks: !!window.StarmusHooks,
+                createStore: !!window.createStore,
+                initUI: !!window.initUI,
+                initCore: !!window.initCore,
+                initOffline: !!window.initOffline,
+                dispatch: !!(window.StarmusHooks && window.StarmusHooks.dispatch),
+                subscribe: !!(window.StarmusHooks && window.StarmusHooks.subscribe)
+            };
+
+            const allDepsPresent = Object.values(dependencies).every(v => v);
+            updateTest('test-2', allDepsPresent,
+                allDepsPresent ? 'All dependencies available' :
+                    `Missing: ${Object.entries(dependencies).filter(([k, v]) => !v).map(([k]) => k).join(', ')}`
+            );
+
+            // Test 3: Integrator Initialization
+            // Dispatch a mock environment ready event
+            const mockEnv = {
+                browser: { userAgent: navigator.userAgent },
+                device: { type: 'desktop', memory: 8, concurrency: 4 },
+                capabilities: { webrtc: true, mediaRecorder: true, indexedDB: true },
+                network: { effectiveType: '4g', downlink: 10, saveData: false }
+            };
+
+            setTimeout(() => {
+                document.dispatchEvent(new CustomEvent('sparxstar:environment-ready', {
+                    detail: mockEnv
+                }));
+
+                setTimeout(() => {
+                    const instances = window.Starmus && window.Starmus.instances;
+                    const hasInstances = instances && Object.keys(instances).length > 0;
+                    updateTest('test-3', hasInstances,
+                        hasInstances ? 'Integrator initialized successfully' : 'Integrator failed to initialize'
+                    );
+
+                    // Test 4: Form Detection
+                    const form = document.getElementById('test-recorder-form');
+                    const hasInstance = form && form.getAttribute('data-starmus-id');
+                    updateTest('test-4', hasInstance,
+                        hasInstance ? `Form detected with instance ID: ${hasInstance}` : 'Form not detected'
+                    );
+                }, 1000);
+            }, 100);
+        }
+
+        // Run tests after page loads
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+
+</html>
