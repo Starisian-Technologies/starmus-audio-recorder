@@ -10,7 +10,7 @@
   } else {
     global.StarmusAudioEditor = factory();
   }
-})(typeof window !== 'undefined' ? window : this, function () {
+})(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
 
   function init() {
