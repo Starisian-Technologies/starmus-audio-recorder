@@ -68,14 +68,31 @@ import './starmus-hooks.js';
   })(global);
 
   var CommandBus = global.StarmusHooks;
-  var createStore = global.StarmusStateStore;
-  var initUI = global.StarmusUI_initInstance;
-  var initCore = global.StarmusCore_init;
-  var initOfflineQueue = global.StarmusOffline_init;
+  var createStore = global.createStore;
+  var initUI = global.initUI;
+  var initCore = global.initCore;
+  var initOfflineQueue = global.initOffline;
 
-  if (!CommandBus || !createStore || !initUI || !initCore || !initOfflineQueue) {
-    console.error('[Starmus Integrator] Critical dependencies missing — cannot initialize.');
-    return;
+  function checkDependencies() {
+    // Re-check globals in case they were set after initial load
+    CommandBus = global.StarmusHooks;
+    createStore = global.createStore;
+    initUI = global.initUI;
+    initCore = global.initCore;
+    initOfflineQueue = global.initOffline;
+
+    if (!CommandBus || !createStore || !initUI || !initCore || !initOfflineQueue) {
+      console.error('[Starmus Integrator] Critical dependencies missing — cannot initialize.');
+      console.error('Available:', {
+        CommandBus: !!CommandBus,
+        createStore: !!createStore,
+        initUI: !!initUI,
+        initCore: !!initCore,
+        initOfflineQueue: !!initOfflineQueue
+      });
+      return false;
+    }
+    return true;
   }
 
   function emitStarmusEventGlobal(event, payload) {
@@ -197,6 +214,19 @@ import './starmus-hooks.js';
   }
 
   function wireInstance(env, formEl) {
+    // Check dependencies before proceeding
+    if (!checkDependencies()) {
+      console.warn('[Starmus] Retrying dependency check in 500ms...');
+      setTimeout(function() {
+        if (checkDependencies()) {
+          wireInstance(env, formEl);
+        } else {
+          console.error('[Starmus] Final dependency check failed - cannot proceed');
+        }
+      }, 500);
+      return;
+    }
+
     var instanceId = formEl.getAttribute('data-starmus-id');
     if (!instanceId) {
       instanceId = 'starmus_' + Date.now() + '_' + Math.random().toString(16).slice(2);

@@ -29,7 +29,7 @@ import { initInstance as initUI } from './starmus-ui.js';
 import { initRecorder } from './starmus-recorder.js';
 import StarmusTus from './starmus-tus.js';
 import { StarmusTranscript } from './starmus-transcript-controller.js';
-import { getOfflineQueue, queueSubmission } from './starmus-offline.js';
+import { getOfflineQueue, queueSubmission, initOffline } from './starmus-offline.js';
 
 // GLOBAL ASSIGNMENTS (UN-SHAKEABLE)
 window.createStore = createStore;
@@ -41,5 +41,6 @@ window.StarmusTus = StarmusTus;
 window.StarmusTranscriptController = StarmusTranscript;
 window.StarmusOfflineQueue = getOfflineQueue;
 window.StarmusQueueSubmission = queueSubmission;
+window.initOffline = initOffline;
 
 console.log('[Starmus] Runtime globals wired');
