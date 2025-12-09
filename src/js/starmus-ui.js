@@ -257,16 +257,34 @@ export function render(state, elements) {
  * ------------------------------------------------------------------------- */
 
 export function initInstance(store, elements) {
+  console.log('[StarmusUI] initInstance called with elements:', {
+    recordBtn: !!elements.recordBtn,
+    setupMicBtn: !!elements.setupMicBtn,
+    volumeMeter: !!elements.volumeMeter,
+    timer: !!elements.timer,
+    elementKeys: Object.keys(elements)
+  });
+  
   const instId = store.getState().instanceId;
   const BUS = window.CommandBus || window.StarmusHooks;
 
+  console.log('[StarmusUI] CommandBus found:', !!BUS, 'Instance ID:', instId);
+
   function dispatch(action) {
     if (!BUS) return console.warn('[StarmusUI] No CommandBus detected.');
+    console.log('[StarmusUI] Dispatching:', action);
     BUS.dispatch(action, {}, { instanceId: instId });
   }
 
   /* BUTTON EVENT LISTENERS — THIS WAS WHAT YOU LOST */
-  elements.recordBtn?.addEventListener('click', () => dispatch('start-recording'));
+  console.log('[StarmusUI] Attaching event listeners...');
+  if (elements.recordBtn) {
+    elements.recordBtn.addEventListener('click', () => {
+      console.log('[StarmusUI] Record button clicked!');
+      dispatch('start-recording');
+    });
+    console.log('[StarmusUI] Record button listener attached');
+  }
   elements.pauseBtn?.addEventListener('click', () => dispatch('pause-mic'));
   elements.resumeBtn?.addEventListener('click', () => dispatch('resume-mic'));
   elements.stopBtn?.addEventListener('click', () => dispatch('stop-mic'));

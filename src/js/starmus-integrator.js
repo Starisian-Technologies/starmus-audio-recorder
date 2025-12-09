@@ -269,7 +269,18 @@ import './starmus-hooks.js';
         durationProgress: formEl.querySelector('[data-starmus-duration-progress]')
       };
 
+      console.log('[Starmus] Elements collected for instance:', instanceId, {
+        recordBtn: !!elements.recordBtn,
+        setupMicBtn: !!elements.setupMicBtn,
+        volumeMeter: !!elements.volumeMeter,
+        timer: !!elements.timer,
+        formEl: !!formEl
+      });
+
+      console.log('[Starmus] About to call initUI');
       initUI(store, elements);
+      console.log('[Starmus] UI initialization complete');
+      
       initCore(store, instanceId, env);
 
       function loadAppropriateRecorder() {
