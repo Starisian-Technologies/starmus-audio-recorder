@@ -171,9 +171,17 @@ if (typeof module !== 'undefined' && module.exports) {
   };
 } 
 
-// also support ES module export
+export const CommandBus = {
+  subscribe,
+  dispatch,
+  unsubscribeInstance: function(instanceId) {
+    // Optional: Add per-instance unsubscribe logic if handlers need cleanup
+  }
+};
+
 export default {
   debugLog,
   subscribe,
   dispatch,
+  CommandBus
 };
