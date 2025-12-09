@@ -12,13 +12,11 @@ export default {
     name: 'StarmusBundle',
     sourcemap: false,
     globals: {
-      'tus-js-client': 'tus',
       'peaks.js': 'Peaks'
     }
   },
 
   external: [
-    'tus-js-client',
     'peaks.js'
   ],
 
