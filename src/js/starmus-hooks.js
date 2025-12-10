@@ -1,107 +1,49 @@
 /**
  * @file starmus-hooks.js
- * @version 5.2.0-PRODUCTION
- * @description Central Event Bus. Forces a Global Singleton to ensure connectivity.
+ * @version 5.3.0-SIMPLE
+ * @description Simplified Event Bus. No complex keys.
  */
 
 'use strict';
 
-// 1. ESTABLISH GLOBAL SCOPE
 const globalScope = typeof window !== 'undefined' ? window : globalThis;
 
-// 2. CREATE/RETRIEVE SHARED REGISTRY (The "Central Brain")
-if (!globalScope.StarmusHooksRegistry) {
-    globalScope.StarmusHooksRegistry = {
-        handlers: {}, // Object.create(null) can cause issues in some envs, using plain object
-        activeDispatches: new Set()
-    };
+if (!globalScope.StarmusRegistry) {
+    globalScope.StarmusRegistry = {};
 }
-const registry = globalScope.StarmusHooksRegistry;
+const registry = globalScope.StarmusRegistry;
 
-/**
- * UTILS: Debug Logger
- */
-function debugLog(...args) {
-    const debug = globalScope.starmusConfig && globalScope.starmusConfig.debug;
-    if (debug) {
-        try { console.log.apply(console, ['[Starmus]', ...args]); } catch (_) {}
-    }
-}
+function subscribe(command, handler) {
+  if (!registry[command]) {
+    registry[command] = [];
+  }
+  registry[command].push(handler);
+  console.log(`[Bus] Listener added for: ${command}`);
 
-/**
- * SUBSCRIBE
- * Listens for a specific command on a specific instance.
- */
-function subscribe(commandName, handler, instanceId) {
-    // Create a specific key for this instance's command
-    const key = commandName + '::' + (instanceId || '*');
-
-    if (!registry.handlers[key]) {
-        registry.handlers[key] = [];
-    }
-    
-    // Add handler if not already present
-    if (registry.handlers[key].indexOf(handler) === -1) {
-        registry.handlers[key].push(handler);
-    }
-
-    // Return Unsubscribe Function
-    return function unsubscribe() {
-        if (registry.handlers[key]) {
-            const idx = registry.handlers[key].indexOf(handler);
-            if (idx > -1) registry.handlers[key].splice(idx, 1);
-        }
-    };
+  return () => {
+      const idx = registry[command].indexOf(handler);
+      if (idx > -1) registry[command].splice(idx, 1);
+  };
 }
 
-/**
- * DISPATCH
- * Sends a command to all relevant listeners (Specific Instance + Globals).
- */
-function dispatch(commandName, payload = {}, meta = {}) {
-    const instance = meta.instanceId || '*';
-    const specificKey = commandName + '::' + instance;
-    const globalKey = commandName + '::*';
-    
-    // Recursion Guard
-    if (registry.activeDispatches.has(specificKey)) {
-        debugLog('Prevented recursive dispatch:', commandName);
-        return;
-    }
-    registry.activeDispatches.add(specificKey);
-
-    try {
-        // Collect all handlers (Specific + Wildcard + Legacy Global)
-        const handlersList = [
-            ...(registry.handlers[specificKey] || []),
-            ...(registry.handlers[globalKey] || []),
-            ...(registry.handlers[commandName] || []) // Legacy fallback
-        ];
-
-        if (handlersList.length === 0) {
-            // debugLog('No listeners found for:', commandName, instance);
-            return;
-        }
-
-        // Execute handlers
-        handlersList.forEach(fn => {
-            try {
-                fn(payload, meta);
-            } catch (e) {
-                console.error('[Starmus] Handler error:', commandName, e);
-            }
-        });
-    } finally {
-        registry.activeDispatches.delete(specificKey);
-    }
+function dispatch(command, payload = {}, meta = {}) {
+  const handlers = registry[command];
+  if (!handlers || !handlers.length) {
+      console.warn(`[Bus] ⚠️ Dispatched '${command}' but nobody is listening.`);
+      return;
+  }
+  
+  console.log(`[Bus] Dispatching '${command}' to ${handlers.length} listeners`, meta);
+  
+  handlers.forEach(fn => {
+      try { fn(payload, meta); } catch(e) { console.error(e); }
+  });
 }
 
-// 3. EXPORT & GLOBAL ATTACHMENT
-// We attach the bus to window so legacy code (and the UI) finds it immediately.
-const CommandBus = { subscribe, dispatch, debugLog };
+function debugLog(...args) { /* console.log(...args); */ }
 
-globalScope.StarmusHooks = CommandBus;
-globalScope.CommandBus = CommandBus;
+const Bus = { subscribe, dispatch, debugLog };
+globalScope.CommandBus = Bus;
+globalScope.StarmusHooks = Bus;
 
-export { subscribe, dispatch, debugLog, CommandBus };
-export default CommandBus;
+export { subscribe, dispatch, debugLog, Bus as CommandBus, Bus as StarmusHooks };
