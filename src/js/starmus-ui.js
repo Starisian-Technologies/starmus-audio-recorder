@@ -124,7 +124,11 @@ export function initInstance(store, incomingElements = {}, forcedInstanceId = nu
   const el = {
     step1: root.querySelector('[data-starmus-step="1"]'),
     step2: root.querySelector('[data-starmus-step="2"]'),
+    setupContainer: root.querySelector('[data-starmus-setup-container]'),
+
+
     timer: root.querySelector('[data-starmus-timer]'),
+    
     timerElapsed: root.querySelector('.starmus-timer-elapsed'),
     fallbackContainer: root.querySelector('[data-starmus-fallback-container]'),
     recorderContainer: root.querySelector('[data-starmus-recorder-container]')
@@ -178,6 +182,8 @@ export function initInstance(store, incomingElements = {}, forcedInstanceId = nu
       });
   }
 
+  
+
   // 5. START RENDER LOOP
   store.dispatch({ type: 'starmus/init', payload: { instanceId: instId } });
   const unsubscribe = store.subscribe(next => render(next, el));
@@ -187,3 +193,91 @@ export function initInstance(store, incomingElements = {}, forcedInstanceId = nu
 }
 
 if (typeof window !== 'undefined') window.initUI = initInstance;
+
+/* ---------------------------- RENDER ---------------------------- */
+
+export function render(state, elements) {
+  if (!elements) return;
+
+  const { status, step, recorder = {}, calibration = {} } = state;
+
+  // 1. STEP VISIBILITY
+  if (elements.step1 && elements.step2) {
+    const showStep2 = step === 2 || (status !== 'idle' && status !== 'uninitialized' && status !== 'ready');
+    elements.step1.style.display = showStep2 ? 'none' : 'block';
+    elements.step2.style.display = showStep2 ? 'block' : 'none';
+  }
+
+  // 2. FALLBACK
+  if (state.tier === 'C' || state.fallbackActive) {
+    if(elements.fallbackContainer) elements.fallbackContainer.style.display = 'block';
+    if(elements.recorderContainer) elements.recorderContainer.style.display = 'none';
+    return;
+  }
+
+  // 3. CALIBRATION & SETUP (THE FIX)
+  // Ensure the setup container is visible during calibration!
+  const isCalibrating = status === 'calibrating';
+  const isCalibrated = calibration.complete === true;
+  
+  if (elements.setupContainer) {
+      // Show setup if we are in step 2 AND (not calibrated OR currently calibrating)
+      const showSetup = (step === 2 || status === 'ready_to_record') && (!isCalibrated || isCalibrating);
+      elements.setupContainer.style.display = showSetup ? 'block' : 'none';
+      
+      // Update setup button text if calibrating
+      if (elements.setupMicBtn) {
+          if (isCalibrating) {
+              elements.setupMicBtn.textContent = calibration.message || 'Adjusting...';
+              elements.setupMicBtn.disabled = true;
+          } else {
+              elements.setupMicBtn.innerHTML = '<span class="dashicons dashicons-microphone"></span> Setup Microphone';
+              elements.setupMicBtn.disabled = false;
+          }
+      }
+  }
+
+  // 4. RECORDER CONTAINER VISIBILITY
+  if (elements.recorderContainer) {
+      // Show recorder ONLY if calibrated
+      elements.recorderContainer.style.display = isCalibrated ? 'block' : 'none';
+  }
+
+  // 5. TIMER
+  const formatted = formatTime(recorder.duration || 0);
+  if (elements.timerElapsed) elements.timerElapsed.textContent = formatted;
+  else if (elements.timer) elements.timer.textContent = formatted;
+
+  if (elements.timer) {
+    if (status === 'recording') elements.timer.classList.add('starmus-timer--recording');
+    else elements.timer.classList.remove('starmus-timer--recording');
+  }
+
+  // 6. BUTTONS
+  const isRec = status === 'recording';
+  const isPaused = status === 'paused';
+  const isReady = status === 'ready' || status === 'ready_to_record' || status === 'idle'; 
+  
+  if (elements.recordBtn)
+    elements.recordBtn.style.display = (isReady && isCalibrated && !isRec && !isPaused) ? 'inline-flex' : 'none';
+
+  if (elements.pauseBtn)
+    elements.pauseBtn.style.display = isRec ? 'inline-flex' : 'none';
+
+  if (elements.resumeBtn)
+    elements.resumeBtn.style.display = isPaused ? 'inline-flex' : 'none';
+
+  if (elements.stopBtn) {
+    elements.stopBtn.style.display = (isRec || isPaused) ? 'inline-flex' : 'none';
+  }
+  
+  if (elements.submitBtn) {
+      if (status === 'submitting') {
+          elements.submitBtn.textContent = 'Uploading...';
+          elements.submitBtn.disabled = true;
+      } else {
+          elements.submitBtn.textContent = 'Submit Recording';
+          elements.submitBtn.disabled = status !== 'ready_to_submit';
+      }
+  }
+}
