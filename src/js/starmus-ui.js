@@ -349,18 +349,7 @@ export function initInstance(store, elements) {
 
   elements.setupMicBtn?.addEventListener('click', () => dispatch('setup-mic'));
 
-  // Add missing Continue button handler
-  if (elements.continueBtn) {
-    elements.continueBtn.addEventListener('click', () => {
-      console.log('[StarmusUI] Continue button clicked!');
-      // Dispatch store action to move to step 2
-      store.dispatch({ type: 'starmus/ui/step-continue', payload: {} });
-      
-      // Also trigger UI update immediately
-      const currentState = store.getState();
-      render(currentState, elements);
-    });
-  }
+  // Continue button is handled in starmus-integrator.js with validation
 
   if (elements.fileInput) {
     elements.fileInput.addEventListener('change', (e) => {

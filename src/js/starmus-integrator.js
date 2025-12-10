@@ -327,9 +327,13 @@ async function wireInstance(env, formEl) {
 
   if (elements.continueBtn) {
     elements.continueBtn.addEventListener('click', (e) => {
+      console.log('[Starmus Integrator] Continue button clicked!');
       e.preventDefault();
       const step1 = elements.step1;
-      if (!step1) return;
+      if (!step1) {
+        console.log('[Starmus Integrator] No step1 element found');
+        return;
+      }
 
       const title = step1.querySelector('[name="starmus_title"]');
       const lang  = step1.querySelector('[name="starmus_language"]');
@@ -355,7 +359,9 @@ async function wireInstance(env, formEl) {
         msgEl.style.display = 'none';
       }
 
+      console.log('[Starmus Integrator] Dispatching step-continue action');
       store.dispatch({ type: 'starmus/ui/step-continue' });
+      console.log('[Starmus Integrator] Step-continue dispatched, current state:', store.getState());
 
       if (window.innerWidth < 768) {
         const formContainer = formEl.closest('.starmus-recorder-form') || formEl;
