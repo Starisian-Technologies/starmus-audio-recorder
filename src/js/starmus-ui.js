@@ -1,37 +1,10 @@
 /**
  * @file starmus-ui.js
- * @version 4.2.4
- * @description Pure view layer + user interaction wiring.
- * FIXED: elements map auto-build + null-safe guards + stable recorder boot
+ * @version 4.5.0-FIXED
+ * @description UI Layer. Handles Button Clicks & Step Switching.
  */
 
 'use strict';
-
-window.StarmusInstances = window.StarmusInstances || {};
-let starmusClipWarned = false;
-
-/* ---------------------------- UTILITIES ---------------------------- */
-
-function starmusMaybeCoachUser(normalizedLevel, elements) {
-  if (normalizedLevel >= 0.85 && !starmusClipWarned) {
-    starmusClipWarned = true;
-
-    const msg = elements.messageBox || document.querySelector('[data-starmus-message-box]');
-    if (!msg) return;
-
-    msg.textContent =
-      'Your microphone is too loud. Move back 6–12 inches or speak softer for a cleaner recording.';
-    msg.style.display = 'block';
-    msg.setAttribute('role', 'alert');
-    msg.setAttribute('aria-live', 'assertive');
-
-    setTimeout(() => {
-      msg.style.display = 'none';
-      msg.removeAttribute('role');
-      msg.removeAttribute('aria-live');
-    }, 6000);
-  }
-}
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds)) return '00m 00s';
@@ -40,170 +13,177 @@ function formatTime(seconds) {
   return `${m.toString().padStart(2,'0')}m ${s.toString().padStart(2,'0')}s`;
 }
 
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+/**
+ * FORCE BIND:
+ * Replaces the button element to wipe external event listeners (like from themes)
+ * and attaches our own listener. Guarantees the click works.
+ */
+function forceBind(element, eventName, handler) {
+  if (!element) return null;
+  const newEl = element.cloneNode(true);
+  newEl.style.pointerEvents = 'auto'; // Ensure clickable
+  
+  if(element.parentNode) {
+      element.parentNode.replaceChild(newEl, element);
+  }
+  
+  newEl.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('[StarmusUI] Click detected on', newEl.dataset.starmusAction || 'button');
+    handler(e);
+  });
+  
+  return newEl;
 }
 
-/* ---------------------------- RENDER ---------------------------- */
+/* ---------------------------- RENDER VIEW ---------------------------- */
 
 export function render(state, elements) {
-  if (!elements) return; // MUST NEVER CRASH
+  if (!elements) return;
 
-  const {
-    status,
-    error,
-    source = {},
-    submission = {},
-    calibration = {},
-    recorder = {},
-    instanceId
-  } = state;
+  const { status, step, recorder = {}, calibration = {} } = state;
 
-  /* SAFETY: Tier C fallback */
+  // 1. HANDLE STEPS (Details vs Recorder)
+  if (elements.step1 && elements.step2) {
+      // If status is 'idle' or 'uninitialized', we are on Step 1.
+      // Otherwise (recording, calibrated, ready), we are on Step 2.
+      const showStep2 = step === 2 || (status !== 'idle' && status !== 'uninitialized' && status !== 'ready');
+      
+      elements.step1.style.display = showStep2 ? 'none' : 'block';
+      elements.step2.style.display = showStep2 ? 'block' : 'none';
+  }
+
+  // 2. FALLBACK MODE
   if (state.tier === 'C' || state.fallbackActive) {
-    ['recordBtn','pauseBtn','resumeBtn','stopBtn','recorderContainer'].forEach(k => {
-      if (elements[k]) elements[k].style.display = 'none';
-    });
-    if (elements.fallbackContainer) elements.fallbackContainer.style.display = 'block';
+    if(elements.fallbackContainer) elements.fallbackContainer.style.display = 'block';
+    if(elements.recorderContainer) elements.recorderContainer.style.display = 'none';
     return;
   }
 
-  /* TIMER */
-  const MAX = 1200;
-  const time = recorder.duration || 0;
-  const formatted = formatTime(time);
-
-  if (elements.timerElapsed) {
-    elements.timerElapsed.textContent = formatted;
-  } else if (elements.timer) {
-    elements.timer.textContent = formatted;
-  }
-
+  // 3. TIMER
+  const fmt = formatTime(recorder.duration || 0);
+  if (elements.timerElapsed) elements.timerElapsed.textContent = fmt;
   if (elements.timer) {
-    if (status === 'recording') elements.timer.classList.add('starmus-timer--recording');
-    else elements.timer.classList.remove('starmus-timer--recording');
+      elements.timer.textContent = fmt;
+      if (status === 'recording') elements.timer.classList.add('starmus-timer--recording');
+      else elements.timer.classList.remove('starmus-timer--recording');
   }
 
-  /* BUTTON STATES */
+  // 4. BUTTON STATES
   const isRec = status === 'recording';
   const isPaused = status === 'paused';
-  const isReady = status === 'ready' || status === 'ready_to_record';
-  const isCalibrated = calibration && calibration.complete === true;
-  const showStop = isRec || isPaused;
-
+  const isReady = status === 'ready' || status === 'ready_to_record' || status === 'idle'; 
+  const isCalib = calibration && calibration.complete === true;
+  
   if (elements.recordBtn)
-    elements.recordBtn.style.display = (isReady && isCalibrated && !showStop) ? 'inline-flex' : 'none';
+    elements.recordBtn.style.display = (isReady && isCalib && !isRec && !isPaused) ? 'inline-flex' : 'none';
 
-  if (elements.pauseBtn)
-    elements.pauseBtn.style.display = isRec ? 'inline-flex' : 'none';
-
-  if (elements.resumeBtn)
-    elements.resumeBtn.style.display = isPaused ? 'inline-flex' : 'none';
-
+  if (elements.pauseBtn) elements.pauseBtn.style.display = isRec ? 'inline-flex' : 'none';
+  if (elements.resumeBtn) elements.resumeBtn.style.display = isPaused ? 'inline-flex' : 'none';
   if (elements.stopBtn) {
-    elements.stopBtn.style.display = showStop ? 'inline-flex' : 'none';
+    elements.stopBtn.style.display = (isRec || isPaused) ? 'inline-flex' : 'none';
     elements.stopBtn.disabled = status === 'calibrating';
+  }
+  
+  // 5. SUBMIT BUTTON
+  if (elements.submitBtn) {
+      if (status === 'submitting') {
+          elements.submitBtn.textContent = 'Uploading...';
+          elements.submitBtn.disabled = true;
+      } else {
+          elements.submitBtn.textContent = 'Submit Recording';
+          elements.submitBtn.disabled = status !== 'ready_to_submit';
+      }
   }
 }
 
-/* ---------------------------- INIT ---------------------------- */
+/* ---------------------------- INITIALIZE ---------------------------- */
 
-export function initInstance(store, incomingElements = {}) {
-  console.log('[StarmusUI] initInstance starting');
+export function initInstance(store, incomingElements = {}, forcedInstanceId = null) {
+  
+  // 1. GET ID
+  let instId = forcedInstanceId || store?.getState()?.instanceId;
+  let root = document;
 
-  const instId = store?.getState()?.instanceId;
+  // 2. FIND ROOT ELEMENT
+  if (instId) {
+      root = document.querySelector(`[data-starmus-instance="${instId}"]`) || document;
+  } else {
+      const form = document.querySelector('form[data-starmus-instance]');
+      if (form) {
+          instId = form.getAttribute('data-starmus-instance');
+          root = form;
+      }
+  }
+
+  console.log('[StarmusUI] Initializing for ID:', instId);
   const BUS = window.CommandBus || window.StarmusHooks;
 
-  // AUTO-HYDRATE ELEMENT MAP IF CALLER DID NOT PROVIDE ONE
-  const root = document.querySelector(`[data-starmus-instance="${instId}"]`) || document;
-  const elements = {
-    recordBtn: incomingElements.recordBtn || root.querySelector('[data-starmus-action="record"]'),
-    pauseBtn: incomingElements.pauseBtn || root.querySelector('[data-starmus-action="pause"]'),
-    resumeBtn: incomingElements.resumeBtn || root.querySelector('[data-starmus-action="resume"]'),
-    stopBtn: incomingElements.stopBtn || root.querySelector('[data-starmus-action="stop"]'),
-    submitBtn: incomingElements.submitBtn || root.querySelector('[data-starmus-action="submit"]'),
-    setupMicBtn: incomingElements.setupMicBtn || root.querySelector('[data-starmus-action="setup-mic"]'),
-    timer: incomingElements.timer || root.querySelector('[data-starmus-timer]'),
-    timerElapsed: incomingElements.timerElapsed || root.querySelector('[data-starmus-timer-elapsed]'),
-    volumeMeter: incomingElements.volumeMeter || root.querySelector('[data-starmus-volume-meter]')
+  // 3. MAP ELEMENTS
+  const el = {
+    step1: root.querySelector('[data-starmus-step="1"]'),
+    step2: root.querySelector('[data-starmus-step="2"]'),
+    timer: root.querySelector('[data-starmus-timer]'),
+    timerElapsed: root.querySelector('.starmus-timer-elapsed'),
+    fallbackContainer: root.querySelector('[data-starmus-fallback-container]'),
+    recorderContainer: root.querySelector('[data-starmus-recorder-container]')
   };
 
-  console.log('[StarmusUI] Elements normalized:', elements);
+  // 4. BIND BUTTONS (Using Force Bind)
 
-  // REQUIRED INIT
+  // Continue Button
+  let continueBtn = root.querySelector('[data-starmus-action="next"]');
+  if (continueBtn) {
+      forceBind(continueBtn, 'click', () => {
+          // Validate Inputs
+          const inputs = el.step1 ? el.step1.querySelectorAll('[required]') : [];
+          let valid = true;
+          inputs.forEach(i => {
+              if(!i.value.trim() && !i.checked) { valid=false; i.style.borderColor='red'; }
+              else { i.style.borderColor=''; }
+          });
+
+          if (valid) {
+              store.dispatch({ type: 'starmus/ui/step-continue' });
+          } else {
+              alert('Please fill in all required fields.');
+          }
+      });
+  }
+
+  // Recorder Buttons
+  let setupBtn = root.querySelector('[data-starmus-action="setup-mic"]');
+  if(setupBtn) el.setupMicBtn = forceBind(setupBtn, 'click', () => BUS?.dispatch('setup-mic', {}, { instanceId: instId }));
+
+  let recBtn = root.querySelector('[data-starmus-action="record"]');
+  if(recBtn) el.recordBtn = forceBind(recBtn, 'click', () => BUS?.dispatch('start-recording', {}, { instanceId: instId }));
+
+  let pauseBtn = root.querySelector('[data-starmus-action="pause"]');
+  if(pauseBtn) el.pauseBtn = forceBind(pauseBtn, 'click', () => BUS?.dispatch('pause-mic', {}, { instanceId: instId }));
+
+  let resumeBtn = root.querySelector('[data-starmus-action="resume"]');
+  if(resumeBtn) el.resumeBtn = forceBind(resumeBtn, 'click', () => BUS?.dispatch('resume-mic', {}, { instanceId: instId }));
+
+  let stopBtn = root.querySelector('[data-starmus-action="stop"]');
+  if(stopBtn) el.stopBtn = forceBind(stopBtn, 'click', () => BUS?.dispatch('stop-mic', {}, { instanceId: instId }));
+
+  // Submit Button
+  let submitBtn = root.querySelector('[data-starmus-action="submit"]');
+  if (submitBtn) {
+      el.submitBtn = forceBind(submitBtn, 'click', (e) => {
+        const form = e.target.closest('form');
+        const data = form ? Object.fromEntries(new FormData(form).entries()) : {};
+        BUS?.dispatch('submit', { formFields: data }, { instanceId: instId });
+      });
+  }
+
+  // 5. START RENDER LOOP
   store.dispatch({ type: 'starmus/init', payload: { instanceId: instId } });
-  BUS?.dispatch('setup-mic', {}, { instanceId: instId });
-
-  /* --- BUTTON HANDLERS (NULL SAFE) --- */
-  elements.recordBtn?.addEventListener('click', () => BUS?.dispatch('start-recording', {}, { instanceId: instId }));
-  elements.pauseBtn?.addEventListener('click', () => BUS?.dispatch('pause-mic', {}, { instanceId: instId }));
-  elements.resumeBtn?.addEventListener('click', () => BUS?.dispatch('resume-mic', {}, { instanceId: instId }));
-  elements.stopBtn?.addEventListener('click', () => BUS?.dispatch('stop-mic', {}, { instanceId: instId }));
-
-  elements.submitBtn?.addEventListener('click', (e) => {
-    const form = e.target.closest('form');
-    const data = form ? Object.fromEntries(new FormData(form).entries()) : {};
-    BUS?.dispatch('submit', { formFields: data }, { instanceId: instId });
-  });
-
-  /**
- * ABSOLUTE PATCH
- * Forces Starmus to locate the record button AFTER WordPress layouts finish,
- * rebinds click handler if theme, block wrappers, or overlays interfered.
- */
-document.addEventListener('DOMContentLoaded', function starmusLateBindFix() {
-    try {
-        // Find ANY Starmus record button on page
-        const btn = document.querySelector('[data-starmus-action="record"], button[id^="starmus_record_btn_"]');
-        if (!btn) {
-            console.warn('[Starmus PATCH] No record button found on DOMContentLoaded');
-            return;
-        }
-
-        console.log('[Starmus PATCH] Record button located:', btn);
-
-        // Ensure button is actually clickable
-        btn.style.pointerEvents = 'auto';
-        btn.style.zIndex = '999999';
-        btn.style.position = 'relative';
-
-        // Wipe any broken handlers
-        btn.replaceWith(btn.cloneNode(true)); 
-        const freshBtn = document.querySelector('[data-starmus-action="record"], button[id^="starmus_record_btn_"]');
-
-        // Get active instance
-        const form = freshBtn.closest('[data-starmus-instance]');
-        const id = form?.getAttribute('data-starmus-instance');
-        const store = window.StarmusInstances?.[id]?.store;
-
-        if (!store) {
-            console.error('[Starmus PATCH] No store for instance', id);
-            return;
-        }
-
-        const BUS = window.CommandBus || window.StarmusHooks;
-
-        // Bind FINAL guaranteed working handler
-        freshBtn.addEventListener('click', function () {
-            console.log('[Starmus PATCH] Record button CLICK captured — dispatch start-recording');
-            BUS.dispatch('start-recording', {}, { instanceId: id });
-        });
-
-        console.log('[Starmus PATCH] Record button rebound successfully');
-    } catch (e) {
-        console.error('[Starmus PATCH ERROR]', e);
-    }
-});
-
-
-  /* SUBSCRIBE & INITIAL RENDER */
-  const unsubscribe = store.subscribe(next => render(next, elements));
-  render(store.getState(), elements);
+  const unsubscribe = store.subscribe(next => render(next, el));
+  render(store.getState(), el);
 
   return unsubscribe;
 }
 
-/* GLOBAL EXPORT FOR INTEGRATOR */
 if (typeof window !== 'undefined') window.initUI = initInstance;

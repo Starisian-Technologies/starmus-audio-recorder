@@ -1,107 +1,72 @@
 /**
- * @file starmus-bootstrap.js
- * @version 4.5.0
- * @description Single authoritative bootstrap for Starmus runtime.
- * Loads hooks first, wires state/store, recorder, UI, offline queue,
- * transcript, metadata automation, and exposes stable globals.
+ * @file starmus-main.js
+ * @version 5.1.0-FIXED
+ * @description Main Entry Point. Connects the App to the PHP Form ID.
  */
 
 'use strict';
 
-/* -------------------------------------------------------------------------
- * 0. REQUIRED GLOBALS (ORDER SENSITIVE)
- * ------------------------------------------------------------------------- */
-
-// Peaks must exist BEFORE editor loads, but do not overwrite if already present
+/* 1. GLOBALS & HOOKS */
 import Peaks from 'peaks.js';
 if (!window.Peaks) window.Peaks = Peaks;
-
-// Hooks MUST RUN FIRST – sets window.StarmusHooks + CommandBus
 import './starmus-hooks.js';
-import './starmus-state-store.js';
 
-/* -------------------------------------------------------------------------
- * 1. CORE SUBSYSTEMS
- * ------------------------------------------------------------------------- */
-
-// Upload + offline queue
-import * as StarmusTus from './starmus-tus.js';          // corrected namespace import
-import './starmus-offline.js';
-
-// Recorder + UI + transcript controller
-import './starmus-ui.js';
-import './starmus-core.js';
-import './starmus-recorder.js';
-
-// Transcript module must expose BOTH class + init
-import TranscriptModule, { StarmusTranscript } from './starmus-transcript-controller.js';
-
-import './starmus-audio-editor.js';
-import './starmus-metadata-auto.js';
-
-// LAST: integrator must see globals
-import './starmus-integrator.js';
-
-/* -------------------------------------------------------------------------
- * 2. IMPORTS FOR GLOBAL EXPORT BRIDGE
- * ------------------------------------------------------------------------- */
-
+/* 2. MODULE IMPORTS */
 import { createStore } from './starmus-state-store.js';
 import { initCore } from './starmus-core.js';
 import { initInstance as initUI } from './starmus-ui.js';
 import { initRecorder } from './starmus-recorder.js';
-import { getOfflineQueue, queueSubmission, initOffline } from './starmus-offline.js';
+import { initOffline, getOfflineQueue, queueSubmission } from './starmus-offline.js';
 import { initAutoMetadata } from './starmus-metadata-auto.js';
+import TranscriptModule from './starmus-transcript-controller.js';
+import './starmus-integrator.js';
 
-/* -------------------------------------------------------------------------
- * 3. ASSERT HOOKS EXIST (fail fast)
- * ------------------------------------------------------------------------- */
+/* 3. SETUP STORE */
+const store = createStore();
+window.StarmusStore = store; 
+console.log('[StarmusMain] Store initialized');
 
-if (!window.StarmusHooks) {
-  throw new Error('[StarmusBootstrap] Hooks not registered before bootstrap — load order violation');
-}
+/* 4. BOOTSTRAP ON DOM READY */
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    // --- CRITICAL FIX: FIND THE FORM ID ---
+    // The PHP outputs <form data-starmus-instance="starmus_form_...">
+    const form = document.querySelector('form[data-starmus-instance]');
+    const instanceId = form ? form.getAttribute('data-starmus-instance') : null;
 
-/* -------------------------------------------------------------------------
- * 4. GLOBAL API SURFACE — FINAL CONTRACT
- * ------------------------------------------------------------------------- */
+    if (!instanceId) {
+        console.warn('[StarmusMain] ⚠️ No Starmus form found. UI will not initialize.');
+        return; // Stop if no form
+    }
+    
+    console.log('[StarmusMain] Booting for Instance ID:', instanceId);
 
-window.createStore = createStore;
-window.initCore = initCore;
-window.initUI = initUI;
+    // --- WIRE EVERYTHING WITH THE ID ---
+    
+    // 1. Core (Uploads/Logic)
+    initCore(store, instanceId);
+    
+    // 2. UI (Buttons/Views) - Pass ID explicitly
+    initUI(store, {}, instanceId);
+    
+    // 3. Recorder (Audio/Mic) - Pass ID explicitly
+    initRecorder(store, instanceId);
 
-// SINGLE authoritative recorder entry
+    // 4. Offline Queue & Metadata
+    initOffline();
+    if (form) {
+      initAutoMetadata(store, form, { trigger: 'ready_to_submit' });
+    }
+    
+  } catch (e) {
+    console.error('[StarmusMain] Boot failed:', e);
+  }
+});
+
+/* 5. EXPORTS */
 window.StarmusRecorder = initRecorder;
-
-// Upload + priority queue
-window.StarmusTus = StarmusTus;
+window.StarmusTus = { queueSubmission };
 window.StarmusOfflineQueue = getOfflineQueue;
-window.StarmusQueueSubmission = queueSubmission;
-window.initOffline = initOffline;
-
-// Transcript controller — full module, not just class
 window.StarmusTranscriptController = TranscriptModule;
 
-// Metadata automation
-window.initAutoMetadata = initAutoMetadata;
-
-// Marker for integrator detection (no exports)
-window.StarmusIntegrator = true;
-
-console.log('[Starmus] Runtime globals wired');
-
-/* -------------------------------------------------------------------------
- * 5. ES MODULE EXPORTS
- * ------------------------------------------------------------------------- */
-
-export {
-  createStore,
-  initCore,
-  initUI,
-  initRecorder,
-  StarmusTus,
-  StarmusTranscript,
-  getOfflineQueue,
-  queueSubmission,
-  initOffline,
-  initAutoMetadata
-};
+console.log('[StarmusMain] Bundle Loaded');
