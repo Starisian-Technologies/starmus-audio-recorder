@@ -1,7 +1,7 @@
 <?php
 /**
  * Starmus Re-Recorder UI Template
- * @version 1.0.1-UPDATE-FIX
+ * @version 1.0.2-DATA-SAFE
  */
 if (! defined('ABSPATH')) exit;
 
@@ -9,6 +9,11 @@ if (! defined('ABSPATH')) exit;
 /** @var string $existing_title */
 
 $instance_id = 'starmus_form_' . sanitize_key('rerecord_' . wp_generate_uuid4());
+
+// Try to pre-fill contributor ID if available (Context dependent)
+$contributor_id = '';
+// If you have a function to get contributor ID from user ID, use it here:
+// $contributor_id = star_get_contributor_id(get_current_user_id());
 ?>
 
 <div class="starmus-recorder-form sparxstar-glass-card">
@@ -27,38 +32,41 @@ $instance_id = 'starmus_form_' . sanitize_key('rerecord_' . wp_generate_uuid4())
             
             <div class="starmus-notice">
                 <p><?php esc_html_e('You are replacing audio for:', 'starmus-audio-recorder'); ?> <strong><?php echo esc_html($existing_title); ?></strong></p>
+                <p style="font-size:0.8em; opacity:0.8">ID: <?php echo intval($post_id); ?></p>
             </div>
 
-            <!-- CRITICAL FIX: Use 'post_id' so handler treats this as an update -->
+            <!-- UPDATE LOGIC -->
             <input type="hidden" name="post_id" value="<?php echo esc_attr((string) $post_id); ?>">
             <input type="hidden" name="action" value="starmus_update_audio">
             
-            <!-- Metadata Persist -->
+            <!-- METADATA PERSISTENCE -->
             <input type="hidden" name="starmus_title" value="<?php echo esc_attr($existing_title); ?>">
             <input type="hidden" name="audio_file_type" value="audio/webm">
             
-            <!-- JS Targets -->
+            <!-- INJECTED BY JS (Protected by Safe Sync) -->
             <input type="hidden" name="_starmus_env" value="">
             <input type="hidden" name="_starmus_calibration" value="">
             <input type="hidden" name="first_pass_transcription" value="">
+            <input type="hidden" name="recording_metadata" value="">
+            
+            <!-- INJECTED FROM PHP (If Available) -->
+            <input type="hidden" name="contributor_id" value="<?php echo esc_attr($contributor_id); ?>">
 
             <button type="button" class="starmus-btn starmus-btn--primary" data-starmus-action="next">
                 <?php esc_html_e('Proceed to Recorder', 'starmus-audio-recorder'); ?>
             </button>
         </div>
 
-        <!-- Step 2: Recorder (Identical to Standard) -->
+        <!-- Step 2: Recorder -->
         <div id="starmus_step2_<?php echo esc_attr($instance_id); ?>" class="starmus-step" style="display:none;" data-starmus-step="2">
-            <h2><?php esc_html_e('Record New Audio', 'starmus-audio-recorder'); ?></h2>
+            <h2><?php esc_html_e('Record Replacement', 'starmus-audio-recorder'); ?></h2>
             
-            <!-- Setup -->
             <div class="starmus-setup-container" data-starmus-setup-container>
                 <button type="button" class="starmus-btn starmus-btn--primary" data-starmus-action="setup-mic">
-                    <span class="dashicons dashicons-microphone"></span> Setup
+                    <span class="dashicons dashicons-microphone"></span> Setup Mic
                 </button>
             </div>
 
-            <!-- Recorder -->
             <div class="starmus-recorder-container" data-starmus-recorder-container>
                 <div class="starmus-visualizer-stage">
                     <div class="starmus-timer" data-starmus-timer><span class="starmus-timer-elapsed">00m 00s</span></div>
@@ -79,7 +87,6 @@ $instance_id = 'starmus_form_' . sanitize_key('rerecord_' . wp_generate_uuid4())
                     </div>
                 </div>
                 
-                <!-- Hidden Transcript -->
                 <div data-starmus-transcript style="display:none;"></div>
             </div>
 

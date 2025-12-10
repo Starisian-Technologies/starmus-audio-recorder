@@ -1,7 +1,7 @@
 /**
  * @file starmus-state-store.js
- * @version 6.0.0-ERROR-LOGGING
- * @description Store that captures runtime errors into the Environment Metadata.
+ * @version 6.1.0-METADATA-READY
+ * @description Unified store. Captures technical metadata (duration/size) on stop.
  */
 
 (function (global) {
@@ -19,7 +19,7 @@
         browser: {},
         network: {},
         identifiers: {},
-        errors: [] // Critical: Error Log Array
+        errors: [] 
     },
     source: {
       kind: null,
@@ -28,6 +28,12 @@
       fileName: '',
       transcript: '',
       interimTranscript: '',
+      // ADDED: Container for technical specs
+      metadata: {
+          duration: 0,
+          mimeType: '',
+          fileSize: 0
+      }
     },
     calibration: {
       phase: null,
@@ -73,29 +79,20 @@
         return merge(state, merge(action.payload || {}, { status: 'idle', error: null }));
 
       case 'starmus/env-update':
-        // Deep merge for env to preserve existing errors/data
         var newEnv = merge(state.env, action.payload || {});
-        // Ensure errors array persists if payload didn't have it
         if (!newEnv.errors) newEnv.errors = state.env.errors || [];
         return merge(state, { env: newEnv });
 
       case 'starmus/error':
         var errObj = action.error || action.payload;
-        var errMsg = errObj.message || 'Unknown Error';
-        
-        // CRITICAL: Log error to Metadata History
         var currentErrors = (state.env && state.env.errors) ? state.env.errors.slice() : [];
         currentErrors.push({
             code: errObj.code || 'RUNTIME_ERROR',
-            message: errMsg,
+            message: errObj.message || 'Unknown',
             timestamp: Date.now(),
             severity: errObj.retryable === false ? 'hard' : 'soft'
         });
-
-        return merge(state, { 
-            error: errObj,
-            env: merge(state.env, { errors: currentErrors }) 
-        });
+        return merge(state, { error: errObj, env: merge(state.env, { errors: currentErrors }) });
 
       case 'starmus/tier-ready':
         return merge(state, { tier: action.payload.tier || state.tier });
@@ -130,15 +127,25 @@
         return merge(state, { status: 'recording', recorder: merge(state.recorder, { isPaused: false }) });
 
       case 'starmus/mic-stop':
-        return merge(state, { status: 'ready_to_submit' }); // Ready immediately on stop
+        return merge(state, { status: 'ready_to_submit' }); 
 
       case 'starmus/recorder-tick':
         return merge(state, { recorder: merge(state.recorder, { duration: action.duration, amplitude: action.amplitude }) });
 
+      // CRITICAL UPDATE: Capture metadata when blob is ready
       case 'starmus/recording-available':
         return merge(state, {
           status: 'ready_to_submit',
-          source: merge(state.source, { kind: 'blob', blob: action.payload.blob, fileName: action.payload.fileName }),
+          source: merge(state.source, { 
+            kind: 'blob', 
+            blob: action.payload.blob, 
+            fileName: action.payload.fileName,
+            metadata: {
+                duration: state.recorder.duration || 0,
+                mimeType: action.payload.blob.type || 'audio/webm',
+                fileSize: action.payload.blob.size || 0
+            }
+          }),
         });
 
       case 'starmus/transcript-update':
@@ -150,7 +157,16 @@
       case 'starmus/file-attached':
         return merge(state, {
           status: 'ready_to_submit',
-          source: { kind: 'file', file: action.file, fileName: action.file.name }
+          source: { 
+              kind: 'file', 
+              file: action.file, 
+              fileName: action.file.name,
+              metadata: {
+                  duration: 0, // Cannot know duration of uploaded file easily
+                  mimeType: action.file.type,
+                  fileSize: action.file.size
+              }
+          }
         });
 
       case 'starmus/submit-start':
@@ -163,20 +179,15 @@
         return merge(state, { status: 'complete', submission: { progress: 1, isQueued: false } });
 
       case 'starmus/submit-queued':
-        // Log the offline event as a soft error for tracking
-        var offlineErrors = state.env.errors ? state.env.errors.slice() : [];
-        offlineErrors.push({ code: 'OFFLINE_QUEUE', message: 'Upload deferred to offline queue', timestamp: Date.now(), severity: 'soft' });
-        
         return merge(state, {
           status: 'complete',
-          env: merge(state.env, { errors: offlineErrors }),
           submission: { progress: 0, isQueued: true }
         });
 
       case 'starmus/reset':
         return merge(shallowClone(DEFAULT_INITIAL_STATE), {
           instanceId: state.instanceId,
-          env: state.env, // Preserve environment data across resets!
+          env: state.env, 
           tier: state.tier,
           status: 'idle'
         });
