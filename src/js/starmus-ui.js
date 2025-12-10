@@ -1,9 +1,13 @@
 /**
  * @file starmus-ui.js
- * @version 6.0.0-TIER-UI
+ * @version 6.1.0-PLAY-FIX
+ * @description UI Layer. Robust Play Button + Hidden Transcript.
  */
 
 'use strict';
+
+// Track audio instance globally to prevent overlapping sounds
+let currentAudio = null;
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds)) return '00m 00s';
@@ -25,86 +29,75 @@ function safeBind(element, eventName, handler) {
 
 function render(state, elements) {
   if (!elements) return;
-  
+
   var status = state.status;
-  var tier = state.tier;
-
-  // --- TIER C HANDLING (Legacy/Fallback) ---
-  if (tier === 'C') {
-      if (elements.recorderContainer) elements.recorderContainer.style.display = 'none';
-      if (elements.setupContainer) elements.setupContainer.style.display = 'none';
-      
-      // Look for fallback container (ensure it exists in HTML)
-      var fallback = document.querySelector('[data-starmus-fallback-container]');
-      if (fallback) {
-          fallback.style.display = 'block';
-          // Ensure file input listener is bound (done in init)
-      }
-      // If we are Tier C, we skip step 2 logic and just show the fallback
-      return;
-  }
-
-  // ... (Paste logic from previous Step 1/2/3/4 here - Meters, Visibility, Transcript, Buttons) ...
-  // ... To save space, I assume you keep the logic from the 5.9.1 version I just gave you ...
-  // ... INSERT 5.9.1 RENDER LOGIC HERE ...
-  
-  // Quick Recap of 5.9.1 logic for context:
   var step = state.step;
   var recorder = state.recorder || {};
   var calibration = state.calibration || {};
   var submission = state.submission || {};
-  
-  // 1. Meters
+  var tier = state.tier;
+
+  // --- TIER C FALLBACK ---
+  if (tier === 'C') {
+      if (elements.recorderContainer) elements.recorderContainer.style.display = 'none';
+      if (elements.setupContainer) elements.setupContainer.style.display = 'none';
+      var fallback = document.querySelector('[data-starmus-fallback-container]');
+      if (fallback) fallback.style.display = 'block';
+      return;
+  }
+
+  // --- 1. METERS ---
   if (status === 'calibrating' || status === 'recording') {
       var vol = (status === 'calibrating') ? (calibration.volumePercent || 0) : (recorder.amplitude || 0);
       if (elements.volumeMeter) elements.volumeMeter.style.setProperty('--starmus-audio-level', vol + '%');
   } else {
       if (elements.volumeMeter) elements.volumeMeter.style.setProperty('--starmus-audio-level', '0%');
   }
-  
+
   if (elements.timerElapsed) elements.timerElapsed.textContent = formatTime(recorder.duration || 0);
   if (elements.durationProgress) {
-      var pct = Math.min(100, ((recorder.duration || 0) / 300) * 100);
+      var pct = Math.min(100, ((recorder.duration || 0) / 300) * 100); // 5 min scale
       elements.durationProgress.style.setProperty('--starmus-recording-progress', pct + '%');
   }
 
-  // 2. Transcript
-  // ... (Keep 5.9.1 transcript logic) ...
-
-  // 3. Visibility
-  // ... (Keep 5.9.1 visibility logic) ...
-  if (elements.step1 && elements.step2) {
-      var activeStates = ['recording', 'paused', 'processing', 'ready_to_submit', 'submitting', 'calibrating', 'ready', 'complete'];
-      var showStep2 = step === 2 || activeStates.indexOf(status) !== -1;
-      
-      if (showStep2) {
-          elements.step1.style.display = 'none';
-          elements.step2.style.display = 'block';
-      } else {
-          elements.step1.style.display = 'block';
-          elements.step2.style.display = 'none';
-      }
+  // --- 2. TRANSCRIPT (HIDDEN FOR NOW) ---
+  if (elements.transcript) {
+      elements.transcript.style.display = 'none'; 
   }
-  
-  // 4. Calibration
+
+  // --- 3. VISIBILITY ---
+  if (elements.step1 && elements.step2) {
+    var activeStates = ['recording', 'paused', 'processing', 'ready_to_submit', 'submitting', 'calibrating', 'ready', 'complete'];
+    var showStep2 = step === 2 || activeStates.indexOf(status) !== -1;
+    if (showStep2) {
+        elements.step1.style.display = 'none';
+        elements.step2.style.display = 'block';
+    } else {
+        elements.step1.style.display = 'block';
+        elements.step2.style.display = 'none';
+    }
+  }
+
   var isCalibrated = calibration.complete === true;
   if (elements.setupContainer) {
       var showSetup = (!isCalibrated || status === 'calibrating');
       elements.setupContainer.style.display = showSetup ? 'block' : 'none';
       if (elements.setupMicBtn) {
-           if (status === 'calibrating') {
-               elements.setupMicBtn.innerHTML = calibration.message || 'Adjusting...';
-               elements.setupMicBtn.disabled = true;
-           } else {
-               elements.setupMicBtn.innerHTML = '<span class="dashicons dashicons-microphone"></span> Setup Mic';
-               elements.setupMicBtn.disabled = false;
-           }
+          if (status === 'calibrating') {
+              elements.setupMicBtn.innerHTML = calibration.message || 'Adjusting...';
+              elements.setupMicBtn.disabled = true;
+              elements.setupMicBtn.classList.add('is-busy');
+          } else {
+              elements.setupMicBtn.innerHTML = '<span class="dashicons dashicons-microphone"></span> Setup Microphone';
+              elements.setupMicBtn.disabled = false;
+              elements.setupMicBtn.classList.remove('is-busy');
+          }
       }
   }
+
   if (elements.recorderContainer) elements.recorderContainer.style.display = isCalibrated ? 'block' : 'none';
 
-  // 5. Buttons
-  // ... (Keep 5.9.1 button logic) ...
+  // --- 4. BUTTONS ---
   var isRec = status === 'recording';
   var isPaused = status === 'paused';
   var isDone = status === 'ready_to_submit';
@@ -114,7 +107,15 @@ function render(state, elements) {
   if (elements.pauseBtn) elements.pauseBtn.style.display = isRec ? 'inline-flex' : 'none';
   if (elements.resumeBtn) elements.resumeBtn.style.display = isPaused ? 'inline-flex' : 'none';
   if (elements.stopBtn) elements.stopBtn.style.display = (isRec || isPaused) ? 'inline-flex' : 'none';
-  if (elements.reviewControls) elements.reviewControls.style.display = isDone ? 'flex' : 'none';
+  
+  // Review Controls
+  if (elements.reviewControls) {
+      elements.reviewControls.style.display = isDone ? 'flex' : 'none';
+  } else {
+      // Individual fallback
+      if (elements.playBtn) elements.playBtn.style.display = isDone ? 'inline-flex' : 'none';
+      if (elements.resetBtn) elements.resetBtn.style.display = isDone ? 'inline-flex' : 'none';
+  }
 
   if (elements.submitBtn) {
       if (status === 'submitting') {
@@ -141,7 +142,6 @@ function initInstance(store, incomingElements, forcedInstanceId) {
 
   var BUS = window.CommandBus;
   
-  // ... (Keep existing Element map) ...
   var el = {
     step1: root.querySelector('[data-starmus-step="1"]'),
     step2: root.querySelector('[data-starmus-step="2"]'),
@@ -164,21 +164,80 @@ function initInstance(store, incomingElements, forcedInstanceId) {
     submitBtn: root.querySelector('[data-starmus-action="submit"]')
   };
 
-  // ... (Keep existing SafeBinds) ...
   safeBind(el.continueBtn, 'click', function() {
-      // Basic validation
-      store.dispatch({ type: 'starmus/ui/step-continue' });
+      var inputs = el.step1 ? el.step1.querySelectorAll('[required]') : [];
+      var valid = true;
+      for (var i = 0; i < inputs.length; i++) {
+          if (!inputs[i].value.trim() && !inputs[i].checked) {
+               valid = false;
+               inputs[i].style.borderColor = 'red';
+          } else {
+               inputs[i].style.borderColor = '';
+          }
+      }
+      if (valid) store.dispatch({ type: 'starmus/ui/step-continue' });
   });
+
   safeBind(el.setupMicBtn, 'click', function(){ BUS.dispatch('setup-mic', {}, { instanceId: instId }); });
   safeBind(el.recordBtn, 'click', function(){ BUS.dispatch('start-recording', {}, { instanceId: instId }); });
   safeBind(el.pauseBtn, 'click', function(){ BUS.dispatch('pause-mic', {}, { instanceId: instId }); });
   safeBind(el.resumeBtn, 'click', function(){ BUS.dispatch('resume-mic', {}, { instanceId: instId }); });
   safeBind(el.stopBtn, 'click', function(){ BUS.dispatch('stop-mic', {}, { instanceId: instId }); });
-  safeBind(el.playBtn, 'click', function() { /* ... */ });
-  safeBind(el.resetBtn, 'click', function() { 
-      if(confirm('Discard?')) BUS.dispatch('reset', {}, { instanceId: instId }); 
+  
+  // FIX: ROBUST PLAY BUTTON
+  safeBind(el.playBtn, 'click', function() {
+     // 1. If playing, Stop it
+     if (currentAudio) {
+         currentAudio.pause();
+         currentAudio = null;
+         el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-play"></span> Play / Pause';
+         return;
+     }
+
+     var state = store.getState();
+     
+     // 2. Play New
+     if (state.source.blob) {
+         try {
+             var url = URL.createObjectURL(state.source.blob);
+             currentAudio = new Audio(url);
+             
+             // Update UI when done
+             currentAudio.onended = function() {
+                 currentAudio = null;
+                 el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-play"></span> Play / Pause';
+             };
+             
+             currentAudio.onerror = function() {
+                 alert('Error playing audio on this device.');
+                 currentAudio = null;
+                 el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-play"></span> Play / Pause';
+             };
+
+             var promise = currentAudio.play();
+             if (promise !== undefined) {
+                 promise.then(function() {
+                     el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-pause"></span> Stop';
+                 }).catch(function(error) {
+                     console.error('Play prevented:', error);
+                     alert('Click again to play.');
+                 });
+             }
+         } catch(e) {
+             console.error(e);
+         }
+     }
   });
+  
+  safeBind(el.resetBtn, 'click', function() {
+      if(confirm('Discard recording and start over?')) {
+          if(currentAudio) { currentAudio.pause(); currentAudio = null; }
+          BUS.dispatch('reset', {}, { instanceId: instId });
+      }
+  });
+
   safeBind(el.submitBtn, 'click', function(e) {
+    if(currentAudio) { currentAudio.pause(); currentAudio = null; }
     var form = e.target.closest('form');
     var data = {};
     if (form) {
@@ -188,27 +247,19 @@ function initInstance(store, incomingElements, forcedInstanceId) {
     BUS.dispatch('submit', { formFields: data }, { instanceId: instId });
   });
 
-  // TIER C: FILE INPUT LISTENER
+  // Tier C File Listener
   var fileInput = root.querySelector('input[type="file"][name="audio_file"]');
   if (fileInput) {
       safeBind(fileInput, 'change', function(e) {
           if (e.target.files && e.target.files[0]) {
-              // Dispatch file attached event to store
-              store.dispatch({ 
-                  type: 'starmus/file-attached', 
-                  file: e.target.files[0] 
-              });
+              store.dispatch({ type: 'starmus/file-attached', file: e.target.files[0] });
           }
       });
   }
   
-  // FIX: OFFLINE QUEUE LISTENER (Fixes log warning)
   if (BUS) {
-      BUS.subscribe('starmus/offline/queue_updated', (payload) => {
-           console.log('[UI] 📶 Offline Queue Updated:', payload);
-           // Update a badge in the UI if you have one, e.g.:
-           // var badge = root.querySelector('.starmus-queue-badge');
-           // if(badge) badge.textContent = payload.count || 0;
+      BUS.subscribe('starmus/offline/queue_updated', function(payload) {
+           console.log('[UI] Offline Queue:', payload);
       });
   }
 
