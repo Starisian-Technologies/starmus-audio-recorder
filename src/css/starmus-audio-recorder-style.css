@@ -341,6 +341,20 @@ button[data-starmus-action='setup-mic']:hover {
   transition: width 0.05s linear;
 }
 
+/* Fix for Chromebook/Mobile Meter Visibility */
+.starmus-meter-bar {
+    background: #e5e7eb; /* Fallback grey */
+    min-height: 12px;
+}
+
+/* Ensure the meter fill has a color even if vars fail */
+.starmus-meter-bar::after {
+    background-color: var(--starmus-success, #16a34a); 
+    width: var(--starmus-audio-level, 0%) !important;
+}
+
+
+
 /* ========================================================================
    6.1. RECORDING DURATION PROGRESS BAR
    ======================================================================== */
@@ -399,6 +413,12 @@ button[data-starmus-action='setup-mic']:hover {
 
 .starmus-duration-progress[data-level='danger']::after {
   background-color: var(--starmus-danger);
+}
+
+/* Ensure Progress bar has a color */
+.starmus-duration-progress[data-starmus-duration-progress]::after {
+    width: var(--starmus-recording-progress, 0%) !important;
+    background-color: var(--starmus-primary, #007bff);
 }
 
 /* ========================================================================

@@ -1,7 +1,7 @@
 /**
  * @file starmus-recorder.js
- * @version 5.7.0-PHASED
- * @description Recorder with 3-Phase Calibration (Silence/Talk/Silence).
+ * @version 5.9.0-TRANSCRIPTION
+ * @description Recorder with 3-Phase Calibration + Live Speech Recognition.
  */
 
 'use strict';
@@ -10,6 +10,9 @@ import { CommandBus } from './starmus-hooks.js';
 
 const recorderRegistry = new Map();
 let sharedAudioContext = null;
+
+// Speech API Support
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 function getContext() {
   const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -23,18 +26,10 @@ function getContext() {
 
 async function wakeAudio() {
     const ctx = getContext();
-    if (ctx.state === 'suspended') {
-        await ctx.resume();
-    }
+    if (ctx.state === 'suspended') await ctx.resume();
     return ctx;
 }
 
-/**
- * 3-Phase Calibration (15 Seconds Total):
- * 0-5s:  Silence (Measure Noise Floor)
- * 5-10s: Talk (Measure Gain)
- * 10-15s: Finalize/Processing
- */
 async function doCalibration(stream, onUpdate) {
     const ctx = await wakeAudio();
     const source = ctx.createMediaStreamSource(stream);
@@ -44,52 +39,39 @@ async function doCalibration(stream, onUpdate) {
 
     const data = new Uint8Array(analyser.frequencyBinCount);
     const startTime = Date.now();
-    
     let maxVolume = 0;
     
     return new Promise(resolve => {
         function loop() {
-            // 1. Calculate Volume
             analyser.getByteFrequencyData(data);
             let sum = 0;
             for(let i=0; i<data.length; i++) sum += data[i];
             const avg = sum / data.length;
             
-            // Visual multiplier for the UI meter
-            const volume = Math.min(100, avg * 5); 
+            // Chromebook/Mobile Sensitivity Boost (*10)
+            const volume = Math.min(100, avg * 10); 
             if (volume > maxVolume) maxVolume = volume;
 
-            // 2. Determine Phase
             const elapsed = Date.now() - startTime;
             let message = '';
 
             if (elapsed < 5000) {
-                // Phase 1: Silence
                 const countdown = Math.ceil((5000 - elapsed) / 1000);
-                message = `Shh... measuring background noise (${countdown})`;
+                message = `Silence check... ${countdown}`;
             } else if (elapsed < 10000) {
-                // Phase 2: Talk
                 const countdown = Math.ceil((10000 - elapsed) / 1000);
-                message = `Please speak clearly into the mic... (${countdown})`;
-            } else if (elapsed < 12000) {
-                // Phase 3: Finalizing
-                message = 'Optimizing settings...';
+                message = `Speak normally... ${countdown}`;
+            } else if (elapsed < 15000) {
+                message = 'Finalizing...';
             } else {
-                // Done
                 source.disconnect();
                 analyser.disconnect();
                 if (onUpdate) onUpdate('Calibration Complete', 0, true);
-                resolve({ 
-                    complete: true, 
-                    gain: 1.0,
-                    speechLevel: maxVolume
-                });
+                resolve({ complete: true, gain: 1.0, speechLevel: maxVolume });
                 return;
             }
 
-            // 3. Update UI
             if (onUpdate) onUpdate(message, volume, false);
-            
             requestAnimationFrame(loop);
         }
         loop();
@@ -102,92 +84,104 @@ export function initRecorder(store, instanceId) {
   // 1. SETUP MIC
   CommandBus.subscribe('setup-mic', async (_p, meta) => {
     if (meta?.instanceId !== instanceId) return; 
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       await wakeAudio();
-
       store.dispatch({ type: 'starmus/calibration-start' });
 
       const calibration = await doCalibration(stream, (msg, vol, done) => {
-         if(!done) {
-             store.dispatch({ 
-                 type: 'starmus/calibration-update', 
-                 message: msg, 
-                 volumePercent: vol 
-             });
-         }
+         if(!done) store.dispatch({ type: 'starmus/calibration-update', message: msg, volumePercent: vol });
       });
-
       stream.getTracks().forEach(t => t.stop()); 
       store.dispatch({ type: 'starmus/calibration-complete', payload: { calibration } });
-
     } catch (e) {
-      console.error('[Recorder] Setup Failed:', e);
-      store.dispatch({ type: 'starmus/error', payload: { message: 'Mic access failed. Please allow permissions.' } });
-    }
+      console.error(e);
+      store.dispatch({ type: 'starmus/error', payload: { message: 'Mic access failed.' } });
+    } 
   });
 
-  // 2. START RECORDING
+  // 2. START RECORDING (With Transcription)
   CommandBus.subscribe('start-recording', async (_p, meta) => {
     if (meta?.instanceId !== instanceId) return;
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const ctx = await wakeAudio();
-      
       const source = ctx.createMediaStreamSource(stream);
       const dest = ctx.createMediaStreamDestination();
       source.connect(dest);
-
+      
       const mediaRecorder = new MediaRecorder(dest.stream);
       const chunks = [];
+      
+      // --- TRANSCRIPTION SETUP ---
+      let recognition = null;
+      let finalTranscript = '';
+      
+      if (SpeechRecognition) {
+          recognition = new SpeechRecognition();
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.lang = 'en-US'; // Default to English, or grab from store if needed
+          
+          recognition.onresult = (event) => {
+              let interim = '';
+              for (let i = event.resultIndex; i < event.results.length; ++i) {
+                  if (event.results[i].isFinal) {
+                      finalTranscript += event.results[i][0].transcript + ' ';
+                      store.dispatch({ type: 'starmus/transcript-update', transcript: finalTranscript });
+                  } else {
+                      interim += event.results[i][0].transcript;
+                  }
+              }
+              store.dispatch({ type: 'starmus/transcript-interim', interim: interim });
+          };
+          
+          recognition.onerror = (e) => console.warn('[Recorder] Speech API Error:', e.error);
+          // Auto-restart logic if it cuts out while recording
+          recognition.onend = () => {
+              const recState = recorderRegistry.get(instanceId);
+              if (recState && mediaRecorder.state === 'recording') {
+                  try { recognition.start(); } catch(e){}
+              }
+          };
+          
+          try { recognition.start(); } catch(e) { console.warn('Speech start failed', e); }
+      }
+      // ---------------------------
 
       mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-      
       mediaRecorder.onstop = () => {
         const rec = recorderRegistry.get(instanceId);
         if(rec) cancelAnimationFrame(rec.rafId);
+        if(recognition) recognition.stop();
         
         const blob = new Blob(chunks, { type: 'audio/webm' });
-        const fileName = `rec-${Date.now()}.webm`;
-        store.dispatch({ type: 'starmus/recording-available', payload: { blob, fileName } });
-        
+        store.dispatch({ type: 'starmus/recording-available', payload: { blob, fileName: `rec-${Date.now()}.webm` } });
         stream.getTracks().forEach(t => t.stop());
         recorderRegistry.delete(instanceId);
       };
 
-      recorderRegistry.set(instanceId, { mediaRecorder, rafId: null });
+      recorderRegistry.set(instanceId, { mediaRecorder, rafId: null, recognition });
       mediaRecorder.start(1000);
       store.dispatch({ type: 'starmus/mic-start' });
 
-      // Visualizer Loop
+      // Visualizer
       const analyser = ctx.createAnalyser();
       source.connect(analyser);
       const buf = new Uint8Array(analyser.frequencyBinCount);
       const startTs = Date.now();
-
+      
       function visLoop() {
          const rec = recorderRegistry.get(instanceId);
          if(!rec || mediaRecorder.state !== 'recording') return;
-         
          analyser.getByteFrequencyData(buf);
          let sum=0; for(let x=0; x<buf.length; x++) sum+=buf[x];
-         
-         // Amplify for visualizer
-         const amp = Math.min(100, (sum/buf.length) * 5); 
-         
-         store.dispatch({ 
-             type: 'starmus/recorder-tick', 
-             duration: (Date.now()-startTs)/1000, 
-             amplitude: amp 
-         });
+         const amp = Math.min(100, (sum/buf.length) * 10); 
+         store.dispatch({ type: 'starmus/recorder-tick', duration: (Date.now()-startTs)/1000, amplitude: amp });
          rec.rafId = requestAnimationFrame(visLoop);
       }
       visLoop();
-
     } catch (e) {
-      console.error('[Recorder] Start Failed:', e);
       store.dispatch({ type: 'starmus/error', payload: { message: 'Recording failed.' } });
     }
   });
@@ -198,6 +192,7 @@ export function initRecorder(store, instanceId) {
      const rec = recorderRegistry.get(instanceId);
      if(rec?.mediaRecorder?.state === 'recording' || rec?.mediaRecorder?.state === 'paused') {
          rec.mediaRecorder.stop();
+         if(rec.recognition) rec.recognition.stop();
          store.dispatch({ type: 'starmus/mic-stop' });
      }
   });
@@ -207,6 +202,7 @@ export function initRecorder(store, instanceId) {
      const rec = recorderRegistry.get(instanceId);
      if(rec?.mediaRecorder?.state === 'recording') {
          rec.mediaRecorder.pause();
+         if(rec.recognition) rec.recognition.stop(); // API doesn't really pause, so we stop
          store.dispatch({ type: 'starmus/mic-pause' });
      }
   });
@@ -216,6 +212,10 @@ export function initRecorder(store, instanceId) {
      const rec = recorderRegistry.get(instanceId);
      if(rec?.mediaRecorder?.state === 'paused') {
          rec.mediaRecorder.resume();
+         // Attempt to restart speech
+         if(rec.recognition) {
+             try { rec.recognition.start(); } catch(e){}
+         }
          store.dispatch({ type: 'starmus/mic-resume' });
      }
   });

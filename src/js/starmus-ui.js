@@ -1,6 +1,7 @@
 /**
  * @file starmus-ui.js
- * @version 5.7.0-CSS-SYNCED
+ * @version 5.9.1-BUILD-FIX
+ * @description UI Layer. Safe Exports at the bottom.
  */
 
 'use strict';
@@ -23,7 +24,7 @@ function safeBind(element, eventName, handler) {
   element._starmusBound = true;
 }
 
-export function render(state, elements) {
+function render(state, elements) {
   if (!elements) return;
 
   var status = state.status;
@@ -31,12 +32,11 @@ export function render(state, elements) {
   var recorder = state.recorder || {};
   var calibration = state.calibration || {};
   var submission = state.submission || {};
+  var source = state.source || {};
 
-  // --- 1. METERS (SYNCED TO YOUR CSS) ---
+  // --- 1. METERS ---
   if (status === 'calibrating' || status === 'recording') {
       var vol = (status === 'calibrating') ? (calibration.volumePercent || 0) : (recorder.amplitude || 0);
-      
-      // CRITICAL FIX: Update CSS Variable, NOT width directly
       if (elements.volumeMeter) {
           elements.volumeMeter.style.setProperty('--starmus-audio-level', vol + '%');
       }
@@ -44,20 +44,33 @@ export function render(state, elements) {
       if (elements.volumeMeter) elements.volumeMeter.style.setProperty('--starmus-audio-level', '0%');
   }
 
-  var timeStr = formatTime(recorder.duration || 0);
-  if (elements.timerElapsed) elements.timerElapsed.textContent = timeStr;
+  if (elements.timerElapsed) elements.timerElapsed.textContent = formatTime(recorder.duration || 0);
 
-  // Progress Bar (Synced to CSS Variable)
   if (elements.durationProgress) {
-      // 20 min max (1200s) based on your HTML data attribute aria-valuemax="1200"
-      var pct = Math.min(100, ((recorder.duration || 0) / 1200) * 100);
+      var pct = Math.min(100, ((recorder.duration || 0) / 300) * 100);
       elements.durationProgress.style.setProperty('--starmus-recording-progress', pct + '%');
-      elements.durationProgress.setAttribute('aria-valuenow', recorder.duration);
   }
 
-  // --- 2. VISIBILITY ---
+  // --- 2. TRANSCRIPT ---
+  if (elements.transcript) {
+      if (status === 'recording' || status === 'paused' || status === 'ready_to_submit') {
+          var fullText = (source.transcript || '') + ' ' + (source.interimTranscript || '');
+          var cleanText = fullText.trim();
+          
+          if (cleanText) {
+              elements.transcript.style.display = 'block';
+              elements.transcript.innerHTML = 
+                '<span>' + (source.transcript || '') + '</span>' + 
+                '<span style="opacity:0.6; font-style:italic;">' + (source.interimTranscript || '') + '</span>';
+              elements.transcript.scrollTop = elements.transcript.scrollHeight;
+          }
+      } else if (status === 'idle' || status === 'ready') {
+           elements.transcript.style.display = 'none';
+           elements.transcript.textContent = '';
+      }
+  }
 
-  // Step 1 vs Step 2
+  // --- 3. VISIBILITY ---
   if (elements.step1 && elements.step2) {
     var activeStates = ['recording', 'paused', 'processing', 'ready_to_submit', 'submitting', 'calibrating', 'ready', 'complete'];
     var showStep2 = step === 2 || activeStates.indexOf(status) !== -1;
@@ -71,30 +84,26 @@ export function render(state, elements) {
     }
   }
 
-  // Calibration Screen
   var isCalibrated = calibration.complete === true;
   if (elements.setupContainer) {
       var showSetup = (!isCalibrated || status === 'calibrating');
       elements.setupContainer.style.display = showSetup ? 'block' : 'none';
-      
       if (elements.setupMicBtn) {
           if (status === 'calibrating') {
-              elements.setupMicBtn.innerHTML = '<span class="dashicons dashicons-microphone"></span> ' + (calibration.message || 'Adjusting...');
+              elements.setupMicBtn.innerHTML = calibration.message || 'Adjusting...';
               elements.setupMicBtn.disabled = true;
-              elements.setupMicBtn.setAttribute('aria-busy', 'true');
+              elements.setupMicBtn.classList.add('is-busy');
           } else {
               elements.setupMicBtn.innerHTML = '<span class="dashicons dashicons-microphone"></span> Setup Microphone';
               elements.setupMicBtn.disabled = false;
-              elements.setupMicBtn.setAttribute('aria-busy', 'false');
+              elements.setupMicBtn.classList.remove('is-busy');
           }
       }
   }
 
-  if (elements.recorderContainer) {
-      elements.recorderContainer.style.display = isCalibrated ? 'block' : 'none';
-  }
+  if (elements.recorderContainer) elements.recorderContainer.style.display = isCalibrated ? 'block' : 'none';
 
-  // Buttons
+  // --- 4. BUTTONS ---
   var isRec = status === 'recording';
   var isPaused = status === 'paused';
   var isDone = status === 'ready_to_submit';
@@ -105,9 +114,11 @@ export function render(state, elements) {
   if (elements.resumeBtn) elements.resumeBtn.style.display = isPaused ? 'inline-flex' : 'none';
   if (elements.stopBtn) elements.stopBtn.style.display = (isRec || isPaused) ? 'inline-flex' : 'none';
   
-  // Review Controls Container (Play / Reset)
   if (elements.reviewControls) {
       elements.reviewControls.style.display = isDone ? 'flex' : 'none';
+  } else {
+      if (elements.playBtn) elements.playBtn.style.display = isDone ? 'inline-flex' : 'none';
+      if (elements.resetBtn) elements.resetBtn.style.display = isDone ? 'inline-flex' : 'none';
   }
 
   if (elements.submitBtn) {
@@ -115,9 +126,8 @@ export function render(state, elements) {
           elements.submitBtn.textContent = 'Uploading... ' + Math.round((submission.progress||0)*100) + '%';
           elements.submitBtn.disabled = true;
       } else if (status === 'complete') {
-          elements.submitBtn.textContent = 'Submission Complete!';
+          elements.submitBtn.textContent = 'Submitted!';
           elements.submitBtn.disabled = true;
-          elements.submitBtn.classList.remove('starmus-btn--primary');
           elements.submitBtn.classList.add('starmus-btn--success');
       } else {
           elements.submitBtn.textContent = 'Submit Recording';
@@ -126,7 +136,7 @@ export function render(state, elements) {
   }
 }
 
-export function initInstance(store, incomingElements, forcedInstanceId) {
+function initInstance(store, incomingElements, forcedInstanceId) {
   var instId = forcedInstanceId || store.getState().instanceId;
   var root = document;
 
@@ -141,16 +151,13 @@ export function initInstance(store, incomingElements, forcedInstanceId) {
     step1: root.querySelector('[data-starmus-step="1"]'),
     step2: root.querySelector('[data-starmus-step="2"]'),
     setupContainer: root.querySelector('[data-starmus-setup-container]'),
-    
-    // Meters & Visuals
     timer: root.querySelector('[data-starmus-timer]'),
     timerElapsed: root.querySelector('.starmus-timer-elapsed'),
     volumeMeter: root.querySelector('[data-starmus-volume-meter]'),
     durationProgress: root.querySelector('[data-starmus-duration-progress]'),
     recorderContainer: root.querySelector('[data-starmus-recorder-container]'),
-    reviewControls: root.querySelector('.starmus-review-controls'), // Container for Play/Retake
-    
-    // Buttons
+    transcript: root.querySelector('[data-starmus-transcript]'),
+    reviewControls: root.querySelector('.starmus-review-controls'),
     continueBtn: root.querySelector('[data-starmus-action="next"]'),
     setupMicBtn: root.querySelector('[data-starmus-action="setup-mic"]'),
     recordBtn: root.querySelector('[data-starmus-action="record"]'),
@@ -162,14 +169,13 @@ export function initInstance(store, incomingElements, forcedInstanceId) {
     submitBtn: root.querySelector('[data-starmus-action="submit"]')
   };
 
-  // Bind Events
   safeBind(el.continueBtn, 'click', function() {
       var inputs = el.step1 ? el.step1.querySelectorAll('[required]') : [];
       var valid = true;
       for (var i = 0; i < inputs.length; i++) {
           if (!inputs[i].value.trim() && !inputs[i].checked) {
                valid = false;
-               inputs[i].style.borderColor = 'var(--starmus-danger)';
+               inputs[i].style.borderColor = 'red';
           } else {
                inputs[i].style.borderColor = '';
           }
@@ -183,25 +189,21 @@ export function initInstance(store, incomingElements, forcedInstanceId) {
   safeBind(el.resumeBtn, 'click', function(){ BUS.dispatch('resume-mic', {}, { instanceId: instId }); });
   safeBind(el.stopBtn, 'click', function(){ BUS.dispatch('stop-mic', {}, { instanceId: instId }); });
   
-  // Playback Logic
   safeBind(el.playBtn, 'click', function() {
      var state = store.getState();
-     
-     // 1. Try Peaks if available
      if (window.Starmus && window.Starmus.Peaks && window.Starmus.Peaks.player) {
          window.Starmus.Peaks.player.play();
-     } 
-     // 2. Fallback to simple audio tag
-     else if (state.source.blob) {
+     } else if (state.source.blob) {
          var audio = new Audio(URL.createObjectURL(state.source.blob));
          audio.play();
+         var origText = el.playBtn.innerHTML;
          el.playBtn.textContent = 'Playing...';
-         audio.onended = function() { el.playBtn.textContent = 'Play / Pause'; };
+         audio.onended = function() { el.playBtn.innerHTML = origText; };
      }
   });
   
   safeBind(el.resetBtn, 'click', function() {
-      if(confirm('Are you sure you want to delete this recording and start over?')) {
+      if(confirm('Discard recording?')) {
           BUS.dispatch('reset', {}, { instanceId: instId });
       }
   });
@@ -211,9 +213,7 @@ export function initInstance(store, incomingElements, forcedInstanceId) {
     var data = {};
     if (form) {
         var formData = new FormData(form);
-        for (var pair of formData.entries()) {
-            data[pair[0]] = pair[1];
-        }
+        for (var pair of formData.entries()) data[pair[0]] = pair[1];
     }
     BUS.dispatch('submit', { formFields: data }, { instanceId: instId });
   });
@@ -222,4 +222,8 @@ export function initInstance(store, incomingElements, forcedInstanceId) {
   return store.subscribe(function(nextState) { render(nextState, el); });
 }
 
+// Explicit exports for Rollup
+export { render, initInstance };
+
+// Global fallback
 if (typeof window !== 'undefined') window.initUI = initInstance;
