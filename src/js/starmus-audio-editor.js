@@ -1,7 +1,7 @@
 /**
  * @file starmus-audio-editor.js
- * @version 1.0.3-FINAL
- * @description Peaks.js waveform editor — full legacy functionality ported to modern module format.
+ * @version 1.0.4-GLOBALTHIS-FIX
+ * @description Peaks.js waveform editor with modern global scope handling.
  */
 
 (function (global, factory) {
@@ -11,7 +11,8 @@
   } else {
     global.StarmusAudioEditor = factory();
   }
-})(typeof window !== 'undefined' ? window : this, function () {
+// CRITICAL FIX: Use 'globalThis' instead of 'this' as the global fallback
+})(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
 
   function init() {
@@ -59,7 +60,7 @@
     window.addEventListener('beforeunload', (e) => {
       if (dirty) {
         e.preventDefault();
-        e.returnValue = ''; // Standard for modern browsers
+        e.returnValue = '';
       }
     });
 
@@ -127,7 +128,6 @@
           return;
         }
 
-        // Playback UI
         timeDur.textContent = formatTime(duration);
         audio.addEventListener('timeupdate', () => {
           timeCur.textContent = formatTime(audio.currentTime);
@@ -194,7 +194,7 @@
           }
           seg.update({ [key]: val });
           setDirty(true);
-          render(); // Re-render to update duration, etc.
+          render();
         });
 
         regionTable.addEventListener('click', (e) => {
@@ -233,19 +233,17 @@
             });
             const data = await resp.json();
             if (!resp.ok || !data.success) throw new Error(data.message || 'Server error');
-            
-            // On success, refresh the segments from the server's response
             peaks.segments.removeAll();
             peaks.segments.add(normalize(data.annotations || []));
             render();
             showNotice('Annotations saved.', 'success');
           } catch (err) {
             showNotice('Save failed: ' + err.message, 'error');
-            setDirty(true); // Re-enable save if it failed
+            setDirty(true);
           }
         };
 
-        render(); // initial render
+        render();
       });
     });
   }
@@ -259,16 +257,12 @@
       el.textContent = msg;
       el.className = `starmus-alert starmus-alert--${type}`;
       el.hidden = false;
-      setTimeout(() => el.hidden = true, 5000); // Auto-hide notice
+      setTimeout(() => el.hidden = true, 5000);
     }
   }
 
   function escapeHTML(str) {
-    return ('' + str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    return ('' + str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   function formatTime(s) {
@@ -281,6 +275,5 @@
   return { init };
 });
 
-// CRITICAL FIX FOR ROLLUP
-// This makes the 'init' function available for import in starmus-main.js
+// Export for Rollup
 export default { init: window.StarmusAudioEditor.init };
