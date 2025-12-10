@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\services;
 
 if (! \defined('ABSPATH')) {
@@ -10,65 +11,54 @@ if (! \defined('ABSPATH')) {
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 /**
- * Wraps the procedural james-heinrich/getid3 library for both reading and writing.
- * This isolates the global-namespace dependency on getID3 classes.
- *
- * NOTE: getID3, getid3_writetags (and other needed files) must be autoloaded
- * via Composer's "files" autoloading for this to work.
+ * Wraps getID3 library.
+ * PHP 8.2 Compatible.
  */
 final class StarmusId3Service
 {
-    /**
-     * Text encoding for ID3 tags.
-     *
-     * @var string
-     */
     private const TEXT_ENCODING = 'UTF-8';
 
     /**
-     * Initializes the getID3 core engine (for reading and general setup).
+     * Initializes the getID3 core engine.
      */
     private function getID3Engine(): ?\getID3
     {
         if (!class_exists('getID3')) {
-            error_log('Cannot load getID3 library. Check Composer autoload config.');
+            // Check if we can manually load it from a common vendor path if composer autoload failed context
+            $possible_path = WP_CONTENT_DIR . '/plugins/starmus-audio-recorder/vendor/autoload.php';
+            if (file_exists($possible_path)) {
+                require_once $possible_path;
+            }
+        }
+
+        if (!class_exists('getID3')) {
+            StarmusLogger::error('StarmusId3Service', 'getID3 library class not found.');
             return null;
         }
 
         $getID3 = new \getID3();
         $getID3->setOption(['encoding' => self::TEXT_ENCODING]);
-        // Set options for robust reading, e.g., low memory use or specific data extraction
-        // $getID3->option_md5_data = true; // Only enable if you absolutely need this hash.
-
         return $getID3;
     }
 
-    /**
-     * Writes ID3v2.3 tags to an audio file.
-     * This is the functionality you needed for the post-processing pipeline.
-     *
-     * @param string $filepath Absolute path to the MP3 file.
-     * @param array $tagData The tag payload in getID3 format (e.g., ['title' => ['Value']]).
-     * @param int $post_id The parent post ID for logging context.
-     *
-     * @return bool True on successful write (or successful run with warnings).
-     */
     public function writeTags(string $filepath, array $tagData, int $post_id): bool
     {
-        if (!file_exists($filepath) || !class_exists('getid3_writetags')) {
-            error_log('Required ID3 writer class not available or file is missing: ' . $filepath);
+        if (!file_exists($filepath)) {
+            StarmusLogger::error('StarmusId3Service', 'File missing for tagging', ['file' => $filepath]);
             return false;
         }
 
         try {
-            // Need to initialize the reader engine first for options to be set correctly
-            if (!$this->getID3Engine() instanceof \getID3) {
+            $engine = $this->getID3Engine();
+            if (!$engine instanceof \getID3) return false;
+
+            // Ensure Writer is loaded
+            if (!class_exists('getid3_writetags')) {
+                StarmusLogger::error('StarmusId3Service', 'getid3_writetags class missing.');
                 return false;
             }
 
-            // Initialize getID3 tag-writing module
             $tagwriter = new \getid3_writetags();
-
             $tagwriter->filename          = $filepath;
             $tagwriter->tagformats        = ['id3v2.3'];
             $tagwriter->overwrite_tags    = true;
@@ -77,47 +67,28 @@ final class StarmusId3Service
             $tagwriter->tag_data          = $tagData;
 
             if (! $tagwriter->WriteTags()) {
-                error_log('Failed to write ID3 tags: ' . implode('; ', $tagwriter->errors) . ' File: ' . $filepath . ' Post ID: ' . $post_id);
+                StarmusLogger::error('StarmusId3Service', 'WriteTags Failed', ['errors' => $tagwriter->errors]);
                 return false;
             }
 
-            if ($tagwriter->warnings !== []) {
-                StarmusLogger::warning('ID3 Writer Warning', 'ID3 tags written with warnings: ' . implode('; ', $tagwriter->warnings), ['file' => $filepath, 'post_id' => $post_id]);
+            if (!empty($tagwriter->warnings)) {
+                StarmusLogger::warning('StarmusId3Service', 'WriteTags Warnings', ['warnings' => $tagwriter->warnings]);
             }
 
             return true;
-        } catch (\Throwable $throwable) {
-            error_log('ID3 Writer Exception: ' . $throwable->getMessage() . ' File: ' . $filepath . ' Post ID: ' . $post_id);
+        } catch (\Throwable $e) {
+            StarmusLogger::error('StarmusId3Service', 'Exception', ['msg' => $e->getMessage()]);
             return false;
         }
     }
 
-    /**
-     * Reads all available metadata from a file.
-     * This is needed for deep analysis (like ReplayGain) or display.
-     *
-     * @param string $filepath Absolute path to the file.
-     *
-     * @return array The full analysis array from getID3.
-     */
     public function analyzeFile(string $filepath): array
     {
         $engine = $this->getID3Engine();
-        if (!$engine instanceof \getID3 || !file_exists($filepath)) {
-            return ['error' => 'File not found or engine failed to initialize.'];
-        }
+        if (!$engine instanceof \getID3) return [];
 
-        $analysis = $engine->analyze($filepath);
-
-        // This is a common and useful step: copy tags to comments for a unified, flat view
-        if (method_exists($engine, 'CopyTagsToComments')) {
-            $engine->CopyTagsToComments($analysis);
-        }
-
-        return $analysis;
+        $info = $engine->analyze($filepath);
+        \getid3_lib::CopyTagsToComments($info);
+        return $info;
     }
-
-    // NOTE: The database integration should typically remain outside this service,
-    // in a DAL (Data Access Layer) class, as integrating MySQL queries here
-    // would violate SRP. The service only provides the *data*.
 }
