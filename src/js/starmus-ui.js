@@ -148,6 +148,56 @@ export function initInstance(store, incomingElements = {}) {
     BUS?.dispatch('submit', { formFields: data }, { instanceId: instId });
   });
 
+  /**
+ * ABSOLUTE PATCH
+ * Forces Starmus to locate the record button AFTER WordPress layouts finish,
+ * rebinds click handler if theme, block wrappers, or overlays interfered.
+ */
+document.addEventListener('DOMContentLoaded', function starmusLateBindFix() {
+    try {
+        // Find ANY Starmus record button on page
+        const btn = document.querySelector('[data-starmus-action="record"], button[id^="starmus_record_btn_"]');
+        if (!btn) {
+            console.warn('[Starmus PATCH] No record button found on DOMContentLoaded');
+            return;
+        }
+
+        console.log('[Starmus PATCH] Record button located:', btn);
+
+        // Ensure button is actually clickable
+        btn.style.pointerEvents = 'auto';
+        btn.style.zIndex = '999999';
+        btn.style.position = 'relative';
+
+        // Wipe any broken handlers
+        btn.replaceWith(btn.cloneNode(true)); 
+        const freshBtn = document.querySelector('[data-starmus-action="record"], button[id^="starmus_record_btn_"]');
+
+        // Get active instance
+        const form = freshBtn.closest('[data-starmus-instance]');
+        const id = form?.getAttribute('data-starmus-instance');
+        const store = window.StarmusInstances?.[id]?.store;
+
+        if (!store) {
+            console.error('[Starmus PATCH] No store for instance', id);
+            return;
+        }
+
+        const BUS = window.CommandBus || window.StarmusHooks;
+
+        // Bind FINAL guaranteed working handler
+        freshBtn.addEventListener('click', function () {
+            console.log('[Starmus PATCH] Record button CLICK captured — dispatch start-recording');
+            BUS.dispatch('start-recording', {}, { instanceId: id });
+        });
+
+        console.log('[Starmus PATCH] Record button rebound successfully');
+    } catch (e) {
+        console.error('[Starmus PATCH ERROR]', e);
+    }
+});
+
+
   /* SUBSCRIBE & INITIAL RENDER */
   const unsubscribe = store.subscribe(next => render(next, elements));
   render(store.getState(), elements);
