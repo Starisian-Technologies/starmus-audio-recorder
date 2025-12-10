@@ -95,14 +95,31 @@ try {
 // ---------------------------------------------------------------------------
 // 6. CORE + UI INITIALIZATION
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// 4. CORE + UI INITIALIZATION (DOM-SAFE)
+// ---------------------------------------------------------------------------
+
 try {
-  initCore(store);
-  initUI(store);
-  console.log('[StarmusIntegrator] Core + UI ready');
+  window.initCore(store);
+  console.log('[StarmusIntegrator] Core ready');
 } catch (e) {
-  console.error('[StarmusIntegrator] UI/Core init failed:', e);
+  console.error('[StarmusIntegrator] Core init failed:', e);
   throw e;
 }
+
+// UI MUST WAIT FOR DOM OR recordBtn DOES NOT EXIST
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    if (typeof window.initUI !== 'function') {
+      throw new Error('initUI not defined');
+    }
+    window.initUI(store);
+    console.log('[StarmusIntegrator] UI ready');
+  } catch (e) {
+    console.error('[StarmusIntegrator] UI init failed:', e);
+  }
+});
+
 
 // ---------------------------------------------------------------------------
 // 7. RECORDER INITIALIZATION (NO NAME CHANGES)
