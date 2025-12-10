@@ -421,6 +421,31 @@ button[data-starmus-action='setup-mic']:hover {
     background-color: var(--starmus-primary, #007bff);
 }
 
+
+/* Ensure elements in mobile environments */
+
+/* FORCE HIDE TRANSCRIPT */
+[data-starmus-transcript] {
+    display: none !important;
+}
+
+/* FIX METERS FOR MOBILE/CHROMEBOOK */
+[data-starmus-volume-meter] {
+    background-color: var(--starmus-success, #28a745) !important;
+    min-height: 10px;
+    display: block;
+    width: var(--starmus-audio-level, 0%) !important;
+    transition: width 0.1s linear;
+}
+
+[data-starmus-duration-progress] {
+    background-color: var(--starmus-primary, #007bff) !important;
+    min-height: 8px;
+    display: block;
+    width: var(--starmus-recording-progress, 0%) !important;
+    transition: width 1s linear;
+}
+
 /* ========================================================================
    7. LIST VIEW (My Recordings) & PAGINATION
    ======================================================================== */

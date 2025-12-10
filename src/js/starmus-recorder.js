@@ -1,7 +1,6 @@
 /**
  * @file starmus-recorder.js
- * @version 6.1.0-GAMBIA-LOCALE
- * @description Recorder with concrete instructions for calibration.
+ * @version 6.2.0-CLEAR-INSTRUCTIONS
  */
 
 'use strict';
@@ -11,7 +10,7 @@ import { CommandBus } from './starmus-hooks.js';
 const recorderRegistry = new Map();
 let sharedAudioContext = null;
 
-// Speech Recognition (Kept for logic, but UI will hide it)
+// Keep SpeechRecognition for metadata gathering, but we won't show it in UI
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 function getContext() {
@@ -48,27 +47,28 @@ async function doCalibration(stream, onUpdate) {
             for(let i=0; i<data.length; i++) sum += data[i];
             const avg = sum / data.length;
             
-            // High sensitivity for mobile/chromebooks
+            // High sensitivity boost
             const volume = Math.min(100, avg * 10); 
             if (volume > maxVolume) maxVolume = volume;
 
             const elapsed = Date.now() - startTime;
             let message = '';
 
-            // 15 Second Process - Concrete Instructions
+            // 15 Seconds - Concrete, Polite Instructions
             if (elapsed < 5000) {
-                // Phase 1: Silence
-                message = "Please keep quiet for a moment...";
+                // Phase 1
+                const sec = Math.ceil((5000 - elapsed) / 1000);
+                message = `Please stay quiet for ${sec} seconds...`;
             } else if (elapsed < 10000) {
-                // Phase 2: Talk (Concrete task)
-                message = "Now say your name and where you are from...";
+                // Phase 2
+                message = "Please say your name loudly...";
             } else if (elapsed < 15000) {
-                // Phase 3: Finalizing
-                message = "Saving settings...";
+                // Phase 3
+                message = "Thank you. Getting ready...";
             } else {
                 source.disconnect();
                 analyser.disconnect();
-                if (onUpdate) onUpdate('Microphone is Ready', 0, true);
+                if (onUpdate) onUpdate('Microphone Ready', 0, true);
                 resolve({ complete: true, gain: 1.0, speechLevel: maxVolume });
                 return;
             }
@@ -97,12 +97,11 @@ export function initRecorder(store, instanceId) {
       stream.getTracks().forEach(t => t.stop()); 
       store.dispatch({ type: 'starmus/calibration-complete', payload: { calibration } });
     } catch (e) {
-      console.error(e);
-      store.dispatch({ type: 'starmus/error', payload: { message: 'Mic access failed.' } });
+      store.dispatch({ type: 'starmus/error', payload: { message: 'Microphone not found or blocked.' } });
     } 
   });
 
-  // 2. START RECORDING (Logic kept, UI will hide transcript)
+  // 2. START RECORDING (Background Transcript)
   CommandBus.subscribe('start-recording', async (_p, meta) => {
     if (meta?.instanceId !== instanceId) return;
     try {
@@ -115,27 +114,22 @@ export function initRecorder(store, instanceId) {
       const mediaRecorder = new MediaRecorder(dest.stream);
       const chunks = [];
       
-      // Transcription (Logic runs in background for metadata, hidden from UI)
       let recognition = null;
       if (SpeechRecognition) {
           try {
               recognition = new SpeechRecognition();
               recognition.continuous = true;
               recognition.interimResults = true;
-              recognition.lang = 'en-US';
-              
+              recognition.lang = 'en-US'; 
               recognition.onresult = (event) => {
                   let final = '';
-                  let interim = '';
                   for (let i = event.resultIndex; i < event.results.length; ++i) {
                       if (event.results[i].isFinal) final += event.results[i][0].transcript + ' ';
-                      else interim += event.results[i][0].transcript;
                   }
                   if(final) store.dispatch({ type: 'starmus/transcript-update', transcript: final });
-                  store.dispatch({ type: 'starmus/transcript-interim', interim: interim });
               };
               recognition.start();
-          } catch(e) { console.warn('Speech ignored', e); }
+          } catch(e) {}
       }
 
       mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
@@ -175,7 +169,7 @@ export function initRecorder(store, instanceId) {
     }
   });
 
-  // 3. STOP & PAUSE
+  // Stop/Pause handlers (Standard)
   CommandBus.subscribe('stop-mic', (_p, meta) => {
      if (meta?.instanceId !== instanceId) return;
      const rec = recorderRegistry.get(instanceId);

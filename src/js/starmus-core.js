@@ -1,7 +1,7 @@
 /**
  * @file starmus-core.js
- * @version 6.0.0-TIER-LOGIC
- * @description Logic Core: Uploads, Tier Detection, Offline Queue.
+ * @version 6.1.0-DEBUG-UPLOAD
+ * @description Logic Core. improved error logging for upload failures.
  */
 
 'use strict';
@@ -14,76 +14,46 @@ var Hooks = window.StarmusHooks || {};
 var subscribe = Hooks.subscribe || function(){};
 var debugLog = Hooks.debugLog    || function(){};
 
-/**
- * Determine Capability Tier
- * Tier A: MediaRecorder + AudioContext (Full Viz + Rec)
- * Tier B: MediaRecorder Only (Rec, No Viz)
- * Tier C: File Input Only (Old Android/iOS)
- */
 function detectTier() {
-    // 1. Check for basic API
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        return 'C';
-    }
-    // 2. Check for MediaRecorder
-    if (typeof MediaRecorder === 'undefined') {
-        return 'C';
-    }
-    // 3. Check for AudioContext (Required for Visualizer/Calibration)
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return 'C';
+    if (typeof MediaRecorder === 'undefined') return 'C';
     const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) {
-        return 'B'; // Can record, but no meter/viz
-    }
-    
-    return 'A'; // Full capability
+    if (!AudioContext) return 'B';
+    return 'A';
 }
 
 export function initCore(store, instanceId, env) {
   debugLog('[StarmusCore] initCore', instanceId);
 
-  // 1. RUN TIER DETECTION
   const tier = detectTier();
   console.log('[StarmusCore] 📱 Device Tier Detected:', tier);
-  
-  // Dispatch to store so UI updates immediately
   store.dispatch({ type: 'starmus/tier-ready', payload: { tier: tier } });
-
-  // 2. HANDSHAKE WITH UEC
-  // We fire an event to tell SparxstarUEC we are ready to receive data
   window.dispatchEvent(new CustomEvent('starmus-ready', { detail: { instanceId, tier } }));
 
   async function handleSubmit(formFields) {
     const state = store.getState();
     const source = state.source || {};
     const calibration = state.calibration || {};
-    // Merge global env (from UEC) with local state env
     const stateEnv = { ...state.env, ...env };
 
     const audioBlob = source.blob || source.file;
-    // Fallback filename logic
     const fileName  = source.fileName || (source.file ? source.file.name : `rec-${Date.now()}.webm`);
 
     if (!audioBlob) {
-      store.dispatch({
-        type: 'starmus/error',
-        error: { message: 'Please record or attach audio before submitting.', retryable: false },
-        status: state.status,
-      });
+      alert('No audio recording found.');
       return;
     }
 
-    // Build Metadata Object
     const metadata = {
       transcript: source.transcript?.trim() || null,
       calibration: calibration.complete ? {
         gain: calibration.gain,
         speechLevel: calibration.speechLevel
       } : null,
-      env: stateEnv, // This contains the UEC data
-      tier: tier // Send the detected tier to server
+      env: stateEnv,
+      tier: tier
     };
 
-    const estimated = estimateUploadTime(audioBlob.size, stateEnv.network);
     store.dispatch({ type: 'starmus/submit-start' });
 
     const onProgress = (uploaded, total) => {
@@ -93,6 +63,8 @@ export function initCore(store, instanceId, env) {
     try {
       if (!navigator.onLine) throw new Error('OFFLINE_FAST_PATH');
 
+      console.log('[StarmusCore] 🚀 Attempting Upload via Priority Pipeline...');
+      
       const result = await uploadWithPriority({
         blob: audioBlob,
         fileName,
@@ -102,27 +74,33 @@ export function initCore(store, instanceId, env) {
         onProgress
       });
 
+      console.log('[StarmusCore] ✅ Upload Success:', result);
       store.dispatch({ type: 'starmus/submit-complete', payload: result });
+      
+      // Dispatch legacy event for page redirects
+      if(result.redirect_url) {
+          window.location.href = result.redirect_url;
+      }
 
     } catch (error) {
-      debugLog('[StarmusCore] Upload error', error);
-      
-      // AUTO-QUEUE for Offline
-      debugLog('[StarmusCore] Saving to offline queue');
+      // --- CRITICAL DEBUG LOGGING ---
+      console.error('[StarmusCore] ❌ Upload Failed:', error.message);
+      if (error.cause) console.error('   ↳ Cause:', error.cause);
+      // -----------------------------
+
+      console.log('[StarmusCore] 💾 Queuing for Offline sync...');
+
       try {
           const submissionId = await queueSubmission(instanceId, audioBlob, fileName, formFields, metadata);
           store.dispatch({ type: 'starmus/submit-queued', submissionId });
           
-          // Force update the UI listener
           const pending = await getPendingCount();
-          window.CommandBus.dispatch('starmus/offline/queue_updated', { count: pending });
+          if (window.CommandBus) window.CommandBus.dispatch('starmus/offline/queue_updated', { count: pending });
           
       } catch (qe) {
-          store.dispatch({
-            type: 'starmus/error',
-            error: { message: 'Upload failed and storage full.', retryable: false },
-            status: 'ready_to_submit'
-          });
+          console.error('[StarmusCore] ☠️ Offline Queue Failed:', qe);
+          alert('Upload failed and could not be saved. Please try again.');
+          store.dispatch({ type: 'starmus/error', error: { message: 'Upload failed.' } });
       }
     }
   }
