@@ -1062,21 +1062,29 @@ final class StarmusSubmissionHandler
                 return $this->err('combine_open_failed', 'Could not create final file.', 500);
             }
 
-            for ($i = 0; $i < $total; $i++) {
+           for ($i = 0; $i < $total; $i++) {
                 $chunk = $base . 'chunk_' . $i;
+                
+                // Hardening: Wait slightly if file system is slow (common on shared hosts)
                 if (!file_exists($chunk)) {
-                    fclose($fp);
+                    usleep(500000); // Wait 0.5s
+                    clearstatcache();
+                }
+
+                if (!file_exists($chunk)) {
+                    // Clean up locks before returning error
+                    if (is_resource($fp)) fclose($fp);
                     @unlink($final);
                     return $this->err('missing_chunk', sprintf('Missing chunk %d during combine.', $i), 400);
                 }
 
                 $chunk_fp = @fopen($chunk, 'rb');
                 if ($chunk_fp === false) {
-                    fclose($fp);
+                    if (is_resource($fp)) fclose($fp);
                     @unlink($final);
-                    return $this->err('read_chunk_failed', sprintf('Could not read chunk %d during combination.', $i), 500);
+                    return $this->err('read_chunk_failed', sprintf('Could not read chunk %d.', $i), 500);
                 }
-
+                
                 stream_copy_to_stream($chunk_fp, $fp);
                 @fclose($chunk_fp);
             }

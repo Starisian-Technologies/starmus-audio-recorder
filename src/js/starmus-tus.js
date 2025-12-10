@@ -12,10 +12,13 @@ import { debugLog } from './starmus-hooks.js';
 
 // Default config parameters — You can override via window.starmusTus or window.starmusConfig
 const DEFAULT_CONFIG = {
-  chunkSize: 1 * 1024 * 1024,
-  retryDelays: [0, 3000, 5000, 10000, 20000, 60000],
+  // 512KB is the sweet spot for unstable 2G/3G networks
+  chunkSize: 512 * 1024, 
+  // Backoff: Immediate, 5s, 10s, 30s, 60s, 2m, 5m, 10m
+  retryDelays: [0, 5000, 10000, 30000, 60000, 120000, 300000, 600000], 
   removeFingerprintOnSuccess: true,
-  maxChunkRetries: 3
+  // Retry a specific chunk 10 times before giving up on the whole file
+  maxChunkRetries: 10 
 };
 
 /** Retrieve runtime config */

@@ -29,27 +29,30 @@ console.log('[StarmusMain] Store initialized');
 /* 4. BOOTSTRAP ON DOM READY */
 document.addEventListener('DOMContentLoaded', () => {
   try {
-    // --- CRITICAL FIX: FIND THE FORM ID ---
-    // The PHP outputs <form data-starmus-instance="starmus_form_...">
     const form = document.querySelector('form[data-starmus-instance]');
     const instanceId = form ? form.getAttribute('data-starmus-instance') : null;
 
     if (!instanceId) {
-        console.warn('[StarmusMain] ⚠️ No Starmus form found. UI will not initialize.');
-        return; // Stop if no form
+        console.warn('[StarmusMain] ⚠️ No Starmus form found.');
+        return; 
     }
     
+    // --- CRITICAL: Prevent Default Native Submit ---
+    // This stops the page from reloading if the user hits "Enter" in the title field.
+    form.addEventListener('submit', (e) => {
+        e.preventDefault(); 
+        console.log('[StarmusMain] Native submit blocked. Use the UI submit button.');
+    });
+
     console.log('[StarmusMain] Booting for Instance ID:', instanceId);
 
-    // --- WIRE EVERYTHING WITH THE ID ---
-    
     // 1. Core (Uploads/Logic)
     initCore(store, instanceId);
     
-    // 2. UI (Buttons/Views) - Pass ID explicitly
+    // 2. UI (Buttons/Views)
     initUI(store, {}, instanceId);
     
-    // 3. Recorder (Audio/Mic) - Pass ID explicitly
+    // 3. Recorder
     initRecorder(store, instanceId);
 
     // 4. Offline Queue & Metadata
