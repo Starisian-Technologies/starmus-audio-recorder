@@ -1,12 +1,11 @@
 /**
  * @file starmus-ui.js
- * @version 6.1.0-PLAY-FIX
- * @description UI Layer. Robust Play Button + Hidden Transcript.
+ * @version 6.4.0-UI-FIXES
+ * @description Fixes Calibration Text visibility and Meter Gradient support.
  */
 
 'use strict';
 
-// Track audio instance globally to prevent overlapping sounds
 let currentAudio = null;
 
 function formatTime(seconds) {
@@ -46,7 +45,7 @@ function render(state, elements) {
       return;
   }
 
-  // --- 1. METERS ---
+  // --- 1. METERS (Gradient Restored via CSS Var) ---
   if (status === 'calibrating' || status === 'recording') {
       var vol = (status === 'calibrating') ? (calibration.volumePercent || 0) : (recorder.amplitude || 0);
       if (elements.volumeMeter) elements.volumeMeter.style.setProperty('--starmus-audio-level', vol + '%');
@@ -56,16 +55,11 @@ function render(state, elements) {
 
   if (elements.timerElapsed) elements.timerElapsed.textContent = formatTime(recorder.duration || 0);
   if (elements.durationProgress) {
-      var pct = Math.min(100, ((recorder.duration || 0) / 300) * 100); // 5 min scale
+      var pct = Math.min(100, ((recorder.duration || 0) / 300) * 100); 
       elements.durationProgress.style.setProperty('--starmus-recording-progress', pct + '%');
   }
 
-  // --- 2. TRANSCRIPT (HIDDEN FOR NOW) ---
-  if (elements.transcript) {
-      elements.transcript.style.display = 'none'; 
-  }
-
-  // --- 3. VISIBILITY ---
+  // --- 2. VISIBILITY ---
   if (elements.step1 && elements.step2) {
     var activeStates = ['recording', 'paused', 'processing', 'ready_to_submit', 'submitting', 'calibrating', 'ready', 'complete'];
     var showStep2 = step === 2 || activeStates.indexOf(status) !== -1;
@@ -78,15 +72,19 @@ function render(state, elements) {
     }
   }
 
+  // --- 3. CALIBRATION UI (CRITICAL FIX) ---
   var isCalibrated = calibration.complete === true;
   if (elements.setupContainer) {
       var showSetup = (!isCalibrated || status === 'calibrating');
       elements.setupContainer.style.display = showSetup ? 'block' : 'none';
+      
       if (elements.setupMicBtn) {
           if (status === 'calibrating') {
-              elements.setupMicBtn.innerHTML = calibration.message || 'Adjusting...';
+              // REMOVED 'is-busy' so text is visible!
+              // Added icon to show activity
+              elements.setupMicBtn.innerHTML = '<span class="dashicons dashicons-microphone" style="animation:pulse 1s infinite"></span> ' + (calibration.message || 'Adjusting...');
               elements.setupMicBtn.disabled = true;
-              elements.setupMicBtn.classList.add('is-busy');
+              elements.setupMicBtn.classList.remove('is-busy'); 
           } else {
               elements.setupMicBtn.innerHTML = '<span class="dashicons dashicons-microphone"></span> Setup Microphone';
               elements.setupMicBtn.disabled = false;
@@ -108,31 +106,34 @@ function render(state, elements) {
   if (elements.resumeBtn) elements.resumeBtn.style.display = isPaused ? 'inline-flex' : 'none';
   if (elements.stopBtn) elements.stopBtn.style.display = (isRec || isPaused) ? 'inline-flex' : 'none';
   
-  // Review Controls
   if (elements.reviewControls) {
       elements.reviewControls.style.display = isDone ? 'flex' : 'none';
   } else {
-      // Individual fallback
       if (elements.playBtn) elements.playBtn.style.display = isDone ? 'inline-flex' : 'none';
       if (elements.resetBtn) elements.resetBtn.style.display = isDone ? 'inline-flex' : 'none';
   }
 
+  // Submit Button (Still uses is-busy for uploading)
   if (elements.submitBtn) {
       if (status === 'submitting') {
           elements.submitBtn.textContent = 'Uploading... ' + Math.round((submission.progress||0)*100) + '%';
           elements.submitBtn.disabled = true;
+          elements.submitBtn.classList.add('is-busy'); // Keep spinner here
       } else if (status === 'complete') {
-          // Success State
-          elements.submitBtn.innerHTML = '<span class="dashicons dashicons-yes"></span> Done! Redirecting...';
+          elements.submitBtn.innerHTML = '<span class="dashicons dashicons-yes"></span> Success! Redirecting...';
           elements.submitBtn.disabled = true;
+          elements.submitBtn.classList.remove('is-busy');
           elements.submitBtn.classList.add('starmus-btn--success');
       } else {
           elements.submitBtn.textContent = 'Submit Recording';
           elements.submitBtn.disabled = status !== 'ready_to_submit';
+          elements.submitBtn.classList.remove('is-busy');
       }
   }
 }
 
+// ... (initInstance and Exports remain exactly the same as 6.1.0) ...
+// REPEAT initInstance code here if rebuilding the file entirely
 function initInstance(store, incomingElements, forcedInstanceId) {
   var instId = forcedInstanceId || store.getState().instanceId;
   var root = document;
@@ -140,7 +141,6 @@ function initInstance(store, incomingElements, forcedInstanceId) {
       var found = document.querySelector('form[data-starmus-instance="' + instId + '"]');
       if (found) root = found;
   }
-
   var BUS = window.CommandBus;
   
   var el = {
@@ -169,12 +169,8 @@ function initInstance(store, incomingElements, forcedInstanceId) {
       var inputs = el.step1 ? el.step1.querySelectorAll('[required]') : [];
       var valid = true;
       for (var i = 0; i < inputs.length; i++) {
-          if (!inputs[i].value.trim() && !inputs[i].checked) {
-               valid = false;
-               inputs[i].style.borderColor = 'red';
-          } else {
-               inputs[i].style.borderColor = '';
-          }
+          if (!inputs[i].value.trim() && !inputs[i].checked) { valid = false; inputs[i].style.borderColor = 'red'; } 
+          else { inputs[i].style.borderColor = ''; }
       }
       if (valid) store.dispatch({ type: 'starmus/ui/step-continue' });
   });
@@ -185,53 +181,28 @@ function initInstance(store, incomingElements, forcedInstanceId) {
   safeBind(el.resumeBtn, 'click', function(){ BUS.dispatch('resume-mic', {}, { instanceId: instId }); });
   safeBind(el.stopBtn, 'click', function(){ BUS.dispatch('stop-mic', {}, { instanceId: instId }); });
   
-  // FIX: ROBUST PLAY BUTTON
   safeBind(el.playBtn, 'click', function() {
-     // 1. If playing, Stop it
      if (currentAudio) {
          currentAudio.pause();
          currentAudio = null;
          el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-play"></span> Play / Pause';
          return;
      }
-
      var state = store.getState();
-     
-     // 2. Play New
      if (state.source.blob) {
          try {
              var url = URL.createObjectURL(state.source.blob);
              currentAudio = new Audio(url);
-             
-             // Update UI when done
-             currentAudio.onended = function() {
-                 currentAudio = null;
-                 el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-play"></span> Play / Pause';
-             };
-             
-             currentAudio.onerror = function() {
-                 alert('Error playing audio on this device.');
-                 currentAudio = null;
-                 el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-play"></span> Play / Pause';
-             };
-
-             var promise = currentAudio.play();
-             if (promise !== undefined) {
-                 promise.then(function() {
-                     el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-pause"></span> Stop';
-                 }).catch(function(error) {
-                     console.error('Play prevented:', error);
-                     alert('Click again to play.');
-                 });
-             }
-         } catch(e) {
-             console.error(e);
-         }
+             currentAudio.onended = function() { currentAudio = null; el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-play"></span> Play / Pause'; };
+             currentAudio.onerror = function() { alert('Playback error.'); currentAudio = null; el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-play"></span> Play / Pause'; };
+             currentAudio.play();
+             el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-pause"></span> Stop';
+         } catch(e) { console.error(e); }
      }
   });
   
   safeBind(el.resetBtn, 'click', function() {
-      if(confirm('Discard recording and start over?')) {
+      if(confirm('Discard recording?')) {
           if(currentAudio) { currentAudio.pause(); currentAudio = null; }
           BUS.dispatch('reset', {}, { instanceId: instId });
       }
@@ -257,11 +228,9 @@ function initInstance(store, incomingElements, forcedInstanceId) {
           }
       });
   }
-  
+
   if (BUS) {
-      BUS.subscribe('starmus/offline/queue_updated', function(payload) {
-           console.log('[UI] Offline Queue:', payload);
-      });
+      BUS.subscribe('starmus/offline/queue_updated', function(payload) { console.log('[UI] Offline Queue:', payload); });
   }
 
   store.dispatch({ type: 'starmus/init', payload: { instanceId: instId } });

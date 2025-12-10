@@ -3,9 +3,11 @@
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
  * @file    starmus-audio-plugin.css
- * @version 3.2.0-THEME-SYNC-PRESERVED
- * @desc    Maintains all original layout/selectors.
- *          Updates styling tokens to use WP Contrast 2 and White Inputs.
+ * @version 3.3.0-FINAL-GRADIENT
+ * @desc    Full layout preservation.
+ *          - Inputs: White Backgrounds.
+ *          - Theme: WP Contrast 2 for Borders/Buttons.
+ *          - Visuals: Glassmorphic containers, Gradient Meter restored.
  */
 
 /* ========================================================================
@@ -285,7 +287,7 @@ button[data-starmus-action='setup-mic']:hover {
 }
 
 /* ========================================================================
-   6. RECORDER UI COMPONENTS (UPDATED: Meter Visibility)
+   6. RECORDER UI COMPONENTS (UPDATED: Gradient Meter)
    ======================================================================== */
 
 .starmus-visualizer-stage {
@@ -325,13 +327,16 @@ button[data-starmus-action='setup-mic']:hover {
   position: relative;
 }
 
-/* Meter Fill */
+/* Meter Fill - GRADIENT RESTORED */
 .starmus-meter-bar::after {
   content: '';
   display: block;
   height: 100%;
   width: var(--starmus-audio-level, 0%);
-  background-color: var(--starmus-success);
+  background: linear-gradient(90deg,
+      var(--starmus-success) 0%,
+      var(--starmus-warning) 70%,
+      var(--starmus-danger) 100%);
   transition: width 0.05s linear;
 }
 
