@@ -14,6 +14,29 @@ import { initRecorder } from './starmus-recorder.js';
 import { initOffline } from './starmus-offline.js';
 import { initAutoMetadata } from './starmus-metadata-auto.js';
 
+/**
+ * Hard requirement: Starmus runtime namespace
+ * Fixes UEC "Starmus not detected" and restores button bindings.
+ */
+if (!window.Starmus) {
+    window.Starmus = {};
+}
+
+// Ensure Hooks exist so UEC and UI bind correctly
+if (!window.Starmus.Hooks) {
+    window.Starmus.Hooks = {
+        dispatch(event, payload = {}, meta = {}) {
+            document.dispatchEvent(
+                new CustomEvent(`starmus:${event}`, { detail: { payload, meta } })
+            );
+        }
+    };
+}
+
+// Mandatory detection marker
+window.Starmus.Integrator = true;
+
+
 /* -------------------------------------------------------------------------
  * 1. DOUBLE-BOOT GUARD
  * ------------------------------------------------------------------------- */
