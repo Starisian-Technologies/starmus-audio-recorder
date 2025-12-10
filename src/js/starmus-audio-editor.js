@@ -1,16 +1,17 @@
 /**
  * @file starmus-audio-editor.js
- * @version 1.0.2-module
+ * @version 1.0.3-FINAL
  * @description Peaks.js waveform editor — full legacy functionality ported to modern module format.
  */
 
 (function (global, factory) {
+  // Standard UMD wrapper for compatibility
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = factory();
   } else {
     global.StarmusAudioEditor = factory();
   }
-})(typeof window !== 'undefined' ? window : globalThis, function () {
+})(typeof window !== 'undefined' ? window : this, function () {
   'use strict';
 
   function init() {
@@ -58,7 +59,7 @@
     window.addEventListener('beforeunload', (e) => {
       if (dirty) {
         e.preventDefault();
-        e.returnValue = '';
+        e.returnValue = ''; // Standard for modern browsers
       }
     });
 
@@ -193,7 +194,7 @@
           }
           seg.update({ [key]: val });
           setDirty(true);
-          render();
+          render(); // Re-render to update duration, etc.
         });
 
         regionTable.addEventListener('click', (e) => {
@@ -231,17 +232,20 @@
               body: JSON.stringify({ postId, annotations: segs })
             });
             const data = await resp.json();
-            if (!resp.ok || !data.success) throw new Error(data.message);
+            if (!resp.ok || !data.success) throw new Error(data.message || 'Server error');
+            
+            // On success, refresh the segments from the server's response
             peaks.segments.removeAll();
             peaks.segments.add(normalize(data.annotations || []));
             render();
             showNotice('Annotations saved.', 'success');
           } catch (err) {
             showNotice('Save failed: ' + err.message, 'error');
+            setDirty(true); // Re-enable save if it failed
           }
         };
 
-        render(); // initial
+        render(); // initial render
       });
     });
   }
@@ -255,6 +259,7 @@
       el.textContent = msg;
       el.className = `starmus-alert starmus-alert--${type}`;
       el.hidden = false;
+      setTimeout(() => el.hidden = true, 5000); // Auto-hide notice
     }
   }
 
@@ -267,12 +272,15 @@
   }
 
   function formatTime(s) {
+    if (isNaN(s)) return '0:00';
     const m = Math.floor(s / 60);
     const sec = Math.floor(s % 60);
     return m + ':' + String(sec).padStart(2, '0');
   }
 
-  return {
-    init
-  };
+  return { init };
 });
+
+// CRITICAL FIX FOR ROLLUP
+// This makes the 'init' function available for import in starmus-main.js
+export default { init: window.StarmusAudioEditor.init };
