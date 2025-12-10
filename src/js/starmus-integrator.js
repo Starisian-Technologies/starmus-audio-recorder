@@ -1,22 +1,39 @@
 /**
  * @file starmus-integrator.js
- * @version 4.3.10
+ * @version 4.3.11
  * @description Full master orchestrator for Starmus — recorder / editor / offline / uploader / UI / metadata / Peaks bridge / environment-detection + fallback.
  */
 
 'use strict';
 
-// ─── DOUBLE-BOOT GUARD ──────────────────────────────────────────────
-if (window.__STARMUS_BOOTED__ === true) {
-  console.warn('[Starmus] Integrator already initialized — skipping');
-  if (!window.initStarmusRecorder && window.initRecorder) {
-    window.initStarmusRecorder = window.initRecorder;
-  }
-} else {  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< THIS ELSE OPENS A BLOCK
-  window.__STARMUS_BOOTED__ = true;
+// Core imports – no name changes
+import { createStore } from './starmus-state-store.js';
+import { initCore } from './starmus-core.js';
+import { initInstance as initUI } from './starmus-ui.js';
+import { initRecorder } from './starmus-recorder.js';
+import { initOffline } from './starmus-offline.js';
+import { initAutoMetadata } from './starmus-metadata-auto.js';
 
-// ─── BOOTSTRAP ADAPTER ──────────────────────────────────────────────
+/* -------------------------------------------------------------------------
+ * 1. DOUBLE-BOOT GUARD
+ * ------------------------------------------------------------------------- */
+
+if (typeof window !== 'undefined') {
+  if (window.__STARMUS_BOOTED__ === true) {
+    console.warn('[Starmus] Integrator already initialized — skipping');
+    if (!window.initStarmusRecorder && window.initRecorder) {
+      window.initStarmusRecorder = window.initRecorder;
+    }
+  } else {
+    window.__STARMUS_BOOTED__ = true;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 2. BOOTSTRAP ADAPTER (page type detection)
+// ---------------------------------------------------------------------------
 (function() {
+  if (!window) return;
   if (window.STARMUS_EDITOR_DATA) {
     window.STARMUS_BOOTSTRAP = window.STARMUS_EDITOR_DATA;
     window.STARMUS_BOOTSTRAP.pageType = 'editor';
@@ -29,80 +46,81 @@ if (window.__STARMUS_BOOTED__ === true) {
   }
 })();
 
-// ─── PEAKS BRIDGE (validator requires this) ─────────────────────────
+// ---------------------------------------------------------------------------
+// 3. Peaks.js global bridge REQUIRED BY VALIDATOR
+// ---------------------------------------------------------------------------
 (function exposePeaksBridge(g) {
+  if (!g) return;
   if (!g.Starmus) g.Starmus = {};
   if (g.Peaks) g.Starmus.Peaks = g.Peaks;
 })(typeof window !== 'undefined' ? window : globalThis);
 
-// ─── OPTIONAL WEB AUDIO NODES DISABLE ───────────────────────────────
-window.Starmus_DisableOptionalNodes = true;
-if (window.Starmus_DisableOptionalNodes) {
-  const CtxProto = (window.AudioContext || window.webkitAudioContext)?.prototype;
-  if (CtxProto) {
-    if (CtxProto.createConstantSource) {
-      CtxProto.createConstantSource = function () {
-        throw new Error('ConstantSourceNode disabled for stability.');
-      };
-    }
-    if (CtxProto.createIIRFilter) {
-      CtxProto.createIIRFilter = function () {
-        throw new Error('IIRFilterNode disabled for stability.');
-      };
+// ---------------------------------------------------------------------------
+// 4. Disable optional WebAudio nodes for cross-browser stability
+// ---------------------------------------------------------------------------
+if (typeof window !== 'undefined') {
+  window.Starmus_DisableOptionalNodes = true;
+  if (window.Starmus_DisableOptionalNodes) {
+    const CtxProto = (window.AudioContext || window.webkitAudioContext)?.prototype;
+    if (CtxProto) {
+      if (CtxProto.createConstantSource) {
+        CtxProto.createConstantSource = function () {
+          throw new Error('ConstantSourceNode disabled for stability.');
+        };
+      }
+      if (CtxProto.createIIRFilter) {
+        CtxProto.createIIRFilter = function () {
+          throw new Error('IIRFilterNode disabled for stability.');
+        };
+      }
     }
   }
 }
 
-// ─── GLOBAL READINESS VALIDATION ────────────────────────────────────
-function assertGlobal(name) {
-  if (!(name in window)) {
-    console.error('[StarmusIntegrator] Missing global:', name);
-    throw new Error('Starmus runtime missing global: ' + name);
-  }
-}
-
-[
-  'createStore',
-  'initCore',
-  'initUI',
-  'initRecorder',
-  'StarmusTus',
-  'StarmusOfflineQueue',
-  'StarmusQueueSubmission',
-  'initOffline',
-  'initAutoMetadata'
-].forEach(assertGlobal);
-
-// ─── STORE INIT ─────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// 5. CORE STORE INITIALIZATION (no globals required)
+// ---------------------------------------------------------------------------
 let store;
 try {
-  store = window.createStore();
-  if (!store || typeof store.getState !== 'function') throw new Error('Invalid store');
+  store = createStore();
+  if (!store || typeof store.getState !== 'function') {
+    throw new Error('Invalid store instance');
+  }
   console.log('[StarmusIntegrator] Store initialized');
 } catch (e) {
   console.error('[StarmusIntegrator] Failed to init store:', e);
   throw e;
 }
 
-// ─── CORE + UI ──────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// 6. CORE + UI INITIALIZATION
+// ---------------------------------------------------------------------------
 try {
-  window.initCore(store);
-  window.initUI(store);
+  initCore(store);
+  initUI(store);
   console.log('[StarmusIntegrator] Core + UI ready');
 } catch (e) {
   console.error('[StarmusIntegrator] UI/Core init failed:', e);
   throw e;
 }
 
-// ─── RECORDER INIT ─────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// 7. RECORDER INITIALIZATION (NO NAME CHANGES)
+// ---------------------------------------------------------------------------
+
+// Ensure expected globals point to the imported recorder initializer
+if (typeof window !== 'undefined') {
+  window.initRecorder = window.initRecorder || initRecorder;
+  window.StarmusRecorder = window.StarmusRecorder || initRecorder;
+}
+
 let recorderInitInProgress = false;
-const _recorderStarted = false;
 
 function safeInitRecorder() {
   if (recorderInitInProgress) return;
   recorderInitInProgress = true;
   try {
-    window.initRecorder(store);
+    initRecorder(store);
     console.log('[StarmusIntegrator] Recorder initialized');
   } catch (e) {
     console.error('[StarmusIntegrator] Recorder init failed:', e);
@@ -111,74 +129,109 @@ function safeInitRecorder() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', safeInitRecorder);
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', safeInitRecorder);
+}
 
-// ─── AUDIOCONTEXT RESUME ───────────────────────────────────────────
-document.addEventListener('click', function () {
-  try {
-    const ctx = window.StarmusAudioContext;
-    if (ctx && ctx.state === 'suspended' && typeof ctx.resume === 'function') {
-      ctx.resume();
-      console.log('[StarmusIntegrator] AudioContext resume triggered');
+// ---------------------------------------------------------------------------
+// 8. AUDIOCONTEXT RESUME WATCHDOG
+// ---------------------------------------------------------------------------
+if (typeof document !== 'undefined') {
+  document.addEventListener('click', function () {
+    try {
+      const ctx = window.StarmusAudioContext;
+      if (ctx && ctx.state === 'suspended' && typeof ctx.resume === 'function') {
+        ctx.resume();
+        console.log('[StarmusIntegrator] AudioContext resume triggered');
+      }
+    } catch {
+      // ignore failures
     }
-  } catch {}
-}, { once: true });
+  }, { once: true });
+}
 
-// ─── ENSURE PEAKS ───────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// 9. PEAKS AUTOBRIDGE GUARANTEE
+// ---------------------------------------------------------------------------
 (function ensurePeaks() {
+  if (typeof window === 'undefined') return;
   if (!window.Peaks) {
     console.warn('[StarmusIntegrator] Peaks.js missing, creating null bridge');
     window.Peaks = { init: () => null };
   }
 })();
 
-// ─── SPEECH API NORMALIZER ──────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// 10. SPEECH RECOGNITION NORMALIZER
+// ---------------------------------------------------------------------------
 (function normalizeSpeechAPI() {
+  if (typeof window === 'undefined') return;
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
     window.SpeechRecognition = function(){};
     console.log('[StarmusIntegrator] Speech recognition stubbed');
   }
 })();
 
-// ─── TUS SUBMISSION LOCK ────────────────────────────────────────────
-let tusSubmitLock = false;
-const origQueueSubmission = window.StarmusQueueSubmission;
-window.StarmusQueueSubmission = function () {
-  if (tusSubmitLock) {
-    console.warn('[StarmusIntegrator] Prevented double TUS submission');
-    return;
-  }
-  tusSubmitLock = true;
-  try {
-    origQueueSubmission.apply(null, arguments);
-  } finally {
-    setTimeout(() => (tusSubmitLock = false), 1500);
-  }
-};
+// ---------------------------------------------------------------------------
+// 11. TUS SUBMISSION LOCK (DEFERRED UNTIL AFTER LOAD)
+// ---------------------------------------------------------------------------
+if (typeof window !== 'undefined') {
+  window.addEventListener('load', () => {
+    const origQueueSubmission = window.StarmusQueueSubmission;
+    if (typeof origQueueSubmission !== 'function') {
+      console.warn('[StarmusIntegrator] No StarmusQueueSubmission found to wrap');
+      return;
+    }
 
-// ─── OFFLINE QUEUE ──────────────────────────────────────────────────
+    let tusSubmitLock = false;
+
+    window.StarmusQueueSubmission = function () {
+      if (tusSubmitLock) {
+        console.warn('[StarmusIntegrator] Prevented double TUS submission');
+        return;
+      }
+      tusSubmitLock = true;
+      try {
+        return origQueueSubmission.apply(null, arguments);
+      } finally {
+        setTimeout(() => { tusSubmitLock = false; }, 1500);
+      }
+    };
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 12. OFFLINE QUEUE WATCHDOG
+// ---------------------------------------------------------------------------
 try {
-  window.initOffline(store);
+  // initOffline signature does not require the store; it wires IndexedDB + listeners
+  initOffline();
   console.log('[StarmusIntegrator] Offline queue ready');
 } catch (e) {
   console.error('[StarmusIntegrator] Offline init failed:', e);
 }
 
-// ─── AUTO METADATA ─────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// 13. AUTO METADATA HOOK
+// ---------------------------------------------------------------------------
 try {
-  const form = document.querySelector('form[data-starmus]');
-  if (form) {
-    window.initAutoMetadata(store, form, { trigger: 'ready_to_submit' });
-    console.log('[StarmusIntegrator] Metadata auto-sync bound');
+  if (typeof document !== 'undefined') {
+    const form = document.querySelector('form[data-starmus]');
+    if (form) {
+      initAutoMetadata(store, form, { trigger: 'ready_to_submit' });
+      console.log('[StarmusIntegrator] Metadata auto-sync bound');
+    }
   }
 } catch (e) {
   console.warn('[StarmusIntegrator] Metadata init skipped:', e);
 }
 
-// ─── LEGACY FLAGS ──────────────────────────────────────────────────
-window.StarmusIntegrator = true;
-window.initStarmusRecorder = window.initRecorder;
+// ---------------------------------------------------------------------------
+// 14. FINAL FLAG + LEGACY COMPAT
+// ---------------------------------------------------------------------------
+if (typeof window !== 'undefined') {
+  window.StarmusIntegrator = true;
+  window.initStarmusRecorder = window.initRecorder;
+}
 
 console.log('[StarmusIntegrator] Boot complete');
-
-} // END OF ELSE BLOCK
