@@ -1,184 +1,83 @@
 /**
  * @file starmus-hooks.js
- * @version 5.0.3-FULL
- * @description Unified Command Bus with backward‑compatible ES5 fallbacks.
- * Correctly integrates with starmusConfig.debug and exports debugLog.
+ * @version 5.1.0-GLOBAL-FIX
+ * @description The "Nervous System". Forces a global connection point.
  */
 
-;(function (global) {
-  'use strict';
+'use strict';
 
-  /**
-   * ---------------------------------------------------------------------------
-   * SECTION 1 — CORE UTILITIES (Logging & Fallbacks)
-   * ---------------------------------------------------------------------------
-   */
+const globalScope = typeof window !== 'undefined' ? window : globalThis;
 
-  // Unified debug logger (ES5-safe)
-  var DEBUG = !!(global.starmusConfig && global.starmusConfig.debug);
-
-  function debugLog() {
-    if (!DEBUG) return;
-    try {
-      (console.log || function(){})
-        .apply(console, arguments);
-    } catch (_) {}
-  }
-  
-  // Feature detect Set; fallback to array‑based storage
-  var hasSet = typeof Set === 'function';
-  var createHandlerStore = function () {
-    return hasSet ? new Set() : [];
-  };
-
-  var addHandler = function (store, fn) {
-    if (hasSet) {
-      store.add(fn);
-    } else if (store.indexOf(fn) === -1) {
-      store.push(fn);
-    }
-  };
-
-  var removeHandler = function (store, fn) {
-    if (hasSet) {
-      store.delete(fn);
-    } else {
-      var i = store.indexOf(fn);
-      if (i !== -1) store.splice(i, 1);
-    }
-  };
-
-  var iterateHandlers = function (store, cb) {
-    if (hasSet) {
-      store.forEach(cb);
-    } else {
-      // copy to avoid mutation during iteration
-      var clone = store.slice();
-      for (var i = 0; i < clone.length; i++) {
-        cb(clone[i]);
-      }
-    }
-  };
-
-
-  /**
-   * ---------------------------------------------------------------------------
-   * SECTION 2 — CORE REGISTRIES
-   * ---------------------------------------------------------------------------
-   */
-
-  // Handler registry keyed by command names
-  // USE A GLOBAL REGISTRY if it exists, to prevent multiple bundles splitting the bus
-  var handlers = global.StarmusHooksRegistry || {}; 
-  global.StarmusHooksRegistry = handlers;
-
-  // Recursion guard
-  var activeDispatches = {}; // { "cmd::instanceId": true }
-
-  /**
-   * ---------------------------------------------------------------------------
-   * SECTION 3 — API: subscribe()
-   * ---------------------------------------------------------------------------
-   */
-
-  function subscribe(commandName, handler, instanceId) {
-    var key = commandName + '::' + (instanceId || '*');
-    if (!handlers[key]) {
-      handlers[key] = createHandlerStore();
-    }
-    addHandler(handlers[key], handler);
-
-    // Return explicitly ES5-safe unsubscribe
-    return function unsubscribe() {
-      if (handlers[key]) {
-        removeHandler(handlers[key], handler);
-      }
+// 1. Force Global Registry (The "Socket")
+if (!globalScope.StarmusRegistry) {
+    globalScope.StarmusRegistry = {
+        handlers: {}, // Must be a plain object for safety
+        active: new Set()
     };
+}
+const registry = globalScope.StarmusRegistry;
+
+/**
+ * SUBSCRIBE
+ */
+function subscribe(command, handler, instanceId) {
+  const key = command + '::' + (instanceId || '*');
+  
+  if (!registry.handlers[key]) {
+      registry.handlers[key] = [];
   }
-
-  /**
-   * ---------------------------------------------------------------------------
-   * SECTION 4 — API: dispatch()
-   * ---------------------------------------------------------------------------
-   */
-
-  function dispatch(commandName, payload, meta) {
-    payload = payload || {};
-    meta = meta || {};
-
-    var instance = meta.instanceId || '*';
-    var key = commandName + '::' + instance;
-
-    if (activeDispatches[key]) {
-      debugLog('Prevented recursive dispatch:', commandName); 
-      return;
-    }
-
-    activeDispatches[key] = true;
-
-    try {
-        // Check instance-specific handlers first, then global
-        var handlerStore = handlers[key] || handlers[commandName + '::*'] || handlers[commandName];
-
-        if (!handlerStore) {
-            // debugLog('No handlers found for', key);
-            return;
-        }
-
-        iterateHandlers(handlerStore, function (handler) {
-            // Execute the handler inside try-catch to prevent one bad handler from stopping the bus
-            try {
-                handler(payload, meta);
-            } catch (e) {
-                console.error('Error executing handler for command ' + commandName + ':', e);
-            }
-        });
-    } finally {
-        // Crucial: always clean up the recursion guard
-        delete activeDispatches[key];
-    }
+  // Prevent duplicate subscriptions
+  if (registry.handlers[key].indexOf(handler) === -1) {
+      registry.handlers[key].push(handler);
   }
   
-  /**
-   * ---------------------------------------------------------------------------
-   * SECTION 5 — GLOBAL EXPORTS (Must match your expected API)
-   * ---------------------------------------------------------------------------
-   */
+  console.log(`[Bus] Subscribed to: ${key}`);
 
-  // Define the global namespace object if it doesn't exist
-  if (typeof global.StarmusHooks === 'undefined') {
-    global.StarmusHooks = {};
-  }
-  
-  global.StarmusHooks.subscribe = subscribe;
-  global.StarmusHooks.dispatch = dispatch;
-  global.StarmusHooks.debugLog = debugLog;
-
-  // --- CRITICAL PATCH: Bridge CommandBus to StarmusHooks ---
-  // This ensures that if UI calls CommandBus.dispatch, StarmusHooks listeners hear it.
-  global.CommandBus = {
-      subscribe: subscribe,
-      dispatch: dispatch,
-      debugLog: debugLog
+  return () => {
+      const idx = registry.handlers[key].indexOf(handler);
+      if (idx > -1) registry.handlers[key].splice(idx, 1);
   };
-    
-})(typeof window !== 'undefined' ? window : globalThis);
+}
 
-// ------------------------------------------------------------
-// ES Module Export Bridge
-// ------------------------------------------------------------
-const _G = (typeof window !== 'undefined' ? window : globalThis);
+/**
+ * DISPATCH
+ */
+function dispatch(command, payload = {}, meta = {}) {
+  const id = meta.instanceId || '*';
+  const specificKey = command + '::' + id;
+  const globalKey = command + '::*';
+  const universalKey = command;
 
-export const debugLog = (_G.StarmusHooks && _G.StarmusHooks.debugLog) || function () {};
-export const dispatch = (_G.StarmusHooks && _G.StarmusHooks.dispatch) || function () {};
-export const subscribe = (_G.StarmusHooks && _G.StarmusHooks.subscribe) || function () {};
+  // Gather all matching handlers
+  const targets = [
+      ...(registry.handlers[specificKey] || []),
+      ...(registry.handlers[globalKey] || []),
+      ...(registry.handlers[universalKey] || [])
+  ];
 
-// Ensure the module export also points to the same singleton
-export const CommandBus = _G.CommandBus;
+  if (targets.length === 0) {
+      console.warn(`[Bus] ⚠️ No listeners for command: ${command} (ID: ${id})`);
+      return;
+  }
 
-export default {
-  debugLog,
-  subscribe,
-  dispatch,
-  CommandBus
-};
+  console.log(`[Bus] Dispatching ${command} to ${targets.length} listeners`);
+
+  targets.forEach(fn => {
+      try {
+          fn(payload, meta);
+      } catch (e) {
+          console.error('[Bus] Handler failed:', e);
+      }
+  });
+}
+
+function debugLog(...args) {
+   // console.log(...args); // Uncomment for extreme debug mode
+}
+
+// 2. EXPORT & ATTACH
+const Bus = { subscribe, dispatch, debugLog };
+globalScope.CommandBus = Bus; 
+globalScope.StarmusHooks = Bus;
+
+export { subscribe, dispatch, debugLog, Bus as CommandBus };
