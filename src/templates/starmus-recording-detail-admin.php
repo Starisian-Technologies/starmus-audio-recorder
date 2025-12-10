@@ -10,7 +10,7 @@
  */
 
 if (! defined('ABSPATH')) {
-    exit;
+	exit;
 }
 
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
@@ -19,87 +19,114 @@ use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 // === 1. INITIALIZATION & DATA RESOLUTION ===
 
 try {
-    $post_id = get_the_ID();
+	$post_id = get_the_ID();
 
-    if (! $post_id && isset($args['post_id'])) {
-        $post_id = intval($args['post_id']);
-    }
+	if (! $post_id && isset($args['post_id'])) {
+		$post_id = intval($args['post_id']);
+	}
 
-    if (! $post_id) {
-        throw new \Exception('No post ID found.');
-    }
+	if (! $post_id) {
+		throw new \Exception('No post ID found.');
+	}
 
-    $settings = new StarmusSettings();
+	$settings = new StarmusSettings();
 
-    // Safe Service Instantiation
-    $file_service = class_exists(\Starisian\Sparxstar\Starmus\services\StarmusFileService::class)
-        ? new StarmusFileService()
-        : null;
+	// Safe Service Instantiation
+	$file_service = class_exists(\Starisian\Sparxstar\Starmus\services\StarmusFileService::class)
+		? new StarmusFileService()
+		: null;
 
-    // --- 1. Audio Assets ---
-    $mastered_mp3_id = (int) get_post_meta($post_id, 'mastered_mp3', true);
-    $archival_wav_id = (int) get_post_meta($post_id, 'archival_wav', true);
-    $original_id     = (int) get_post_meta($post_id, 'audio_files_originals', true);
+	// --- 1. Audio Assets ---
+	$mastered_mp3_id = (int) get_post_meta($post_id, 'mastered_mp3', true);
+	$archival_wav_id = (int) get_post_meta($post_id, 'archival_wav', true);
+	$original_id     = (int) get_post_meta($post_id, 'audio_files_originals', true);
 
-    $get_url = function (int $att_id) use ($file_service) {
-        if ($att_id <= 0) {
-            return '';
-        }
-        try {
-            if ($file_service instanceof \Starisian\Sparxstar\Starmus\services\StarmusFileService) {
-                return $file_service->star_get_public_url($att_id);
-            }
-        } catch (\Throwable) {
-        }
-        return wp_get_attachment_url($att_id) ?: '';
-    };
+	$get_url = function (int $att_id) use ($file_service) {
+		if ($att_id <= 0) {
+			return '';
+		}
+		try {
+			if ($file_service instanceof \Starisian\Sparxstar\Starmus\services\StarmusFileService) {
+				return $file_service->star_get_public_url($att_id);
+			}
+		} catch (\Throwable) {
+		}
+		return wp_get_attachment_url($att_id) ?: '';
+	};
 
-    $mp3_url      = $get_url($mastered_mp3_id);
-    $wav_url      = $get_url($archival_wav_id);
-    $original_url = $get_url($original_id); // Assuming _audio_attachment_id is covered by audio_files_originals
-    $playback_url = $mp3_url ?: $original_url;
+	$mp3_url      = $get_url($mastered_mp3_id);
+	$wav_url      = $get_url($archival_wav_id);
+	$original_url = $get_url($original_id); // Assuming _audio_attachment_id is covered by audio_files_originals
+	$playback_url = $mp3_url ?: $original_url;
 
-    // --- 2. Telemetry & Logs ---
-    $processing_log = get_post_meta($post_id, 'processing_log', true);
-    $transcript_raw = get_post_meta($post_id, 'first_pass_transcription', true);
-    $runtime_raw    = get_post_meta($post_id, 'runtime_metadata', true);
+	// --- 2. Telemetry & Logs ---
+	$processing_log = get_post_meta($post_id, 'processing_log', true);
+	$transcript_raw = get_post_meta($post_id, 'first_pass_transcription', true);
+	$runtime_raw    = get_post_meta($post_id, 'runtime_metadata', true);
 
-    // --- 3. Robust Data Parsing (Reads Saved Blobs) ---
-    $env_json_raw = get_post_meta($post_id, 'environment_data', true);
-    $env_data     = empty($env_json_raw) ? [] : json_decode($env_json_raw, true);
+	// --- 3. Robust Data Parsing (Reads Saved Blobs) ---
+	$env_json_raw = get_post_meta($post_id, 'environment_data', true);
+	$env_data     = empty($env_json_raw) ? [] : json_decode($env_json_raw, true);
 
-    // Fallback to post_meta if UEC parsing failed to save individual fields
-    $fingerprint_display   = get_post_meta($post_id, 'device_fingerprint', true) ?: ($env_data['identifiers']['visitorId'] ?? 'N/A');
-    $submission_ip_display = get_post_meta($post_id, 'submission_ip', true) ?: ($env_data['identifiers']['ipAddress'] ?? 'Unknown');
-    $mic_profile_display   = get_post_meta($post_id, 'mic_profile', true) ?: ($env_data['technical']['profile']['overallProfile'] ?? 'N/A');
+	// FIX: Parse IDs correctly from the flat structure we built in JS
+	$visitor_id = $env_data['identifiers']['visitorId'] ?? 'N/A';
+	$session_id = $env_data['identifiers']['sessionId'] ?? 'N/A';
 
-    // Construct User Agent from saved environment JSON (Robust Fallback)
-    $ua_construct       = ($env_data['technical']['raw']['browser']['name'] ?? '') . ' ' . ($env_data['technical']['raw']['browser']['version'] ?? '') . ' (' . ($env_data['deviceDetails']['os']['name'] ?? '') . ')';
-    $user_agent_display = trim($ua_construct) ?: (get_post_meta($post_id, 'user_agent', true) ?: 'N/A');
+	$fingerprint_display = sprintf('Session: %s | Visitor: %s', $session_id, $visitor_id);
 
-    // Parse Transcript
-    $transcript_text = '';
-    if (! empty($transcript_raw)) {
-        $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
-        $transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
-    }
+	$submission_ip_display = get_post_meta($post_id, 'submission_ip', true) ?: ($env_data['identifiers']['ipAddress'] ?? 'Unknown');
 
-    // --- 4. Standard Metadata ---
-    $accession_number = get_post_meta($post_id, 'accession_number', true);
-    $location_data    = get_post_meta($post_id, 'location', true);
-    $project_id       = get_post_meta($post_id, 'project_collection_id', true);
+	// FIX: Mic Profile Location
+	// The JSON shows {"gain":1,"speechLevel":100} inside runtime_metadata, not Env
+	$mic_data_raw = get_post_meta($post_id, 'runtime_metadata', true);
+	$mic_data = json_decode($mic_data_raw, true);
+	$mic_profile_display = isset($mic_data['gain']) ? 'Gain: ' . $mic_data['gain'] : 'N/A';
 
-    $languages = get_the_terms($post_id, 'language');
-    $rec_types = get_the_terms($post_id, 'recording_type');
+	// CRITICAL FIX: Parse Browser/OS from User Agent string if structured data missing
+	$ua_string = $env_data['device']['userAgent'] ?? (get_post_meta($post_id, 'user_agent', true) ?: '');
 
-    // --- 5. URLs ---
-    $edit_page_slug     = $settings->get('edit_page_id', '');
-    $recorder_page_slug = $settings->get('recorder_page_id', '');
-    $edit_page_url      = $edit_page_slug ? get_permalink(get_page_by_path($edit_page_slug)) : '';
-    $recorder_page_url  = $recorder_page_slug ? get_permalink(get_page_by_path($recorder_page_slug)) : '';
+	// Simple parser for display
+	if ($ua_string) {
+		$browser = 'Unknown';
+		if (strpos($ua_string, 'Chrome') !== false) $browser = 'Chrome';
+		elseif (strpos($ua_string, 'Firefox') !== false) $browser = 'Firefox';
+		elseif (strpos($ua_string, 'Safari') !== false) $browser = 'Safari';
+
+		$os = 'Unknown';
+		if (strpos($ua_string, 'Android') !== false) $os = 'Android';
+		elseif (strpos($ua_string, 'Windows') !== false) $os = 'Windows';
+		elseif (strpos($ua_string, 'Mac') !== false) $os = 'MacOS';
+		elseif (strpos($ua_string, 'Linux') !== false) $os = 'Linux';
+		elseif (strpos($ua_string, 'CrOS') !== false) $os = 'ChromeOS';
+
+		$user_agent_display = "$browser on $os";
+	} else {
+		$user_agent_display = 'N/A';
+	}
+
+	// Parse Transcript
+	$transcript_text = '';
+	if (! empty($transcript_raw)) {
+		$decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
+		$transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
+	}
+
+	// --- 4. Standard Metadata ---
+	$accession_number = get_post_meta($post_id, 'accession_number', true);
+	$location_data    = get_post_meta($post_id, 'location', true);
+	$project_id       = get_post_meta($post_id, 'project_collection_id', true);
+
+	$languages = get_the_terms($post_id, 'language');
+	$rec_types = get_the_terms($post_id, 'recording_type');
+
+	// --- 5. URLs ---
+	$edit_page_slug     = $settings->get('edit_page_id', '');
+	$recorder_page_slug = $settings->get('recorder_page_id', '');
+	$edit_page_url      = $edit_page_slug ? get_permalink(get_page_by_path($edit_page_slug)) : '';
+	$recorder_page_url  = $recorder_page_slug ? get_permalink(get_page_by_path($recorder_page_slug)) : '';
 } catch (\Throwable $throwable) {
-    echo '<div class="starmus-alert starmus-alert--error"><p>Error: ' . esc_html($throwable->getMessage()) . '</p></div>';
-    return;
+	echo '<div class="starmus-alert starmus-alert--error"><p>Error: ' . esc_html($throwable->getMessage()) . '</p></div>';
+	return;
 }
 ?>
 
@@ -171,19 +198,19 @@ try {
 
 	<!-- Waveform -->
 	<?php if (! empty($waveform_data)) {
-	    $width   = 800;
-	    $height  = 100;
-	    $count   = count($waveform_data);
-	    $step    = max(1, floor($count / 800));
-	    $points  = [];
-	    $max_val = max(array_map(abs(...), $waveform_data)) ?: 1;
-	    for ($i = 0; $i < $count; $i += $step) {
-	        $val      = (float) $waveform_data[$i];
-	        $x        = ($i / $count) * $width;
-	        $y        = $height - (($val / $max_val) * $height);
-	        $points[] = sprintf('%s,%s', $x, $y);
-	    }
-	    ?>
+		$width   = 800;
+		$height  = 100;
+		$count   = count($waveform_data);
+		$step    = max(1, floor($count / 800));
+		$points  = [];
+		$max_val = max(array_map(abs(...), $waveform_data)) ?: 1;
+		for ($i = 0; $i < $count; $i += $step) {
+			$val      = (float) $waveform_data[$i];
+			$x        = ($i / $count) * $width;
+			$y        = $height - (($val / $max_val) * $height);
+			$points[] = sprintf('%s,%s', $x, $y);
+		}
+	?>
 		<section class="starmus-detail__section sparxstar-glass-card">
 			<h2><?php esc_html_e('Waveform Data', 'starmus-audio-recorder'); ?></h2>
 			<figure class="starmus-waveform-container" style="background:#f0f0f1; border:1px solid #ddd; padding:10px; border-radius: 8px;">
