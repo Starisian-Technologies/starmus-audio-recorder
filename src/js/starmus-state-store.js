@@ -1,7 +1,7 @@
 /**
  * @file starmus-state-store.js
- * @version 5.0.0
- * @description Unified ES5-safe, redux-like store for managing recording state.
+ * @version 6.0.0-ERROR-LOGGING
+ * @description Store that captures runtime errors into the Environment Metadata.
  */
 
 (function (global) {
@@ -9,11 +9,18 @@
 
   var DEFAULT_INITIAL_STATE = {
     instanceId: null,
-    env: {},
     tier: null,
     status: 'uninitialized',
-    step: 1, // Track which step of the form we're on
+    step: 1,
     error: null,
+    // Schema-compliant Environment Object
+    env: {
+        device: {},
+        browser: {},
+        network: {},
+        identifiers: {},
+        errors: [] // Critical: Error Log Array
+    },
     source: {
       kind: null,
       blob: null,
@@ -28,6 +35,7 @@
       volumePercent: 0,
       complete: false,
       gain: 1.0,
+      speechLevel: 0
     },
     recorder: {
       duration: 0,
@@ -61,17 +69,38 @@
     }
 
     switch (action.type) {
-      case 'starmus/tier-ready':
-        if (state.tier) return state;
-        return merge(state, {
-          tier: action.payload && action.payload.tier ? action.payload.tier : state.tier,
-        });
-
       case 'starmus/init':
         return merge(state, merge(action.payload || {}, { status: 'idle', error: null }));
 
+      case 'starmus/env-update':
+        // Deep merge for env to preserve existing errors/data
+        var newEnv = merge(state.env, action.payload || {});
+        // Ensure errors array persists if payload didn't have it
+        if (!newEnv.errors) newEnv.errors = state.env.errors || [];
+        return merge(state, { env: newEnv });
+
+      case 'starmus/error':
+        var errObj = action.error || action.payload;
+        var errMsg = errObj.message || 'Unknown Error';
+        
+        // CRITICAL: Log error to Metadata History
+        var currentErrors = (state.env && state.env.errors) ? state.env.errors.slice() : [];
+        currentErrors.push({
+            code: errObj.code || 'RUNTIME_ERROR',
+            message: errMsg,
+            timestamp: Date.now(),
+            severity: errObj.retryable === false ? 'hard' : 'soft'
+        });
+
+        return merge(state, { 
+            error: errObj,
+            env: merge(state.env, { errors: currentErrors }) 
+        });
+
+      case 'starmus/tier-ready':
+        return merge(state, { tier: action.payload.tier || state.tier });
+
       case 'starmus/ui/step-continue':
-        // Move to step 2 and set ready for calibration
         return merge(state, { step: 2, status: 'idle', error: null });
 
       case 'starmus/calibration-start':
@@ -88,117 +117,68 @@
       case 'starmus/calibration-complete':
         return merge(state, {
           status: 'ready',
-          calibration: merge(state.calibration, merge(action.calibration || {}, { complete: true })),
+          calibration: merge(state.calibration, merge(action.payload.calibration || {}, { complete: true })),
         });
 
       case 'starmus/mic-start':
-        return merge(state, {
-          status: 'recording',
-          error: null,
-          recorder: merge(state.recorder, { duration: 0, amplitude: 0, isPaused: false }),
-        });
+        return merge(state, { status: 'recording', error: null, recorder: merge(state.recorder, { duration: 0, isPaused: false }) });
 
       case 'starmus/mic-pause':
-        return merge(state, {
-          status: 'paused',
-          recorder: merge(state.recorder, { isPaused: true }),
-        });
+        return merge(state, { status: 'paused', recorder: merge(state.recorder, { isPaused: true }) });
 
       case 'starmus/mic-resume':
-        return merge(state, {
-          status: 'recording',
-          recorder: merge(state.recorder, { isPaused: false }),
-        });
+        return merge(state, { status: 'recording', recorder: merge(state.recorder, { isPaused: false }) });
 
       case 'starmus/mic-stop':
-        return merge(state, { status: 'processing' });
+        return merge(state, { status: 'ready_to_submit' }); // Ready immediately on stop
 
       case 'starmus/recorder-tick':
-        return merge(state, {
-          recorder: merge(state.recorder, {
-            duration: action.duration,
-            amplitude: action.amplitude,
-          }),
-        });
+        return merge(state, { recorder: merge(state.recorder, { duration: action.duration, amplitude: action.amplitude }) });
 
       case 'starmus/recording-available':
         return merge(state, {
           status: 'ready_to_submit',
-          source: merge(state.source, {
-            kind: 'blob',
-            blob: action.payload.blob,
-            fileName: action.payload.fileName,
-          }),
-        });
-
-      case 'starmus/recorder-playback-state':
-        return merge(state, {
-          recorder: merge(state.recorder, { isPlaying: action.isPlaying }),
+          source: merge(state.source, { kind: 'blob', blob: action.payload.blob, fileName: action.payload.fileName }),
         });
 
       case 'starmus/transcript-update':
-        return merge(state, {
-          source: merge(state.source, { transcript: action.transcript }),
-        });
+        return merge(state, { source: merge(state.source, { transcript: action.transcript }) });
 
       case 'starmus/transcript-interim':
-        return merge(state, {
-          source: merge(state.source, { interimTranscript: action.interim }),
-        });
-
-      case 'starmus/env-update':
-        return merge(state, {
-          env: merge(state.env, action.payload || {}),
-          tier: action.tier || state.tier,
-        });
+        return merge(state, { source: merge(state.source, { interimTranscript: action.interim }) });
 
       case 'starmus/file-attached':
         return merge(state, {
           status: 'ready_to_submit',
-          source: {
-            kind: 'file',
-            file: action.file,
-            fileName: action.file.name,
-          },
+          source: { kind: 'file', file: action.file, fileName: action.file.name }
         });
 
       case 'starmus/submit-start':
         return merge(state, { status: 'submitting', error: null });
 
       case 'starmus/submit-progress':
-        return merge(state, {
-          submission: merge(state.submission, { progress: action.progress }),
-        });
+        return merge(state, { submission: merge(state.submission, { progress: action.progress }) });
 
       case 'starmus/submit-complete':
-        return merge(state, {
-          status: 'complete',
-          submission: { progress: 1, isQueued: false },
-        });
+        return merge(state, { status: 'complete', submission: { progress: 1, isQueued: false } });
 
       case 'starmus/submit-queued':
+        // Log the offline event as a soft error for tracking
+        var offlineErrors = state.env.errors ? state.env.errors.slice() : [];
+        offlineErrors.push({ code: 'OFFLINE_QUEUE', message: 'Upload deferred to offline queue', timestamp: Date.now(), severity: 'soft' });
+        
         return merge(state, {
           status: 'complete',
-          submission: { progress: 0, isQueued: true },
+          env: merge(state.env, { errors: offlineErrors }),
+          submission: { progress: 0, isQueued: true }
         });
-
-      case 'starmus/error':
-        return merge(state, { error: action.error || action.payload });
 
       case 'starmus/reset':
         return merge(shallowClone(DEFAULT_INITIAL_STATE), {
           instanceId: state.instanceId,
-          env: state.env,
+          env: state.env, // Preserve environment data across resets!
           tier: state.tier,
-          status: 'idle',
-          source: {
-            kind: null,
-            blob: null,
-            file: null,
-            fileName: '',
-            transcript: '',
-            interimTranscript: '',
-          },
+          status: 'idle'
         });
 
       default:
@@ -209,48 +189,24 @@
   function createStore(initial) {
     var state = merge(DEFAULT_INITIAL_STATE, initial || {});
     var listeners = [];
-
     return {
-      getState: function () {
-        return state;
-      },
+      getState: function () { return state; },
       dispatch: function (action) {
         state = reducer(state, action);
-        for (var i = 0; i < listeners.length; i++) {
-          try {
-            listeners[i](state);
-          } catch (e) {
-            console.error(e);
-          }
-        }
+        for (var i = 0; i < listeners.length; i++) listeners[i](state);
       },
       subscribe: function (fn) {
-        if (listeners.indexOf(fn) === -1) listeners.push(fn);
-        return function () {
-          var idx = listeners.indexOf(fn);
-          if (idx !== -1) listeners.splice(idx, 1);
-        };
+        listeners.push(fn);
+        return function () { listeners.splice(listeners.indexOf(fn), 1); };
       },
     };
   }
 
-  // Attach globally
   global.StarmusStore = global.StarmusStore || {};
   global.StarmusStore.createStore = createStore;
 
-  // CommonJS support
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { createStore: createStore };
-  }
-
-  // UMD fallback
-  if (typeof exports !== 'undefined') {
-    exports.createStore = createStore;
-  }
+  if (typeof module !== 'undefined' && module.exports) module.exports = { createStore: createStore };
 
 })(typeof window !== 'undefined' ? window : globalThis);
 
-// ES6 named export
-export function createStore(initial) {
-  return window.StarmusStore.createStore(initial);
-}
+export function createStore(initial) { return window.StarmusStore.createStore(initial); }
