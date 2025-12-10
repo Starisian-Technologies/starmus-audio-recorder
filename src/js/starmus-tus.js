@@ -1,14 +1,14 @@
 /**
  * @file starmus-tus.js
- * @version 6.2.0-COMPAT-FIX
- * @description Upload strategy with Argument Normalization (Object -> Arguments).
+ * @version 6.6.0-MULTI-DOMAIN
+ * @description Forces relative API paths to support multiple domains/URLs.
  */
 
 'use strict';
 
-// 1. Config for Unstable Networks
+// 1. Config
 const DEFAULT_CONFIG = {
-  chunkSize: 512 * 1024, // 512KB chunks
+  chunkSize: 512 * 1024, 
   retryDelays: [0, 5000, 10000, 30000, 60000, 120000, 300000],
   removeFingerprintOnSuccess: true,
   maxChunkRetries: 10
@@ -28,34 +28,32 @@ function sanitizeMetadata(value) {
   return v.length > 500 ? v.slice(0, 497) + '...' : v;
 }
 
-// 2. Direct Upload Fallback (Expects Positional Arguments)
+// 2. Direct Upload (Updated for Multi-Domain)
 export async function uploadDirect(blob, fileName, formFields = {}, metadata = {}, _instanceId = '', onProgress) {
   const cfg = getConfig();
-  // Fallback endpoint logic
-  const endpoint = cfg.directUpload || 
-                   (window.starmusConfig && window.starmusConfig.endpoints && window.starmusConfig.endpoints.directUpload) ||
-                   '/wp-json/star-starmus-audio-recorder/v1/upload-fallback';
-                   
   const nonce = cfg.nonce || (window.starmusConfig && window.starmusConfig.nonce) || '';
+
+  // CRITICAL FIX: Use Relative Path for Endpoint
+  // This ensures we upload to the current domain (e.g. penguin.linux.test OR contribute.sparxstar.com)
+  // regardless of what might be saved in the DB settings.
+  const endpoint = '/wp-json/star-starmus-audio-recorder/v1/upload-fallback';
 
   const fields = normalizeFormFields(formFields);
 
   return new Promise((resolve, reject) => {
     const fd = new FormData();
     
-    // Safety check for Blob
-    if (!(blob instanceof Blob)) {
-        return reject(new Error('INVALID_BLOB_TYPE: ' + typeof blob));
-    }
+    if (!(blob instanceof Blob)) return reject(new Error('INVALID_BLOB_TYPE'));
 
-    // Append Fields
-    Object.entries(fields).forEach(([k,v]) => fd.append(k, v));
+    // Filter out fields we will add manually
+    const SKIP = ['_starmus_env', '_starmus_calibration', 'first_pass_transcription'];
+    Object.entries(fields).forEach(([k, v]) => {
+        if (!SKIP.includes(k)) fd.append(k, v);
+    });
     
-    // Append File
     fd.append('audio_file', blob, fileName);
 
-    // Append Metadata
-    if (metadata?.transcript) fd.append('_starmus_transcript', metadata.transcript);
+    if (metadata?.transcript) fd.append('first_pass_transcription', metadata.transcript);
     if (metadata?.calibration) fd.append('_starmus_calibration', JSON.stringify(metadata.calibration));
     if (metadata?.env) fd.append('_starmus_env', JSON.stringify(metadata.env));
     if (metadata?.tier) fd.append('tier', metadata.tier);
@@ -78,6 +76,7 @@ export async function uploadDirect(blob, fileName, formFields = {}, metadata = {
           reject(new Error('Invalid JSON response'));
         }
       } else {
+        // Detailed error for 500/403
         reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
       }
     };
@@ -87,49 +86,43 @@ export async function uploadDirect(blob, fileName, formFields = {}, metadata = {
   });
 }
 
-// 3. Priority Wrapper (Fixes the Mismatch)
+// 3. Priority Wrapper
 export async function uploadWithPriority(arg1) {
-  // UNWRAP ARGUMENTS: Support both Object (new) and Positional (legacy) styles
   let blob, fileName, formFields, metadata, instanceId, onProgress;
 
   if (arg1 && arg1.blob) {
-      // Object style (Used by starmus-core.js)
       ({ blob, fileName, formFields, metadata, instanceId, onProgress } = arg1);
   } else {
-      // Positional style (Legacy support)
       [blob, fileName, formFields, metadata, instanceId, onProgress] = arguments;
   }
 
-  // Debug check
-  if (!blob) throw new Error('No blob provided to uploader');
+  if (!blob) throw new Error('No blob provided');
 
-  // STRATEGY: Try TUS -> Fallback to Direct
+  // Skip TUS if disabled/missing, go straight to robust Direct fallback
   try {
     if (isTusAvailable(blob.size)) {
         return await uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress);
     }
-    throw new Error('TUS_NOT_AVAILABLE');
-  } catch (eTus) {
-    console.warn('[Uploader] TUS skipped/failed, using Direct Fallback.', eTus.message);
-    // Call Direct with unwrapped positional arguments
+    throw new Error('TUS_UNAVAILABLE');
+  } catch (e) {
+    console.log('[Uploader] Using Direct Fallback (Relative URL)');
     return await uploadDirect(blob, fileName, formFields, metadata, instanceId, onProgress);
   }
 }
 
-// 4. Helpers & TUS Stub
+// 4. Helpers
 export function isTusAvailable(blobSize = 0) {
   const cfg = getConfig();
-  // Check if TUS library exists AND endpoint is configured
+  // Only use TUS if explicitly configured AND library is loaded
   return !!(window.tus && window.tus.Upload && cfg.endpoint && blobSize > 0);
 }
 
 export async function uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress) {
-    // ... (Full TUS implementation would go here, assuming stub for this fix since TUS is disabled on your server)
-    throw new Error('TUS_DISABLED');
+    throw new Error('TUS_DISABLED_IN_THIS_BUILD');
 }
 
 export function estimateUploadTime(fileSize, networkInfo) {
-  let downlink = networkInfo?.downlink || 0.5; // Default slow
+  let downlink = networkInfo?.downlink || 0.5; 
   const bytesPerSec = (downlink * 1000000) / 8;
   return Math.ceil((fileSize / bytesPerSec) * 1.5);
 }
@@ -138,7 +131,6 @@ export function formatUploadEstimate(s) {
   return !isFinite(s) ? '...' : (s < 60 ? `~${s}s` : `~${Math.ceil(s/60)}m`);
 }
 
-// Export
 const StarmusTus = {
   uploadWithTus,
   uploadDirect,
