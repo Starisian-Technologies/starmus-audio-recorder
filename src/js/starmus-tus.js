@@ -42,15 +42,12 @@ function normalizeFormFields(fields) {
  */
 export async function uploadWithTus(blob, fileName, formFields = {}, metadata = {}, instanceId = '', onProgress) {
   if (!window.tus || !window.tus.Upload) {
-    debugLog('[TUS] No tus library — failing over');
     throw new Error('TUS_NOT_AVAILABLE');
   }
 
   const cfg = getConfig();
-  const endpoint = cfg.endpoint || (window.starmusConfig && window.starmusConfig.endpoints && window.starmusConfig.endpoints.tusUpload);
-  if (!endpoint) {
-    throw new Error('TUS_ENDPOINT_NOT_CONFIGURED');
-  }
+  const endpoint = cfg.endpoint || (window.starmusConfig?.endpoints?.tusUpload);
+  if (!endpoint) throw new Error('TUS_ENDPOINT_NOT_CONFIGURED');
 
   const meta = {
     filename: sanitizeMetadata(fileName),
@@ -62,65 +59,26 @@ export async function uploadWithTus(blob, fileName, formFields = {}, metadata = 
   };
 
   if (metadata) {
-    try {
-      meta.starmus_meta = sanitizeMetadata(JSON.stringify(metadata));
-    } catch (e) {
-      debugLog('[TUS] Metadata sanitization failed', e);
-    }
+    try { meta.starmus_meta = sanitizeMetadata(JSON.stringify(metadata)); } catch (e) {}
   }
 
   return new Promise((resolve, reject) => {
     let uploader;
-
     const opts = {
       endpoint: endpoint,
       chunkSize: cfg.chunkSize || DEFAULT_CONFIG.chunkSize,
       retryDelays: cfg.retryDelays || DEFAULT_CONFIG.retryDelays,
       metadata: meta,
-
-      fingerprint(file /*, options*/) {
-        return ['starmus', instanceId, file.size, file.lastModified || ''].join('-');
-      },
-
-      onError(error) {
-        debugLog('[TUS] Upload error', error);
-        reject(error);
-      },
-
-      onProgress(uploaded, total) {
-        if (typeof onProgress === 'function') {
-          onProgress(uploaded, total);
-        }
-      },
-
-      async onSuccess() {
-        debugLog('[TUS] Upload success', uploader.url);
-
-        if (cfg.removeFingerprintOnSuccess && window.tus?.defaultOptions?.removeFingerprint) {
-          try {
-            const fp = await window.tus.defaultOptions.fingerprint(blob, opts);
-            await window.tus.defaultOptions.removeFingerprint(fp);
-          } catch (e) {
-            debugLog('[TUS] Failed to remove fingerprint', e);
-          }
-        }
-
-        resolve(uploader.url);
-      }
+      fingerprint(file) { return ['starmus', instanceId, file.size, file.lastModified].join('-'); },
+      onError(error) { reject(error); },
+      onProgress(uploaded, total) { if (onProgress) onProgress(uploaded, total); },
+      async onSuccess() { resolve(uploader.url); }
     };
 
     uploader = new window.tus.Upload(blob, opts);
-
-    uploader.findPreviousUploads()
-      .then((previous) => {
-        if (previous && previous.length > 0) {
-          debugLog('[TUS] Resuming from previous upload', previous[0].uploadUrl);
-          uploader.resumeFromPreviousUpload(previous[0]);
-        }
-      })
-      .finally(() => {
-        uploader.start();
-      });
+    uploader.findPreviousUploads().then((previous) => {
+      if (previous && previous.length > 0) uploader.resumeFromPreviousUpload(previous[0]);
+    }).finally(() => uploader.start());
   });
 }
 

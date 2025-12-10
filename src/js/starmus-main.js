@@ -1,32 +1,26 @@
 /**
  * @file starmus-main.js
- * @version 5.1.0-FIXED
- * @description Main Entry Point. Connects the App to the PHP Form ID.
+ * @version 5.7.0-SECURE
  */
 
 'use strict';
 
-/* 1. GLOBALS & HOOKS */
 import Peaks from 'peaks.js';
 if (!window.Peaks) window.Peaks = Peaks;
 import './starmus-hooks.js';
 
-/* 2. MODULE IMPORTS */
 import { createStore } from './starmus-state-store.js';
 import { initCore } from './starmus-core.js';
 import { initInstance as initUI } from './starmus-ui.js';
 import { initRecorder } from './starmus-recorder.js';
-import { initOffline, getOfflineQueue, queueSubmission } from './starmus-offline.js';
+import { initOffline, queueSubmission } from './starmus-offline.js';
 import { initAutoMetadata } from './starmus-metadata-auto.js';
 import TranscriptModule from './starmus-transcript-controller.js';
 import './starmus-integrator.js';
 
-/* 3. SETUP STORE */
 const store = createStore();
 window.StarmusStore = store; 
-console.log('[StarmusMain] Store initialized');
 
-/* 4. BOOTSTRAP ON DOM READY */
 document.addEventListener('DOMContentLoaded', () => {
   try {
     const form = document.querySelector('form[data-starmus-instance]');
@@ -37,26 +31,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return; 
     }
     
-    // --- CRITICAL: Prevent Default Native Submit ---
-    // This stops the page from reloading if the user hits "Enter" in the title field.
+    // --- CRITICAL: Prevent Default Submit ---
     form.addEventListener('submit', (e) => {
         e.preventDefault(); 
-        console.log('[StarmusMain] Native submit blocked. Use the UI submit button.');
+        console.log('[StarmusMain] Native submit blocked. Use the UI button.');
     });
 
     console.log('[StarmusMain] Booting for Instance ID:', instanceId);
 
-    // 1. Core (Uploads/Logic)
     initCore(store, instanceId);
-    
-    // 2. UI (Buttons/Views)
     initUI(store, {}, instanceId);
-    
-    // 3. Recorder
     initRecorder(store, instanceId);
-
-    // 4. Offline Queue & Metadata
     initOffline();
+    
     if (form) {
       initAutoMetadata(store, form, { trigger: 'ready_to_submit' });
     }
@@ -66,10 +53,5 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* 5. EXPORTS */
 window.StarmusRecorder = initRecorder;
 window.StarmusTus = { queueSubmission };
-window.StarmusOfflineQueue = getOfflineQueue;
-window.StarmusTranscriptController = TranscriptModule;
-
-console.log('[StarmusMain] Bundle Loaded');
