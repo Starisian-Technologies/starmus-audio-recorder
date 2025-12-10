@@ -1,6 +1,6 @@
 /**
  * @file starmus-hooks.js
- * @version 5.0.1
+ * @version 5.0.3-FULL
  * @description Unified Command Bus with backward‑compatible ES5 fallbacks.
  * Correctly integrates with starmusConfig.debug and exports debugLog.
  */
@@ -68,7 +68,9 @@
    */
 
   // Handler registry keyed by command names
-  var handlers = {}; // safer than Object.create(null) on old Safari/WebView
+  // USE A GLOBAL REGISTRY if it exists, to prevent multiple bundles splitting the bus
+  var handlers = global.StarmusHooksRegistry || {}; 
+  global.StarmusHooksRegistry = handlers;
 
   // Recursion guard
   var activeDispatches = {}; // { "cmd::instanceId": true }
@@ -119,6 +121,7 @@
         var handlerStore = handlers[key] || handlers[commandName + '::*'] || handlers[commandName];
 
         if (!handlerStore) {
+            // debugLog('No handlers found for', key);
             return;
         }
 
@@ -149,16 +152,20 @@
   
   global.StarmusHooks.subscribe = subscribe;
   global.StarmusHooks.dispatch = dispatch;
-  global.StarmusHooks.debugLog = debugLog; // 🔥 New export
+  global.StarmusHooks.debugLog = debugLog;
+
+  // --- CRITICAL PATCH: Bridge CommandBus to StarmusHooks ---
+  // This ensures that if UI calls CommandBus.dispatch, StarmusHooks listeners hear it.
+  global.CommandBus = {
+      subscribe: subscribe,
+      dispatch: dispatch,
+      debugLog: debugLog
+  };
     
 })(typeof window !== 'undefined' ? window : globalThis);
 
 // ------------------------------------------------------------
 // ES Module Export Bridge
-// Allows Rollup imports without breaking the legacy global IIFE
-// ------------------------------------------------------------
-// ------------------------------------------------------------
-// ES Module Export Bridge (Correct global reference)
 // ------------------------------------------------------------
 const _G = (typeof window !== 'undefined' ? window : globalThis);
 
@@ -166,21 +173,8 @@ export const debugLog = (_G.StarmusHooks && _G.StarmusHooks.debugLog) || functio
 export const dispatch = (_G.StarmusHooks && _G.StarmusHooks.dispatch) || function () {};
 export const subscribe = (_G.StarmusHooks && _G.StarmusHooks.subscribe) || function () {};
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    debugLog,
-    subscribe: _G.StarmusHooks.subscribe,
-    dispatch: _G.StarmusHooks.dispatch,
-  };
-} 
-
-export const CommandBus = {
-  subscribe,
-  dispatch,
-  unsubscribeInstance: function(instanceId) {
-    // Optional: Add per-instance unsubscribe logic if handlers need cleanup
-  }
-};
+// Ensure the module export also points to the same singleton
+export const CommandBus = _G.CommandBus;
 
 export default {
   debugLog,
