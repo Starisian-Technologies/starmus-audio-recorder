@@ -750,3 +750,34 @@ button[data-starmus-action='setup-mic']:hover {
     background: var(--starmus-theme-glass-base);
   }
 }
+
+/* -----------------------------------------------------------------------
+   Admin Detail View
+   ---------------------------------------------------------------------- */
+
+   /* Fix Admin Detail View Layout Stability */
+.starmus-col-main {
+    /* Prevent logs from pushing content out of view */
+    min-width: 0; 
+}
+
+/* Ensure the log box scrolls internally, rather than growing the page infinitely */
+.starmus-processing-log {
+    max-height: 400px;
+    overflow-y: auto;
+    background: #1e1e1e;
+    color: #00ff00;
+    padding: 15px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    white-space: pre-wrap; /* Wrap long log lines */
+}
+
+/* Ensure the glass card wraps expanded content correctly */
+.sparxstar-glass-card {
+    height: auto;
+    overflow: visible; 
+    display: flex;
+    flex-direction: column;
+}
