@@ -195,8 +195,8 @@ async function calibrateAudioLevels(stream, onUpdate) {
         timestamp: new Date().toISOString()
       };
 
-      try { mic.disconnect(); } catch (_) {}
-      try { analyser.disconnect(); } catch (_) {}
+      try { mic.disconnect(); } catch { /* ignore */ }
+      try { analyser.disconnect(); } catch { /* ignore */ }
 
       if (onUpdate) onUpdate('', null, true);
       resolve(calibration);
@@ -210,8 +210,29 @@ export function initRecorder(store, instanceId) {
   // (Optional) Unsubscribe previous subscriptions if your CommandBus supports it
   CommandBus.unsubscribeInstance && CommandBus.unsubscribeInstance(instanceId);
 
+  // Action translation bridge: CommandBus commands → Store actions
+  CommandBus.subscribe('start-recording', (_p, meta) => {
+    if (meta.instanceId !== instanceId) { return; }
+    store.dispatch({ type: 'starmus/mic-start', payload: { instanceId: meta.instanceId } });
+  }, instanceId);
+
+  CommandBus.subscribe('pause-mic', (_p, meta) => {
+    if (meta.instanceId !== instanceId) { return; }
+    store.dispatch({ type: 'starmus/mic-pause', payload: { instanceId: meta.instanceId } });
+  }, instanceId);
+
+  CommandBus.subscribe('resume-mic', (_p, meta) => {
+    if (meta.instanceId !== instanceId) { return; }
+    store.dispatch({ type: 'starmus/mic-resume', payload: { instanceId: meta.instanceId } });
+  }, instanceId);
+
+  CommandBus.subscribe('stop-mic', (_p, meta) => {
+    if (meta.instanceId !== instanceId) { return; }
+    store.dispatch({ type: 'starmus/mic-stop', payload: { instanceId: meta.instanceId } });
+  }, instanceId);
+
   CommandBus.subscribe('setup-mic', async (_payload, meta) => {
-    if (meta.instanceId !== instanceId) return;
+    if (meta.instanceId !== instanceId) { return; }
 
     if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
       const msg = 'Microphone not supported.';
@@ -225,7 +246,7 @@ export function initRecorder(store, instanceId) {
       emitStarmusEvent(instanceId, 'E_MIC_ACCESS', { severity: 'info', message: 'Mic access granted — calibrating' });
       store.dispatch({ type: 'starmus/calibration-start' });
 
-      const calibration = await calibrateAudioLevels(rawStream, (msg, volume, done) => {
+      const calibration = await calibrateAudioLevels(rawStream, (msg, volume, _done) => {
         store.dispatch({ type: 'starmus/calibration-update', message: msg, volumePercent: volume });
       });
 
@@ -236,10 +257,10 @@ export function initRecorder(store, instanceId) {
       emitStarmusEvent(instanceId, 'E_MIC_ACCESS', { severity: 'error', message: errorMsg, data: { error: err.message } });
       store.dispatch({ type: 'starmus/error', payload: { message: errorMsg, retryable: true } });
     }
-  });
+  }, instanceId);
 
   CommandBus.subscribe('start-recording', async (_payload, meta) => {
-    if (meta.instanceId !== instanceId) return;
+    if (meta.instanceId !== instanceId) { return; }
     const state = store.getState();
 
     if (state.status === 'calibrating') {
@@ -263,20 +284,20 @@ export function initRecorder(store, instanceId) {
 
       const dest = graph.destinationStream;
       const tracks = dest.getAudioTracks();
-      if (!tracks.length) throw new Error('No audio tracks available');
+      if (!tracks.length) { throw new Error('No audio tracks available'); }
 
       const mediaRecorder = new MediaRecorder(dest);
       const chunks = [];
 
       mediaRecorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) chunks.push(e.data);
+        if (e.data && e.data.size > 0) { chunks.push(e.data); }
       };
 
       mediaRecorder.onstop = () => {
         const rec = recorderRegistry.get(instanceId);
-        if (!rec) return;
+        if (!rec) { return; }
 
-        if (rec.rafId) cancelAnimationFrame(rec.rafId);
+        if (rec.rafId) { cancelAnimationFrame(rec.rafId); }
         const blob = new Blob(chunks, { type: mediaRecorder.mimeType || 'audio/webm' });
         const fileName = `starmus-recording-${Date.now()}.webm`;
 
@@ -291,7 +312,9 @@ export function initRecorder(store, instanceId) {
         rawStream.getTracks().forEach(t => t.stop());
         dest.getTracks().forEach(t => t.stop());
         graph.nodes.forEach(n => {
-          try { n.disconnect(); } catch (_) {}
+          try { n.disconnect(); } catch {
+            // Connection cleanup failed, ignore
+          }
         });
         recorderRegistry.delete(instanceId);
       };
@@ -307,17 +330,17 @@ export function initRecorder(store, instanceId) {
 
       function meterLoop() {
         const rec = recorderRegistry.get(instanceId);
-        if (!rec || rec.mediaRecorder.state !== 'recording') return;
+        if (!rec || rec.mediaRecorder.state !== 'recording') { return; }
 
         try {
           analyser.getFloatTimeDomainData(meterBuf);
           let sum = 0;
-          for (let i = 0; i < meterBuf.length; i++) sum += meterBuf[i] * meterBuf[i];
+          for (let i = 0; i < meterBuf.length; i++) { sum += meterBuf[i] * meterBuf[i]; }
           const rms = Math.sqrt(sum / meterBuf.length);
           const amplitude = Math.min(100, rms * 4000);
           const elapsed = (performance.now() - startTs) / 1000;
           store.dispatch({ type: 'starmus/recorder-tick', duration: elapsed, amplitude });
-        } catch (_) {
+        } catch {
           // ignore analyser errors
         }
         rec.rafId = requestAnimationFrame(meterLoop);
@@ -329,55 +352,55 @@ export function initRecorder(store, instanceId) {
       emitStarmusEvent(instanceId, 'E_RECORDER_START_FAIL', { severity: 'error', message: err.message });
       store.dispatch({ type: 'starmus/error', payload: { message: 'Recording failed to start.', retryable: true } });
     }
-  });
+  }, instanceId);
 
   CommandBus.subscribe('stop-mic', (_payload, meta) => {
-    if (meta.instanceId !== instanceId) return;
+    if (meta.instanceId !== instanceId) { return; }
     const rec = recorderRegistry.get(instanceId);
     if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'recording') {
       rec.mediaRecorder.stop();
       store.dispatch({ type: 'starmus/mic-stop' });
     }
-  });
+  }, instanceId);
 
   CommandBus.subscribe('pause-mic', (_payload, meta) => {
-    if (meta.instanceId !== instanceId) return;
+    if (meta.instanceId !== instanceId) { return; }
     const rec = recorderRegistry.get(instanceId);
     if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'recording' && typeof rec.mediaRecorder.pause === 'function') {
       store.dispatch({ type: 'starmus/mic-pause' });
       rec.mediaRecorder.pause();
     }
-  });
+  }, instanceId);
 
   CommandBus.subscribe('resume-mic', (_payload, meta) => {
-    if (meta.instanceId !== instanceId) return;
+    if (meta.instanceId !== instanceId) { return; }
     const rec = recorderRegistry.get(instanceId);
     if (rec && rec.mediaRecorder && rec.mediaRecorder.state === 'paused' && typeof rec.mediaRecorder.resume === 'function') {
       store.dispatch({ type: 'starmus/mic-resume' });
       rec.mediaRecorder.resume();
     }
-  });
+  }, instanceId);
 
   CommandBus.subscribe('reset', (_payload, meta) => {
-    if (meta.instanceId !== instanceId) return;
+    if (meta.instanceId !== instanceId) { return; }
     const rec = recorderRegistry.get(instanceId);
     if (rec) {
       try {
         if (rec.mediaRecorder && rec.mediaRecorder.state !== 'inactive') {
           rec.mediaRecorder.stop();
         }
-      } catch (_) {}
-      if (rec.rafId) cancelAnimationFrame(rec.rafId);
-      if (rec.rawStream) rec.rawStream.getTracks().forEach(t => t.stop());
+      } catch { /* ignore */ }
+      if (rec.rafId) { cancelAnimationFrame(rec.rafId); }
+      if (rec.rawStream) { rec.rawStream.getTracks().forEach(t => t.stop()); }
       if (rec.graph && rec.graph.destinationStream) {
         rec.graph.destinationStream.getTracks().forEach(t => t.stop());
       }
       if (rec.graph && rec.graph.nodes) {
         rec.graph.nodes.forEach(n => {
-          try { n.disconnect(); } catch (_) {}
+          try { n.disconnect(); } catch { /* ignore */ }
         });
       }
       recorderRegistry.delete(instanceId);
     }
-  });
+  }, instanceId);
 }

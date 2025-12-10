@@ -240,18 +240,22 @@ class OfflineQueue {
   }
 
   _notifyQueueUpdate() {
-    if (window.StarmusHooks && typeof window.StarmusHooks.doAction === 'function') {
-      this.getAll().then(queue => {
-        const safe = queue.map(item => ({
-          id: item.id,
-          fileName: item.fileName,
-          retryCount: item.retryCount,
-          error: item.error,
-          timestamp: item.timestamp
-        }));
-        window.StarmusHooks.doAction('starmus_offline_queue_updated', safe);
-      }).catch(e => debugLog('[Offline] Queue notification failed', e));
-    }
+    const BUS = window.CommandBus || window.StarmusHooks;
+    if (!BUS || typeof BUS.dispatch !== 'function') { return; }
+
+    this.getAll()
+      .then(queue => {
+        BUS.dispatch('starmus/offline/queue_updated', {
+          queue: queue.map(item => ({
+            id: item.id,
+            fileName: item.fileName,
+            retryCount: item.retryCount,
+            error: item.error,
+            timestamp: item.timestamp
+          }))
+        });
+      })
+      .catch(e => debugLog('[Offline] Queue notification failed', e));
   }
 }
 

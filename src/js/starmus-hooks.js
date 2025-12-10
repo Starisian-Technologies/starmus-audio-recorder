@@ -79,16 +79,17 @@
    * ---------------------------------------------------------------------------
    */
 
-  function subscribe(commandName, handler) {
-    if (!handlers[commandName]) {
-      handlers[commandName] = createHandlerStore();
+  function subscribe(commandName, handler, instanceId) {
+    var key = commandName + '::' + (instanceId || '*');
+    if (!handlers[key]) {
+      handlers[key] = createHandlerStore();
     }
-    addHandler(handlers[commandName], handler);
+    addHandler(handlers[key], handler);
 
     // Return explicitly ES5-safe unsubscribe
     return function unsubscribe() {
-      if (handlers[commandName]) {
-        removeHandler(handlers[commandName], handler);
+      if (handlers[key]) {
+        removeHandler(handlers[key], handler);
       }
     };
   }
@@ -103,7 +104,8 @@
     payload = payload || {};
     meta = meta || {};
 
-    var key = commandName + '::' + (meta.instanceId || '');
+    var instance = meta.instanceId || '*';
+    var key = commandName + '::' + instance;
 
     if (activeDispatches[key]) {
       debugLog('Prevented recursive dispatch:', commandName); 
@@ -113,7 +115,8 @@
     activeDispatches[key] = true;
 
     try {
-        var handlerStore = handlers[commandName];
+        // Check instance-specific handlers first, then global
+        var handlerStore = handlers[key] || handlers[commandName + '::*'] || handlers[commandName];
 
         if (!handlerStore) {
             return;

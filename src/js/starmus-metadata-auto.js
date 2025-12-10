@@ -1,28 +1,145 @@
 /**
  * @file starmus-metadata-auto.js
- * @version 1.1.0
- * @description Automatically syncs app state metadata into hidden form fields on submission-ready,
- *   supports clearing on reset, validates required fields, and auto‑timestamps if recorder provides start/end times.
+ * @version 1.2.0
+ * @description Corrected metadata synchronizer:
+ *   - canonical field list (no dynamic clears)
+ *   - no optional chaining (legacy compat)
+ *   - removes redundant user agent
+ *   - prunes nested objects safely
+ *   - aligns to reducer shape without phantom fields
  */
 
 'use strict';
 
+// ---------------------------------------------------------------------------
+// CONFIG: CANONICAL FIELD LIST
+// ---------------------------------------------------------------------------
+
+const METADATA_FIELDS = [
+  'starmus_title',
+  'starmus_language',
+  'starmus_recording_type',
+  'audio_file_type',
+  'agreement_to_terms',
+  '_starmus_calibration',
+  '_starmus_env',
+  'first_pass_transcription',
+  'recording_metadata',
+  'waveform_json',
+  'session_date',
+  'session_start_time',
+  'session_end_time',
+  'location',
+  'gps_coordinates',
+  'contributor_id',
+  'interviewers_recorders',
+  'recording_equipment',
+  'audio_files_originals',
+  'media_condition_notes',
+  'related_consent_agreement',
+  'usage_restrictions_rights',
+  'audio_quality_score',
+  'access_level',
+  'device'
+];
+
+// ---------------------------------------------------------------------------
+// UTILS
+// ---------------------------------------------------------------------------
+
+function get(obj, key, fallback) {
+  return obj && obj[key] != null ? obj[key] : fallback;
+}
+
 /**
- * Populate hidden inputs for a data map inside a form.
- * @param {Object} dataMap — key: field name, value: string/number/object/array
- * @param {HTMLFormElement} formEl
+ * Deep pruning helper — removes runtime-only keys from objects that would
+ * otherwise bloat form submissions or IndexedDB clones on Android.
  */
-function populateHiddenFields(dataMap, formEl) {
-  Object.keys(dataMap).forEach((key) => {
-    const raw = dataMap[key];
-    let input = formEl.querySelector(`input[name="${key}"]`);
+function prune(obj, removeKeys) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const copy = Array.isArray(obj) ? obj.slice() : Object.assign({}, obj);
+  removeKeys.forEach(k => { if (k in copy) delete copy[k]; });
+  return copy;
+}
+
+// ---------------------------------------------------------------------------
+// CORE SERIALIZER
+// ---------------------------------------------------------------------------
+
+function buildMetadataMap(state) {
+  const now = new Date();
+  const iso = now.toISOString();
+  const date = iso.split('T')[0];
+
+  // SAFE ACCESSORS, NO OPTIONAL CHAINING
+  const source = get(state, 'source', {});
+  const submission = get(state, 'submission', {});
+  const user = get(state, 'user', {});
+  const env = get(state, 'env', {});
+  const calibration = get(state, 'calibration', {});
+  const recorder = get(state, 'recorder', {});
+
+  return {
+    starmus_title: get(source, 'title', ''),
+    starmus_language: get(source, 'language', ''),
+    starmus_recording_type: get(source, 'type', ''),
+
+    // BLOB TYPE ALIGNED WITH REDUCER — NO phantom field
+    audio_file_type: submission.blob && submission.blob.type ? submission.blob.type : 'audio/webm',
+
+    agreement_to_terms: user.agreedToTerms ? '1' : '0',
+
+    // PRUNE noisy, runtime calibration/env keys
+    _starmus_calibration: prune(calibration, ['volumePercent', 'phase']),
+    _starmus_env: prune(env, ['build', 'debug', 'flags']),
+
+    first_pass_transcription: get(source, 'transcript', ''),
+    recording_metadata: prune(get(source, 'metadata', {}), ['debug', 'transient']),
+
+    // Waveform JSON may be large — prune raw PCM/peaks arrays
+    waveform_json: prune(get(source, 'waveform', {}), ['peaks', 'pcm']),
+
+    session_date: date,
+    session_start_time: get(recorder, 'startTime', iso),
+    session_end_time: get(recorder, 'endTime', iso),
+
+    location: get(source, 'location', ''),
+    gps_coordinates: get(source, 'gps', ''),
+
+    contributor_id: get(user, 'id', ''),
+    interviewers_recorders: get(source, 'interviewers', ''),
+    recording_equipment: get(source, 'equipment', ''),
+
+    audio_files_originals: get(source, 'originals', []),
+    media_condition_notes: get(source, 'conditionNotes', ''),
+    related_consent_agreement: get(source, 'consent', ''),
+    usage_restrictions_rights: get(source, 'usageRights', ''),
+
+    audio_quality_score: get(submission, 'qualityScore', ''),
+    access_level: get(submission, 'accessLevel', ''),
+
+    // SINGLE user agent field (no duplication)
+    device: navigator.userAgent
+  };
+}
+
+// ---------------------------------------------------------------------------
+// FORM POPULATION
+// ---------------------------------------------------------------------------
+
+function populateHiddenFields(map, formEl) {
+  METADATA_FIELDS.forEach((key) => {
+    const raw = map[key];
+    let input = formEl.querySelector('input[name="' + key + '"]');
+
     if (!input) {
       input = document.createElement('input');
       input.type = 'hidden';
       input.name = key;
       formEl.appendChild(input);
     }
-    if (raw === undefined || raw === null) {
+
+    if (raw == null) {
       input.value = '';
     } else if (typeof raw === 'string' || typeof raw === 'number' || typeof raw === 'boolean') {
       input.value = String(raw);
@@ -30,125 +147,55 @@ function populateHiddenFields(dataMap, formEl) {
       try {
         input.value = JSON.stringify(raw);
       } catch (e) {
-        console.warn('[StarmusMetadataAuto] Could not serialize field', key, raw);
+        console.warn('[StarmusMetadataAuto] Serialize fail for', key, e.message);
         input.value = '';
       }
     }
   });
 }
 
-/**
- * Remove all known fields from the form — useful on reset or re‑start.
- * @param {HTMLFormElement} formEl
- * @param {string[]} fieldNames
- */
-function clearHiddenFields(formEl, fieldNames) {
-  if (!formEl || !Array.isArray(fieldNames) || formEl.nodeType !== 1) {
-    console.warn('[StarmusMetadataAuto] Invalid form element or field names for clearHiddenFields');
-    return;
-  }
+// ---------------------------------------------------------------------------
+// CLEARING
+// ---------------------------------------------------------------------------
 
-  fieldNames.forEach((key) => {
-    try {
-      const input = formEl.querySelector(`input[name="${key}"]`);
-      if (input && input.parentNode) {
-        // Double-check the element is actually a child of the form
-        if (formEl.contains(input)) {
-          input.parentNode.removeChild(input);
-          console.debug('[StarmusMetadataAuto] Removed field:', key);
-        } else {
-          console.debug('[StarmusMetadataAuto] Field not a child of form:', key);
-        }
-      }
-    } catch (e) {
-      console.warn('[StarmusMetadataAuto] Could not remove field', key, e.message);
+function clearHiddenFields(formEl) {
+  METADATA_FIELDS.forEach((key) => {
+    const input = formEl.querySelector('input[name="' + key + '"]');
+    if (input && formEl.contains(input)) {
+      input.parentNode.removeChild(input);
     }
   });
 }
 
-/**
- * Build metadata map from full state.
- * Adjust mapping to reflect your actual store shape.
- * @param {Object} state
- */
-function buildMetadataMap(state) {
-  const now = new Date();
-  const date = now.toISOString().split('T')[0];
-  const time = now.toISOString();
+// ---------------------------------------------------------------------------
+// VALIDATION
+// ---------------------------------------------------------------------------
 
-  return {
-    starmus_title: state.source?.title || '',
-    starmus_language: state.source?.language || '',
-    starmus_recording_type: state.source?.type || '',
-    audio_file_type: state.submission?.blob?.type || 'audio/webm',
-    agreement_to_terms: state.user?.agreedToTerms ? '1' : '0',
-    _starmus_calibration: state.calibration || {},
-    _starmus_env: state.env || {},
-    first_pass_transcription: state.source?.transcript || '',
-    recording_metadata: state.source?.metadata || {},
-    waveform_json: state.source?.waveform || {},
-    project_collection_id: state.submission?.collectionId || '',
-    accession_number: state.submission?.accession || '',
-    session_date: date,
-    session_start_time: state.recorder?.startTime || time,
-    session_end_time: state.recorder?.endTime || time,
-    location: state.source?.location || '',
-    gps_coordinates: state.source?.gps || '',
-    contributor_id: state.user?.id || '',
-    interviewers_recorders: state.source?.interviewers || '',
-    recording_equipment: state.source?.equipment || '',
-    audio_files_originals: state.source?.originals || [],
-    media_condition_notes: state.source?.conditionNotes || '',
-    related_consent_agreement: state.source?.consent || '',
-    usage_restrictions_rights: state.source?.usageRights || '',
-    access_level: state.submission?.accessLevel || '',
-    audio_quality_score: state.submission?.qualityScore || '',
-    mic_rest_adjustments: state.calibration?.adjustments || '',
-    device: navigator.userAgent,
-    user_agent: navigator.userAgent
-  };
-}
-
-/**
- * Validate that required metadata keys are non-empty / non-null.
- * @param {Object} metadataMap
- * @param {string[]} requiredFields
- * @returns { { valid: boolean, missing: string[] } }
- */
-function validateMetadata(metadataMap, requiredFields) {
+function validateMetadata(map, required) {
   const missing = [];
-  requiredFields.forEach((key) => {
-    const val = metadataMap[key];
-    if (
-      val === undefined ||
-      val === null ||
-      (typeof val === 'string' && val.trim() === '') ||
-      (Array.isArray(val) && val.length === 0)
-    ) {
+  required.forEach((key) => {
+    const val = map[key];
+    if (val == null || (typeof val === 'string' && val.trim() === '') || (Array.isArray(val) && val.length === 0)) {
       missing.push(key);
     }
   });
   return { valid: missing.length === 0, missing };
 }
 
-/**
- * Auto‑hook initializer.
- * @param {Object} store — your state store (must support getState() and subscribe())
- * @param {HTMLFormElement} formEl — the form element to populate
- * @param {Object} [options]
- *   - trigger: string or array of strings: store.status values that trigger write (default: ['ready_to_submit'])
- *   - requiredFields: array of field names that must be present (default: [])
- *   - clearOn: string or array of strings: status values that trigger clearing metadata (default: ['reset'])
- */
+// ---------------------------------------------------------------------------
+// HOOK INIT
+// ---------------------------------------------------------------------------
+
 function initAutoMetadata(store, formEl, options) {
   if (!store || typeof store.getState !== 'function' || typeof store.subscribe !== 'function') {
-    console.warn('[StarmusMetadataAuto] Invalid store — cannot init auto metadata');
+    console.warn('[StarmusMetadataAuto] Invalid store');
     return;
   }
   if (!(formEl instanceof HTMLFormElement)) {
-    console.warn('[StarmusMetadataAuto] Invalid form element — must be HTMLFormElement');
+    console.warn('[StarmusMetadataAuto] Invalid form');
     return;
   }
+
   const cfg = options || {};
   const triggers = Array.isArray(cfg.trigger) ? cfg.trigger : [cfg.trigger || 'ready_to_submit'];
   const clearOn = Array.isArray(cfg.clearOn) ? cfg.clearOn : [cfg.clearOn || 'reset'];
@@ -156,48 +203,43 @@ function initAutoMetadata(store, formEl, options) {
 
   let lastStatus = null;
 
-  function handleChange() {
+  function handle() {
     const state = store.getState();
     const status = state.status;
 
-    if (clearOn.includes(status)) {
-      clearHiddenFields(formEl, Object.keys(buildMetadataMap(state)));
-    }
+    if (clearOn.indexOf(status) !== -1) clearHiddenFields(formEl);
 
-    if (status !== lastStatus && triggers.includes(status)) {
-      lastStatus = status;
-      const metadata = buildMetadataMap(state);
-      const { valid, missing } = required.length ? validateMetadata(metadata, required) : { valid: true, missing: [] };
-
-      if (!valid) {
-        console.warn('[StarmusMetadataAuto] Missing required metadata fields:', missing);
-        // Optionally: you can block submission or alert user
+    if (status !== lastStatus && triggers.indexOf(status) !== -1) {
+      const map = buildMetadataMap(state);
+      if (required.length) {
+        const { valid, missing } = validateMetadata(map, required);
+        if (!valid) console.warn('[StarmusMetadataAuto] Missing:', missing);
       }
-
-      populateHiddenFields(metadata, formEl);
-    } else {
-      lastStatus = status;
+      populateHiddenFields(map, formEl);
     }
+    lastStatus = status;
   }
 
-  const unsubscribe = store.subscribe(handleChange);
-  // Run once now in case already in ready state
-  handleChange();
-
+  const unsubscribe = store.subscribe(handle);
+  handle();
   return unsubscribe;
 }
 
-// --- EXPORTS ---
-export { initAutoMetadata, populateHiddenFields, buildMetadataMap, validateMetadata, clearHiddenFields };
-export default { initAutoMetadata, populateHiddenFields, buildMetadataMap, validateMetadata, clearHiddenFields };
+// ---------------------------------------------------------------------------
+// EXPORTS
+// ---------------------------------------------------------------------------
 
-// Global bridge (optional)
+export {
+  initAutoMetadata,
+  buildMetadataMap,
+  populateHiddenFields,
+  clearHiddenFields,
+  validateMetadata
+};
+
+export default { initAutoMetadata };
+
+// Global bridge for WP
 if (typeof window !== 'undefined') {
-  window.StarmusMetadataAuto = {
-    initAutoMetadata,
-    populateHiddenFields,
-    buildMetadataMap,
-    validateMetadata,
-    clearHiddenFields
-  };
+  window.StarmusMetadataAuto = { initAutoMetadata };
 }

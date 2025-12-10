@@ -129,19 +129,19 @@ export function initCore(store, instanceId, env) {
     if (meta && meta.instanceId === instanceId) {
       handleSubmit(payload.formFields || {});
     }
-  });
+  }, instanceId);
 
   subscribe('reset', (_p, meta) => {
     if (meta && meta.instanceId === instanceId) {
       store.dispatch({ type: 'starmus/reset' });
     }
-  });
+  }, instanceId);
 
   subscribe('continue', (_p, meta) => {
     if (meta && meta.instanceId === instanceId) {
       store.dispatch({ type: 'starmus/ui/step-continue' });
     }
-  });
+  }, instanceId);
 
   return { handleSubmit };
 }

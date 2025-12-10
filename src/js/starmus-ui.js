@@ -276,10 +276,18 @@ export function initInstance(store, elements) {
 
   console.log('[StarmusUI] CommandBus found:', !!BUS, 'Instance ID:', instId);
 
-  function dispatch(action) {
-    if (!BUS) return console.warn('[StarmusUI] No CommandBus detected.');
-    console.log('[StarmusUI] Dispatching:', action);
-    BUS.dispatch(action, {}, { instanceId: instId });
+  // --- REQUIRED BOOTSTRAP SEQUENCE ---
+  // Initialize the state machine to break out of uninitialized state
+  store.dispatch({ type: 'starmus/init', payload: { instanceId: instId } });
+  if (BUS) {
+    BUS.dispatch('setup-mic', {}, { instanceId: instId });
+    console.log('[StarmusUI] Mic setup dispatched for', instId);
+  }
+
+  function dispatch(action, payload = {}) {
+    if (!BUS) { return console.warn('[StarmusUI] No CommandBus detected.'); }
+    console.log('[StarmusUI] Dispatching:', action, 'with payload:', payload);
+    BUS.dispatch(action, payload, { instanceId: instId });
   }
 
   /* BUTTON EVENT LISTENERS — THIS WAS WHAT YOU LOST */
@@ -354,7 +362,7 @@ export function initInstance(store, elements) {
   if (elements.fileInput) {
     elements.fileInput.addEventListener('change', (e) => {
       const file = e.target.files?.[0];
-      if (!file) return;
+      if (!file) { return; }
       BUS.dispatch('file-attached', { file }, { instanceId: instId });
     });
   }
@@ -375,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Locate ANY continue button on any Starmus instance
     const buttons = document.querySelectorAll('[data-starmus-action="next"]');
 
-    if (!buttons.length) return;
+    if (!buttons.length) { return; }
 
     buttons.forEach(btn => {
         btn.addEventListener('click', function () {
@@ -387,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Find form root for this instance
                 const form = btn.closest('[data-starmus-instance]');
-                if (!form) return;
+                if (!form) { return; }
 
                 const instanceId = form.getAttribute('data-starmus-instance');
 
@@ -405,8 +413,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const step1 = document.querySelector('#starmus_step1_' + instanceId);
                 const step2 = document.querySelector('#starmus_step2_' + instanceId);
 
-                if (step1) step1.style.display = 'none';
-                if (step2) step2.style.display = 'block';
+                if (step1) { step1.style.display = 'none'; }
+                if (step2) { step2.style.display = 'block'; }
 
                 console.log('[Starmus] Continue → Recording step enabled', instanceId);
             } catch (e) {

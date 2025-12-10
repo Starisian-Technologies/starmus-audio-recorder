@@ -1,69 +1,100 @@
-// 0. PEAKS.JS GLOBAL SETUP (needed by editor)
-import Peaks from 'peaks.js';
-window.Peaks = Peaks;
+/**
+ * @file starmus-bootstrap.js
+ * @version 4.5.0
+ * @description Single authoritative bootstrap for Starmus runtime.
+ * Loads hooks first, wires state/store, recorder, UI, offline queue,
+ * transcript, metadata automation, and exposes stable globals.
+ */
 
-// 1. MUST RUN FIRST: Defines global StarmusHooks + Store
+'use strict';
+
+/* -------------------------------------------------------------------------
+ * 0. REQUIRED GLOBALS (ORDER SENSITIVE)
+ * ------------------------------------------------------------------------- */
+
+// Peaks must exist BEFORE editor loads, but do not overwrite if already present
+import Peaks from 'peaks.js';
+if (!window.Peaks) window.Peaks = Peaks;
+
+// Hooks MUST RUN FIRST – sets window.StarmusHooks + CommandBus
 import './starmus-hooks.js';
 import './starmus-state-store.js';
 
-// 2. Upload + Queue systems (used by Core)
-import './starmus-tus.js';
+/* -------------------------------------------------------------------------
+ * 1. CORE SUBSYSTEMS
+ * ------------------------------------------------------------------------- */
+
+// Upload + offline queue
+import * as StarmusTus from './starmus-tus.js';          // corrected namespace import
 import './starmus-offline.js';
 
-// 3. Recorder + UI subsystems
+// Recorder + UI + transcript controller
 import './starmus-ui.js';
 import './starmus-core.js';
 import './starmus-recorder.js';
-import './starmus-transcript-controller.js';
+
+// Transcript module must expose BOTH class + init
+import TranscriptModule, { StarmusTranscript } from './starmus-transcript-controller.js';
+
 import './starmus-audio-editor.js';
 import './starmus-metadata-auto.js';
 
-// 4. LAST: The orchestrator (starmus-integrator.js)
+// LAST: integrator must see globals
 import './starmus-integrator.js';
 
-// ======================================================================
-// ABSOLUTE EXPORT BRIDGE (UN-SHAKEABLE)
-// ======================================================================
+/* -------------------------------------------------------------------------
+ * 2. IMPORTS FOR GLOBAL EXPORT BRIDGE
+ * ------------------------------------------------------------------------- */
 
-/* global window */
-
-// IMPORTS
 import { createStore } from './starmus-state-store.js';
 import { initCore } from './starmus-core.js';
 import { initInstance as initUI } from './starmus-ui.js';
 import { initRecorder } from './starmus-recorder.js';
-import StarmusTus from './starmus-tus.js';
-import { StarmusTranscript } from './starmus-transcript-controller.js';
 import { getOfflineQueue, queueSubmission, initOffline } from './starmus-offline.js';
 import { initAutoMetadata } from './starmus-metadata-auto.js';
 
-// GLOBAL ASSIGNMENTS (UN-SHAKEABLE)
+/* -------------------------------------------------------------------------
+ * 3. ASSERT HOOKS EXIST (fail fast)
+ * ------------------------------------------------------------------------- */
+
+if (!window.StarmusHooks) {
+  throw new Error('[StarmusBootstrap] Hooks not registered before bootstrap — load order violation');
+}
+
+/* -------------------------------------------------------------------------
+ * 4. GLOBAL API SURFACE — FINAL CONTRACT
+ * ------------------------------------------------------------------------- */
+
 window.createStore = createStore;
-// NOTE: StarmusHooks is already set by the IIFE - don't overwrite!
-// window.StarmusHooks = StarmusHooks; // REMOVED: This overwrites the IIFE globals
 window.initCore = initCore;
 window.initUI = initUI;
-window.initRecorder = initRecorder; // ✅ FIXED: don't access global.*
+
+// SINGLE authoritative recorder entry
+window.StarmusRecorder = initRecorder;
+
+// Upload + priority queue
 window.StarmusTus = StarmusTus;
-window.StarmusTranscriptController = StarmusTranscript;
 window.StarmusOfflineQueue = getOfflineQueue;
 window.StarmusQueueSubmission = queueSubmission;
 window.initOffline = initOffline;
+
+// Transcript controller — full module, not just class
+window.StarmusTranscriptController = TranscriptModule;
+
+// Metadata automation
 window.initAutoMetadata = initAutoMetadata;
 
-// Assign integrator to global so it can be detected
+// Marker for integrator detection (no exports)
 window.StarmusIntegrator = true;
-
-// Assign recorder functions to satisfy integrator expectations
-window.StarmusRecorder = initRecorder;
-window.initStarmusRecorder = initRecorder;
 
 console.log('[Starmus] Runtime globals wired');
 
-// EXPORTS (ES MODULE)
+/* -------------------------------------------------------------------------
+ * 5. ES MODULE EXPORTS
+ * ------------------------------------------------------------------------- */
+
 export {
   createStore,
-  // StarmusHooks, // REMOVED: This overwrites the IIFE globals
   initCore,
   initUI,
   initRecorder,
@@ -74,6 +105,3 @@ export {
   initOffline,
   initAutoMetadata
 };
-
-
-

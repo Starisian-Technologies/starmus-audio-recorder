@@ -10,7 +10,7 @@
 
 // --- Dependency Import (ensure global hooks exist) ---
 import './starmus-hooks.js';
-const BUS = window.StarmusHooks || window.CommandBus;
+const BUS = window.CommandBus || window.StarmusHooks;
 const debugLog = BUS && BUS.debugLog ? BUS.debugLog : function() {};
 
 // ------------------------------------------------------------
