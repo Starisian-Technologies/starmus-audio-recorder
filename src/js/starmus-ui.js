@@ -122,7 +122,8 @@ function render(state, elements) {
           elements.submitBtn.textContent = 'Uploading... ' + Math.round((submission.progress||0)*100) + '%';
           elements.submitBtn.disabled = true;
       } else if (status === 'complete') {
-          elements.submitBtn.textContent = 'Submitted!';
+          // Success State
+          elements.submitBtn.innerHTML = '<span class="dashicons dashicons-yes"></span> Done! Redirecting...';
           elements.submitBtn.disabled = true;
           elements.submitBtn.classList.add('starmus-btn--success');
       } else {
