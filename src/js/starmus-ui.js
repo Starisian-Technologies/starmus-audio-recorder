@@ -1,6 +1,6 @@
 /**
  * @file starmus-ui.js
- * @version 5.3.0-FINAL-VISUALS
+ * @version 5.4.0-VISUALS
  * @description UI Layer. Optimized for high-frequency visual updates (Meters/Timers).
  */
 
@@ -21,67 +21,72 @@ function forceBind(element, eventName, handler) {
   newEl.addEventListener(eventName, (e) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('[StarmusUI] Click detected on', newEl.dataset.starmusAction || newEl.id);
     handler(e);
   });
   return newEl;
 }
-
-/* ---------------------------- RENDER VIEW ---------------------------- */
 
 export function render(state, elements) {
   if (!elements) return;
 
   const { status, step, recorder = {}, calibration = {}, submission = {} } = state;
 
-  // --- 1. HIGH FREQUENCY UPDATES (Meters & Timer) ---
+  // --- 1. ALWAYS UPDATE METERS (Critical Fix) ---
   
-  // Timer Text
+  // A. Volume Meter (Calibration OR Recording)
+  // Check if we are in a state where audio is live
+  if (status === 'calibrating' || status === 'recording') {
+      let vol = 0;
+      if (status === 'calibrating') {
+          vol = calibration.volumePercent || 0;
+      } else {
+          vol = recorder.amplitude || 0;
+      }
+      
+      // Ensure element exists before setting style
+      if (elements.volumeMeter) {
+          elements.volumeMeter.style.width = `${vol}%`;
+          // Also set CSS variable for theme compatibility
+          elements.volumeMeter.style.setProperty('--starmus-audio-level', `${vol}%`);
+      }
+  }
+
+  // B. Timer
   const timeStr = formatTime(recorder.duration || 0);
   if (elements.timerElapsed) elements.timerElapsed.textContent = timeStr;
   if (elements.timer) elements.timer.textContent = timeStr;
 
-  // Volume Meter (CSS Variable)
-  // We check BOTH calibration volume AND recording amplitude
-  let vol = 0;
-  if (status === 'calibrating') {
-      vol = calibration.volumePercent || 0;
-  } else if (status === 'recording') {
-      vol = recorder.amplitude || 0;
-  }
-  
-  if (elements.volumeMeter) {
-      elements.volumeMeter.style.width = `${vol}%`; // Fallback
-      elements.volumeMeter.style.setProperty('--starmus-audio-level', `${vol}%`);
-  }
-
-  // Duration Progress Bar
+  // C. Duration Bar
   if (elements.durationProgress) {
       const pct = Math.min(100, ((recorder.duration || 0) / 1200) * 100);
       elements.durationProgress.style.width = `${pct}%`;
   }
 
-  // --- 2. LOW FREQUENCY UPDATES (DOM Visibility) ---
-  // Only run these if status changed to avoid layout thrashing
+  // --- 2. STATE-BASED UPDATES (Visibility & Text) ---
 
-  // Calibration Messages
-  if (status === 'calibrating' && elements.setupMicBtn) {
-       elements.setupMicBtn.textContent = calibration.message || 'Adjusting...';
-       elements.setupMicBtn.disabled = true;
-  } else if (status === 'ready' && elements.setupMicBtn) {
-       elements.setupMicBtn.innerHTML = '<span class="dashicons dashicons-microphone"></span> Mic Ready (Recalibrate)';
-       elements.setupMicBtn.disabled = false;
+  // Calibration Text
+  if (elements.setupMicBtn) {
+      if (status === 'calibrating') {
+          elements.setupMicBtn.textContent = calibration.message || 'Adjusting...';
+          elements.setupMicBtn.disabled = true;
+      } else if (status === 'ready') {
+          elements.setupMicBtn.innerHTML = '<span class="dashicons dashicons-microphone"></span> Mic Ready';
+          elements.setupMicBtn.disabled = false;
+      } else if (status === 'ready_to_record' && !calibration.complete) {
+           elements.setupMicBtn.innerHTML = '<span class="dashicons dashicons-microphone"></span> Setup Microphone';
+           elements.setupMicBtn.disabled = false;
+      }
   }
 
-  // Step Logic
+  // Step Visibility
   if (elements.step1 && elements.step2) {
-    const showStep2 = step === 2 || (status !== 'idle' && status !== 'uninitialized');
-    if (elements.step1.style.display !== (showStep2 ? 'none' : 'block')) {
-        elements.step1.style.display = showStep2 ? 'none' : 'block';
-        elements.step2.style.display = showStep2 ? 'block' : 'none';
-    }
+    const showStep2 = step === 2 || (status !== 'idle' && status !== 'uninitialized' && status !== 'ready');
+    elements.step1.style.display = showStep2 ? 'none' : 'block';
+    elements.step2.style.display = showStep2 ? 'block' : 'none';
   }
 
-  // Containers
+  // Container Visibility
   const isCalibrated = calibration.complete === true;
   
   if (elements.setupContainer) {
@@ -91,19 +96,22 @@ export function render(state, elements) {
   }
 
   if (elements.recorderContainer) {
+      // Show recorder ONLY if calibrated
       elements.recorderContainer.style.display = isCalibrated ? 'block' : 'none';
   }
 
-  // Buttons
+  // Button Visibility
   const isRec = status === 'recording';
   const isPaused = status === 'paused';
   const isReady = status === 'ready' || status === 'ready_to_record' || status === 'idle'; 
-  
-  if (elements.recordBtn) elements.recordBtn.style.display = (isReady && isCalibrated && !isRec && !isPaused) ? 'inline-flex' : 'none';
+  const showReview = status === 'ready_to_submit';
+
+  if (elements.recordBtn) elements.recordBtn.style.display = (isReady && isCalibrated && !isRec && !isPaused && !showReview) ? 'inline-flex' : 'none';
   if (elements.pauseBtn) elements.pauseBtn.style.display = isRec ? 'inline-flex' : 'none';
   if (elements.resumeBtn) elements.resumeBtn.style.display = isPaused ? 'inline-flex' : 'none';
   if (elements.stopBtn) elements.stopBtn.style.display = (isRec || isPaused) ? 'inline-flex' : 'none';
   
+  // Submit Button
   if (elements.submitBtn) {
       if (status === 'submitting') {
           elements.submitBtn.textContent = `Uploading... ${Math.round((submission.progress||0)*100)}%`;
@@ -112,6 +120,16 @@ export function render(state, elements) {
           elements.submitBtn.textContent = 'Submit Recording';
           elements.submitBtn.disabled = status !== 'ready_to_submit';
       }
+  }
+  
+  // Play/Reset (Review Controls)
+  if (elements.playBtn) {
+      const isPlaying = !!recorder.isPlaying;
+      elements.playBtn.textContent = isPlaying ? 'Pause' : 'Play Preview';
+  }
+  // Show review controls ONLY when ready to submit
+  if (elements.reviewControls) {
+      elements.reviewControls.style.display = showReview ? 'flex' : 'none';
   }
 }
 
@@ -141,10 +159,11 @@ export function initInstance(store, incomingElements = {}, forcedInstanceId = nu
     setupContainer: root.querySelector('[data-starmus-setup-container]'),
     timer: root.querySelector('[data-starmus-timer]'),
     timerElapsed: root.querySelector('.starmus-timer-elapsed'),
-    volumeMeter: root.querySelector('[data-starmus-volume-meter]'), // Ensure this class exists!
+    volumeMeter: root.querySelector('[data-starmus-volume-meter]'), 
     durationProgress: root.querySelector('[data-starmus-duration-progress]'),
     fallbackContainer: root.querySelector('[data-starmus-fallback-container]'),
     recorderContainer: root.querySelector('[data-starmus-recorder-container]'),
+    reviewControls: root.querySelector('.starmus-review-controls'),
     
     continueBtn: root.querySelector('[data-starmus-action="next"]'),
     setupMicBtn: root.querySelector('[data-starmus-action="setup-mic"]'),
@@ -152,7 +171,9 @@ export function initInstance(store, incomingElements = {}, forcedInstanceId = nu
     pauseBtn: root.querySelector('[data-starmus-action="pause"]'),
     resumeBtn: root.querySelector('[data-starmus-action="resume"]'),
     stopBtn: root.querySelector('[data-starmus-action="stop"]'),
-    submitBtn: root.querySelector('[data-starmus-action="submit"]')
+    submitBtn: root.querySelector('[data-starmus-action="submit"]'),
+    playBtn: root.querySelector('[data-starmus-action="play"]'),
+    resetBtn: root.querySelector('[data-starmus-action="reset"]')
   };
 
   // Bind Buttons
@@ -175,16 +196,48 @@ export function initInstance(store, incomingElements = {}, forcedInstanceId = nu
   if(el.resumeBtn) forceBind(el.resumeBtn, 'click', () => BUS.dispatch('resume-mic', {}, { instanceId: instId }));
   if(el.stopBtn) forceBind(el.stopBtn, 'click', () => BUS.dispatch('stop-mic', {}, { instanceId: instId }));
 
+  // Playback wiring
+  if (el.playBtn) {
+      let audio = null;
+      forceBind(el.playBtn, 'click', () => {
+          const state = store.getState();
+          if (state.recorder.isPlaying) {
+              if(audio) audio.pause();
+              store.dispatch({ type: 'starmus/recorder-playback-state', isPlaying: false });
+          } else {
+              const blob = state.source.blob;
+              if (blob) {
+                  if(!audio) audio = new Audio(URL.createObjectURL(blob));
+                  audio.play();
+                  store.dispatch({ type: 'starmus/recorder-playback-state', isPlaying: true });
+                  audio.onended = () => store.dispatch({ type: 'starmus/recorder-playback-state', isPlaying: false });
+              }
+          }
+      });
+  }
+
+  if (el.resetBtn) {
+      forceBind(el.resetBtn, 'click', () => {
+          BUS.dispatch('reset', {}, { instanceId: instId });
+          // Force reload to clean state
+          window.location.reload(); 
+      });
+  }
+
   if (el.submitBtn) {
       forceBind(el.submitBtn, 'click', (e) => {
         const form = e.target.closest('form');
         const data = form ? Object.fromEntries(new FormData(form).entries()) : {};
-        BUS.dispatch('submit', { formFields: data }, { instanceId: instId });
+        BUS?.dispatch('submit', { formFields: data }, { instanceId: instId });
       });
   }
 
+  // 5. START RENDER LOOP
   store.dispatch({ type: 'starmus/init', payload: { instanceId: instId } });
-  return store.subscribe(next => render(next, el));
+  const unsubscribe = store.subscribe(next => render(next, el));
+  render(store.getState(), el);
+
+  return unsubscribe;
 }
 
 if (typeof window !== 'undefined') window.initUI = initInstance;
