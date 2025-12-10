@@ -87,7 +87,7 @@ export function render(state, elements) {
 
   /* -------------------- STEP MANAGEMENT -------------------- */
   if (elements.step1 && elements.step2) {
-    const showStep2 = status !== 'idle' && status !== 'uninitialized';
+    const showStep2 = state.step >= 2;
     elements.step1.style.display = showStep2 ? 'none' : 'block';
     elements.step2.style.display = showStep2 ? 'block' : 'none';
   }
@@ -182,7 +182,7 @@ export function render(state, elements) {
   /* -------------------- BUTTON STATES -------------------- */
   const isRec = status === 'recording';
   const isPaused = status === 'paused';
-  const isReady = status === 'ready';
+  const isReady = status === 'ready' || status === 'ready_to_record';
   const isCalibrating = status === 'calibrating';
   const isRecorded = status === 'ready_to_submit';
   const isCalibrated = calibration && calibration.complete === true;
@@ -353,8 +353,12 @@ export function initInstance(store, elements) {
   if (elements.continueBtn) {
     elements.continueBtn.addEventListener('click', () => {
       console.log('[StarmusUI] Continue button clicked!');
-      // Dispatch store action directly, not through command bus
+      // Dispatch store action to move to step 2
       store.dispatch({ type: 'starmus/ui/step-continue', payload: {} });
+      
+      // Also trigger UI update immediately
+      const currentState = store.getState();
+      render(currentState, elements);
     });
   }
 

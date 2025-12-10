@@ -12,6 +12,7 @@
     env: {},
     tier: null,
     status: 'uninitialized',
+    step: 1, // Track which step of the form we're on
     error: null,
     source: {
       kind: null,
@@ -70,7 +71,8 @@
         return merge(state, merge(action.payload || {}, { status: 'idle', error: null }));
 
       case 'starmus/ui/step-continue':
-        return merge(state, { status: 'ready_to_record', error: null });
+        // Move to step 2 and set ready for calibration
+        return merge(state, { step: 2, status: 'idle', error: null });
 
       case 'starmus/calibration-start':
         return merge(state, { status: 'calibrating' });
