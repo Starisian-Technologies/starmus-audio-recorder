@@ -458,10 +458,16 @@ final class StarmusSubmissionHandler {
         } else {
             $exts = array_map( 'trim', explode( ',', $allowed_str ) );
             $allowed_mimes = [];
+            $wp_mimes = wp_get_mime_types();
             
             foreach ( $exts as $ext ) {
-                $mimes = wp_get_mime_types();
-                foreach ( $mimes as $ext_pattern => $mime_type ) {
+                // FIX: Ensure audio/webm is allowed if 'webm' is listed. 
+                // WP defaults 'webm' to 'video/webm', causing 'audio/webm' uploads to fail validation.
+                if ( 'webm' === $ext ) {
+                    $allowed_mimes[] = 'audio/webm';
+                }
+
+                foreach ( $wp_mimes as $ext_pattern => $mime_type ) {
                     if ( str_contains( $ext_pattern, $ext ) ) {
                         $exploded = explode( '|', $mime_type );
                         foreach ( $exploded as $m ) {
