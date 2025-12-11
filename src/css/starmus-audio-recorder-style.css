@@ -15,7 +15,7 @@
   /* --- WordPress Core Color Mapping --- */
   --starmus-primary: var(--wp--preset--color--contrast-2, #4b5563);
   --starmus-text: var(--wp--preset--color--contrast, #111827);
-  --starmus-background: var(--wp--preset--color--base, #ffffff);
+  --starmus-background: var(--wp--preset--color--contrast-2, #4b5563);
   --starmus-text-muted: color-mix(in srgb, var(--starmus-text) 60%, transparent 40%);
 
   /* --- Calculated Glass Variables --- */
