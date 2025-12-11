@@ -19,8 +19,8 @@
   --starmus-text-muted: color-mix(in srgb, var(--starmus-text) 60%, transparent 40%);
 
   /* --- Calculated Glass Variables --- */
-  /* Glass BG: Uses theme's base BG color with transparency for glass effect */
-  --starmus-glass-bg: color-mix(in srgb, var(--starmus-background) 80%, transparent 20%);
+  /* Glass BG: Uses theme's Contrast 2 color with transparency for glass effect */
+  --starmus-glass-bg: color-mix(in srgb, var(--starmus-background) 10%, transparent 90%);
   /* Inner Glass (Inputs): Slightly more opaque for readability */
   --starmus-glass-inner-bg: color-mix(in srgb, var(--starmus-background) 85%, transparent 15%);
   /* Border: Tint of primary color */
