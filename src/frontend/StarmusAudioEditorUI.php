@@ -35,7 +35,7 @@ if (! \defined('ABSPATH')) {
 }
 
 // RESTORING PHP 8.2+ SYNTAX
-final readonly class StarmusAudioEditorUI
+final class StarmusAudioEditorUI
 {
     /**
      * REST namespace for editor endpoints.
@@ -150,17 +150,17 @@ final readonly class StarmusAudioEditorUI
         if (current_user_can('edit_others_posts')) {
             return true;
         }
-        
+
         // 2. Author Check
         if ((int)$post->post_author === get_current_user_id()) {
             return true;
         }
-        
+
         // 3. Custom Capability Check
         if (current_user_can('starmus_edit_audio')) {
             return true;
         }
-        
+
         // 4. Fallback CPT Check
         if (current_user_can('edit_post', $post->ID)) {
             return true;
@@ -195,7 +195,7 @@ final readonly class StarmusAudioEditorUI
             if (! $this->user_can_access($post)) {
                 return new WP_Error('permission_denied', __('You do not have permission to edit this recording.', 'starmus-audio-recorder'));
             }
-            
+
             // Security Check for URL-based access
             if ($url_id > 0 && !current_user_can('manage_options')) {
                 $nonce = $_GET['nonce'] ?? $_GET['_wpnonce'] ?? '';
@@ -235,7 +235,6 @@ final readonly class StarmusAudioEditorUI
             ];
 
             return $this->cached_context;
-
         } catch (Throwable $throwable) {
             $this->log_error($throwable);
             return new WP_Error('context_error', __('Unable to load editor context.', 'starmus-audio-recorder'));
@@ -273,8 +272,12 @@ final readonly class StarmusAudioEditorUI
         );
     }
 
-    public function validate_post_id(mixed $value): bool { return is_numeric($value) && $value > 0 && get_post(absint($value)) !== null; }
-    public function sanitize_annotations(mixed $value): array {
+    public function validate_post_id(mixed $value): bool
+    {
+        return is_numeric($value) && $value > 0 && get_post(absint($value)) !== null;
+    }
+    public function sanitize_annotations(mixed $value): array
+    {
         // Full sanitization logic restored
         if (!is_array($value)) return [];
         $sanitized = [];
@@ -291,7 +294,8 @@ final readonly class StarmusAudioEditorUI
         }
         return $sanitized;
     }
-    public function validate_annotations(mixed $value): bool {
+    public function validate_annotations(mixed $value): bool
+    {
         // Full validation logic restored
         if (!is_array($value) || count($value) > self::STARMUS_MAX_ANNOTATIONS) return false;
         foreach ($value as $a) {
