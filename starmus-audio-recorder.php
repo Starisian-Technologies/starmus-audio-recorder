@@ -13,6 +13,18 @@
  * Domain Path:       /languages
  *
  * @package Starisian\Sparxstar\Starmus
+ * 
+ *  Copyright (c) 2023-2024 Starisian Technologies (https://starisian.com)
+ * 
+ * create a secret key using openssl: 
+ * 
+ * Set the tus d key to use for webhook validation:
+ * tusd \
+  -hooks-http "https://contribute.sparxstar.com/wp-json/starmus/v1/hook" \
+  -hooks-http-header "x-starmus-secret: Y84d34624286938554e5e19d9fafe9f5da3562c4d1d443e02c186f8e44019406e" \
+  -hooks-enabled-events "post-finish"
+ * 
+ * define( 'TUSD_WEBHOOK_SECRET', 'YOUR_SECRET_STRING' );
  */
 
 declare(strict_types=1);
@@ -70,6 +82,11 @@ if (! defined('STARMUS_LOG_FILE')) {
 if (! defined('STARMUS_DELETE_ON_UNINSTALL')) {
     define('STARMUS_DELETE_ON_UNINSTALL', false);
 }
+
+if(! defined('TUSD_WEBHOOK_SECRET') ){
+    define( 'TUSD_WEBHOOK_SECRET', '84d34624286938554e5e19d9fafe9f5da3562c4d1d443e02c186f8e44019406e' );
+}
+
 
 // =========================================================================
 //  2. ACTION SCHEDULER LIBRARY

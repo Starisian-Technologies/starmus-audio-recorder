@@ -5,14 +5,12 @@
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
  * StarmusFileService (DAL-integrated)
- * ----------------------------
  * - Guarantees local access for offloaded files.
  * - Routes all persistence and attachment updates through DAL.
  * - Supports external offloaders like WP Offload Media (AS3CF).
  *
  * @package Starisian\Sparxstar\Starmus\services
- *
- * @version 0.9.2-dal
+ * @version 1.0.0-HARDENED
  */
 namespace Starisian\Sparxstar\Starmus\services;
 
@@ -21,12 +19,11 @@ if (! \defined('ABSPATH')) {
 }
 
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use WP_Filesystem_Base;
 
 final readonly class StarmusFileService
 {
-    /**
-     * Data Access Layer instance.
-     */
     private StarmusAudioRecorderDAL $dal;
 
     public function __construct(?StarmusAudioRecorderDAL $dal = null)
@@ -36,52 +33,71 @@ final readonly class StarmusFileService
 
     /**
      * Guarantees a local copy of an attachment's file is available for processing.
-     *
-     * If offloaded, downloads it to a temp path and returns the local copy.
-     * The caller is responsible for cleanup.
+     * If offloaded, downloads it to a temp path. Caller is responsible for cleanup.
      */
     public function get_local_copy(int $attachment_id): ?string
     {
-        $local_path = @get_attached_file($attachment_id);
-        if ($local_path && file_exists($local_path)) {
-            return $local_path;
-        }
-
-        $remote_url = wp_get_attachment_url($attachment_id);
-        if (! $remote_url) {
+        if ($attachment_id <= 0) {
             return null;
         }
 
-        $remote_url = esc_url_raw($remote_url);
+        // 1. Check for an existing local file first.
+        $local_path = get_attached_file($attachment_id);
+        
+        // PHP 8+ Safety: Ensure $local_path is a string before checking existence.
+        if (is_string($local_path) && file_exists($local_path)) {
+            StarmusLogger::debug('StarmusFileService', 'Found local file for attachment.', ['id' => $attachment_id]);
+            return $local_path;
+        }
+
+        // 2. If not local, download from the public URL.
+        $remote_url = wp_get_attachment_url($attachment_id);
+        if (!$remote_url) {
+            StarmusLogger::error('StarmusFileService', 'Attachment URL not found for download.', ['id' => $attachment_id]);
+            return null;
+        }
+
+        StarmusLogger::info('StarmusFileService', 'File is offloaded. Downloading local copy.', ['url' => $remote_url]);
 
         if (! \function_exists('download_url')) {
             require_once ABSPATH . 'wp-admin/includes/file.php';
         }
 
-        $temp = download_url($remote_url);
-        if (is_wp_error($temp)) {
+        $temp_file = download_url(esc_url_raw($remote_url), 120); // 120 second timeout
+        
+        if (is_wp_error($temp_file)) {
+            StarmusLogger::error('StarmusFileService', 'Failed to download offloaded file.', [
+                'id' => $attachment_id,
+                'error' => $temp_file->get_error_message()
+            ]);
             return null;
         }
 
-        return $temp;
+        return $temp_file;
     }
 
     /**
-     * Uploads or re-attaches a local file via offloader or DAL fallback.
+     * Uploads or re-attaches a local file, handling offloader integration.
      */
     public function upload_and_replace_attachment(int $attachment_id, string $local_file_path): bool
     {
-        if (! file_exists($local_file_path)) {
+        if (!file_exists($local_file_path)) {
+            StarmusLogger::error('StarmusFileService', 'Local file to be uploaded does not exist.', ['path' => $local_file_path]);
             return false;
         }
 
-        // Delegate to offloader if present
+        // Delegate to WP Offload Media if present
         if (\function_exists('as3cf_upload_attachment')) {
+            StarmusLogger::debug('StarmusFileService', 'Delegating upload to WP Offload Media.', ['id' => $attachment_id]);
             $result = as3cf_upload_attachment($attachment_id, null, $local_file_path);
-            return !is_wp_error($result);
+            if (is_wp_error($result)) {
+                StarmusLogger::error('StarmusFileService', 'WP Offload Media failed to upload.', ['error' => $result->get_error_message()]);
+                return false;
+            }
+            return true;
         }
 
-        // DAL-managed fallback
+        // Fallback to local filesystem move
         $upload_dir = wp_get_upload_dir();
         $new_path   = trailingslashit($upload_dir['path']) . basename($local_file_path);
 
@@ -94,20 +110,15 @@ final readonly class StarmusFileService
         if ($wp_filesystem->move($local_file_path, $new_path, true)) {
             $this->dal->update_attachment_metadata($attachment_id, $new_path);
             return true;
+        } else {
+             StarmusLogger::error('StarmusFileService', 'Filesystem failed to move local file.', ['from' => $local_file_path, 'to' => $new_path]);
         }
 
         return false;
     }
 
     /**
-     * Returns the correct public URL for an attachment.
-     * - Honors external offloaders (AS3CF, Cloudflare, etc.)
-     * - Falls back to wp_get_attachment_url()
-     * - Normalizes HTTPS and Base URL mismatches
-     *
-     * @param int $attachment_id Attachment ID to resolve URL for.
-     *
-     * @return string|null Public URL or null if attachment not found.
+     * Returns the correct public URL for an attachment, honoring offloaders.
      */
     public function star_get_public_url(int $attachment_id): ?string
     {
@@ -115,23 +126,21 @@ final readonly class StarmusFileService
             return null;
         }
 
-        // First: Use WordPress's own resolver (may be offloaded/re-routed)
+        // Primary method: Let WordPress and its filters (like Offloader) resolve the URL.
         $url = wp_get_attachment_url($attachment_id);
-        if (! empty($url)) {
+        if (!empty($url)) {
             return esc_url_raw($url);
         }
 
-        // Second: If bypassed or metadata missing, reconstruct from metadata
-        $meta       = wp_get_attachment_metadata($attachment_id);
+        // Fallback method: Reconstruct URL from metadata if primary fails.
+        $meta = wp_get_attachment_metadata($attachment_id);
         $upload_dir = wp_get_upload_dir();
 
-        if (! empty($meta['file'])) {
+        if (!empty($meta['file'])) {
             $url = trailingslashit($upload_dir['baseurl']) . ltrim((string) $meta['file'], '/');
             return esc_url_raw($url);
         }
 
-        // Third: Last-chance fallback: GUID (rare, but safer than null)
-        $guid = get_post_field('guid', $attachment_id);
-        return empty($guid) ? null : esc_url_raw($guid);
+        return null;
     }
 }
