@@ -32,6 +32,86 @@ final readonly class StarmusFileService
     }
 
     /**
+     * Conditionally loads compatibility layers for third-party plugins.
+     * This keeps integrations clean and modular.
+     */
+    public function register_compatibility_hooks(): void
+    {
+        // --- ADVANCED MEDIA OFFLOADER COMPATIBILITY BRIDGE ---
+        // The class name for Advanced Media Offloader's main plugin class is 'Advanced_Media_Offloader\Plugin'.
+        // This is the most reliable way to check if it's active.
+        if (class_exists('Advanced_Media_Offloader\Plugin')) {
+            // Wire the 'ensure_attachment_metadata' method to the 'add_attachment' action.
+            // This activates our fix only when AMO is present.
+            add_action(
+                'add_attachment',
+                [$this, 'ensure_attachment_metadata'],
+                20, // Priority: Run after attachment is created, before others might use it.
+                1   // We only need the first argument ($attachment_id).
+            );
+        }
+    }
+     /**
+     * Ensures essential metadata exists for a newly created attachment.
+     *
+     * This method acts as a compatibility bridge. It detects when an attachment is created
+     * by the Starmus plugin without metadata and generates it. This is crucial for
+     * third-party plugins like Advanced Media Offloader, which rely on this metadata
+     * to function correctly and avoid fatal errors.
+     *
+     * This method is designed to be hooked to the 'add_attachment' action.
+     *
+     * @param int $attachment_id The post ID of the new attachment.
+     * @return void
+     */
+    public function ensure_attachment_metadata(int $attachment_id): void
+    {
+        try {
+            // Guard Clause 1: Exit immediately if metadata already exists.
+            if (wp_get_attachment_metadata($attachment_id)) {
+                return;
+            }
+
+            // Guard Clause 2: Only target uploads from the specific Starmus fallback API endpoint.
+            if (!isset($_SERVER['REQUEST_URI']) || !str_contains($_SERVER['REQUEST_URI'], '/star-starmus-audio-recorder/v1/')) {
+                return;
+            }
+
+            StarmusLogger::info('StarmusFileService', 'Incomplete attachment detected. Generating missing metadata for offloader compatibility.', ['id' => $attachment_id]);
+
+            $file_path = get_attached_file($attachment_id);
+
+            // Guard Clause 3: Ensure the file physically exists before proceeding.
+            if (!$file_path || !file_exists($file_path)) {
+                StarmusLogger::error('StarmusFileService', 'Metadata generation skipped: Attached file does not exist.', [
+                    'id' => $attachment_id,
+                    'path' => is_string($file_path) ? $file_path : 'N/A'
+                ]);
+                return;
+            }
+
+            if (!function_exists('wp_generate_attachment_metadata')) {
+                require_once ABSPATH . 'wp-admin/includes/image.php';
+            }
+
+            // Generate and then update the metadata using the DAL for consistency.
+            $metadata = wp_generate_attachment_metadata($attachment_id, $file_path);
+            
+            if (!empty($metadata) && !is_wp_error($metadata)) {
+                // We use the DAL here to align with your existing architecture.
+                $this->dal->update_attachment_metadata($attachment_id, $metadata);
+                StarmusLogger::debug('StarmusFileService', 'Successfully generated and saved metadata.', ['id' => $attachment_id]);
+            }
+
+        } catch (\Throwable $e) {
+            StarmusLogger::error('StarmusFileService', 'An exception occurred during metadata generation.', [
+                'id' => $attachment_id,
+                'exception' => $e->getMessage(),
+                'line' => $e->getLine()
+            ]);
+        }
+    }
+    /**
      * Guarantees a local copy of an attachment's file is available for processing.
      * If offloaded, downloads it to a temp path. Caller is responsible for cleanup.
      */

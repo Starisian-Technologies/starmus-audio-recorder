@@ -12,6 +12,7 @@
  *
  * @version 0.9.2
  */
+
 namespace Starisian\Sparxstar\Starmus;
 
 if (! \defined('ABSPATH')) {
@@ -362,6 +363,10 @@ final class StarmusAudioRecorder
 
         // global services
         //(new StarPrivateSlugPrefix())->star_boot();
+
+        // Register compatibility modules for third-party plugins
+        $file_service = new \Starisian\Sparxstar\Starmus\services\StarmusFileService($this->DAL);
+        $file_service->register_compatibility_hooks();
 
         // Admin
         if (is_admin()) {
