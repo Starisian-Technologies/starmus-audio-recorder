@@ -182,8 +182,14 @@ final class StarmusSubmissionHandler
             $this->dal->set_attachment_parent((int) $attachment_id, (int) $cpt_post_id);
             $this->save_all_metadata((int) $cpt_post_id, (int) $attachment_id, $form_data);
 
+            // --- START: MODIFICATION ---
+            /**
+             * @deprecated 6.9.3 Use the new 'starmus_recording_processed' hook for better data.
+             * This hook is fired from within save_all_metadata() for backward compatibility.
+             */
             do_action('starmus_after_audio_saved', (int) $cpt_post_id, $form_data);
-
+            // --- END: MODIFICATION ---
+          
             return [
                 'success'       => true,
                 'attachment_id' => (int) $attachment_id,
@@ -373,7 +379,30 @@ final class StarmusSubmissionHandler
                 wp_set_post_terms($audio_post_id, [(int) $form_data['recording_type']], 'recording-type');
             }
 
+             // --- START: MODIFICATION ---
+
+            // Keep the old hook for backward compatibility.
             do_action('starmus_after_save_submission_metadata', $audio_post_id, $form_data, []);
+            
+            // The 'artifact_id' is the secondary ID you mentioned. This is what we need.
+            // It could also be named 'post_id' in some forms, so we add a fallback.
+            $linked_post_id = isset($form_data['artifact_id']) ? absint($form_data['artifact_id']) : 0;
+            if ($linked_post_id === 0 && isset($form_data['post_id'])) {
+                $linked_post_id = absint($form_data['post_id']);
+            }
+
+            /**
+             * Fires after a recording is fully processed and all metadata is saved.
+             * This is the definitive hook for integrations.
+             *
+             * @since 7.0.0
+             *
+             * @param int $audio_post_id  The Post ID of the newly created 'Audio-Recording' post.
+             * @param int $linked_post_id The Post ID of the Word/Artifact this recording is linked to.
+             */
+            do_action('starmus_recording_processed', $audio_post_id, $linked_post_id);
+
+            // --- END: MODIFICATION ---
 
             $processing_params = [
                 'bitrate'      => '192k',
