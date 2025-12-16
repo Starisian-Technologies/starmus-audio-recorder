@@ -413,7 +413,6 @@ final class StarmusSubmissionHandler
              */
             do_action('starmus_recording_processed', $audio_post_id, $linked_post_id);
 
-            // --- END: Starmus Audio CPT Link ---
 
             $processing_params = [
                 'bitrate'      => '192k',
