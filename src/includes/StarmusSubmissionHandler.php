@@ -182,15 +182,11 @@ final class StarmusSubmissionHandler
             $this->dal->set_attachment_parent((int) $attachment_id, (int) $cpt_post_id);
             $this->save_all_metadata((int) $cpt_post_id, (int) $attachment_id, $form_data);
 
-            // --- START: MODIFICATION ---
-
             /**
-             * @deprecated 6.9.3 This hook is deprecated and will be removed in 7.0.0. Use the new 'starmus_recording_processed' hook for better data.
+             * @deprecated 6.9.3 Use the new 'starmus_recording_processed' hook for better data.
              * This hook is fired for backward compatibility.
              */
             do_action('starmus_after_audio_saved', (int) $cpt_post_id, $form_data);
-
-            // --- END: MODIFICATION ---
             return [
                 'success'       => true,
                 'attachment_id' => (int) $attachment_id,
