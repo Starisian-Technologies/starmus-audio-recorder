@@ -23,7 +23,7 @@ export function initCore(store, instanceId, env) {
   store.dispatch({ type: 'starmus/tier-ready', payload: { tier: tier } });
   window.dispatchEvent(new CustomEvent('starmus-ready', { detail: { instanceId, tier } }));
 
-  async function handleSubmit(formFields) {
+ async function handleSubmit(formFields) {
     const state = store.getState();
     const source = state.source || {};
     const calibration = state.calibration || {};
@@ -65,21 +65,41 @@ export function initCore(store, instanceId, env) {
       });
 
       console.log('[StarmusCore] ✅ Success:', result);
+      
+      // --- START: MODIFIED CODE ---
+      
+      let hookFired = false; // This will track if we are in a modal context.
+
+      // This is the perfect place for our client-side hook.
+      if (result.success) {
+          const newAudioPostId = result.data?.post_id || result.post_id;
+
+          if (newAudioPostId) {
+              console.log('[StarmusCore] Firing starmusRecordingComplete event with Post ID:', newAudioPostId);
+              if (window.parent && window.parent.jQuery) {
+                  parent.jQuery(parent.document).trigger('starmusRecordingComplete', [{
+                      audioPostId: newAudioPostId
+                  }]);
+                  hookFired = true; // We successfully notified a parent, so we are in a modal.
+              }
+          }
+      }
+      
       store.dispatch({ type: 'starmus/submit-complete', payload: result });
       
-      // --- REDIRECT LOGIC ---
+      // --- MODIFIED REDIRECT LOGIC ---
       if (result.success) {
           const redirect = result.data?.redirect_url || result.redirect_url;
           if (redirect) {
               console.log('[StarmusCore] Redirecting to:', redirect);
-              // Small delay to let the user see the "Success" state
               setTimeout(() => window.location.href = redirect, 1500);
-          } else {
-              // Fallback if no URL provided
+          } else if (!hookFired) {
+              // ONLY run this fallback if we are NOT in a modal context.
               alert('Submission successful!');
               window.location.reload(); 
           }
       }
+      // --- END: MODIFIED CODE ---
 
     } catch (error) {
       console.error('[StarmusCore] ❌ Upload Failed:', error.message);
