@@ -185,7 +185,7 @@ final class StarmusSubmissionHandler
             // --- START: MODIFICATION ---
             /**
              * @deprecated 6.9.3 Use the new 'starmus_recording_processed' hook for better data.
-             * This hook is fired from within save_all_metadata() for backward compatibility.
+             * This hook is fired from within this method for backward compatibility.
              */
             do_action('starmus_after_audio_saved', (int) $cpt_post_id, $form_data);
             // --- END: MODIFICATION ---
