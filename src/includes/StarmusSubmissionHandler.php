@@ -405,7 +405,7 @@ final class StarmusSubmissionHandler
              *
              * @since 7.0.0
              *
-             * @param int $new_audio_post_id The Post ID of the newly created 'Audio-Recording' post.
+             * @param int $audio_post_id The Post ID of the newly created 'Audio-Recording' post.
              * @param int $linked_post_id    The Post ID of the Word/Artifact this recording is linked to.
              */
             do_action('starmus_recording_processed', $audio_post_id, $linked_post_id);
