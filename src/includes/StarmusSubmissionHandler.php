@@ -392,9 +392,11 @@ final class StarmusSubmissionHandler
              */
             do_action('starmus_after_save_submission_metadata', $audio_post_id, $form_data, []);
 
-            // The 'artifact_id' is the secondary ID you mentioned. This is what we need.
-            // It could also be named 'post_id' or something else in your form, adjust if needed.
-            // We default to 0 if it's not present.
+            // 'artifact_id' represents the ID of the primary object (e.g., Word or Artifact)
+            // that this audio recording should be linked to. It is expected to be present in
+            // the form data when a recording is associated with another object. If 'artifact_id'
+            // is missing, we default to 0, meaning no link is established. For compatibility,
+            // we also check for 'post_id' as a fallback field name.
             $linked_post_id = isset($form_data['artifact_id']) ? absint($form_data['artifact_id']) : 0;
             // If the linked ID might come from a different field, you can add a fallback:
             if ($linked_post_id === 0 && isset($form_data['post_id'])) {
