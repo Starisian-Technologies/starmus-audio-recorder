@@ -385,11 +385,8 @@ final class StarmusSubmissionHandler
             do_action('starmus_after_save_submission_metadata', $audio_post_id, $form_data, []);
             
             // The 'artifact_id' is the secondary ID you mentioned. This is what we need.
-            // It could also be named 'post_id' in some forms, so we add a fallback.
+            // Only use 'artifact_id' for the linked post. Do not fall back to 'post_id' to avoid confusion with the recording's own ID.
             $linked_post_id = isset($form_data['artifact_id']) ? absint($form_data['artifact_id']) : 0;
-            if ($linked_post_id === 0 && isset($form_data['post_id'])) {
-                $linked_post_id = absint($form_data['post_id']);
-            }
 
             /**
              * Fires after a recording is fully processed and all metadata is saved.
