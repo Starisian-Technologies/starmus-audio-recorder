@@ -185,7 +185,7 @@ final class StarmusSubmissionHandler
             // --- START: MODIFICATION ---
 
             /**
-             * @deprecated 6.9.3 Use the new 'starmus_recording_processed' hook for better data.
+             * @deprecated 6.9.3 This hook is deprecated and will be removed in 7.0.0. Use the new 'starmus_recording_processed' hook for better data.
              * This hook is fired for backward compatibility.
              */
             do_action('starmus_after_audio_saved', (int) $cpt_post_id, $form_data);
