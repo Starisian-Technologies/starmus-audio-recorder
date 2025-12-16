@@ -382,7 +382,14 @@ final class StarmusSubmissionHandler
 
             // --- START: Links Starmus Audio to Other CPTs ---
 
-            // Deprecate the old hook. You can remove this if you don't need backward compatibility.
+            /**
+             * @deprecated 7.0.0 Use 'starmus_recording_processed' instead.
+             * Fires after submission metadata is saved.
+             *
+             * @param int   $audio_post_id The Post ID of the audio recording.
+             * @param array $form_data     The submitted form data.
+             * @param array $unused        (Unused) For backward compatibility.
+             */
             do_action('starmus_after_save_submission_metadata', $audio_post_id, $form_data, []);
 
             // The 'artifact_id' is the secondary ID you mentioned. This is what we need.
