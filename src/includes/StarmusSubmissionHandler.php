@@ -392,7 +392,7 @@ final class StarmusSubmissionHandler
              * Fires after a recording is fully processed and all metadata is saved.
              * This is the definitive hook for integrations.
              *
-             * @since 7.0.0
+             * @since 6.9.3-GOLDEN-MASTER
              *
              * @param int $audio_post_id  The Post ID of the newly created 'Audio-Recording' post.
              * @param int $linked_post_id The Post ID of the Word/Artifact this recording is linked to.
