@@ -76,11 +76,22 @@ export function initCore(store, instanceId, env) {
 
           if (newAudioPostId) {
               console.log('[StarmusCore] Firing starmusRecordingComplete event with Post ID:', newAudioPostId);
-              if (window.parent && window.parent.jQuery) {
-                  parent.jQuery(parent.document).trigger('starmusRecordingComplete', [{
-                      audioPostId: newAudioPostId
-                  }]);
-                  hookFired = true; // We successfully notified a parent, so we are in a modal.
+              // Only trigger event if parent is same-origin
+              try {
+                  if (
+                      window.parent &&
+                      window.parent !== window &&
+                      window.parent.jQuery
+                  ) {
+                      // Attempt to access a property to verify same-origin
+                      void window.parent.location.href;
+                      parent.jQuery(parent.document).trigger('starmusRecordingComplete', [{
+                          audioPostId: newAudioPostId
+                      }]);
+                      hookFired = true; // We successfully notified a parent, so we are in a modal.
+                  }
+              } catch (e) {
+                  // Cross-origin access denied; do not trigger event
               }
           }
       }
