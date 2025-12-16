@@ -396,7 +396,6 @@ final class StarmusSubmissionHandler
             // It could also be named 'post_id' or something else in your form, adjust if needed.
             // We default to 0 if it's not present.
             $linked_post_id = isset($form_data['artifact_id']) ? absint($form_data['artifact_id']) : 0;
-            
             // If the linked ID might come from a different field, you can add a fallback:
             if ($linked_post_id === 0 && isset($form_data['post_id'])) {
                 $linked_post_id = absint($form_data['post_id']);
