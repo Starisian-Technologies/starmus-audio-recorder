@@ -379,7 +379,7 @@ final class StarmusSubmissionHandler
                 wp_set_post_terms($audio_post_id, [(int) $form_data['recording_type']], 'recording-type');
             }
 
-             // --- START: MODIFICATION ---
+            // --- START: MODIFICATION ---
 
             // Keep the old hook for backward compatibility.
             do_action('starmus_after_save_submission_metadata', $audio_post_id, $form_data, []);
