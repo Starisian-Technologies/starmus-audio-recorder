@@ -5,37 +5,45 @@
         "fields": [
             {
                 "key": "field_starmus_audio_file",
-                "label": "Audio File",
+                "label": "Source Audio File",
                 "name": "audio_file",
                 "type": "file",
-                "instructions": "The source audio file."
+                "instructions": "The media library item for the raw audio file."
             },
             {
-                "key": "field_starmus_audio_contributor",
-                "label": "Recorded By (Contributor)",
-                "name": "contributor_id",
-                "type": "post_object",
-                "instructions": "Link to the AiWA Contributor who made this recording.",
-                "post_type": ["aiwa_contributor"],
+                "key": "field_starmus_recorded_by_user",
+                "label": "Recorded By (User)",
+                "name": "recorded_by_user_id",
+                "type": "user",
+                "instructions": "The WordPress user who created this recording.",
+                "required": 1,
+                "allow_null": 0,
+                "multiple": 0,
                 "return_format": "id"
             },
             {
-                "key": "field_starmus_audio_timestamp",
-                "label": "Recording Timestamp",
-                "name": "recording_timestamp",
-                "type": "date_time_picker"
+                "key": "field_starmus_consent_timestamp",
+                "label": "Checkbox Consent Timestamp",
+                "name": "consent_timestamp",
+                "type": "date_time_picker",
+                "instructions": "The exact date and time the user agreed to the terms for this specific recording.",
+                "required": 1,
+                "display_format": "F j, Y g:i a",
+                "return_format": "Y-m-d H:i:s"
             },
             {
-                "key": "field_starmus_audio_ip",
-                "label": "Recording IP Address",
-                "name": "recording_ip",
-                "type": "text"
+                "key": "field_starmus_consent_ip",
+                "label": "Consent IP Address",
+                "name": "consent_ip",
+                "type": "text",
+                "instructions": "The IP address of the user at the time of consent."
             },
             {
-                "key": "field_starmus_audio_user_agent",
-                "label": "Recording User Agent",
-                "name": "recording_user_agent",
-                "type": "text"
+                "key": "field_starmus_consent_agent",
+                "label": "Consent User Agent",
+                "name": "consent_user_agent",
+                "type": "textarea",
+                "instructions": "The browser and device information of the user at the time of consent."
             }
         ],
         "location": [
@@ -43,11 +51,15 @@
                 {
                     "param": "post_type",
                     "operator": "==",
-                    "value": "starmus_audio_recording"
+                    "value": "audio-recording"
                 }
             ]
         ],
-        "active": true
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "active": true,
+        "description": "Stores core details and transactional consent for each audio recording."
     },
     {
         "key": "group_starmus_transcript_details",
@@ -59,8 +71,11 @@
                 "name": "parent_audio_id",
                 "type": "post_object",
                 "required": 1,
-                "post_type": ["starmus_audio_recording"],
-                "return_format": "id"
+                "post_type": ["audio-recording"],
+                "allow_null": 0,
+                "multiple": 0,
+                "return_format": "id",
+                "ui": 1
             },
             {
                 "key": "field_starmus_transcript_data",
@@ -79,7 +94,8 @@
                 }
             ]
         ],
-        "active": true
+        "active": true,
+        "description": "Fields for a time-coded transcription of an audio recording."
     },
     {
         "key": "group_starmus_translation_details",
@@ -92,14 +108,17 @@
                 "type": "post_object",
                 "required": 1,
                 "post_type": ["starmus_transcript"],
-                "return_format": "id"
+                "allow_null": 0,
+                "multiple": 0,
+                "return_format": "id",
+                "ui": 1
             },
             {
                 "key": "field_starmus_translation_data",
                 "label": "Translation Data",
                 "name": "translation_data",
                 "type": "textarea",
-                "instructions": "Time-coded translation data, usually in JSON format."
+                "instructions": "Time-coded translation of a transcript, usually in JSON format."
             }
         ],
         "location": [
@@ -111,6 +130,7 @@
                 }
             ]
         ],
-        "active": true
+        "active": true,
+        "description": "Fields for a time-coded translation of a transcript."
     }
 ]
