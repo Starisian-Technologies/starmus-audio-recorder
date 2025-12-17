@@ -4,6 +4,91 @@
 
 ---
 
+## Modules
+
+<dl>
+<dt><a href="#module_createStore">createStore</a> ⇒ <code>Object</code></dt>
+<dd><p>ES6 module export wrapper that delegates to global StarmusStore.
+Ensures compatibility between module systems.</p>
+</dd>
+</dl>
+
+## Objects
+
+<dl>
+<dt><a href="#StarmusStore">StarmusStore</a> : <code>object</code></dt>
+<dd><p>Global StarmusStore namespace for browser environments.</p>
+</dd>
+</dl>
+
+## Functions
+
+<dl>
+<dt><a href="#getState">getState()</a> ⇒ <code>Object</code></dt>
+<dd><p>Returns the current state object.</p>
+</dd>
+<dt><a href="#dispatch">dispatch(action)</a></dt>
+<dd><p>Dispatches an action to update state.</p>
+</dd>
+<dt><a href="#subscribe">subscribe(fn)</a> ⇒ <code>function</code></dt>
+<dd><p>Subscribes to state changes.</p>
+</dd>
+</dl>
+
+<a name="module_createStore"></a>
+
+## createStore ⇒ <code>Object</code>
+ES6 module export wrapper that delegates to global StarmusStore.
+Ensures compatibility between module systems.
+
+**Returns**: <code>Object</code> - Store instance with state management methods  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [initial] | <code>Object</code> | <code>{}</code> | Initial state to merge with defaults |
+
+<a name="StarmusStore"></a>
+
+## StarmusStore : <code>object</code>
+Global StarmusStore namespace for browser environments.
+
+**Kind**: global namespace  
+<a name="StarmusStore.global.StarmusStore.createStore"></a>
+
+### StarmusStore.global.StarmusStore.createStore : <code>function</code>
+Global createStore function reference.
+
+**Kind**: static property of [<code>StarmusStore</code>](#StarmusStore)  
+<a name="getState"></a>
+
+## getState() ⇒ <code>Object</code>
+Returns the current state object.
+
+**Kind**: global function  
+**Returns**: <code>Object</code> - Current application state  
+<a name="dispatch"></a>
+
+## dispatch(action)
+Dispatches an action to update state.
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| action | <code>Object</code> | Action object with type and optional payload |
+
+<a name="subscribe"></a>
+
+## subscribe(fn) ⇒ <code>function</code>
+Subscribes to state changes.
+
+**Kind**: global function  
+**Returns**: <code>function</code> - Unsubscribe function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| fn | <code>function</code> | Callback function to call on state changes |
+
 
 
 ---

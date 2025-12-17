@@ -4,6 +4,61 @@
 
 ---
 
+## Modules
+
+<dl>
+<dt><a href="#module_initCore">initCore</a> ⇒ <code>Object</code></dt>
+<dd><p>Initializes the core Starmus functionality for a specific instance.
+Sets up event handlers, submission logic, and browser tier detection.</p>
+</dd>
+</dl>
+
+## Members
+
+<dl>
+<dt><a href="#subscribe">subscribe</a> : <code>function</code></dt>
+<dd><p>Hook subscription function from StarmusHooks or fallback no-op.</p>
+</dd>
+</dl>
+
+## Functions
+
+<dl>
+<dt><a href="#detectTier">detectTier()</a> ⇒ <code>string</code></dt>
+<dd><p>Detects browser capabilities and assigns appropriate tier classification.</p>
+</dd>
+</dl>
+
+<a name="module_initCore"></a>
+
+## initCore ⇒ <code>Object</code>
+Initializes the core Starmus functionality for a specific instance.
+Sets up event handlers, submission logic, and browser tier detection.
+
+**Returns**: <code>Object</code> - Object containing handleSubmit function for manual invocation  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| store | <code>Object</code> | Redux-style store for state management |
+| instanceId | <code>string</code> | Unique identifier for this recorder instance |
+| env | <code>Object</code> | Environment data from UEC/SparxstarUEC integration |
+
+<a name="subscribe"></a>
+
+## subscribe : <code>function</code>
+Hook subscription function from StarmusHooks or fallback no-op.
+
+**Kind**: global variable  
+<a name="detectTier"></a>
+
+## detectTier() ⇒ <code>string</code>
+Detects browser capabilities and assigns appropriate tier classification.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - Browser tier classification:
+  - 'A': Full support (MediaRecorder + AudioContext + getUserMedia)
+  - 'B': Limited support (no AudioContext)
+  - 'C': Minimal support (no MediaRecorder or getUserMedia)  
 
 
 ---

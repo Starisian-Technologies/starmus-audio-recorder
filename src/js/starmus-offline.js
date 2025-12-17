@@ -1,7 +1,17 @@
 /**
  * @file starmus-offline.js
  * @version 1.5.0-GLOBAL-EXPOSE
- * @description Offline-first submission queue using IndexedDB.
+ * @description Offline-first submission queue using IndexedDB for reliable audio uploads.
+ * Provides automatic retry mechanisms, network status monitoring, and persistent storage
+ * for audio submissions when network connectivity is unavailable or unreliable.
+ * 
+ * Features:
+ * - IndexedDB-based persistent storage for audio blobs and metadata
+ * - Automatic retry with exponential backoff delays
+ * - Network connectivity monitoring and auto-resume
+ * - Blob size validation and memory management
+ * - Queue status notifications through command bus
+ * - Cross-tab synchronization and version management
  */
 
 'use strict';
@@ -9,6 +19,19 @@
 import { debugLog } from './starmus-hooks.js';
 import { uploadWithPriority } from './starmus-tus.js';
 
+/**
+ * Configuration object for offline queue behavior.
+ * Defines database settings, retry policies, and size limits.
+ * 
+ * @constant
+ * @type {Object}
+ * @property {string} dbName - IndexedDB database name
+ * @property {string} storeName - Object store name for submissions
+ * @property {number} dbVersion - Database schema version
+ * @property {number} maxRetries - Maximum retry attempts per submission
+ * @property {Array<number>} retryDelays - Retry delay intervals in milliseconds
+ * @property {number} maxBlobSize - Maximum allowed audio file size in bytes (40MB)
+ */
 const CONFIG = {
   dbName: 'StarmusSubmissions',
   storeName: 'pendingSubmissions',
@@ -18,13 +41,49 @@ const CONFIG = {
   maxBlobSize: 40 * 1024 * 1024, // 40MB
 };
 
+/**
+ * Internal queue class for managing offline audio submissions.
+ * Handles IndexedDB operations, retry logic, and network monitoring.
+ * 
+ * @class
+ * @private
+ */
 // Internal queue class
 class OfflineQueue {
+  /**
+   * Creates a new OfflineQueue instance.
+   * Initializes database connection state and processing flags.
+   * 
+   * @constructor
+   */
   constructor() {
+    /**
+     * IndexedDB database connection.
+     * @type {IDBDatabase|null}
+     */
     this.db = null;
+    
+    /**
+     * Flag indicating if queue processing is active.
+     * @type {boolean}
+     */
     this.isProcessing = false;
   }
 
+  /**
+   * Initializes IndexedDB database connection and schema.
+   * Creates object store and indexes if needed during upgrade.
+   * Handles version changes and connection management.
+   * 
+   * @async
+   * @method
+   * @returns {Promise<void>} Resolves when database is ready or fails gracefully
+   * 
+   * @description Database Schema:
+   * - Object Store: 'pendingSubmissions' with keyPath 'id'
+   * - Index: 'timestamp' for chronological ordering
+   * - Index: 'retryCount' for retry management
+   */
   async init() {
     if (!window.indexedDB) {
       console.error('[Offline] IndexedDB not supported. Offline uploads disabled.');
@@ -105,6 +164,13 @@ class OfflineQueue {
     });
   }
 
+  /**
+   * Retrieves all pending submissions from the database.
+   * 
+   * @async
+   * @method
+   * @returns {Promise<Array<Object>>} Array of submission objects
+   */
   async getAll() {
     if (!this.db) return [];
     return new Promise((resolve, reject) => {
@@ -116,6 +182,15 @@ class OfflineQueue {
     });
   }
 
+  /**
+   * Removes a submission from the queue by ID.
+   * Triggers queue update notification after removal.
+   * 
+   * @async
+   * @method
+   * @param {string} id - Submission ID to remove
+   * @returns {Promise<void>}
+   */
   async remove(id) {
     if (!this.db) return;
     return new Promise((resolve, reject) => {
@@ -129,6 +204,18 @@ class OfflineQueue {
     });
   }
 
+  /**
+   * Updates retry information for a failed submission.
+   * Records retry count, timestamp, and error details.
+   * 
+   * @async
+   * @method
+   * @private
+   * @param {string} id - Submission ID to update
+   * @param {number} retryCount - New retry count
+   * @param {string} [error] - Error message from failed attempt
+   * @returns {Promise<void>}
+   */
   async _updateRetry(id, retryCount, error) {
     if (!this.db) return;
     return new Promise((resolve, reject) => {
@@ -149,6 +236,24 @@ class OfflineQueue {
     });
   }
 
+  /**
+   * Processes all pending submissions in the queue.
+   * Attempts upload with retry logic and exponential backoff.
+   * Only runs when online and not already processing.
+   * 
+   * @async
+   * @method
+   * @returns {Promise<void>}
+   * 
+   * @description Processing logic:
+   * 1. Skips if already processing or offline
+   * 2. Retrieves all pending submissions
+   * 3. For each item, checks retry limits and delays
+   * 4. Attempts upload using uploadWithPriority
+   * 5. Removes successful uploads from queue
+   * 6. Updates retry count for failed uploads
+   * 7. Skips non-retryable errors (400, Invalid JSON, etc.)
+   */
   async processQueue() {
     if (this.isProcessing || !navigator.onLine) return;
     this.isProcessing = true;
@@ -197,6 +302,13 @@ class OfflineQueue {
     }
   }
 
+  /**
+   * Sets up network event listeners for automatic queue processing.
+   * Processes queue when connection comes online and periodically while online.
+   * 
+   * @method
+   * @returns {void}
+   */
   setupNetworkListeners() {
     window.addEventListener('online', () => this.processQueue());
     setInterval(() => {
@@ -204,6 +316,14 @@ class OfflineQueue {
     }, 60 * 1000);
   }
 
+  /**
+   * Notifies external listeners about queue status changes.
+   * Dispatches event through CommandBus with current queue state.
+   * 
+   * @method
+   * @private
+   * @returns {void}
+   */
   _notifyQueueUpdate() {
     const BUS = window.CommandBus || window.StarmusHooks;
     if (!BUS || typeof BUS.dispatch !== 'function') return;
@@ -221,8 +341,21 @@ class OfflineQueue {
   }
 }
 
+/**
+ * Global offline queue instance.
+ * @type {OfflineQueue}
+ */
 const offlineQueue = new OfflineQueue();
 
+/**
+ * Gets the initialized offline queue instance.
+ * Initializes database connection and network listeners on first access.
+ * 
+ * @async
+ * @function
+ * @exports getOfflineQueue
+ * @returns {Promise<OfflineQueue>} Configured offline queue instance
+ */
 export async function getOfflineQueue() {
   if (!offlineQueue.db) {
     await offlineQueue.init();
@@ -231,25 +364,84 @@ export async function getOfflineQueue() {
   return offlineQueue;
 }
 
+/**
+ * Queues an audio submission for offline processing.
+ * Convenience function that gets queue instance and adds submission.
+ * 
+ * @async
+ * @function
+ * @exports queueSubmission
+ * @param {string} instanceId - Recorder instance identifier
+ * @param {Blob} audioBlob - Audio file blob to queue
+ * @param {string} fileName - Name for the audio file
+ * @param {Object} formFields - Form data (consent, language, etc.)
+ * @param {Object} metadata - Additional metadata (transcript, calibration, env)
+ * @returns {Promise<string>} Unique submission ID for tracking
+ * 
+ * @example
+ * const submissionId = await queueSubmission(
+ *   'rec-123',
+ *   audioBlob,
+ *   'recording.webm',
+ *   { consent: 'yes', language: 'en' },
+ *   { transcript: 'Hello world', tier: 'A' }
+ * );
+ */
 export async function queueSubmission(instanceId, audioBlob, fileName, formFields, metadata) {
   const q = await getOfflineQueue();
   return q.add(instanceId, audioBlob, fileName, formFields, metadata);
 }
 
+/**
+ * Gets the count of pending submissions in the offline queue.
+ * 
+ * @async
+ * @function
+ * @exports getPendingCount
+ * @returns {Promise<number>} Number of pending submissions
+ */
 export async function getPendingCount() {
   const q = await getOfflineQueue();
   const list = await q.getAll();
   return list.length;
 }
 
+/**
+ * Initializes the offline queue system.
+ * Alias for getOfflineQueue for backward compatibility.
+ * 
+ * @function
+ * @exports initOffline
+ * @returns {Promise<OfflineQueue>} Configured offline queue instance
+ */
 export function initOffline() {
   return getOfflineQueue();
 }
 
+/**
+ * Default export of the offline queue instance.
+ * @default
+ */
 export default offlineQueue;
 
+/**
+ * Global browser environment exports.
+ * Makes offline functions available on window object for direct access.
+ * @global
+ */
 // EXPOSE GLOBALLY FOR SAFETY
 if (typeof window !== 'undefined') {
+  /**
+   * Global initOffline function reference.
+   * @global
+   * @type {function}
+   */
   window.initOffline = initOffline;
+  
+  /**
+   * Global offline queue getter function.
+   * @global
+   * @type {function}
+   */
   window.StarmusOfflineQueue = getOfflineQueue;
 }

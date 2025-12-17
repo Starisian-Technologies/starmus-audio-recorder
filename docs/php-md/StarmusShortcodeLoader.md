@@ -20,8 +20,14 @@ Registers shortcodes and routes rendering lazily to the correct UI classes.
 /
 final class StarmusShortcodeLoader
 {
+    /**
+Settings service instance.
+/
     private StarmusSettings $settings;
 
+    /**
+Data Access Layer instance.
+/
     private StarmusAudioRecorderDAL $dal;
 
     /**
@@ -51,6 +57,8 @@ Render the single recording detail shortcode.
 **Visibility:** `public`
 
 Automatically inject recording detail template into single view.
+
+## Properties
 
 ---
 

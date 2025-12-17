@@ -10,7 +10,7 @@
  */
 
 if (! defined('ABSPATH')) {
-	exit;
+    exit;
 }
 
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
@@ -19,136 +19,146 @@ use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 // === 1. INITIALIZATION & DATA RESOLUTION ===
 
 try {
-	// 1. Get the current Post ID (Works inside Shortcode and Filter contexts)
-	$post_id = get_the_ID();
+    // 1. Get the current Post ID (Works inside Shortcode and Filter contexts)
+    $post_id = get_the_ID();
 
-	// Fallback if specific ID passed via args (future proofing)
-	if (! $post_id && isset($args['post_id'])) {
-		$post_id = intval($args['post_id']);
-	}
+    // Fallback if specific ID passed via args (future proofing)
+    if (! $post_id && isset($args['post_id'])) {
+        $post_id = intval($args['post_id']);
+    }
 
-	if (! $post_id) {
-		// If loaded outside a loop context, return empty or error
-		if (defined('WP_DEBUG') && WP_DEBUG) {
-			error_log('[Starmus Detail] No Post ID found in context.');
-		}
-		return;
-	}
+    if (! $post_id) {
+        // If loaded outside a loop context, return empty or error
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[Starmus Detail] No Post ID found in context.');
+        }
+        return;
+    }
 
-	// 2. Instantiate Services (Since Loader doesn't pass them down)
-	$settings = new StarmusSettings();
+    // 2. Instantiate Services (Since Loader doesn't pass them down)
+    $settings = new StarmusSettings();
 
-	// Check if FileService exists before instantiating to prevent fatal errors
-	$file_service = class_exists(\Starisian\Sparxstar\Starmus\services\StarmusFileService::class)
-		? new StarmusFileService()
-		: null;
+    // Check if FileService exists before instantiating to prevent fatal errors
+    $file_service = class_exists(\Starisian\Sparxstar\Starmus\services\StarmusFileService::class)
+        ? new StarmusFileService()
+        : null;
 
-	// --- 1. Audio Assets ---
-	$mastered_mp3_id = (int) get_post_meta($post_id, 'mastered_mp3', true);
-	$archival_wav_id = (int) get_post_meta($post_id, 'archival_wav', true);
-	$original_id     = (int) get_post_meta($post_id, 'audio_files_originals', true);
+    // --- 1. Audio Assets ---
+    $mastered_mp3_id = (int) get_post_meta($post_id, 'mastered_mp3', true);
+    $archival_wav_id = (int) get_post_meta($post_id, 'archival_wav', true);
+    $original_id     = (int) get_post_meta($post_id, 'audio_files_originals', true);
 
-	// Consistent URL Resolver function (from Admin template)
-	$get_url = function (int $att_id) use ($file_service) {
-		if ($att_id <= 0) {
-			return '';
-		}
-		try {
-			if ($file_service instanceof \Starisian\Sparxstar\Starmus\services\StarmusFileService) {
-				return $file_service->star_get_public_url($att_id);
-			}
-		} catch (\Throwable) {
-		}
-		return wp_get_attachment_url($att_id) ?: '';
-	};
+    // Consistent URL Resolver function (from Admin template)
+    $get_url = function (int $att_id) use ($file_service) {
+        if ($att_id <= 0) {
+            return '';
+        }
+        try {
+            if ($file_service instanceof \Starisian\Sparxstar\Starmus\services\StarmusFileService) {
+                return $file_service->star_get_public_url($att_id);
+            }
+        } catch (\Throwable) {
+        }
+        return wp_get_attachment_url($att_id) ?: '';
+    };
 
-	$mp3_url      = $get_url($mastered_mp3_id);
-	$original_url = $get_url($original_id);
-	// Playback preference: Mastered MP3 > Original
-	$playback_url = $mp3_url ?: $original_url;
+    $mp3_url      = $get_url($mastered_mp3_id);
+    $original_url = $get_url($original_id);
+    // Playback preference: Mastered MP3 > Original
+    $playback_url = $mp3_url ?: $original_url;
 
-	// --- 2. Transcription (Using Admin Logic for Robustness) ---
-	$transcript_raw  = get_post_meta($post_id, 'first_pass_transcription', true);
-	$transcript_text = '';
-	if (! empty($transcript_raw)) {
-		$decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
-		$transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
-	}
+    // --- 2. Transcription (Using Admin Logic for Robustness) ---
+    $transcript_raw  = get_post_meta($post_id, 'first_pass_transcription', true);
+    $transcript_text = '';
+    if (! empty($transcript_raw)) {
+        $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
+        $transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
+    }
 
-	// --- 3. Resolve Duration (Using Admin Logic for Robustness) ---
-	$duration_formatted = '';
-	$duration_sec       = get_post_meta($post_id, 'audio_duration', true);
+    // --- 3. Resolve Duration (Using Admin Logic for Robustness) ---
+    $duration_formatted = '';
+    $duration_sec       = get_post_meta($post_id, 'audio_duration', true);
 
-	if ($duration_sec) {
-		$duration_formatted = gmdate('i:s', intval($duration_sec));
-	} elseif ($mastered_mp3_id > 0) {
-		$att_meta = wp_get_attachment_metadata($mastered_mp3_id);
-		if (isset($att_meta['length_formatted'])) {
-			$duration_formatted = $att_meta['length_formatted'];
-		} elseif (isset($att_meta['length'])) {
-			$duration_formatted = gmdate('i:s', intval($att_meta['length']));
-		}
-	}
+    if ($duration_sec) {
+        $duration_formatted = gmdate('i:s', intval($duration_sec));
+    } elseif ($mastered_mp3_id > 0) {
+        $att_meta = wp_get_attachment_metadata($mastered_mp3_id);
+        if (isset($att_meta['length_formatted'])) {
+            $duration_formatted = $att_meta['length_formatted'];
+        } elseif (isset($att_meta['length'])) {
+            $duration_formatted = gmdate('i:s', intval($att_meta['length']));
+        }
+    }
 
-	// --- 4. Fetch Metadata ---
-	$accession_number = get_post_meta($post_id, 'accession_number', true);
-	$location_data    = get_post_meta($post_id, 'location', true);
+    // --- 4. Fetch Metadata ---
+    $accession_number = get_post_meta($post_id, 'accession_number', true);
+    $location_data    = get_post_meta($post_id, 'location', true);
 
-	// --- 5. User-Appropriate Environment Data ---
-	$env_json_raw = get_post_meta($post_id, 'environment_data', true);
-	$env_data = is_string($env_json_raw) ? json_decode($env_json_raw, true) : [];
+    // --- 5. User-Appropriate Environment Data ---
+    $env_json_raw = get_post_meta($post_id, 'environment_data', true);
+    $env_data     = is_string($env_json_raw) ? json_decode($env_json_raw, true) : [];
 
-	// Parse Browser/OS from User Agent (user-friendly display)
-	$ua_string = $env_data['device']['userAgent'] ?? (get_post_meta($post_id, 'user_agent', true) ?: '');
-	$user_agent_display = 'Unknown Browser';
+    // Parse Browser/OS from User Agent (user-friendly display)
+    $ua_string          = $env_data['device']['userAgent'] ?? (get_post_meta($post_id, 'user_agent', true) ?: '');
+    $user_agent_display = 'Unknown Browser';
 
-	if ($ua_string) {
-		$browser = 'Unknown';
-		if (strpos($ua_string, 'Chrome') !== false) $browser = 'Chrome';
-		elseif (strpos($ua_string, 'Firefox') !== false) $browser = 'Firefox';
-		elseif (strpos($ua_string, 'Safari') !== false) $browser = 'Safari';
+    if ($ua_string) {
+        $browser = 'Unknown';
+        if (str_contains($ua_string, 'Chrome')) {
+            $browser = 'Chrome';
+        } elseif (str_contains($ua_string, 'Firefox')) {
+            $browser = 'Firefox';
+        } elseif (str_contains($ua_string, 'Safari')) {
+            $browser = 'Safari';
+        }
 
-		$os = 'Unknown';
-		if (strpos($ua_string, 'Android') !== false) $os = 'Android';
-		elseif (strpos($ua_string, 'Windows') !== false) $os = 'Windows';
-		elseif (strpos($ua_string, 'Mac') !== false) $os = 'MacOS';
-		elseif (strpos($ua_string, 'Linux') !== false) $os = 'Linux';
-		elseif (strpos($ua_string, 'CrOS') !== false) $os = 'ChromeOS';
+        $os = 'Unknown';
+        if (str_contains($ua_string, 'Android')) {
+            $os = 'Android';
+        } elseif (str_contains($ua_string, 'Windows')) {
+            $os = 'Windows';
+        } elseif (str_contains($ua_string, 'Mac')) {
+            $os = 'MacOS';
+        } elseif (str_contains($ua_string, 'Linux')) {
+            $os = 'Linux';
+        } elseif (str_contains($ua_string, 'CrOS')) {
+            $os = 'ChromeOS';
+        }
 
-		$user_agent_display = "$browser on $os";
-	}
+        $user_agent_display = sprintf('%s on %s', $browser, $os);
+    }
 
-	// Parse Mic Profile (useful for users to understand quality)
-	$mic_data_raw = get_post_meta($post_id, 'runtime_metadata', true);
-	$mic_data = json_decode($mic_data_raw, true);
-	$mic_profile_display = 'Standard';
-	if (isset($mic_data['gain'])) {
-		$gain = $mic_data['gain'];
-		if ($gain >= 1.5) {
-			$mic_profile_display = 'High Sensitivity';
-		} elseif ($gain <= 0.5) {
-			$mic_profile_display = 'Low Sensitivity';
-		} else {
-			$mic_profile_display = 'Normal Sensitivity';
-		}
-	}
+    // Parse Mic Profile (useful for users to understand quality)
+    $mic_data_raw        = get_post_meta($post_id, 'runtime_metadata', true);
+    $mic_data            = json_decode($mic_data_raw, true);
+    $mic_profile_display = 'Standard';
+    if (isset($mic_data['gain'])) {
+        $gain = $mic_data['gain'];
+        if ($gain >= 1.5) {
+            $mic_profile_display = 'High Sensitivity';
+        } elseif ($gain <= 0.5) {
+            $mic_profile_display = 'Low Sensitivity';
+        } else {
+            $mic_profile_display = 'Normal Sensitivity';
+        }
+    }
 
-	// --- 6. Taxonomies ---
-	$languages = get_the_terms($post_id, 'language');
-	$rec_types = get_the_terms($post_id, 'recording_type');
+    // --- 6. Taxonomies ---
+    $languages = get_the_terms($post_id, 'language');
+    $rec_types = get_the_terms($post_id, 'recording_type');
 
-	// --- 7. Action URLs ---
-	$edit_page_slug     = $settings->get('edit_page_id', '');
-	$recorder_page_slug = $settings->get('recorder_page_id', '');
-	$edit_page_url      = $edit_page_slug ? get_permalink(get_page_by_path($edit_page_slug)) : '';
-	$recorder_page_url  = $recorder_page_slug ? get_permalink(get_page_by_path($recorder_page_slug)) : '';
+    // --- 7. Action URLs ---
+    $edit_page_slug     = $settings->get('edit_page_id', '');
+    $recorder_page_slug = $settings->get('recorder_page_id', '');
+    $edit_page_url      = $edit_page_slug ? get_permalink(get_page_by_path($edit_page_slug)) : '';
+    $recorder_page_url  = $recorder_page_slug ? get_permalink(get_page_by_path($recorder_page_slug)) : '';
 } catch (\Throwable $throwable) {
-	// Fail silently in production, log in debug
-	if (defined('WP_DEBUG') && WP_DEBUG) {
-		error_log('[Starmus Detail Error] ' . $throwable->getMessage());
-	}
-	echo '<div class="starmus-alert starmus-alert--error"><p>' . esc_html__('Unable to load recording details.', 'starmus-audio-recorder') . '</p></div>';
-	return;
+    // Fail silently in production, log in debug
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('[Starmus Detail Error] ' . $throwable->getMessage());
+    }
+    echo '<div class="starmus-alert starmus-alert--error"><p>' . esc_html__('Unable to load recording details.', 'starmus-audio-recorder') . '</p></div>';
+    return;
 }
 ?>
 

@@ -9,40 +9,42 @@
 Handles checking for and providing updates for the Starmus plugin.
 @file        StarmusAudioRecorderUpdater.php
 @package     Starmus\core
-@version 0.8.5
+@version 0.9.2
 @since       0.7.2
 
 ## Methods
 
-### `check_for_updates()`
+### `__construct()`
 
 **Visibility:** `public`
 
 Handles checking for and providing updates for the Starmus plugin.
 @file        StarmusAudioRecorderUpdater.php
 @package     Starmus\core
-@version 0.8.5
+@version 0.9.2
 @since       0.7.2
 /
 class StarmusAudioRecorderUpdater
 {
+    /**
+The URL of the update server.
+/
     private string $update_api_url = 'https://updates.starisian.com/v1/info'; // Your update server URL
 
-    public function __construct(private $plugin_file, private $current_version)
-    {
-        $this->register_hooks();
-        // The crucial hook that starts the process.
-    }
-
-    private function register_hooks(): void
-    {
-        add_filter('pre_set_site_transient_update_plugins', $this->check_for_updates(...));
-    }
-
     /**
+Constructor.
+@param string $plugin_file The main plugin file path.
+@param string $current_version The current version of the plugin.
+
+### `check_for_updates()`
+
+**Visibility:** `public`
+
 The callback function that intercepts the WordPress update check.
 @param object $transient The WordPress update transient.
 @return object The modified transient.
+
+## Properties
 
 ---
 

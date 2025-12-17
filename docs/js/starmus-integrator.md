@@ -4,62 +4,51 @@
 
 ---
 
-## Functions
+## Modules
 
 <dl>
-<dt><a href="#emitStarmusEventGlobal">emitStarmusEventGlobal()</a></dt>
-<dd><p>Emit global telemetry events via StarmusHooks.</p>
-</dd>
-<dt><a href="#starmusEnsureContext">starmusEnsureContext()</a></dt>
-<dd><p>PATCH 1: Unified AudioContext resume helper
-Ensures AudioContext is running before any recording/calibration operation.</p>
-</dd>
-<dt><a href="#detectTier">detectTier()</a></dt>
-<dd><p>Detect Tier - Chromebook-safe.</p>
-</dd>
-<dt><a href="#isRecordingSupported">isRecordingSupported()</a></dt>
-<dd><p>PATCH 6: Utility to check if recording is actually supported
-Exposed globally for SparxstarUEC tier detection override.</p>
-</dd>
-<dt><a href="#populateHiddenFields">populateHiddenFields()</a></dt>
-<dd><p>CRITICAL FIX: Injects all internal state data into hidden form fields 
-before submission to bypass the REST API Session/Cache sync problem.</p>
+<dt><a href="#module_exposePeaksBridge">exposePeaksBridge</a> ⇒ <code>void</code></dt>
+<dd><p>Exposes Peaks.js waveform library through the Starmus namespace.
+Creates a bridge between the global Peaks library and Starmus.Peaks.
+Provides a fallback implementation if Peaks.js is not available.</p>
 </dd>
 </dl>
 
-<a name="emitStarmusEventGlobal"></a>
+## Members
 
-## emitStarmusEventGlobal()
-Emit global telemetry events via StarmusHooks.
+<dl>
+<dt><a href="#version">version</a> : <code>string</code></dt>
+<dd><p>Current version of the Starmus integration layer.</p>
+</dd>
+</dl>
 
-**Kind**: global function  
-<a name="starmusEnsureContext"></a>
+## Objects
 
-## starmusEnsureContext()
-PATCH 1: Unified AudioContext resume helper
-Ensures AudioContext is running before any recording/calibration operation.
+<dl>
+<dt><a href="#Starmus">Starmus</a> : <code>object</code></dt>
+<dd><p>Global Starmus namespace object.</p>
+</dd>
+</dl>
 
-**Kind**: global function  
-<a name="detectTier"></a>
+<a name="module_exposePeaksBridge"></a>
 
-## detectTier()
-Detect Tier - Chromebook-safe.
+## exposePeaksBridge ⇒ <code>void</code>
+Exposes Peaks.js waveform library through the Starmus namespace.
+Creates a bridge between the global Peaks library and Starmus.Peaks.
+Provides a fallback implementation if Peaks.js is not available.
 
-**Kind**: global function  
-<a name="isRecordingSupported"></a>
+<a name="version"></a>
 
-## isRecordingSupported()
-PATCH 6: Utility to check if recording is actually supported
-Exposed globally for SparxstarUEC tier detection override.
+## version : <code>string</code>
+Current version of the Starmus integration layer.
 
-**Kind**: global function  
-<a name="populateHiddenFields"></a>
+**Kind**: global variable  
+<a name="Starmus"></a>
 
-## populateHiddenFields()
-CRITICAL FIX: Injects all internal state data into hidden form fields 
-before submission to bypass the REST API Session/Cache sync problem.
+## Starmus : <code>object</code>
+Global Starmus namespace object.
 
-**Kind**: global function  
+**Kind**: global namespace  
 
 
 ---

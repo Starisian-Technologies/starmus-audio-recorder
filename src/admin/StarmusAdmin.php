@@ -253,7 +253,7 @@ class StarmusAdmin
                 $langs = array_map(trim(...), explode(',', $allowed_langs));
                 $langs = array_filter(
                     $langs,
-                    fn ($l): int|false => preg_match('/^[a-z]{2,4}$/', $l)
+                    fn ($l): int|false => preg_match('/^[a-z]{2,4}$/', (string) $l)
                 );
                 $sanitized['allowed_languages'] = implode(',', $langs);
             } else {

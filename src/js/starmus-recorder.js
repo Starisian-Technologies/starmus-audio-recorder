@@ -1,17 +1,48 @@
 /**
  * @file starmus-recorder.js
  * @version 6.4.0-BUILD-FIX
- * @description Recorder logic with Explicit Exports at the bottom.
+ * @description Audio recording functionality with MediaRecorder API, microphone calibration,
+ * real-time speech recognition, and visual amplitude feedback. Handles complete recording
+ * lifecycle from setup through stop with explicit exports for build system.
  */
 
 'use strict';
 
 import { CommandBus } from './starmus-hooks.js';
 
+/**
+ * Registry of active recorder instances mapped by instanceId.
+ * Stores MediaRecorder, animation frame ID, and speech recognition objects.
+ * @type {Map<string, Object>}
+ * @property {MediaRecorder} mediaRecorder - MediaRecorder instance for audio capture
+ * @property {number|null} rafId - RequestAnimationFrame ID for visual updates
+ * @property {SpeechRecognition|null} recognition - Speech recognition instance
+ */
 const recorderRegistry = new Map();
+
+/**
+ * Shared AudioContext instance for all recorder instances.
+ * Reused to avoid multiple context creation and ensure proper resource management.
+ * @type {AudioContext|null}
+ */
 let sharedAudioContext = null;
+
+/**
+ * Speech Recognition API with webkit fallback.
+ * Used for real-time transcription during recording.
+ * @type {function|undefined}
+ */
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
+/**
+ * Gets or creates shared AudioContext with optimal settings.
+ * Creates new context if none exists or previous was closed.
+ * Sets global window.StarmusAudioContext reference.
+ * 
+ * @function
+ * @returns {AudioContext} Shared AudioContext instance
+ * @throws {Error} When Audio API is not supported in browser
+ */
 function getContext() {
   const Ctx = window.AudioContext || window.webkitAudioContext;
   if (!Ctx) throw new Error('Audio API not supported');
@@ -22,12 +53,42 @@ function getContext() {
   return sharedAudioContext;
 }
 
+/**
+ * Wakes up AudioContext if suspended due to browser autoplay policies.
+ * Must be called after user interaction to enable audio processing.
+ * 
+ * @async
+ * @function
+ * @returns {Promise<AudioContext>} Promise resolving to active AudioContext
+ */
 async function wakeAudio() {
     const ctx = getContext();
     if (ctx.state === 'suspended') await ctx.resume();
     return ctx;
 }
 
+/**
+ * Performs microphone calibration with three-phase process.
+ * Measures background noise, speech levels, and optimizes settings over 15 seconds.
+ * Provides real-time feedback through onUpdate callback.
+ * 
+ * @async
+ * @function
+ * @param {MediaStream} stream - Audio stream from getUserMedia
+ * @param {function} onUpdate - Callback for calibration progress updates
+ * @param {string} onUpdate.message - Current calibration phase message
+ * @param {number} onUpdate.volumePercent - Volume level (0-100)
+ * @param {boolean} onUpdate.isComplete - Whether calibration finished
+ * @returns {Promise<Object>} Calibration results
+ * @returns {boolean} returns.complete - Always true when resolved
+ * @returns {number} returns.gain - Audio gain multiplier (currently 1.0)
+ * @returns {number} returns.speechLevel - Maximum detected volume level
+ * 
+ * @description Calibration phases:
+ * - Phase 1 (0-5s): Measure background noise
+ * - Phase 2 (5-10s): Detect speech levels
+ * - Phase 3 (10-15s): Optimize settings
+ */
 async function doCalibration(stream, onUpdate) {
     const ctx = await wakeAudio();
     const source = ctx.createMediaStreamSource(stream);
@@ -73,9 +134,35 @@ async function doCalibration(stream, onUpdate) {
     });
 }
 
+/**
+ * Initializes recorder functionality for a specific instance.
+ * Sets up CommandBus event handlers for microphone setup, recording control,
+ * speech recognition, and real-time amplitude visualization.
+ * 
+ * @function
+ * @exports initRecorder
+ * @param {Object} store - Redux-style store for state management
+ * @param {function} store.dispatch - Function to dispatch state actions
+ * @param {string} instanceId - Unique identifier for this recorder instance
+ * @returns {void}
+ * 
+ * @description Registers handlers for these commands:
+ * - 'setup-mic': Request microphone access and perform calibration
+ * - 'start-recording': Begin audio recording with speech recognition
+ * - 'stop-mic': Stop recording and save audio blob
+ * - 'pause-mic': Pause ongoing recording
+ * - 'resume-mic': Resume paused recording
+ * 
+ * All commands are filtered by instanceId to support multiple recorder instances.
+ */
 function initRecorder(store, instanceId) {
   console.log('[Recorder] 🎧 Listening for commands for ID:', instanceId);
 
+  /**
+   * Handler for 'setup-mic' command.
+   * Requests microphone permissions, performs calibration, and updates store.
+   * @listens CommandBus~setup-mic
+   */
   // 1. SETUP MIC
   CommandBus.subscribe('setup-mic', async (_p, meta) => {
     if (meta?.instanceId !== instanceId) return; 
@@ -93,6 +180,11 @@ function initRecorder(store, instanceId) {
     } 
   });
 
+  /**
+   * Handler for 'start-recording' command.
+   * Creates MediaRecorder, sets up speech recognition, and starts amplitude visualization.
+   * @listens CommandBus~start-recording
+   */
   // 2. START RECORDING
   CommandBus.subscribe('start-recording', async (_p, meta) => {
     if (meta?.instanceId !== instanceId) return;
@@ -106,6 +198,7 @@ function initRecorder(store, instanceId) {
       const mediaRecorder = new MediaRecorder(dest.stream);
       const chunks = [];
       
+      // Speech recognition setup
       let recognition = null;
       if (SpeechRecognition) {
           try {
@@ -124,6 +217,7 @@ function initRecorder(store, instanceId) {
           } catch(e) {}
       }
 
+      // MediaRecorder event handlers
       mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
       mediaRecorder.onstop = () => {
         const rec = recorderRegistry.get(instanceId);
@@ -139,10 +233,16 @@ function initRecorder(store, instanceId) {
       mediaRecorder.start(1000);
       store.dispatch({ type: 'starmus/mic-start' });
 
+      // Amplitude visualization setup
       const analyser = ctx.createAnalyser();
       source.connect(analyser);
       const buf = new Uint8Array(analyser.frequencyBinCount);
       const startTs = Date.now();
+      
+      /**
+       * Animation loop for real-time amplitude visualization.
+       * Updates store with duration and amplitude data.
+       */
       function visLoop() {
          const rec = recorderRegistry.get(instanceId);
          if(!rec || mediaRecorder.state !== 'recording') return;
@@ -158,6 +258,11 @@ function initRecorder(store, instanceId) {
     }
   });
 
+  /**
+   * Handler for 'stop-mic' command.
+   * Stops MediaRecorder and speech recognition, triggers audio blob creation.
+   * @listens CommandBus~stop-mic
+   */
   // 3. STOP / PAUSE / RESUME
   CommandBus.subscribe('stop-mic', (_p, meta) => {
      if (meta?.instanceId !== instanceId) return;
@@ -169,6 +274,11 @@ function initRecorder(store, instanceId) {
      }
   });
   
+  /**
+   * Handler for 'pause-mic' command.
+   * Pauses MediaRecorder and stops speech recognition temporarily.
+   * @listens CommandBus~pause-mic
+   */
   CommandBus.subscribe('pause-mic', (_p, meta) => {
      if (meta?.instanceId !== instanceId) return;
      const rec = recorderRegistry.get(instanceId);
@@ -179,6 +289,11 @@ function initRecorder(store, instanceId) {
      }
   });
 
+  /**
+   * Handler for 'resume-mic' command.
+   * Resumes MediaRecorder and restarts speech recognition.
+   * @listens CommandBus~resume-mic
+   */
   CommandBus.subscribe('resume-mic', (_p, meta) => {
      if (meta?.instanceId !== instanceId) return;
      const rec = recorderRegistry.get(instanceId);
@@ -190,5 +305,10 @@ function initRecorder(store, instanceId) {
   });
 }
 
+/**
+ * Explicit export for build system compatibility.
+ * Exports initRecorder function for use in other modules.
+ * @exports {function} initRecorder
+ */
 // EXPLICIT EXPORT FOR ROLLUP
 export { initRecorder };

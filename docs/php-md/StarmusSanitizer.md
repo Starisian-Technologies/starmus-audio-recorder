@@ -22,8 +22,8 @@ class StarmusSanitizer
 {
     /**
 Sanitize general submission data from forms or REST params.
-@param array $data Raw request parameters.
-@return array Sanitized data.
+@param array<string, mixed> $data Raw request parameters.
+@return array<string, mixed> Sanitized data.
 
 ### `sanitize_metadata()`
 
@@ -31,8 +31,8 @@ Sanitize general submission data from forms or REST params.
 
 Sanitize structured metadata for saving into CPT/attachment.
 Maps form fields into normalized meta keys.
-@param array $form_data Sanitized form parameters.
-@return array Key → Value metadata array.
+@param array<string, mixed> $form_data Sanitized form parameters.
+@return array<string, mixed> Key → Value metadata array.
 
 ---
 

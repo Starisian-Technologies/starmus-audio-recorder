@@ -33,6 +33,7 @@ Constructor.
 **Visibility:** `public`
 
 Job repository.
+@var StarmusSageMakerJobRepository
 /
         private StarmusSageMakerJobRepository $repository
     ) {

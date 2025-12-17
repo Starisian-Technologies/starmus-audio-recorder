@@ -1,9 +1,12 @@
 <?php
 /**
  * Starmus Re-Recorder UI Template
+ *
  * @version 1.0.2-DATA-SAFE
  */
-if (! defined('ABSPATH')) exit;
+if (! defined('ABSPATH')) {
+    exit;
+}
 
 /** @var int $post_id */
 /** @var string $existing_title */
@@ -14,6 +17,11 @@ $instance_id = 'starmus_form_' . sanitize_key('rerecord_' . wp_generate_uuid4())
 $contributor_id = '';
 // If you have a function to get contributor ID from user ID, use it here:
 // $contributor_id = star_get_contributor_id(get_current_user_id());
+$allowed_file_types ??= 'webm';
+$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+$is_admin          = current_user_can('manage_options');
+$consent_message ??= __('By submitting this recording, you agree to our', 'starmus-audio-recorder');
+$data_policy_url ??= '';
 ?>
 
 <div class="starmus-recorder-form sparxstar-glass-card">

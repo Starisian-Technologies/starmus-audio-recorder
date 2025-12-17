@@ -9,7 +9,7 @@
 WP-CLI commands for managing the Starmus Audio Recorder plugin.
 This is the final, consolidated class containing all commands and best practices.
 @package Starisian\Sparxstar\Starmus\cli
-@version 0.8.5
+@version 0.9.2
 
 ## Methods
 
@@ -20,7 +20,7 @@ This is the final, consolidated class containing all commands and best practices
 WP-CLI commands for managing the Starmus Audio Recorder plugin.
 This is the final, consolidated class containing all commands and best practices.
 @package Starisian\Sparxstar\Starmus\cli
-@version 0.8.5
+@version 0.9.2
 /
 namespace Starisian\Sparxstar\Starmus\cli;
 
@@ -36,6 +36,9 @@ Manages the Starmus Audio Recorder plugin.
 /
 class StarmusCLI extends \WP_CLI_Command
 {
+    /**
+Waveform service instance.
+/
     private ?StarmusWaveformService $waveform_service = null;
 
     public function __construct()
@@ -161,6 +164,8 @@ Queue waveform regeneration for a specific attachment (runs via cron).
 ## EXAMPLES
     wp starmus queue 1234
 @subcommand queue
+
+## Properties
 
 ---
 

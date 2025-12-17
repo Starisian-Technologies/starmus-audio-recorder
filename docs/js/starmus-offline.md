@@ -4,77 +4,135 @@
 
 ---
 
-## Classes
+## Modules
 
 <dl>
-<dt><a href="#OfflineQueue">OfflineQueue</a></dt>
-<dd><p>Offline queue manager using IndexedDB.</p>
+<dt><a href="#module_getOfflineQueue">getOfflineQueue</a> ⇒ <code><a href="#new_OfflineQueue_new">Promise.&lt;OfflineQueue&gt;</a></code></dt>
+<dd><p>Gets the initialized offline queue instance.
+Initializes database connection and network listeners on first access.</p>
+</dd>
+<dt><a href="#module_queueSubmission">queueSubmission</a> ⇒ <code>Promise.&lt;string&gt;</code></dt>
+<dd><p>Queues an audio submission for offline processing.
+Convenience function that gets queue instance and adds submission.</p>
+</dd>
+<dt><a href="#module_getPendingCount">getPendingCount</a> ⇒ <code>Promise.&lt;number&gt;</code></dt>
+<dd><p>Gets the count of pending submissions in the offline queue.</p>
+</dd>
+<dt><a href="#module_initOffline">initOffline</a> ⇒ <code><a href="#new_OfflineQueue_new">Promise.&lt;OfflineQueue&gt;</a></code></dt>
+<dd><p>Initializes the offline queue system.
+Alias for getOfflineQueue for backward compatibility.</p>
+</dd>
+</dl>
+
+## Members
+
+<dl>
+<dt><a href="#initOffline">initOffline</a> : <code>function</code></dt>
+<dd><p>Global initOffline function reference.</p>
+</dd>
+<dt><a href="#StarmusOfflineQueue">StarmusOfflineQueue</a> : <code>function</code></dt>
+<dd><p>Global offline queue getter function.</p>
 </dd>
 </dl>
 
 ## Constants
 
 <dl>
-<dt><a href="#CONFIG">CONFIG</a></dt>
-<dd><p>Configuration for offline queue.</p>
+<dt><a href="#CONFIG">CONFIG</a> : <code>Object</code></dt>
+<dd><p>Configuration object for offline queue behavior.
+Defines database settings, retry policies, and size limits.</p>
+</dd>
+<dt><a href="#offlineQueue">offlineQueue</a> : <code><a href="#new_OfflineQueue_new">OfflineQueue</a></code></dt>
+<dd><p>Global offline queue instance.</p>
 </dd>
 </dl>
 
-<a name="OfflineQueue"></a>
+<a name="module_getOfflineQueue"></a>
 
-## OfflineQueue
-Offline queue manager using IndexedDB.
+## getOfflineQueue ⇒ [<code>Promise.&lt;OfflineQueue&gt;</code>](#new_OfflineQueue_new)
+Gets the initialized offline queue instance.
+Initializes database connection and network listeners on first access.
 
-**Kind**: global class  
+**Returns**: [<code>Promise.&lt;OfflineQueue&gt;</code>](#new_OfflineQueue_new) - Configured offline queue instance  
+<a name="module_queueSubmission"></a>
 
-* [OfflineQueue](#OfflineQueue)
-    * [.init()](#OfflineQueue+init) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.add()](#OfflineQueue+add)
-    * [.getAll()](#OfflineQueue+getAll) ⇒ <code>Promise.&lt;Array&gt;</code>
-    * [.remove()](#OfflineQueue+remove)
-    * [._updateRetryCount()](#OfflineQueue+_updateRetryCount)
-    * [.processQueue()](#OfflineQueue+processQueue)
+## queueSubmission ⇒ <code>Promise.&lt;string&gt;</code>
+Queues an audio submission for offline processing.
+Convenience function that gets queue instance and adds submission.
 
-<a name="OfflineQueue+init"></a>
+**Returns**: <code>Promise.&lt;string&gt;</code> - Unique submission ID for tracking  
 
-### offlineQueue.init() ⇒ <code>Promise.&lt;void&gt;</code>
-Initialize IndexedDB connection.
+| Param | Type | Description |
+| --- | --- | --- |
+| instanceId | <code>string</code> | Recorder instance identifier |
+| audioBlob | <code>Blob</code> | Audio file blob to queue |
+| fileName | <code>string</code> | Name for the audio file |
+| formFields | <code>Object</code> | Form data (consent, language, etc.) |
+| metadata | <code>Object</code> | Additional metadata (transcript, calibration, env) |
 
-**Kind**: instance method of [<code>OfflineQueue</code>](#OfflineQueue)  
-<a name="OfflineQueue+add"></a>
+**Example**  
+```js
+const submissionId = await queueSubmission(
+  'rec-123',
+  audioBlob,
+  'recording.webm',
+  { consent: 'yes', language: 'en' },
+  { transcript: 'Hello world', tier: 'A' }
+);
+```
+<a name="module_getPendingCount"></a>
 
-### offlineQueue.add()
-Add a submission to the offline queue.
+## getPendingCount ⇒ <code>Promise.&lt;number&gt;</code>
+Gets the count of pending submissions in the offline queue.
 
-**Kind**: instance method of [<code>OfflineQueue</code>](#OfflineQueue)  
-<a name="OfflineQueue+getAll"></a>
+**Returns**: <code>Promise.&lt;number&gt;</code> - Number of pending submissions  
+<a name="module_initOffline"></a>
 
-### offlineQueue.getAll() ⇒ <code>Promise.&lt;Array&gt;</code>
-Get all pending submissions from queue.
+## initOffline ⇒ [<code>Promise.&lt;OfflineQueue&gt;</code>](#new_OfflineQueue_new)
+Initializes the offline queue system.
+Alias for getOfflineQueue for backward compatibility.
 
-**Kind**: instance method of [<code>OfflineQueue</code>](#OfflineQueue)  
-<a name="OfflineQueue+remove"></a>
+**Returns**: [<code>Promise.&lt;OfflineQueue&gt;</code>](#new_OfflineQueue_new) - Configured offline queue instance  
+<a name="exp_module_initOffline--module.exports"></a>
 
-### offlineQueue.remove()
-Remove a submission from queue.
+### module.exports ⏏
+Default export of the offline queue instance.
 
-**Kind**: instance method of [<code>OfflineQueue</code>](#OfflineQueue)  
-<a name="OfflineQueue+_updateRetryCount"></a>
+**Kind**: Exported member  
+<a name="initOffline"></a>
 
-### offlineQueue.\_updateRetryCount()
-Update retry count for a submission.
+## initOffline : <code>function</code>
+Global initOffline function reference.
 
-**Kind**: instance method of [<code>OfflineQueue</code>](#OfflineQueue)  
-<a name="OfflineQueue+processQueue"></a>
+**Kind**: global variable  
+<a name="StarmusOfflineQueue"></a>
 
-### offlineQueue.processQueue()
-Process offline queue - attempt to upload all pending submissions.
+## StarmusOfflineQueue : <code>function</code>
+Global offline queue getter function.
 
-**Kind**: instance method of [<code>OfflineQueue</code>](#OfflineQueue)  
+**Kind**: global variable  
 <a name="CONFIG"></a>
 
-## CONFIG
-Configuration for offline queue.
+## CONFIG : <code>Object</code>
+Configuration object for offline queue behavior.
+Defines database settings, retry policies, and size limits.
+
+**Kind**: global constant  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| dbName | <code>string</code> | IndexedDB database name |
+| storeName | <code>string</code> | Object store name for submissions |
+| dbVersion | <code>number</code> | Database schema version |
+| maxRetries | <code>number</code> | Maximum retry attempts per submission |
+| retryDelays | <code>Array.&lt;number&gt;</code> | Retry delay intervals in milliseconds |
+| maxBlobSize | <code>number</code> | Maximum allowed audio file size in bytes (40MB) |
+
+<a name="offlineQueue"></a>
+
+## offlineQueue : [<code>OfflineQueue</code>](#new_OfflineQueue_new)
+Global offline queue instance.
 
 **Kind**: global constant  
 

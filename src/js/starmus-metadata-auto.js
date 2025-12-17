@@ -7,6 +7,35 @@
 
 'use strict';
 
+/**
+ * Updates or creates a hidden form field with safety guards to protect PHP-injected values.
+ * Prevents empty JavaScript state from overwriting server-side data.
+ * 
+ * @function updateField
+ * @param {HTMLFormElement} form - Form element containing the input fields
+ * @param {string} name - Name attribute for the input field
+ * @param {*} value - Value to set (objects are JSON.stringify'd)
+ * @returns {void}
+ * 
+ * @description Safety features:
+ * - Creates hidden input if it doesn't exist
+ * - Converts objects to JSON strings automatically
+ * - Protects existing PHP-injected values from being overwritten by empty JS values
+ * - Only updates if the value has actually changed
+ * - Skips updates when trying to overwrite non-empty values with empty ones
+ * 
+ * @example
+ * // Update calibration data
+ * updateField(form, '_starmus_calibration', { gain: 0.8, level: 'good' });
+ * 
+ * @example
+ * // Create new transcript field
+ * updateField(form, 'first_pass_transcription', 'Hello world');
+ * 
+ * @example
+ * // Protected update - won't overwrite existing PHP value with empty string
+ * updateField(form, 'existing_field', ''); // Skipped if field has value
+ */
 function updateField(form, name, value) {
     let input = form.querySelector(`input[name="${name}"]`);
     
@@ -34,12 +63,70 @@ function updateField(form, name, value) {
     }
 }
 
+/**
+ * Initializes automatic metadata synchronization from store state to form fields.
+ * Creates a bidirectional sync that updates hidden form fields whenever the store state changes.
+ * Protects server-side injected values from being overwritten by empty client-side state.
+ * 
+ * @function initAutoMetadata
+ * @exports
+ * @param {Object} store - Redux-style store with getState, subscribe methods
+ * @param {function} store.getState - Function to get current application state
+ * @param {function} store.subscribe - Function to subscribe to state changes
+ * @param {HTMLFormElement} formEl - Form element to sync metadata fields to
+ * @param {Object} [options] - Configuration options (currently unused)
+ * @returns {function} Unsubscribe function to stop automatic synchronization
+ * 
+ * @description Synchronized fields:
+ * 1. **_starmus_calibration** - Microphone calibration data (gain, speechLevel, message)
+ * 2. **_starmus_env** - UEC environment data (browser, device, network info)
+ * 3. **first_pass_transcription** - Combined transcript and interim speech recognition
+ * 4. **recording_metadata** - Technical recording metadata (sample rate, format, etc.)
+ * 5. **waveform_json** - Audio waveform data for visualization
+ * 
+ * @description State mapping:
+ * - `state.calibration` → `_starmus_calibration` (when calibration.complete is true)
+ * - `state.env` → `_starmus_env` (UEC browser/device data)
+ * - `state.source.transcript` + `state.source.interimTranscript` → `first_pass_transcription`
+ * - `state.source.metadata` → `recording_metadata` (technical audio data)
+ * - `state.source.waveform` → `waveform_json` (visualization data)
+ * 
+ * @example
+ * // Basic initialization
+ * const unsubscribe = initAutoMetadata(store, document.querySelector('form'));
+ * 
+ * @example
+ * // With cleanup
+ * const cleanup = initAutoMetadata(store, formElement);
+ * // Later: cleanup() to stop synchronization
+ * 
+ * @example
+ * // State structure expected:
+ * const state = {
+ *   calibration: { complete: true, gain: 0.8, speechLevel: 'good' },
+ *   env: { browser: 'Chrome', device: 'mobile' },
+ *   source: { 
+ *     transcript: 'Hello world',
+ *     interimTranscript: 'how are',
+ *     metadata: { sampleRate: 44100, format: 'webm' },
+ *     waveform: [0.1, 0.2, 0.3]
+ *   }
+ * };
+ */
 export function initAutoMetadata(store, formEl, options) {
   if (!store || !formEl) {
     console.warn('[StarmusMetadata] Store or Form missing.');
     return;
   }
 
+  /**
+   * Synchronizes current store state to form fields.
+   * Called initially and whenever store state changes.
+   * 
+   * @function sync
+   * @inner
+   * @returns {void}
+   */
   function sync() {
     const state = store.getState();
     const env = state.env || {};

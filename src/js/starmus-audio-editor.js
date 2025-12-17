@@ -4,6 +4,25 @@
  * @description Peaks.js waveform editor with modern global scope handling.
  */
 
+/**
+ * Universal Module Definition (UMD) wrapper for the Starmus Audio Editor.
+ * Provides a waveform editor based on Peaks.js for audio annotation and editing.
+ * Supports both CommonJS and browser global environments.
+ * 
+ * @param {Object} global - The global object (window in browser, globalThis in other environments)
+ * @param {Function} factory - Factory function that creates the editor module
+ * @returns {Object} The StarmusAudioEditor module
+ * 
+ * @example
+ * // Browser usage
+ * const editor = window.StarmusAudioEditor;
+ * editor.init();
+ * 
+ * @example
+ * // CommonJS usage
+ * const editor = require('./starmus-audio-editor.js');
+ * editor.init();
+ */
 (function (global, factory) {
   // Standard UMD wrapper for compatibility
   if (typeof module !== 'undefined' && module.exports) {
@@ -15,6 +34,37 @@
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
 
+  /**
+   * Initializes the Peaks.js audio editor with annotation capabilities.
+   * Requires STARMUS_EDITOR_DATA to be present in the global scope.
+   * 
+   * Features:
+   * - Waveform visualization with overview and zoom views
+   * - Audio playback controls (play/pause, seek, skip)
+   * - Annotation regions with editable labels and time boundaries
+   * - Zoom controls and loop mode
+   * - Save annotations to WordPress via REST API
+   * - Real-time dirty state tracking
+   * 
+   * @function init
+   * @returns {void}
+   * 
+   * @throws {Error} When STARMUS_EDITOR_DATA is not defined
+   * @throws {Error} When required DOM elements are missing
+   * @throws {Error} When audio file cannot be loaded
+   * @throws {Error} When Peaks.js is not available
+   * 
+   * @example
+   * // Initialize the audio editor
+   * window.STARMUS_EDITOR_DATA = {
+   *   restUrl: '/wp-json/star-/v1/save-annotations',
+   *   nonce: 'abc123',
+   *   postId: 42,
+   *   audioUrl: '/uploads/recording.wav',
+   *   annotations: [{ startTime: 5.0, endTime: 10.0, label: 'Intro' }]
+   * };
+   * StarmusAudioEditor.init();
+   */
   function init() {
     const EDITOR_DATA = window.STARMUS_EDITOR_DATA;
     if (!EDITOR_DATA) {
@@ -77,6 +127,27 @@
         return;
       }
 
+      /**
+       * Normalizes annotation data by filtering invalid entries and removing overlaps.
+       * Ensures all annotations have valid time boundaries within audio duration.
+       * Sorts annotations by start time and removes any overlapping segments.
+       * 
+       * @param {Array<Object>} arr - Array of annotation objects
+       * @param {number} arr[].startTime - Start time in seconds
+       * @param {number} arr[].endTime - End time in seconds
+       * @param {string} [arr[].label=''] - Annotation label
+       * @param {string} [arr[].id] - Annotation ID (generated if missing)
+       * @returns {Array<Object>} Normalized annotation array
+       * 
+       * @example
+       * const annotations = [
+       *   { startTime: 10, endTime: 5, label: 'Invalid' }, // filtered out
+       *   { startTime: 5, endTime: 10, label: 'Valid' },
+       *   { startTime: 8, endTime: 12, label: 'Overlap' }  // filtered out
+       * ];
+       * const normalized = normalize(annotations);
+       * // Returns: [{ id: 'uuid', startTime: 5, endTime: 10, label: 'Valid' }]
+       */
       const normalize = (arr) => {
         const valid = (arr || []).filter(a =>
           isFinite(a.startTime) && isFinite(a.endTime) &&
@@ -99,6 +170,17 @@
         return res;
       };
 
+      /**
+       * Generates a unique identifier for annotation segments.
+       * Uses the modern crypto.randomUUID() API when available,
+       * falls back to a timestamp-based ID for compatibility.
+       * 
+       * @returns {string} Unique identifier string
+       * 
+       * @example
+       * const id = getUUID();
+       * // Returns: '550e8400-e29b-41d4-a716-446655440000' or 'id-abc123456789'
+       */
       const getUUID = () =>
         window.crypto?.randomUUID?.() || 'id-' + Math.random().toString(36).slice(2) + Date.now();
 
@@ -248,6 +330,27 @@
     });
   }
 
+  /**
+   * Displays a notification message to the user.
+   * Shows success or error messages in a styled alert element.
+   * Auto-hides after 5 seconds to maintain clean UI.
+   * 
+   * @param {string} msg - Message text to display
+   * @param {string} [type='error'] - Message type ('success', 'error', 'warning')
+   * @returns {void}
+   * 
+   * @example
+   * // Show success message
+   * showNotice('Annotations saved successfully!', 'success');
+   * 
+   * @example
+   * // Show error message
+   * showNotice('Failed to save annotations', 'error');
+   * 
+   * @example
+   * // Hide current notice
+   * showNotice();
+   */
   function showNotice(msg, type = 'error') {
     const el = document.getElementById('starmus-editor-notice');
     if (!el) return;
@@ -261,10 +364,48 @@
     }
   }
 
+  /**
+   * Escapes HTML special characters to prevent XSS attacks.
+   * Converts ampersands, brackets, and quotes to HTML entities.
+   * Essential for safely displaying user input in HTML.
+   * 
+   * @param {*} str - Input value to escape (converted to string)
+   * @returns {string} HTML-safe escaped string
+   * 
+   * @example
+   * const userInput = '<script>alert("xss")</script>';
+   * const safe = escapeHTML(userInput);
+   * // Returns: '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
+   * 
+   * @example
+   * const label = 'Q&A Session';
+   * const escaped = escapeHTML(label);
+   * // Returns: 'Q&amp;A Session'
+   */
   function escapeHTML(str) {
     return ('' + str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  /**
+   * Formats seconds into a human-readable time string (M:SS format).
+   * Handles invalid input gracefully by returning '0:00'.
+   * Used for displaying current time and duration in the UI.
+   * 
+   * @param {number} s - Time in seconds
+   * @returns {string} Formatted time string in M:SS format
+   * 
+   * @example
+   * formatTime(65.5);
+   * // Returns: '1:05'
+   * 
+   * @example
+   * formatTime(3600);
+   * // Returns: '60:00'
+   * 
+   * @example
+   * formatTime(NaN);
+   * // Returns: '0:00'
+   */
   function formatTime(s) {
     if (isNaN(s)) return '0:00';
     const m = Math.floor(s / 60);
@@ -272,8 +413,27 @@
     return m + ':' + String(sec).padStart(2, '0');
   }
 
+  /**
+   * Public API interface for the Starmus Audio Editor.
+   * Exposes only the init function for external consumption.
+   * 
+   * @exports StarmusAudioEditor
+   * @type {Object}
+   * @property {Function} init - Initialize the audio editor
+   */
   return { init };
 });
 
-// Export for Rollup
+/**
+ * ES6 module export for build tools.
+ * Re-exports the UMD module's init function for compatibility with
+ * modern bundlers like Rollup and Webpack.
+ * 
+ * @module starmus-audio-editor
+ * @exports {Object} Default export with init method
+ * 
+ * @example
+ * import StarmusAudioEditor from './starmus-audio-editor.js';
+ * StarmusAudioEditor.init();
+ */
 export default { init: window.StarmusAudioEditor.init };

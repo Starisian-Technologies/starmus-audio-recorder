@@ -4,57 +4,80 @@
 
 ---
 
-## Constants
+## Modules
 
 <dl>
-<dt><a href="#STARMUS_EDITOR_DATA">STARMUS_EDITOR_DATA</a> : <code>object</code></dt>
-<dd><p>Data localized from PHP.</p>
+<dt><a href="#module_starmus-audio-editor">starmus-audio-editor</a></dt>
+<dd><p>ES6 module export for build tools.
+Re-exports the UMD module&#39;s init function for compatibility with
+modern bundlers like Rollup and Webpack.</p>
 </dd>
 </dl>
 
-## Typedefs
+## Functions
 
 <dl>
-<dt><a href="#Annotation">Annotation</a> : <code>object</code></dt>
-<dd><p>This script initializes the audio waveform editor, handles user interactions
-(playback, zoom, annotations), manages unsaved changes, and communicates with the
-WordPress REST API to save annotation data.</p>
+<dt><a href="#init">init()</a> ⇒ <code>void</code></dt>
+<dd><p>Initializes the Peaks.js audio editor with annotation capabilities.
+Requires STARMUS_EDITOR_DATA to be present in the global scope.</p>
+<p>Features:</p>
+<ul>
+<li>Waveform visualization with overview and zoom views</li>
+<li>Audio playback controls (play/pause, seek, skip)</li>
+<li>Annotation regions with editable labels and time boundaries</li>
+<li>Zoom controls and loop mode</li>
+<li>Save annotations to WordPress via REST API</li>
+<li>Real-time dirty state tracking</li>
+</ul>
 </dd>
 </dl>
 
-<a name="STARMUS_EDITOR_DATA"></a>
+<a name="module_starmus-audio-editor"></a>
 
-## STARMUS\_EDITOR\_DATA : <code>object</code>
-Data localized from PHP.
+## starmus-audio-editor
+ES6 module export for build tools.
+Re-exports the UMD module's init function for compatibility with
+modern bundlers like Rollup and Webpack.
 
-**Kind**: global constant  
-**Properties**
+**Example**  
+```js
+import StarmusAudioEditor from './starmus-audio-editor.js';
+StarmusAudioEditor.init();
+```
+<a name="init"></a>
 
-| Name | Type | Default | Description |
-| --- | --- | --- | --- |
-| restUrl | <code>string</code> |  | The URL for the REST API endpoint. |
-| nonce | <code>string</code> |  | The nonce for REST API authentication. |
-| postId | <code>number</code> |  | The ID of the post being edited. |
-| audioUrl | <code>string</code> |  | The URL of the audio file to load. |
-| [annotations] | [<code>Array.&lt;Annotation&gt;</code>](#Annotation) | <code>[]</code> | The initial array of annotation objects. |
+## init() ⇒ <code>void</code>
+Initializes the Peaks.js audio editor with annotation capabilities.
+Requires STARMUS_EDITOR_DATA to be present in the global scope.
 
-<a name="Annotation"></a>
+Features:
+- Waveform visualization with overview and zoom views
+- Audio playback controls (play/pause, seek, skip)
+- Annotation regions with editable labels and time boundaries
+- Zoom controls and loop mode
+- Save annotations to WordPress via REST API
+- Real-time dirty state tracking
 
-## Annotation : <code>object</code>
-This script initializes the audio waveform editor, handles user interactions
-(playback, zoom, annotations), manages unsaved changes, and communicates with the
-WordPress REST API to save annotation data.
+**Kind**: global function  
+**Throws**:
 
-**Kind**: global typedef  
-**Properties**
+- <code>Error</code> When STARMUS_EDITOR_DATA is not defined
+- <code>Error</code> When required DOM elements are missing
+- <code>Error</code> When audio file cannot be loaded
+- <code>Error</code> When Peaks.js is not available
 
-| Name | Type | Description |
-| --- | --- | --- |
-| id | <code>string</code> | A unique identifier for the annotation. |
-| startTime | <code>number</code> | The start time of the annotation in seconds. |
-| endTime | <code>number</code> | The end time of the annotation in seconds. |
-| [label] | <code>string</code> | The user-defined text for the annotation. |
-
+**Example**  
+```js
+// Initialize the audio editor
+window.STARMUS_EDITOR_DATA = {
+  restUrl: '/wp-json/star-/v1/save-annotations',
+  nonce: 'abc123',
+  postId: 42,
+  audioUrl: '/uploads/recording.wav',
+  annotations: [{ startTime: 5.0, endTime: 10.0, label: 'Intro' }]
+};
+StarmusAudioEditor.init();
+```
 
 
 ---

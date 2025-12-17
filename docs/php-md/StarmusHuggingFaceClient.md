@@ -15,7 +15,7 @@ The remote model should accept this shape; adjust as needed.
 
 ## Methods
 
-### `sendFileWithFirstPass()`
+### `__construct()`
 
 **Visibility:** `public`
 
@@ -28,17 +28,25 @@ The remote model should accept this shape; adjust as needed.
 /
 class StarmusHuggingFaceClient
 {
+    /**
+The API endpoint URL.
+/
     private readonly string $endpoint;
 
+    /**
+The API key for authentication.
+/
     private readonly string $api_key;
 
-    public function __construct(?string $endpoint = null, ?string $api_key = null)
-    {
-        $this->endpoint = $endpoint ?: (string) get_option('aiwa_ai_endpoint', '');
-        $this->api_key  = $api_key ?: (string) get_option('aiwa_ai_api_key', '');
-    }
-
     /**
+Constructor.
+@param string|null $endpoint The API endpoint URL.
+@param string|null $api_key The API key.
+
+### `sendFileWithFirstPass()`
+
+**Visibility:** `public`
+
 Send the attachment to the configured endpoint along with the first-pass transcription.
 Returns decoded response array on success or null on failure.
 

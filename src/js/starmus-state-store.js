@@ -1,12 +1,58 @@
 /**
  * @file starmus-state-store.js
  * @version 6.1.0-METADATA-READY
- * @description Unified store. Captures technical metadata (duration/size) on stop.
+ * @description Unified Redux-style state store for Starmus audio recorder.
+ * Captures technical metadata (duration/size) on stop and manages complete
+ * application state including recording, calibration, submission, and environment data.
  */
 
 (function (global) {
   'use strict';
 
+  /**
+   * Default initial state object for new store instances.
+   * Defines complete application state schema with all required properties.
+   * 
+   * @constant
+   * @type {Object}
+   * @property {string|null} instanceId - Unique identifier for recorder instance
+   * @property {string|null} tier - Browser capability tier (A/B/C)
+   * @property {string} status - Current application state (uninitialized/idle/recording/etc)
+   * @property {number} step - UI step number (1 or 2)
+   * @property {Object|null} error - Last error that occurred
+   * @property {Object} env - Environment data from UEC/SparxstarUEC
+   * @property {Object} env.device - Device information and capabilities
+   * @property {Object} env.browser - Browser type and feature detection
+   * @property {Object} env.network - Network connection information
+   * @property {Object} env.identifiers - Session and visitor identifiers
+   * @property {Array} env.errors - Array of initialization and runtime errors
+   * @property {Object} source - Audio source data (recording or uploaded file)
+   * @property {string|null} source.kind - Source type ('blob' or 'file')
+   * @property {Blob|null} source.blob - Recorded audio blob
+   * @property {File|null} source.file - Uploaded audio file
+   * @property {string} source.fileName - Audio file name
+   * @property {string} source.transcript - User-provided transcript
+   * @property {string} source.interimTranscript - Real-time speech recognition results
+   * @property {Object} source.metadata - Technical audio metadata
+   * @property {number} source.metadata.duration - Audio duration in seconds
+   * @property {string} source.metadata.mimeType - Audio MIME type
+   * @property {number} source.metadata.fileSize - Audio file size in bytes
+   * @property {Object} calibration - Microphone calibration state
+   * @property {string|null} calibration.phase - Current calibration phase
+   * @property {string} calibration.message - User-facing calibration message
+   * @property {number} calibration.volumePercent - Volume level percentage (0-100)
+   * @property {boolean} calibration.complete - Whether calibration is finished
+   * @property {number} calibration.gain - Audio gain multiplier
+   * @property {number} calibration.speechLevel - Detected speech level
+   * @property {Object} recorder - Recording state and metrics
+   * @property {number} recorder.duration - Current recording duration in seconds
+   * @property {number} recorder.amplitude - Current audio amplitude level
+   * @property {boolean} recorder.isPlaying - Whether audio is currently playing
+   * @property {boolean} recorder.isPaused - Whether recording is paused
+   * @property {Object} submission - Upload and submission state
+   * @property {number} submission.progress - Upload progress (0.0 to 1.0)
+   * @property {boolean} submission.isQueued - Whether submission is queued for offline
+   */
   var DEFAULT_INITIAL_STATE = {
     instanceId: null,
     tier: null,
@@ -55,18 +101,71 @@
     },
   };
 
+  /**
+   * Creates a shallow clone of an object.
+   * Only copies enumerable own properties, not nested objects.
+   * 
+   * @function
+   * @param {Object} obj - Object to clone
+   * @returns {Object} Shallow copy of the input object
+   */
   function shallowClone(obj) {
     var out = {};
     for (var k in obj) if (obj.hasOwnProperty(k)) out[k] = obj[k];
     return out;
   }
 
+  /**
+   * Merges two objects, with properties from b overriding properties from a.
+   * Creates a new object without mutating the inputs.
+   * 
+   * @function
+   * @param {Object} a - Base object
+   * @param {Object} b - Object whose properties will override base
+   * @returns {Object} New merged object
+   */
   function merge(a, b) {
     var out = shallowClone(a);
     for (var k in b) if (b.hasOwnProperty(k)) out[k] = b[k];
     return out;
   }
 
+  /**
+   * Redux-style reducer function that handles state transitions.
+   * Processes actions and returns new state without mutating the original.
+   * 
+   * @function
+   * @param {Object} state - Current application state
+   * @param {Object} action - Action object with type and optional payload
+   * @param {string} action.type - Action type identifier
+   * @param {Object} [action.payload] - Action data payload
+   * @param {Object} [action.error] - Error information for error actions
+   * @returns {Object} New state object
+   * 
+   * @description Supported action types:
+   * - 'starmus/init' - Initialize store with payload data
+   * - 'starmus/env-update' - Update environment data from UEC
+   * - 'starmus/error' - Handle error and add to error log
+   * - 'starmus/tier-ready' - Set browser capability tier
+   * - 'starmus/ui/step-continue' - Advance to step 2
+   * - 'starmus/calibration-start' - Begin microphone calibration
+   * - 'starmus/calibration-update' - Update calibration progress
+   * - 'starmus/calibration-complete' - Finish calibration
+   * - 'starmus/mic-start' - Start recording
+   * - 'starmus/mic-pause' - Pause recording
+   * - 'starmus/mic-resume' - Resume recording
+   * - 'starmus/mic-stop' - Stop recording
+   * - 'starmus/recorder-tick' - Update recording metrics
+   * - 'starmus/recording-available' - Set recorded audio blob with metadata
+   * - 'starmus/transcript-update' - Update transcript text
+   * - 'starmus/transcript-interim' - Update interim speech recognition
+   * - 'starmus/file-attached' - Set uploaded file with metadata
+   * - 'starmus/submit-start' - Begin submission process
+   * - 'starmus/submit-progress' - Update upload progress
+   * - 'starmus/submit-complete' - Complete submission
+   * - 'starmus/submit-queued' - Queue submission for offline
+   * - 'starmus/reset' - Reset state while preserving instance data
+   */
   function reducer(state, action) {
     if (!action || !action.type) return state;
 
@@ -197,15 +296,47 @@
     }
   }
 
+  /**
+   * Creates a new Redux-style store instance.
+   * Provides getState, dispatch, and subscribe methods for state management.
+   * 
+   * @function
+   * @param {Object} [initial={}] - Initial state to merge with defaults
+   * @returns {Object} Store instance with state management methods
+   * @returns {function} returns.getState - Function that returns current state
+   * @returns {function} returns.dispatch - Function to dispatch actions
+   * @returns {function} returns.subscribe - Function to subscribe to state changes
+   * 
+   * @example
+   * const store = createStore({ instanceId: 'rec-123' });
+   * store.subscribe(state => console.log('State changed:', state));
+   * store.dispatch({ type: 'starmus/init', payload: { tier: 'A' } });
+   * const currentState = store.getState();
+   */
   function createStore(initial) {
     var state = merge(DEFAULT_INITIAL_STATE, initial || {});
     var listeners = [];
     return {
+      /**
+       * Returns the current state object.
+       * @returns {Object} Current application state
+       */
       getState: function () { return state; },
+      
+      /**
+       * Dispatches an action to update state.
+       * @param {Object} action - Action object with type and optional payload
+       */
       dispatch: function (action) {
         state = reducer(state, action);
         for (var i = 0; i < listeners.length; i++) listeners[i](state);
       },
+      
+      /**
+       * Subscribes to state changes.
+       * @param {function} fn - Callback function to call on state changes
+       * @returns {function} Unsubscribe function
+       */
       subscribe: function (fn) {
         listeners.push(fn);
         return function () { listeners.splice(listeners.indexOf(fn), 1); };
@@ -213,11 +344,34 @@
     };
   }
 
+  /**
+   * Global StarmusStore namespace for browser environments.
+   * @global
+   * @namespace StarmusStore
+   */
   global.StarmusStore = global.StarmusStore || {};
+  
+  /**
+   * Global createStore function reference.
+   * @memberof StarmusStore
+   * @type {function}
+   */
   global.StarmusStore.createStore = createStore;
 
+  /**
+   * CommonJS module export for Node.js environments.
+   */
   if (typeof module !== 'undefined' && module.exports) module.exports = { createStore: createStore };
 
 })(typeof window !== 'undefined' ? window : globalThis);
 
+/**
+ * ES6 module export wrapper that delegates to global StarmusStore.
+ * Ensures compatibility between module systems.
+ * 
+ * @function
+ * @exports createStore
+ * @param {Object} [initial={}] - Initial state to merge with defaults
+ * @returns {Object} Store instance with state management methods
+ */
 export function createStore(initial) { return window.StarmusStore.createStore(initial); }

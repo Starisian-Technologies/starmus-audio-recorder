@@ -26,6 +26,7 @@ final class StarmusSageMakerJobRepository
 {
     /**
 Option key in wp_options where jobs are stored.
+@var string
 /
     private const OPTION_KEY = 'aiwa_sagemaker_jobs';
 

@@ -11,7 +11,7 @@ STARISIAN TECHNOLOGIES CONFIDENTIAL
 Asynchronous background processor for the Starmus mastering pipeline.
 Handles waveform generation, post-processing, and temp cleanup via WP-Cron.
 @package   Starisian\Sparxstar\Starmus\cron
-@version   0.8.5
+@version 0.9.2
 
 ## Methods
 
@@ -24,7 +24,7 @@ STARISIAN TECHNOLOGIES CONFIDENTIAL
 Asynchronous background processor for the Starmus mastering pipeline.
 Handles waveform generation, post-processing, and temp cleanup via WP-Cron.
 @package   Starisian\Sparxstar\Starmus\cron
-@version   0.8.5
+@version 0.9.2
 /
 namespace Starisian\Sparxstar\Starmus\cron;
 
@@ -52,8 +52,14 @@ final readonly class StarmusCron
     /** Recurring hourly cleanup for stale temp upload chunks. */
     public const CLEANUP_TEMP_FILES_HOOK = 'starmus_cleanup_temp_files';
 
+    /**
+Waveform service instance.
+/
     private StarmusWaveformService $waveform;
 
+    /**
+Post-processing service instance.
+/
     private StarmusPostProcessingService $post;
 
     public function __construct(
@@ -101,6 +107,8 @@ Unschedule cleanup on deactivation.
 **Visibility:** `public`
 
 Optional 15-minute schedule.
+
+## Properties
 
 ---
 

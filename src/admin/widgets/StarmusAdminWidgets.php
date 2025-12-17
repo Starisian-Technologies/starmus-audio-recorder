@@ -11,7 +11,6 @@ if (! \defined('ABSPATH')) {
     exit;
 }
 
-use Starisian\Sparxstar\Starmus\services\StarmusStatsDataService;
 use Throwable;
 
 /**

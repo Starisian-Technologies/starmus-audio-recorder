@@ -74,7 +74,7 @@
   "engines": {
     "node": ">=18.17"
   },
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@10.26.0",
   "devDependencies": {
     "@babel/core": "^7.28.5",
     "@babel/eslint-parser": "latest",
@@ -103,7 +103,7 @@
     "postcss": "latest",
     "postcss-cli": "latest",
     "prettier": "latest",
-    "rollup": "^4.53.3",
+    "rollup": "^4.53.5",
     "size-limit": "latest",
     "stylelint": "latest",
     "stylelint-config-standard": "latest",

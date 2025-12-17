@@ -13,7 +13,7 @@ This class is the sole authority for enqueuing all Starmus client-side assets.
   ES Module (`type="module"`), allowing the browser to handle the dependency tree for
   the best possible debugging experience.
 @package Starmus
-@version 3.1.0
+@version 0.9.2
 
 ## Methods
 
@@ -28,8 +28,9 @@ This class is the sole authority for enqueuing all Starmus client-side assets.
   ES Module (`type="module"`), allowing the browser to handle the dependency tree for
   the best possible debugging experience.
 @package Starmus
-@version 3.1.0
+@version 0.9.2
 /
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;
@@ -38,7 +39,6 @@ use function defined;
 use function explode;
 use function json_encode;
 
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 
 use function trim;
@@ -62,8 +62,12 @@ Handle for the main stylesheet.
     private const STYLE_HANDLE = 'starmus-audio-recorder-styles';
 
     /**
+Editor data to be localized, set by shortcode loader
+/
+    private static ?array $editor_data = null;
+
+    /**
 Constructor - Registers WordPress hooks for asset enqueueing.
-@return void
 
 ### `enqueue_frontend_assets()`
 
@@ -72,6 +76,15 @@ Constructor - Registers WordPress hooks for asset enqueueing.
 Enqueues frontend assets for Starmus pages.
 Only loads assets on frontend pages that contain Starmus shortcodes.
 Always uses production-optimized bundled assets for performance.
+
+### `set_editor_data()`
+
+**Visibility:** `public`
+
+Set editor data to be localized when assets are enqueued.
+Called by shortcode loader with specific editor context.
+
+## Properties
 
 ---
 

@@ -8,7 +8,7 @@
 
 Starmus Admin Handler - Refactored for Security & Performance
 @package Starisian\Sparxstar\Starmus\admin
-@version 0.8.5
+@version 0.9.2
 @since 0.3.1
 
 ## Methods
@@ -19,7 +19,7 @@ Starmus Admin Handler - Refactored for Security & Performance
 
 Starmus Admin Handler - Refactored for Security & Performance
 @package Starisian\Sparxstar\Starmus\admin
-@version 0.8.5
+@version 0.9.2
 @since 0.3.1
 /
 namespace Starisian\Sparxstar\Starmus\admin;

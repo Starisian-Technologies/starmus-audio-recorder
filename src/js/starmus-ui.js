@@ -1,13 +1,33 @@
 /**
  * @file starmus-ui.js
  * @version 6.4.0-UI-FIXES
- * @description Fixes Calibration Text visibility and Meter Gradient support.
+ * @description UI rendering and interaction management for Starmus audio recorder.
+ * Handles step visibility, calibration feedback, recording controls, audio playback,
+ * and responsive state management. Fixes calibration text visibility and meter gradient support.
  */
 
 'use strict';
 
+/**
+ * Currently playing audio instance for playback controls.
+ * Used to manage audio playback state and prevent multiple simultaneous playback.
+ * @type {Audio|null}
+ */
 let currentAudio = null;
 
+/**
+ * Formats seconds into MM'm SS's format for timer display.
+ * Handles invalid numbers gracefully by returning default format.
+ * 
+ * @function
+ * @param {number} seconds - Time in seconds to format
+ * @returns {string} Formatted time string (e.g., "02m 30s")
+ * 
+ * @example
+ * formatTime(150) // Returns "02m 30s"
+ * formatTime(65)  // Returns "01m 05s"
+ * formatTime(NaN) // Returns "00m 00s"
+ */
 function formatTime(seconds) {
   if (!Number.isFinite(seconds)) return '00m 00s';
   var m = Math.floor(seconds / 60);
@@ -15,6 +35,24 @@ function formatTime(seconds) {
   return (m < 10 ? '0' + m : m) + 'm ' + (s < 10 ? '0' + s : s) + 's';
 }
 
+/**
+ * Safely binds event handlers to DOM elements with duplicate prevention.
+ * Prevents default behavior, stops propagation, and respects disabled state.
+ * Uses internal flag to prevent multiple bindings on the same element.
+ * 
+ * @function
+ * @param {HTMLElement|null} element - DOM element to bind event to
+ * @param {string} eventName - Event type (e.g., 'click', 'change')
+ * @param {function} handler - Event handler function to execute
+ * @returns {void}
+ * 
+ * @description Safety features:
+ * - Checks for null elements
+ * - Prevents duplicate event bindings
+ * - Calls preventDefault() on cancelable events
+ * - Stops event propagation
+ * - Respects element disabled state
+ */
 function safeBind(element, eventName, handler) {
   if (!element) return;
   if (element._starmusBound) return;
@@ -26,6 +64,52 @@ function safeBind(element, eventName, handler) {
   element._starmusBound = true;
 }
 
+/**
+ * Renders UI state changes based on current application state.
+ * Updates visibility, controls, meters, and button states across all UI sections.
+ * Handles tier-based fallbacks and responsive state transitions.
+ * 
+ * @function
+ * @param {Object} state - Current application state from store
+ * @param {string} state.status - Current status (idle/recording/calibrating/etc.)
+ * @param {number} state.step - Current UI step (1 or 2)
+ * @param {string} state.tier - Browser capability tier (A/B/C)
+ * @param {Object} state.recorder - Recording state with duration and amplitude
+ * @param {number} state.recorder.duration - Current recording duration in seconds
+ * @param {number} state.recorder.amplitude - Current audio amplitude (0-100)
+ * @param {Object} state.calibration - Microphone calibration state
+ * @param {boolean} state.calibration.complete - Whether calibration is finished
+ * @param {number} state.calibration.volumePercent - Volume level during calibration
+ * @param {string} state.calibration.message - Current calibration message
+ * @param {Object} state.submission - Upload progress state
+ * @param {number} state.submission.progress - Upload progress (0.0 to 1.0)
+ * @param {Object} elements - DOM element references object
+ * @param {HTMLElement} elements.step1 - Step 1 container element
+ * @param {HTMLElement} elements.step2 - Step 2 container element
+ * @param {HTMLElement} elements.setupContainer - Microphone setup container
+ * @param {HTMLElement} elements.recorderContainer - Recording controls container
+ * @param {HTMLElement} elements.volumeMeter - Volume level meter element
+ * @param {HTMLElement} elements.timerElapsed - Timer display element
+ * @param {HTMLElement} elements.durationProgress - Recording progress indicator
+ * @param {HTMLElement} elements.setupMicBtn - Setup microphone button
+ * @param {HTMLElement} elements.recordBtn - Start recording button
+ * @param {HTMLElement} elements.pauseBtn - Pause recording button
+ * @param {HTMLElement} elements.resumeBtn - Resume recording button
+ * @param {HTMLElement} elements.stopBtn - Stop recording button
+ * @param {HTMLElement} elements.playBtn - Audio playback button
+ * @param {HTMLElement} elements.resetBtn - Reset/discard button
+ * @param {HTMLElement} elements.submitBtn - Submit recording button
+ * @param {HTMLElement} elements.reviewControls - Review controls container
+ * @returns {void}
+ * 
+ * @description Rendering sections:
+ * 1. Tier C fallback - Shows file upload for unsupported browsers
+ * 2. Audio meters - Updates volume and duration visual indicators
+ * 3. Step visibility - Controls step 1/2 container display
+ * 4. Calibration UI - Manages setup button state and messages
+ * 5. Recording controls - Shows/hides appropriate action buttons
+ * 6. Submit button - Updates upload progress and success states
+ */
 function render(state, elements) {
   if (!elements) return;
 
@@ -134,6 +218,36 @@ function render(state, elements) {
 
 // ... (initInstance and Exports remain exactly the same as 6.1.0) ...
 // REPEAT initInstance code here if rebuilding the file entirely
+/**
+ * Initializes UI instance for a specific recorder instance.
+ * Sets up DOM element references, event handlers, and state subscription.
+ * Handles form validation, audio playback, file uploads, and command dispatching.
+ * 
+ * @function
+ * @exports initInstance
+ * @param {Object} store - Redux-style store for state management
+ * @param {function} store.getState - Function to get current state
+ * @param {function} store.dispatch - Function to dispatch actions
+ * @param {function} store.subscribe - Function to subscribe to state changes
+ * @param {Object} [incomingElements] - Optional pre-selected DOM elements (unused)
+ * @param {string} [forcedInstanceId] - Optional forced instance ID override
+ * @returns {function} Unsubscribe function for state change listener
+ * 
+ * @description Setup process:
+ * 1. Determines instance ID from parameter or store state
+ * 2. Finds form container or uses document as root
+ * 3. Queries for all required DOM elements using data attributes
+ * 4. Binds event handlers with safeBind for all interactive elements
+ * 5. Sets up form validation for step 1 continue button
+ * 6. Configures audio playback controls with URL.createObjectURL
+ * 7. Handles file input for Tier C browser fallback
+ * 8. Subscribes to offline queue updates
+ * 9. Dispatches init action and returns state subscription
+ * 
+ * @example
+ * const unsubscribe = initInstance(store, null, 'rec-123');
+ * // Later: unsubscribe() to clean up
+ */
 function initInstance(store, incomingElements, forcedInstanceId) {
   var instId = forcedInstanceId || store.getState().instanceId;
   var root = document;
@@ -143,6 +257,11 @@ function initInstance(store, incomingElements, forcedInstanceId) {
   }
   var BUS = window.CommandBus;
   
+  /**
+   * DOM element references object.
+   * Contains all interactive elements found within the instance root.
+   * @type {Object}
+   */
   var el = {
     step1: root.querySelector('[data-starmus-step="1"]'),
     step2: root.querySelector('[data-starmus-step="2"]'),
@@ -165,6 +284,10 @@ function initInstance(store, incomingElements, forcedInstanceId) {
     submitBtn: root.querySelector('[data-starmus-action="submit"]')
   };
 
+  /**
+   * Continue button handler - validates required fields and advances to step 2.
+   * Performs client-side validation and visual error indication.
+   */
   safeBind(el.continueBtn, 'click', function() {
       var inputs = el.step1 ? el.step1.querySelectorAll('[required]') : [];
       var valid = true;
@@ -175,12 +298,20 @@ function initInstance(store, incomingElements, forcedInstanceId) {
       if (valid) store.dispatch({ type: 'starmus/ui/step-continue' });
   });
 
+  /**
+   * Microphone and recording control handlers.
+   * Dispatch commands through CommandBus with instance ID metadata.
+   */
   safeBind(el.setupMicBtn, 'click', function(){ BUS.dispatch('setup-mic', {}, { instanceId: instId }); });
   safeBind(el.recordBtn, 'click', function(){ BUS.dispatch('start-recording', {}, { instanceId: instId }); });
   safeBind(el.pauseBtn, 'click', function(){ BUS.dispatch('pause-mic', {}, { instanceId: instId }); });
   safeBind(el.resumeBtn, 'click', function(){ BUS.dispatch('resume-mic', {}, { instanceId: instId }); });
   safeBind(el.stopBtn, 'click', function(){ BUS.dispatch('stop-mic', {}, { instanceId: instId }); });
   
+  /**
+   * Audio playback handler - toggles between play and pause states.
+   * Creates Audio object from blob URL and manages playback state.
+   */
   safeBind(el.playBtn, 'click', function() {
      if (currentAudio) {
          currentAudio.pause();
@@ -201,6 +332,10 @@ function initInstance(store, incomingElements, forcedInstanceId) {
      }
   });
   
+  /**
+   * Reset handler - confirms and discards current recording.
+   * Stops any playing audio and dispatches reset command.
+   */
   safeBind(el.resetBtn, 'click', function() {
       if(confirm('Discard recording?')) {
           if(currentAudio) { currentAudio.pause(); currentAudio = null; }
@@ -208,6 +343,10 @@ function initInstance(store, incomingElements, forcedInstanceId) {
       }
   });
 
+  /**
+   * Submit handler - collects form data and dispatches submission.
+   * Serializes form fields and stops any audio playback.
+   */
   safeBind(el.submitBtn, 'click', function(e) {
     if(currentAudio) { currentAudio.pause(); currentAudio = null; }
     var form = e.target.closest('form');
@@ -219,6 +358,10 @@ function initInstance(store, incomingElements, forcedInstanceId) {
     BUS.dispatch('submit', { formFields: data }, { instanceId: instId });
   });
 
+  /**
+   * File input handler for Tier C browser fallback.
+   * Handles audio file uploads when MediaRecorder is not supported.
+   */
   // Tier C File Listener
   var fileInput = root.querySelector('input[type="file"][name="audio_file"]');
   if (fileInput) {
@@ -229,13 +372,29 @@ function initInstance(store, incomingElements, forcedInstanceId) {
       });
   }
 
+  /**
+   * Offline queue event subscription for debugging.
+   */
   if (BUS) {
       BUS.subscribe('starmus/offline/queue_updated', function(payload) { console.log('[UI] Offline Queue:', payload); });
   }
 
+  /**
+   * Initialize instance and set up state subscription.
+   * Returns unsubscribe function for cleanup.
+   */
   store.dispatch({ type: 'starmus/init', payload: { instanceId: instId } });
   return store.subscribe(function(nextState) { render(nextState, el); });
 }
 
+/**
+ * ES6 module exports for build system.
+ * Exports render and initInstance functions.
+ */
 export { render, initInstance };
+
+/**
+ * Global export for browser environments.
+ * Makes initInstance available as window.initUI for direct script loading.
+ */
 if (typeof window !== 'undefined') window.initUI = initInstance;

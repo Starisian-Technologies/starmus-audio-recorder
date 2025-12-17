@@ -4,100 +4,162 @@
 
 ---
 
+## Members
+
+<dl>
+<dt><a href="#CommandBus">CommandBus</a> : <code>object</code></dt>
+<dd><p>Global CommandBus reference for legacy compatibility.</p>
+</dd>
+<dt><a href="#StarmusHooks">StarmusHooks</a> : <code>object</code></dt>
+<dd><p>Global StarmusHooks reference for module integration.</p>
+</dd>
+</dl>
+
+## Objects
+
+<dl>
+<dt><a href="#StarmusRegistry">StarmusRegistry</a> : <code>object</code></dt>
+<dd><p>Initialize global StarmusRegistry if it doesn&#39;t exist.
+Registry stores event handlers organized by command name.</p>
+</dd>
+</dl>
+
 ## Constants
 
 <dl>
-<dt><a href="#handlers">handlers</a></dt>
-<dd><p>Command handlers registry.
-Object.create(null) prevents prototype pollution.</p>
+<dt><a href="#globalScope">globalScope</a> : <code>object</code></dt>
+<dd><p>Global scope detection for cross-environment compatibility.
+Uses window in browser environments, globalThis in Node.js/workers.</p>
 </dd>
-<dt><a href="#activeDispatches">activeDispatches</a></dt>
-<dd><p>Recursion guard to prevent infinite dispatch loops.
-Tracks currently executing commands with instance scope.</p>
+<dt><a href="#registry">registry</a> : <code>object</code></dt>
+<dd><p>Event handler registry object.
+Maps command names to arrays of handler functions.</p>
 </dd>
-<dt><a href="#IS_DEBUG">IS_DEBUG</a></dt>
-<dd><p>Optimized Debug Logger.
-Checks config ONCE at load time to avoid repeated DOM/Global lookups 
-in tight loops (audio callbacks, animation frames).</p>
+<dt><a href="#Bus">Bus</a> : <code>object</code></dt>
+<dd><p>Event Bus object containing all bus functionality.
+Provides subscribe, dispatch, and debugLog methods.</p>
 </dd>
 </dl>
 
 ## Functions
 
 <dl>
-<dt><a href="#subscribe">subscribe(commandName, handler)</a> ⇒ <code>function</code></dt>
-<dd><p>Subscribe to a command.
-Returns a cleanup function to unsubscribe.</p>
+<dt><a href="#subscribe">subscribe(command, handler)</a> ⇒ <code>function</code></dt>
+<dd><p>Subscribes a handler function to a specific command.
+When the command is dispatched, the handler will be called with payload and meta data.</p>
 </dd>
-<dt><a href="#dispatch">dispatch(commandName, payload, meta)</a></dt>
-<dd><p>Dispatch a command to all subscribers.
-Includes safeguards against recursive loops and handler errors.</p>
+<dt><a href="#dispatch">dispatch(command, [payload], [meta])</a> ⇒ <code>void</code></dt>
+<dd><p>Dispatches a command to all registered handlers.
+Calls all handler functions subscribed to the specified command with provided data.</p>
 </dd>
-<dt><a href="#clearAllHandlers">clearAllHandlers()</a></dt>
-<dd><p>Nuke all handlers.
-Critical for SPA transitions, AJAX reloads, or &quot;Reset&quot; actions 
-to prevent duplicate event listeners accumulating in memory.</p>
+<dt><a href="#debugLog">debugLog(...args)</a> ⇒ <code>void</code></dt>
+<dd><p>Debug logging utility (currently disabled).
+Can be enabled for development debugging by uncommenting the console.log.</p>
 </dd>
 </dl>
 
-<a name="handlers"></a>
+<a name="CommandBus"></a>
 
-## handlers
-Command handlers registry.
-Object.create(null) prevents prototype pollution.
+## CommandBus : <code>object</code>
+Global CommandBus reference for legacy compatibility.
+
+**Kind**: global variable  
+<a name="StarmusHooks"></a>
+
+## StarmusHooks : <code>object</code>
+Global StarmusHooks reference for module integration.
+
+**Kind**: global variable  
+<a name="StarmusRegistry"></a>
+
+## StarmusRegistry : <code>object</code>
+Initialize global StarmusRegistry if it doesn't exist.
+Registry stores event handlers organized by command name.
+
+**Kind**: global namespace  
+<a name="globalScope"></a>
+
+## globalScope : <code>object</code>
+Global scope detection for cross-environment compatibility.
+Uses window in browser environments, globalThis in Node.js/workers.
 
 **Kind**: global constant  
-<a name="activeDispatches"></a>
+<a name="registry"></a>
 
-## activeDispatches
-Recursion guard to prevent infinite dispatch loops.
-Tracks currently executing commands with instance scope.
-
-**Kind**: global constant  
-<a name="IS_DEBUG"></a>
-
-## IS\_DEBUG
-Optimized Debug Logger.
-Checks config ONCE at load time to avoid repeated DOM/Global lookups 
-in tight loops (audio callbacks, animation frames).
+## registry : <code>object</code>
+Event handler registry object.
+Maps command names to arrays of handler functions.
 
 **Kind**: global constant  
+<a name="Bus"></a>
+
+## Bus : <code>object</code>
+Event Bus object containing all bus functionality.
+Provides subscribe, dispatch, and debugLog methods.
+
+**Kind**: global constant  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| subscribe | <code>function</code> | Subscribe to commands |
+| dispatch | <code>function</code> | Dispatch commands |
+| debugLog | <code>function</code> | Debug logging utility |
+
 <a name="subscribe"></a>
 
-## subscribe(commandName, handler) ⇒ <code>function</code>
-Subscribe to a command.
-Returns a cleanup function to unsubscribe.
+## subscribe(command, handler) ⇒ <code>function</code>
+Subscribes a handler function to a specific command.
+When the command is dispatched, the handler will be called with payload and meta data.
 
 **Kind**: global function  
-**Returns**: <code>function</code> - unsubscribe  
+**Returns**: <code>function</code> - Unsubscribe function to remove this handler  
 
-| Param | Type |
-| --- | --- |
-| commandName | <code>string</code> | 
-| handler | <code>function</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| command | <code>string</code> | The command name to listen for |
+| handler | <code>function</code> | The function to call when command is dispatched |
+| handler.payload | <code>object</code> | Data payload from dispatch |
+| handler.meta | <code>object</code> | Metadata from dispatch (instanceId, etc.) |
 
+**Example**  
+```js
+const unsubscribe = subscribe('submit', (payload, meta) => {
+  console.log('Received submit command:', payload);
+});
+// Later: unsubscribe();
+```
 <a name="dispatch"></a>
 
-## dispatch(commandName, payload, meta)
-Dispatch a command to all subscribers.
-Includes safeguards against recursive loops and handler errors.
+## dispatch(command, [payload], [meta]) ⇒ <code>void</code>
+Dispatches a command to all registered handlers.
+Calls all handler functions subscribed to the specified command with provided data.
 
 **Kind**: global function  
 
-| Param | Type |
-| --- | --- |
-| commandName | <code>string</code> | 
-| payload | <code>object</code> | 
-| meta | <code>object</code> | 
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| command | <code>string</code> |  | The command name to dispatch |
+| [payload] | <code>object</code> | <code>{}</code> | Data to send to handlers |
+| [meta] | <code>object</code> | <code>{}</code> | Metadata to send to handlers (instanceId, source, etc.) |
 
-<a name="clearAllHandlers"></a>
+**Example**  
+```js
+dispatch('submit', { formFields: {...} }, { instanceId: 'rec-123' });
+dispatch('reset', {}, { instanceId: 'rec-123' });
+```
+<a name="debugLog"></a>
 
-## clearAllHandlers()
-Nuke all handlers.
-Critical for SPA transitions, AJAX reloads, or "Reset" actions 
-to prevent duplicate event listeners accumulating in memory.
+## debugLog(...args) ⇒ <code>void</code>
+Debug logging utility (currently disabled).
+Can be enabled for development debugging by uncommenting the console.log.
 
 **Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ...args | <code>\*</code> | Arguments to log to console |
+
 
 
 ---

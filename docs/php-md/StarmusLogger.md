@@ -6,97 +6,97 @@
 
 ## Description
 
-Centralized logger for Starmus.
-Version 1.0.0: Standardized. Writes strictly to wp-content/debug.log via error_log().
+Centralized logger for Starmus, configured to write strictly to wp-content/debug.log
+using forced file writing mode (error_log mode 3). This logger is reliable as it
+bypasses the need for WP_DEBUG_LOG being set to true.
 
 ## Methods
 
-### `setMinLogLevel()`
+### `get_log_path()`
 
-**Visibility:** `public`
+**Visibility:** `protected`
 
-Centralized logger for Starmus.
-Version 1.0.0: Standardized. Writes strictly to wp-content/debug.log via error_log().
+Centralized logger for Starmus, configured to write strictly to wp-content/debug.log
+using forced file writing mode (error_log mode 3). This logger is reliable as it
+bypasses the need for WP_DEBUG_LOG being set to true.
 /
-class StarmusLogger
+final class StarmusLogger
 {
-    public const DEBUG = 100;
-
-    public const INFO = 200;
-
-    public const NOTICE = 250;
-
+    // Log Levels
+    public const DEBUG   = 100;
+    public const INFO    = 200;
+    public const NOTICE  = 250;
     public const WARNING = 300;
-
-    public const ERROR = 400;
-
-    public const CRITICAL = 500;
-
-    public const ALERT = 550;
-
-    public const EMERGENCY = 600;
+    public const ERROR   = 400;
 
     /**
 Minimum log level to record.
 /
-    protected static int $min_log_level = self::INFO;
+    protected static int $min_log_level = self::DEBUG;
 
     /**
-@var array<string, int>
+Current correlation ID for tracking related operations.
 /
-    protected static array $levels = [
-        'debug'     => self::DEBUG,
-        'info'      => self::INFO,
-        'notice'    => self::NOTICE,
-        'warning'   => self::WARNING,
-        'error'     => self::ERROR,
-        'critical'  => self::CRITICAL,
-        'alert'     => self::ALERT,
-        'emergency' => self::EMERGENCY,
-    ];
-
-    protected static bool $json_mode = false;
-
     protected static ?string $correlation_id = null;
 
     /**
-@var array<string, float>
+Timer storage for performance tracking.
 /
     protected static array $timers = [];
 
-    /*==============================================================
-CONFIGURATION
-=============================================================
-
-### `setLogFilePath()`
-
-**Visibility:** `public`
-
-Legacy method kept for backward compatibility.
-Does nothing as we now rely on standard WP debug.log.
-
-### `sanitizeData()`
-
-**Visibility:** `protected`
-
-@param array<string|int, mixed> $data
-@return array<string|int, mixed>
-
-### `log()`
-
-**Visibility:** `public`
-
-Main logging method.
-Writes directly to PHP error_log (standard WP debug.log).
-@param array<string|int, mixed> $extra
-@param mixed $msg
+    /**
+Single source of truth for the log file path.
+Forces the path to wp-content/debug.log using standard WP constants.
 
 ### `debug()`
 
 **Visibility:** `public`
 
-@param array<string|int, mixed> $extra
-@param mixed $msg
+@param string $context The source of the log message (e.g., 'Setup', 'AJAX', 'API').
+@param string $message The human-readable message.
+@param array<string|int, mixed> $data Optional associative array of extra data to log.
+
+### `info()`
+
+**Visibility:** `public`
+
+@param string $context The source of the log message.
+@param string $message The human-readable message.
+@param array<string|int, mixed> $data Optional associative array of extra data to log.
+
+### `notice()`
+
+**Visibility:** `public`
+
+@param string $context The source of the log message.
+@param string $message The human-readable message.
+@param array<string|int, mixed> $data Optional associative array of extra data to log.
+
+### `warning()`
+
+**Visibility:** `public`
+
+@param string $context The source of the log message.
+@param string $message The human-readable message.
+@param array<string|int, mixed> $data Optional associative array of extra data to log.
+
+### `error()`
+
+**Visibility:** `public`
+
+@param string $context The source of the log message.
+@param string $message The human-readable message.
+@param array<string|int, mixed> $data Optional associative array of extra data to log.
+
+### `log()`
+
+**Visibility:** `protected`
+
+Main logging method.
+@param int $level_int The log level constant (e.g., self::DEBUG, self::ERROR).
+@param string $context The source of the log message.
+@param string $message The human-readable message.
+@param array<string|int, mixed> $data Optional associative array of extra data.
 
 ## Properties
 
@@ -104,41 +104,33 @@ Writes directly to PHP error_log (standard WP debug.log).
 
 **Visibility:** `protected`
 
-Centralized logger for Starmus.
-Version 1.0.0: Standardized. Writes strictly to wp-content/debug.log via error_log().
+Centralized logger for Starmus, configured to write strictly to wp-content/debug.log
+using forced file writing mode (error_log mode 3). This logger is reliable as it
+bypasses the need for WP_DEBUG_LOG being set to true.
 /
-class StarmusLogger
+final class StarmusLogger
 {
-    public const DEBUG = 100;
-
-    public const INFO = 200;
-
-    public const NOTICE = 250;
-
+    // Log Levels
+    public const DEBUG   = 100;
+    public const INFO    = 200;
+    public const NOTICE  = 250;
     public const WARNING = 300;
-
-    public const ERROR = 400;
-
-    public const CRITICAL = 500;
-
-    public const ALERT = 550;
-
-    public const EMERGENCY = 600;
+    public const ERROR   = 400;
 
     /**
 Minimum log level to record.
 
-### `$levels`
+### `$correlation_id`
 
 **Visibility:** `protected`
 
-@var array<string, int>
+Current correlation ID for tracking related operations.
 
 ### `$timers`
 
 **Visibility:** `protected`
 
-@var array<string, float>
+Timer storage for performance tracking.
 
 ---
 

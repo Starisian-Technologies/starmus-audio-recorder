@@ -8,7 +8,7 @@
 
 Optimized and secure settings management for the Starmus plugin.
 @package Starisian\Sparxstar\Starmus\core
-@version 0.8.5
+@version 0.9.2
 @since 0.3.1
 
 ## Methods
@@ -19,7 +19,7 @@ Optimized and secure settings management for the Starmus plugin.
 
 Optimized and secure settings management for the Starmus plugin.
 @package Starisian\Sparxstar\Starmus\core
-@version 0.8.5
+@version 0.9.2
 @since 0.3.1
 /
 namespace Starisian\Sparxstar\Starmus\core;
