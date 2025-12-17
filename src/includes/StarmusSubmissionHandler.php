@@ -102,7 +102,7 @@ final class StarmusSubmissionHandler
     /**
      * Class constructor dependencies.
      *
-     * @var array<string> Fallback file field names for multi-format support
+     * @param array<string> Fallback file field names for multi-format support
      *
      * @since 1.0.0
      */
@@ -114,7 +114,7 @@ final class StarmusSubmissionHandler
      * Explicit MIME types for stricter validation when settings don't specify types.
      * Includes common audio formats supported across browsers and platforms.
      *
-     * @var array<string> MIME type allowlist
+     * @param array<string> MIME type allowlist
      *
      * @since 1.0.0
      */

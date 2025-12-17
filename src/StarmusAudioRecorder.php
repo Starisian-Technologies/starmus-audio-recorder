@@ -18,21 +18,9 @@ if (! \defined('ABSPATH')) {
     exit;
 }
 
-use function current_user_can;
-use function is_admin;
-// Admin/UI/Assets
-use function load_plugin_textdomain;
-
-use LogicException;
-
-use function plugin_basename;
-
-// if directly referenced (not required here)
-// REST layer
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
+use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
-// Cron
-
-// WP functions used (for clarity in static analysis)
 use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
 use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
@@ -42,6 +30,11 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 use Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler;
 use Throwable;
+use LogicException;
+use function current_user_can;
+use function is_admin;
+use function load_plugin_textdomain;
+use function plugin_basename;
 
 /**
  * Main plugin bootstrapper and singleton entry point.
@@ -138,7 +131,7 @@ final class StarmusAudioRecorder
      *
      * @since 0.1.0
      */
-    private ?core\interfaces\StarmusAudioRecorderDALInterface $DAL = null;
+    private ?StarmusAudioRecorderDALInterface $DAL = null;
 
     /**
      * Plugin settings and configuration manager.
@@ -179,8 +172,8 @@ final class StarmusAudioRecorder
             error_log($throwable->getMessage());
         }
 
-        if (($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class) !== \Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL::class) {
-            StarmusLogger::info('StarmusAudioRecorder', 'DAL initialized to: ' . ($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class));
+        if (($this->DAL instanceof StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class) !== StarmusAudioRecorderDAL::class) {
+            StarmusLogger::info('StarmusAudioRecorder', 'DAL initialized to: ' . ($this->DAL instanceof StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class));
         }
     }
 
@@ -197,7 +190,7 @@ final class StarmusAudioRecorder
      */
     public static function starmus_get_instance(): StarmusAudioRecorder
     {
-        if (!self::$instance instanceof \Starisian\Sparxstar\Starmus\StarmusAudioRecorder) {
+        if (!self::$instance instanceof StarmusAudioRecorder) {
             self::$instance = new self();
         }
 
@@ -257,7 +250,7 @@ final class StarmusAudioRecorder
     {
         try {
             // Autoloader should resolve this class. Namespaced class_exists is safest.
-            if (class_exists(\Starisian\Sparxstar\Starmus\core\StarmusSettings::class)) {
+            if (class_exists(StarmusSettings::class)) {
                 $this->settings = new StarmusSettings();
                 return;
             }
@@ -282,7 +275,7 @@ final class StarmusAudioRecorder
     private function set_DAL(): void
     {
         // This is the class property for this specific instance.
-        if ($this->DAL instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface) {
+        if ($this->DAL instanceof StarmusAudioRecorderDALInterface) {
             return; // Already set on this object.
         }
 
@@ -291,7 +284,7 @@ final class StarmusAudioRecorder
         // If it's already been created, reuse it and stop.
         static $dal_singleton = null;
 
-        if ($dal_singleton instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface) {
+        if ($dal_singleton instanceof StarmusAudioRecorderDALInterface) {
             $this->DAL = $dal_singleton;
             return;
         }
@@ -314,7 +307,7 @@ final class StarmusAudioRecorder
         }
 
         // Must implement our interface.
-        if (!($filtered_dal instanceof \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface)) {
+        if (!($filtered_dal instanceof StarmusAudioRecorderDALInterface)) {
             error_log('StarmusAudioRecorder: Invalid DAL replacement - must implement StarmusAudioRecorderDALInterface');
             $dal_singleton = $default_dal; // Store the default DAL in the singleton
             $this->DAL     = $dal_singleton;
@@ -364,7 +357,7 @@ final class StarmusAudioRecorder
         //(new StarPrivateSlugPrefix())->star_boot();
 
         // Register compatibility modules for third-party plugins
-        $file_service = new \Starisian\Sparxstar\Starmus\services\StarmusFileService($this->DAL);
+        $file_service = new StarmusFileService($this->get_DAL(), $this->settings);
         $file_service->register_compatibility_hooks();
 
         // Admin
@@ -443,6 +436,11 @@ final class StarmusAudioRecorder
         } catch (Throwable $throwable) {
             error_log($throwable->getMessage());
         }
+    }
+
+    public function get_DAL(): ?StarmusAudioRecorderDALInterface
+    {
+        return $this->DAL;
     }
 
     /**
