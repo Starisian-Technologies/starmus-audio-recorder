@@ -1,267 +1,41 @@
 [
     {
-        "key": "group_689a647f54a3a",
-        "title": "Agreement to Terms",
+        "key": "group_starmus_audio_details",
+        "title": "Audio Recording Details",
         "fields": [
             {
-                "key": "field_689a6646ab30c",
-                "label": "Contributor ID",
-                "name": "contributor_id",
-                "aria-label": "",
-                "type": "relationship",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "read_only",
-                "no_values_message": "",
-                "post_type": [
-                    "contributor"
-                ],
-                "post_status": "",
-                "taxonomy": "",
-                "filters": [
-                    "search",
-                    "post_type",
-                    "taxonomy"
-                ],
-                "return_format": "object",
-                "post_author": [
-                    "current_user"
-                ],
-                "add_edit_post": 0,
-                "min": "",
-                "max": "",
-                "allow_in_bindings": 0,
-                "elements": "",
-                "bidirectional": 1,
-                "bidirectional_target": [
-                    "field_68c0b61df0575"
-                ],
-                "post_form_template": ""
-            },
-            {
-                "key": "field_68aa07e16725b",
-                "label": "Terms Type",
-                "name": "terms_type",
-                "aria-label": "",
-                "type": "select",
-                "instructions": "",
-                "required": 1,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "choices": {
-                    "Full Terms": "Initial Full Terms Agreement",
-                    "Recorded Submission": "Recorded Submission Terms"
-                },
-                "default_value": false,
-                "return_format": "value",
-                "multiple": 0,
-                "allow_null": 0,
-                "allow_in_bindings": 0,
-                "ui": 0,
-                "ajax": 0,
-                "placeholder": "",
-                "create_options": 0,
-                "save_options": 0,
-                "allow_custom": 0,
-                "search_placeholder": ""
-            },
-            {
-                "key": "field_689a6480ab303",
-                "label": "Contributor Name",
-                "name": "contributor_name",
-                "aria-label": "",
-                "type": "text",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "default_value": "",
-                "maxlength": "",
-                "allow_in_bindings": 0,
-                "placeholder": "",
-                "prepend": "",
-                "append": ""
-            },
-            {
-                "key": "field_689a649fab304",
-                "label": "Contributor Signature",
-                "name": "contributor_signature",
-                "aria-label": "",
+                "key": "field_starmus_audio_file",
+                "label": "Audio File",
+                "name": "audio_file",
                 "type": "file",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "return_format": "array",
-                "library": "all",
-                "no_file_text": "",
-                "button_text": "",
-                "custom_directory": 1,
-                "custom_directory_name": "Contributor_Signatures",
-                "hide_from_library": 1,
-                "min_size": "",
-                "max_size": "",
-                "mime_types": "",
-                "allow_in_bindings": 0,
-                "uploader": ""
+                "instructions": "The source audio file."
             },
             {
-                "key": "field_689a64dfab305",
-                "label": "Agreement Datetime",
-                "name": "agreement_datetime",
-                "aria-label": "",
-                "type": "datetime_input",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "default_value": ""
+                "key": "field_starmus_audio_contributor",
+                "label": "Recorded By (Contributor)",
+                "name": "contributor_id",
+                "type": "post_object",
+                "instructions": "Link to the AiWA Contributor who made this recording.",
+                "post_type": ["aiwa_contributor"],
+                "return_format": "id"
             },
             {
-                "key": "field_689a6588ab30a",
-                "label": "URL",
-                "name": "url",
-                "aria-label": "",
-                "type": "page_link",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "post_type": "",
-                "post_status": "",
-                "taxonomy": "",
-                "allow_archives": 1,
-                "multiple": 0,
-                "allow_null": 0,
-                "allow_in_bindings": 0
+                "key": "field_starmus_audio_timestamp",
+                "label": "Recording Timestamp",
+                "name": "recording_timestamp",
+                "type": "date_time_picker"
             },
             {
-                "key": "field_689a6524ab307",
-                "label": "Contributor IP",
-                "name": "contributor_ip",
-                "aria-label": "",
-                "type": "text",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "default_value": "",
-                "maxlength": "",
-                "allow_in_bindings": 0,
-                "placeholder": "",
-                "prepend": "",
-                "append": ""
+                "key": "field_starmus_audio_ip",
+                "label": "Recording IP Address",
+                "name": "recording_ip",
+                "type": "text"
             },
             {
-                "key": "field_689a6563ab308",
-                "label": "Submission ID",
-                "name": "submission_id",
-                "aria-label": "",
-                "type": "text",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "default_value": "",
-                "maxlength": "",
-                "allow_in_bindings": 0,
-                "placeholder": "",
-                "prepend": "",
-                "append": ""
-            },
-            {
-                "key": "field_689a6572ab309",
-                "label": "Contributor User Agent",
-                "name": "contributor_user_agent",
-                "aria-label": "",
-                "type": "text",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "default_value": "",
-                "maxlength": "",
-                "allow_in_bindings": 0,
-                "placeholder": "",
-                "prepend": "",
-                "append": ""
-            },
-            {
-                "key": "field_689a65a6ab30b",
-                "label": "Contributor Geolocation",
-                "name": "contributor_geolocation",
-                "aria-label": "",
-                "type": "google_map",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "center_lat": "",
-                "center_lng": "",
-                "zoom": "",
-                "height": "",
-                "allow_in_bindings": 1
+                "key": "field_starmus_audio_user_agent",
+                "label": "Recording User Agent",
+                "name": "recording_user_agent",
+                "type": "text"
             }
         ],
         "location": [
@@ -269,513 +43,31 @@
                 {
                     "param": "post_type",
                     "operator": "==",
-                    "value": "consent-agreement"
+                    "value": "starmus_audio_recording"
                 }
             ]
         ],
-        "menu_order": 0,
-        "position": "acf_after_title",
-        "style": "default",
-        "label_placement": "top",
-        "instruction_placement": "label",
-        "hide_on_screen": "",
-        "active": true,
-        "description": "Fields for agreement to contributor terms",
-        "show_in_rest": 1,
-        "display_title": "",
-        "no_values_message": ""
+        "active": true
     },
     {
-        "key": "group_681955cd558f8",
-        "title": "Contributor Details",
+        "key": "group_starmus_transcript_details",
+        "title": "Transcript Details",
         "fields": [
             {
-                "key": "field_68c0b884c08c1",
-                "label": "User ID",
-                "name": "user_id",
-                "aria-label": "",
-                "type": "user",
-                "instructions": "",
+                "key": "field_starmus_transcript_parent",
+                "label": "Parent Audio Recording",
+                "name": "parent_audio_id",
+                "type": "post_object",
                 "required": 1,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "read_only",
-                "no_values_message": "",
-                "role": "",
-                "return_format": "id",
-                "multiple": 0,
-                "allow_null": 0,
-                "allow_in_bindings": 0,
-                "bidirectional": 0,
-                "bidirectional_target": []
+                "post_type": ["starmus_audio_recording"],
+                "return_format": "id"
             },
             {
-                "key": "field_6837884e7c3fd",
-                "label": "Name Prefix",
-                "name": "name_prefix",
-                "aria-label": "",
-                "type": "text",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "default_value": "",
-                "maxlength": "",
-                "allow_in_bindings": 0,
-                "placeholder": "",
-                "prepend": "",
-                "append": ""
-            },
-            {
-                "key": "field_681955cd4a61a",
-                "label": "First Name",
-                "name": "first_name",
-                "aria-label": "",
-                "type": "text",
-                "instructions": "First name and first letter of the Community Ambassador (Interviewer) in the Oral History",
-                "required": 1,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "default_value": "",
-                "maxlength": 150,
-                "allow_in_bindings": 1,
-                "placeholder": "",
-                "prepend": "",
-                "append": ""
-            },
-            {
-                "key": "field_683788237c3fb",
-                "label": "Middle Name",
-                "name": "middle_name",
-                "aria-label": "",
-                "type": "text",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "default_value": "",
-                "maxlength": "",
-                "allow_in_bindings": 0,
-                "placeholder": "",
-                "prepend": "",
-                "append": ""
-            },
-            {
-                "key": "field_683788347c3fc",
-                "label": "Last Name",
-                "name": "last_name",
-                "aria-label": "",
-                "type": "text",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "default_value": "",
-                "maxlength": "",
-                "allow_in_bindings": 0,
-                "placeholder": "",
-                "prepend": "",
-                "append": ""
-            },
-            {
-                "key": "field_681958cf4a621",
-                "label": "Country of Birth",
-                "name": "country_of_birth",
-                "aria-label": "",
-                "type": "taxonomy",
-                "instructions": "",
-                "required": 1,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "taxonomy": "country",
-                "add_term": 0,
-                "save_terms": 1,
-                "load_terms": 1,
-                "return_format": "object",
-                "field_type": "select",
-                "allow_null": 0,
-                "allow_in_bindings": 0,
-                "bidirectional": 0,
-                "multiple": 0,
-                "bidirectional_target": []
-            },
-            {
-                "key": "field_681959564a623",
-                "label": "Clan / Family Lineage",
-                "name": "clan__family_lineage",
-                "aria-label": "",
+                "key": "field_starmus_transcript_data",
+                "label": "Transcript Data",
+                "name": "transcript_data",
                 "type": "textarea",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "default_value": "",
-                "maxlength": 400,
-                "allow_in_bindings": 1,
-                "rows": "",
-                "placeholder": "",
-                "new_lines": "br",
-                "acfe_textarea_code": 0
-            },
-            {
-                "key": "field_68195b2e4a62b",
-                "label": "Month of Birth",
-                "name": "month_of_birth",
-                "aria-label": "",
-                "type": "select",
-                "instructions": "Month of birth",
-                "required": 1,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "choices": {
-                    "01 - January": "01 - January",
-                    "02 - February": "02 - February",
-                    "03 - March": "03 - March",
-                    "04 - April": "04 - April",
-                    "05 - May": "05 - May",
-                    "06 - June": "06 - June",
-                    "07 - July": "07 - July",
-                    "08 - August": "08 - August",
-                    "09 - September": "09 - September",
-                    "10 - October": "10 - October",
-                    "11 - Novemeber": "11 - Novemeber",
-                    "12 - December": "12 - December"
-                },
-                "default_value": false,
-                "return_format": "value",
-                "multiple": 0,
-                "allow_null": 0,
-                "allow_in_bindings": 0,
-                "ui": 0,
-                "ajax": 0,
-                "placeholder": "",
-                "create_options": 0,
-                "save_options": 0,
-                "allow_custom": 0,
-                "search_placeholder": ""
-            },
-            {
-                "key": "field_6819567b4a61c",
-                "label": "Year of Birth",
-                "name": "year_of_birth",
-                "aria-label": "",
-                "type": "number",
-                "instructions": "Community Contributor (Interviewed Individual) birth year.",
-                "required": 1,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "default_value": 1901,
-                "min": 1901,
-                "max": 2025,
-                "allow_in_bindings": 1,
-                "placeholder": "",
-                "step": 1,
-                "prepend": "",
-                "append": ""
-            },
-            {
-                "key": "field_681958344a61f",
-                "label": "Gender",
-                "name": "gender",
-                "aria-label": "",
-                "type": "checkbox",
-                "instructions": "",
-                "required": 1,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "choices": {
-                    "Male": "Male",
-                    "Female": "Female",
-                    "Non-binary": "Non-binary"
-                },
-                "default_value": [],
-                "return_format": "value",
-                "allow_custom": 0,
-                "allow_in_bindings": 1,
-                "layout": "vertical",
-                "toggle": 0,
-                "save_custom": 0,
-                "custom_choice_button_text": "Add new choice"
-            },
-            {
-                "key": "field_681956cb4a61d",
-                "label": "Education",
-                "name": "education",
-                "aria-label": "",
-                "type": "select",
-                "instructions": "Select the highest level of education achieved.",
-                "required": 1,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "choices": {
-                    "none": "No Formal Education",
-                    "primary": "Primary School",
-                    "secondary": "Junior Secondary School",
-                    "hs": "Some High School",
-                    "hs grad": "Senior Secondary School / High School Graduate",
-                    "vocational": "Job Skills Training / Vocational Training",
-                    "college": "Some College",
-                    "AA": "Associate’s Degree",
-                    "BSBA": "Bachelor’s Degree",
-                    "MSMA": "Master’s Degree",
-                    "Professional": "Professional Degree (e.g., Medicine, Law)",
-                    "Dr": "Doctoral Degree (PhD, etc.)"
-                },
-                "default_value": false,
-                "return_format": "value",
-                "multiple": 0,
-                "allow_null": 0,
-                "allow_in_bindings": 0,
-                "ui": 0,
-                "ajax": 0,
-                "placeholder": "",
-                "create_options": 0,
-                "save_options": 0,
-                "allow_custom": 0,
-                "search_placeholder": ""
-            },
-            {
-                "key": "field_681957df4a61e",
-                "label": "Primary Occupation",
-                "name": "primary_occupation",
-                "aria-label": "",
-                "type": "select",
-                "instructions": "Community Contributor's primary occupation.",
-                "required": 1,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "choices": {
-                    "Architecture and Engineering": "Architecture and Engineering",
-                    "Arts, Design, Entertainment, Sports, and Media": "Arts, Design, Entertainment, Sports, and Media",
-                    "Building and Grounds Maintenance": "Building and Grounds Maintenance",
-                    "Business and Financial Services": "Business and Financial Services",
-                    "Community and Social Services": "Community and Social Services",
-                    "Computers and Technology": "Computers and Technology",
-                    "Construction and Carpentry": "Construction and Carpentry",
-                    "Education and Teaching": "Education and Teaching",
-                    "Farming, Fishing, and Forestry": "Farming, Fishing, and Forestry",
-                    "Food Preparation and Sales": "Food Preparation and Sales",
-                    "Healthcare (Doctors, Nurses, Midwives)": "Healthcare (Doctors, Nurses, Midwives)",
-                    "Healthcare Support (Home Assistants, Traditional Healers)": "Healthcare Support (Home Assistants, Traditional Healers)",
-                    "Installation and Repair Services": "Installation and Repair Services",
-                    "Legal and Advocacy": "Legal and Advocacy",
-                    "Science and Research": "Science and Research",
-                    "Management and Leadership": "Management and Leadership",
-                    "Office and Administrative Work": "Office and Administrative Work",
-                    "Personal Care and Services": "Personal Care and Services",
-                    "Manufacturing and Handcrafts": "Manufacturing and Handcrafts",
-                    "Security and Protective Services": "Security and Protective Services",
-                    "Sales and Trade": "Sales and Trade",
-                    "Transportation and Delivery": "Transportation and Delivery",
-                    "Homemaker / Caregiver": "Homemaker / Caregiver",
-                    "Student": "Student",
-                    "Elder / Retired": "Elder / Retired",
-                    "Unemployed / Informal Work": "Unemployed / Informal Work"
-                },
-                "default_value": false,
-                "return_format": "value",
-                "multiple": 0,
-                "allow_null": 0,
-                "allow_in_bindings": 0,
-                "ui": 0,
-                "ajax": 0,
-                "placeholder": "",
-                "create_options": 0,
-                "save_options": 0,
-                "allow_custom": 0,
-                "search_placeholder": ""
-            },
-            {
-                "key": "field_681959134a622",
-                "label": "Primary Language",
-                "name": "primary_language",
-                "aria-label": "",
-                "type": "taxonomy",
-                "instructions": "Community Contributor's primary language spoken daily.",
-                "required": 1,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "taxonomy": "language",
-                "add_term": 0,
-                "save_terms": 1,
-                "load_terms": 1,
-                "return_format": "object",
-                "field_type": "select",
-                "allow_null": 0,
-                "allow_in_bindings": 1,
-                "bidirectional": 0,
-                "multiple": 0,
-                "bidirectional_target": []
-            },
-            {
-                "key": "field_68c0b489529b5",
-                "label": "African Language Spoken",
-                "name": "african_language_spoken",
-                "aria-label": "",
-                "type": "taxonomy",
-                "instructions": "The African language which you are wishing contribute content for preservation.",
-                "required": 1,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "taxonomy": "language",
-                "add_term": 0,
-                "save_terms": 1,
-                "load_terms": 1,
-                "return_format": "id",
-                "field_type": "multi_select",
-                "allow_null": 0,
-                "default_value": "",
-                "allow_in_bindings": 0,
-                "bidirectional": 0,
-                "multiple": 0,
-                "bidirectional_target": []
-            },
-            {
-                "key": "field_681958734a620",
-                "label": "Additional Languages Spoken",
-                "name": "additional_languages_spoken",
-                "aria-label": "",
-                "type": "taxonomy",
-                "instructions": "Select any additional languages you speak. You may also contribute to the preservation of these languages.",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "taxonomy": "language",
-                "add_term": 0,
-                "save_terms": 1,
-                "load_terms": 1,
-                "return_format": "id",
-                "field_type": "multi_select",
-                "allow_null": 0,
-                "default_value": "",
-                "allow_in_bindings": 1,
-                "bidirectional": 0,
-                "multiple": 0,
-                "bidirectional_target": []
-            },
-            {
-                "key": "field_68c0b376529b4",
-                "label": "Geocoded Location",
-                "name": "Location",
-                "aria-label": "",
-                "type": "google_map",
-                "instructions": "Your geolocation data is used to help determine dialect as well as track how languages change geographically and over time.",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "center_lat": "",
-                "center_lng": "",
-                "zoom": "",
-                "height": "",
-                "allow_in_bindings": 0
-            },
-            {
-                "key": "field_68c0b61df0575",
-                "label": "Consent Agreement",
-                "name": "consent_agreement",
-                "aria-label": "",
-                "type": "post_object",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "edit",
-                "post_type": [
-                    "consent-agreement"
-                ],
-                "post_status": "",
-                "taxonomy": "",
-                "return_format": "object",
-                "multiple": 0,
-                "post_author": [
-                    "current_user"
-                ],
-                "add_edit_post": 0,
-                "allow_null": 0,
-                "allow_in_bindings": 0,
-                "bidirectional": 1,
-                "bidirectional_target": "",
-                "ui": 1,
-                "save_custom": 0,
-                "save_post_type": "",
-                "save_post_status": "",
-                "post_form_template": ""
+                "instructions": "Time-coded transcript data, usually in JSON format."
             }
         ],
         "location": [
@@ -783,68 +75,31 @@
                 {
                     "param": "post_type",
                     "operator": "==",
-                    "value": "contributor"
+                    "value": "starmus_transcript"
                 }
             ]
         ],
-        "menu_order": 0,
-        "position": "normal",
-        "style": "default",
-        "label_placement": "top",
-        "instruction_placement": "label",
-        "hide_on_screen": "",
-        "active": true,
-        "description": "Contributor details (PII)",
-        "show_in_rest": 1,
-        "display_title": "",
-        "no_values_message": ""
+        "active": true
     },
     {
-        "key": "group_68c4faf4ca182",
-        "title": "Linked Audio",
+        "key": "group_starmus_translation_details",
+        "title": "Transcript Translation Details",
         "fields": [
             {
-                "key": "field_68c4fb0442cd9",
-                "label": "Audio",
-                "name": "audio",
-                "aria-label": "",
+                "key": "field_starmus_translation_parent",
+                "label": "Parent Transcript",
+                "name": "parent_transcript_id",
                 "type": "post_object",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "only_front": 0,
-                "frontend_admin_display_mode": "read_only",
-                "no_values_message": "",
-                "post_type": [
-                    "audio-recording"
-                ],
-                "post_status": "",
-                "taxonomy": "",
-                "return_format": "object",
-                "multiple": 0,
-                "save_custom": 0,
-                "save_post_status": "publish",
-                "post_author": "",
-                "add_edit_post": 0,
-                "acfe_bidirectional": {
-                    "acfe_bidirectional_enabled": true,
-                    "acfe_bidirectional_related": [
-                        "field_68c722cf9aba5",
-                        "field_68c7238e9aba6"
-                    ]
-                },
-                "allow_null": 0,
-                "allow_in_bindings": 0,
-                "bidirectional": 0,
-                "ui": 1,
-                "bidirectional_target": [],
-                "save_post_type": "",
-                "post_form_template": ""
+                "required": 1,
+                "post_type": ["starmus_transcript"],
+                "return_format": "id"
+            },
+            {
+                "key": "field_starmus_translation_data",
+                "label": "Translation Data",
+                "name": "translation_data",
+                "type": "textarea",
+                "instructions": "Time-coded translation data, usually in JSON format."
             }
         ],
         "location": [
@@ -852,34 +107,10 @@
                 {
                     "param": "post_type",
                     "operator": "==",
-                    "value": "transcription"
-                }
-            ],
-            [
-                {
-                    "param": "post_type",
-                    "operator": "==",
-                    "value": "translation"
-                }
-            ],
-            [
-                {
-                    "param": "post_type",
-                    "operator": "==",
-                    "value": "word"
+                    "value": "starmus_transcript_translation"
                 }
             ]
         ],
-        "menu_order": 0,
-        "position": "normal",
-        "style": "default",
-        "label_placement": "left",
-        "instruction_placement": "label",
-        "hide_on_screen": "",
-        "active": true,
-        "description": "",
-        "show_in_rest": 0,
-        "display_title": "",
-        "acfe_autosync": ""
+        "active": true
     }
 ]
