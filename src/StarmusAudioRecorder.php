@@ -438,7 +438,7 @@ final class StarmusAudioRecorder
         }
     }
 
-    public function get_DAL(): ?StarmusAudioRecorderDALInterface
+    public function get_DAL(): ?StarmusAudioRecorderDAL
     {
         return $this->DAL;
     }
