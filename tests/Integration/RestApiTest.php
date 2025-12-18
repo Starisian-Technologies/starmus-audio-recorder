@@ -22,7 +22,7 @@ class RestApiTest extends \WP_UnitTestCase
 
         // Create test user with upload capability
         $this->user_id = $this->factory->user->create([
-            'role' => 'contributor'
+            'role' => 'editor'
         ]);
         wp_set_current_user($this->user_id);
 

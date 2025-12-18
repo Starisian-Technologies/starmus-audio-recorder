@@ -31,12 +31,13 @@ declare(strict_types=1);
  * 4. Audio recording post creation or update
  * 5. Metadata extraction and ACF field population
  * 6. Taxonomy assignment (language, recording type)
- * 7. Post-processing trigger (audio optimization, transcription)
+ * 7. Post-processing trigger (audio optimization)
  * 8. Temporary file cleanup
  * @see StarmusAudioRecorderDALInterface Data Access Layer interface
  * @see StarmusSettings Plugin configuration management
  * @see StarmusPostProcessingService Audio processing service
  */
+
 namespace Starisian\Sparxstar\Starmus\includes;
 
 if (! \defined('ABSPATH')) {
@@ -65,6 +66,7 @@ use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
+use Starisian\Sparxstar\Starmus\helpers\StarmusSchemaMapper;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 
 use function str_contains;
@@ -483,7 +485,7 @@ final class StarmusSubmissionHandler
             $this->dal->save_post_meta((int) $cpt_post_id, '_audio_attachment_id', (int) $attachment_id);
             $this->dal->set_attachment_parent((int) $attachment_id, (int) $cpt_post_id);
 
-            $form_data['audio_files_originals'] = (int) $attachment_id;
+            $form_data['original_source'] = (int) $attachment_id;
             $this->save_all_metadata((int) $cpt_post_id, (int) $attachment_id, $form_data);
 
             return [
@@ -518,7 +520,7 @@ final class StarmusSubmissionHandler
      * Metadata Types Processed:
      * 1. **Environment Data**: Browser, device, network information
      * 2. **Calibration Data**: Microphone settings and audio levels
-     * 3. **Transcription**: Speech recognition results
+     * 3. **Runtime Metadata**: Processing configuration and environment data
      * 4. **Waveform Data**: Audio visualization information
      * 5. **Submission Info**: IP address, timestamps, user agent
      * 6. **Taxonomies**: Language and recording type classifications
@@ -535,7 +537,7 @@ final class StarmusSubmissionHandler
      * - user_agent: Browser user agent string
      * - runtime_metadata: Calibration settings JSON
      * - mic_profile: Human-readable microphone settings
-     * - first_pass_transcription: Speech recognition text
+     * - runtime_metadata: Processing environment and configuration
      * - submission_ip: User IP address (GDPR/privacy considerations)
      *
      * WordPress Actions:
@@ -548,73 +550,115 @@ final class StarmusSubmissionHandler
     public function save_all_metadata(int $audio_post_id, int $attachment_id, array $form_data): void
     {
         try {
-            $env_json = $form_data['_starmus_env'] ?? '';
-            $env_data = [];
+            // Map form data to new schema
+            $mapped_data = StarmusSchemaMapper::map_form_data($form_data);
 
+            // Handle JavaScript-submitted environment data (_starmus_env)
+            $env_json = $form_data['_starmus_env'] ?? '';
             if ($env_json) {
                 $decoded_env = json_decode(wp_unslash($env_json), true);
                 if ($decoded_env) {
-                    $env_data = $decoded_env;
-                    $this->update_acf_field('environment_data', wp_json_encode($env_data), $audio_post_id);
-
-                    if (! empty($env_data['identifiers'])) {
-                        $this->update_acf_field('device_fingerprint', wp_json_encode($env_data['identifiers']), $audio_post_id);
-                    }
-
-                    if (! empty($env_data['device']['userAgent'])) {
-                        $this->update_acf_field('user_agent', sanitize_text_field($env_data['device']['userAgent']), $audio_post_id);
+                    // Store complete environment data in environment_data (Group C)
+                    $this->update_acf_field('environment_data', json_encode($decoded_env), $audio_post_id);
+                    
+                    // Extract device fingerprint if available
+                    if (isset($decoded_env['fingerprint'])) {
+                        $this->update_acf_field('device_fingerprint', $decoded_env['fingerprint'], $audio_post_id);
                     }
                 }
             }
 
+            // Handle JavaScript-submitted calibration data (_starmus_calibration)
             $cal_json = $form_data['_starmus_calibration'] ?? '';
             if ($cal_json) {
                 $decoded_cal = json_decode(wp_unslash($cal_json), true);
                 if ($decoded_cal) {
-                    $this->update_acf_field('runtime_metadata', wp_json_encode($decoded_cal), $audio_post_id);
-                    if (isset($decoded_cal['gain'])) {
-                        $this->update_acf_field('mic_profile', 'Gain: ' . sanitize_text_field((string) $decoded_cal['gain']), $audio_post_id);
+                    // Store calibration data (gain, speechLevel) in transcriber field (Group C)
+                    $this->update_acf_field('transcriber', json_encode($decoded_cal), $audio_post_id);
+                }
+            }
+
+            // Handle waveform JSON from JavaScript
+            if (!empty($form_data['waveform_json'])) {
+                $wf_value = is_string($form_data['waveform_json']) ? $form_data['waveform_json'] : json_encode($form_data['waveform_json']);
+                $this->update_acf_field('waveform_json', $wf_value, $audio_post_id);
+            }
+
+            // Handle recording metadata from JavaScript
+            if (!empty($form_data['recording_metadata'])) {
+                $metadata_value = is_string($form_data['recording_metadata']) ? $form_data['recording_metadata'] : json_encode($form_data['recording_metadata']);
+                $this->update_acf_field('recording_metadata', $metadata_value, $audio_post_id);
+            }
+
+            // New schema: User mappings (Groups A, B, D)
+            $user_ids = StarmusSchemaMapper::extract_user_ids($form_data);
+            foreach ($user_ids as $field => $value) {
+                $this->update_acf_field($field, $value, $audio_post_id);
+            }
+
+            // Agreement to Terms (Group D)
+            $timestamp = current_time('mysql');
+            $user_ip = StarmusSanitizer::get_user_ip();
+            $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+            $this->update_acf_field('agreement_datetime', $timestamp, $audio_post_id);
+            $this->update_acf_field('contributor_ip', $user_ip, $audio_post_id);
+            $this->update_acf_field('contributor_user_agent', sanitize_text_field($user_agent), $audio_post_id);
+            $this->update_acf_field('submission_ip', $user_ip, $audio_post_id);
+
+            // Session metadata (Group B) - includes new fields
+            $session_fields = [
+                'project_collection_id', 'accession_number', 'location', 'session_date', 
+                'session_start_time', 'gps_coordinates', 'recording_equipment',
+                'audio_files_originals', 'media_condition_notes', 'agreement_to_terms_toggle',
+                'related_consent_agreement', 'usage_restrictions_rights', 'access_level',
+                'first_pass_transcription', 'audio_quality_score_tax'
+            ];
+            foreach ($session_fields as $field) {
+                if (isset($mapped_data[$field])) {
+                    if ($field === 'first_pass_transcription') {
+                        // Handle first pass transcription as readonly field
+                        $this->update_acf_field($field, $mapped_data[$field], $audio_post_id);
+                    } else {
+                        $this->update_acf_field($field, sanitize_text_field((string) $mapped_data[$field]), $audio_post_id);
                     }
                 }
             }
 
-            $transcript = $form_data['first_pass_transcription'] ?? '';
-            if (! $transcript && ! empty($env_data['transcript'])) {
-                $transcript = $env_data['transcript']['final'] ?? '';
-            }
-
-            if ($transcript) {
-                $this->update_acf_field('first_pass_transcription', wp_unslash($transcript), $audio_post_id);
-            }
-
-            if (! empty($form_data['waveform_json'])) {
-                $wf_decoded = json_decode(wp_unslash($form_data['waveform_json']));
-                if ($wf_decoded) {
-                    $this->update_acf_field('waveform_json', wp_json_encode($wf_decoded), $audio_post_id);
+            // Processing fields (Group C) - JSON encoded
+            foreach ($mapped_data as $field => $value) {
+                if (StarmusSchemaMapper::is_json_field($field)) {
+                    $this->update_acf_field($field, $value, $audio_post_id);
                 }
             }
 
-            // NOTE: StarmusSanitizer must use $_SERVER['REMOTE_ADDR'].
-            // Ensure vip-config.php maps HTTP_CF_CONNECTING_IP to REMOTE_ADDR if using Cloudflare.
-            $this->update_acf_field('submission_ip', StarmusSanitizer::get_user_ip(), $audio_post_id);
-
-            $passthrough = ['contributor_id', 'artifact_id', 'project_collection_id', 'accession_number', 'location', 'recording_metadata'];
-            foreach ($passthrough as $field) {
-                if (isset($form_data[$field])) {
-                    $this->update_acf_field($field, sanitize_text_field((string) $form_data[$field]), $audio_post_id);
-                }
+            // Core archival fields (Group A)
+            if (isset($mapped_data['dc_creator'])) {
+                $this->update_acf_field('dc_creator', sanitize_text_field((string) $mapped_data['dc_creator']), $audio_post_id);
             }
 
+            // File attachments (Group C)
             if ($attachment_id !== 0) {
-                $this->update_acf_field('audio_files_originals', $attachment_id, $audio_post_id);
+                $this->update_acf_field('original_source', $attachment_id, $audio_post_id);
+                // Also update audio_files_originals for backward compatibility
+                $this->update_acf_field('audio_files_originals', [$attachment_id], $audio_post_id);
+            }
+            if (isset($mapped_data['mastered_mp3'])) {
+                $this->update_acf_field('mastered_mp3', $mapped_data['mastered_mp3'], $audio_post_id);
+            }
+            if (isset($mapped_data['archival_wav'])) {
+                $this->update_acf_field('archival_wav', $mapped_data['archival_wav'], $audio_post_id);
+            }
+            
+            // Additional Group D fields
+            if (isset($form_data['url'])) {
+                $this->update_acf_field('url', $form_data['url'], $audio_post_id);
+            }
+            if (isset($form_data['submission_id'])) {
+                $this->update_acf_field('submission_id', sanitize_text_field($form_data['submission_id']), $audio_post_id);
             }
 
             if (! empty($form_data['language'])) {
                 wp_set_post_terms($audio_post_id, [(int) $form_data['language']], 'language');
-            }
-
-            if (! empty($form_data['recording_type'])) {
-                wp_set_post_terms($audio_post_id, [(int) $form_data['recording_type']], 'recording-type');
             }
 
             // --- START: Links Starmus Audio to Other CPTs ---

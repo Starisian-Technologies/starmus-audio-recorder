@@ -1,4 +1,5 @@
 <?php
+
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 if (! \defined('ABSPATH')) {
@@ -68,19 +69,6 @@ class StarmusSanitizer
             $meta['_starmus_interview_type'] = sanitize_text_field($form_data['interview_type']);
         }
 
-        // Contributor info
-        if (! empty($form_data['contributor_name'])) {
-            $meta['_contributor_name'] = sanitize_text_field($form_data['contributor_name']);
-        }
-
-        if (! empty($form_data['contributor_role'])) {
-            $meta['_contributor_role'] = sanitize_text_field($form_data['contributor_role']);
-        }
-
-        if (! empty($form_data['translator'])) {
-            $meta['_translator'] = sanitize_text_field($form_data['translator']);
-        }
-
         // Content classification
         if (! empty($form_data['story_type'])) {
             $meta['_story_type'] = sanitize_text_field($form_data['story_type']);
@@ -88,10 +76,6 @@ class StarmusSanitizer
 
         if (! empty($form_data['rating'])) {
             $meta['_content_rating'] = sanitize_text_field($form_data['rating']);
-        }
-
-        if (! empty($form_data['verification'])) {
-            $meta['_contributor_verification'] = sanitize_text_field($form_data['verification']);
         }
 
         // Location context

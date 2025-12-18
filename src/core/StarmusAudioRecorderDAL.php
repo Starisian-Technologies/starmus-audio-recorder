@@ -70,6 +70,60 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
     }
 
     /**
+     * Create transcription post linked to audio recording.
+     */
+    public function create_transcription_post(int $audio_post_id, string $transcription_text, int $author_id): int|WP_Error
+    {
+        try {
+            $post_id = wp_insert_post([
+                'post_title'  => 'Transcription for Recording #' . $audio_post_id,
+                'post_type'   => 'audio-transcription',
+                'post_status' => 'publish',
+                'post_author' => $author_id,
+            ]);
+
+            if (is_wp_error($post_id)) {
+                return $post_id;
+            }
+
+            $this->save_post_meta($post_id, 'audio', $audio_post_id);
+            $this->save_post_meta($post_id, 'transcription', $transcription_text);
+
+            return $post_id;
+        } catch (Throwable $throwable) {
+            error_log($throwable->getMessage());
+            return new WP_Error('create_transcription_failed', $throwable->getMessage());
+        }
+    }
+
+    /**
+     * Create translation post linked to audio recording.
+     */
+    public function create_translation_post(int $audio_post_id, string $translation_text, int $author_id): int|WP_Error
+    {
+        try {
+            $post_id = wp_insert_post([
+                'post_title'  => 'Translation for Recording #' . $audio_post_id,
+                'post_type'   => 'audio-translation',
+                'post_status' => 'publish',
+                'post_author' => $author_id,
+            ]);
+
+            if (is_wp_error($post_id)) {
+                return $post_id;
+            }
+
+            $this->save_post_meta($post_id, 'audio', $audio_post_id);
+            $this->save_post_meta($post_id, 'translation', $translation_text);
+
+            return $post_id;
+        } catch (Throwable $throwable) {
+            error_log($throwable->getMessage());
+            return new WP_Error('create_translation_failed', $throwable->getMessage());
+        }
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function create_attachment_from_file(string $file_path, string $filename): int|WP_Error
@@ -445,6 +499,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
     public function persist_audio_outputs(int $attachment_id, string $mp3, string $wav): void
     {
         try {
+            // Keep legacy meta for compatibility
             update_post_meta($attachment_id, '_audio_mp3_path', $mp3);
             update_post_meta($attachment_id, '_audio_wav_path', $wav);
             update_post_meta($attachment_id, '_starmus_archival_path', $wav);
@@ -551,15 +606,11 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
      * @param int|null $language_id Term ID from 'language' taxonomy (optional).
      * @param int|null $type_id Term ID from 'recording-type' taxonomy (optional).
      */
-    public function assign_taxonomies(int $post_id, ?int $language_id = null, ?int $type_id = null): void
+    public function assign_taxonomies(int $post_id, ?int $language_id = null): void
     {
         try {
             if ($language_id) {
                 wp_set_object_terms($post_id, (int) $language_id, 'language', false);
-            }
-
-            if ($type_id) {
-                wp_set_object_terms($post_id, (int) $type_id, 'recording-type', false);
             }
         } catch (Throwable $throwable) {
             error_log(

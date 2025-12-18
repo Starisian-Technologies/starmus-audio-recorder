@@ -184,4 +184,26 @@ interface StarmusAudioRecorderDALInterface
      * @return array{id: int, title: string, type: string, status: string}|null An array of post information, or null if not found.
      */
     public function get_post_info(int $post_id): ?array;
+
+    /**
+     * Creates a transcription post linked to an audio recording.
+     *
+     * @param int $audio_post_id The ID of the parent audio recording.
+     * @param string $transcription_text The transcription text.
+     * @param int $author_id The ID of the author.
+     *
+     * @return int|\WP_Error The new transcription post ID on success, or WP_Error on failure.
+     */
+    public function create_transcription_post(int $audio_post_id, string $transcription_text, int $author_id): int|\WP_Error;
+
+    /**
+     * Creates a translation post linked to an audio recording.
+     *
+     * @param int $audio_post_id The ID of the parent audio recording.
+     * @param string $translation_text The translation text.
+     * @param int $author_id The ID of the author.
+     *
+     * @return int|\WP_Error The new translation post ID on success, or WP_Error on failure.
+     */
+    public function create_translation_post(int $audio_post_id, string $translation_text, int $author_id): int|\WP_Error;
 }

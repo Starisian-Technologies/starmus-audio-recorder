@@ -38,7 +38,7 @@ if (! $delete_on_uninstall && ! $admin_setting) {
 delete_option('starmus_settings');
 
 // 2. Delete all custom posts from ACF-registered post types.
-$post_types = array('audio-recording', 'consent-agreement');
+$post_types = array('audio-recording');
 foreach ($post_types as $cpt_slug) {
 	$posts = get_posts(
 		array(
@@ -57,7 +57,7 @@ foreach ($post_types as $cpt_slug) {
 }
 
 // 3. Remove custom capabilities.
-$roles_to_clean = array('editor', 'administrator', 'contributor', 'community_contributor');
+$roles_to_clean = array('editor', 'administrator', 'community_contributor');
 foreach ($roles_to_clean as $role_name) {
 	$role = get_role($role_name);
 	if ($role) {

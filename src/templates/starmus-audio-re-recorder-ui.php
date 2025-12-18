@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Starmus Re-Recorder UI Template
  *
@@ -13,12 +14,8 @@ if (! defined('ABSPATH')) {
 
 $instance_id = 'starmus_form_' . sanitize_key('rerecord_' . wp_generate_uuid4());
 
-// Try to pre-fill contributor ID if available (Context dependent)
-$contributor_id = '';
-// If you have a function to get contributor ID from user ID, use it here:
-// $contributor_id = star_get_contributor_id(get_current_user_id());
 $allowed_file_types ??= 'webm';
-$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
 $is_admin          = current_user_can('manage_options');
 $consent_message ??= __('By submitting this recording, you agree to our', 'starmus-audio-recorder');
 $data_policy_url ??= '';
@@ -37,7 +34,7 @@ $data_policy_url ??= '';
 
         <div id="starmus_step1_<?php echo esc_attr($instance_id); ?>" class="starmus-step" data-starmus-step="1">
             <h2><?php esc_html_e('Re-Record Audio', 'starmus-audio-recorder'); ?></h2>
-            
+
             <div class="starmus-notice">
                 <p><?php esc_html_e('You are replacing audio for:', 'starmus-audio-recorder'); ?> <strong><?php echo esc_html($existing_title); ?></strong></p>
                 <p style="font-size:0.8em; opacity:0.8">ID: <?php echo intval($post_id); ?></p>
@@ -46,19 +43,17 @@ $data_policy_url ??= '';
             <!-- UPDATE LOGIC -->
             <input type="hidden" name="post_id" value="<?php echo esc_attr((string) $post_id); ?>">
             <input type="hidden" name="action" value="starmus_update_audio">
-            
+
             <!-- METADATA PERSISTENCE -->
             <input type="hidden" name="starmus_title" value="<?php echo esc_attr($existing_title); ?>">
             <input type="hidden" name="audio_file_type" value="audio/webm">
-            
+
             <!-- INJECTED BY JS (Protected by Safe Sync) -->
             <input type="hidden" name="_starmus_env" value="">
             <input type="hidden" name="_starmus_calibration" value="">
-            <input type="hidden" name="first_pass_transcription" value="">
             <input type="hidden" name="recording_metadata" value="">
-            
+
             <!-- INJECTED FROM PHP (If Available) -->
-            <input type="hidden" name="contributor_id" value="<?php echo esc_attr($contributor_id); ?>">
 
             <button type="button" class="starmus-btn starmus-btn--primary" data-starmus-action="next">
                 <?php esc_html_e('Proceed to Recorder', 'starmus-audio-recorder'); ?>
@@ -68,7 +63,7 @@ $data_policy_url ??= '';
         <!-- Step 2: Recorder -->
         <div id="starmus_step2_<?php echo esc_attr($instance_id); ?>" class="starmus-step" style="display:none;" data-starmus-step="2">
             <h2><?php esc_html_e('Record Replacement', 'starmus-audio-recorder'); ?></h2>
-            
+
             <div class="starmus-setup-container" data-starmus-setup-container>
                 <button type="button" class="starmus-btn starmus-btn--primary" data-starmus-action="setup-mic">
                     <span class="dashicons dashicons-microphone"></span> Setup Mic
@@ -85,7 +80,7 @@ $data_policy_url ??= '';
                         <div class="starmus-meter-bar" data-starmus-volume-meter></div>
                     </div>
                 </div>
-                
+
                 <div class="starmus-recorder-controls">
                     <button type="button" class="starmus-btn starmus-btn--record" data-starmus-action="record">Record</button>
                     <button type="button" class="starmus-btn starmus-btn--stop" data-starmus-action="stop" style="display:none;">Stop</button>
@@ -94,7 +89,7 @@ $data_policy_url ??= '';
                         <button type="button" class="starmus-btn starmus-btn--outline" data-starmus-action="reset">Retake</button>
                     </div>
                 </div>
-                
+
                 <div data-starmus-transcript style="display:none;"></div>
             </div>
 

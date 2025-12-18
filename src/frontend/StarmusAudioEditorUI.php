@@ -185,7 +185,7 @@ final class StarmusAudioEditorUI
                 }
             }
 
-            $attachment_id = absint(get_post_meta($post_id, 'mastered_mp3', true)) ?: absint(get_post_meta($post_id, 'audio_files_originals', true)) ?: absint(get_post_meta($post_id, '_audio_attachment_id', true));
+            $attachment_id = absint(get_field('mastered_mp3', $post_id)) ?: absint(get_field('original_source', $post_id)) ?: absint(get_post_meta($post_id, '_audio_attachment_id', true));
             if (! $attachment_id) {
                 return new WP_Error('no_audio', __('No audio file found for this recording.', 'starmus-audio-recorder'));
             }
@@ -203,8 +203,8 @@ final class StarmusAudioEditorUI
             }
 
             $waveform_url     = $this->get_secure_waveform_url($attachment_id);
-            $annotations_json = get_post_meta($post_id, 'starmus_annotations_json', true);
-            $transcript_json  = get_post_meta($post_id, 'first_pass_transcription', true);
+            $annotations_json = get_field('waveform_json', $post_id);
+            $transcript_json  = get_field('first_pass_transcription', $post_id);
 
             $this->cached_context = [
                 'post_id'          => $post_id,
@@ -213,6 +213,8 @@ final class StarmusAudioEditorUI
                 'waveform_url'     => $waveform_url,
                 'annotations_json' => \is_string($annotations_json) ? $annotations_json : '[]',
                 'transcript_json'  => \is_string($transcript_json) ? $transcript_json : '',
+                'waveform_json'    => \is_string($annotations_json) ? $annotations_json : '[]',
+                'transcript_data'  => \is_string($transcript_json) ? $transcript_json : '',
             ];
 
             return $this->cached_context;
@@ -332,7 +334,7 @@ final class StarmusAudioEditorUI
                 throw new Exception('Failed to encode annotations.');
             }
 
-            update_post_meta($post_id, 'starmus_annotations_json', $json_data);
+            update_field('waveform_json', $json_data, $post_id);
             return new WP_REST_Response(['success' => true, 'count' => \count($annotations)], 200);
         } catch (Throwable $throwable) {
             $this->log_error($throwable);

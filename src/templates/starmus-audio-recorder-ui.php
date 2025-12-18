@@ -20,7 +20,7 @@ if (! defined('ABSPATH')) {
 $form_id ??= 'default';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 $allowed_file_types ??= 'webm';
-$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
 $is_admin          = current_user_can('manage_options');
 $languages         = get_terms([
     'taxonomy'   => 'starmus_recording_language',
@@ -140,10 +140,9 @@ $data_policy_url ??= '';
             </fieldset>
 
             <!-- CRITICAL HIDDEN FIELDS - JS TARGETS -->
-            <!-- These must be present and named exactly for the JS to inject final telemetry, transcript, and calibration data -->
+            <!-- These must be present and named exactly for the JS to inject final telemetry and calibration data -->
             <input type="hidden" name="_starmus_calibration" value="">
             <input type="hidden" name="_starmus_env" value="">
-            <input type="hidden" name="first_pass_transcription" value="">
             <input type="hidden" name="recording_metadata" value="">
             <input type="hidden" name="waveform_json" value="">
 
@@ -155,7 +154,6 @@ $data_policy_url ??= '';
             <input type="hidden" name="session_end_time" value="">
             <input type="hidden" name="location" value="">
             <input type="hidden" name="gps_coordinates" value="">
-            <input type="hidden" name="contributor_id" value="">
             <input type="hidden" name="interviewers_recorders" value="">
             <input type="hidden" name="recording_equipment" value="">
             <input type="hidden" name="audio_files_originals" value="">

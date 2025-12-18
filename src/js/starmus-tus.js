@@ -140,7 +140,7 @@ export async function uploadDirect(blob, fileName, formFields = {}, metadata = {
     if (!(blob instanceof Blob)) return reject(new Error('INVALID_BLOB_TYPE'));
 
     // Filter out fields we will add manually or via specific keys
-    const SKIP = ['_starmus_env', '_starmus_calibration', 'first_pass_transcription'];
+    const SKIP = ['_starmus_env', '_starmus_calibration'];
     Object.entries(fields).forEach(([k, v]) => {
         if (!SKIP.includes(k)) fd.append(k, v);
     });
@@ -148,7 +148,6 @@ export async function uploadDirect(blob, fileName, formFields = {}, metadata = {
     fd.append('audio_file', blob, fileName);
 
     // Map metadata to form fields expected by the WP Controller
-    if (metadata?.transcript) fd.append('first_pass_transcription', metadata.transcript);
     if (metadata?.calibration) fd.append('_starmus_calibration', JSON.stringify(metadata.calibration));
     if (metadata?.env) fd.append('_starmus_env', JSON.stringify(metadata.env));
     if (metadata?.tier) fd.append('tier', metadata.tier);
@@ -330,7 +329,6 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
         });
 
         // Merge complex metadata objects (mapped to specific keys for PHP)
-        if (metadata?.transcript) tusMetadata['first_pass_transcription'] = sanitizeMetadata(metadata.transcript);
         if (metadata?.calibration) tusMetadata['_starmus_calibration'] = sanitizeMetadata(metadata.calibration);
         if (metadata?.env) tusMetadata['_starmus_env'] = sanitizeMetadata(metadata.env);
         if (metadata?.tier) tusMetadata['tier'] = sanitizeMetadata(metadata.tier);

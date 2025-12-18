@@ -16,7 +16,7 @@ import { CommandBus } from './starmus-hooks.js';
  * @type {Map<string, Object>}
  * @property {MediaRecorder} mediaRecorder - MediaRecorder instance for audio capture
  * @property {number|null} rafId - RequestAnimationFrame ID for visual updates
- * @property {SpeechRecognition|null} recognition - Speech recognition instance
+ * @property {LanguageSignalAnalyzer|null} signalAnalyzer - Language policy analyzer
  */
 const recorderRegistry = new Map();
 
@@ -29,10 +29,241 @@ let sharedAudioContext = null;
 
 /**
  * Speech Recognition API with webkit fallback.
- * Used for real-time transcription during recording.
+ * Used by LanguageSignalAnalyzer for policy enforcement.
  * @type {function|undefined}
  */
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+/**
+ * Language Signal Analyzer - Geographic Policy Enforcement
+ * Detects colonial language violations based on user location.
+ * Runs silently on cloned stream without affecting audio recording.
+ */
+class LanguageSignalAnalyzer {
+  constructor({ tier, country, maxDuration = 20000 }) {
+    this.tier = tier;
+    this.country = country;
+    this.maxDuration = maxDuration;
+    
+    this.probeLanguages = this.getProbeLanguages();
+    
+    this.results = {
+      signal_analysis: {
+        country: country,
+        probe_language: this.probeLanguages[0] || null
+      },
+      violation_flags: {},
+      timing_hints: []
+    };
+    
+    this._abort = false;
+  }
+
+  getProbeLanguages() {
+    if (this.tier === 'C') return [];
+    
+    switch (this.country) {
+      case 'GM': return ['en-US']; // Gambia - English probe only
+      case 'SN': 
+      case 'GN': 
+      case 'ML': return ['fr-FR']; // Francophone - French probe only
+      default:   return ['en-US']; // Unknown - English fallback
+    }
+  }
+
+  async analyze(inputStream) {
+    if (this.tier === 'C') {
+      return this.audioOnlySignals(inputStream);
+    }
+
+    // CRITICAL: Clone stream, never touch original
+    const clonedStream = inputStream.clone();
+    
+    // Single probe - no sequential risk
+    if (this.probeLanguages.length > 0) {
+      await this.runViolationProbe(clonedStream, this.probeLanguages[0]);
+    }
+    
+    this.calculateViolationFlags();
+    return this.results;
+  }
+
+  runViolationProbe(stream, language) {
+    return new Promise(resolve => {
+      if (!SpeechRecognition) return resolve();
+
+      const rec = new SpeechRecognition();
+      rec.lang = language;
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+
+      let totalWords = 0;
+      let weightedConfidence = 0;
+      let lastTime = null;
+
+      rec.onresult = e => {
+        for (const res of e.results) {
+          if (!res.isFinal) continue;
+
+          const text = res[0].transcript.trim();
+          const conf = res[0].confidence ?? 0;
+          const words = text ? text.split(/\s+/).length : 0;
+          const currentTime = e.timeStamp / 1000;
+
+          totalWords += words;
+          weightedConfidence += conf * words;
+
+          // Add timing boundaries for AI alignment
+          if (lastTime !== null) {
+            this.results.timing_hints.push({
+              start: lastTime,
+              end: currentTime,
+              type: 'speech',
+              lang: language,
+              violation_confidence: conf
+            });
+          }
+
+          lastTime = currentTime;
+        }
+      };
+
+      rec.onend = () => {
+        const langCode = language.split('-')[0];
+        
+        this.results.signal_analysis[`${langCode}_word_count`] = totalWords;
+        this.results.signal_analysis[`${langCode}_violation_confidence`] = 
+          totalWords ? weightedConfidence / totalWords : 0;
+        
+        resolve();
+      };
+
+      rec.start();
+      setTimeout(() => {
+        try { rec.stop(); } catch (_) {}
+      }, this.maxDuration);
+    });
+  }
+
+  calculateViolationFlags() {
+    const analysis = this.results.signal_analysis;
+    
+    // Gambia: English violation detection
+    if (this.country === 'GM') {
+      const enWords = analysis.en_word_count || 0;
+      const enConf = analysis.en_violation_confidence || 0;
+      
+      // Guard against ultra-short probes
+      if (enWords < 3) {
+        this.results.violation_flags = {
+          mostly_english: false,
+          detection_quality: 'insufficient'
+        };
+        return;
+      }
+      
+      const estimatedTotalWords = enWords + 5;
+      
+      this.results.violation_flags = {
+        mostly_english: 
+          enWords > 8 && 
+          enConf > 0.6 && 
+          enWords >= (0.6 * estimatedTotalWords),
+        
+        violation_reason: enWords > 8 ? 
+          "Recording appears mostly English for this location" : null,
+          
+        estimated_local_content: Math.max(0, 1 - (enWords / estimatedTotalWords)),
+        detection_quality: enWords >= 8 ? 'sufficient' : 'insufficient'
+      };
+    }
+    
+    // Senegal: French violation detection  
+    else if (this.country === 'SN') {
+      const frWords = analysis.fr_word_count || 0;
+      const frConf = analysis.fr_violation_confidence || 0;
+      
+      if (frWords < 3) {
+        this.results.violation_flags = {
+          mostly_french: false,
+          detection_quality: 'insufficient'
+        };
+        return;
+      }
+      
+      const estimatedTotalWords = frWords + 5;
+      
+      this.results.violation_flags = {
+        mostly_french: 
+          frWords > 8 && 
+          frConf > 0.6 && 
+          frWords >= (0.6 * estimatedTotalWords),
+          
+        violation_reason: frWords > 8 ? 
+          "Recording appears mostly French for this location" : null,
+          
+        estimated_local_content: Math.max(0, 1 - (frWords / estimatedTotalWords)),
+        detection_quality: frWords >= 8 ? 'sufficient' : 'insufficient'
+      };
+    }
+  }
+
+  audioOnlySignals(stream) {
+    return new Promise(resolve => {
+      const ctx = new AudioContext();
+      const src = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      
+      analyser.fftSize = 1024;
+      src.connect(analyser);
+      
+      const buf = new Uint8Array(analyser.frequencyBinCount);
+      const speechBoundaries = [];
+      let lastState = 'silence';
+      let startTime = performance.now();
+      
+      const detectSpeechBoundaries = () => {
+        if (this._abort) return;
+        
+        analyser.getByteTimeDomainData(buf);
+        const rms = Math.sqrt(buf.reduce((s,v) => s + (v-128)**2, 0) / buf.length);
+        
+        const state = rms > 10 ? 'speech' : 'silence';
+        if (state !== lastState) {
+          speechBoundaries.push({
+            time: (performance.now() - startTime) / 1000,
+            transition: `${lastState}_to_${state}`
+          });
+          lastState = state;
+        }
+      };
+      
+      const interval = setInterval(detectSpeechBoundaries, 100);
+      
+      setTimeout(() => {
+        clearInterval(interval);
+        src.disconnect();
+        
+        resolve({
+          signal_analysis: { 
+            audio_only: true,
+            country: this.country 
+          },
+          timing_hints: speechBoundaries,
+          violation_flags: { 
+            estimated_local_content: 1,
+            detection_quality: 'audio_only'
+          }
+        });
+      }, this.maxDuration);
+    });
+  }
+
+  stop() {
+    this._abort = true;
+  }
+}
 
 /**
  * Gets or creates shared AudioContext with optimal settings.
@@ -198,23 +429,27 @@ function initRecorder(store, instanceId) {
       const mediaRecorder = new MediaRecorder(dest.stream);
       const chunks = [];
       
-      // Speech recognition setup
-      let recognition = null;
-      if (SpeechRecognition) {
-          try {
-              recognition = new SpeechRecognition();
-              recognition.continuous = true;
-              recognition.interimResults = true;
-              recognition.lang = 'en-US';
-              recognition.onresult = (event) => {
-                  let final = '';
-                  for (let i = event.resultIndex; i < event.results.length; ++i) {
-                      if (event.results[i].isFinal) final += event.results[i][0].transcript + ' ';
-                  }
-                  if(final) store.dispatch({ type: 'starmus/transcript-update', transcript: final });
-              };
-              recognition.start();
-          } catch(e) {}
+      // Language Signal Analyzer - Policy Enforcement Layer
+      let signalAnalyzer = null;
+      const deviceTier = store.getState()?.env?.tier || 'B';
+      const userCountry = store.getState()?.env?.country || 'GM';
+      
+      if (deviceTier !== 'C') {
+        signalAnalyzer = new LanguageSignalAnalyzer({ 
+          tier: deviceTier, 
+          country: userCountry,
+          maxDuration: 20000
+        });
+        
+        // Silent observer - never blocks recording
+        signalAnalyzer.analyze(stream).then(signals => {
+          store.dispatch({ 
+            type: 'starmus/signal-analysis-complete', 
+            payload: signals 
+          });
+        }).catch(() => {
+          // Fail silently - audio recording continues
+        });
       }
 
       // MediaRecorder event handlers
@@ -222,14 +457,14 @@ function initRecorder(store, instanceId) {
       mediaRecorder.onstop = () => {
         const rec = recorderRegistry.get(instanceId);
         if(rec) cancelAnimationFrame(rec.rafId);
-        if(recognition) recognition.stop();
+        if(signalAnalyzer) signalAnalyzer.stop();
         const blob = new Blob(chunks, { type: 'audio/webm' });
         store.dispatch({ type: 'starmus/recording-available', payload: { blob, fileName: `rec-${Date.now()}.webm` } });
         stream.getTracks().forEach(t => t.stop());
         recorderRegistry.delete(instanceId);
       };
 
-      recorderRegistry.set(instanceId, { mediaRecorder, rafId: null, recognition });
+      recorderRegistry.set(instanceId, { mediaRecorder, rafId: null, signalAnalyzer });
       mediaRecorder.start(1000);
       store.dispatch({ type: 'starmus/mic-start' });
 
@@ -269,7 +504,7 @@ function initRecorder(store, instanceId) {
      const rec = recorderRegistry.get(instanceId);
      if(rec?.mediaRecorder?.state === 'recording' || rec?.mediaRecorder?.state === 'paused') {
          rec.mediaRecorder.stop();
-         if(rec.recognition) rec.recognition.stop();
+         if(rec.signalAnalyzer) rec.signalAnalyzer.stop();
          store.dispatch({ type: 'starmus/mic-stop' });
      }
   });
@@ -284,7 +519,7 @@ function initRecorder(store, instanceId) {
      const rec = recorderRegistry.get(instanceId);
      if(rec?.mediaRecorder?.state === 'recording') {
          rec.mediaRecorder.pause();
-         if(rec.recognition) rec.recognition.stop();
+         if(rec.signalAnalyzer) rec.signalAnalyzer.stop();
          store.dispatch({ type: 'starmus/mic-pause' });
      }
   });
@@ -299,7 +534,7 @@ function initRecorder(store, instanceId) {
      const rec = recorderRegistry.get(instanceId);
      if(rec?.mediaRecorder?.state === 'paused') {
          rec.mediaRecorder.resume();
-         if(rec.recognition) try { rec.recognition.start(); } catch(e){}
+         // Note: Signal analyzer doesn't restart on resume - single probe only
          store.dispatch({ type: 'starmus/mic-resume' });
      }
   });

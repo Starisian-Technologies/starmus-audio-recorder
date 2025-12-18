@@ -30,7 +30,7 @@
  * 
  * @example
  * // Create new transcript field
- * updateField(form, 'first_pass_transcription', 'Hello world');
+ * updateField(form, 'session_date', '2024-01-01');
  * 
  * @example
  * // Protected update - won't overwrite existing PHP value with empty string
@@ -80,14 +80,14 @@ function updateField(form, name, value) {
  * @description Synchronized fields:
  * 1. **_starmus_calibration** - Microphone calibration data (gain, speechLevel, message)
  * 2. **_starmus_env** - UEC environment data (browser, device, network info)
- * 3. **first_pass_transcription** - Combined transcript and interim speech recognition
+ * 3. **Runtime Metadata** - Processing configuration and environment
  * 4. **recording_metadata** - Technical recording metadata (sample rate, format, etc.)
  * 5. **waveform_json** - Audio waveform data for visualization
  * 
  * @description State mapping:
  * - `state.calibration` → `_starmus_calibration` (when calibration.complete is true)
  * - `state.env` → `_starmus_env` (UEC browser/device data)
- * - `state.source.transcript` + `state.source.interimTranscript` → `first_pass_transcription`
+ * - `state.calibration` data → `_starmus_calibration`
  * - `state.source.metadata` → `recording_metadata` (technical audio data)
  * - `state.source.waveform` → `waveform_json` (visualization data)
  * 
@@ -144,11 +144,7 @@ export function initAutoMetadata(store, formEl, options) {
     // 2. UEC / Environment Data
     updateField(formEl, '_starmus_env', env);
 
-    // 3. Transcription
-    const transcript = ((source.transcript || '') + ' ' + (source.interimTranscript || '')).trim();
-    updateField(formEl, 'first_pass_transcription', transcript);
-
-    // 4. Technical Metadata (New)
+    // 3. Technical Metadata (New)
     if (source.metadata) {
         updateField(formEl, 'recording_metadata', source.metadata);
     }
