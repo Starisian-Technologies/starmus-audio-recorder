@@ -297,27 +297,27 @@ final readonly class StarmusPostProcessingService
             // 11. Compile Technical Metadata from FFmpeg Analysis
             $technical_metadata = [
                 'processing' => [
-                    'ffmpeg_version' => trim(shell_exec($ffmpeg_path . ' -version 2>&1 | head -1')),
+                    'ffmpeg_version'    => trim(shell_exec($ffmpeg_path . ' -version 2>&1 | head -1')),
                     'loudness_analysis' => $loudness_data,
-                    'network_profile' => $network_type,
-                    'sample_rate' => $sample_rate,
-                    'bitrate' => $bitrate,
-                    'processing_date' => current_time('c'),
+                    'network_profile'   => $network_type,
+                    'sample_rate'       => $sample_rate,
+                    'bitrate'           => $bitrate,
+                    'processing_date'   => current_time('c'),
                 ],
                 'files' => [
-                    'mp3_size' => file_exists($mp3_path) ? filesize($mp3_path) : 0,
-                    'wav_size' => file_exists($wav_path) ? filesize($wav_path) : 0,
+                    'mp3_size'    => file_exists($mp3_path) ? filesize($mp3_path) : 0,
+                    'wav_size'    => file_exists($wav_path) ? filesize($wav_path) : 0,
                     'source_size' => file_exists($source_path) ? filesize($source_path) : 0,
                 ],
             ];
-            
+
             // Merge with existing recording_metadata from JavaScript if present
             $existing_metadata = get_field('recording_metadata', $post_id);
             if ($existing_metadata) {
-                $existing_data = json_decode($existing_metadata, true) ?: [];
+                $existing_data      = json_decode($existing_metadata, true) ?: [];
                 $technical_metadata = array_merge($existing_data, $technical_metadata);
             }
-            
+
             // 12. Update Post Meta (New Schema)
             update_field('mastered_mp3', $mp3_id, $post_id);
             update_field('archival_wav', $wav_id, $post_id);

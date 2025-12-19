@@ -37,7 +37,6 @@ declare(strict_types=1);
  * @see StarmusSettings Plugin configuration management
  * @see StarmusPostProcessingService Audio processing service
  */
-
 namespace Starisian\Sparxstar\Starmus\includes;
 
 if (! \defined('ABSPATH')) {
@@ -85,7 +84,6 @@ use WP_Error;
 
 use function wp_get_attachment_url;
 use function wp_get_mime_types;
-use function wp_json_encode;
 use function wp_next_scheduled;
 use function wp_normalize_path;
 
@@ -147,6 +145,12 @@ final class StarmusSubmissionHandler
         private readonly StarmusSettings $settings
     ) {
         try {
+            // PHP Runtime Error Trap
+            set_error_handler(function ($severity, $message, $file, $line) {
+                error_log("[STARMUS PHP] {$message} in {$file}:{$line}");
+                return false; // Continue normal error handling
+            });
+
             add_action('starmus_cleanup_temp_files', $this->cleanup_stale_temp_files(...));
             StarmusLogger::info('SubmissionHandler', 'Constructed successfully');
         } catch (Throwable $throwable) {
@@ -280,11 +284,14 @@ final class StarmusSubmissionHandler
                 $this->cleanup_chunks_dir($parent_dir);
             }
 
+            error_log('[STARMUS PHP] Creating attachment from: ' . $destination);
             $attachment_id = $this->dal->create_attachment_from_file($destination, $filename);
             if (is_wp_error($attachment_id)) {
+                error_log('[STARMUS PHP] Attachment creation failed: ' . $attachment_id->get_error_message());
                 unlink($destination);
                 return $attachment_id;
             }
+            error_log('[STARMUS PHP] Attachment created: ' . $attachment_id);
 
             // Update vs Create Logic
             $existing_post_id = isset($form_data['post_id']) ? absint($form_data['post_id']) : (isset($form_data['recording_id']) ? absint($form_data['recording_id']) : 0);
@@ -324,6 +331,7 @@ final class StarmusSubmissionHandler
                 'url'           => wp_get_attachment_url((int) $attachment_id),
             ];
         } catch (Throwable $throwable) {
+            error_log('[STARMUS PHP] CRITICAL: ' . $throwable->getMessage() . ' in ' . $throwable->getFile() . ':' . $throwable->getLine());
             StarmusLogger::error('SubmissionHandler', 'Finalize Exception', ['msg' => $throwable->getMessage()]);
             return $this->err('server_error', 'File finalization failed.', 500);
         }
@@ -404,11 +412,14 @@ final class StarmusSubmissionHandler
                 return $validation;
             }
 
+            error_log('[STARMUS PHP] Processing fallback upload for key: ' . $file_key);
             $result = $this->process_fallback_upload($files_data, $form_data, $file_key);
 
             if (is_wp_error($result)) {
+                error_log('[STARMUS PHP] Fallback upload failed: ' . $result->get_error_message());
                 return $result;
             }
+            error_log('[STARMUS PHP] Fallback upload success');
 
             return ['success' => true, 'data' => $result['data']];
         } catch (Throwable $throwable) {
@@ -560,7 +571,7 @@ final class StarmusSubmissionHandler
                 if ($decoded_env) {
                     // Store complete environment data in environment_data (Group C)
                     $this->update_acf_field('environment_data', json_encode($decoded_env), $audio_post_id);
-                    
+
                     // Extract device fingerprint if available
                     if (isset($decoded_env['fingerprint'])) {
                         $this->update_acf_field('device_fingerprint', $decoded_env['fingerprint'], $audio_post_id);
@@ -580,13 +591,13 @@ final class StarmusSubmissionHandler
 
             // Handle waveform JSON from JavaScript
             if (!empty($form_data['waveform_json'])) {
-                $wf_value = is_string($form_data['waveform_json']) ? $form_data['waveform_json'] : json_encode($form_data['waveform_json']);
+                $wf_value = \is_string($form_data['waveform_json']) ? $form_data['waveform_json'] : json_encode($form_data['waveform_json']);
                 $this->update_acf_field('waveform_json', $wf_value, $audio_post_id);
             }
 
             // Handle recording metadata from JavaScript
             if (!empty($form_data['recording_metadata'])) {
-                $metadata_value = is_string($form_data['recording_metadata']) ? $form_data['recording_metadata'] : json_encode($form_data['recording_metadata']);
+                $metadata_value = \is_string($form_data['recording_metadata']) ? $form_data['recording_metadata'] : json_encode($form_data['recording_metadata']);
                 $this->update_acf_field('recording_metadata', $metadata_value, $audio_post_id);
             }
 
@@ -597,8 +608,8 @@ final class StarmusSubmissionHandler
             }
 
             // Agreement to Terms (Group D)
-            $timestamp = current_time('mysql');
-            $user_ip = StarmusSanitizer::get_user_ip();
+            $timestamp  = current_time('mysql');
+            $user_ip    = StarmusSanitizer::get_user_ip();
             $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
             $this->update_acf_field('agreement_datetime', $timestamp, $audio_post_id);
             $this->update_acf_field('contributor_ip', $user_ip, $audio_post_id);
@@ -607,11 +618,11 @@ final class StarmusSubmissionHandler
 
             // Session metadata (Group B) - includes new fields
             $session_fields = [
-                'project_collection_id', 'accession_number', 'location', 'session_date', 
+                'project_collection_id', 'accession_number', 'location', 'session_date',
                 'session_start_time', 'gps_coordinates', 'recording_equipment',
                 'audio_files_originals', 'media_condition_notes', 'agreement_to_terms_toggle',
                 'related_consent_agreement', 'usage_restrictions_rights', 'access_level',
-                'first_pass_transcription', 'audio_quality_score_tax'
+                'first_pass_transcription', 'audio_quality_score_tax',
             ];
             foreach ($session_fields as $field) {
                 if (isset($mapped_data[$field])) {
@@ -648,7 +659,7 @@ final class StarmusSubmissionHandler
             if (isset($mapped_data['archival_wav'])) {
                 $this->update_acf_field('archival_wav', $mapped_data['archival_wav'], $audio_post_id);
             }
-            
+
             // Additional Group D fields
             if (isset($form_data['url'])) {
                 $this->update_acf_field('url', $form_data['url'], $audio_post_id);

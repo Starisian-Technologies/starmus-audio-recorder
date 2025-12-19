@@ -7,7 +7,6 @@ declare(strict_types=1);
  *
  * @package Starisian\Sparxstar\Starmus\helpers
  */
-
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 if (! \defined('ABSPATH')) {
@@ -24,20 +23,20 @@ final class StarmusSchemaMapper
      */
     private const FIELD_MAPPINGS = [
         // Legacy -> New Schema
-        'audio_file' => 'original_source',
-        'recorded_by_user_id' => 'subject_user_id',
-        'consent_timestamp' => 'agreement_datetime',
-        'consent_ip' => 'contributor_ip',
-        'starmus_title' => 'dc_creator',
-        'filename' => 'dc_creator',
-        '_audio_mp3_path' => 'mastered_mp3',
-        '_audio_wav_path' => 'archival_wav',
+        'audio_file'             => 'original_source',
+        'recorded_by_user_id'    => 'subject_user_id',
+        'consent_timestamp'      => 'agreement_datetime',
+        'consent_ip'             => 'contributor_ip',
+        'starmus_title'          => 'dc_creator',
+        'filename'               => 'dc_creator',
+        '_audio_mp3_path'        => 'mastered_mp3',
+        '_audio_wav_path'        => 'archival_wav',
         '_starmus_archival_path' => 'archival_wav',
         // JavaScript field mappings
-        '_starmus_env' => 'environment_data',
+        '_starmus_env'         => 'environment_data',
         '_starmus_calibration' => 'transcriber',
         // Additional new mappings
-        'user_agent' => 'contributor_user_agent',
+        'user_agent'     => 'contributor_user_agent',
         'submission_url' => 'url',
     ];
 
@@ -46,7 +45,7 @@ final class StarmusSchemaMapper
      */
     private const JSON_FIELDS = [
         'school_reviewed',
-        'qa_review', 
+        'qa_review',
         'transcriber',
         'translator',
         'ai_training',
@@ -64,12 +63,12 @@ final class StarmusSchemaMapper
      * Fields that should be initialized as empty JSON if missing.
      */
     private const REQUIRED_JSON_FIELDS = [
-        'school_reviewed' => '{}',
-        'qa_review' => '{}',
-        'transcriber' => '{}',
-        'translator' => '{}',
-        'ai_training' => '{}',
-        'ai_trained' => '{}',
+        'school_reviewed'  => '{}',
+        'qa_review'        => '{}',
+        'transcriber'      => '{}',
+        'translator'       => '{}',
+        'ai_training'      => '{}',
+        'ai_trained'       => '{}',
         'environment_data' => '{}',
     ];
 
@@ -86,7 +85,7 @@ final class StarmusSchemaMapper
      */
     public static function is_json_field(string $field_name): bool
     {
-        return in_array($field_name, self::JSON_FIELDS, true);
+        return \in_array($field_name, self::JSON_FIELDS, true);
     }
 
     /**
@@ -95,7 +94,7 @@ final class StarmusSchemaMapper
     public static function prepare_field_value(string $field_name, mixed $value): mixed
     {
         if (self::is_json_field($field_name)) {
-            return is_string($value) ? $value : json_encode($value);
+            return \is_string($value) ? $value : json_encode($value);
         }
 
         return $value;
@@ -106,7 +105,7 @@ final class StarmusSchemaMapper
      */
     public static function get_field_value(string $field_name, mixed $stored_value): mixed
     {
-        if (self::is_json_field($field_name) && is_string($stored_value)) {
+        if (self::is_json_field($field_name) && \is_string($stored_value)) {
             $decoded = json_decode($stored_value, true);
             return $decoded !== null ? $decoded : $stored_value;
         }
@@ -120,9 +119,9 @@ final class StarmusSchemaMapper
     public static function map_form_data(array $form_data): array
     {
         $mapped = [];
-        
+
         foreach ($form_data as $key => $value) {
-            $new_key = self::map_field_name($key);
+            $new_key          = self::map_field_name($key);
             $mapped[$new_key] = self::prepare_field_value($new_key, $value);
         }
 
@@ -142,11 +141,11 @@ final class StarmusSchemaMapper
     public static function extract_user_ids(array $form_data): array
     {
         $user_id = get_current_user_id();
-        
+
         return [
-            'copyright_licensor' => $user_id,
-            'subject_user_id' => $form_data['user_id'] ?? $user_id,
-            'authorized_user_id' => $user_id,
+            'copyright_licensor'     => $user_id,
+            'subject_user_id'        => $form_data['user_id'] ?? $user_id,
+            'authorized_user_id'     => $user_id,
             'interviewers_recorders' => [$user_id],
         ];
     }
@@ -157,17 +156,17 @@ final class StarmusSchemaMapper
     public static function map_environment_data(array $env_data, array $cal_data): array
     {
         $mapped = [];
-        
+
         // Environment data goes to processing fields as JSON
         if (!empty($env_data)) {
             $mapped['contributor_verification'] = json_encode($env_data);
         }
-        
+
         // Calibration data (gain, speechLevel) goes to transcriber field as JSON
         if (!empty($cal_data)) {
             $mapped['transcriber'] = json_encode($cal_data);
         }
-        
+
         return $mapped;
     }
 }

@@ -6,7 +6,7 @@ echo "--- Setting up test pages in the TESTING environment ---"
 wp-env run tests-cli -- wp post create \
   --post_type=page \
   --post_title='Test Page With Recorder' \
-  --post_content='<!-- wp:shortcode -->[starmus_audio_recorder-form]<!-- /wp:shortcode -->' \
+  --post_content='<!-- wp:shortcode -->[starmus_audio_recorder_form]<!-- /wp:shortcode -->' \
   --post_status=publish \
   --post_name='test-page-with-recorder'
 

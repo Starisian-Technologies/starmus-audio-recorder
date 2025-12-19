@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
 $instance_id = 'starmus_form_' . sanitize_key('rerecord_' . wp_generate_uuid4());
 
 $allowed_file_types ??= 'webm';
-$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
+$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
 $is_admin          = current_user_can('manage_options');
 $consent_message ??= __('By submitting this recording, you agree to our', 'starmus-audio-recorder');
 $data_policy_url ??= '';

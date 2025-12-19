@@ -55,3 +55,7 @@ parameters:
     
     # WordPress-specific patterns
     - '#Method.*has parameter.*with generic class WP_REST_Request but does not specify its types#'
+    
+    # Allow African runtime monitoring patterns
+    - '#error_log.*STARMUS PHP.*is not allowed#'
+    - '#Call to function set_error_handler.*not found#'

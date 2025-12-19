@@ -403,7 +403,7 @@ final class StarmusRESTHandler
                 200
             );
         } catch (\Throwable $throwable) {
-            error_log($throwable->getMessage());
+            error_log('[STARMUS PHP] REST Upload Error: ' . $throwable->getMessage() . ' in ' . $throwable->getFile() . ':' . $throwable->getLine());
             return new \WP_REST_Response([
                 'code'    => 'server_error',
                 'message' => __('Upload failed. Please try again later.', 'starmus-audio-recorder'),
@@ -530,7 +530,7 @@ final class StarmusRESTHandler
                 200
             );
         } catch (\Throwable $throwable) {
-            error_log($throwable->getMessage());
+            error_log('[STARMUS PHP] Status Error: ' . $throwable->getMessage() . ' in ' . $throwable->getFile() . ':' . $throwable->getLine());
             return new WP_REST_Response(['code' => 'server_error', 'message' => 'Could not fetch status'], 500);
         }
     }

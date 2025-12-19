@@ -294,7 +294,15 @@ function getContext() {
  */
 async function wakeAudio() {
     const ctx = getContext();
-    if (ctx.state === 'suspended') await ctx.resume();
+    console.debug('[AUDIOCTX]', ctx.state);
+    if (ctx.state === 'suspended') {
+        try {
+            await ctx.resume();
+            console.debug('[AUDIOCTX]', ctx.state);
+        } catch (e) {
+            console.warn('[Audio] Resume failed:', e.message);
+        }
+    }
     return ctx;
 }
 
@@ -427,6 +435,7 @@ function initRecorder(store, instanceId) {
       source.connect(dest);
       
       const mediaRecorder = new MediaRecorder(dest.stream);
+      console.debug('[RECORDER]', mediaRecorder.state);
       const chunks = [];
       
       // Language Signal Analyzer - Policy Enforcement Layer
@@ -447,8 +456,8 @@ function initRecorder(store, instanceId) {
             type: 'starmus/signal-analysis-complete', 
             payload: signals 
           });
-        }).catch(() => {
-          // Fail silently - audio recording continues
+        }).catch(err => {
+          console.warn('[Recorder] Signal analysis failed:', err.message);
         });
       }
 
@@ -456,20 +465,23 @@ function initRecorder(store, instanceId) {
       mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
       mediaRecorder.onstop = () => {
         const rec = recorderRegistry.get(instanceId);
-        if(rec) cancelAnimationFrame(rec.rafId);
+        if(rec?.rafId) cancelAnimationFrame(rec.rafId);
         if(signalAnalyzer) signalAnalyzer.stop();
         const blob = new Blob(chunks, { type: 'audio/webm' });
         store.dispatch({ type: 'starmus/recording-available', payload: { blob, fileName: `rec-${Date.now()}.webm` } });
         stream.getTracks().forEach(t => t.stop());
+        try { source.disconnect(); } catch(e) { console.debug('[ANALYZER]', 'disconnect failed'); }
         recorderRegistry.delete(instanceId);
       };
 
       recorderRegistry.set(instanceId, { mediaRecorder, rafId: null, signalAnalyzer });
       mediaRecorder.start(1000);
+      console.debug('[RECORDER]', mediaRecorder.state);
       store.dispatch({ type: 'starmus/mic-start' });
 
       // Amplitude visualization setup
       const analyser = ctx.createAnalyser();
+      console.debug('[ANALYZER]', analyser ? 'attached' : 'missing');
       source.connect(analyser);
       const buf = new Uint8Array(analyser.frequencyBinCount);
       const startTs = Date.now();

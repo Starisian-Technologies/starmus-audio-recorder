@@ -68,7 +68,7 @@ try {
     $playback_url = $mp3_url ?: $original_url;
 
     // --- 2. Additional Metadata (Using Admin Logic for Robustness) ---
-    $transcript_raw = get_field('first_pass_transcription', $post_id);
+    $transcript_raw  = get_field('first_pass_transcription', $post_id);
     $transcript_text = '';
     if (! empty($transcript_raw)) {
         $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;

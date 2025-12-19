@@ -47,5 +47,8 @@ return RectorConfig::configure()
 			\Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class,
 			\Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class,
 			\Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector::class,
+			// African Performance: Keep explicit error handling
+			\Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector::class,
+			\Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector::class,
 		)
 	);

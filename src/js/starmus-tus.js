@@ -127,7 +127,7 @@ function sanitizeMetadata(value) {
 // 2. Direct Upload (Fallback)
 export async function uploadDirect(blob, fileName, formFields = {}, metadata = {}, _instanceId = '', onProgress) {
   const cfg = getConfig();
-  const nonce = cfg.nonce || (window.starmusConfig && window.starmusConfig.nonce) || '';
+  const nonce = cfg.nonce || window.starmusConfig?.nonce || '';
 
   // Fallback endpoint (WordPress REST API)
   const endpoint = '/wp-json/star-starmus-audio-recorder/v1/upload-fallback';

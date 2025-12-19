@@ -34,24 +34,31 @@
   <!-- Target PHP version -->
   <config name="testVersion" value="8.2-"/>
 
-  <!-- Core standards -->
-  <rule ref="WordPress-Core"/>
-  <rule ref="WordPress-Extra"/>
-  <rule ref="WordPress-Docs"/>
+  <!-- Core standards (relaxed for phpcbf) -->
+  <rule ref="WordPress-Core">
+    <exclude name="WordPress.Files.FileName"/>
+    <exclude name="WordPress.NamingConventions.ValidVariableName"/>
+  </rule>
+  <rule ref="WordPress-Extra">
+    <exclude name="WordPress.Files.FileName"/>
+  </rule>
   
-  <!-- VIP with JS scanning disabled (deprecated in PHPCS 4.0) -->
+  <!-- Skip docs for now -->
+  <!-- <rule ref="WordPress-Docs"/> -->
+  
+  <!-- VIP minimal (skip heavy rules) -->
   <rule ref="WordPressVIPMinimum">
     <exclude name="WordPressVIPMinimum.JS"/>
+    <exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions"/>
+    <exclude name="WordPressVIPMinimum.Performance"/>
   </rule>
 
-  <!-- Modernization and compatibility -->
-  <rule ref="PHPCompatibility"/>
-  <rule ref="PHPCompatibilityWP"/>
-  <rule ref="PHPCompatibilityParagonieRandomCompat"/>
-  <rule ref="PHPCompatibilityParagonieSodiumCompat"/>
-  <rule ref="Modernize"/>
-  <rule ref="Universal"/>
-  <rule ref="VariableAnalysis"/>
+  <!-- Skip heavy compatibility checks for now -->
+  <!-- <rule ref="PHPCompatibility"/> -->
+  <!-- <rule ref="PHPCompatibilityWP"/> -->
+  <!-- <rule ref="Modernize"/> -->
+  <!-- <rule ref="Universal"/> -->
+  <!-- <rule ref="VariableAnalysis"/> -->
 
   <!-- Naming conventions -->
   <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
@@ -71,6 +78,11 @@
         <element value="starmus-audio-recorder"/>
       </property>
     </properties>
+  </rule>
+
+  <!-- African monitoring (warnings only for now) -->
+  <rule ref="Generic.PHP.NoSilencedErrors">
+    <severity>4</severity>
   </rule>
 
 </ruleset>

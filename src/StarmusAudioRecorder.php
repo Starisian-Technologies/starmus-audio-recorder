@@ -18,10 +18,17 @@ if (! \defined('ABSPATH')) {
     exit;
 }
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
-use Starisian\Sparxstar\Starmus\services\StarmusFileService;
+use function current_user_can;
+use function is_admin;
+use function load_plugin_textdomain;
+
+use LogicException;
+
+use function plugin_basename;
+
 use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
 use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
 use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
@@ -29,12 +36,8 @@ use Starisian\Sparxstar\Starmus\frontend\StarmusShortcodeLoader;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
 use Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler;
+use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 use Throwable;
-use LogicException;
-use function current_user_can;
-use function is_admin;
-use function load_plugin_textdomain;
-use function plugin_basename;
 
 /**
  * Main plugin bootstrapper and singleton entry point.

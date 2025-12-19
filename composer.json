@@ -111,7 +111,9 @@
       "composer run lint:fix"
     ],
     "docs": "php bin/generate-docs.php",
-    "docs:unified": "@php bin/generate-docs.php && bash bin/generate-unified-docs.sh"
+    "docs:unified": "@php bin/generate-docs.php && bash bin/generate-unified-docs.sh",
+    "african-check": "php bin/african-runtime-check.php",
+    "vip-check": "composer run phpcs && composer run phpstan && composer run african-check"
   },
   "extra": {
     "installer-paths": {

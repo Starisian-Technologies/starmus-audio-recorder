@@ -19,10 +19,28 @@ export default defineConfig({
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     {
-      name: "slow-3g",
+      name: "gambia-2g",
       use: {
         ...devices["Desktop Chrome"],
-        launchOptions: { args: ["--throttling.cpuSlowdownMultiplier=4"] },
+        launchOptions: { 
+          args: [
+            "--force-effective-connection-type=2g",
+            "--throttling.cpuSlowdownMultiplier=8"
+          ] 
+        },
+      },
+    },
+    {
+      name: "android-mobile",
+      use: { ...devices["Pixel 5"] },
+    },
+    {
+      name: "thermal-throttle",
+      use: {
+        ...devices["Desktop Chrome"],
+        launchOptions: { 
+          args: ["--throttling.cpuSlowdownMultiplier=12"] 
+        },
       },
     },
   ],

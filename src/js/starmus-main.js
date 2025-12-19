@@ -37,6 +37,26 @@
 
 'use strict';
 
+/* 0. GLOBAL ERROR TRAP */
+(function () {
+  const log = (type, data) => {
+    console.warn('[STARMUS RUNTIME]', type, data);
+  };
+
+  window.addEventListener('error', e => {
+    log('window.error', {
+      message: e.message,
+      file: e.filename,
+      line: e.lineno,
+      col: e.colno
+    });
+  });
+
+  window.addEventListener('unhandledrejection', e => {
+    log('unhandledrejection', e.reason);
+  });
+})();
+
 /* 1. GLOBALS & HOOKS */
 import Peaks from 'peaks.js';
 if (!window.Peaks) window.Peaks = Peaks;
