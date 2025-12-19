@@ -29,6 +29,7 @@ final class StarmusSchemaMapper
         'consent_ip'             => 'contributor_ip',
         'starmus_title'          => 'dc_creator',
         'filename'               => 'dc_creator',
+        'dc_creator'             => 'dc_creator', // Direct mapping
         '_audio_mp3_path'        => 'mastered_mp3',
         '_audio_wav_path'        => 'archival_wav',
         '_starmus_archival_path' => 'archival_wav',
@@ -36,8 +37,11 @@ final class StarmusSchemaMapper
         '_starmus_env'         => 'environment_data',
         '_starmus_calibration' => 'transcriber',
         // Additional new mappings
-        'user_agent'     => 'contributor_user_agent',
-        'submission_url' => 'url',
+        'user_agent'             => 'contributor_user_agent',
+        'submission_url'         => 'url',
+        'agreement_to_terms'     => 'agreement_to_terms_toggle',
+        'recording_type'         => 'recording_type', // Direct mapping
+        'language'               => 'language', // Direct mapping
     ];
 
     /**

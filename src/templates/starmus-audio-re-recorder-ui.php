@@ -45,7 +45,7 @@ $data_policy_url ??= '';
             <input type="hidden" name="action" value="starmus_update_audio">
 
             <!-- METADATA PERSISTENCE -->
-            <input type="hidden" name="starmus_title" value="<?php echo esc_attr($existing_title); ?>">
+            <input type="hidden" name="dc_creator" value="<?php echo esc_attr($existing_title); ?>">
             <input type="hidden" name="audio_file_type" value="audio/webm">
 
             <!-- INJECTED BY JS (Protected by Safe Sync) -->

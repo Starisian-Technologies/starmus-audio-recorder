@@ -304,8 +304,10 @@ final class StarmusSubmissionHandler
                 }
             } else {
                 $user_id     = isset($form_data['user_id']) ? absint($form_data['user_id']) : get_current_user_id();
+                $mapped_data = StarmusSchemaMapper::map_form_data($form_data);
+                $title = $mapped_data['dc_creator'] ?? pathinfo($filename, PATHINFO_FILENAME);
                 $cpt_post_id = $this->dal->create_audio_post(
-                    $form_data['starmus_title'] ?? pathinfo($filename, PATHINFO_FILENAME),
+                    $title,
                     $this->get_cpt_slug(),
                     $user_id
                 );
@@ -484,7 +486,8 @@ final class StarmusSubmissionHandler
             if ($existing_id > 0 && get_post_type($existing_id) === $this->get_cpt_slug()) {
                 $cpt_post_id = $existing_id;
             } else {
-                $title       = $form_data['starmus_title'] ?? pathinfo((string) $files_data[$file_key]['name'], PATHINFO_FILENAME);
+                $mapped_data = StarmusSchemaMapper::map_form_data($form_data);
+                $title = $mapped_data['dc_creator'] ?? pathinfo((string) $files_data[$file_key]['name'], PATHINFO_FILENAME);
                 $cpt_post_id = $this->dal->create_audio_post($title, $this->get_cpt_slug(), get_current_user_id());
             }
 
@@ -563,6 +566,7 @@ final class StarmusSubmissionHandler
         try {
             // Map form data to new schema
             $mapped_data = StarmusSchemaMapper::map_form_data($form_data);
+            error_log('[STARMUS PHP] Mapped form data: ' . json_encode(array_keys($mapped_data)));
 
             // Handle JavaScript-submitted environment data (_starmus_env)
             $env_json = $form_data['_starmus_env'] ?? '';
@@ -668,8 +672,12 @@ final class StarmusSubmissionHandler
                 $this->update_acf_field('submission_id', sanitize_text_field($form_data['submission_id']), $audio_post_id);
             }
 
-            if (! empty($form_data['language'])) {
-                wp_set_post_terms($audio_post_id, [(int) $form_data['language']], 'language');
+            // Handle taxonomies through mapped data
+            if (! empty($mapped_data['language'])) {
+                wp_set_post_terms($audio_post_id, [(int) $mapped_data['language']], 'language');
+            }
+            if (! empty($mapped_data['recording_type'])) {
+                wp_set_post_terms($audio_post_id, [(int) $mapped_data['recording_type']], 'recording-type');
             }
 
             // --- START: Links Starmus Audio to Other CPTs ---

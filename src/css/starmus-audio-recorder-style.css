@@ -30,7 +30,7 @@
   /* --- Calculated Glass Variables --- */
 
   /* Card Background: ~85% opacity of theme color */
-  --starmus-glass-bg: color-mix(in srgb, var(--starmus-theme-glass-base) 85%, transparent 15%);
+  --starmus-glass-bg: color-mix(in srgb, var(--starmus-theme-glass-base) 8%, transparent 15%);
 
   /* Inner Input Background: ~40% opacity */
   --starmus-glass-inner-bg: color-mix(in srgb,

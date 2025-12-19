@@ -5,6 +5,8 @@ if (! \defined('ABSPATH')) {
     exit;
 }
 
+use Starisian\Sparxstar\Starmus\helpers\StarmusSchemaMapper;
+
 /**
  * Sanitizer for Starmus audio submissions.
  *
@@ -42,18 +44,21 @@ class StarmusSanitizer
     public static function sanitize_metadata(array $form_data): array
     {
         $meta = [];
+        
+        // Use SchemaMapper for consistent field mapping
+        $mapped_data = StarmusSchemaMapper::map_form_data($form_data);
 
-        // Standard fields
-        if (! empty($form_data['starmus_title'])) {
-            $meta['_starmus_title'] = sanitize_text_field($form_data['starmus_title']);
+        // Standard fields through mapper
+        if (! empty($mapped_data['dc_creator'])) {
+            $meta['_starmus_title'] = sanitize_text_field($mapped_data['dc_creator']);
         }
 
         if (! empty($form_data['description'])) {
             $meta['_starmus_description'] = sanitize_textarea_field($form_data['description']);
         }
 
-        if (! empty($form_data['language'])) {
-            $meta['_starmus_language'] = sanitize_text_field($form_data['language']);
+        if (! empty($mapped_data['language'])) {
+            $meta['_starmus_language'] = sanitize_text_field($mapped_data['language']);
         }
 
         if (! empty($form_data['dialect'])) {

@@ -23,11 +23,11 @@ $allowed_file_types ??= 'webm';
 $allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
 $is_admin          = current_user_can('manage_options');
 $languages         = get_terms([
-    'taxonomy'   => 'starmus_recording_language',
+    'taxonomy'   => 'language',
     'hide_empty' => false,
 ]);
 $recording_types = get_terms([
-    'taxonomy'   => 'starmus_recording_type',
+    'taxonomy'   => 'recording-type',
     'hide_empty' => false,
 ]);
 $consent_message ??= __('By submitting this recording, you agree to our', 'starmus-audio-recorder');
@@ -68,7 +68,7 @@ $data_policy_url ??= '';
                 <input
                     type="text"
                     id="starmus_title_<?php echo esc_attr($instance_id); ?>"
-                    name="starmus_title"
+                    name="dc_creator"
                     maxlength="200"
                     required>
             </div>
@@ -80,7 +80,7 @@ $data_policy_url ??= '';
                 </label>
                 <select
                     id="starmus_language_<?php echo esc_attr($instance_id); ?>"
-                    name="starmus_language"
+                    name="language"
                     required>
                     <option value=""><?php esc_html_e('Select Language', 'starmus-audio-recorder'); ?></option>
                     <?php if (! empty($languages) && is_array($languages)) { ?>
@@ -100,7 +100,7 @@ $data_policy_url ??= '';
                 </label>
                 <select
                     id="starmus_recording_type_<?php echo esc_attr($instance_id); ?>"
-                    name="starmus_recording_type"
+                    name="recording_type"
                     required>
                     <option value=""><?php esc_html_e('Select Type', 'starmus-audio-recorder'); ?></option>
                     <?php if (! empty($recording_types) && is_array($recording_types)) { ?>
@@ -124,7 +124,7 @@ $data_policy_url ??= '';
                     <input
                         type="checkbox"
                         id="starmus_consent_<?php echo esc_attr($instance_id); ?>"
-                        name="agreement_to_terms"
+                        name="agreement_to_terms_toggle"
                         value="1"
                         required>
                     <label for="starmus_consent_<?php echo esc_attr($instance_id); ?>">
@@ -146,25 +146,20 @@ $data_policy_url ??= '';
             <input type="hidden" name="recording_metadata" value="">
             <input type="hidden" name="waveform_json" value="">
 
-            <!-- MANUAL / ARCHIVAL FIELDS - Should be present to ensure form submission includes them -->
+            <!-- NEW SCHEMA FIELDS - Properly mapped -->
             <input type="hidden" name="project_collection_id" value="">
             <input type="hidden" name="accession_number" value="">
             <input type="hidden" name="session_date" value="">
             <input type="hidden" name="session_start_time" value="">
-            <input type="hidden" name="session_end_time" value="">
             <input type="hidden" name="location" value="">
             <input type="hidden" name="gps_coordinates" value="">
-            <input type="hidden" name="interviewers_recorders" value="">
             <input type="hidden" name="recording_equipment" value="">
-            <input type="hidden" name="audio_files_originals" value="">
             <input type="hidden" name="media_condition_notes" value="">
             <input type="hidden" name="related_consent_agreement" value="">
             <input type="hidden" name="usage_restrictions_rights" value="">
             <input type="hidden" name="access_level" value="">
-            <input type="hidden" name="audio_quality_score" value="">
-            <input type="hidden" name="mic_rest_adjustments" value="">
-            <input type="hidden" name="device" value="">
-            <input type="hidden" name="user_agent" value="">
+            <input type="hidden" name="contributor_user_agent" value="">
+            <input type="hidden" name="url" value="">
 
             <button
                 type="button"
