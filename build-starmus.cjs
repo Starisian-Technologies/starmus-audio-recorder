@@ -1,23 +1,24 @@
-// SPDX-FileCopyrightText: 2023-2025 Starisian Technologies
-// SPDX-License-Identifier: MIT
+#!/usr/bin/env node
+const fs = require('fs');
+const crypto = require('crypto');
+const path = require('path');
 
-// Patch: Use child_process.execSync for git commands (CommonJS)
-const { execSync } = require("child_process");
-const fs = require("fs");
-const path = require("path");
-
-// Get git hash safely
-let gitHash = "";
-try {
-  gitHash = execSync("git rev-parse --short HEAD").toString().trim();
-} catch (e) {
-  gitHash = "nogit";
+const files = process.argv.slice(2);
+if (files.length === 0) {
+  console.error('Usage: node build-starmus.cjs <file1> <file2> ...');
+  process.exit(1);
 }
 
-// Example: write hash to a file (customize as needed)
-const args = process.argv.slice(2);
-const outFile = path.join(__dirname, "assets", "build-hash.txt");
-fs.writeFileSync(outFile, gitHash + "\n");
+console.log('🔨 Generating file hashes...');
 
-// If you need to update asset filenames or manifest, do it here
-// (This is a placeholder for your actual build logic)
+files.forEach(file => {
+  if (fs.existsSync(file)) {
+    const content = fs.readFileSync(file);
+    const hash = crypto.createHash('md5').update(content).digest('hex').substring(0, 8);
+    console.log(`✅ ${path.basename(file)}: ${hash}`);
+  } else {
+    console.log(`❌ File not found: ${file}`);
+  }
+});
+
+console.log('🎉 Hash generation complete!');

@@ -8,7 +8,7 @@
 'use strict';
 
 import './starmus-hooks.js';
-import { uploadWithPriority, _isTusAvailable, _estimateUploadTime, _formatUploadEstimate } from './starmus-tus.js';
+import { uploadWithPriority } from './starmus-tus.js';
 import { queueSubmission, getPendingCount } from './starmus-offline.js';
 import sparxstarIntegration from './starmus-sparxstar-integration.js';
 
