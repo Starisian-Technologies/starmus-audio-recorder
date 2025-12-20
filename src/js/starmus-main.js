@@ -73,6 +73,7 @@ import { initAutoMetadata } from './starmus-metadata-auto.js';
 import TranscriptModule from './starmus-transcript-controller.js';
 import { default as StarmusAudioEditor } from './starmus-audio-editor.js'; 
 import './starmus-integrator.js';
+import sparxstarIntegration from './starmus-sparxstar-integration.js';
 
 /* 3. SETUP STORE */
 /**
@@ -131,11 +132,27 @@ function initRecorderInstance(recorderForm, instanceId) {
 
     recorderForm.addEventListener('submit', (e) => e.preventDefault());
 
-    initCore(store, instanceId);
-    initUI(store, {}, instanceId);
-    initRecorder(store, instanceId);
-    initOffline();
-    initAutoMetadata(store, recorderForm, {});
+    // Initialize SPARXSTAR integration first, then other modules
+    sparxstarIntegration.init().then(environmentData => {
+        console.log('[StarmusMain] SPARXSTAR integration ready:', environmentData);
+        
+        // Initialize other modules with environment data
+        initCore(store, instanceId, environmentData);
+        initUI(store, {}, instanceId);
+        initRecorder(store, instanceId);
+        initOffline();
+        initAutoMetadata(store, recorderForm, {});
+        
+    }).catch(error => {
+        console.warn('[StarmusMain] SPARXSTAR integration failed, using fallback:', error);
+        
+        // Fallback initialization without SPARXSTAR
+        initCore(store, instanceId, {});
+        initUI(store, {}, instanceId);
+        initRecorder(store, instanceId);
+        initOffline();
+        initAutoMetadata(store, recorderForm, {});
+    });
 }
 
 /**
@@ -313,3 +330,26 @@ window.StarmusTranscriptController = TranscriptModule;
  * window.StarmusAudioEditor.init();
  */
 window.StarmusAudioEditor = StarmusAudioEditor;
+
+/**
+ * Global SPARXSTAR integration access for external scripts.
+ * Provides access to environment detection and error reporting.
+ * 
+ * @global
+ * @type {Object}
+ * @memberof GlobalExports
+ * @see {@link sparxstarIntegration} SPARXSTAR integration implementation
+ * 
+ * @example
+ * // Get current environment data
+ * const envData = window.SparxstarIntegration.getEnvironmentData();
+ * console.log('Current tier:', envData.tier);
+ * 
+ * @example
+ * // Report custom error
+ * window.SparxstarIntegration.reportError('custom_error', {
+ *   message: 'Something went wrong',
+ *   context: 'user_action'
+ * });
+ */
+window.SparxstarIntegration = sparxstarIntegration;

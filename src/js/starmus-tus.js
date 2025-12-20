@@ -16,13 +16,66 @@
 
 'use strict';
 
+import sparxstarIntegration from './starmus-sparxstar-integration.js';
+
+/**
+ * Circuit breaker for upload failures
+ */
+class UploadCircuitBreaker {
+    constructor() {
+        this.failures = 0;
+        this.threshold = 3; // Open after 3 failures
+        this.timeout = 60000; // 1 minute timeout
+        this.state = 'closed'; // closed, open, half-open
+        this.openedAt = null;
+    }
+    
+    async execute(operation, context = '') {
+        if (this.state === 'open') {
+            const timeSinceOpen = Date.now() - this.openedAt;
+            if (timeSinceOpen < this.timeout) {
+                throw new Error(`Upload circuit breaker open - too many failures`);
+            } else {
+                this.state = 'half-open';
+                console.log('[Circuit Breaker] Attempting half-open state');
+            }
+        }
+        
+        try {
+            const result = await operation();
+            
+            // Success - reset breaker
+            if (this.state === 'half-open') {
+                this.state = 'closed';
+                this.failures = 0;
+                console.log('[Circuit Breaker] Reset to closed state');
+            }
+            
+            return result;
+        } catch (error) {
+            this.failures++;
+            
+            if (this.failures >= this.threshold) {
+                this.state = 'open';
+                this.openedAt = Date.now();
+                console.error(`[Circuit Breaker] Opened after ${this.failures} failures`);
+            }
+            
+            throw error;
+        }
+    }
+}
+
+const uploadCircuitBreaker = new UploadCircuitBreaker();
+
 /**
  * Default configuration object for TUS uploads.
  * Contains chunk sizes, retry settings, and endpoint configuration.
+ * Enhanced with tier-based optimization from SPARXSTAR.
  * 
  * @constant
  * @type {Object}
- * @property {number} chunkSize - Size of each upload chunk in bytes (512KB)
+ * @property {number} chunkSize - Size of each upload chunk in bytes (optimized per tier)
  * @property {Array<number>} retryDelays - Retry delay intervals in milliseconds
  * @property {boolean} removeFingerprintOnSuccess - Whether to remove fingerprint after success
  * @property {number} maxChunkRetries - Maximum retry attempts per chunk
@@ -30,16 +83,20 @@
  * @property {string} webhookSecret - Secret for webhook authentication
  */
 // 1. Config
-const DEFAULT_CONFIG = {
-  chunkSize: 512 * 1024, 
-  retryDelays: [0, 5000, 10000, 30000, 60000, 120000, 300000],
-  removeFingerprintOnSuccess: true,
-  maxChunkRetries: 10,
-  // The endpoint for the tusd server (can be relative if proxied, e.g., '/files/')
-  endpoint: '/files/', 
-  // Defined in localized script (wp_localize_script)
-  webhookSecret: '' 
-};
+function getDefaultConfig() {
+  // Get optimized settings from SPARXSTAR if available
+  const envData = sparxstarIntegration.getEnvironmentData();
+  const settings = envData?.recordingSettings || {};
+  
+  return {
+    chunkSize: settings.uploadChunkSize || 512 * 1024, // Tier-optimized chunk size
+    retryDelays: [0, 5000, 10000, 30000, 60000, 120000, 300000],
+    removeFingerprintOnSuccess: true,
+    maxChunkRetries: 10,
+    endpoint: '/files/', 
+    webhookSecret: ''
+  };
+}
 
 /**
  * Gets merged configuration from defaults and global settings.
@@ -52,9 +109,24 @@ const DEFAULT_CONFIG = {
  * console.log(config.chunkSize); // 524288 (512KB)
  */
 function getConfig() {
-  // Merge defaults with global config
+  // Get tier-optimized defaults
+  const defaultConfig = getDefaultConfig();
+  
+  // Merge with global config
   const globalCfg = window.starmusTus || window.starmusConfig || {};
-  return { ...DEFAULT_CONFIG, ...globalCfg };
+  const config = { ...defaultConfig, ...globalCfg };
+  
+  // Log optimization info
+  const envData = sparxstarIntegration.getEnvironmentData();
+  if (envData?.tier) {
+    console.log('[TUS] Using tier-optimized config:', {
+      tier: envData.tier,
+      chunkSize: config.chunkSize,
+      network: envData.network?.type
+    });
+  }
+  
+  return config;
 }
 
 /**
@@ -133,11 +205,25 @@ export async function uploadDirect(blob, fileName, formFields = {}, metadata = {
   const endpoint = '/wp-json/star-starmus-audio-recorder/v1/upload-fallback';
 
   const fields = normalizeFormFields(formFields);
+  
+  // Get current environment data for error reporting
+  const envData = sparxstarIntegration.getEnvironmentData();
 
   return new Promise((resolve, reject) => {
     const fd = new FormData();
     
-    if (!(blob instanceof Blob)) return reject(new Error('INVALID_BLOB_TYPE'));
+    if (!(blob instanceof Blob)) {
+      const error = new Error('INVALID_BLOB_TYPE');
+      // Report error to SPARXSTAR
+      if (sparxstarIntegration.isAvailable) {
+        sparxstarIntegration.reportError('upload_invalid_blob', {
+          error: error.message,
+          fileSize: blob?.size || 0,
+          tier: envData?.tier
+        });
+      }
+      return reject(error);
+    }
 
     // Filter out fields we will add manually or via specific keys
     const SKIP = ['_starmus_env', '_starmus_calibration'];
@@ -165,16 +251,56 @@ export async function uploadDirect(blob, fileName, formFields = {}, metadata = {
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
-          resolve(JSON.parse(xhr.responseText));
+          const result = JSON.parse(xhr.responseText);
+          
+          // Report successful upload to SPARXSTAR
+          if (sparxstarIntegration.isAvailable) {
+            sparxstarIntegration.reportError('upload_direct_success', {
+              fileSize: blob.size,
+              duration: Date.now() - startTime,
+              tier: envData?.tier,
+              network: envData?.network?.type
+            });
+          }
+          
+          resolve(result);
         } catch (e) {
           reject(new Error('Invalid JSON response'));
         }
       } else {
-        reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
+        const error = new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`);
+        
+        // Report error to SPARXSTAR
+        if (sparxstarIntegration.isAvailable) {
+          sparxstarIntegration.reportError('upload_direct_failed', {
+            error: error.message,
+            status: xhr.status,
+            fileSize: blob.size,
+            tier: envData?.tier
+          });
+        }
+        
+        reject(error);
       }
     };
 
-    xhr.onerror = () => reject(new Error('Network error on direct upload'));
+    xhr.onerror = () => {
+      const error = new Error('Network error on direct upload');
+      
+      // Report network error to SPARXSTAR
+      if (sparxstarIntegration.isAvailable) {
+        sparxstarIntegration.reportError('upload_network_error', {
+          error: error.message,
+          fileSize: blob.size,
+          tier: envData?.tier,
+          network: envData?.network?.type
+        });
+      }
+      
+      reject(error);
+    };
+    
+    const startTime = Date.now();
     xhr.send(fd);
   });
 }
@@ -230,17 +356,19 @@ export async function uploadWithPriority(arg1) {
 
   if (!blob) throw new Error('No blob provided');
 
-  // Try TUS first
-  try {
-    if (isTusAvailable(blob.size)) {
-        return await uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress);
+  // Use circuit breaker for all uploads
+  return uploadCircuitBreaker.execute(async () => {
+    // Try TUS first
+    try {
+      if (isTusAvailable(blob.size)) {
+          return await uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress);
+      }
+      throw new Error('TUS_UNAVAILABLE');
+    } catch (e) {
+      console.warn('[Uploader] TUS failed, using Direct Fallback.', e.message);
+      return await uploadDirect(blob, fileName, formFields, metadata, instanceId, onProgress);
     }
-    // If availability check fails, throw to trigger catch block
-    throw new Error('TUS_UNAVAILABLE');
-  } catch (e) {
-    console.warn('[Uploader] TUS failed or unavailable, using Direct Fallback.', e.message);
-    return await uploadDirect(blob, fileName, formFields, metadata, instanceId, onProgress);
-  }
+  }, 'upload');
 }
 
 /**
@@ -308,6 +436,8 @@ export function isTusAvailable(blobSize = 0) {
  */
 export async function uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress) {
     const cfg = getConfig();
+    const envData = sparxstarIntegration.getEnvironmentData();
+    const startTime = Date.now();
 
     return new Promise((resolve, reject) => {
         /**
@@ -345,10 +475,34 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
             metadata: tusMetadata,
             removeFingerprintOnSuccess: cfg.removeFingerprintOnSuccess,
             
-            // CRITICAL: Send the secret.
-            // tusd must be running with: -hooks-http-forward-headers x-starmus-secret
+            // CRITICAL: Secure webhook headers - never allow empty secrets
+            const webhookSecret = cfg.webhookSecret;
+            if (!webhookSecret || webhookSecret.trim() === '') {
+                const error = new Error('TUS webhook secret not configured - upload blocked for security');
+                console.error('[TUS Security] CRITICAL:', error.message);
+                
+                // Report security issue to SPARXSTAR
+                if (sparxstarIntegration.isAvailable) {
+                    sparxstarIntegration.reportError('tus_security_no_secret', {
+                        error: error.message,
+                        endpoint: cfg.endpoint,
+                        timestamp: Date.now()
+                    });
+                }
+                
+                throw error;
+            }
+            
+            // Generate secure headers with timestamp and signature
+            const timestamp = Date.now().toString();
+            const payload = `${fileName}-${timestamp}-${blob.size}`;
+            
             headers: {
-                'x-starmus-secret': cfg.webhookSecret || '' 
+                'x-starmus-secret': webhookSecret,
+                'x-starmus-timestamp': timestamp,
+                'x-starmus-payload-hash': btoa(payload), // Simple payload verification
+                'x-starmus-tier': envData?.tier || 'C',
+                'x-starmus-network': envData?.network?.type || 'unknown'
             },
 
             /**
@@ -357,6 +511,18 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
              */
             onError: (error) => {
                 console.error('[StarmusTus] Upload Error:', error);
+                
+                // Report TUS error to SPARXSTAR
+                if (sparxstarIntegration.isAvailable) {
+                    sparxstarIntegration.reportError('upload_tus_failed', {
+                        error: error.message,
+                        fileSize: blob.size,
+                        tier: envData?.tier,
+                        network: envData?.network?.type,
+                        chunkSize: cfg.chunkSize
+                    });
+                }
+                
                 reject(error);
             },
 
@@ -376,6 +542,17 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
              * Note: PHP post-finish hook runs asynchronously.
              */
             onSuccess: () => {
+                // Report successful TUS upload to SPARXSTAR
+                if (sparxstarIntegration.isAvailable) {
+                    sparxstarIntegration.reportError('upload_tus_success', {
+                        fileSize: blob.size,
+                        duration: Date.now() - startTime,
+                        tier: envData?.tier,
+                        network: envData?.network?.type,
+                        chunkSize: cfg.chunkSize
+                    });
+                }
+                
                 // Note: The `post-finish` hook in PHP is async. 
                 // We won't get the Attachment ID back here immediately from tusd.
                 // We resolve indicating the transfer is complete.

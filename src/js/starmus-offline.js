@@ -38,7 +38,13 @@ const CONFIG = {
   dbVersion: 1,
   maxRetries: 10,
   retryDelays: [0, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 1800000],
-  maxBlobSize: 40 * 1024 * 1024, // 40MB
+  // Tier-based size limits for African markets
+  maxBlobSizes: {
+    'A': 20 * 1024 * 1024, // 20MB for high-end devices
+    'B': 10 * 1024 * 1024, // 10MB for mid-range devices  
+    'C': 5 * 1024 * 1024   // 5MB for low-end devices
+  },
+  defaultMaxBlobSize: 5 * 1024 * 1024, // Default to Tier C for safety
 };
 
 /**
@@ -86,29 +92,51 @@ class OfflineQueue {
    */
   async init() {
     if (!window.indexedDB) {
-      console.error('[Offline] IndexedDB not supported. Offline uploads disabled.');
-      return;
+      const error = new Error('IndexedDB not supported');
+      console.error('[Offline] CRITICAL:', error.message);
+      this._reportStorageFailure('no_indexeddb', error);
+      throw error; // Don't silently continue
     }
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const req = indexedDB.open(CONFIG.dbName, CONFIG.dbVersion);
 
       req.onerror = (e) => {
-        debugLog('[Offline] DB open failed:', e);
-        resolve();
+        const error = e.target.error;
+        console.error('[Offline] CRITICAL: DB open failed:', error);
+        
+        // Detailed error reporting for African market debugging
+        this._reportStorageFailure('db_open_failed', error, {
+          name: error.name,
+          message: error.message,
+          userAgent: navigator.userAgent,
+          isPrivateBrowsing: this._detectPrivateBrowsing()
+        });
+        
+        reject(error); // Don't silently fail
       };
 
       req.onblocked = () => {
-        debugLog('[Offline] DB open blocked — other tab open');
+        const error = new Error('DB open blocked - close other tabs');
+        console.error('[Offline] CRITICAL:', error.message);
+        this._reportStorageFailure('db_blocked', error);
+        reject(error);
       };
 
       req.onsuccess = (e) => {
         this.db = e.target.result;
+        
         this.db.onversionchange = () => {
           this.db.close();
-          debugLog('[Offline] DB version changed — closed connection');
+          console.warn('[Offline] DB version changed — closed connection');
         };
-        debugLog('[Offline] DB ready');
+        
+        this.db.onerror = (event) => {
+          console.error('[Offline] DB runtime error:', event.target.error);
+          this._reportStorageFailure('db_runtime_error', event.target.error);
+        };
+        
+        console.log('[Offline] DB ready');
         resolve();
       };
 
@@ -338,6 +366,82 @@ class OfflineQueue {
           }))
         });
     });
+  }
+
+  /**
+   * Reports storage failures to SPARXSTAR for debugging
+   */
+  _reportStorageFailure(type, error, details = {}) {
+    const errorData = {
+      type: `offline_storage_${type}`,
+      error: error.message,
+      details: {
+        ...details,
+        timestamp: Date.now(),
+        storageEstimate: null
+      }
+    };
+    
+    // Get storage quota info if available
+    if ('storage' in navigator && 'estimate' in navigator.storage) {
+      navigator.storage.estimate().then(estimate => {
+        errorData.details.storageEstimate = {
+          usage: estimate.usage,
+          quota: estimate.quota,
+          usagePercent: ((estimate.usage / estimate.quota) * 100).toFixed(2)
+        };
+        
+        // Report to SPARXSTAR if available
+        if (window.SparxstarIntegration?.reportError) {
+          window.SparxstarIntegration.reportError(errorData.type, errorData);
+        }
+      });
+    } else {
+      // Report immediately if storage API not available
+      if (window.SparxstarIntegration?.reportError) {
+        window.SparxstarIntegration.reportError(errorData.type, errorData);
+      }
+    }
+    
+    // Also show user-friendly error
+    this._showUserError(type, error);
+  }
+  
+  /**
+   * Detects private browsing mode (common cause of IndexedDB failures)
+   */
+  _detectPrivateBrowsing() {
+    try {
+      const test = window.indexedDB.open('test');
+      test.onerror = () => true;
+      return false;
+    } catch (e) {
+      return true;
+    }
+  }
+  
+  /**
+   * Shows user-friendly error message
+   */
+  _showUserError(type, error) {
+    const messages = {
+      'no_indexeddb': 'Your browser doesn\'t support offline storage. Recordings will upload immediately.',
+      'db_open_failed': 'Storage initialization failed. Please check your browser settings.',
+      'db_blocked': 'Please close other tabs and try again.',
+      'quota_exceeded': 'Storage full. Please free up space or upload pending recordings.'
+    };
+    
+    const message = messages[type] || 'Storage error occurred.';
+    console.error(`[Offline] User message: ${message}`);
+    
+    // Dispatch event for UI to show error
+    if (window.CommandBus) {
+      window.CommandBus.dispatch('starmus/storage-error', {
+        type,
+        message,
+        error: error.message
+      });
+    }
   }
 }
 

@@ -119,6 +119,12 @@ final class StarmusAssetLoader
             if (wp_script_is('sparxstar-user-environment-check-app', 'registered')) {
                 $dependencies[] = 'sparxstar-user-environment-check-app';
                 error_log('[Starmus AssetLoader] SPARXSTAR environment checker detected - adding as dependency');
+                
+                // Also check for SPARXSTAR error reporter
+                if (wp_script_is('sparxstar-error-reporter', 'registered')) {
+                    $dependencies[] = 'sparxstar-error-reporter';
+                    error_log('[Starmus AssetLoader] SPARXSTAR error reporter detected - adding as dependency');
+                }
             } else {
                 error_log('[Starmus AssetLoader] SPARXSTAR not available - will use fallback environment detection');
             }
@@ -146,7 +152,7 @@ final class StarmusAssetLoader
             // Keep the legacy config for backward compatibility
             wp_localize_script(self::HANDLE_PROD_BUNDLE, 'starmusConfig', $config);
 
-            // New unified bootstrap contract required by refactored JS
+            // New unified bootstrap contract required by refactored JS with SPARXSTAR integration
             wp_localize_script(
                 self::HANDLE_PROD_BUNDLE,
                 'STARMUS_BOOTSTRAP',
@@ -157,6 +163,11 @@ final class StarmusAssetLoader
                     'postId'  => get_the_ID() ?: 0,
                     'restUrl' => esc_url_raw(rest_url()),
                     'homeUrl' => esc_url_raw(home_url('/')),
+                    'sparxstar' => [
+                        'available' => wp_script_is('sparxstar-user-environment-check-app', 'registered'),
+                        'error_reporting' => wp_script_is('sparxstar-error-reporter', 'registered'),
+                        'timeout' => 2000 // 2 second timeout for SPARXSTAR initialization
+                    ]
                 ]
             );
 

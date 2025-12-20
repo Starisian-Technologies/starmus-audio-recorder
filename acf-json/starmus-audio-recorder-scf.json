@@ -109,10 +109,10 @@
             { "key": "field_dc_rights", "label": "Usage/Rights Statement", "name": "dc_rights", "type": "textarea" },
             { "key": "field_stable_uri", "label": "Canonical Persistent Identifier", "name": "stable_uri", "type": "url" },
             { "key": "field_linked_data_uri", "label": "Linked Data URI", "name": "linked_data_uri", "type": "url" },
-            { "key": "field_aiwa_data_classification", "label": "Data Classification", "name": "data_classification", "type": "group", "sub_fields": [
+            { "key": "field_data_class", "label": "Data Classification", "name": "data_classification", "type": "group", "sub_fields": [
                 { "key": "field_aiwa_consent_scope", "label": "Consent Scope", "name": "consent_scope", "type": "checkbox", "choices": { "educational": "Educational Use", "ai_training": "AI Model Training", "cultural_display": "Cultural Display", "internal_only": "Internal Research Only" } },
                 { "key": "field_aiwa_data_sensitivity", "label": "Data Sensitivity Level", "name": "data_sensitivity_level", "type": "select", "choices": { "public": "Public", "restricted": "Restricted", "confidential": "Confidential" } },
-                { "key": "field_aiwa_anonymization_status", "label": "Anonymization Status", "name": "anonymization_status", "type": "true_false", "ui": 1 }
+                { "key": "field_anon_status", "label": "Anonymization Status", "name": "anonymization_status", "type": "true_false", "ui": 1 }
             ]},
             { "key": "field_provenance_audit", "label": "Provenance (Audit Trail)", "name": "revision_history", "type": "repeater", "sub_fields": [
                 { "key": "field_rev_date", "label": "Date of Change", "name": "revision_date", "type": "date_time_picker", "required": 1 },
@@ -126,7 +126,7 @@
         "location": [[{"param": "post_type", "operator": "==", "value": "audio-recording"}]]
     },
     {
-        "key": "group_recording_session_metadata",
+        "key": "group_session_meta",
         "title": "B. Recording Session Metadata",
         "fields": [
             { "key": "field_aiwa_session_proj", "label": "Project / Collection ID", "name": "project_collection_id", "type": "text" },
@@ -139,21 +139,21 @@
             { "key": "field_aiwa_session_subject", "label": "Subject (WP User)", "name": "subject_user_id", "type": "user", "return_format": "id" },
             { "key": "field_aiwa_session_crew", "label": "Interviewers / Recorders", "name": "interviewers_recorders", "type": "user", "multiple": 1, "return_format": "id" },
             { "key": "field_aiwa_session_equip", "label": "Recording Equipment", "name": "recording_equipment", "type": "textarea" },
-            { "key": "field_aiwa_session_orig_files", "label": "Audio Files (Originals)", "name": "audio_files_originals", "type": "file", "multiple": 1, "return_format": "array" },
+            { "key": "field_session_files", "label": "Audio Files (Originals)", "name": "audio_files_originals", "type": "file", "multiple": 1, "return_format": "array" },
             { "key": "field_aiwa_session_cond", "label": "Media Condition Notes", "name": "media_condition_notes", "type": "textarea" },
-            { "key": "field_aiwa_session_agree_toggle", "label": "Agreement To Terms", "name": "agreement_to_terms_toggle", "type": "true_false" },
+            { "key": "field_session_agree", "label": "Agreement To Terms", "name": "agreement_to_terms_toggle", "type": "true_false" },
             { "key": "field_aiwa_session_ip", "label": "Submission IP", "name": "submission_ip", "type": "text" },
-            { "key": "field_aiwa_session_consent_link", "label": "Related Consent Agreement", "name": "related_consent_agreement", "type": "post_object", "post_type": ["aiwa_consent_agreement"], "return_format": "id" },
+            { "key": "field_session_consent", "label": "Related Consent Agreement", "name": "related_consent_agreement", "type": "post_object", "post_type": ["consent-agreement"], "return_format": "id" },
             { "key": "field_aiwa_session_rights", "label": "Usage Restrictions / Rights", "name": "usage_restrictions_rights", "type": "textarea" },
             { "key": "field_aiwa_session_access", "label": "Access Level", "name": "access_level", "type": "select", "choices": { "public": "Public", "restricted": "Restricted", "embargoed": "Embargoed", "private": "Private" } },
-            { "key": "field_aiwa_session_first_pass", "label": "First Pass Transcription", "name": "first_pass_transcription", "type": "textarea", "readonly": 1, "acfe_textarea_code": 1 },
+            { "key": "field_first_pass", "label": "First Pass Transcription", "name": "first_pass_transcription", "type": "textarea", "readonly": 1, "acfe_textarea_code": 1 },
             { "key": "field_aiwa_session_q_score", "label": "Audio Quality Score", "name": "audio_quality_score_tax", "type": "taxonomy", "taxonomy": "quality-score", "field_type": "checkbox" },
-            { "key": "field_aiwa_session_meta_raw", "label": "Recording Metadata", "name": "recording_metadata", "type": "textarea" }
+            { "key": "field_session_meta", "label": "Recording Metadata", "name": "recording_metadata", "type": "textarea" }
         ],
         "location": [[{"param": "post_type", "operator": "==", "value": "audio-recording"}]]
     },
     {
-        "key": "group_recording_processing",
+        "key": "group_processing",
         "title": "C. Recording Processing",
         "fields": [
             { "key": "field_proc_school", "label": "School Reviewed", "name": "school_reviewed", "type": "textarea", "acfe_textarea_code": 1, "instructions": "JSON Object" },
@@ -178,7 +178,7 @@
         "location": [[{"param": "post_type", "operator": "==", "value": "audio-recording"}]]
     },
     {
-        "key": "group_agreement_to_terms",
+        "key": "group_agreement",
         "title": "D. Agreement to Terms",
         "fields": [
             { "key": "field_agree_user", "label": "Authorized Signatory (WP User)", "name": "authorized_user_id", "type": "user", "required": 1, "return_format": "id" },
@@ -195,14 +195,14 @@
         "location": [[{"param": "post_type", "operator": "==", "value": "audio-recording"}]]
     },
     {
-        "key": "group_transcription_translation_content",
+        "key": "group_trans_content",
         "title": "E. Transcription & Translation Content",
         "fields": [
             { "key": "field_content_trans", "label": "Transcription Text", "name": "transcription", "type": "wysiwyg", "required": 1 },
             { "key": "field_content_transl", "label": "Translation Text", "name": "translation", "type": "wysiwyg", "required": 1 },
             { "key": "field_content_orig_lang", "label": "Original Language", "name": "original_language", "type": "taxonomy", "taxonomy": "language", "field_type": "select" },
             { "key": "field_content_trans_lang", "label": "Translation Language", "name": "translation_language", "type": "taxonomy", "taxonomy": "language", "field_type": "select" },
-            { "key": "field_content_trans_lang_copy", "label": "Translation Language (copy)", "name": "translation_language_copy", "type": "taxonomy", "taxonomy": "language", "field_type": "select" }
+            { "key": "field_trans_lang_copy", "label": "Translation Language (copy)", "name": "translation_language_copy", "type": "taxonomy", "taxonomy": "language", "field_type": "select" }
         ],
         "location": [
             [{"param": "post_type", "operator": "==", "value": "audio-transcription"}],
@@ -210,7 +210,7 @@
         ]
     },
     {
-        "key": "group_asset_linkage",
+        "key": "group_asset_link",
         "title": "F. Asset Relationship",
         "fields": [
             { 

@@ -9,6 +9,8 @@
 'use strict';
 
 import { CommandBus } from './starmus-hooks.js';
+import sparxstarIntegration from './starmus-sparxstar-integration.js';
+import EnhancedCalibration from './starmus-enhanced-calibration.js';
 
 /**
  * Registry of active recorder instances mapped by instanceId.
@@ -399,7 +401,7 @@ function initRecorder(store, instanceId) {
 
   /**
    * Handler for 'setup-mic' command.
-   * Requests microphone permissions, performs calibration, and updates store.
+   * Requests microphone permissions, performs enhanced calibration, and updates store.
    * @listens CommandBus~setup-mic
    */
   // 1. SETUP MIC
@@ -408,34 +410,83 @@ function initRecorder(store, instanceId) {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       await wakeAudio();
+      
       store.dispatch({ type: 'starmus/calibration-start' });
-      const calibration = await doCalibration(stream, (msg, vol, done) => {
-         if(!done) store.dispatch({ type: 'starmus/calibration-update', message: msg, volumePercent: vol });
+      
+      // Use enhanced calibration with SPARXSTAR integration
+      const enhancedCalibration = new EnhancedCalibration();
+      await enhancedCalibration.init();
+      
+      const calibration = await enhancedCalibration.performCalibration(stream, (msg, vol, done, extra) => {
+         if(!done) {
+           store.dispatch({ 
+             type: 'starmus/calibration-update', 
+             message: msg, 
+             volumePercent: vol,
+             extra: extra || {}
+           });
+         }
       });
+      
       stream.getTracks().forEach(t => t.stop()); 
       store.dispatch({ type: 'starmus/calibration-complete', payload: { calibration } });
+      
     } catch (e) {
+      console.error('[Recorder] Calibration failed:', e);
+      
+      // Report calibration error to SPARXSTAR
+      if (sparxstarIntegration.isAvailable) {
+        sparxstarIntegration.reportError('calibration_setup_failed', {
+          error: e.message,
+          instanceId,
+          userAgent: navigator.userAgent
+        });
+      }
+      
       store.dispatch({ type: 'starmus/error', payload: { message: 'Microphone access denied.' } });
     } 
   });
 
   /**
    * Handler for 'start-recording' command.
-   * Creates MediaRecorder, sets up speech recognition, and starts amplitude visualization.
+   * Creates MediaRecorder with optimized settings based on SPARXSTAR environment data.
    * @listens CommandBus~start-recording
    */
   // 2. START RECORDING
   CommandBus.subscribe('start-recording', async (_p, meta) => {
     if (meta?.instanceId !== instanceId) return;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Get optimized settings from SPARXSTAR
+      const envData = sparxstarIntegration.getEnvironmentData();
+      const settings = envData.recordingSettings || {};
+      
+      // Apply tier-based audio constraints
+      const audioConstraints = {
+        audio: {
+          sampleRate: settings.sampleRate || 16000,
+          channelCount: settings.channels || 1,
+          echoCancellation: settings.enableEchoCancellation !== false,
+          noiseSuppression: settings.enableNoiseSupression !== false,
+          autoGainControl: settings.enableAutoGainControl !== false
+        }
+      };
+      
+      console.log('[Recorder] Using optimized constraints for tier', envData.tier, audioConstraints);
+      
+      const stream = await navigator.mediaDevices.getUserMedia(audioConstraints);
       const ctx = await wakeAudio();
       const source = ctx.createMediaStreamSource(stream);
       const dest = ctx.createMediaStreamDestination();
       source.connect(dest);
       
-      const mediaRecorder = new MediaRecorder(dest.stream);
-      console.debug('[RECORDER]', mediaRecorder.state);
+      // MediaRecorder with optimized options
+      const mediaRecorderOptions = {
+        mimeType: 'audio/webm;codecs=opus',
+        audioBitsPerSecond: settings.bitrate || 32000
+      };
+      
+      const mediaRecorder = new MediaRecorder(dest.stream, mediaRecorderOptions);
+      console.debug('[RECORDER]', mediaRecorder.state, 'with options:', mediaRecorderOptions);
       const chunks = [];
       
       // Language Signal Analyzer - Policy Enforcement Layer
@@ -461,13 +512,25 @@ function initRecorder(store, instanceId) {
         });
       }
 
-      // MediaRecorder event handlers
+      // MediaRecorder event handlers with chunk size optimization
+      const chunkInterval = settings.chunkSize || 1000;
       mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
       mediaRecorder.onstop = () => {
         const rec = recorderRegistry.get(instanceId);
         if(rec?.rafId) cancelAnimationFrame(rec.rafId);
         if(signalAnalyzer) signalAnalyzer.stop();
         const blob = new Blob(chunks, { type: 'audio/webm' });
+        
+        // Report recording completion to SPARXSTAR
+        if (sparxstarIntegration.isAvailable) {
+          sparxstarIntegration.reportError('recording_completed', {
+            duration: (Date.now() - startTime) / 1000,
+            fileSize: blob.size,
+            tier: envData.tier,
+            settings: settings
+          });
+        }
+        
         store.dispatch({ type: 'starmus/recording-available', payload: { blob, fileName: `rec-${Date.now()}.webm` } });
         stream.getTracks().forEach(t => t.stop());
         try { source.disconnect(); } catch(e) { console.debug('[ANALYZER]', 'disconnect failed'); }
@@ -475,7 +538,8 @@ function initRecorder(store, instanceId) {
       };
 
       recorderRegistry.set(instanceId, { mediaRecorder, rafId: null, signalAnalyzer });
-      mediaRecorder.start(1000);
+      const startTime = Date.now();
+      mediaRecorder.start(chunkInterval);
       console.debug('[RECORDER]', mediaRecorder.state);
       store.dispatch({ type: 'starmus/mic-start' });
 
@@ -484,7 +548,7 @@ function initRecorder(store, instanceId) {
       console.debug('[ANALYZER]', analyser ? 'attached' : 'missing');
       source.connect(analyser);
       const buf = new Uint8Array(analyser.frequencyBinCount);
-      const startTs = Date.now();
+      const visualStartTs = Date.now();
       
       /**
        * Animation loop for real-time amplitude visualization.
@@ -496,11 +560,22 @@ function initRecorder(store, instanceId) {
          analyser.getByteFrequencyData(buf);
          let sum=0; for(let x=0; x<buf.length; x++) sum+=buf[x];
          const amp = Math.min(100, (sum/buf.length) * 10); 
-         store.dispatch({ type: 'starmus/recorder-tick', duration: (Date.now()-startTs)/1000, amplitude: amp });
+         store.dispatch({ type: 'starmus/recorder-tick', duration: (Date.now()-visualStartTs)/1000, amplitude: amp });
          rec.rafId = requestAnimationFrame(visLoop);
       }
       visLoop();
     } catch (e) {
+      console.error('[Recorder] Recording failed:', e);
+      
+      // Report error to SPARXSTAR
+      if (sparxstarIntegration.isAvailable) {
+        sparxstarIntegration.reportError('recording_failed', {
+          error: e.message,
+          instanceId,
+          userAgent: navigator.userAgent
+        });
+      }
+      
       store.dispatch({ type: 'starmus/error', payload: { message: 'Recording failed.' } });
     }
   });

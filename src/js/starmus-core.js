@@ -10,6 +10,7 @@
 import './starmus-hooks.js';
 import { uploadWithPriority, estimateUploadTime, formatUploadEstimate } from './starmus-tus.js';
 import { queueSubmission, getPendingCount } from './starmus-offline.js';
+import sparxstarIntegration from './starmus-sparxstar-integration.js';
 
 /**
  * Hook subscription function from StarmusHooks or fallback no-op.
@@ -19,16 +20,26 @@ var subscribe = window.StarmusHooks?.subscribe || function(){};
 
 /**
  * Detects browser capabilities and assigns appropriate tier classification.
+ * Enhanced with SPARXSTAR environment detection for optimal performance.
  * 
  * @function
  * @returns {string} Browser tier classification:
- *   - 'A': Full support (MediaRecorder + AudioContext + getUserMedia)
- *   - 'B': Limited support (no AudioContext)
- *   - 'C': Minimal support (no MediaRecorder or getUserMedia)
+ *   - 'A': Full support (MediaRecorder + AudioContext + getUserMedia + good network/device)
+ *   - 'B': Limited support (basic capabilities but network/device constraints)
+ *   - 'C': Minimal support (no MediaRecorder, getUserMedia, or very poor conditions)
  */
-function detectTier() {
+function detectTier(environmentData = null) {
+    // Basic browser capability check
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return 'C';
     if (typeof MediaRecorder === 'undefined') return 'C';
+    
+    // If we have SPARXSTAR environment data, use it for enhanced detection
+    if (environmentData && environmentData.tier) {
+        console.log('[Core] Using SPARXSTAR tier:', environmentData.tier);
+        return environmentData.tier;
+    }
+    
+    // Fallback to basic detection
     if (!window.AudioContext && !window.webkitAudioContext) return 'B';
     return 'A';
 }
@@ -45,9 +56,48 @@ function detectTier() {
  * @returns {Object} Object containing handleSubmit function for manual invocation
  */
 export function initCore(store, instanceId, env) {
-  const tier = detectTier();
-  store.dispatch({ type: 'starmus/tier-ready', payload: { tier: tier } });
-  window.dispatchEvent(new CustomEvent('starmus-ready', { detail: { instanceId, tier } }));
+  // Initialize SPARXSTAR integration first
+  sparxstarIntegration.init().then(environmentData => {
+    const tier = detectTier(environmentData);
+    
+    // Merge environment data with existing env
+    const enhancedEnv = {
+      ...env,
+      ...environmentData,
+      tier,
+      sparxstar_available: sparxstarIntegration.isAvailable
+    };
+    
+    // Update store with enhanced environment data
+    store.dispatch({ 
+      type: 'starmus/environment-ready', 
+      payload: { 
+        tier,
+        environment: enhancedEnv,
+        recordingSettings: environmentData.recordingSettings
+      } 
+    });
+    
+    // Legacy tier-ready event for backward compatibility
+    store.dispatch({ type: 'starmus/tier-ready', payload: { tier } });
+    
+    window.dispatchEvent(new CustomEvent('starmus-ready', { 
+      detail: { instanceId, tier, environment: enhancedEnv } 
+    }));
+    
+    console.log('[Core] Environment initialized:', {
+      tier,
+      sparxstar: sparxstarIntegration.isAvailable,
+      network: enhancedEnv.network?.type,
+      device: enhancedEnv.device?.type
+    });
+  }).catch(error => {
+    console.error('[Core] Environment initialization failed:', error);
+    // Fallback to basic detection
+    const tier = detectTier();
+    store.dispatch({ type: 'starmus/tier-ready', payload: { tier } });
+    window.dispatchEvent(new CustomEvent('starmus-ready', { detail: { instanceId, tier } }));
+  });
 
  /**
    * Handles audio submission with upload priority and offline fallback.
@@ -65,8 +115,17 @@ export function initCore(store, instanceId, env) {
     const state = store.getState();
     const source = state.source || {};
     const calibration = state.calibration || {};
-    // Merge global UEC env with state env
-    const stateEnv = { ...state.env, ...env };
+    
+    // Get current environment data from SPARXSTAR
+    const currentEnvData = sparxstarIntegration.getEnvironmentData();
+    
+    // Merge all environment sources
+    const stateEnv = { 
+      ...state.env, 
+      ...env, 
+      ...currentEnvData,
+      submission_timestamp: Date.now()
+    };
 
     const audioBlob = source.blob || source.file;
     const fileName  = source.fileName || (source.file ? source.file.name : `rec-${Date.now()}.webm`);
@@ -165,6 +224,17 @@ export function initCore(store, instanceId, env) {
 
     } catch (error) {
       console.error('[StarmusCore] ❌ Upload Failed:', error.message);
+      
+      // Report error to SPARXSTAR if available
+      if (sparxstarIntegration.isAvailable) {
+        sparxstarIntegration.reportError('upload_failed', {
+          error: error.message,
+          instanceId,
+          tier: stateEnv.tier,
+          network: stateEnv.network,
+          fileSize: audioBlob.size
+        });
+      }
       
       // Offline Fallback
       try {
