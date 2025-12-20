@@ -44,9 +44,40 @@ try {
 		: null;
 
 	// --- 1. Audio Assets (New Schema) ---
-	$mastered_mp3_id = (int) get_field( 'mastered_mp3', $post_id );
-	$archival_wav_id = (int) get_field( 'archival_wav', $post_id );
-	$original_id     = (int) get_field( 'original_source', $post_id );
+	// ACF fields return URLs when return_format is 'url', but we need attachment IDs
+	$mastered_mp3_field = get_field( 'mastered_mp3', $post_id );
+	$archival_wav_field = get_field( 'archival_wav', $post_id );
+	$original_source_field = get_field( 'original_source', $post_id );
+	
+	// If ACF returns URLs, we need to get attachment IDs from URLs
+	if ( is_string( $mastered_mp3_field ) && ! empty( $mastered_mp3_field ) ) {
+		$mastered_mp3_id = attachment_url_to_postid( $mastered_mp3_field );
+	} else {
+		$mastered_mp3_id = (int) $mastered_mp3_field;
+	}
+	
+	if ( is_string( $archival_wav_field ) && ! empty( $archival_wav_field ) ) {
+		$archival_wav_id = attachment_url_to_postid( $archival_wav_field );
+	} else {
+		$archival_wav_id = (int) $archival_wav_field;
+	}
+	
+	if ( is_string( $original_source_field ) && ! empty( $original_source_field ) ) {
+		$original_id = attachment_url_to_postid( $original_source_field );
+	} else {
+		$original_id = (int) $original_source_field;
+	}
+
+	// Fallback to legacy fields if new schema fields are empty
+	if ( $original_id === 0 ) {
+		$original_id = (int) get_post_meta( $post_id, '_audio_attachment_id', true );
+	}
+	if ( $mastered_mp3_id === 0 ) {
+		$mastered_mp3_id = (int) get_post_meta( $post_id, '_audio_mp3_attachment_id', true );
+	}
+	if ( $archival_wav_id === 0 ) {
+		$archival_wav_id = (int) get_post_meta( $post_id, '_audio_wav_attachment_id', true );
+	}
 
 	// Consistent URL Resolver function (from Admin template)
 	$get_url = function ( int $att_id ) use ( $file_service ) {

@@ -5,198 +5,174 @@ if ( ! \defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
+use Psr\Log\AbstractLogger;
+use Throwable;
+
 /**
- * Centralized logger for Starmus, configured to write strictly to wp-content/debug.log
- * using forced file writing mode (error_log mode 3). This logger is reliable as it
- * bypasses the need for WP_DEBUG_LOG being set to true.
+ * PSR-3 compliant logger for Starmus with WordPress integration and error object processing.
  */
-final class StarmusLogger {
+final class StarmusLogger extends AbstractLogger implements LoggerInterface {
 
-	// Log Levels
-	public const DEBUG   = 100;
-	public const INFO    = 200;
-	public const NOTICE  = 250;
-	public const WARNING = 300;
-	public const ERROR   = 400;
+	private const LEVELS = [
+		LogLevel::DEBUG     => 100,
+		LogLevel::INFO      => 200,
+		LogLevel::NOTICE    => 250,
+		LogLevel::WARNING   => 300,
+		LogLevel::ERROR     => 400,
+		LogLevel::CRITICAL  => 500,
+		LogLevel::ALERT     => 550,
+		LogLevel::EMERGENCY => 600,
+	];
 
-	/**
-	 * Minimum log level to record.
-	 */
-	protected static int $min_log_level = self::DEBUG;
+	private static string $min_log_level = LogLevel::DEBUG;
+	private static ?string $correlation_id = null;
+	private static array $timers = [];
 
-	/**
-	 * Current correlation ID for tracking related operations.
-	 */
-	protected static ?string $correlation_id = null;
-
-	/**
-	 * Timer storage for performance tracking.
-	 */
-	protected static array $timers = array();
-
-	/**
-	 * Single source of truth for the log file path.
-	 * Forces the path to wp-content/debug.log using standard WP constants.
-	 */
-	protected static function get_log_path(): string {
-		// 1. Use the standard WordPress constant for the absolute path to wp-content
+	private static function get_log_path(): string {
 		if ( \defined( 'WP_CONTENT_DIR' ) ) {
 			return WP_CONTENT_DIR . '/debug.log';
 		}
-
-		// 2. Fallback: If WP_CONTENT_DIR isn't defined, use the standard path relative to ABSPATH
 		if ( \defined( 'ABSPATH' ) ) {
 			return ABSPATH . 'wp-content/debug.log';
 		}
-
-		// 3. Final fallback (should not be reached in a WP context)
 		return sys_get_temp_dir() . '/starmus_fallback.log';
 	}
 
+	/**
+	 * PSR-3 compliant log method with error object processing.
+	 */
+	public function log( $level, $message, array $context = [] ): void {
+		if ( ! isset( self::LEVELS[$level] ) || self::LEVELS[$level] < self::LEVELS[self::$min_log_level] ) {
+			return;
+		}
+
+		// Process error objects in context
+		$context = $this->processErrorObjects( $context );
+
+		// PSR-3 message interpolation
+		$message = $this->interpolate( $message, $context );
+
+		$timestamp = gmdate( 'Y-m-d H:i:s' );
+		$correlation = self::$correlation_id ? '[' . self::$correlation_id . '] ' : '';
+		$context_str = ! empty( $context ) ? ' ' . wp_json_encode( $context ) : '';
+
+		$line = sprintf(
+			"[%s] [STARMUS] %s[%s] %s%s%s",
+			$timestamp,
+			$correlation,
+			strtoupper( $level ),
+			$message,
+			$context_str,
+			PHP_EOL
+		);
+
+		@error_log( $line, 3, self::get_log_path() );
+	}
+
+	/**
+	 * Process error objects and exceptions in context.
+	 */
+	private function processErrorObjects( array $context ): array {
+		foreach ( $context as $key => $value ) {
+			if ( $value instanceof Throwable ) {
+				$context[$key] = [
+					'class' => get_class( $value ),
+					'message' => $value->getMessage(),
+					'code' => $value->getCode(),
+					'file' => $value->getFile(),
+					'line' => $value->getLine(),
+					'trace' => $value->getTraceAsString()
+				];
+			}
+		}
+		return $context;
+	}
+
+	/**
+	 * PSR-3 message interpolation.
+	 */
+	private function interpolate( string $message, array $context ): string {
+		$replace = [];
+		foreach ( $context as $key => $val ) {
+			if ( is_null( $val ) || is_scalar( $val ) || ( is_object( $val ) && method_exists( $val, '__toString' ) ) ) {
+				$replace['{' . $key . '}'] = $val;
+			}
+		}
+		return strtr( $message, $replace );
+	}
+
+	// Static convenience methods
 	public static function setCorrelationId( ?string $id = null ): void {
 		self::$correlation_id = $id ?? wp_generate_uuid4();
 	}
 
-	public static function getCorrelationId(): ?string {
-		return self::$correlation_id;
-	}
-
-	/*==============================================================
-	 * CONFIGURATION
-	 *=============================================================*/
-
 	public static function setMinLogLevel( string $level ): void {
-		$map = array(
-			'debug'   => self::DEBUG,
-			'info'    => self::INFO,
-			'notice'  => self::NOTICE,
-			'warning' => self::WARNING,
-			'error'   => self::ERROR,
-		);
-
-		$level = strtolower( $level );
-		if ( isset( $map[ $level ] ) ) {
-			self::$min_log_level = $map[ $level ];
+		if ( isset( self::LEVELS[$level] ) ) {
+			self::$min_log_level = $level;
 		}
 	}
 
-	/*==============================================================
-	 * TIMER UTILITIES
-	 *=============================================================*/
-
+	// Timer utilities
 	public static function timeStart( string $label ): void {
-		self::$timers[ $label ] = microtime( true );
+		self::$timers[$label] = microtime( true );
 	}
 
 	public static function timeEnd( string $label, string $context = 'Timer' ): void {
-		if ( ! isset( self::$timers[ $label ] ) ) {
+		if ( ! isset( self::$timers[$label] ) ) {
 			return;
 		}
-
-		$duration = round( ( microtime( true ) - self::$timers[ $label ] ) * 1000, 2 );
-		unset( self::$timers[ $label ] );
-		// Log timer results as debug
-		self::debug( $context, \sprintf( '%s completed in %sms', $label, $duration ) );
-	}
-
-	/*==============================================================
-	 * CONVENIENCE WRAPPERS
-	 *=============================================================*/
-
-	/**
-	 * @param string $context The source of the log message (e.g., 'Setup', 'AJAX', 'API').
-	 * @param string $message The human-readable message.
-	 * @param array<string|int, mixed> $data Optional associative array of extra data to log.
-	 */
-	public static function debug( string $context, string $message, array $data = array() ): void {
-		self::log( $context, $message, $data, self::DEBUG );
+		$duration = round( ( microtime( true ) - self::$timers[$label] ) * 1000, 2 );
+		unset( self::$timers[$label] );
+		( new self() )->debug( '{context}: {label} completed in {duration}ms', [
+			'context' => $context,
+			'label' => $label,
+			'duration' => $duration
+		] );
 	}
 
 	/**
-	 * @param string $context The source of the log message.
-	 * @param string $message The human-readable message.
-	 * @param array<string|int, mixed> $data Optional associative array of extra data to log.
+	 * Get caller information from backtrace.
 	 */
-	public static function info( string $context, string $message, array $data = array() ): void {
-		self::log( $context, $message, $data, self::INFO );
+	private static function getCaller(): string {
+		$trace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 4 );
+		$caller = $trace[3] ?? $trace[2] ?? [];
+		
+		if ( isset( $caller['class'] ) ) {
+			return basename( $caller['class'] ) . '::' . $caller['function'];
+		}
+		if ( isset( $caller['function'] ) ) {
+			return $caller['function'];
+		}
+		return 'unknown';
+	}
+
+	// Backward compatibility methods with automatic caller detection
+	public static function debug( string $message, array $data = [] ): void {
+		( new self() )->log( LogLevel::DEBUG, '[{caller}] {message}', array_merge( ['caller' => self::getCaller(), 'message' => $message], $data ) );
+	}
+
+	public static function info( string $message, array $data = [] ): void {
+		( new self() )->log( LogLevel::INFO, '[{caller}] {message}', array_merge( ['caller' => self::getCaller(), 'message' => $message], $data ) );
+	}
+
+	public static function warning( string $message, array $data = [] ): void {
+		( new self() )->log( LogLevel::WARNING, '[{caller}] {message}', array_merge( ['caller' => self::getCaller(), 'message' => $message], $data ) );
+	}
+
+	public static function error( string $message, array $data = [] ): void {
+		( new self() )->log( LogLevel::ERROR, '[{caller}] {message}', array_merge( ['caller' => self::getCaller(), 'message' => $message], $data ) );
 	}
 
 	/**
-	 * @param string $context The source of the log message.
-	 * @param string $message The human-readable message.
-	 * @param array<string|int, mixed> $data Optional associative array of extra data to log.
+	 * Log error with exception object processing and automatic caller detection.
 	 */
-	public static function notice( string $context, string $message, array $data = array() ): void {
-		self::log( $context, $message, $data, self::NOTICE );
-	}
-
-	/**
-	 * @param string $context The source of the log message.
-	 * @param string $message The human-readable message.
-	 * @param array<string|int, mixed> $data Optional associative array of extra data to log.
-	 */
-	public static function warning( string $context, string $message, array $data = array() ): void {
-		self::log( $context, $message, $data, self::WARNING );
-	}
-
-	/**
-	 * @param string $context The source of the log message.
-	 * @param string $message The human-readable message.
-	 * @param array<string|int, mixed> $data Optional associative array of extra data to log.
-	 */
-	public static function error( string $context, string $message, array $data = array() ): void {
-		self::log( $context, $message, $data, self::ERROR );
-	}
-
-	/*==============================================================
-	 * CORE LOGGING
-	 *=============================================================*/
-
-	/**
-	 * Main logging method.
-	 *
-	 * @param int $level_int The log level constant (e.g., self::DEBUG, self::ERROR).
-	 * @param string $context The source of the log message.
-	 * @param string $message The human-readable message.
-	 * @param array<string|int, mixed> $data Optional associative array of extra data.
-	 */
-	protected static function log( string $context, string $message = '', array $data = array(), int $level_int = 101 ): void {
-		error_log( $context . $message );
-		// Check int$ernal minimum level setting
-		// Correctly compares two integers
-		//if ($level_int < self::$min_log_level) {
-		//    return;
-		//}
-
-		$timestamp = gmdate( 'Y-m-d H:i:s' );
-
-		// Match expression now correctly matches an integer against integer constants
-		//$level_str = match ($level_int) {
-		//   self::DEBUG   => 'DEBUG',
-		//    self::INFO    => 'INFO',
-		//  self::NOTICE  => 'NOTICE',
-		//  self::WARNING => 'WARNING',
-		//  self::ERROR   => 'ERROR',
-		// default       => 'UNKNOWN',
-		//};
-
-		// Encode the optional data for appending to the line.
-		$data_str = $data ? ' ' . wp_json_encode( $data ) : '';
-
-		// Format: [YYYY-MM-DD HH:MM:SS] [Context] Message {data}
-		$line = \sprintf(
-			'[%s] [%s] %s%s%s',
-			$timestamp,
-			$context,
-			$message,
-			$data_str,
-			PHP_EOL // Ensure a newline for file appending
-		);
-
-		$log_file = self::get_log_path();
-		error_log( $line );
-		// The core fix: error_log mode 3 forces writing/appending to the specified file path.
-		// @ suppresses any warnings if the file path is unwritable (due to permissions).
-		error_log( $line, 3, $log_file );
+	public static function exception( Throwable $exception, array $data = [] ): void {
+		( new self() )->log( LogLevel::ERROR, '[{caller}] Exception: {message}', array_merge( [
+			'caller' => self::getCaller(),
+			'message' => $exception->getMessage(),
+			'exception' => $exception
+		], $data ) );
 	}
 }

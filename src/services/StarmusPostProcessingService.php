@@ -288,6 +288,7 @@ final readonly class StarmusPostProcessingService {
 			if ( $mp3_id === 0 ) {
 				throw new \RuntimeException( 'Failed to import MP3 to Media Library.' );
 			}
+			error_log( '[STARMUS POST-PROCESSING] Created MP3 attachment: ' . $mp3_id . ', WAV attachment: ' . $wav_id );
 
 			// 10. Waveform
 			$this->waveform_service->generate_waveform_data( $wav_id ?: $mp3_id, $post_id );
@@ -317,14 +318,20 @@ final readonly class StarmusPostProcessingService {
 			}
 
 			// 12. Update Post Meta (New Schema)
+			// Note: ACF fields are configured to return URLs, but we store attachment IDs
 			update_field( 'mastered_mp3', $mp3_id, $post_id );
 			update_field( 'archival_wav', $wav_id, $post_id );
 			update_field( 'recording_metadata', json_encode( $technical_metadata ), $post_id );
 			update_post_meta( $post_id, 'processing_log', implode( "\n", $log ) );
+			error_log( '[STARMUS POST-PROCESSING] Updated ACF fields - mastered_mp3: ' . $mp3_id . ', archival_wav: ' . $wav_id );
+			
+			// Also update legacy meta fields for compatibility
+			update_post_meta( $post_id, '_audio_mp3_attachment_id', $mp3_id );
+			update_post_meta( $post_id, '_audio_wav_attachment_id', $wav_id );
 
 			return true;
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::exception( $throwable );
 			update_post_meta( $post_id, 'processing_log', "CRITICAL ERROR:\n" . $throwable->getMessage() );
 			return false;
 		} finally {
@@ -377,6 +384,7 @@ final readonly class StarmusPostProcessingService {
 	 */
 	private function import_to_media_library( string $filepath, int $parent_post_id, string $mime_type ): int {
 		if ( ! file_exists( $filepath ) ) {
+			error_log( '[STARMUS POST-PROCESSING] File does not exist: ' . $filepath );
 			return 0;
 		}
 
@@ -385,15 +393,26 @@ final readonly class StarmusPostProcessingService {
 			'post_mime_type' => $mime_type,
 			'post_title'     => $filename,
 			'post_status'    => 'inherit',
+			'post_parent'    => $parent_post_id,
 		);
+		
+		error_log( '[STARMUS POST-PROCESSING] Creating attachment for: ' . $filepath );
 		$attach_id  = wp_insert_attachment( $attachment, $filepath, $parent_post_id );
-		if ( ! is_wp_error( $attach_id ) ) {
+		
+		if ( is_wp_error( $attach_id ) ) {
+			error_log( '[STARMUS POST-PROCESSING] wp_insert_attachment failed: ' . $attach_id->get_error_message() );
+			return 0;
+		}
+		
+		if ( $attach_id > 0 ) {
 			require_once ABSPATH . 'wp-admin/includes/image.php';
 			$attach_data = wp_generate_attachment_metadata( $attach_id, $filepath );
 			wp_update_attachment_metadata( $attach_id, $attach_data );
+			error_log( '[STARMUS POST-PROCESSING] Successfully created attachment ID: ' . $attach_id );
 			return $attach_id;
 		}
 
+		error_log( '[STARMUS POST-PROCESSING] wp_insert_attachment returned invalid ID: ' . $attach_id );
 		return 0;
 	}
 

@@ -166,16 +166,28 @@ final class StarmusAudioRecorder {
 	 */
 	private function __construct() {
 		try {
+			// Configure logger with appropriate level
+			$log_level = 'error'; // Default for production
+			if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				$log_level = 'debug';
+			} elseif ( \function_exists( 'wp_get_environment_type' ) ) {
+				$env = wp_get_environment_type();
+				if ( in_array( $env, ['development', 'staging'], true ) ) {
+					$log_level = 'debug';
+				}
+			}
+			StarmusLogger::setMinLogLevel( $log_level );
+			
 			$this->set_DAL();
 			$this->init_settings_or_throw();
 			$this->init_components();
 			$this->register_hooks();
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::exception( $throwable );
 		}
 
 		if ( ( $this->DAL instanceof StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class ) !== StarmusAudioRecorderDAL::class ) {
-			StarmusLogger::info( 'StarmusAudioRecorder', 'DAL initialized to: ' . ( $this->DAL instanceof StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class ) );
+			StarmusLogger::info( 'DAL initialized to: ' . ( $this->DAL instanceof StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class ) );
 		}
 	}
 
@@ -296,10 +308,9 @@ final class StarmusAudioRecorder {
 
 			$override_key = \defined( 'STARMUS_DAL_OVERRIDE_KEY' ) ? STARMUS_DAL_OVERRIDE_KEY : null;
 			$filtered_dal = apply_filters( 'starmus_register_dal', $default_dal, $override_key );
-		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
-			$dal_singleton = $default_dal; // Store the default DAL in the singleton
-			$this->DAL     = $dal_singleton;
+		} catch ( Throwable $throwable ) {
+			StarmusLogger::exception( $throwable );
+			$this->DAL     = $default_dal;
 			return;
 		}
 

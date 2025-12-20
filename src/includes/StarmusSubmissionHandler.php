@@ -570,6 +570,7 @@ final class StarmusSubmissionHandler {
 
 			// Handle JavaScript-submitted environment data (_starmus_env)
 			$env_json = $form_data['_starmus_env'] ?? '';
+			$decoded_env = null;
 			if ( $env_json ) {
 				$decoded_env = json_decode( wp_unslash( $env_json ), true );
 				if ( $decoded_env ) {
@@ -724,11 +725,20 @@ final class StarmusSubmissionHandler {
 			 */
 			do_action( 'starmus_recording_processed', $audio_post_id, $linked_post_id );
 
+			// Extract session UUID from environment data if available
+			$session_uuid = 'unknown';
+			if ( ! empty( $form_data['_starmus_env'] ) ) {
+				$decoded_env = json_decode( wp_unslash( $form_data['_starmus_env'] ), true );
+				if ( $decoded_env && isset( $decoded_env['identifiers']['sessionId'] ) ) {
+					$session_uuid = $decoded_env['identifiers']['sessionId'];
+				}
+			}
+
 			$processing_params = array(
 				'bitrate'      => '192k',
 				'samplerate'   => 44100,
 				'network_type' => '4g',
-				'session_uuid' => $env_data['identifiers']['sessionId'] ?? 'unknown',
+				'session_uuid' => $session_uuid,
 			);
 			$this->trigger_post_processing( $audio_post_id, $attachment_id, $processing_params );
 		} catch ( Throwable $throwable ) {
@@ -763,12 +773,18 @@ final class StarmusSubmissionHandler {
 	 */
 	private function trigger_post_processing( int $post_id, int $attachment_id, array $params ): void {
 		try {
+			error_log( '[STARMUS PHP] Triggering post processing for post: ' . $post_id . ', attachment: ' . $attachment_id );
 			$processor = new StarmusPostProcessingService();
-			if ( ! $processor->process( $post_id, $attachment_id, $params ) && ! wp_next_scheduled( 'starmus_cron_process_pending_audio', array( $post_id, $attachment_id ) ) ) {
+			$result = $processor->process( $post_id, $attachment_id, $params );
+			error_log( '[STARMUS PHP] Post processing result: ' . ( $result ? 'SUCCESS' : 'FAILED' ) );
+			
+			if ( ! $result && ! wp_next_scheduled( 'starmus_cron_process_pending_audio', array( $post_id, $attachment_id ) ) ) {
+				error_log( '[STARMUS PHP] Scheduling cron job for post processing retry' );
 				wp_schedule_single_event( time() + 60, 'starmus_cron_process_pending_audio', array( $post_id, $attachment_id ) );
 			}
 		} catch ( Throwable $throwable ) {
-			StarmusLogger::error( 'SubmissionHandler', 'Post Processing Trigger Failed', array( 'error' => $throwable->getMessage() ) );
+			error_log( '[STARMUS PHP] Post processing trigger failed: ' . $throwable->getMessage() );
+			StarmusLogger::exception( $throwable, ['post_id' => $post_id, 'attachment_id' => $attachment_id] );
 		}
 	}
 

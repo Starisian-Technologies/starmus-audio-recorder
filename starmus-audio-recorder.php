@@ -129,10 +129,17 @@ if ( ! file_exists( $autoloader ) ) {
 } else {
 	require_once $autoloader;
 	require_once STARMUS_PATH . 'src/helpers/StarmusLogger.php';
-	// APPLY CONFIGURED LOG LEVEL (this was missing)
-	if ( defined( 'STARMUS_LOG_LEVEL' ) ) {
-		\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::setMinLogLevel( STARMUS_LOG_LEVEL );
+	// Configure logger with appropriate level based on WP_DEBUG and environment
+	$log_level = 'error'; // Default for production
+	if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		$log_level = 'debug';
+	} elseif ( \function_exists( 'wp_get_environment_type' ) ) {
+		$env = wp_get_environment_type();
+		if ( in_array( $env, ['development', 'staging'], true ) ) {
+			$log_level = 'debug';
+		}
 	}
+	\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::setMinLogLevel( $log_level );
 }
 
 // =========================================================================
@@ -246,7 +253,7 @@ function starmus_run_plugin(): void {
 			delete_transient( 'starmus_flush_rewrite_rules' );
 		}
 	} catch ( \Throwable $e ) {
-		error_log( 'Starmus Plugin Init Error: ' . $e->getMessage() );
+		\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::exception( $e );
 	}
 }
 add_action( 'plugins_loaded', 'starmus_run_plugin', 20 );
