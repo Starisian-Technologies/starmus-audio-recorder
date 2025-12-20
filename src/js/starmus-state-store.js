@@ -111,7 +111,7 @@
    */
   function shallowClone(obj) {
     const out = {};
-    for (const k in obj) {if (objObject.prototype.hasOwnProperty.call(k)) {out[k] = obj[k];}}
+    for (const k in obj) {if (Object.prototype.hasOwnProperty.call(obj, k)) {out[k] = obj[k];}}
     return out;
   }
 
@@ -126,7 +126,7 @@
    */
   function merge(a, b) {
     const out = shallowClone(a);
-    for (const k in b) {if (bObject.prototype.hasOwnProperty.call(k)) {out[k] = b[k];}}
+    for (const k in b) {if (Object.prototype.hasOwnProperty.call(b, k)) {out[k] = b[k];}}
     return out;
   }
 
