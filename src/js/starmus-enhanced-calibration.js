@@ -272,7 +272,7 @@ class EnhancedCalibration {
     /**
      * Calculate optimal gain based on measurements and tier
      */
-    calculateOptimalGain(speechLevel, noiseFloor, dynamicRange, _settings) {
+    calculateOptimalGain(speechLevel, noiseFloor, dynamicRange, settings) {
         const targetLevel = 60; // Target speech level
         const baseGain = targetLevel / Math.max(speechLevel, 1);
         
@@ -301,7 +301,7 @@ class EnhancedCalibration {
     /**
      * Assess calibration quality
      */
-    assessCalibrationQuality(dynamicRange, signalToNoise, _settings) {
+    assessCalibrationQuality(dynamicRange, signalToNoise, settings) {
         let score = 0;
         
         // Dynamic range scoring
@@ -327,7 +327,7 @@ class EnhancedCalibration {
     /**
      * Generate recommendations based on calibration results
      */
-    generateRecommendations(dynamicRange, signalToNoise, _settings) {
+    generateRecommendations(dynamicRange, signalToNoise, settings) {
         const recommendations = [];
         
         if (dynamicRange < 15) {
