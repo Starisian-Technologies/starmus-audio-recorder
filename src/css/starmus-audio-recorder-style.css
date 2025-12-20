@@ -14,6 +14,7 @@
 :root {
   /* High-compatibility Hex Fallbacks (Safe for legacy browsers) */
   --starmus-primary-hex: #F759FF;
+  --starmus-accent-hex: #246bf8;
   --starmus-text-hex: #111827;
   --starmus-danger-hex: #b91c1c;
   --starmus-success-hex: #16a34a;
@@ -23,7 +24,7 @@
   --starmus-primary: var(--wp--preset--color--accent-3, var(--starmus-primary-hex));
   --starmus-text: var(--wp--preset--color--contrast, var(--starmus-text-hex));
   --starmus-theme-glass-base: var(--starmus-primary);
-  --starmus-theme-glass-border: var(--wp--preset--color--contrast-3, #d1d5db);
+  --starmus-theme-glass-border: var(--wp--preset--color--accent-3, var(--starmus-accent-hex));
 
   /* Default Structural Variables */
   --starmus-primary-soft: var(--starmus-primary);
@@ -150,8 +151,7 @@
   padding: 0.75rem;
   border: 1px solid var(--starmus-glass-border-color);
   border-radius: 8px;
-  background-color: var(--starmus-glass-inner-bg);
-  color: var(--starmus-text);
+  background-color: #fff;
   font-size: 1rem;
   line-height: 1.5;
   box-sizing: border-box;
@@ -173,7 +173,6 @@
 }
 
 .starmus-consent-fieldset {
-  background: var(--starmus-glass-inner-bg);
   border: 1px solid var(--starmus-glass-border-color);
   border-radius: 8px;
   padding: 1rem;
@@ -308,7 +307,11 @@ button[data-starmus-action='setup-mic'] {
   display: block;
   height: 100%;
   width: var(--starmus-audio-level, 0%);
-  background: var(--starmus-primary);
+  background: linear-gradient(90deg, 
+    var(--starmus-success) 0%, 
+    var(--starmus-success) 33%, 
+    var(--starmus-warning) 66%, 
+    var(--starmus-danger) 100%);
   transition: width 0.05s linear;
 }
 
@@ -327,12 +330,14 @@ button[data-starmus-action='setup-mic'] {
   text-transform: uppercase;
 }
 
-.starmus-duration-progress[data-starmus-duration-progress] {
+.starmus-duration-progress[data-starmus-duration-progress]::after {
+  content: '';
   display: block;
-  width: 100%;
-  height: 8px;
-  background: var(--starmus-glass-inner-bg);
+  height: 100%;
+  width: var(--starmus-recording-progress, 0%);
+  background-color: var(--starmus-primary);
   border-radius: 4px;
+  transition: width 0.2s ease;
 }
 
 .starmus-duration-progress[data-level='safe']::after { background-color: var(--starmus-success); }

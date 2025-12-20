@@ -150,7 +150,7 @@ export function initCore(store, instanceId, env) {
         speechLevel: calibration.speechLevel
       } : null,
       env: stateEnv,
-      tier: _tier
+      tier: stateEnv.tier || currentEnvData?.tier || 'C'
     };
 
     store.dispatch({ type: 'starmus/submit-start' });
