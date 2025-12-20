@@ -113,7 +113,7 @@ function updateField(form, name, value) {
  *   }
  * };
  */
-export function initAutoMetadata(store, formEl, options) {
+export function initAutoMetadata(store, formEl, _options) {
   if (!store || !formEl) {
     console.warn('[StarmusMetadata] Store or Form missing.');
     return;

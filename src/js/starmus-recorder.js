@@ -54,7 +54,7 @@ class LanguageSignalAnalyzer {
         country: country,
         probe_language: this.probeLanguages[0] || null
       },
-      violation_flags: {},
+      violation_flags: { /* intentionally empty */ },
       timing_hints: []
     };
     
@@ -62,7 +62,7 @@ class LanguageSignalAnalyzer {
   }
 
   getProbeLanguages() {
-    if (this.tier === 'C') return [];
+    if (this.tier === 'C') {return [];}
     
     switch (this.country) {
       case 'GM': return ['en-US']; // Gambia - English probe only
@@ -92,7 +92,7 @@ class LanguageSignalAnalyzer {
 
   runViolationProbe(stream, language) {
     return new Promise(resolve => {
-      if (!SpeechRecognition) return resolve();
+      if (!SpeechRecognition) {return resolve();}
 
       const rec = new SpeechRecognition();
       rec.lang = language;
@@ -106,7 +106,7 @@ class LanguageSignalAnalyzer {
 
       rec.onresult = e => {
         for (const res of e.results) {
-          if (!res.isFinal) continue;
+          if (!res.isFinal) {continue;}
 
           const text = res[0].transcript.trim();
           const conf = res[0].confidence ?? 0;
@@ -143,7 +143,7 @@ class LanguageSignalAnalyzer {
 
       rec.start();
       setTimeout(() => {
-        try { rec.stop(); } catch (_) {}
+        try { rec.stop(); } catch (_) { /* intentionally empty */ }
       }, this.maxDuration);
     });
   }
@@ -223,10 +223,10 @@ class LanguageSignalAnalyzer {
       const buf = new Uint8Array(analyser.frequencyBinCount);
       const speechBoundaries = [];
       let lastState = 'silence';
-      let startTime = performance.now();
+      const startTime = performance.now();
       
       const detectSpeechBoundaries = () => {
-        if (this._abort) return;
+        if (this._abort) {return;}
         
         analyser.getByteTimeDomainData(buf);
         const rms = Math.sqrt(buf.reduce((s,v) => s + (v-128)**2, 0) / buf.length);
@@ -278,7 +278,7 @@ class LanguageSignalAnalyzer {
  */
 function getContext() {
   const Ctx = window.AudioContext || window.webkitAudioContext;
-  if (!Ctx) throw new Error('Audio API not supported');
+  if (!Ctx) {throw new Error('Audio API not supported');}
   if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
     sharedAudioContext = new Ctx({ latencyHint: 'interactive' });
     window.StarmusAudioContext = sharedAudioContext;
@@ -345,10 +345,10 @@ async function doCalibration(stream, onUpdate) {
         function loop() {
             analyser.getByteFrequencyData(data);
             let sum = 0;
-            for(let i=0; i<data.length; i++) sum += data[i];
+            for(let i=0; i<data.length; i++) {sum += data[i];}
             const avg = sum / data.length;
             const volume = Math.min(100, avg * 10); 
-            if (volume > maxVolume) maxVolume = volume;
+            if (volume > maxVolume) {maxVolume = volume;}
 
             const elapsed = Date.now() - startTime;
             let message = '';
@@ -363,12 +363,12 @@ async function doCalibration(stream, onUpdate) {
             } else {
                 source.disconnect();
                 analyser.disconnect();
-                if (onUpdate) onUpdate('Microphone Calibrated', 0, true);
+                if (onUpdate) {onUpdate('Microphone Calibrated', 0, true);}
                 resolve({ complete: true, gain: 1.0, speechLevel: maxVolume });
                 return;
             }
 
-            if (onUpdate) onUpdate(message, volume, false);
+            if (onUpdate) {onUpdate(message, volume, false);}
             requestAnimationFrame(loop);
         }
         loop();
@@ -406,7 +406,7 @@ function initRecorder(store, instanceId) {
    */
   // 1. SETUP MIC
   CommandBus.subscribe('setup-mic', async (_p, meta) => {
-    if (meta?.instanceId !== instanceId) return; 
+    if (meta?.instanceId !== instanceId) {return;} 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       await wakeAudio();
@@ -423,7 +423,7 @@ function initRecorder(store, instanceId) {
              type: 'starmus/calibration-update', 
              message: msg, 
              volumePercent: vol,
-             extra: extra || {}
+             extra: extra || { /* intentionally empty */ }
            });
          }
       });
@@ -454,11 +454,11 @@ function initRecorder(store, instanceId) {
    */
   // 2. START RECORDING
   CommandBus.subscribe('start-recording', async (_p, meta) => {
-    if (meta?.instanceId !== instanceId) return;
+    if (meta?.instanceId !== instanceId) {return;}
     try {
       // Get optimized settings from SPARXSTAR
       const envData = sparxstarIntegration.getEnvironmentData();
-      const settings = envData.recordingSettings || {};
+      const settings = envData.recordingSettings || { /* intentionally empty */ };
       
       // Apply tier-based audio constraints
       const audioConstraints = {
@@ -514,11 +514,11 @@ function initRecorder(store, instanceId) {
 
       // MediaRecorder event handlers with chunk size optimization
       const chunkInterval = settings.chunkSize || 1000;
-      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) {chunks.push(e.data);} };
       mediaRecorder.onstop = () => {
         const rec = recorderRegistry.get(instanceId);
-        if(rec?.rafId) cancelAnimationFrame(rec.rafId);
-        if(signalAnalyzer) signalAnalyzer.stop();
+        if(rec?.rafId) {cancelAnimationFrame(rec.rafId);}
+        if(signalAnalyzer) {signalAnalyzer.stop();}
         const blob = new Blob(chunks, { type: 'audio/webm' });
         
         // Report recording completion to SPARXSTAR
@@ -556,9 +556,9 @@ function initRecorder(store, instanceId) {
        */
       function visLoop() {
          const rec = recorderRegistry.get(instanceId);
-         if(!rec || mediaRecorder.state !== 'recording') return;
+         if(!rec || mediaRecorder.state !== 'recording') {return;}
          analyser.getByteFrequencyData(buf);
-         let sum=0; for(let x=0; x<buf.length; x++) sum+=buf[x];
+         let sum=0; for(let x=0; x<buf.length; x++) {sum+=buf[x];}
          const amp = Math.min(100, (sum/buf.length) * 10); 
          store.dispatch({ type: 'starmus/recorder-tick', duration: (Date.now()-visualStartTs)/1000, amplitude: amp });
          rec.rafId = requestAnimationFrame(visLoop);
@@ -587,11 +587,11 @@ function initRecorder(store, instanceId) {
    */
   // 3. STOP / PAUSE / RESUME
   CommandBus.subscribe('stop-mic', (_p, meta) => {
-     if (meta?.instanceId !== instanceId) return;
+     if (meta?.instanceId !== instanceId) {return;}
      const rec = recorderRegistry.get(instanceId);
      if(rec?.mediaRecorder?.state === 'recording' || rec?.mediaRecorder?.state === 'paused') {
          rec.mediaRecorder.stop();
-         if(rec.signalAnalyzer) rec.signalAnalyzer.stop();
+         if(rec.signalAnalyzer) {rec.signalAnalyzer.stop();}
          store.dispatch({ type: 'starmus/mic-stop' });
      }
   });
@@ -602,11 +602,11 @@ function initRecorder(store, instanceId) {
    * @listens CommandBus~pause-mic
    */
   CommandBus.subscribe('pause-mic', (_p, meta) => {
-     if (meta?.instanceId !== instanceId) return;
+     if (meta?.instanceId !== instanceId) {return;}
      const rec = recorderRegistry.get(instanceId);
      if(rec?.mediaRecorder?.state === 'recording') {
          rec.mediaRecorder.pause();
-         if(rec.signalAnalyzer) rec.signalAnalyzer.stop();
+         if(rec.signalAnalyzer) {rec.signalAnalyzer.stop();}
          store.dispatch({ type: 'starmus/mic-pause' });
      }
   });
@@ -617,7 +617,7 @@ function initRecorder(store, instanceId) {
    * @listens CommandBus~resume-mic
    */
   CommandBus.subscribe('resume-mic', (_p, meta) => {
-     if (meta?.instanceId !== instanceId) return;
+     if (meta?.instanceId !== instanceId) {return;}
      const rec = recorderRegistry.get(instanceId);
      if(rec?.mediaRecorder?.state === 'paused') {
          rec.mediaRecorder.resume();

@@ -11,7 +11,7 @@
  * @global
  * @namespace
  */
-window.Starmus = window.Starmus || {};
+window.Starmus = window.Starmus || { /* intentionally empty */ };
 
 /**
  * Current version of the Starmus integration layer.
@@ -67,13 +67,13 @@ if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) 
 window.addEventListener('sparxstar:environment-ready', (e) => {
     console.log('[StarmusIntegrator] 📡 Parsing UEC Payload...');
     
-    if (!window.StarmusStore) return;
+    if (!window.StarmusStore) {return;}
 
-    const raw = e.detail || {};
-    const tech = raw.technical || {};
-    const rawTech = tech.raw || {};
-    const profile = tech.profile || {};
-    const idents = raw.identifiers || {}; // Sometimes at root
+    const raw = e.detail || { /* intentionally empty */ };
+    const tech = raw.technical || { /* intentionally empty */ };
+    const rawTech = tech.raw || { /* intentionally empty */ };
+    const profile = tech.profile || { /* intentionally empty */ };
+    const idents = raw.identifiers || { /* intentionally empty */ }; // Sometimes at root
     // Handle case where identifiers might be inside technical or separate (based on logs)
     
     /**
@@ -92,21 +92,21 @@ window.addEventListener('sparxstar:environment-ready', (e) => {
     const normalizedEnv = {
         // 1. Device Info (Merge Detector + Profile)
         device: {
-            ...(rawTech.device || {}),
+            ...(rawTech.device || { /* intentionally empty */ }),
             class: profile.deviceClass || 'unknown',
-            os: (raw.identifiers?.deviceDetails?.os) || {}, 
+            os: (raw.identifiers?.deviceDetails?.os) || { /* intentionally empty */ }, 
             userAgent: navigator.userAgent
         },
 
         // 2. Browser Info
         browser: {
-            ...(rawTech.browser || {}),
-            ... (raw.identifiers?.deviceDetails?.client || {})
+            ...(rawTech.browser || { /* intentionally empty */ }),
+            ... (raw.identifiers?.deviceDetails?.client || { /* intentionally empty */ })
         },
 
         // 3. Network Info
         network: {
-            ...(rawTech.network || {}),
+            ...(rawTech.network || { /* intentionally empty */ }),
             profile: profile.networkProfile || 'unknown'
         },
 
@@ -119,8 +119,8 @@ window.addEventListener('sparxstar:environment-ready', (e) => {
 
         // 5. Features / Battery / Perf
         features: {
-            battery: rawTech.battery || {},
-            performance: rawTech.performance || {}
+            battery: rawTech.battery || { /* intentionally empty */ },
+            performance: rawTech.performance || { /* intentionally empty */ }
         },
         
         // 6. Init Error Array (Required by Schema)
@@ -147,6 +147,6 @@ window.addEventListener('sparxstar:environment-ready', (e) => {
 document.addEventListener('click', () => {
   try {
     const ctx = window.StarmusAudioContext;
-    if (ctx && ctx.state === 'suspended') ctx.resume();
-  } catch {}
+    if (ctx && ctx.state === 'suspended') {ctx.resume();}
+  } catch { /* intentionally empty */ }
 }, { once: true });

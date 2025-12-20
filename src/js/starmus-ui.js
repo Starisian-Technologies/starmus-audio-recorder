@@ -29,9 +29,9 @@ let currentAudio = null;
  * formatTime(NaN) // Returns "00m 00s"
  */
 function formatTime(seconds) {
-  if (!Number.isFinite(seconds)) return '00m 00s';
-  var m = Math.floor(seconds / 60);
-  var s = Math.floor(seconds % 60);
+  if (!Number.isFinite(seconds)) {return '00m 00s';}
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
   return (m < 10 ? '0' + m : m) + 'm ' + (s < 10 ? '0' + s : s) + 's';
 }
 
@@ -54,12 +54,12 @@ function formatTime(seconds) {
  * - Respects element disabled state
  */
 function safeBind(element, eventName, handler) {
-  if (!element) return;
-  if (element._starmusBound) return;
+  if (!element) {return;}
+  if (element._starmusBound) {return;}
   element.addEventListener(eventName, function(e) {
-    if (e.cancelable) e.preventDefault();
+    if (e.cancelable) {e.preventDefault();}
     e.stopPropagation();
-    if (!element.disabled) handler(e);
+    if (!element.disabled) {handler(e);}
   });
   element._starmusBound = true;
 }
@@ -111,42 +111,42 @@ function safeBind(element, eventName, handler) {
  * 6. Submit button - Updates upload progress and success states
  */
 function render(state, elements) {
-  if (!elements) return;
+  if (!elements) {return;}
 
-  var status = state.status;
-  var step = state.step;
-  var recorder = state.recorder || {};
-  var calibration = state.calibration || {};
-  var submission = state.submission || {};
-  var tier = state.tier;
+  const status = state.status;
+  const step = state.step;
+  const recorder = state.recorder || {};
+  const calibration = state.calibration || {};
+  const submission = state.submission || {};
+  const tier = state.tier;
 
   // --- TIER C FALLBACK ---
   if (tier === 'C') {
-      if (elements.recorderContainer) elements.recorderContainer.style.display = 'none';
-      if (elements.setupContainer) elements.setupContainer.style.display = 'none';
-      var fallback = document.querySelector('[data-starmus-fallback-container]');
-      if (fallback) fallback.style.display = 'block';
+      if (elements.recorderContainer) {elements.recorderContainer.style.display = 'none';}
+      if (elements.setupContainer) {elements.setupContainer.style.display = 'none';}
+      const fallback = document.querySelector('[data-starmus-fallback-container]');
+      if (fallback) {fallback.style.display = 'block';}
       return;
   }
 
   // --- 1. METERS (Gradient Restored via CSS Var) ---
   if (status === 'calibrating' || status === 'recording') {
-      var vol = (status === 'calibrating') ? (calibration.volumePercent || 0) : (recorder.amplitude || 0);
-      if (elements.volumeMeter) elements.volumeMeter.style.setProperty('--starmus-audio-level', vol + '%');
+      const vol = (status === 'calibrating') ? (calibration.volumePercent || 0) : (recorder.amplitude || 0);
+      if (elements.volumeMeter) {elements.volumeMeter.style.setProperty('--starmus-audio-level', vol + '%');}
   } else {
-      if (elements.volumeMeter) elements.volumeMeter.style.setProperty('--starmus-audio-level', '0%');
+      if (elements.volumeMeter) {elements.volumeMeter.style.setProperty('--starmus-audio-level', '0%');}
   }
 
-  if (elements.timerElapsed) elements.timerElapsed.textContent = formatTime(recorder.duration || 0);
+  if (elements.timerElapsed) {elements.timerElapsed.textContent = formatTime(recorder.duration || 0);}
   if (elements.durationProgress) {
-      var pct = Math.min(100, ((recorder.duration || 0) / 300) * 100); 
+      const pct = Math.min(100, ((recorder.duration || 0) / 300) * 100); 
       elements.durationProgress.style.setProperty('--starmus-recording-progress', pct + '%');
   }
 
   // --- 2. VISIBILITY ---
   if (elements.step1 && elements.step2) {
-    var activeStates = ['recording', 'paused', 'processing', 'ready_to_submit', 'submitting', 'calibrating', 'ready', 'complete'];
-    var showStep2 = step === 2 || activeStates.indexOf(status) !== -1;
+    const activeStates = ['recording', 'paused', 'processing', 'ready_to_submit', 'submitting', 'calibrating', 'ready', 'complete'];
+    const showStep2 = step === 2 || activeStates.indexOf(status) !== -1;
     if (showStep2) {
         elements.step1.style.display = 'none';
         elements.step2.style.display = 'block';
@@ -157,9 +157,9 @@ function render(state, elements) {
   }
 
   // --- 3. CALIBRATION UI (CRITICAL FIX) ---
-  var isCalibrated = calibration.complete === true;
+  const isCalibrated = calibration.complete === true;
   if (elements.setupContainer) {
-      var showSetup = (!isCalibrated || status === 'calibrating');
+      const showSetup = (!isCalibrated || status === 'calibrating');
       elements.setupContainer.style.display = showSetup ? 'block' : 'none';
       
       if (elements.setupMicBtn) {
@@ -177,24 +177,24 @@ function render(state, elements) {
       }
   }
 
-  if (elements.recorderContainer) elements.recorderContainer.style.display = isCalibrated ? 'block' : 'none';
+  if (elements.recorderContainer) {elements.recorderContainer.style.display = isCalibrated ? 'block' : 'none';}
 
   // --- 4. BUTTONS ---
-  var isRec = status === 'recording';
-  var isPaused = status === 'paused';
-  var isDone = status === 'ready_to_submit';
-  var isReady = (status === 'ready' || status === 'ready_to_record' || status === 'idle') && isCalibrated; 
+  const isRec = status === 'recording';
+  const isPaused = status === 'paused';
+  const isDone = status === 'ready_to_submit';
+  const isReady = (status === 'ready' || status === 'ready_to_record' || status === 'idle') && isCalibrated; 
   
-  if (elements.recordBtn) elements.recordBtn.style.display = (isReady && !isRec && !isPaused && !isDone) ? 'inline-flex' : 'none';
-  if (elements.pauseBtn) elements.pauseBtn.style.display = isRec ? 'inline-flex' : 'none';
-  if (elements.resumeBtn) elements.resumeBtn.style.display = isPaused ? 'inline-flex' : 'none';
-  if (elements.stopBtn) elements.stopBtn.style.display = (isRec || isPaused) ? 'inline-flex' : 'none';
+  if (elements.recordBtn) {elements.recordBtn.style.display = (isReady && !isRec && !isPaused && !isDone) ? 'inline-flex' : 'none';}
+  if (elements.pauseBtn) {elements.pauseBtn.style.display = isRec ? 'inline-flex' : 'none';}
+  if (elements.resumeBtn) {elements.resumeBtn.style.display = isPaused ? 'inline-flex' : 'none';}
+  if (elements.stopBtn) {elements.stopBtn.style.display = (isRec || isPaused) ? 'inline-flex' : 'none';}
   
   if (elements.reviewControls) {
       elements.reviewControls.style.display = isDone ? 'flex' : 'none';
   } else {
-      if (elements.playBtn) elements.playBtn.style.display = isDone ? 'inline-flex' : 'none';
-      if (elements.resetBtn) elements.resetBtn.style.display = isDone ? 'inline-flex' : 'none';
+      if (elements.playBtn) {elements.playBtn.style.display = isDone ? 'inline-flex' : 'none';}
+      if (elements.resetBtn) {elements.resetBtn.style.display = isDone ? 'inline-flex' : 'none';}
   }
 
   // Submit Button (Still uses is-busy for uploading)
@@ -249,20 +249,20 @@ function render(state, elements) {
  * // Later: unsubscribe() to clean up
  */
 function initInstance(store, incomingElements, forcedInstanceId) {
-  var instId = forcedInstanceId || store.getState().instanceId;
-  var root = document;
+  const instId = forcedInstanceId || store.getState().instanceId;
+  let root = document;
   if (instId) {
-      var found = document.querySelector('form[data-starmus-instance="' + instId + '"]');
-      if (found) root = found;
+      const found = document.querySelector('form[data-starmus-instance="' + instId + '"]');
+      if (found) {root = found;}
   }
-  var BUS = window.CommandBus;
+  const BUS = window.CommandBus;
   
   /**
    * DOM element references object.
    * Contains all interactive elements found within the instance root.
    * @type {Object}
    */
-  var el = {
+  const el = {
     step1: root.querySelector('[data-starmus-step="1"]'),
     step2: root.querySelector('[data-starmus-step="2"]'),
     setupContainer: root.querySelector('[data-starmus-setup-container]'),
@@ -289,13 +289,13 @@ function initInstance(store, incomingElements, forcedInstanceId) {
    * Performs client-side validation and visual error indication.
    */
   safeBind(el.continueBtn, 'click', function() {
-      var inputs = el.step1 ? el.step1.querySelectorAll('[required]') : [];
-      var valid = true;
-      for (var i = 0; i < inputs.length; i++) {
+      const inputs = el.step1 ? el.step1.querySelectorAll('[required]') : [];
+      let valid = true;
+      for (let i = 0; i < inputs.length; i++) {
           if (!inputs[i].value.trim() && !inputs[i].checked) { valid = false; inputs[i].style.borderColor = 'red'; } 
           else { inputs[i].style.borderColor = ''; }
       }
-      if (valid) store.dispatch({ type: 'starmus/ui/step-continue' });
+      if (valid) {store.dispatch({ type: 'starmus/ui/step-continue' });}
   });
 
   /**
@@ -319,10 +319,10 @@ function initInstance(store, incomingElements, forcedInstanceId) {
          el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-play"></span> Play / Pause';
          return;
      }
-     var state = store.getState();
+     const state = store.getState();
      if (state.source.blob) {
          try {
-             var url = URL.createObjectURL(state.source.blob);
+             const url = URL.createObjectURL(state.source.blob);
              currentAudio = new Audio(url);
              currentAudio.onended = function() { currentAudio = null; el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-play"></span> Play / Pause'; };
              currentAudio.onerror = function() { alert('Playback error.'); currentAudio = null; el.playBtn.innerHTML = '<span class="dashicons dashicons-controls-play"></span> Play / Pause'; };
@@ -349,11 +349,11 @@ function initInstance(store, incomingElements, forcedInstanceId) {
    */
   safeBind(el.submitBtn, 'click', function(e) {
     if(currentAudio) { currentAudio.pause(); currentAudio = null; }
-    var form = e.target.closest('form');
-    var data = {};
+    const form = e.target.closest('form');
+    const data = {};
     if (form) {
-        var formData = new FormData(form);
-        for (var pair of formData.entries()) data[pair[0]] = pair[1];
+        const formData = new FormData(form);
+        for (const pair of formData.entries()) {data[pair[0]] = pair[1];}
     }
     BUS.dispatch('submit', { formFields: data }, { instanceId: instId });
   });
@@ -363,7 +363,7 @@ function initInstance(store, incomingElements, forcedInstanceId) {
    * Handles audio file uploads when MediaRecorder is not supported.
    */
   // Tier C File Listener
-  var fileInput = root.querySelector('input[type="file"][name="audio_file"]');
+  const fileInput = root.querySelector('input[type="file"][name="audio_file"]');
   if (fileInput) {
       safeBind(fileInput, 'change', function(e) {
           if (e.target.files && e.target.files[0]) {
@@ -397,4 +397,4 @@ export { render, initInstance };
  * Global export for browser environments.
  * Makes initInstance available as window.initUI for direct script loading.
  */
-if (typeof window !== 'undefined') window.initUI = initInstance;
+if (typeof window !== 'undefined') {window.initUI = initInstance;}

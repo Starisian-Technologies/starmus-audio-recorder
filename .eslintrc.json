@@ -1,6 +1,23 @@
 {
   "root": true,
-  "extends": ["eslint:recommended"],
+  "extends": [
+    "eslint:recommended",
+    "@wordpress/eslint-plugin/recommended",
+    "plugin:security/recommended-legacy",
+    "plugin:jsdoc/recommended"
+  ],
+  "plugins": ["security", "jsdoc"],
   "env": { "browser": true, "es2022": true, "node": true },
-  "parserOptions": { "ecmaVersion": "latest", "sourceType": "module" }
+  "parserOptions": { "ecmaVersion": "latest", "sourceType": "module" },
+  "rules": {
+    "no-console": "off",
+    "no-debugger": "error",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-prototype-builtins": "error",
+    "no-empty": ["error", { "allowEmptyCatch": true }],
+    "no-undef": "error",
+    "security/detect-object-injection": "warn"
+  }
 }

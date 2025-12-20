@@ -58,7 +58,7 @@ function subscribe(command, handler) {
 
   return () => {
       const idx = registry[command].indexOf(handler);
-      if (idx > -1) registry[command].splice(idx, 1);
+      if (idx > -1) {registry[command].splice(idx, 1);}
   };
 }
 
@@ -98,7 +98,7 @@ function dispatch(command, payload = {}, meta = {}) {
  * @param {...*} args - Arguments to log to console
  * @returns {void}
  */
-function debugLog(...args) { /* console.log(...args); */ }
+function debugLog(..._args) { /* console.log(...args); */ }
 
 /**
  * Event Bus object containing all bus functionality.

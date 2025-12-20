@@ -53,7 +53,7 @@
    * @property {number} submission.progress - Upload progress (0.0 to 1.0)
    * @property {boolean} submission.isQueued - Whether submission is queued for offline
    */
-  var DEFAULT_INITIAL_STATE = {
+  const DEFAULT_INITIAL_STATE = {
     instanceId: null,
     tier: null,
     status: 'uninitialized',
@@ -110,8 +110,8 @@
    * @returns {Object} Shallow copy of the input object
    */
   function shallowClone(obj) {
-    var out = {};
-    for (var k in obj) if (obj.hasOwnProperty(k)) out[k] = obj[k];
+    const out = {};
+    for (const k in obj) {if (objObject.prototype.hasOwnProperty.call(k)) {out[k] = obj[k];}}
     return out;
   }
 
@@ -125,8 +125,8 @@
    * @returns {Object} New merged object
    */
   function merge(a, b) {
-    var out = shallowClone(a);
-    for (var k in b) if (b.hasOwnProperty(k)) out[k] = b[k];
+    const out = shallowClone(a);
+    for (const k in b) {if (bObject.prototype.hasOwnProperty.call(k)) {out[k] = b[k];}}
     return out;
   }
 
@@ -167,7 +167,7 @@
    * - 'starmus/reset' - Reset state while preserving instance data
    */
   function reducer(state, action) {
-    if (!action || !action.type) return state;
+    if (!action || !action.type) {return state;}
 
     if (!state.instanceId && action.payload && action.payload.instanceId) {
       state = merge(state, { instanceId: action.payload.instanceId });
@@ -178,13 +178,13 @@
         return merge(state, merge(action.payload || {}, { status: 'idle', error: null }));
 
       case 'starmus/env-update':
-        var newEnv = merge(state.env, action.payload || {});
-        if (!newEnv.errors) newEnv.errors = state.env.errors || [];
+        const newEnv = merge(state.env, action.payload || {});
+        if (!newEnv.errors) {newEnv.errors = state.env.errors || [];}
         return merge(state, { env: newEnv });
 
       case 'starmus/error':
-        var errObj = action.error || action.payload;
-        var currentErrors = (state.env && state.env.errors) ? state.env.errors.slice() : [];
+        const errObj = action.error || action.payload;
+        const currentErrors = (state.env && state.env.errors) ? state.env.errors.slice() : [];
         currentErrors.push({
             code: errObj.code || 'RUNTIME_ERROR',
             message: errObj.message || 'Unknown',
@@ -314,8 +314,8 @@
    * const currentState = store.getState();
    */
   function createStore(initial) {
-    var state = merge(DEFAULT_INITIAL_STATE, initial || {});
-    var listeners = [];
+    let state = merge(DEFAULT_INITIAL_STATE, initial || {});
+    const listeners = [];
     return {
       /**
        * Returns the current state object.
@@ -329,7 +329,7 @@
        */
       dispatch: function (action) {
         state = reducer(state, action);
-        for (var i = 0; i < listeners.length; i++) listeners[i](state);
+        for (let i = 0; i < listeners.length; i++) {listeners[i](state);}
       },
       
       /**
@@ -361,7 +361,7 @@
   /**
    * CommonJS module export for Node.js environments.
    */
-  if (typeof module !== 'undefined' && module.exports) module.exports = { createStore: createStore };
+  if (typeof module !== 'undefined' && module.exports) {module.exports = { createStore: createStore };}
 
 })(typeof window !== 'undefined' ? window : globalThis);
 

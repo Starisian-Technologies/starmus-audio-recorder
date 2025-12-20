@@ -149,7 +149,7 @@ class EnhancedCalibration {
         let avgVolume = 0;
         let sampleCount = 0;
         let noiseFloor = 0;
-        let speechPeaks = [];
+        const speechPeaks = [];
         
         const phaseDuration = settings.duration / settings.phases;
         let currentPhase = 0;
@@ -178,12 +178,12 @@ class EnhancedCalibration {
                 sampleCount++;
                 avgVolume = ((avgVolume * (sampleCount - 1)) + volume) / sampleCount;
                 
-                if (volume > maxVolume) maxVolume = volume;
-                if (volume < minVolume) minVolume = volume;
+                if (volume > maxVolume) {maxVolume = volume;}
+                if (volume < minVolume) {minVolume = volume;}
 
                 // Phase-specific processing
                 let message = '';
-                let progress = (elapsed / settings.duration) * 100;
+                const progress = (elapsed / settings.duration) * 100;
 
                 switch (currentPhase) {
                     case 0:
@@ -232,7 +232,7 @@ class EnhancedCalibration {
                     const signalToNoise = avgSpeechLevel / Math.max(noiseFloor, 1);
                     
                     // Calculate optimal gain based on tier and measurements
-                    let optimalGain = this.calculateOptimalGain(
+                    const optimalGain = this.calculateOptimalGain(
                         avgSpeechLevel, 
                         noiseFloor, 
                         dynamicRange, 
@@ -272,7 +272,7 @@ class EnhancedCalibration {
     /**
      * Calculate optimal gain based on measurements and tier
      */
-    calculateOptimalGain(speechLevel, noiseFloor, dynamicRange, settings) {
+    calculateOptimalGain(speechLevel, noiseFloor, dynamicRange, _settings) {
         const targetLevel = 60; // Target speech level
         const baseGain = targetLevel / Math.max(speechLevel, 1);
         
@@ -301,33 +301,33 @@ class EnhancedCalibration {
     /**
      * Assess calibration quality
      */
-    assessCalibrationQuality(dynamicRange, signalToNoise, settings) {
+    assessCalibrationQuality(dynamicRange, signalToNoise, _settings) {
         let score = 0;
         
         // Dynamic range scoring
-        if (dynamicRange > 40) score += 3;
-        else if (dynamicRange > 20) score += 2;
-        else if (dynamicRange > 10) score += 1;
+        if (dynamicRange > 40) {score += 3;}
+        else if (dynamicRange > 20) {score += 2;}
+        else if (dynamicRange > 10) {score += 1;}
         
         // Signal-to-noise ratio scoring
-        if (signalToNoise > 5) score += 3;
-        else if (signalToNoise > 3) score += 2;
-        else if (signalToNoise > 2) score += 1;
+        if (signalToNoise > 5) {score += 3;}
+        else if (signalToNoise > 3) {score += 2;}
+        else if (signalToNoise > 2) {score += 1;}
         
         // Tier-based quality expectations
         const maxScore = this.tier === 'A' ? 6 : this.tier === 'B' ? 5 : 4;
         const qualityPercent = (score / maxScore) * 100;
         
-        if (qualityPercent >= 80) return 'excellent';
-        if (qualityPercent >= 60) return 'good';
-        if (qualityPercent >= 40) return 'fair';
+        if (qualityPercent >= 80) {return 'excellent';}
+        if (qualityPercent >= 60) {return 'good';}
+        if (qualityPercent >= 40) {return 'fair';}
         return 'poor';
     }
 
     /**
      * Generate recommendations based on calibration results
      */
-    generateRecommendations(dynamicRange, signalToNoise, settings) {
+    generateRecommendations(dynamicRange, signalToNoise, _settings) {
         const recommendations = [];
         
         if (dynamicRange < 15) {

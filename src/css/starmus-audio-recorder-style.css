@@ -28,11 +28,11 @@
   /* Default Structural Variables */
   --starmus-primary-soft: var(--starmus-primary);
   --starmus-primary-strong: #d449db;
-  --starmus-glass-bg: rgba(255, 255, 255, 0.9);
-  --starmus-glass-inner-bg: rgba(255, 255, 255, 0.4);
+  --starmus-glass-bg: rgb(255, 255, 255, 90%);
+  --starmus-glass-inner-bg: rgb(255, 255, 255, 40%);
   --starmus-glass-border-color: var(--starmus-theme-glass-border);
   --starmus-glass-blur: 0;
-  --starmus-glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  --starmus-glass-shadow: 0 10px 30px rgb(0, 0, 0, 10%);
   --starmus-danger: var(--starmus-danger-hex);
   --starmus-success: var(--starmus-success-hex);
   --starmus-warning: var(--starmus-warning-hex);
@@ -53,7 +53,7 @@
   }
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
   :root { --starmus-glass-blur: 12px; }
 }
 
@@ -75,7 +75,7 @@
   .starmus-grid-layout { gap: 20px; }
 }
 
-@media (min-width: 1024px) {
+@media (width >= 1024px) {
   .starmus-grid-layout {
     grid-template-columns: 2fr 1fr;
   }
@@ -110,7 +110,7 @@
 }
 
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     .sparxstar-glass-card, .starmus-glass, .starmus-recorder-form,
     .starmus-editor__wave-inner, .starmus-editor__transcript, .starmus-editor__list,
     .starmus-player-card, .starmus-info-card, .starmus-actions-card {
@@ -123,7 +123,7 @@
 @supports (filter: drop-shadow(0 0 1px black)) {
   .starmus-card.sparxstar-glass-card:hover {
     transform: translateY(-4px);
-    filter: drop-shadow(0 12px 30px rgba(0,0,0,0.15));
+    filter: drop-shadow(0 12px 30px rgb(0,0,0,15%));
   }
 }
 
@@ -185,7 +185,7 @@
 .starmus-rerecord-info {
   padding: 1rem 1.25rem;
   margin: 0 0 1.5rem;
-  background: rgba(247, 89, 255, 0.1);
+  background: rgb(247, 89, 255, 10%);
   border: 1px solid var(--starmus-primary-strong);
   border-radius: 8px;
   color: var(--starmus-text);
@@ -297,7 +297,7 @@ button[data-starmus-action='setup-mic'] {
 
 .starmus-meter-bar {
   height: 12px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgb(0, 0, 0, 10%);
   border-radius: 6px;
   overflow: hidden;
   width: 100%;
@@ -355,6 +355,7 @@ button[data-starmus-action='setup-mic'] {
 .starmus-card__title a:hover { color: var(--starmus-primary-strong); }
 
 .starmus-card__meta { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
 .starmus-card__type, .starmus-card__language, .starmus-tag {
   font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;
   background: var(--starmus-glass-inner-bg); color: var(--starmus-text); font-weight: 600;
@@ -368,12 +369,14 @@ button[data-starmus-action='setup-mic'] {
 /* Pagination (Restored) */
 .starmus-pagination { margin-top: 2rem; display: flex; justify-content: center; }
 .starmus-pagination__list { display: flex; list-style: none; padding: 0; margin: 0; gap: 0.5rem; }
+
 .starmus-pagination__item .page-numbers {
   display: flex; align-items: center; justify-content: center;
   min-width: 40px; height: 40px; padding: 0 10px; border-radius: 8px;
   background: var(--starmus-glass-inner-bg); border: 1px solid var(--starmus-glass-border-color);
   color: var(--starmus-text); text-decoration: none; font-weight: 600;
 }
+
 .starmus-pagination__item .page-numbers.current,
 .starmus-pagination__item .page-numbers:hover {
   background: var(--starmus-primary); color: #fff;
@@ -389,7 +392,8 @@ button[data-starmus-action='setup-mic'] {
 .starmus-badge { display: inline-flex; align-items: center; padding: 0.5rem 1rem; background: var(--starmus-glass-inner-bg); border-radius: 8px; }
 
 .starmus-layout-split, .starmus-admin-detail__grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-@media (min-width: 1024px) {
+
+@media (width >= 1024px) {
   .starmus-layout-split, .starmus-admin-detail__grid { grid-template-columns: 2fr 1fr; }
 }
 
@@ -406,6 +410,7 @@ button[data-starmus-action='setup-mic'] {
    ======================================================================== */
 
 .starmus-editor { max-width: 1400px; margin: 0 auto; }
+
 .starmus-editor__head {
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--starmus-glass-border-color);
@@ -423,7 +428,7 @@ button[data-starmus-action='setup-mic'] {
 .starmus-btn-group { display: flex; gap: 2px; }
 .starmus-transcript-box { color: #000 !important; }
 
-.starmus-word:hover { background: rgba(0,0,0,0.05); }
+.starmus-word:hover { background: rgb(0,0,0,5%); }
 .starmus-word.is-active { background: var(--starmus-primary); color: #fff; }
 
 /* ========================================================================
@@ -437,9 +442,10 @@ button[data-starmus-action='setup-mic'] {
 }
 
 @keyframes starmus-spin { 100% { transform: rotate(360deg); } }
+
 @keyframes starmus-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .starmus-recorder-form.starmus-immersive {
     position: fixed; inset: 0; z-index: 9999; margin: 0; border-radius: 0;
     overflow-y: auto; background: var(--starmus-theme-glass-base);

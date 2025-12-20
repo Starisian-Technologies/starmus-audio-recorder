@@ -14,112 +14,108 @@ use Starisian\Sparxstar\Starmus\includes\StarmusSageMakerJobRepository;
  *
  * @since 1.0.0
  */
-final readonly class StarmusSageMakerClient
-{
-    /**
-     * Constructor.
-     *
-     * @param StarmusSageMakerJobRepository $repository Job repository instance.
-     */
-    public function __construct(
-        /**
-         * Job repository.
-         *
-         * @var StarmusSageMakerJobRepository
-         */
-        private StarmusSageMakerJobRepository $repository
-    ) {
-    }
+final readonly class StarmusSageMakerClient {
 
-    /**
-     * Get job counts by status.
-     *
-     * @return array Associative array with keys: total, pending, processing, done, failed.
-     */
-    public function get_job_counts(): array
-    {
-        $jobs = $this->get_all_jobs();
+	/**
+	 * Constructor.
+	 *
+	 * @param StarmusSageMakerJobRepository $repository Job repository instance.
+	 */
+	public function __construct(
+		/**
+		 * Job repository.
+		 *
+		 * @var StarmusSageMakerJobRepository
+		 */
+		private StarmusSageMakerJobRepository $repository
+	) {
+	}
 
-        $counts = [
-            'total'      => 0,
-            'pending'    => 0,
-            'processing' => 0,
-            'done'       => 0,
-            'failed'     => 0,
-        ];
+	/**
+	 * Get job counts by status.
+	 *
+	 * @return array Associative array with keys: total, pending, processing, done, failed.
+	 */
+	public function get_job_counts(): array {
+		$jobs = $this->get_all_jobs();
 
-        foreach ($jobs as $job) {
-            $counts['total']++;
-            $status = $job['status'] ?? 'pending';
-            if (isset($counts[$status])) {
-                $counts[$status]++;
-            }
-        }
+		$counts = array(
+			'total'      => 0,
+			'pending'    => 0,
+			'processing' => 0,
+			'done'       => 0,
+			'failed'     => 0,
+		);
 
-        return $counts;
-    }
+		foreach ( $jobs as $job ) {
+			++$counts['total'];
+			$status = $job['status'] ?? 'pending';
+			if ( isset( $counts[ $status ] ) ) {
+				++$counts[ $status ];
+			}
+		}
 
-    /**
-     * Retry a job by resetting its status and scheduling it.
-     *
-     * @param string $job_id Job identifier.
-     *
-     * @return bool True on success, false if job not found.
-     */
-    public function retry_job(string $job_id): bool
-    {
-        $job = $this->repository->find($job_id);
+		return $counts;
+	}
 
-        if (!$job) {
-            return false;
-        }
+	/**
+	 * Retry a job by resetting its status and scheduling it.
+	 *
+	 * @param string $job_id Job identifier.
+	 *
+	 * @return bool True on success, false if job not found.
+	 */
+	public function retry_job( string $job_id ): bool {
+		$job = $this->repository->find( $job_id );
 
-        // Reset job status and schedule for processing
-        $job['status']       = 'pending';
-        $job['attempts']     = 0;
-        $job['scheduled_at'] = time();
+		if ( ! $job ) {
+			return false;
+		}
 
-        $this->repository->save($job_id, $job);
+		// Reset job status and schedule for processing
+		$job['status']       = 'pending';
+		$job['attempts']     = 0;
+		$job['scheduled_at'] = time();
 
-        // Schedule WP Cron event if not already scheduled
-        if (!wp_next_scheduled('aiwa_orch_process_transcription_job', [$job_id])) {
-            wp_schedule_single_event(time() + 5, 'aiwa_orch_process_transcription_job', [$job_id]);
-        }
+		$this->repository->save( $job_id, $job );
 
-        return true;
-    }
+		// Schedule WP Cron event if not already scheduled
+		if ( ! wp_next_scheduled( 'aiwa_orch_process_transcription_job', array( $job_id ) ) ) {
+			wp_schedule_single_event( time() + 5, 'aiwa_orch_process_transcription_job', array( $job_id ) );
+		}
 
-    /**
-     * Delete a job and cleanup associated files.
-     *
-     * @param string $job_id Job identifier.
-     *
-     * @return bool True if deleted, false if not found.
-     */
-    public function delete_job(string $job_id): bool
-    {
-        $job = $this->repository->find($job_id);
+		return true;
+	}
 
-        if (!$job) {
-            return false;
-        }
+	/**
+	 * Delete a job and cleanup associated files.
+	 *
+	 * @param string $job_id Job identifier.
+	 *
+	 * @return bool True if deleted, false if not found.
+	 */
+	public function delete_job( string $job_id ): bool {
+		$job = $this->repository->find( $job_id );
 
-        // Attempt to delete associated file if present
-        if (!empty($job['file']) && file_exists($job['file'])) {
-            @unlink($job['file']);
-        }
+		if ( ! $job ) {
+			return false;
+		}
 
-        return $this->repository->delete($job_id);
-    }
+		// Attempt to delete associated file if present
+		if ( ! empty( $job['file'] ) && file_exists( $job['file'] ) ) {
+			@unlink( $job['file'] );
+		}
 
-    /**
-     * Get all jobs from repository (helper for internal operations).
-     *
-     * @return array All jobs.
-     */
-    private function get_all_jobs(): array
-    {
-        $jobs = get_option('aiwa_sagemaker_jobs', []);
-        return \is_array($jobs) ? $jobs : [];
-    }
+		return $this->repository->delete( $job_id );
+	}
+
+	/**
+	 * Get all jobs from repository (helper for internal operations).
+	 *
+	 * @return array All jobs.
+	 */
+	private function get_all_jobs(): array {
+		$jobs = get_option( 'aiwa_sagemaker_jobs', array() );
+		return \is_array( $jobs ) ? $jobs : array();
+	}
 }

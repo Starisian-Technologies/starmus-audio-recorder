@@ -231,7 +231,7 @@ class StarmusTranscript {
     // Scroll detection (user scroll vs auto-scroll)
     this.boundOnScroll = () => {
       this.isUserScrolling = true;
-      if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
+      if (this.scrollTimeout) {clearTimeout(this.scrollTimeout);}
       this.scrollTimeout = setTimeout(() => {
         this.isUserScrolling = false;
       }, 1000);
@@ -286,16 +286,16 @@ class StarmusTranscript {
    * Checks if time falls within token's start-end range.
    */
   findTokenIndex(time) {
-    if (typeof time !== 'number' || this.data.length === 0) return -1;
+    if (typeof time !== 'number' || this.data.length === 0) {return -1;}
 
     let low = 0, high = this.data.length - 1;
 
     while (low <= high) {
       const mid = (low + high) >> 1;
       const token = this.data[mid];
-      if (time >= token.start && time <= token.end) return mid;
-      if (time < token.start) high = mid - 1;
-      else low = mid + 1;
+      if (time >= token.start && time <= token.end) {return mid;}
+      if (time < token.start) {high = mid - 1;}
+      else {low = mid + 1;}
     }
     return -1;
   }
@@ -349,7 +349,7 @@ class StarmusTranscript {
    */
   clearHighlight() {
     const prev = this.container.querySelector('.starmus-word.is-active');
-    if (prev) prev.classList.remove('is-active');
+    if (prev) {prev.classList.remove('is-active');}
     this.activeTokenIndex = -1;
   }
 
@@ -394,18 +394,18 @@ class StarmusTranscript {
    * @returns {void}
    */
   unbindEvents() {
-    if (!this.container) return;
+    if (!this.container) {return;}
 
-    if (this.boundOnClick) this.container.removeEventListener('click', this.boundOnClick);
-    if (this.boundOnScroll) this.container.removeEventListener('scroll', this.boundOnScroll);
+    if (this.boundOnClick) {this.container.removeEventListener('click', this.boundOnClick);}
+    if (this.boundOnScroll) {this.container.removeEventListener('scroll', this.boundOnScroll);}
 
     const media = this.peaks && this.peaks.player && this.peaks.player.getMediaElement
       ? this.peaks.player.getMediaElement()
       : null;
 
     if (media && typeof media.removeEventListener === 'function') {
-      if (this.boundOnTimeUpdate) media.removeEventListener('timeupdate', this.boundOnTimeUpdate);
-      if (this.boundOnSeeked) media.removeEventListener('seeked', this.boundOnSeeked);
+      if (this.boundOnTimeUpdate) {media.removeEventListener('timeupdate', this.boundOnTimeUpdate);}
+      if (this.boundOnSeeked) {media.removeEventListener('seeked', this.boundOnSeeked);}
     }
   }
 
@@ -419,8 +419,8 @@ class StarmusTranscript {
    */
   destroy() {
     this.unbindEvents();
-    if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
-    if (this.container) this.container.innerHTML = '';
+    if (this.scrollTimeout) {clearTimeout(this.scrollTimeout);}
+    if (this.container) {this.container.innerHTML = '';}
     this.data = [];
     this.activeTokenIndex = -1;
     this.isUserScrolling = false;

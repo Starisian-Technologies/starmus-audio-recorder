@@ -200,7 +200,7 @@ class OfflineQueue {
    * @returns {Promise<Array<Object>>} Array of submission objects
    */
   async getAll() {
-    if (!this.db) return [];
+    if (!this.db) {return [];}
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction([CONFIG.storeName], 'readonly');
       const store = tx.objectStore(CONFIG.storeName);
@@ -220,7 +220,7 @@ class OfflineQueue {
    * @returns {Promise<void>}
    */
   async remove(id) {
-    if (!this.db) return;
+    if (!this.db) {return;}
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction([CONFIG.storeName], 'readwrite');
       tx.objectStore(CONFIG.storeName).delete(id);
@@ -245,7 +245,7 @@ class OfflineQueue {
    * @returns {Promise<void>}
    */
   async _updateRetry(id, retryCount, error) {
-    if (!this.db) return;
+    if (!this.db) {return;}
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction([CONFIG.storeName], 'readwrite');
       const store = tx.objectStore(CONFIG.storeName);
@@ -283,7 +283,7 @@ class OfflineQueue {
    * 7. Skips non-retryable errors (400, Invalid JSON, etc.)
    */
   async processQueue() {
-    if (this.isProcessing || !navigator.onLine) return;
+    if (this.isProcessing || !navigator.onLine) {return;}
     this.isProcessing = true;
 
     try {
@@ -298,15 +298,15 @@ class OfflineQueue {
       for (const item of pending) {
         const { id, audioBlob, fileName, formFields, metadata, retryCount, instanceId } = item;
 
-        if (retryCount >= CONFIG.maxRetries) continue;
+        if (retryCount >= CONFIG.maxRetries) {continue;}
 
         if (item.lastAttempt !== null) {
           const delay = CONFIG.retryDelays[Math.min(retryCount, CONFIG.retryDelays.length - 1)];
-          if (Date.now() - item.lastAttempt < delay) continue;
+          if (Date.now() - item.lastAttempt < delay) {continue;}
         }
 
         try {
-          const result = await uploadWithPriority({
+          const _result = await uploadWithPriority({
               blob: audioBlob,
               fileName,
               formFields,
@@ -340,7 +340,7 @@ class OfflineQueue {
   setupNetworkListeners() {
     window.addEventListener('online', () => this.processQueue());
     setInterval(() => {
-      if (navigator.onLine) this.processQueue().catch(() => {});
+      if (navigator.onLine) {this.processQueue().catch(() => {});}
     }, 60 * 1000);
   }
 
@@ -354,7 +354,7 @@ class OfflineQueue {
    */
   _notifyQueueUpdate() {
     const BUS = window.CommandBus || window.StarmusHooks;
-    if (!BUS || typeof BUS.dispatch !== 'function') return;
+    if (!BUS || typeof BUS.dispatch !== 'function') {return;}
 
     this.getAll().then(queue => {
         BUS.dispatch('starmus/offline/queue_updated', {

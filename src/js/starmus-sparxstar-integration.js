@@ -32,9 +32,9 @@ class SparxstarIntegration {
             
             if (connection) {
                 const effectiveType = connection.effectiveType;
-                if (effectiveType === 'slow-2g' || effectiveType === '2g') networkType = 'very_low';
-                else if (effectiveType === '3g') networkType = 'low';
-                else networkType = 'high';
+                if (effectiveType === 'slow-2g' || effectiveType === '2g') {networkType = 'very_low';}
+                else if (effectiveType === '3g') {networkType = 'low';}
+                else {networkType = 'high';}
             }
             
             // Adaptive timeout based on network
@@ -208,8 +208,8 @@ class SparxstarIntegration {
         
         // Numeric bandwidth (Mbps)
         if (typeof bandwidth === 'number') {
-            if (bandwidth < 1) return 'very_low';
-            if (bandwidth < 5) return 'low';
+            if (bandwidth < 1) {return 'very_low';}
+            if (bandwidth < 5) {return 'low';}
             return 'high';
         }
 
@@ -221,7 +221,7 @@ class SparxstarIntegration {
      */
     detectDeviceType() {
         const ua = navigator.userAgent.toLowerCase();
-        if (/mobile|android|iphone|ipad|tablet/.test(ua)) return 'mobile';
+        if (/mobile|android|iphone|ipad|tablet/.test(ua)) {return 'mobile';}
         return 'desktop';
     }
 
@@ -272,7 +272,7 @@ class SparxstarIntegration {
      * Setup error reporting to SPARXSTAR
      */
     setupErrorReporting() {
-        if (!this.isAvailable || !window.SPARXSTAR?.ErrorReporter) return;
+        if (!this.isAvailable || !window.SPARXSTAR?.ErrorReporter) {return;}
 
         // Global error handler
         window.addEventListener('error', (event) => {

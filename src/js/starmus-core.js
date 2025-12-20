@@ -8,7 +8,7 @@
 'use strict';
 
 import './starmus-hooks.js';
-import { uploadWithPriority, estimateUploadTime, formatUploadEstimate } from './starmus-tus.js';
+import { uploadWithPriority, _isTusAvailable, _estimateUploadTime, _formatUploadEstimate } from './starmus-tus.js';
 import { queueSubmission, getPendingCount } from './starmus-offline.js';
 import sparxstarIntegration from './starmus-sparxstar-integration.js';
 
@@ -16,7 +16,7 @@ import sparxstarIntegration from './starmus-sparxstar-integration.js';
  * Hook subscription function from StarmusHooks or fallback no-op.
  * @type {function}
  */
-var subscribe = window.StarmusHooks?.subscribe || function(){};
+const subscribe = window.StarmusHooks?.subscribe || function(){};
 
 /**
  * Detects browser capabilities and assigns appropriate tier classification.
@@ -30,8 +30,8 @@ var subscribe = window.StarmusHooks?.subscribe || function(){};
  */
 function detectTier(environmentData = null) {
     // Basic browser capability check
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return 'C';
-    if (typeof MediaRecorder === 'undefined') return 'C';
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {return 'C';}
+    if (typeof MediaRecorder === 'undefined') {return 'C';}
     
     // If we have SPARXSTAR environment data, use it for enhanced detection
     if (environmentData && environmentData.tier) {
@@ -40,7 +40,7 @@ function detectTier(environmentData = null) {
     }
     
     // Fallback to basic detection
-    if (!window.AudioContext && !window.webkitAudioContext) return 'B';
+    if (!window.AudioContext && !window.webkitAudioContext) {return 'B';}
     return 'A';
 }
 
@@ -58,13 +58,13 @@ function detectTier(environmentData = null) {
 export function initCore(store, instanceId, env) {
   // Initialize SPARXSTAR integration first
   sparxstarIntegration.init().then(environmentData => {
-    const tier = detectTier(environmentData);
+    const _tier = detectTier(environmentData);
     
     // Merge environment data with existing env
     const enhancedEnv = {
       ...env,
       ...environmentData,
-      tier,
+      tier: _tier,
       sparxstar_available: sparxstarIntegration.isAvailable
     };
     
@@ -72,21 +72,21 @@ export function initCore(store, instanceId, env) {
     store.dispatch({ 
       type: 'starmus/environment-ready', 
       payload: { 
-        tier,
+        tier: _tier,
         environment: enhancedEnv,
         recordingSettings: environmentData.recordingSettings
       } 
     });
     
     // Legacy tier-ready event for backward compatibility
-    store.dispatch({ type: 'starmus/tier-ready', payload: { tier } });
+    store.dispatch({ type: 'starmus/tier-ready', payload: { tier: _tier } });
     
     window.dispatchEvent(new CustomEvent('starmus-ready', { 
-      detail: { instanceId, tier, environment: enhancedEnv } 
+      detail: { instanceId, tier: _tier, environment: enhancedEnv } 
     }));
     
     console.log('[Core] Environment initialized:', {
-      tier,
+      tier: _tier,
       sparxstar: sparxstarIntegration.isAvailable,
       network: enhancedEnv.network?.type,
       device: enhancedEnv.device?.type
@@ -94,9 +94,9 @@ export function initCore(store, instanceId, env) {
   }).catch(error => {
     console.error('[Core] Environment initialization failed:', error);
     // Fallback to basic detection
-    const tier = detectTier();
-    store.dispatch({ type: 'starmus/tier-ready', payload: { tier } });
-    window.dispatchEvent(new CustomEvent('starmus-ready', { detail: { instanceId, tier } }));
+    const _tier = detectTier();
+    store.dispatch({ type: 'starmus/tier-ready', payload: { tier: _tier } });
+    window.dispatchEvent(new CustomEvent('starmus-ready', { detail: { instanceId, tier: _tier } }));
   });
 
  /**
@@ -150,13 +150,13 @@ export function initCore(store, instanceId, env) {
         speechLevel: calibration.speechLevel
       } : null,
       env: stateEnv,
-      tier: tier
+      tier: _tier
     };
 
     store.dispatch({ type: 'starmus/submit-start' });
 
     try {
-      if (!navigator.onLine) throw new Error('OFFLINE_FAST_PATH');
+      if (!navigator.onLine) {throw new Error('OFFLINE_FAST_PATH');}
 
       console.log('[StarmusCore] 🚀 Uploading...');
       
@@ -200,7 +200,7 @@ export function initCore(store, instanceId, env) {
                       }]);
                       hookFired = true; // We successfully notified a parent, so we are in a modal.
                   }
-              } catch (e) {
+              } catch (_e) {
                   // Cross-origin access denied; do not trigger event
               }
           }
@@ -241,7 +241,7 @@ export function initCore(store, instanceId, env) {
           const submissionId = await queueSubmission(instanceId, audioBlob, fileName, formFields, metadata);
           store.dispatch({ type: 'starmus/submit-queued', submissionId });
           const pending = await getPendingCount();
-          if (window.CommandBus) window.CommandBus.dispatch('starmus/offline/queue_updated', { count: pending });
+          if (window.CommandBus) {window.CommandBus.dispatch('starmus/offline/queue_updated', { count: pending });}
       } catch (qe) {
           console.error('Offline Queue Failed:', qe);
           store.dispatch({ type: 'starmus/error', error: { message: 'Upload failed completely.' } });
@@ -254,15 +254,15 @@ export function initCore(store, instanceId, env) {
    * Sets up listeners for submit, reset, and continue events filtered by instanceId.
    */
   subscribe('submit', (payload, meta) => {
-    if (meta && meta.instanceId === instanceId) handleSubmit(payload.formFields || {});
+    if (meta && meta.instanceId === instanceId) {handleSubmit(payload.formFields || {});}
   }, instanceId);
 
   subscribe('reset', (_p, meta) => {
-    if (meta && meta.instanceId === instanceId) store.dispatch({ type: 'starmus/reset' });
+    if (meta && meta.instanceId === instanceId) {store.dispatch({ type: 'starmus/reset' });}
   }, instanceId);
 
   subscribe('continue', (_p, meta) => {
-    if (meta && meta.instanceId === instanceId) store.dispatch({ type: 'starmus/ui/step-continue' });
+    if (meta && meta.instanceId === instanceId) {store.dispatch({ type: 'starmus/ui/step-continue' });}
   }, instanceId);
 
   return { handleSubmit };
@@ -272,4 +272,4 @@ export function initCore(store, instanceId, env) {
  * Global export for browser environments.
  * Makes initCore available on window object for direct script loading.
  */
-if (typeof window !== 'undefined') window.initCore = initCore;
+if (typeof window !== 'undefined') {window.initCore = initCore;}

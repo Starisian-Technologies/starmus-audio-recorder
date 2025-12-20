@@ -59,7 +59,7 @@
 
 /* 1. GLOBALS & HOOKS */
 import Peaks from 'peaks.js';
-if (!window.Peaks) window.Peaks = Peaks;
+if (!window.Peaks) {window.Peaks = Peaks;}
 import './starmus-hooks.js';
 
 /* 2. MODULE IMPORTS */

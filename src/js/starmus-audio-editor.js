@@ -233,10 +233,10 @@
         let looping = false;
         loopCheck.onchange = () => looping = loopCheck.checked;
         audio.addEventListener('timeupdate', () => {
-          if (!looping) return;
+          if (!looping) {return;}
           const t = audio.currentTime;
           const segs = peaks.segments.getSegments();
-          if (!segs.length) return;
+          if (!segs.length) {return;}
           const region = segs.find(r => t >= r.startTime && t < r.endTime);
           if (region && t >= region.endTime) {
             audio.currentTime = region.startTime;
@@ -266,13 +266,13 @@
 
         regionTable.addEventListener('input', (e) => {
           const id = e.target.dataset.id, key = e.target.dataset.key;
-          if (!id || !key) return;
+          if (!id || !key) {return;}
           const seg = peaks.segments.getSegment(id);
-          if (!seg) return;
+          if (!seg) {return;}
           let val = e.target.value;
           if (key === 'startTime' || key === 'endTime') {
             val = parseFloat(val);
-            if (isNaN(val)) return;
+            if (isNaN(val)) {return;}
           }
           seg.update({ [key]: val });
           setDirty(true);
@@ -282,9 +282,9 @@
         regionTable.addEventListener('click', (e) => {
           const act = e.target.dataset.act;
           const id  = e.target.dataset.id;
-          if (!act || !id) return;
+          if (!act || !id) {return;}
           const seg = peaks.segments.getSegment(id);
-          if (!seg) return;
+          if (!seg) {return;}
           if (act === 'jump') {
             audio.currentTime = seg.startTime;
             audio.play();
@@ -304,7 +304,7 @@
         };
 
         btnSave.onclick = async () => {
-          if (!dirty) return;
+          if (!dirty) {return;}
           setDirty(false);
           const segs = normalize(peaks.segments.getSegments());
           try {
@@ -314,7 +314,7 @@
               body: JSON.stringify({ postId, annotations: segs })
             });
             const data = await resp.json();
-            if (!resp.ok || !data.success) throw new Error(data.message || 'Server error');
+            if (!resp.ok || !data.success) {throw new Error(data.message || 'Server error');}
             peaks.segments.removeAll();
             peaks.segments.add(normalize(data.annotations || []));
             render();
@@ -353,7 +353,7 @@
    */
   function showNotice(msg, type = 'error') {
     const el = document.getElementById('starmus-editor-notice');
-    if (!el) return;
+    if (!el) {return;}
     if (!msg) {
       el.hidden = true;
     } else {
@@ -407,7 +407,7 @@
    * // Returns: '0:00'
    */
   function formatTime(s) {
-    if (isNaN(s)) return '0:00';
+    if (isNaN(s)) {return '0:00';}
     const m = Math.floor(s / 60);
     const sec = Math.floor(s % 60);
     return m + ':' + String(sec).padStart(2, '0');

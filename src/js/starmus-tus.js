@@ -138,7 +138,7 @@ function getConfig() {
  * @returns {Object} Normalized form fields object
  */
 function normalizeFormFields(fields) {
-  if (fields && typeof fields === 'object') return fields;
+  if (fields && typeof fields === 'object') {return fields;}
   return {};
 }
 
@@ -159,7 +159,7 @@ function sanitizeMetadata(value) {
   if (typeof value === 'object') {
     return JSON.stringify(value);
   }
-  let v = (typeof value === 'string' ? value : String(value)).replace(/[\r\n\t]/g, ' ');
+  const v = (typeof value === 'string' ? value : String(value)).replace(/[\r\n\t]/g, ' ');
   return v; // TUS handles base64 encoding internally usually, but we keep it raw string here
 }
 
@@ -228,23 +228,23 @@ export async function uploadDirect(blob, fileName, formFields = {}, metadata = {
     // Filter out fields we will add manually or via specific keys
     const SKIP = ['_starmus_env', '_starmus_calibration'];
     Object.entries(fields).forEach(([k, v]) => {
-        if (!SKIP.includes(k)) fd.append(k, v);
+        if (!SKIP.includes(k)) {fd.append(k, v);}
     });
     
     fd.append('audio_file', blob, fileName);
 
     // Map metadata to form fields expected by the WP Controller
-    if (metadata?.calibration) fd.append('_starmus_calibration', JSON.stringify(metadata.calibration));
-    if (metadata?.env) fd.append('_starmus_env', JSON.stringify(metadata.env));
-    if (metadata?.tier) fd.append('tier', metadata.tier);
+    if (metadata?.calibration) {fd.append('_starmus_calibration', JSON.stringify(metadata.calibration));}
+    if (metadata?.env) {fd.append('_starmus_env', JSON.stringify(metadata.env));}
+    if (metadata?.tier) {fd.append('tier', metadata.tier);}
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', endpoint, true);
-    if (nonce) xhr.setRequestHeader('X-WP-Nonce', nonce);
+    if (nonce) {xhr.setRequestHeader('X-WP-Nonce', nonce);}
 
     if (xhr.upload && typeof onProgress === 'function') {
       xhr.upload.onprogress = e => {
-        if (e.lengthComputable) onProgress(e.loaded, e.total);
+        if (e.lengthComputable) {onProgress(e.loaded, e.total);}
       };
     }
 
@@ -354,7 +354,7 @@ export async function uploadWithPriority(arg1) {
       [blob, fileName, formFields, metadata, instanceId, onProgress] = arguments;
   }
 
-  if (!blob) throw new Error('No blob provided');
+  if (!blob) {throw new Error('No blob provided');}
 
   // Use circuit breaker for all uploads
   return uploadCircuitBreaker.execute(async () => {
@@ -459,14 +459,37 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
         });
 
         // Merge complex metadata objects (mapped to specific keys for PHP)
-        if (metadata?.calibration) tusMetadata['_starmus_calibration'] = sanitizeMetadata(metadata.calibration);
-        if (metadata?.env) tusMetadata['_starmus_env'] = sanitizeMetadata(metadata.env);
-        if (metadata?.tier) tusMetadata['tier'] = sanitizeMetadata(metadata.tier);
+        if (metadata?.calibration) {tusMetadata['_starmus_calibration'] = sanitizeMetadata(metadata.calibration);}
+        if (metadata?.env) {tusMetadata['_starmus_env'] = sanitizeMetadata(metadata.env);}
+        if (metadata?.tier) {tusMetadata['tier'] = sanitizeMetadata(metadata.tier);}
 
         /**
          * TUS Upload instance with complete configuration.
          */
         // 2. Configure TUS Upload
+        
+        // CRITICAL: Secure webhook headers - never allow empty secrets
+        const webhookSecret = cfg.webhookSecret;
+        if (!webhookSecret || webhookSecret.trim() === '') {
+            const error = new Error('TUS webhook secret not configured - upload blocked for security');
+            console.error('[TUS Security] CRITICAL:', error.message);
+            
+            // Report security issue to SPARXSTAR
+            if (sparxstarIntegration.isAvailable) {
+                sparxstarIntegration.reportError('tus_security_no_secret', {
+                    error: error.message,
+                    endpoint: cfg.endpoint,
+                    timestamp: Date.now()
+                });
+            }
+            
+            throw error;
+        }
+        
+        // Generate secure headers with timestamp and signature
+        const timestamp = Date.now().toString();
+        const payload = `${fileName}-${timestamp}-${blob.size}`;
+        
         const upload = new tus.Upload(blob, {
             endpoint: cfg.endpoint,
             retryDelays: cfg.retryDelays,
@@ -474,28 +497,6 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
             parallelUploads: 1,
             metadata: tusMetadata,
             removeFingerprintOnSuccess: cfg.removeFingerprintOnSuccess,
-            
-            // CRITICAL: Secure webhook headers - never allow empty secrets
-            const webhookSecret = cfg.webhookSecret;
-            if (!webhookSecret || webhookSecret.trim() === '') {
-                const error = new Error('TUS webhook secret not configured - upload blocked for security');
-                console.error('[TUS Security] CRITICAL:', error.message);
-                
-                // Report security issue to SPARXSTAR
-                if (sparxstarIntegration.isAvailable) {
-                    sparxstarIntegration.reportError('tus_security_no_secret', {
-                        error: error.message,
-                        endpoint: cfg.endpoint,
-                        timestamp: Date.now()
-                    });
-                }
-                
-                throw error;
-            }
-            
-            // Generate secure headers with timestamp and signature
-            const timestamp = Date.now().toString();
-            const payload = `${fileName}-${timestamp}-${blob.size}`;
             
             headers: {
                 'x-starmus-secret': webhookSecret,
@@ -597,7 +598,7 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
  * console.log(`Estimated: ${estimate} seconds`);
  */
 export function estimateUploadTime(fileSize, networkInfo) {
-  let downlink = networkInfo?.downlink || 0.5; 
+  const downlink = networkInfo?.downlink || 0.5; 
   const bytesPerSec = (downlink * 1000000) / 8;
   return Math.ceil((fileSize / bytesPerSec) * 1.5);
 }
@@ -647,7 +648,7 @@ const StarmusTus = {
  * Makes StarmusTus available on window object.
  * @global
  */
-if (typeof window !== 'undefined') window.StarmusTus = StarmusTus;
+if (typeof window !== 'undefined') {window.StarmusTus = StarmusTus;}
 
 /**
  * Default export for ES6 modules.
