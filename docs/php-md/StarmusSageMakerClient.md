@@ -22,9 +22,9 @@ Handles retry, delete operations, and job statistics.
 @package Starisian\Sparxstar\Starmus
 @since 1.0.0
 /
-final readonly class StarmusSageMakerClient
-{
-    /**
+final readonly class StarmusSageMakerClient {
+
+	/**
 Constructor.
 @param StarmusSageMakerJobRepository $repository Job repository instance.
 
@@ -35,11 +35,11 @@ Constructor.
 Job repository.
 @var StarmusSageMakerJobRepository
 /
-        private StarmusSageMakerJobRepository $repository
-    ) {
-    }
+		private StarmusSageMakerJobRepository $repository
+	) {
+	}
 
-    /**
+	/**
 Get job counts by status.
 @return array Associative array with keys: total, pending, processing, done, failed.
 

@@ -26,19 +26,19 @@ Implementation notes:
 - Uses the option `aiwa_ai_endpoint` and `aiwa_ai_api_key` for configuration.
 The remote model should accept this shape; adjust as needed.
 /
-class StarmusHuggingFaceClient
-{
-    /**
+class StarmusHuggingFaceClient {
+
+	/**
 The API endpoint URL.
 /
-    private readonly string $endpoint;
+	private readonly string $endpoint;
 
-    /**
+	/**
 The API key for authentication.
 /
-    private readonly string $api_key;
+	private readonly string $api_key;
 
-    /**
+	/**
 Constructor.
 @param string|null $endpoint The API endpoint URL.
 @param string|null $api_key The API key.

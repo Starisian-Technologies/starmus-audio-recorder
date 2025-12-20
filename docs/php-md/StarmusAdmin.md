@@ -24,8 +24,8 @@ Starmus Admin Handler - Refactored for Security & Performance
 /
 namespace Starisian\Sparxstar\Starmus\admin;
 
-if (! \defined('ABSPATH')) {
-    return;
+if ( ! \defined( 'ABSPATH' ) ) {
+	return;
 }
 
 use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
@@ -34,39 +34,39 @@ use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 /**
 Secure and optimized admin settings class.
 /
-class StarmusAdmin
-{
-    /**
+class StarmusAdmin {
+
+	/**
 Menu slug for the plugin settings page.
 @var string
 /
-    public const STARMUS_MENU_SLUG = 'starmus-admin';
+	public const STARMUS_MENU_SLUG = 'starmus-admin';
 
-    /**
+	/**
 Settings group identifier for WordPress options API.
 @var string
 /
-    public const STARMUS_SETTINGS_GROUP = 'starmus_settings_group';
+	public const STARMUS_SETTINGS_GROUP = 'starmus_settings_group';
 
-    // DELETED: const STARMUS_OPTION_KEY =   <-- This line should be gone.
+	// DELETED: const STARMUS_OPTION_KEY =   <-- This line should be gone.
 
-    /**
+	/**
 Mapping of option keys to field types for rendering.
 @var array<string, string>
 /
-    private array $field_types = [];
+	private array $field_types = array();
 
-    /**
+	/**
 Settings service instance.
 /
-    private ?StarmusSettings $settings = null;
+	private ?StarmusSettings $settings = null;
 
-    /**
+	/**
 Data Access Layer instance.
 /
-    private ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface $dal = null;
+	private ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface $dal = null;
 
-    /**
+	/**
 Constructor - initializes admin settings and hooks.
 Sets up DAL and Settings dependencies, defines field type mappings,
 and registers admin hooks for menu and settings registration.

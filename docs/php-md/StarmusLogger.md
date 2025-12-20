@@ -20,31 +20,31 @@ Centralized logger for Starmus, configured to write strictly to wp-content/debug
 using forced file writing mode (error_log mode 3). This logger is reliable as it
 bypasses the need for WP_DEBUG_LOG being set to true.
 /
-final class StarmusLogger
-{
-    // Log Levels
-    public const DEBUG   = 100;
-    public const INFO    = 200;
-    public const NOTICE  = 250;
-    public const WARNING = 300;
-    public const ERROR   = 400;
+final class StarmusLogger {
 
-    /**
+	// Log Levels
+	public const DEBUG   = 100;
+	public const INFO    = 200;
+	public const NOTICE  = 250;
+	public const WARNING = 300;
+	public const ERROR   = 400;
+
+	/**
 Minimum log level to record.
 /
-    protected static int $min_log_level = self::DEBUG;
+	protected static int $min_log_level = self::DEBUG;
 
-    /**
+	/**
 Current correlation ID for tracking related operations.
 /
-    protected static ?string $correlation_id = null;
+	protected static ?string $correlation_id = null;
 
-    /**
+	/**
 Timer storage for performance tracking.
 /
-    protected static array $timers = [];
+	protected static array $timers = array();
 
-    /**
+	/**
 Single source of truth for the log file path.
 Forces the path to wp-content/debug.log using standard WP constants.
 
@@ -108,16 +108,16 @@ Centralized logger for Starmus, configured to write strictly to wp-content/debug
 using forced file writing mode (error_log mode 3). This logger is reliable as it
 bypasses the need for WP_DEBUG_LOG being set to true.
 /
-final class StarmusLogger
-{
-    // Log Levels
-    public const DEBUG   = 100;
-    public const INFO    = 200;
-    public const NOTICE  = 250;
-    public const WARNING = 300;
-    public const ERROR   = 400;
+final class StarmusLogger {
 
-    /**
+	// Log Levels
+	public const DEBUG   = 100;
+	public const INFO    = 200;
+	public const NOTICE  = 250;
+	public const WARNING = 300;
+	public const ERROR   = 400;
+
+	/**
 Minimum log level to record.
 
 ### `$correlation_id`

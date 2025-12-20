@@ -18,19 +18,19 @@ Registers shortcodes and routes rendering lazily to the correct UI classes.
 Registers shortcodes and routes rendering lazily to the correct UI classes.
 @since 0.7.7
 /
-final class StarmusShortcodeLoader
-{
-    /**
+final class StarmusShortcodeLoader {
+
+	/**
 Settings service instance.
 /
-    private StarmusSettings $settings;
+	private StarmusSettings $settings;
 
-    /**
+	/**
 Data Access Layer instance.
 /
-    private StarmusAudioRecorderDAL $dal;
+	private StarmusAudioRecorderDAL $dal;
 
-    /**
+	/**
 @param StarmusAudioRecorderDALInterface|null $dal The data access layer.
 @param StarmusSettings|null $settings The settings instance.
 

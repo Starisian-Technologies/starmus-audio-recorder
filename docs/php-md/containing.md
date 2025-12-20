@@ -34,19 +34,18 @@ use WP_Query;
 /**
 Manages the Starmus Audio Recorder plugin.
 /
-class StarmusCLI extends \WP_CLI_Command
-{
-    /**
+class StarmusCLI extends \WP_CLI_Command {
+
+	/**
 Waveform service instance.
 /
-    private ?StarmusWaveformService $waveform_service = null;
+	private ?StarmusWaveformService $waveform_service = null;
 
-    public function __construct()
-    {
-        $this->waveform_service = new StarmusWaveformService();
-    }
+	public function __construct() {
+		$this->waveform_service = new StarmusWaveformService();
+	}
 
-    /**
+	/**
 Manages audio recording waveforms.
 ## EXAMPLES
     # Generate waveforms for all recordings missing them.

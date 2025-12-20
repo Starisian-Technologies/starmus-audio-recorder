@@ -20,8 +20,8 @@ Handles all database and data persistence operations for Starmus.
 /
 namespace Starisian\Sparxstar\Starmus\core;
 
-if (! \defined('ABSPATH')) {
-    exit;
+if ( ! \defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
@@ -49,15 +49,27 @@ to ensure graceful degradation and debugging capabilities.
 @since   0.1.0
 @implements StarmusAudioRecorderDALInterface
 /
-final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
-{
-    /*
-    ------------------------------------*
+final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface {
+
+	/*
+	------------------------------------*
 🧩 CREATION
 ------------------------------------*/
 
-    /**
+	/**
 {@inheritdoc}
+
+### `create_transcription_post()`
+
+**Visibility:** `public`
+
+Create transcription post linked to audio recording.
+
+### `create_translation_post()`
+
+**Visibility:** `public`
+
+Create translation post linked to audio recording.
 
 ### `create_attachment_from_file()`
 
@@ -145,7 +157,7 @@ Validates file existence before attempting metadata generation.
 
 {@inheritdoc}
 /
-    /**
+	/**
 Get WordPress page slug by its ID.
 Retrieves the URL slug for a WordPress page given its post ID.
 Returns empty string if the page doesn't exist.
@@ -219,7 +231,7 @@ status tracking.
 @param int $attachment_id WordPress attachment ID.
 @return void
 /
-    /**
+	/**
 Record timestamp when ID3 tags were written to an audio file.
 @param int $attachment_id WordPress attachment ID.
 
@@ -235,7 +247,7 @@ Used for legal compliance and metadata management.
 @param string $copyright_text Copyright notice or source attribution.
 @return void
 /
-    /**
+	/**
 Set copyright source information for an audio attachment.
 @param int $attachment_id WordPress attachment ID.
 @param string $copyright_text Copyright notice or source attribution.
@@ -254,7 +266,7 @@ to avoid overwriting existing assignments with null values.
 @param int|null $type_id Term ID from 'recording-type' taxonomy (optional).
 @return void
 /
-    /**
+	/**
 Assign taxonomy terms to an audio recording post.
 @param int $post_id WordPress post ID to assign terms to.
 @param int|null $language_id Term ID from 'language' taxonomy (optional).

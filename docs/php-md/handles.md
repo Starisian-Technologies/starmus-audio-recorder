@@ -49,9 +49,9 @@ Provides centralized translation functionality including:
 @final This class should not be extended
 @since 1.0.0
 /
-final class Starmusi18NLanguage
-{
-    /**
+final class Starmusi18NLanguage {
+
+	/**
 WordPress text domain for translation strings
 This constant defines the text domain used for all translations
 within the AiWA Orchestrator plugin. It must match the domain
@@ -59,9 +59,9 @@ specified in the plugin header and translation files.
 @var string
 @since 1.0.0
 /
-    private const DOMAIN = 'starmus-audio-recorder';
+	private const DOMAIN = 'starmus-audio-recorder';
 
-    /**
+	/**
 Initialize the internationalization system
 Sets up WordPress hooks to load the plugin text domain when WordPress
 has finished loading all active plugins. This ensures translations are

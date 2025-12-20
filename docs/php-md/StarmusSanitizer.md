@@ -18,9 +18,9 @@ Handles general request params and structured metadata.
 Sanitizer for Starmus audio submissions.
 Handles general request params and structured metadata.
 /
-class StarmusSanitizer
-{
-    /**
+class StarmusSanitizer {
+
+	/**
 Sanitize general submission data from forms or REST params.
 @param array<string, mixed> $data Raw request parameters.
 @return array<string, mixed> Sanitized data.
