@@ -168,13 +168,19 @@ class EnhancedCalibration {
                 // Get audio data
                 this.analyser.getByteFrequencyData(data);
                 
-                // Calculate volume metrics
+                // Calculate volume metrics with proper dB SPL conversion
                 let sum = 0;
                 for (let i = 0; i < data.length; i++) {
                     sum += data[i];
                 }
                 
-                const volume = (sum / data.length) * (100 / 255);
+                const rawAmp = sum / data.length;
+                // Convert to dB SPL using microphone sensitivity
+                const voltageRatio = rawAmp / 255;
+                const dbV = 20 * Math.log10(Math.max(voltageRatio, 1e-6));
+                const micSensitivity = -50; // Typical condenser mic sensitivity in dBV/Pa
+                const dbSPL = dbV - micSensitivity + 94;
+                const volume = Math.min(100, Math.max(0, (dbSPL - 30) * 1.67)); // 30-90 dB SPL -> 0-100%
                 sampleCount++;
                 avgVolume = ((avgVolume * (sampleCount - 1)) + volume) / sampleCount;
                 

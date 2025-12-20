@@ -347,7 +347,13 @@ async function doCalibration(stream, onUpdate) {
             let sum = 0;
             for(let i=0; i<data.length; i++) {sum += data[i];}
             const avg = sum / data.length;
-            const volume = Math.min(100, avg * 10); 
+            
+            // Proper SPL calculation for calibration
+            const voltageRatio = avg / 255;
+            const dbV = 20 * Math.log10(Math.max(voltageRatio, 1e-6));
+            const micSensitivity = -50; // Typical condenser mic sensitivity
+            const dbSPL = dbV - micSensitivity + 94;
+            const volume = Math.min(100, Math.max(0, (dbSPL - 30) * 1.67)); // 30-90 dB SPL -> 0-100%
             if (volume > maxVolume) {maxVolume = volume;}
 
             const elapsed = Date.now() - startTime;
@@ -476,8 +482,21 @@ function initRecorder(store, instanceId) {
       const stream = await navigator.mediaDevices.getUserMedia(audioConstraints);
       const ctx = await wakeAudio();
       const source = ctx.createMediaStreamSource(stream);
+      
+      // Create gain node for proper audio level control
+      const gainNode = ctx.createGain();
       const dest = ctx.createMediaStreamDestination();
-      source.connect(dest);
+      
+      // Get calibration gain from store if available
+      const state = store.getState();
+      const calibrationGain = state.calibration?.gain || 1.0;
+      
+      // Set gain using proper AudioParam method
+      gainNode.gain.setValueAtTime(calibrationGain, ctx.currentTime);
+      
+      // Connect: source -> gain -> destination
+      source.connect(gainNode);
+      gainNode.connect(dest);
       
       // MediaRecorder with optimized options
       const mediaRecorderOptions = {
@@ -559,7 +578,17 @@ function initRecorder(store, instanceId) {
          if(!rec || mediaRecorder.state !== 'recording') {return;}
          analyser.getByteFrequencyData(buf);
          let sum=0; for(let x=0; x<buf.length; x++) {sum+=buf[x];}
-         const amp = Math.min(100, (sum/buf.length) * 10); 
+         const rawAmp = sum / buf.length;
+         
+         // Proper SPL calculation assuming typical mic sensitivity (-50 dBV/Pa)
+         // Convert raw amplitude to voltage ratio, then to dB SPL
+         const voltageRatio = rawAmp / 255; // Normalize to 0-1
+         const dbV = 20 * Math.log10(Math.max(voltageRatio, 1e-6)); // Prevent log(0)
+         const micSensitivity = -50; // Typical condenser mic sensitivity in dBV/Pa
+         const dbSPL = dbV - micSensitivity + 94; // Convert to dB SPL
+         
+         // Map dB SPL to visual meter (30-90 dB SPL -> 0-100%)
+         const amp = Math.min(100, Math.max(0, (dbSPL - 30) * 1.67));
          store.dispatch({ type: 'starmus/recorder-tick', duration: (Date.now()-visualStartTs)/1000, amplitude: amp });
          rec.rafId = requestAnimationFrame(visLoop);
       }
