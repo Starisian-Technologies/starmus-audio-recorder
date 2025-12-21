@@ -42,8 +42,13 @@
   </rule>
   
   <!-- Auto-fixable formatting rules -->
-  <rule ref="Generic.WhiteSpace.ScopeIndent"/>
-  <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
+  <rule ref="Generic.WhiteSpace.ScopeIndent">
+    <properties>
+      <property name="indent" value="1"/>
+      <property name="tabIndent" value="true"/>
+    </properties>
+  </rule>
+  <rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
   <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace"/>
   <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
   <rule ref="PSR2.ControlStructures.ControlStructureSpacing"/>
