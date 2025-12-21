@@ -86,7 +86,7 @@ class StarmusLogger
      * Log methods for each level (Static Facades)
      */
     public static function error(mixed $message, array $context = []): void      { self::get_handler()->error($message, $context); }
-    public static function info(mixed $message, array $context = []): void       { self::get_handler()->info($message, $context); }
+    public static function info(mixed $message, array|string $context = ''): void       { self::get_handler()->info($message, $context); }
     public static function debug(mixed $message, array $context = []): void      { self::get_handler()->debug($message, $context); }
     public static function warning(mixed $message, array $context = []): void    { self::get_handler()->warning($message, $context); }
     public static function critical(mixed $message, array $context = []): void   { self::get_handler()->critical($message, $context); }

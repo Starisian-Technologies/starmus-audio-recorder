@@ -148,7 +148,7 @@ final class StarmusSettings {
 			if ( $this->obj_cache === null ) {
 				$saved = get_option( self::STARMUS_OPTION_KEY, array() );
 
-				\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::debug(
+				\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::info(
 					'StarmusSettings',
 					'get_option result'
 				);
