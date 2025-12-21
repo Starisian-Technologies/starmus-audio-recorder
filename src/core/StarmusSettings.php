@@ -150,11 +150,7 @@ final class StarmusSettings {
 
 				\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::debug(
 					'StarmusSettings',
-					'get_option result',
-					array(
-						'option_key' => self::STARMUS_OPTION_KEY,
-						'saved_data' => $saved,
-					)
+					'get_option result'
 				);
 
 				$merged          = wp_parse_args( $saved, $this->get_defaults() );
@@ -382,10 +378,10 @@ final class StarmusSettings {
 				return implode( ',', $list );
 			case 'speech_recognition_lang':
 				$sanitized = preg_replace( '/[^a-zA-Z0-9\-]/', '', (string) $value );
-				return ! empty( $sanitized ) ? $sanitized : 'en-US';
+				return empty( $sanitized ) ? 'en-US' : $sanitized;
 			case 'tus_endpoint':
 				$url = esc_url_raw( (string) $value );
-				return ! empty( $url ) ? trailingslashit( $url ) : 'https://contribute.sparxstar.com/files/';
+				return empty( $url ) ? 'https://contribute.sparxstar.com/files/' : trailingslashit( $url );
 			case 'consent_message':
 				return wp_kses_post( (string) $value );
 			case 'data_policy_url':

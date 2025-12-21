@@ -107,7 +107,7 @@ final class StarmusSchemaMapper {
 	public static function get_field_value( string $field_name, mixed $stored_value ): mixed {
 		if ( self::is_json_field( $field_name ) && \is_string( $stored_value ) ) {
 			$decoded = json_decode( $stored_value, true );
-			return $decoded !== null ? $decoded : $stored_value;
+			return $decoded ?? $stored_value;
 		}
 
 		return $stored_value;
@@ -155,12 +155,12 @@ final class StarmusSchemaMapper {
 		$mapped = array();
 
 		// Environment data goes to processing fields as JSON
-		if ( ! empty( $env_data ) ) {
+		if ( $env_data !== array() ) {
 			$mapped['contributor_verification'] = json_encode( $env_data );
 		}
 
 		// Calibration data (gain, speechLevel) goes to transcriber field as JSON
-		if ( ! empty( $cal_data ) ) {
+		if ( $cal_data !== array() ) {
 			$mapped['transcriber'] = json_encode( $cal_data );
 		}
 

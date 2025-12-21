@@ -147,8 +147,8 @@ final class StarmusSubmissionHandler {
 		try {
 			// PHP Runtime Error Trap
 			set_error_handler(
-				function ( $severity, $message, $file, $line ) {
-					error_log( "[STARMUS PHP] {$message} in {$file}:{$line}" );
+				function ( $severity, string $message, $file, $line ): false {
+					error_log( sprintf( '[STARMUS PHP] %s in %s:%s', $message, $file, $line ) );
 					return false; // Continue normal error handling
 				}
 			);
@@ -156,7 +156,7 @@ final class StarmusSubmissionHandler {
 			add_action( 'starmus_cleanup_temp_files', $this->cleanup_stale_temp_files( ... ) );
 			StarmusLogger::info( 'SubmissionHandler', 'Constructed successfully' );
 		} catch ( Throwable $throwable ) {
-			StarmusLogger::error( 'SubmissionHandler', 'Construction failed', array( 'error' => $throwable->getMessage() ) );
+			StarmusLogger::error( 'SubmissionHandler', 'Construction failed' );
 			throw $throwable;
 		}
 	}
@@ -291,6 +291,7 @@ final class StarmusSubmissionHandler {
 				unlink( $destination );
 				return $attachment_id;
 			}
+
 			error_log( '[STARMUS PHP] Attachment created: ' . $attachment_id );
 
 			// Update vs Create Logic
@@ -334,7 +335,7 @@ final class StarmusSubmissionHandler {
 			);
 		} catch ( Throwable $throwable ) {
 			error_log( '[STARMUS PHP] CRITICAL: ' . $throwable->getMessage() . ' in ' . $throwable->getFile() . ':' . $throwable->getLine() );
-			StarmusLogger::error( 'SubmissionHandler', 'Finalize Exception', array( 'msg' => $throwable->getMessage() ) );
+			StarmusLogger::error( 'SubmissionHandler', 'Finalize Exception' );
 			return $this->err( 'server_error', 'File finalization failed.', 500 );
 		}
 	}
@@ -420,14 +421,15 @@ final class StarmusSubmissionHandler {
 				error_log( '[STARMUS PHP] Fallback upload failed: ' . $result->get_error_message() );
 				return $result;
 			}
+
 			error_log( '[STARMUS PHP] Fallback upload success' );
 
 			return array(
 				'success' => true,
 				'data'    => $result['data'],
 			);
-		} catch ( Throwable $throwable ) {
-			StarmusLogger::error( 'SubmissionHandler', 'Fallback REST Exception', array( 'msg' => $throwable->getMessage() ) );
+		} catch ( Throwable ) {
+			StarmusLogger::error( 'SubmissionHandler', 'Fallback REST Exception' );
 			return $this->err( 'server_error', 'Fallback upload exception.', 500 );
 		}
 	}
@@ -512,8 +514,8 @@ final class StarmusSubmissionHandler {
 					'redirect_url'  => esc_url( $this->get_redirect_url() ),
 				),
 			);
-		} catch ( Throwable $throwable ) {
-			StarmusLogger::error( 'SubmissionHandler', 'Process Fallback Exception', array( 'msg' => $throwable->getMessage() ) );
+		} catch ( Throwable ) {
+			StarmusLogger::error( 'SubmissionHandler', 'Process Fallback Exception' );
 			return $this->err( 'server_error', 'Fallback processing failed.', 500 );
 		}
 	}
@@ -569,7 +571,7 @@ final class StarmusSubmissionHandler {
 			error_log( '[STARMUS PHP] Mapped form data: ' . json_encode( array_keys( $mapped_data ) ) );
 
 			// Handle JavaScript-submitted environment data (_starmus_env)
-			$env_json = $form_data['_starmus_env'] ?? '';
+			$env_json    = $form_data['_starmus_env'] ?? '';
 			$decoded_env = null;
 			if ( $env_json ) {
 				$decoded_env = json_decode( wp_unslash( $env_json ), true );
@@ -612,8 +614,8 @@ final class StarmusSubmissionHandler {
 				$this->update_acf_field( $field, $value, $audio_post_id );
 			}
 
-			// Agreement to Terms (Group D)
-			$timestamp  = current_time( 'mysql' );
+			// Agreement to Terms (Group D) - Store in UTC
+			$timestamp  = gmdate( 'Y-m-d H:i:s' ); // UTC timestamp
 			$user_ip    = StarmusSanitizer::get_user_ip();
 			$user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 			$this->update_acf_field( 'agreement_datetime', $timestamp, $audio_post_id );
@@ -668,9 +670,11 @@ final class StarmusSubmissionHandler {
 				// Also update audio_files_originals for backward compatibility
 				$this->update_acf_field( 'audio_files_originals', array( $attachment_id ), $audio_post_id );
 			}
+
 			if ( isset( $mapped_data['mastered_mp3'] ) ) {
 				$this->update_acf_field( 'mastered_mp3', $mapped_data['mastered_mp3'], $audio_post_id );
 			}
+
 			if ( isset( $mapped_data['archival_wav'] ) ) {
 				$this->update_acf_field( 'archival_wav', $mapped_data['archival_wav'], $audio_post_id );
 			}
@@ -679,6 +683,7 @@ final class StarmusSubmissionHandler {
 			if ( isset( $form_data['url'] ) ) {
 				$this->update_acf_field( 'url', $form_data['url'], $audio_post_id );
 			}
+
 			if ( isset( $form_data['submission_id'] ) ) {
 				$this->update_acf_field( 'submission_id', sanitize_text_field( $form_data['submission_id'] ), $audio_post_id );
 			}
@@ -687,6 +692,7 @@ final class StarmusSubmissionHandler {
 			if ( ! empty( $mapped_data['language'] ) ) {
 				wp_set_post_terms( $audio_post_id, array( (int) $mapped_data['language'] ), 'language' );
 			}
+
 			if ( ! empty( $mapped_data['recording_type'] ) ) {
 				wp_set_post_terms( $audio_post_id, array( (int) $mapped_data['recording_type'] ), 'recording-type' );
 			}
@@ -741,8 +747,8 @@ final class StarmusSubmissionHandler {
 				'session_uuid' => $session_uuid,
 			);
 			$this->trigger_post_processing( $audio_post_id, $attachment_id, $processing_params );
-		} catch ( Throwable $throwable ) {
-			StarmusLogger::error( 'SubmissionHandler', 'Metadata Save Failed', array( 'error' => $throwable->getMessage() ) );
+		} catch ( Throwable ) {
+			StarmusLogger::error( 'SubmissionHandler', 'Metadata Save Failed' );
 		}
 	}
 
@@ -775,16 +781,22 @@ final class StarmusSubmissionHandler {
 		try {
 			error_log( '[STARMUS PHP] Triggering post processing for post: ' . $post_id . ', attachment: ' . $attachment_id );
 			$processor = new StarmusPostProcessingService();
-			$result = $processor->process( $post_id, $attachment_id, $params );
+			$result    = $processor->process( $post_id, $attachment_id, $params );
 			error_log( '[STARMUS PHP] Post processing result: ' . ( $result ? 'SUCCESS' : 'FAILED' ) );
-			
+
 			if ( ! $result && ! wp_next_scheduled( 'starmus_cron_process_pending_audio', array( $post_id, $attachment_id ) ) ) {
 				error_log( '[STARMUS PHP] Scheduling cron job for post processing retry' );
 				wp_schedule_single_event( time() + 60, 'starmus_cron_process_pending_audio', array( $post_id, $attachment_id ) );
 			}
 		} catch ( Throwable $throwable ) {
 			error_log( '[STARMUS PHP] Post processing trigger failed: ' . $throwable->getMessage() );
-			StarmusLogger::exception( $throwable, ['post_id' => $post_id, 'attachment_id' => $attachment_id] );
+			StarmusLogger::exception(
+				$throwable,
+				array(
+					'post_id'       => $post_id,
+					'attachment_id' => $attachment_id,
+				) 
+			);
 		}
 	}
 
@@ -1029,14 +1041,12 @@ final class StarmusSubmissionHandler {
 	 * @param string $code Error code for identification
 	 * @param string $message Human-readable error message
 	 * @param int $status HTTP status code (default: 400)
-	 * @param array $context Additional context for logging
 	 *
 	 * @return WP_Error Formatted error object
-	 *
 	 * @since 1.0.0
 	 */
-	private function err( string $code, string $message, int $status = 400, array $context = array() ): WP_Error {
-		StarmusLogger::warning( 'SubmissionHandler', \sprintf( '%s: %s', $code, $message ), $context );
+	private function err( string $code, string $message, int $status = 400 ): WP_Error {
+		StarmusLogger::warning( 'SubmissionHandler', \sprintf( '%s: %s', $code, $message ) );
 		return new WP_Error( $code, $message, array( 'status' => $status ) );
 	}
 }

@@ -156,7 +156,7 @@ final class StarmusId3Service {
 	 */
 	public function writeTags( string $filepath, array $tagData ): bool {
 		if ( ! file_exists( $filepath ) ) {
-			StarmusLogger::error( 'StarmusId3Service', 'File missing for tagging', array( 'file' => $filepath ) );
+			StarmusLogger::error( 'StarmusId3Service', 'File missing for tagging' );
 			return false;
 		}
 
@@ -181,19 +181,33 @@ final class StarmusId3Service {
 			$tagwriter->tag_data          = $tagData;
 
 			if ( ! $tagwriter->WriteTags() ) {
-				StarmusLogger::error( 'StarmusId3Service', 'WriteTags Failed', array( 'errors' => $tagwriter->errors ) );
+				StarmusLogger::error( 'StarmusId3Service', 'WriteTags Failed' );
 				return false;
 			}
 
 			if ( $tagwriter->warnings !== array() ) {
-				StarmusLogger::warning( 'StarmusId3Service', 'WriteTags Warnings', array( 'warnings' => $tagwriter->warnings ) );
+				StarmusLogger::warning( 'StarmusId3Service', 'WriteTags Warnings' );
 			}
 
 			return true;
-		} catch ( \Throwable $throwable ) {
-			StarmusLogger::error( 'StarmusId3Service', 'Exception', array( 'msg' => $throwable->getMessage() ) );
+		} catch ( \Throwable ) {
+			StarmusLogger::error( 'StarmusId3Service', 'Exception' );
 			return false;
 		}
+	}
+
+	/**
+	 * Check if file needs bandwidth optimization for African networks
+	 */
+	public function needsAfricaOptimization( string $filepath ): bool {
+		$analysis = $this->analyzeFile( $filepath );
+		$audio    = $analysis['audio'] ?? array();
+
+		$bitrate  = $audio['bitrate'] ?? 0;
+		$filesize = $analysis['filesize'] ?? 0;
+
+		// Optimize if > 64kbps or > 2MB
+		return $bitrate > 64000 || $filesize > ( 2 * 1024 * 1024 );
 	}
 
 	/**

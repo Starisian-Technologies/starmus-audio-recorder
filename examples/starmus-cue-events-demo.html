@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Starmus Audio Editor - Cue Events Demo</title>
+    <link rel="stylesheet" type="text/css" href="../src/css/starmus-audio-recorder-style.css">
+    <style>
+        .waveform-container {
+            margin: 1rem 0;
+        }
+        
+        #zoomview-container, #overview-container {
+            width: 100%;
+            height: 120px;
+            border: 1px solid var(--starmus-glass-border-color);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .hide { display: none; }
+        
+        .log table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .log th, .log td {
+            padding: 0.5rem;
+            border: 1px solid var(--starmus-glass-border-color);
+            text-align: left;
+        }
+        
+        .log th {
+            background: var(--starmus-glass-inner-bg);
+            font-weight: 600;
+        }
+        
+        .log input {
+            width: 100%;
+            padding: 0.25rem;
+            border: 1px solid var(--starmus-glass-border-color);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="starmus-editor sparxstar-glass-card">
+        <div class="starmus-editor__head">
+            <h1>Starmus Audio Editor - Cue Events Demo</h1>
+        </div>
+
+        <div class="starmus-editor__layout">
+            <div class="starmus-editor__wave">
+                <div class="waveform-container">
+                    <div id="zoomview-container"></div>
+                </div>
+                <div class="waveform-container">
+                    <div id="overview-container"></div>
+                </div>
+
+                <audio id="audio" controls class="starmus-audio-full">
+                    <source src="sample.mp3" type="audio/mpeg">
+                    <source src="sample.ogg" type="audio/ogg">
+                    Your browser does not support the audio element.
+                </audio>
+
+                <div class="starmus-editor__controls">
+                    <div class="starmus-btn-group">
+                        <button class="starmus-btn starmus-btn--outline" data-action="zoom-in">Zoom In</button>
+                        <button class="starmus-btn starmus-btn--outline" data-action="zoom-out">Zoom Out</button>
+                        <button class="starmus-btn starmus-btn--secondary" data-action="add-segment">Add Segment</button>
+                        <button class="starmus-btn starmus-btn--secondary" data-action="add-point">Add Point</button>
+                        <button class="starmus-btn starmus-btn--primary" data-action="log-data">Show Data</button>
+                    </div>
+                    <div class="starmus-btn-group">
+                        <input type="text" id="seek-time" value="0.0" style="width: 80px; margin-right: 0.5rem;">
+                        <button class="starmus-btn starmus-btn--outline" data-action="seek">Seek</button>
+                        <button class="starmus-btn starmus-btn--outline" data-action="destroy">Destroy</button>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="starmus-editor__side">
+                <div class="log">
+                    <div id="segments" class="starmus-editor__list hide">
+                        <h3>Segments</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Label</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div id="points" class="starmus-editor__list hide">
+                        <h3>Points</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Label</th>
+                                    <th>Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script type="module">
+        import Peaks from 'peaks.js';
+
+        let peaksInstance = null;
+
+        const renderSegments = (peaks) => {
+            const segmentsContainer = document.getElementById('segments');
+            const segments = peaks.segments.getSegments();
+            let html = '';
+
+            segments.forEach(segment => {
+                html += `
+                    <tr>
+                        <td>${segment.id}</td>
+                        <td><input data-action="update-segment-label" type="text" value="${segment.labelText}" data-id="${segment.id}"/></td>
+                        <td><input data-action="update-segment-start-time" type="number" step="0.1" value="${segment.startTime}" data-id="${segment.id}"/></td>
+                        <td><input data-action="update-segment-end-time" type="number" step="0.1" value="${segment.endTime}" data-id="${segment.id}"/></td>
+                        <td>
+                            <button class="starmus-btn starmus-btn--outline" data-action="play-segment" data-id="${segment.id}">Play</button>
+                            <button class="starmus-btn starmus-btn--outline" data-action="remove-segment" data-id="${segment.id}">Remove</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            segmentsContainer.querySelector('tbody').innerHTML = html;
+            segmentsContainer.classList.toggle('hide', !html.length);
+
+            // Add event listeners for segment updates
+            segmentsContainer.querySelectorAll('input[data-action="update-segment-start-time"]').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const id = e.target.dataset.id;
+                    const segment = peaks.segments.getSegment(id);
+                    if (segment) {
+                        let startTime = parseFloat(e.target.value);
+                        if (startTime < 0) startTime = 0;
+                        if (startTime >= segment.endTime) startTime = segment.endTime - 0.1;
+                        segment.update({ startTime });
+                        e.target.value = startTime;
+                    }
+                });
+            });
+
+            segmentsContainer.querySelectorAll('input[data-action="update-segment-end-time"]').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const id = e.target.dataset.id;
+                    const segment = peaks.segments.getSegment(id);
+                    if (segment) {
+                        let endTime = parseFloat(e.target.value);
+                        if (endTime <= segment.startTime) endTime = segment.startTime + 0.1;
+                        segment.update({ endTime });
+                        e.target.value = endTime;
+                    }
+                });
+            });
+
+            segmentsContainer.querySelectorAll('input[data-action="update-segment-label"]').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const id = e.target.dataset.id;
+                    const segment = peaks.segments.getSegment(id);
+                    if (segment) {
+                        segment.update({ labelText: e.target.value });
+                    }
+                });
+            });
+        };
+
+        const renderPoints = (peaks) => {
+            const pointsContainer = document.getElementById('points');
+            const points = peaks.points.getPoints();
+            let html = '';
+
+            points.forEach(point => {
+                html += `
+                    <tr>
+                        <td>${point.id}</td>
+                        <td><input data-action="update-point-label" type="text" value="${point.labelText}" data-id="${point.id}"/></td>
+                        <td><input data-action="update-point-time" type="number" step="0.1" value="${point.time}" data-id="${point.id}"/></td>
+                        <td>
+                            <button class="starmus-btn starmus-btn--outline" data-action="remove-point" data-id="${point.id}">Remove</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            pointsContainer.querySelector('tbody').innerHTML = html;
+            pointsContainer.classList.toggle('hide', !html.length);
+
+            // Add event listeners for point updates
+            pointsContainer.querySelectorAll('input[data-action="update-point-time"]').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const id = e.target.dataset.id;
+                    const point = peaks.points.getPoint(id);
+                    if (point) {
+                        let time = parseFloat(e.target.value);
+                        if (time < 0) time = 0;
+                        point.update({ time });
+                        e.target.value = time;
+                    }
+                });
+            });
+
+            pointsContainer.querySelectorAll('input[data-action="update-point-label"]').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const id = e.target.dataset.id;
+                    const point = peaks.points.getPoint(id);
+                    if (point) {
+                        point.update({ labelText: e.target.value });
+                    }
+                });
+            });
+        };
+
+        const options = {
+            zoomview: {
+                container: document.getElementById('zoomview-container')
+            },
+            overview: {
+                container: document.getElementById('overview-container')
+            },
+            mediaElement: document.getElementById('audio'),
+            webAudio: {
+                audioContext: new AudioContext()
+            },
+            keyboard: true,
+            pointMarkerColor: '#006eb0',
+            showPlayheadTime: true,
+            emitCueEvents: true
+        };
+
+        Peaks.init(options, (err, peaks) => {
+            if (err) {
+                console.error('Failed to initialize Peaks instance:', err.message);
+                return;
+            }
+
+            peaksInstance = peaks;
+            console.log('Peaks instance ready');
+
+            // Add sample data
+            peaks.segments.add({
+                startTime: 5.5,
+                endTime: 7.5,
+                editable: true,
+                labelText: 'Sample Segment',
+                id: 'testsegment'
+            });
+
+            peaks.points.add({
+                time: 4.3,
+                editable: true,
+                labelText: 'Sample Point',
+                id: 'testpoint'
+            });
+
+            // Event listeners for cue events
+            peaks.on('points.enter', (event) => {
+                console.log('Point entered:', event);
+            });
+
+            peaks.on('segments.enter', (event) => {
+                console.log('Segment entered:', event);
+            });
+
+            peaks.on('segments.exit', (event) => {
+                console.log('Segment exited:', event);
+            });
+        });
+
+        // Control event listeners
+        document.addEventListener('click', (e) => {
+            const action = e.target.dataset.action;
+            const id = e.target.dataset.id;
+
+            if (!peaksInstance) return;
+
+            switch (action) {
+                case 'zoom-in':
+                    peaksInstance.zoom.zoomIn();
+                    break;
+                case 'zoom-out':
+                    peaksInstance.zoom.zoomOut();
+                    break;
+                case 'add-segment':
+                    peaksInstance.segments.add({
+                        startTime: peaksInstance.player.getCurrentTime(),
+                        endTime: peaksInstance.player.getCurrentTime() + 2,
+                        labelText: 'New Segment',
+                        editable: true
+                    });
+                    break;
+                case 'add-point':
+                    peaksInstance.points.add({
+                        time: peaksInstance.player.getCurrentTime(),
+                        labelText: 'New Point',
+                        editable: true
+                    });
+                    break;
+                case 'log-data':
+                    renderSegments(peaksInstance);
+                    renderPoints(peaksInstance);
+                    break;
+                case 'seek':
+                    const time = parseFloat(document.getElementById('seek-time').value);
+                    if (!isNaN(time)) {
+                        peaksInstance.player.seek(time);
+                    }
+                    break;
+                case 'destroy':
+                    peaksInstance.destroy();
+                    peaksInstance = null;
+                    break;
+                case 'play-segment':
+                    const segment = peaksInstance.segments.getSegment(id);
+                    if (segment) {
+                        peaksInstance.player.playSegment(segment);
+                    }
+                    break;
+                case 'remove-point':
+                    peaksInstance.points.removeById(id);
+                    renderPoints(peaksInstance);
+                    break;
+                case 'remove-segment':
+                    peaksInstance.segments.removeById(id);
+                    renderSegments(peaksInstance);
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

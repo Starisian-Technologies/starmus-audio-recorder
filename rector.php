@@ -43,12 +43,17 @@ return RectorConfig::configure()
 			'*/wordpress-installer/*',
 			'*/wp-admin/*',
 			'*/wp-content/*',
+			// TEMPLATES: Skip all template files to preserve PSR-12 braces
+			'*/templates/*',
 			// VIP Standards: Skip incompatible transformations
 			\Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class,
 			\Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class,
 			\Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector::class,
+			// BRACE PRESERVATION: Skip rules that modify control structures
+			\Rector\CodingStyle\Rector\If_\NullableCompareToNullRector::class,
+			\Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector::class,
+			\Rector\CodeQuality\Rector\If_\ExplicitBoolCompareRector::class,
 			// African Performance: Keep explicit error handling
 			\Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector::class,
-			\Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector::class,
 		)
 	);

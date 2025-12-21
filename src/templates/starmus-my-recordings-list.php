@@ -140,8 +140,8 @@ if ( $query->have_posts() ) { ?>
 					<div class="starmus-card__actions">
 						<a href="<?php echo esc_url( get_permalink( $current_post_id ) ); ?>" class="starmus-btn starmus-btn--outline" aria-label="
 						<?php
-																																					/* translators: %s: Recording title/name */
-																																					echo esc_attr( sprintf( __( 'View details for %s', 'starmus-audio-recorder' ), $post_title ) );
+																																				/* translators: %s: Recording title/name */
+																																				echo esc_attr( sprintf( __( 'View details for %s', 'starmus-audio-recorder' ), $post_title ) );
 						?>
 																																					">
 							<?php esc_html_e( 'View Details', 'starmus-audio-recorder' ); ?>
@@ -149,8 +149,8 @@ if ( $query->have_posts() ) { ?>
 
 						<?php if ( ! empty( $edit_page_url ) && current_user_can( 'edit_post', $current_post_id ) ) { ?>
 							<?php
-								// Use 'recording_id' for consistency with Editor/Recorder templates
-								$edit_link    = add_query_arg( 'recording_id', $current_post_id, $edit_page_url );
+							// Use 'recording_id' for consistency with Editor/Recorder templates
+							$edit_link        = add_query_arg( 'recording_id', $current_post_id, $edit_page_url );
 							$secure_edit_link = wp_nonce_url( $edit_link, 'starmus_edit_audio_' . $current_post_id, 'nonce' );
 							?>
 							<a href="<?php echo esc_url( $secure_edit_link ); ?>" class="starmus-btn starmus-btn--primary" aria-label="

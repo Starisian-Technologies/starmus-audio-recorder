@@ -517,7 +517,7 @@ final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface 
 	 */
 	public function record_id3_timestamp( int $attachment_id ): void {
 		try {
-			update_post_meta( $attachment_id, '_audio_id3_written_at', current_time( 'mysql' ) );
+			update_post_meta( $attachment_id, '_audio_id3_written_at', gmdate( 'Y-m-d H:i:s' ) ); // UTC
 		} catch ( Throwable $throwable ) {
 			error_log(
 				'DAL',

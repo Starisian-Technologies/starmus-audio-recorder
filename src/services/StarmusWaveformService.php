@@ -242,7 +242,7 @@ final class StarmusWaveformService {
 				update_field( 'waveform_json', $json_str, $recording_id );
 			}
 
-			StarmusLogger::info( 'StarmusWaveformService', 'Waveform saved.', array( 'id' => $recording_id ) );
+			StarmusLogger::info( 'StarmusWaveformService', 'Waveform saved.' );
 			return true;
 		} catch ( \Throwable $throwable ) {
 			error_log( 'Waveform Save Error: ' . $throwable->getMessage() );

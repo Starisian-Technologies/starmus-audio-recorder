@@ -170,7 +170,7 @@ class StarmusTusdHookHandler {
 		}
 
 		if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			StarmusLogger::debug( 'StarmusTusdHookHandler', 'Received payload', array( 'type' => $event_type ) );
+			StarmusLogger::debug( 'StarmusTusdHookHandler', 'Received payload' );
 		}
 
 		do_action( 'starmus_tusd_event_' . $event_type, $event_data );
@@ -229,7 +229,7 @@ class StarmusTusdHookHandler {
 		if ( is_wp_error( $result ) ) {
 			// Note: tusd will verify this is a non-2xx error and log it, but
 			// the client will not see this error message directly.
-			StarmusLogger::error( 'StarmusTusdHookHandler', 'Upload processing failed', array( 'error' => $result->get_error_message() ) );
+			StarmusLogger::error( 'StarmusTusdHookHandler', 'Upload processing failed' );
 			return $result;
 		}
 
@@ -296,10 +296,10 @@ class StarmusTusdHookHandler {
 
 		if ( file_exists( $normalized_info_path ) && str_starts_with( $normalized_info_path, $basedir ) ) {
 			if ( ! unlink( $normalized_info_path ) ) {
-				StarmusLogger::warning( 'StarmusTusdHookHandler', 'Failed to delete temp info file', array( 'path' => $normalized_info_path ) );
+				StarmusLogger::warning( 'StarmusTusdHookHandler', 'Failed to delete temp info file' );
 			}
 		} elseif ( file_exists( $normalized_info_path ) ) {
-			StarmusLogger::warning( 'StarmusTusdHookHandler', 'Security: Attempted deletion outside uploads', array( 'path' => $normalized_info_path ) );
+			StarmusLogger::warning( 'StarmusTusdHookHandler', 'Security: Attempted deletion outside uploads' );
 		}
 
 		return $result;

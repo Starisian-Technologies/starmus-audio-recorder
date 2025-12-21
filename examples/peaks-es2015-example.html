@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peaks.js ES2015 Module Import Example</title>
+    <style>
+        #zoomview-container, #overview-container {
+            width: 1000px;
+            height: 100px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        .controls button {
+            margin: 0 5px;
+            padding: 8px 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Peaks.js ES2015 Module Import Example</h1>
+    
+    <!-- Waveform containers -->
+    <div id="zoomview-container"></div>
+    <div id="overview-container"></div>
+    
+    <!-- Audio element -->
+    <audio id="audio" controls>
+        <source src="sample.mp3" type="audio/mpeg">
+        <source src="sample.ogg" type="audio/ogg">
+        Your browser does not support the audio element.
+    </audio>
+    
+    <!-- Controls -->
+    <div class="controls">
+        <button onclick="playPause()">Play/Pause</button>
+        <button onclick="addSegment()">Add Segment</button>
+        <button onclick="zoomIn()">Zoom In</button>
+        <button onclick="zoomOut()">Zoom Out</button>
+    </div>
+    
+    <script type="module">
+        import Peaks from 'https://unpkg.com/peaks.js/dist/peaks.esm.js';
+        
+        let peaksInstance = null;
+        
+        const options = {
+            zoomview: {
+                container: document.getElementById('zoomview-container')
+            },
+            overview: {
+                container: document.getElementById('overview-container')
+            },
+            mediaElement: document.getElementById('audio'),
+            webAudio: {
+                audioContext: new AudioContext()
+            }
+        };
+
+        Peaks.init(options, function(err, peaks) {
+            if (err) {
+                console.error('Failed to initialize Peaks instance: ' + err.message);
+                return;
+            }
+
+            peaksInstance = peaks;
+            console.log('Peaks.js initialized successfully');
+            
+            // Add example segment
+            peaks.segments.add({
+                startTime: 5,
+                endTime: 15,
+                label: 'Example Segment',
+                color: '#ff0000'
+            });
+        });
+        
+        // Control functions
+        window.playPause = function() {
+            const audio = document.getElementById('audio');
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        };
+        
+        window.addSegment = function() {
+            if (peaksInstance) {
+                const audio = document.getElementById('audio');
+                const currentTime = audio.currentTime;
+                peaksInstance.segments.add({
+                    startTime: currentTime,
+                    endTime: currentTime + 10,
+                    label: 'New Segment',
+                    color: '#00ff00'
+                });
+            }
+        };
+        
+        window.zoomIn = function() {
+            if (peaksInstance) {
+                peaksInstance.zoom.zoomIn();
+            }
+        };
+        
+        window.zoomOut = function() {
+            if (peaksInstance) {
+                peaksInstance.zoom.zoomOut();
+            }
+        };
+    </script>
+</body>
+</html>

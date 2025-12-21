@@ -34,11 +34,20 @@
   <!-- Target PHP version -->
   <config name="testVersion" value="8.2-"/>
 
-  <!-- Core standards (relaxed for phpcbf) -->
+  <!-- Starmus Enterprise Standards (Auto-fixable rules only) -->
   <rule ref="WordPress-Core">
     <exclude name="WordPress.Files.FileName"/>
     <exclude name="WordPress.NamingConventions.ValidVariableName"/>
+    <exclude name="WordPress.NamingConventions.ValidFunctionName"/>
   </rule>
+  
+  <!-- Auto-fixable formatting rules -->
+  <rule ref="Generic.WhiteSpace.ScopeIndent"/>
+  <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
+  <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace"/>
+  <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+  <rule ref="PSR2.ControlStructures.ControlStructureSpacing"/>
+  <rule ref="Squiz.ControlStructures.ControlSignature"/>
   <rule ref="WordPress-Extra">
     <exclude name="WordPress.Files.FileName"/>
   </rule>

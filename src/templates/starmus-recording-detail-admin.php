@@ -38,24 +38,24 @@ try {
 
 	// --- 1. Audio Assets (New Schema) ---
 	// ACF fields return URLs when return_format is 'url', but we need attachment IDs
-	$mastered_mp3_field = get_field( 'mastered_mp3', $post_id );
-	$archival_wav_field = get_field( 'archival_wav', $post_id );
+	$mastered_mp3_field    = get_field( 'mastered_mp3', $post_id );
+	$archival_wav_field    = get_field( 'archival_wav', $post_id );
 	$original_source_field = get_field( 'original_source', $post_id );
-	
+
 	// If ACF returns URLs, we need to get attachment IDs from URLs
-	if ( is_string( $mastered_mp3_field ) && ! empty( $mastered_mp3_field ) ) {
+	if ( is_string( $mastered_mp3_field ) && ( $mastered_mp3_field !== '' && $mastered_mp3_field !== '0' ) ) {
 		$mastered_mp3_id = attachment_url_to_postid( $mastered_mp3_field );
 	} else {
 		$mastered_mp3_id = (int) $mastered_mp3_field;
 	}
-	
-	if ( is_string( $archival_wav_field ) && ! empty( $archival_wav_field ) ) {
+
+	if ( is_string( $archival_wav_field ) && ( $archival_wav_field !== '' && $archival_wav_field !== '0' ) ) {
 		$archival_wav_id = attachment_url_to_postid( $archival_wav_field );
 	} else {
 		$archival_wav_id = (int) $archival_wav_field;
 	}
-	
-	if ( is_string( $original_source_field ) && ! empty( $original_source_field ) ) {
+
+	if ( is_string( $original_source_field ) && ( $original_source_field !== '' && $original_source_field !== '0' ) ) {
 		$original_id = attachment_url_to_postid( $original_source_field );
 	} else {
 		$original_id = (int) $original_source_field;
@@ -118,24 +118,24 @@ try {
 	// Simple parser for display
 	if ( $ua_string ) {
 		$browser = 'Unknown';
-		if ( str_contains( $ua_string, 'Chrome' ) ) {
+		if ( str_contains( (string) $ua_string, 'Chrome' ) ) {
 			$browser = 'Chrome';
-		} elseif ( str_contains( $ua_string, 'Firefox' ) ) {
+		} elseif ( str_contains( (string) $ua_string, 'Firefox' ) ) {
 			$browser = 'Firefox';
-		} elseif ( str_contains( $ua_string, 'Safari' ) ) {
+		} elseif ( str_contains( (string) $ua_string, 'Safari' ) ) {
 			$browser = 'Safari';
 		}
 
 		$os = 'Unknown';
-		if ( str_contains( $ua_string, 'Android' ) ) {
+		if ( str_contains( (string) $ua_string, 'Android' ) ) {
 			$os = 'Android';
-		} elseif ( str_contains( $ua_string, 'Windows' ) ) {
+		} elseif ( str_contains( (string) $ua_string, 'Windows' ) ) {
 			$os = 'Windows';
-		} elseif ( str_contains( $ua_string, 'Mac' ) ) {
+		} elseif ( str_contains( (string) $ua_string, 'Mac' ) ) {
 			$os = 'MacOS';
-		} elseif ( str_contains( $ua_string, 'Linux' ) ) {
+		} elseif ( str_contains( (string) $ua_string, 'Linux' ) ) {
 			$os = 'Linux';
-		} elseif ( str_contains( $ua_string, 'CrOS' ) ) {
+		} elseif ( str_contains( (string) $ua_string, 'CrOS' ) ) {
 			$os = 'ChromeOS';
 		}
 
@@ -181,13 +181,13 @@ try {
 		</h1>
 
 		<div class="starmus-detail__meta-badges">
-			<span class="starmus-badge"><strong>ID:</strong> <?php echo intval( $post_id ); ?></span>
-			<span class="starmus-badge"><strong>Date:</strong> <?php echo esc_html( get_the_date( 'Y-m-d H:i', $post_id ) ); ?></span>
+			<span class="starmus-badge"><?php echo intval( $post_id ); ?></span>
+			<span class="starmus-badge"><?php echo esc_html( get_the_date( 'F j, Y g:i A', $post_id ) ); ?></span>
 			<?php if ( ! empty( $languages ) && ! is_wp_error( $languages ) ) { ?>
-				<span class="starmus-badge"><strong>Lang:</strong> <?php echo esc_html( $languages[0]->name ); ?></span>
+				<span class="starmus-badge"><?php echo esc_html( $languages[0]->name ); ?></span>
 			<?php } ?>
-			<?php if ( ! empty( $rec_types ) && ! is_wp_error( $rec_types ) ) { ?>
-				<span class="starmus-badge"><strong>Type:</strong> <?php echo esc_html( $rec_types[0]->name ); ?></span>
+			<?php if ( ! empty( $rec_types ) && ! is_wp_error( $recording_types ) ) { ?>
+				<span class="starmus-badge"><?php echo esc_html( $recording_types[0]->name ); ?></span>
 			<?php } ?>
 		</div>
 	</header>
@@ -222,28 +222,25 @@ try {
 					<td><strong>Mastered MP3</strong></td>
 					<td><?php echo $mastered_mp3_id !== 0 ? '<span style="color:var(--starmus-success);">✔ Available</span>' : '<span style="color:var(--starmus-warning);">Processing...</span>'; ?></td>
 					<td>
-					<?php
-					if ( $mp3_url ) {
-						?>
-						<a href="<?php echo esc_url( $mp3_url ); ?>" target="_blank" download class="starmus-btn starmus-btn--outline" style="padding:4px 8px;font-size:0.8em;">Download</a><?php } ?></td>
+					<?php if ( $mp3_url ) { ?>
+						<a href="<?php echo esc_url( $mp3_url ); ?>" target="_blank" download class="starmus-btn starmus-btn--outline" style="padding:4px 8px;font-size:0.8em;">Download</a>
+					<?php } ?></td>
 				</tr>
 				<tr>
 					<td><strong>Archival WAV</strong></td>
 					<td><?php echo $archival_wav_id !== 0 ? '<span style="color:var(--starmus-success);">✔ Available</span>' : '<span style="color:var(--starmus-text-muted);">Not generated</span>'; ?></td>
 					<td>
-					<?php
-					if ( $wav_url ) {
-						?>
-						<a href="<?php echo esc_url( $wav_url ); ?>" target="_blank" download class="starmus-btn starmus-btn--outline" style="padding:4px 8px;font-size:0.8em;">Download</a><?php } ?></td>
+					<?php if ( $wav_url ) { ?>
+						<a href="<?php echo esc_url( $wav_url ); ?>" target="_blank" download class="starmus-btn starmus-btn--outline" style="padding:4px 8px;font-size:0.8em;">Download</a>
+					<?php } ?></td>
 				</tr>
 				<tr>
 					<td><strong>Original Source</strong></td>
 					<td><?php echo ( $original_id !== 0 ) ? '<span style="color:var(--starmus-success);">✔ Available</span>' : '<span style="color:var(--starmus-danger);">MISSING</span>'; ?></td>
 					<td>
-					<?php
-					if ( $original_url ) {
-						?>
-						<a href="<?php echo esc_url( $original_url ); ?>" target="_blank" download class="starmus-btn starmus-btn--outline" style="padding:4px 8px;font-size:0.8em;">Download</a><?php } ?></td>
+					<?php if ( $original_url ) { ?>
+						<a href="<?php echo esc_url( $original_url ); ?>" target="_blank" download class="starmus-btn starmus-btn--outline" style="padding:4px 8px;font-size:0.8em;">Download</a>
+					<?php } ?></td>
 				</tr>
 			</tbody>
 		</table>

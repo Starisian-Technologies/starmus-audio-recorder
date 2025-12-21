@@ -45,24 +45,24 @@ try {
 
 	// --- 1. Audio Assets (New Schema) ---
 	// ACF fields return URLs when return_format is 'url', but we need attachment IDs
-	$mastered_mp3_field = get_field( 'mastered_mp3', $post_id );
-	$archival_wav_field = get_field( 'archival_wav', $post_id );
+	$mastered_mp3_field    = get_field( 'mastered_mp3', $post_id );
+	$archival_wav_field    = get_field( 'archival_wav', $post_id );
 	$original_source_field = get_field( 'original_source', $post_id );
-	
+
 	// If ACF returns URLs, we need to get attachment IDs from URLs
-	if ( is_string( $mastered_mp3_field ) && ! empty( $mastered_mp3_field ) ) {
+	if ( is_string( $mastered_mp3_field ) && ( $mastered_mp3_field !== '' && $mastered_mp3_field !== '0' ) ) {
 		$mastered_mp3_id = attachment_url_to_postid( $mastered_mp3_field );
 	} else {
 		$mastered_mp3_id = (int) $mastered_mp3_field;
 	}
-	
-	if ( is_string( $archival_wav_field ) && ! empty( $archival_wav_field ) ) {
+
+	if ( is_string( $archival_wav_field ) && ( $archival_wav_field !== '' && $archival_wav_field !== '0' ) ) {
 		$archival_wav_id = attachment_url_to_postid( $archival_wav_field );
 	} else {
 		$archival_wav_id = (int) $archival_wav_field;
 	}
-	
-	if ( is_string( $original_source_field ) && ! empty( $original_source_field ) ) {
+
+	if ( is_string( $original_source_field ) && ( $original_source_field !== '' && $original_source_field !== '0' ) ) {
 		$original_id = attachment_url_to_postid( $original_source_field );
 	} else {
 		$original_id = (int) $original_source_field;
@@ -135,24 +135,24 @@ try {
 
 	if ( $ua_string ) {
 		$browser = 'Unknown';
-		if ( str_contains( $ua_string, 'Chrome' ) ) {
+		if ( str_contains( (string) $ua_string, 'Chrome' ) ) {
 			$browser = 'Chrome';
-		} elseif ( str_contains( $ua_string, 'Firefox' ) ) {
+		} elseif ( str_contains( (string) $ua_string, 'Firefox' ) ) {
 			$browser = 'Firefox';
-		} elseif ( str_contains( $ua_string, 'Safari' ) ) {
+		} elseif ( str_contains( (string) $ua_string, 'Safari' ) ) {
 			$browser = 'Safari';
 		}
 
 		$os = 'Unknown';
-		if ( str_contains( $ua_string, 'Android' ) ) {
+		if ( str_contains( (string) $ua_string, 'Android' ) ) {
 			$os = 'Android';
-		} elseif ( str_contains( $ua_string, 'Windows' ) ) {
+		} elseif ( str_contains( (string) $ua_string, 'Windows' ) ) {
 			$os = 'Windows';
-		} elseif ( str_contains( $ua_string, 'Mac' ) ) {
+		} elseif ( str_contains( (string) $ua_string, 'Mac' ) ) {
 			$os = 'MacOS';
-		} elseif ( str_contains( $ua_string, 'Linux' ) ) {
+		} elseif ( str_contains( (string) $ua_string, 'Linux' ) ) {
 			$os = 'Linux';
-		} elseif ( str_contains( $ua_string, 'CrOS' ) ) {
+		} elseif ( str_contains( (string) $ua_string, 'CrOS' ) ) {
 			$os = 'ChromeOS';
 		}
 

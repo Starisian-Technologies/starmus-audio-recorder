@@ -360,10 +360,7 @@ final class StarmusRESTHandler {
 			$files = $request->get_file_params();
 			StarmusLogger::debug(
 				'StarmusRESTHandler',
-				'Fallback upload request',
-				array(
-					'files' => array_keys( $files ), // Log keys only for security
-				)
+				'Fallback upload request'
 			);
 
 			// Defensive file-key handling
@@ -526,7 +523,7 @@ final class StarmusRESTHandler {
 						'code'    => 'not_found',
 						'message' => 'Submission not found',
 					),
-					404 
+					404
 				);
 			}
 
@@ -536,7 +533,7 @@ final class StarmusRESTHandler {
 						'code'    => 'invalid_type',
 						'message' => 'Not an audio recording',
 					),
-					403 
+					403
 				);
 			}
 
@@ -558,7 +555,7 @@ final class StarmusRESTHandler {
 					'code'    => 'server_error',
 					'message' => 'Could not fetch status',
 				),
-				500 
+				500
 			);
 		}
 	}

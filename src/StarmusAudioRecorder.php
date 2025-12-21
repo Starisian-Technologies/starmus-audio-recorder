@@ -172,12 +172,13 @@ final class StarmusAudioRecorder {
 				$log_level = 'debug';
 			} elseif ( \function_exists( 'wp_get_environment_type' ) ) {
 				$env = wp_get_environment_type();
-				if ( in_array( $env, ['development', 'staging'], true ) ) {
+				if ( \in_array( $env, array( 'development', 'staging' ), true ) ) {
 					$log_level = 'debug';
 				}
 			}
+
 			StarmusLogger::setMinLogLevel( $log_level );
-			
+
 			$this->set_DAL();
 			$this->init_settings_or_throw();
 			$this->init_components();
@@ -310,7 +311,7 @@ final class StarmusAudioRecorder {
 			$filtered_dal = apply_filters( 'starmus_register_dal', $default_dal, $override_key );
 		} catch ( Throwable $throwable ) {
 			StarmusLogger::exception( $throwable );
-			$this->DAL     = $default_dal;
+			$this->DAL = $default_dal;
 			return;
 		}
 

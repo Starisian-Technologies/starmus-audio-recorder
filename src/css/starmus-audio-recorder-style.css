@@ -31,7 +31,8 @@
   --starmus-primary-strong: #d449db;
   --starmus-glass-bg: rgb(255, 255, 255, 90%);
   --starmus-glass-inner-bg: rgb(255, 255, 255, 40%);
-  --starmus-glass-border-color: var(--starmus-theme-glass-border);
+  --starmus-glass-border-color: var(--starmus-theme-glass-border, var(--starmus-accent-hex), transparent 80%);
+  --starmus-glass-border-highlight-color: var(--wp--preset--color--accent-2, var(--starmus-primary-hex), transparent 90%);
   --starmus-glass-blur: 0;
   --starmus-glass-shadow: 0 10px 30px rgb(0, 0, 0, 10%);
   --starmus-danger: var(--starmus-danger-hex);
@@ -103,6 +104,9 @@
 .starmus-actions-card {
   background: var(--starmus-glass-bg);
   border: 1px solid var(--starmus-glass-border-color);
+  border: 1px solid var(--starmus-glass-border-color);
+  border-top: 1px solid var(--starmus-glass-border-highlight-color);
+  border-left: 1px solid var(--starmus-glass-border-highlight-color);
   border-radius: 16px;
   box-shadow: var(--starmus-glass-shadow);
   padding: 1.5rem;
@@ -177,6 +181,12 @@
   border-radius: 8px;
   padding: 1rem;
   margin: 1.5rem 0;
+}
+
+.starmus-consent-field{
+  display: flex;
+  align-items: center; /* This keeps them perfectly centered vertically */
+  gap: 8px; 
 }
 
 /* Notices & Messages (Restored) */
@@ -354,8 +364,8 @@ button[data-starmus-action='setup-mic'] {
   gap: 1.5rem;
 }
 
-.starmus-card__header { border-bottom: 1px solid var(--starmus-glass-border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
-.starmus-card__title { font-size: 1.25rem; margin: 0 0 0.5rem; }
+.starmus-card__header { border-bottom: 1px solid var(--starmus-glass-border-color); padding-bottom: 1rem; margin-bottom: 1rem; text-transform: capitalize; }
+.starmus-card__title { font-size: 1.25rem; margin: 0 0 0.5rem; text-transform: capitalize;}
 .starmus-card__title a { text-decoration: none; color: var(--starmus-text); }
 .starmus-card__title a:hover { color: var(--starmus-primary-strong); }
 
@@ -392,8 +402,196 @@ button[data-starmus-action='setup-mic'] {
    ======================================================================== */
 
 .starmus-admin-detail, .starmus-user-detail { max-width: 1100px; margin: 0 auto; }
-.starmus-detail__header h1 { font-size: 2rem; margin: 0 0 1rem; color: var(--starmus-primary); }
+.starmus-detail__header h1 { font-size: 2rem; margin: 0 0 1rem; color: var(--starmus-primary); text-transform: capitalize; }
 .starmus-detail__meta-badges, .starmus-meta-row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+.starmus-badge { display: inline-flex; align-items: center; padding: 0.5rem 1rem; background: var(--starmus-glass-inner-bg); border-radius: 8px; }
+
+.starmus-layout-split, .starmus-admin-detail__grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+
+@media (width >= 1024px) {
+  .starmus-layout-split, .starmus-admin-detail__grid { grid-template-columns: 2fr 1fr; }
+}
+
+.starmus-info-table { width: 100%; border-collapse: collapse; }
+.starmus-info-table th, .starmus-info-table td { padding: 10px; border-bottom: 1px solid var(--starmus-glass-border-color); text-align: left; }
+.starmus-info-table th { font-weight: 600; width: 35%; }
+
+.starmus-dl-list { display: grid; gap: 1rem; }
+.starmus-dl-item { display: flex; justify-content: space-between; border-bottom: 1px solid var(--starmus-glass-border-color); padding-bottom: 0.5rem; }
+.starmus-btn-stack { display: flex; flex-direction: column; gap: 10px; }
+
+/* ========================================================================
+   9. EDITOR UI (RESTORED)
+   ======================================================================== */
+
+.starmus-editor { max-width: 1400px; margin: 0 auto; }
+
+.starmus-editor__head {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  margin-bottom: 1.5rem; 
+  padding-bottom: 1rem; 
+  border-bottom: 1px solid var(--starmus-glass-border-color);
+}
+
+.starmus-editor__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (width >= 1024px) {
+  .starmus-editor__layout {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.starmus-editor__wave {
+  min-height: 300px;
+}
+
+.starmus-editor__zoom,
+.starmus-editor__overview {
+  height: 120px;
+  margin-bottom: 1rem;
+}
+
+.starmus-editor__side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@supports (position: sticky) {
+  .starmus-editor__head { position: sticky; top: 0; z-index: 10; }
+}
+
+.starmus-editor__controls { display: flex; align-items: center; gap: 10px; padding: 10px 0; flex-wrap: wrap; }
+.starmus-editor__spacer { flex: 1; }
+.starmus-editor__id-badge { font-size: 0.5em; background: #eee; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
+.starmus-editor__loop { display: flex; align-items: center; gap: 0.5rem; }
+.starmus-empty-state { padding: 20px; text-align: center; color: #888; font-style: italic; }
+
+.starmus-btn-group { display: flex; gap: 2px; }
+.starmus-transcript-box { color: #000 !important; }
+
+.starmus-word:hover { background: rgb(0,0,0,5%); }
+.starmus-word.is-active { background: var(--starmus-primary); color: #fff; }
+
+/* Alert styles for editor notifications */
+.starmus-alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid;
+}
+
+.starmus-alert--success {
+  background-color: color-mix(in srgb, var(--starmus-success) 10%, transparent 90%);
+  border-color: var(--starmus-success);
+  color: var(--starmus-success);
+}
+
+.starmus-alert--error {
+  background-color: color-mix(in srgb, var(--starmus-danger) 10%, transparent 90%);
+  border-color: var(--starmus-danger);
+  color: var(--starmus-danger);
+}
+
+.starmus-alert--info {
+  background-color: color-mix(in srgb, var(--starmus-primary) 10%, transparent 90%);
+  border-color: var(--starmus-primary);
+  color: var(--starmus-primary);
+}
+
+/* Cue events highlight effect */
+.starmus-highlight {
+  background-color: var(--starmus-primary-soft) !important;
+  transition: background-color 0.3s ease;
+}
+
+.starmus-info-table tr.starmus-highlight td {
+  background-color: inherit;
+}
+
+/* ========================================================================
+   10. UTILITIES & ANIMATIONS
+   ======================================================================== */
+
+.starmus-visually-hidden,
+.screen-reader-text {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;
+}
+
+@keyframes starmus-spin { 100% { transform: rotate(360deg); } }
+
+@keyframes starmus-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+@media (width <= 768px) {
+  .starmus-recorder-form.starmus-immersive {
+    position: fixed; inset: 0; z-index: 9999; margin: 0; border-radius: 0;
+    overflow-y: auto; background: var(--starmus-theme-glass-base);
+  }
+  
+  .starmus-editor__layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .starmus-editor__controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .starmus-btn-group {
+    justify-content: center;
+  }
+}
+
+select option { color: #000 !important; background: #fff !important; };
+}
+
+.starmus-card__header { text-transform: capitalize; border-bottom: 1px solid var(--starmus-glass-border-color); padding-bottom: 1rem; margin-bottom: 1rem; text-transform: capitalize; }
+.starmus-card__title { font-size: 1.5rem; margin: 0 0 0.5rem; text-transform: capitalize; }
+.starmus-card__title a { text-decoration: none; color: var(--starmus-text); }
+.starmus-card__title a:hover { color: var(--starmus-primary-strong); }
+.starmus-card__date { font-size: 0.75rem; color: var(--starmus-text-muted); }
+.starmus-card__meta { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.starmus-card__duration { font-size: 0.75rem; color: var(--starmus-text-muted); text-align:right; padding-right:8px; }
+.starmus-card__type, .starmus-card__language, .starmus-tag {
+  font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;
+  background: var(--starmus-glass-inner-bg); color: var(--starmus-text); font-weight: 600;
+}
+
+.starmus-card__audio { margin: 1rem 0; }
+.starmus-audio-player, .starmus-audio-full { width: 100%; height: 40px; }
+.starmus-card__actions { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--starmus-glass-border-color); display: flex; gap: 0.5rem; }
+.starmus-card__actions .starmus-btn { flex: 1; font-size: 0.875rem; }
+
+/* Pagination (Restored) */
+.starmus-pagination { margin-top: 2rem; display: flex; justify-content: center; }
+.starmus-pagination__list { display: flex; list-style: none; padding: 0; margin: 0; gap: 0.5rem; }
+
+.starmus-pagination__item .page-numbers {
+  display: flex; align-items: center; justify-content: center;
+  min-width: 40px; height: 40px; padding: 0 10px; border-radius: 8px;
+  background: var(--starmus-glass-inner-bg); border: 1px solid var(--starmus-glass-border-color);
+  color: var(--starmus-text); text-decoration: none; font-weight: 600;
+}
+
+.starmus-pagination__item .page-numbers.current,
+.starmus-pagination__item .page-numbers:hover {
+  background: var(--starmus-primary); color: #fff;
+}
+
+/* ========================================================================
+   8. ADMIN & USER DETAIL (RESTORED)
+   ======================================================================== */
+
+.starmus-admin-detail, .starmus-user-detail { max-width: 1100px; margin: 0 auto; }
+.starmus-detail__header h1 { font-size: 2rem; margin: 0 0 1rem; color: var(--starmus-primary); }
+.starmus-detail__meta-badges, .starmus-meta-row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin: 1rem; }
 .starmus-badge { display: inline-flex; align-items: center; padding: 0.5rem 1rem; background: var(--starmus-glass-inner-bg); border-radius: 8px; }
 
 .starmus-layout-split, .starmus-admin-detail__grid { display: grid; grid-template-columns: 1fr; gap: 20px; }

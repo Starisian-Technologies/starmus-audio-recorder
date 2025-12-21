@@ -201,8 +201,10 @@
         height: 180,
         zoomLevels: [64, 128, 256, 512, 1024, 2048],
         segments,
-        keyboard: false,
-        showPlayheadTime: true
+        keyboard: true,
+        showPlayheadTime: true,
+        emitCueEvents: true,
+        pointMarkerColor: '#006eb0'
       }, (err, peaks) => {
         if (err) {
           console.error('Peaks init error:', err);
@@ -326,6 +328,21 @@
         };
 
         render();
+
+        // Cue event listeners for enhanced interactivity
+        peaks.on('points.enter', (event) => {
+          console.log('Point entered:', event.point.labelText, 'at', event.point.time);
+          showNotice(`Entered point: ${event.point.labelText}`, 'success');
+        });
+
+        peaks.on('segments.enter', (event) => {
+          console.log('Segment entered:', event.segment.labelText);
+          showNotice(`Entered segment: ${event.segment.labelText}`, 'success');
+        });
+
+        peaks.on('segments.exit', (event) => {
+          console.log('Segment exited:', event.segment.labelText);
+        });
       });
     });
   }

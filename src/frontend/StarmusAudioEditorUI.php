@@ -323,7 +323,7 @@ final class StarmusAudioEditorUI {
 						'success' => false,
 						'message' => 'Too many requests.',
 					),
-					429 
+					429
 				);
 			}
 
@@ -333,7 +333,7 @@ final class StarmusAudioEditorUI {
 						'success' => false,
 						'message' => $val->get_error_message(),
 					),
-					400 
+					400
 				);
 			}
 
@@ -348,7 +348,7 @@ final class StarmusAudioEditorUI {
 					'success' => true,
 					'count'   => \count( $annotations ),
 				),
-				200 
+				200
 			);
 		} catch ( Throwable $throwable ) {
 			$this->log_error( $throwable );
@@ -357,7 +357,7 @@ final class StarmusAudioEditorUI {
 					'success' => false,
 					'message' => 'Internal server error.',
 				),
-				500 
+				500
 			);
 		}
 	}

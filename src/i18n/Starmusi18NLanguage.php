@@ -61,7 +61,7 @@ final class Starmusi18NLanguage {
 	 * @since 1.0.0
 	 */
 	public function __construct() {
-		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
+		add_action( 'plugins_loaded', $this->load_textdomain( ... ) );
 	}
 
 	/**
@@ -73,7 +73,6 @@ final class Starmusi18NLanguage {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return void
 	 *
 	 * @example Translation file examples:
 	 * - starmus-audio-recorder-en_US.mo (English - United States)

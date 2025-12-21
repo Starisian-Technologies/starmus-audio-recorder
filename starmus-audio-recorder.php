@@ -135,7 +135,7 @@ if ( ! file_exists( $autoloader ) ) {
 		$log_level = 'debug';
 	} elseif ( \function_exists( 'wp_get_environment_type' ) ) {
 		$env = wp_get_environment_type();
-		if ( in_array( $env, ['development', 'staging'], true ) ) {
+		if ( in_array( $env, array( 'development', 'staging' ), true ) ) {
 			$log_level = 'debug';
 		}
 	}

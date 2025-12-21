@@ -73,7 +73,7 @@ final readonly class StarmusCron {
 
 		if ( ! wp_next_scheduled( self::PROCESS_AUDIO_HOOK, array( $attachment_id ) ) ) {
 			wp_schedule_single_event( time() + 60, self::PROCESS_AUDIO_HOOK, array( $attachment_id ) );
-			StarmusLogger::info( 'Cron', 'Scheduled audio processing', array( 'attachment_id' => $attachment_id ) );
+			StarmusLogger::info( 'Cron', 'Scheduled audio processing' );
 		}
 	}
 
@@ -86,7 +86,7 @@ final readonly class StarmusCron {
 		}
 
 		StarmusLogger::setCorrelationId();
-		StarmusLogger::info( 'Cron', 'Starting background pipeline', array( 'attachment_id' => $attachment_id ) );
+		StarmusLogger::info( 'Cron', 'Starting background pipeline' );
 		update_post_meta( $attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_PROCESSING );
 
 		try {
@@ -111,11 +111,7 @@ final readonly class StarmusCron {
 				do_action( 'starmus_audio_pipeline_complete', $attachment_id );
 				StarmusLogger::info(
 					'Cron',
-					'Background processing complete',
-					array(
-						'attachment_id' => $attachment_id,
-						'post_id'       => $parent_id,
-					)
+					'Background processing complete'
 				);
 			} else {
 				update_post_meta( $attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN );
@@ -157,11 +153,7 @@ final readonly class StarmusCron {
 
 		StarmusLogger::debug(
 			'Cron',
-			'Temp cleanup executed',
-			array(
-				'dir'           => $dir,
-				'removed_count' => \count( $files ),
-			)
+			'Temp cleanup executed'
 		);
 	}
 
