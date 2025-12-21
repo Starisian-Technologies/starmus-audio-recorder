@@ -156,7 +156,7 @@ final class StarmusSubmissionHandler {
 			add_action( 'starmus_cleanup_temp_files', $this->cleanup_stale_temp_files( ... ) );
 			StarmusLogger::info( 'SubmissionHandler', 'Constructed successfully' );
 		} catch ( Throwable $throwable ) {
-			StarmusLogger::error( 'SubmissionHandler', 'Construction failed' );
+			StarmusLogger::info( 'SubmissionHandler', 'Construction failed' );
 			throw $throwable;
 		}
 	}
@@ -335,7 +335,7 @@ final class StarmusSubmissionHandler {
 			);
 		} catch ( Throwable $throwable ) {
 			error_log( '[STARMUS PHP] CRITICAL: ' . $throwable->getMessage() . ' in ' . $throwable->getFile() . ':' . $throwable->getLine() );
-			StarmusLogger::error( 'SubmissionHandler', 'Finalize Exception' );
+			StarmusLogger::info( 'SubmissionHandler', 'Finalize Exception' );
 			return $this->err( 'server_error', 'File finalization failed.', 500 );
 		}
 	}
@@ -429,7 +429,7 @@ final class StarmusSubmissionHandler {
 				'data'    => $result['data'],
 			);
 		} catch ( Throwable ) {
-			StarmusLogger::error( 'SubmissionHandler', 'Fallback REST Exception' );
+			StarmusLogger::info( 'SubmissionHandler', 'Fallback REST Exception' );
 			return $this->err( 'server_error', 'Fallback upload exception.', 500 );
 		}
 	}
@@ -515,7 +515,7 @@ final class StarmusSubmissionHandler {
 				),
 			);
 		} catch ( Throwable ) {
-			StarmusLogger::error( 'SubmissionHandler', 'Process Fallback Exception' );
+			StarmusLogger::info( 'SubmissionHandler', 'Process Fallback Exception' );
 			return $this->err( 'server_error', 'Fallback processing failed.', 500 );
 		}
 	}
@@ -748,7 +748,7 @@ final class StarmusSubmissionHandler {
 			);
 			$this->trigger_post_processing( $audio_post_id, $attachment_id, $processing_params );
 		} catch ( Throwable ) {
-			StarmusLogger::error( 'SubmissionHandler', 'Metadata Save Failed' );
+			StarmusLogger::info( 'SubmissionHandler', 'Metadata Save Failed' );
 		}
 	}
 
@@ -1046,7 +1046,7 @@ final class StarmusSubmissionHandler {
 	 * @since 1.0.0
 	 */
 	private function err( string $code, string $message, int $status = 400 ): WP_Error {
-		StarmusLogger::warning( 'SubmissionHandler', \sprintf( '%s: %s', $code, $message ) );
+		StarmusLogger::info( 'SubmissionHandler', \sprintf( '%s: %s', $code, $message ) );
 		return new WP_Error( $code, $message, array( 'status' => $status ) );
 	}
 }
