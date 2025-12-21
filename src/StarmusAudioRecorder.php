@@ -177,8 +177,6 @@ final class StarmusAudioRecorder {
 				}
 			}
 
-			StarmusLogger::setMinLogLevel( $log_level );
-
 			$this->set_DAL();
 			$this->init_settings_or_throw();
 			$this->init_components();
