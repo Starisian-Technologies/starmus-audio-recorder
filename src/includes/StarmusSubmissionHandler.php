@@ -155,8 +155,8 @@ final class StarmusSubmissionHandler {
 
 			add_action( 'starmus_cleanup_temp_files', $this->cleanup_stale_temp_files( ... ) );
 			StarmusLogger::info( 'SubmissionHandler', 'Constructed successfully' );
-		} catch ( Throwable $throwable ) {
-			StarmusLogger::info( 'SubmissionHandler', 'Construction failed' );
+		} catch ( \Throwable $throwable ) {
+			StarmusLogger::info( $throwable );
 			throw $throwable;
 		}
 	}
@@ -334,8 +334,7 @@ final class StarmusSubmissionHandler {
 				'url'           => wp_get_attachment_url( (int) $attachment_id ),
 			);
 		} catch ( Throwable $throwable ) {
-			error_log( '[STARMUS PHP] CRITICAL: ' . $throwable->getMessage() . ' in ' . $throwable->getFile() . ':' . $throwable->getLine() );
-			StarmusLogger::info( 'SubmissionHandler', 'Finalize Exception' );
+			StarmusLogger::info( $throwable );
 			return $this->err( 'server_error', 'File finalization failed.', 500 );
 		}
 	}
@@ -428,8 +427,8 @@ final class StarmusSubmissionHandler {
 				'success' => true,
 				'data'    => $result['data'],
 			);
-		} catch ( Throwable ) {
-			StarmusLogger::info( 'SubmissionHandler', 'Fallback REST Exception' );
+		} catch ( \Throwable  $throwable) {
+			StarmusLogger::info( $throwable );
 			return $this->err( 'server_error', 'Fallback upload exception.', 500 );
 		}
 	}
@@ -514,8 +513,8 @@ final class StarmusSubmissionHandler {
 					'redirect_url'  => esc_url( $this->get_redirect_url() ),
 				),
 			);
-		} catch ( Throwable ) {
-			StarmusLogger::info( 'SubmissionHandler', 'Process Fallback Exception' );
+		} catch ( Throwable $e) {
+			StarmusLogger::info( $e);
 			return $this->err( 'server_error', 'Fallback processing failed.', 500 );
 		}
 	}
@@ -747,8 +746,8 @@ final class StarmusSubmissionHandler {
 				'session_uuid' => $session_uuid,
 			);
 			$this->trigger_post_processing( $audio_post_id, $attachment_id, $processing_params );
-		} catch ( Throwable ) {
-			StarmusLogger::info( 'SubmissionHandler', 'Metadata Save Failed' );
+		} catch ( Throwable $e) {
+			StarmusLogger::info( $e );
 		}
 	}
 
