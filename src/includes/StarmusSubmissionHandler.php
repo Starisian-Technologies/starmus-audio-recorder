@@ -785,12 +785,12 @@ final class StarmusSubmissionHandler {
 			error_log( '[STARMUS PHP] Post processing result: ' . ( $result ? 'SUCCESS' : 'FAILED' ) );
 
 			if ( ! $result && ! wp_next_scheduled( 'starmus_cron_process_pending_audio', array( $post_id, $attachment_id ) ) ) {
-				error_log( '[STARMUS PHP] Scheduling cron job for post processing retry' );
+				StarmusLogger::log( '[STARMUS PHP] Scheduling cron job for post processing retry' );
 				wp_schedule_single_event( time() + 60, 'starmus_cron_process_pending_audio', array( $post_id, $attachment_id ) );
 			}
 		} catch ( Throwable $throwable ) {
 			error_log( '[STARMUS PHP] Post processing trigger failed: ' . $throwable->getMessage() );
-			StarmusLogger::log
+			StarmusLogger::log(
 				$throwable,
 				array(
 					'post_id'       => $post_id,
