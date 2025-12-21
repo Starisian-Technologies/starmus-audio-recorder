@@ -13,17 +13,17 @@
  * Domain Path:       /languages
  *
  * @package Starisian\Sparxstar\Starmus
- * 
+ *
  *  Copyright (c) 2023-2024 Starisian Technologies (https://starisian.com)
- * 
- * create a secret key using openssl: 
- * 
+ *
+ * create a secret key using openssl:
+ *
  * Set the tus d key to use for webhook validation:
  * tusd \
 	-hooks-http "https://contribute.sparxstar.com/wp-json/starmus/v1/hook" \
 	-hooks-http-header "x-starmus-secret: Y84d34624286938554e5e19d9fafe9f5da3562c4d1d443e02c186f8e44019406e" \
 	-hooks-enabled-events "post-finish"
- * 
+ *
  * define( 'TUSD_WEBHOOK_SECRET', 'YOUR_SECRET_STRING' );
  */
 
@@ -70,12 +70,7 @@ define( 'STARMUS_PLUGIN_DIR', plugin_dir_path( STARMUS_MAIN_FILE ) );
 
 /** @var string Default logging level if not defined elsewhere */
 if ( ! defined( 'STARMUS_LOG_LEVEL' ) ) {
-	define( 'STARMUS_LOG_LEVEL', 'debug' );
-}
-
-/** @var string Custom log file path (empty uses WordPress default) */
-if ( ! defined( 'STARMUS_LOG_FILE' ) ) {
-	define( 'STARMUS_LOG_FILE', '' );
+	define( 'STARMUS_LOG_LEVEL', 8 );
 }
 
 /** @var bool Whether to delete all data on plugin uninstall */
@@ -128,18 +123,12 @@ if ( ! file_exists( $autoloader ) ) {
 	// Do not return here; let the activation hook handle the hard stop if this is an activation attempt.
 } else {
 	require_once $autoloader;
+
+$logClassFile = STARMUS_PATH . 'src/helpers/StarmusLogger.php';
+if(file_exists($logClassFile)) {
 	require_once STARMUS_PATH . 'src/helpers/StarmusLogger.php';
-	// Configure logger with appropriate level based on WP_DEBUG and environment
-	$log_level = 'error'; // Default for production
-	if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		$log_level = 'debug';
-	} elseif ( \function_exists( 'wp_get_environment_type' ) ) {
-		$env = wp_get_environment_type();
-		if ( in_array( $env, array( 'development', 'staging' ), true ) ) {
-			$log_level = 'debug';
-		}
-	}
-	\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::setMinLogLevel( $log_level );
+	class_alias(Starisian\Sparxstar\Starmus\helpers\StarmusLogger::class, 'StarmusLogger');
+	StarmusLogger::set_min_level(STARMUS_LOG_LEVEL);
 }
 
 // =========================================================================
@@ -253,7 +242,7 @@ function starmus_run_plugin(): void {
 			delete_transient( 'starmus_flush_rewrite_rules' );
 		}
 	} catch ( \Throwable $e ) {
-		\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::exception( $e );
+		\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log( $e );
 	}
 }
 add_action( 'plugins_loaded', 'starmus_run_plugin', 20 );
@@ -295,7 +284,7 @@ function starmus_on_activate(): void {
 	try {
 		\Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
 	} catch ( \Throwable $e ) {
-		error_log( 'Starmus Cron Activation Error: ' . $e->getMessage() );
+		StarmusLogger::log( $e );
 	}
 
 	// 5. Request a rewrite flush on the NEXT page load.
@@ -349,3 +338,4 @@ function starmus_on_uninstall(): void {
 register_activation_hook( STARMUS_MAIN_FILE, 'starmus_on_activate' );
 register_deactivation_hook( STARMUS_MAIN_FILE, 'starmus_on_deactivate' );
 register_uninstall_hook( STARMUS_MAIN_FILE, 'starmus_on_uninstall' );
+}

@@ -13,12 +13,12 @@ use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
 /**
  * PSR-3 compliant logging system for AiWA Orchestrator
  * Implements log levels, message formatting, and context handling
- * 
+ *
  * Usage:
  * AiWASWMLogger::info('This is an info message');
  * AiWASWMLogger::error('An error occurred', ['error_code' =>
  * 123]);
- * 
+ *
  * Log Levels:
  *      - EMERGENCY
  *     - ALERT
@@ -28,15 +28,15 @@ use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
  * - NOTICE
  * - INFO
  * - DEBUG
- * 
+ *
  * Each log entry includes a timestamp, log level, calling method, message, and optional context.
- * 
+ *
  * Example log entry:
  * [2024-06-01 12:00:00] AiWA-ERROR
  * AiWATemplateLoader::aiwa_get_template: Template not found {"template":"queue/recording-queue-list"}
- * 
+ *
  * @package AiWA\Orchestrator\helpers
- * 
+ *
  * @author Ai West Africa / Starisian Technologies
  */
 class StarmusLogger
@@ -57,7 +57,7 @@ class StarmusLogger
 
     /**
      * Set the minimum log level
-     * 
+     *
      * @param int $level Log level constant
      * @return void
      */
@@ -69,10 +69,10 @@ class StarmusLogger
 
     /**
      * Get the internal handler instance
-     * 
+     *
      * @return StarLogger
      * @throws \Exception
-     * 
+     *
      */
     private static function get_handler(): StarLogger
     {
@@ -95,7 +95,7 @@ class StarmusLogger
 
     /**
      * Compatibility alias for log_error
-     * 
+     *
      * @deprecated Use AiWASWMLogger::error() instead
      * @param mixed $message
      * @param array $context
@@ -104,6 +104,11 @@ class StarmusLogger
     {
         self::error($message, $context);
     }
+
+	public static function log(mixed $message, array $context = []): void
+	{
+		self::error($message, $context);
+	}
 
     /**
      * Render an error message for frontend display
