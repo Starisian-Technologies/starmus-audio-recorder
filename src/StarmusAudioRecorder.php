@@ -184,7 +184,7 @@ final class StarmusAudioRecorder {
 			$this->init_components();
 			$this->register_hooks();
 		} catch ( \Throwable $throwable ) {
-			StarmusLogger::exception( $throwable );
+			StarmusLogger::log $throwable );
 		}
 
 		if ( ( $this->DAL instanceof StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class ) !== StarmusAudioRecorderDAL::class ) {
@@ -310,7 +310,7 @@ final class StarmusAudioRecorder {
 			$override_key = \defined( 'STARMUS_DAL_OVERRIDE_KEY' ) ? STARMUS_DAL_OVERRIDE_KEY : null;
 			$filtered_dal = apply_filters( 'starmus_register_dal', $default_dal, $override_key );
 		} catch ( Throwable $throwable ) {
-			StarmusLogger::exception( $throwable );
+			StarmusLogger::log $throwable );
 			$this->DAL = $default_dal;
 			return;
 		}

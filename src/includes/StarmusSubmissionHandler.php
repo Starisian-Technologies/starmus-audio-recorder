@@ -790,12 +790,12 @@ final class StarmusSubmissionHandler {
 			}
 		} catch ( Throwable $throwable ) {
 			error_log( '[STARMUS PHP] Post processing trigger failed: ' . $throwable->getMessage() );
-			StarmusLogger::exception(
+			StarmusLogger::log
 				$throwable,
 				array(
 					'post_id'       => $post_id,
 					'attachment_id' => $attachment_id,
-				) 
+				)
 			);
 		}
 	}

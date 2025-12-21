@@ -332,7 +332,7 @@ final readonly class StarmusPostProcessingService {
 
 			return true;
 		} catch ( \Throwable $throwable ) {
-			StarmusLogger::exception( $throwable );
+			StarmusLogger::log $throwable );
 			update_post_meta( $post_id, 'processing_log', "CRITICAL ERROR:\n" . $throwable->getMessage() );
 			return false;
 		} finally {
