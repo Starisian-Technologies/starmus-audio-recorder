@@ -179,11 +179,18 @@ final readonly class StarmusPostProcessingService {
 	 * @see import_to_media_library() WordPress attachment creation
 	 */
 	public function process( int $post_id, int $attachment_id, array $params = array() ): bool {
-		StarmusLogger::setCorrelationId();
 		$source_path  = null;
 		$is_temp_file = false;
 
 		try {
+			StarmusLogger::info(
+				'Post-processing started',
+				array(
+					'post_id'       => $post_id,
+					'attachment_id' => $attachment_id,
+					'params'        => array_keys( $params ),
+				)
+			);
 			// 1. CRITICAL: GET LOCAL COPY (Handles Cloudflare offload)
 			$source_path = $this->file_service->get_local_copy( $attachment_id );
 			if ( ! $source_path || ! file_exists( $source_path ) ) {
@@ -333,8 +340,19 @@ final readonly class StarmusPostProcessingService {
 
 			return true;
 		} catch ( Throwable $throwable ) {
-			StarmusLogger::log( $throwable );
-			update_post_meta( $post_id, 'processing_log', "CRITICAL ERROR:\n" . $throwable->getMessage() );
+			StarmusLogger::error(
+				'Post-processing failed',
+				array(
+					'post_id'       => $post_id,
+					'attachment_id' => $attachment_id,
+					'exception'     => $throwable->getMessage(),
+				)
+			);
+			update_post_meta(
+				$post_id,
+				'processing_log',
+				"CRITICAL ERROR:\n" . $throwable->getMessage()
+			);
 			return false;
 		} finally {
 			// Cleanup temp file downloaded from Cloudflare

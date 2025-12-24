@@ -181,7 +181,14 @@ final class StarmusWaveformService {
 	 * @see StarmusFileService::get_local_copy() File access management
 	 */
 	public function generate_waveform_data( int $attachment_id, ?int $explicit_parent_id = null ): bool {
-		StarmusLogger::setCorrelationId();
+		StarmusLogger::info(
+			'Waveform generation started',
+			array(
+				'component'     => __CLASS__,
+				'attachment_id' => $attachment_id,
+				'post_id'       => $explicit_parent_id,
+			)
+		);
 
 		// 1. Tool Check
 		if ( ! $this->is_tool_available() ) {
