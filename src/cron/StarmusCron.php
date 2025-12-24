@@ -48,6 +48,12 @@ final readonly class StarmusCron {
 	 */
 	private StarmusPostProcessingService $post;
 
+	/**
+	 * Builds the cron coordinator with optional injected services.
+	 *
+	 * @param StarmusWaveformService|null $waveform_service Waveform generation dependency
+	 * @param StarmusPostProcessingService|null $post_service Post-processing dependency
+	 */
 	public function __construct(
 		?StarmusWaveformService $waveform_service = null,
 		?StarmusPostProcessingService $post_service = null
@@ -85,13 +91,14 @@ final readonly class StarmusCron {
 
 	/**
 	 * Executes the full pipeline asynchronously.
+	 *
+	 * @param int $attachment_id WordPress attachment ID for processing.
 	 */
 	public function run_audio_processing_pipeline( int $attachment_id ): void {
 		if ( $attachment_id <= 0 ) {
 			return;
 		}
 
-		StarmusLogger::setCorrelationId();
 		StarmusLogger::info(
 			'Starting background pipeline',
 			array(
@@ -154,6 +161,8 @@ final readonly class StarmusCron {
 
 	/**
 	 * Remove stale temp upload files (>24h old).
+	 *
+	 * @return void
 	 */
 	public function cleanup_stale_temp_files(): void {
 		$dir = $this->get_temp_dir();
@@ -174,8 +183,12 @@ final readonly class StarmusCron {
 		}
 
 		StarmusLogger::debug(
-			'Cron',
-			'Temp cleanup executed'
+			'Temp cleanup executed',
+			array(
+				'component' => __CLASS__,
+				'path'      => $dir,
+				'cutoff'    => $cutoff,
+			)
 		);
 	}
 
