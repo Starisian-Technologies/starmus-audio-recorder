@@ -97,6 +97,16 @@ class StarmusSanitizer {
 		return $meta;
 	}
 
+	/**
+	 * Retrieve the best-effort client IP address from server headers.
+	 *
+	 * Prioritizes forwarded headers when available while sanitizing all values
+	 * to prevent header injection. Falls back to 0.0.0.0 when no address is present.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string Sanitized IPv4/IPv6 address string.
+	 */
 	public static function get_user_ip(): string {
 		$ipaddress = '';
 		if ( isset( $_SERVER['HTTP_CLIENT_IP'] ) ) {
