@@ -127,32 +127,59 @@ window.StarmusStore = store;
  * @see {@link initOffline} Offline queue initialization
  * @see {@link initAutoMetadata} Metadata synchronization
  */
+/**
+ * Initializes the Starmus Recorder components for a given form instance.
+ * Orchestrates the boot sequence using the Sparxstar integration layer.
+ * 
+ * @param {HTMLFormElement} recorderForm - The recorder form element
+ * @param {string} instanceId - The unique ID for this instance
+ */
 function initRecorderInstance(recorderForm, instanceId) {
     console.log('[StarmusMain] Booting RECORDER for ID:', instanceId);
 
+    // Prevent default form submission
     recorderForm.addEventListener('submit', (e) => e.preventDefault());
 
-    // Initialize SPARXSTAR integration first, then other modules
-    sparxstarIntegration.init().then(environmentData => {
-        console.log('[StarmusMain] SPARXSTAR integration ready:', environmentData);
+    // Check if the integration and the init function exist (pd.init check)
+    if (sparxstarIntegration && typeof sparxstarIntegration.init === 'function') {
         
-        // Initialize other modules with environment data
-        initCore(store, instanceId, environmentData);
-        initUI(store, {}, instanceId);
-        initRecorder(store, instanceId);
-        initOffline();
-        initAutoMetadata(store, recorderForm, {});
+        // 1. Start the Sparxstar integration boot sequence
+        sparxstarIntegration.init()
+            .then(environmentData => {
+                console.log('[StarmusMain] SPARXSTAR integration ready:', environmentData);
+                
+                // 2. Initialize core modules with the environment data received
+                initCore(store, instanceId, environmentData);
+                initUI(store, {}, instanceId);
+                initRecorder(store, instanceId);
+                initOffline();
+                initAutoMetadata(store, recorderForm, {});
+            })
+            .catch(error => {
+                // Handle rare case where integration promise fails
+                console.warn('[StarmusMain] SPARXSTAR integration failed, using fallback:', error);
+                
+                initCore(store, instanceId, {});
+                initUI(store, {}, instanceId);
+                initRecorder(store, instanceId);
+                initOffline();
+                initAutoMetadata(store, recorderForm, {});
+            });
+
+    } else {
+        /**
+         * EMERGENCY FALLBACK
+         * If the sparxstarIntegration object is missing or init is not a function,
+         * we boot in standalone mode so the recorder still works for the user.
+         */
+        console.error('[StarmusMain] sparxstarIntegration.init is missing! Booting standalone.');
         
-    }).catch(error => {
-        console.warn('[StarmusMain] SPARXSTAR integration failed, using fallback:', error);
-        
-        // Fallback initialization without SPARXSTAR
         initCore(store, instanceId, {});
         initUI(store, {}, instanceId);
         initRecorder(store, instanceId);
         initOffline();
         initAutoMetadata(store, recorderForm, {});
-    });
+    }
 }
 
 /**
