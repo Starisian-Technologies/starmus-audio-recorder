@@ -162,7 +162,6 @@ final readonly class StarmusCron {
 	/**
 	 * Remove stale temp upload files (>24h old).
 	 *
-	 * @return void
 	 */
 	public function cleanup_stale_temp_files(): void {
 		$dir = $this->get_temp_dir();
