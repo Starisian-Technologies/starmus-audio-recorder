@@ -149,8 +149,8 @@ final class StarmusSettings {
 				$saved = get_option( self::STARMUS_OPTION_KEY, array() );
 
 				\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::info(
-					'StarmusSettings',
-					'get_option result'
+					'get_option result',
+					array( 'component' => __CLASS__ )
 				);
 
 				$merged          = wp_parse_args( $saved, $this->get_defaults() );

@@ -32,10 +32,14 @@ if ( $attachment_id !== 0 ) {
 		$estimates = $cloudflare_service->getAfricaDataEstimate( $attachment_id );
 		$this->update_acf_field( 'africa_data_estimates', json_encode( $estimates ), $audio_post_id );
 		
-		StarmusLogger::info( 'CloudflareIntegration', 'Africa optimization completed', [
-			'post_id' => $audio_post_id,
-			'versions' => array_keys( $africa_results ),
-			'estimated_savings' => $estimates['estimated_2g_size_mb'] . 'MB'
-		]);
+		StarmusLogger::info(
+			'Africa optimization completed',
+			array(
+				'component'         => 'CloudflareIntegration',
+				'post_id'           => $audio_post_id,
+				'versions'          => array_keys( $africa_results ),
+				'estimated_savings' => $estimates['estimated_2g_size_mb'] . 'MB',
+			)
+		);
 	}
 }

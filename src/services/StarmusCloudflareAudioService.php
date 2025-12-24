@@ -67,8 +67,8 @@ final class StarmusCloudflareAudioService {
 			}
 
 			StarmusLogger::info(
-				'CloudflareAudio',
-				'Africa optimization completed'
+				'Africa optimization completed',
+				array( 'component' => __CLASS__ )
 			);
 
 		} finally {
@@ -167,8 +167,12 @@ final class StarmusCloudflareAudioService {
 
 		if ( is_wp_error( $attachment_id ) ) {
 			StarmusLogger::error(
-				'CloudflareAudio',
-				'Upload failed'
+				'Upload failed',
+				array(
+					'component' => __CLASS__,
+					'post_id'   => $parent_id,
+					'quality'   => $quality,
+				)
 			);
 			return null;
 		}

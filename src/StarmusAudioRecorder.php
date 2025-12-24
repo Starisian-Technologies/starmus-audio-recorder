@@ -308,7 +308,7 @@ final class StarmusAudioRecorder {
 			$override_key = \defined( 'STARMUS_DAL_OVERRIDE_KEY' ) ? STARMUS_DAL_OVERRIDE_KEY : null;
 			$filtered_dal = apply_filters( 'starmus_register_dal', $default_dal, $override_key );
 		} catch ( Throwable $throwable ) {
-			StarmusLogger::log ($throwable );
+			StarmusLogger::log( $throwable );
 			$this->DAL = $default_dal;
 			return;
 		}
@@ -331,7 +331,10 @@ final class StarmusAudioRecorder {
 		} else {
 			// Handshake failed or was not attempted. Use the default DAL.
 			if ( $filtered_dal !== $default_dal ) {
-				StarmusLogger::warning( 'StarmusAudioRecorder', 'Unauthorized or misconfigured DAL replacement attempt rejected.' );
+				StarmusLogger::warning(
+					'Unauthorized or misconfigured DAL replacement attempt rejected.',
+					array( 'component' => __CLASS__ )
+				);
 			}
 
 			$dal_singleton = $default_dal;
@@ -442,10 +445,20 @@ final class StarmusAudioRecorder {
 
 			$this->hooksRegistered = true;
 		} catch ( Throwable $throwable ) {
-			StarmusLogger::log( $throwable);
+			StarmusLogger::log( $throwable );
 		}
 	}
 
+	/**
+	 * Retrieve the active Data Access Layer implementation.
+	 *
+	 * Exposes the DAL instance for consumers that require direct persistence
+	 * access while preserving the singleton DAL contract.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @return StarmusAudioRecorderDAL|null Active DAL instance or null when unavailable.
+	 */
 	public function get_DAL(): ?StarmusAudioRecorderDAL {
 		return $this->DAL;
 	}

@@ -29,11 +29,15 @@ if ( $attachment_id !== 0 ) {
 			$usage = $africa_service->estimateDataUsage( $file_path );
 			$this->update_acf_field( 'data_usage_estimate', json_encode( $usage ), $audio_post_id );
 			
-			StarmusLogger::info( 'AfricaBandwidth', 'Optimized for Gambia networks', [
-				'post_id' => $audio_post_id,
-				'original_size' => $usage['size_mb'] . 'MB',
-				'cost_estimate' => '$' . $usage['cost_estimate_usd']
-			]);
+			StarmusLogger::info(
+				'Optimized for Gambia networks',
+				array(
+					'component'     => 'AfricaBandwidth',
+					'post_id'       => $audio_post_id,
+					'original_size' => $usage['size_mb'] . 'MB',
+					'cost_estimate' => '$' . $usage['cost_estimate_usd'],
+				)
+			);
 		}
 	}
 }

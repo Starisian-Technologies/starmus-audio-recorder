@@ -73,7 +73,13 @@ final readonly class StarmusCron {
 
 		if ( ! wp_next_scheduled( self::PROCESS_AUDIO_HOOK, array( $attachment_id ) ) ) {
 			wp_schedule_single_event( time() + 60, self::PROCESS_AUDIO_HOOK, array( $attachment_id ) );
-			StarmusLogger::info( 'Cron', 'Scheduled audio processing' );
+			StarmusLogger::info(
+				'Scheduled audio processing',
+				array(
+					'component'     => __CLASS__,
+					'attachment_id' => $attachment_id,
+				)
+			);
 		}
 	}
 
@@ -86,7 +92,13 @@ final readonly class StarmusCron {
 		}
 
 		StarmusLogger::setCorrelationId();
-		StarmusLogger::info( 'Cron', 'Starting background pipeline' );
+		StarmusLogger::info(
+			'Starting background pipeline',
+			array(
+				'component'     => __CLASS__,
+				'attachment_id' => $attachment_id,
+			)
+		);
 		update_post_meta( $attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_PROCESSING );
 
 		try {
@@ -101,7 +113,13 @@ final readonly class StarmusCron {
 			}
 
 			if ( $parent_id <= 0 ) {
-				StarmusLogger::warn( 'Cron', 'No parent post linked to attachment', array( 'attachment_id' => $attachment_id ) );
+				StarmusLogger::warning(
+					'No parent post linked to attachment',
+					array(
+						'component'     => __CLASS__,
+						'attachment_id' => $attachment_id,
+					)
+				);
 			}
 
 			$success = $this->post->process_and_archive_audio( $parent_id, $attachment_id );
@@ -110,8 +128,12 @@ final readonly class StarmusCron {
 				update_post_meta( $attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_COMPLETED );
 				do_action( 'starmus_audio_pipeline_complete', $attachment_id );
 				StarmusLogger::info(
-					'Cron',
-					'Background processing complete'
+					'Background processing complete',
+					array(
+						'component'     => __CLASS__,
+						'attachment_id' => $attachment_id,
+						'post_id'       => $parent_id,
+					)
 				);
 			} else {
 				update_post_meta( $attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN );
@@ -119,12 +141,12 @@ final readonly class StarmusCron {
 			}
 		} catch ( \Throwable $throwable ) {
 			update_post_meta( $attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN );
-			error_log(
-				'Cron',
-				'Fatal exception during cron pipeline',
+			StarmusLogger::log(
+				$throwable,
 				array(
+					'component'     => __CLASS__,
 					'attachment_id' => $attachment_id,
-					'error'         => $throwable->getMessage(),
+					'post_id'       => $parent_id ?? 0,
 				)
 			);
 		}

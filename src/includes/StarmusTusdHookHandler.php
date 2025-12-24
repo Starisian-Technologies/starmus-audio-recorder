@@ -170,7 +170,13 @@ class StarmusTusdHookHandler {
 		}
 
 		if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			StarmusLogger::debug( 'StarmusTusdHookHandler', 'Received payload' );
+			StarmusLogger::debug(
+				'Received payload',
+				array(
+					'component'  => __CLASS__,
+					'event_type' => $event_type,
+				)
+			);
 		}
 
 		do_action( 'starmus_tusd_event_' . $event_type, $event_data );
@@ -229,7 +235,10 @@ class StarmusTusdHookHandler {
 		if ( is_wp_error( $result ) ) {
 			// Note: tusd will verify this is a non-2xx error and log it, but
 			// the client will not see this error message directly.
-			StarmusLogger::error( 'StarmusTusdHookHandler', 'Upload processing failed' );
+			StarmusLogger::error(
+				'Upload processing failed',
+				array( 'component' => __CLASS__ )
+			);
 			return $result;
 		}
 
@@ -296,10 +305,22 @@ class StarmusTusdHookHandler {
 
 		if ( file_exists( $normalized_info_path ) && str_starts_with( $normalized_info_path, $basedir ) ) {
 			if ( ! unlink( $normalized_info_path ) ) {
-				StarmusLogger::warning( 'StarmusTusdHookHandler', 'Failed to delete temp info file' );
+				StarmusLogger::warning(
+					'Failed to delete temp info file',
+					array(
+						'component' => __CLASS__,
+						'path'      => $normalized_info_path,
+					)
+				);
 			}
 		} elseif ( file_exists( $normalized_info_path ) ) {
-			StarmusLogger::warning( 'StarmusTusdHookHandler', 'Security: Attempted deletion outside uploads' );
+			StarmusLogger::warning(
+				'Security: Attempted deletion outside uploads',
+				array(
+					'component' => __CLASS__,
+					'path'      => $normalized_info_path,
+				)
+			);
 		}
 
 		return $result;
@@ -349,7 +370,10 @@ class StarmusTusdHookHandler {
 		$expected_secret = \defined( 'TUSD_WEBHOOK_SECRET' ) ? TUSD_WEBHOOK_SECRET : '';
 
 		if ( empty( $expected_secret ) ) {
-			StarmusLogger::error( 'StarmusTusdHookHandler', 'TUSD_WEBHOOK_SECRET missing in configuration.' );
+			StarmusLogger::error(
+				'TUSD_WEBHOOK_SECRET missing in configuration.',
+				array( 'component' => __CLASS__ )
+			);
 			return new WP_Error( 'internal_server_error', 'Internal Service Error', array( 'status' => 500 ) );
 		}
 
