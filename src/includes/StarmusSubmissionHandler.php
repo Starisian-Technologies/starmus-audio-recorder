@@ -154,9 +154,12 @@ final class StarmusSubmissionHandler {
 			);
 
 			add_action( 'starmus_cleanup_temp_files', $this->cleanup_stale_temp_files( ... ) );
-			StarmusLogger::info( 'SubmissionHandler', 'Constructed successfully' );
+			StarmusLogger::info(
+				'Constructed successfully',
+				array( 'component' => __CLASS__ )
+			);
 		} catch ( \Throwable $throwable ) {
-			StarmusLogger::info( $throwable );
+			StarmusLogger::log( $throwable );
 			throw $throwable;
 		}
 	}
@@ -334,7 +337,7 @@ final class StarmusSubmissionHandler {
 				'url'           => wp_get_attachment_url( (int) $attachment_id ),
 			);
 		} catch ( Throwable $throwable ) {
-			StarmusLogger::info( $throwable );
+			StarmusLogger::log( $throwable );
 			return $this->err( 'server_error', 'File finalization failed.', 500 );
 		}
 	}
@@ -427,8 +430,8 @@ final class StarmusSubmissionHandler {
 				'success' => true,
 				'data'    => $result['data'],
 			);
-		} catch ( \Throwable  $throwable) {
-			StarmusLogger::info( $throwable );
+		} catch ( \Throwable $throwable ) {
+			StarmusLogger::log( $throwable );
 			return $this->err( 'server_error', 'Fallback upload exception.', 500 );
 		}
 	}
@@ -513,8 +516,8 @@ final class StarmusSubmissionHandler {
 					'redirect_url'  => esc_url( $this->get_redirect_url() ),
 				),
 			);
-		} catch ( Throwable $e) {
-			StarmusLogger::info( $e);
+		} catch ( Throwable $e ) {
+			StarmusLogger::log( $e );
 			return $this->err( 'server_error', 'Fallback processing failed.', 500 );
 		}
 	}
@@ -746,8 +749,8 @@ final class StarmusSubmissionHandler {
 				'session_uuid' => $session_uuid,
 			);
 			$this->trigger_post_processing( $audio_post_id, $attachment_id, $processing_params );
-		} catch ( Throwable $e) {
-			StarmusLogger::info( $e );
+		} catch ( Throwable $e ) {
+			StarmusLogger::log( $e );
 		}
 	}
 
@@ -1045,7 +1048,10 @@ final class StarmusSubmissionHandler {
 	 * @since 1.0.0
 	 */
 	private function err( string $code, string $message, int $status = 400 ): WP_Error {
-		StarmusLogger::info( 'SubmissionHandler', \sprintf( '%s: %s', $code, $message ) );
+		StarmusLogger::info(
+			\sprintf( '%s: %s', $code, $message ),
+			array( 'component' => __CLASS__ )
+		);
 		return new WP_Error( $code, $message, array( 'status' => $status ) );
 	}
 }

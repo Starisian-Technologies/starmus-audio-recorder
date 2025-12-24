@@ -185,7 +185,10 @@ final class StarmusWaveformService {
 
 		// 1. Tool Check
 		if ( ! $this->is_tool_available() ) {
-			StarmusLogger::warning( 'StarmusWaveformService', 'audiowaveform binary missing. Skipping.' );
+			StarmusLogger::warning(
+				'audiowaveform binary missing. Skipping.',
+				array( 'component' => __CLASS__, 'attachment_id' => $attachment_id )
+			);
 			return false;
 		}
 
@@ -242,7 +245,14 @@ final class StarmusWaveformService {
 				update_field( 'waveform_json', $json_str, $recording_id );
 			}
 
-			StarmusLogger::info( 'StarmusWaveformService', 'Waveform saved.' );
+			StarmusLogger::info(
+				'Waveform saved.',
+				array(
+					'component'     => __CLASS__,
+					'attachment_id' => $attachment_id,
+					'post_id'       => $recording_id,
+				)
+			);
 			return true;
 		} catch ( \Throwable $throwable ) {
 			error_log( 'Waveform Save Error: ' . $throwable->getMessage() );

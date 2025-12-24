@@ -359,8 +359,11 @@ final class StarmusRESTHandler {
 			// Log incoming payload
 			$files = $request->get_file_params();
 			StarmusLogger::debug(
-				'StarmusRESTHandler',
-				'Fallback upload request'
+				'Fallback upload request',
+				array(
+					'component' => __CLASS__,
+					'file_keys' => array_keys( $files ),
+				)
 			);
 
 			// Defensive file-key handling

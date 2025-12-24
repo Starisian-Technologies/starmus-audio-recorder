@@ -133,8 +133,8 @@ final class StarmusR2DirectService {
 
 		} catch ( \Exception ) {
 			StarmusLogger::error(
-				'R2Direct',
-				'Upload failed'
+				'Upload failed',
+				array( 'component' => __CLASS__, 'key' => $key )
 			);
 			return null;
 		}

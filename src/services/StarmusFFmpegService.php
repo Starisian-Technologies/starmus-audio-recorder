@@ -147,8 +147,12 @@ final class StarmusFFmpegService {
 
 		if ( $return_code !== 0 ) {
 			StarmusLogger::error(
-				'FFmpegService',
-				'Conversion failed'
+				'Conversion failed',
+				array(
+					'component'  => __CLASS__,
+					'input_file' => $input,
+					'output'     => $output,
+				)
 			);
 		}
 

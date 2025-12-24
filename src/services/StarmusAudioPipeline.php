@@ -67,14 +67,21 @@ final class StarmusAudioPipeline {
 			}
 
 			StarmusLogger::info(
-				'AudioPipeline',
-				'Processing completed'
+				'Processing completed',
+				array(
+					'component' => __CLASS__,
+					'post_id'   => $post_id,
+				)
 			);
 
-		} catch ( \Throwable ) {
-			StarmusLogger::error(
-				'AudioPipeline',
-				'Processing failed'
+		} catch ( \Throwable $throwable ) {
+			StarmusLogger::log(
+				$throwable,
+				array(
+					'component' => __CLASS__,
+					'post_id'   => $post_id,
+					'file_path' => $file_path,
+				)
 			);
 		}
 

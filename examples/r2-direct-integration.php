@@ -49,11 +49,15 @@ if ( $attachment_id !== 0 ) {
 			$estimates = $r2_service->getAfricaEstimates( $file_path );
 			$this->update_acf_field( 'africa_bandwidth_savings', json_encode( $estimates ), $audio_post_id );
 			
-			StarmusLogger::info( 'R2Direct', 'Africa optimization completed', [
-				'post_id' => $audio_post_id,
-				'versions' => array_keys( $africa_versions ),
-				'savings' => $estimates['bandwidth_savings']
-			]);
+			StarmusLogger::info(
+				'Africa optimization completed',
+				array(
+					'component' => 'R2Direct',
+					'post_id'   => $audio_post_id,
+					'versions'  => array_keys( $africa_versions ),
+					'savings'   => $estimates['bandwidth_savings'],
+				)
+			);
 		}
 	}
 }

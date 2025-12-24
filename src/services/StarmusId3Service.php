@@ -11,6 +11,7 @@ use getId3;
 use getid3_lib;
 use getid3_writetags;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Throwable;
 
 /**
  * getID3 Library Wrapper for Audio Metadata Management
@@ -93,7 +94,10 @@ final class StarmusId3Service {
 		}
 
 		if ( ! class_exists( 'getID3' ) ) {
-			StarmusLogger::error( 'StarmusId3Service', 'getID3 library class not found.' );
+			StarmusLogger::error(
+				'getID3 library class not found.',
+				array( 'component' => __CLASS__ )
+			);
 			return null;
 		}
 
@@ -156,7 +160,13 @@ final class StarmusId3Service {
 	 */
 	public function writeTags( string $filepath, array $tagData ): bool {
 		if ( ! file_exists( $filepath ) ) {
-			StarmusLogger::error( 'StarmusId3Service', 'File missing for tagging' );
+			StarmusLogger::error(
+				'File missing for tagging',
+				array(
+					'component' => __CLASS__,
+					'path'      => $filepath,
+				)
+			);
 			return false;
 		}
 
@@ -168,7 +178,10 @@ final class StarmusId3Service {
 
 			// Ensure Writer is loaded
 			if ( ! class_exists( 'getid3_writetags' ) ) {
-				StarmusLogger::error( 'StarmusId3Service', 'getid3_writetags class missing.' );
+				StarmusLogger::error(
+					'getid3_writetags class missing.',
+					array( 'component' => __CLASS__ )
+				);
 				return false;
 			}
 
@@ -181,17 +194,35 @@ final class StarmusId3Service {
 			$tagwriter->tag_data          = $tagData;
 
 			if ( ! $tagwriter->WriteTags() ) {
-				StarmusLogger::error( 'StarmusId3Service', 'WriteTags Failed' );
+				StarmusLogger::error(
+					'WriteTags Failed',
+					array(
+						'component' => __CLASS__,
+						'errors'    => $tagwriter->errors,
+					)
+				);
 				return false;
 			}
 
 			if ( $tagwriter->warnings !== array() ) {
-				StarmusLogger::warning( 'StarmusId3Service', 'WriteTags Warnings' );
+				StarmusLogger::warning(
+					'WriteTags Warnings',
+					array(
+						'component' => __CLASS__,
+						'warnings'  => $tagwriter->warnings,
+					)
+				);
 			}
 
 			return true;
-		} catch ( \Throwable ) {
-			StarmusLogger::error( 'StarmusId3Service', 'Exception' );
+		} catch ( Throwable $throwable ) {
+			StarmusLogger::log(
+				$throwable,
+				array(
+					'component' => __CLASS__,
+					'path'      => $filepath,
+				)
+			);
 			return false;
 		}
 	}

@@ -1,1 +1,167 @@
-<?php\n/**\n * getID3 Implementation Comparison\n * Official Documentation vs Starmus Audio Recorder\n */\n\n// ===== OFFICIAL GETID3 BASIC USAGE =====\n\n// Basic analysis\n$getID3 = new getID3;\n$ThisFileInfo = $getID3->analyze($filename);\ngetid3_lib::CopyTagsToComments($ThisFileInfo);\n\n// Basic tag writing\n$tagwriter = new getid3_writetags;\n$tagwriter->filename = '/path/to/file.mp3';\n$tagwriter->tagformats = array('id3v1', 'id3v2.3');\n$tagwriter->overwrite_tags = true;\n$tagwriter->tag_encoding = 'UTF-8';\n$tagwriter->tag_data = $TagData;\n$tagwriter->WriteTags();\n\n// ===== STARMUS ENHANCED IMPLEMENTATION =====\n\nclass StarmusId3Service {\n    private const TEXT_ENCODING = 'UTF-8';\n    \n    // Enhanced initialization with fallback loading\n    private function getID3Engine(): ?\\getID3 {\n        if (!class_exists('getID3')) {\n            // Fallback loading from vendor path\n            $possible_path = WP_CONTENT_DIR . '/plugins/starmus-audio-recorder/vendor/autoload.php';\n            if (file_exists($possible_path)) {\n                require_once $possible_path;\n            }\n        }\n        \n        if (!class_exists('getID3')) {\n            StarmusLogger::error('StarmusId3Service', 'getID3 library class not found.');\n            return null;\n        }\n        \n        $getID3 = new \\getID3();\n        $getID3->setOption(array('encoding' => self::TEXT_ENCODING));\n        return $getID3;\n    }\n    \n    // Enhanced tag writing with comprehensive error handling\n    public function writeTags(string $filepath, array $tagData): bool {\n        if (!file_exists($filepath)) {\n            StarmusLogger::error('StarmusId3Service', 'File missing for tagging', array('file' => $filepath));\n            return false;\n        }\n        \n        try {\n            $engine = $this->getID3Engine();\n            if (!$engine instanceof \\getID3) {\n                return false;\n            }\n            \n            if (!class_exists('getid3_writetags')) {\n                StarmusLogger::error('StarmusId3Service', 'getid3_writetags class missing.');\n                return false;\n            }\n            \n            $tagwriter = new \\getid3_writetags();\n            $tagwriter->filename = $filepath;\n            $tagwriter->tagformats = array('id3v2.3');  // Standardized format\n            $tagwriter->overwrite_tags = true;\n            $tagwriter->tag_encoding = self::TEXT_ENCODING;\n            $tagwriter->remove_other_tags = true;  // Clean slate approach\n            $tagwriter->tag_data = $tagData;\n            \n            if (!$tagwriter->WriteTags()) {\n                StarmusLogger::error('StarmusId3Service', 'WriteTags Failed', array('errors' => $tagwriter->errors));\n                return false;\n            }\n            \n            if ($tagwriter->warnings !== array()) {\n                StarmusLogger::warning('StarmusId3Service', 'WriteTags Warnings', array('warnings' => $tagwriter->warnings));\n            }\n            \n            return true;\n        } catch (\\Throwable $throwable) {\n            StarmusLogger::error('StarmusId3Service', 'Exception', array('msg' => $throwable->getMessage()));\n            return false;\n        }\n    }\n    \n    // Enhanced file analysis with error handling\n    public function analyzeFile(string $filepath): array {\n        $engine = $this->getID3Engine();\n        if (!$engine instanceof \\getID3) {\n            return array();\n        }\n        \n        $info = $engine->analyze($filepath);\n        \\getid3_lib::CopyTagsToComments($info);\n        return $info;\n    }\n}\n\n// ===== KEY DIFFERENCES =====\n\n/**\n * 1. LIBRARY LOADING\n * Official: Assumes getID3 is already loaded\n * Starmus: Automatic fallback loading with Composer integration\n */\n\n/**\n * 2. ERROR HANDLING\n * Official: Basic error checking\n * Starmus: Comprehensive logging with StarmusLogger integration\n */\n\n/**\n * 3. TAG FORMAT STANDARDIZATION\n * Official: Multiple formats (id3v1, id3v2.3)\n * Starmus: Standardized on ID3v2.3 for consistency\n */\n\n/**\n * 4. ENCODING CONSISTENCY\n * Official: Manual encoding setup\n * Starmus: Enforced UTF-8 encoding constant\n */\n\n/**\n * 5. WORDPRESS INTEGRATION\n * Official: Generic PHP implementation\n * Starmus: WordPress-specific paths and logging\n */\n\n/**\n * 6. PRODUCTION READINESS\n * Official: Basic examples for learning\n * Starmus: Production-ready with exception handling and validation\n */\n\n?>
+<?php
+
+declare(strict_types=1);
+
+/**
+ * getID3 Implementation Comparison
+ * Official Documentation vs Starmus Audio Recorder
+ *
+ * Demonstrates how StarmusId3Service wraps the getID3 library while using
+ * StarmusLogger with PSR-3 compliant argument patterns.
+ */
+
+// ===== OFFICIAL GETID3 BASIC USAGE =====
+
+// Basic analysis.
+$getID3       = new getID3();
+$ThisFileInfo = $getID3->analyze( $filename );
+getid3_lib::CopyTagsToComments( $ThisFileInfo );
+
+// Basic tag writing.
+$tagwriter                 = new getid3_writetags();
+$tagwriter->filename       = '/path/to/file.mp3';
+$tagwriter->tagformats     = array( 'id3v1', 'id3v2.3' );
+$tagwriter->overwrite_tags = true;
+$tagwriter->tag_encoding   = 'UTF-8';
+$tagwriter->tag_data       = $TagData;
+$tagwriter->WriteTags();
+
+// ===== STARMUS ENHANCED IMPLEMENTATION =====
+
+/**
+ * Demonstration wrapper showing compliant logger usage.
+ */
+class StarmusId3Service {
+
+	/**
+	 * Standard text encoding for all tag operations.
+	 */
+	private const TEXT_ENCODING = 'UTF-8';
+
+	/**
+	 * Retrieve a configured getID3 engine instance.
+	 *
+	 * @return \getID3|null Configured engine or null when unavailable.
+	 */
+	private function getID3Engine(): ?\getID3 {
+		if ( ! class_exists( 'getID3' ) ) {
+			$possible_path = WP_CONTENT_DIR . '/plugins/starmus-audio-recorder/vendor/autoload.php';
+			if ( file_exists( $possible_path ) ) {
+				require_once $possible_path;
+			}
+		}
+
+		if ( ! class_exists( 'getID3' ) ) {
+			StarmusLogger::error(
+				'getID3 library class not found.',
+				array( 'component' => __CLASS__ )
+			);
+			return null;
+		}
+
+		$getID3 = new \getID3();
+		$getID3->setOption( array( 'encoding' => self::TEXT_ENCODING ) );
+		return $getID3;
+	}
+
+	/**
+	 * Enhanced tag writing with proper logger context.
+	 *
+	 * @param string $filepath Path to audio file.
+	 * @param array  $tagData  Tag data to write.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function writeTags( string $filepath, array $tagData ): bool {
+		if ( ! file_exists( $filepath ) ) {
+			StarmusLogger::error(
+				'File missing for tagging',
+				array(
+					'component' => __CLASS__,
+					'file'      => $filepath,
+				)
+			);
+			return false;
+		}
+
+		try {
+			$engine = $this->getID3Engine();
+			if ( ! $engine instanceof \getID3 ) {
+				return false;
+			}
+
+			if ( ! class_exists( 'getid3_writetags' ) ) {
+				StarmusLogger::error(
+					'getid3_writetags class missing.',
+					array( 'component' => __CLASS__ )
+				);
+				return false;
+			}
+
+			$tagwriter                    = new \getid3_writetags();
+			$tagwriter->filename          = $filepath;
+			$tagwriter->tagformats        = array( 'id3v2.3' ); // Standardized format
+			$tagwriter->overwrite_tags    = true;
+			$tagwriter->tag_encoding      = self::TEXT_ENCODING;
+			$tagwriter->remove_other_tags = true; // Clean slate approach
+			$tagwriter->tag_data          = $tagData;
+
+			if ( ! $tagwriter->WriteTags() ) {
+				StarmusLogger::error(
+					'WriteTags Failed',
+					array(
+						'component' => __CLASS__,
+						'errors'    => $tagwriter->errors,
+					)
+				);
+				return false;
+			}
+
+			if ( $tagwriter->warnings !== array() ) {
+				StarmusLogger::warning(
+					'WriteTags Warnings',
+					array(
+						'component' => __CLASS__,
+						'warnings'  => $tagwriter->warnings,
+					)
+				);
+			}
+
+			return true;
+		} catch ( \Throwable $throwable ) {
+			StarmusLogger::log(
+				$throwable,
+				array(
+					'component' => __CLASS__,
+					'path'      => $filepath,
+				)
+			);
+			return false;
+		}
+	}
+
+	/**
+	 * Analyze an audio file with logger-aware error handling.
+	 *
+	 * @param string $filepath File to analyze.
+	 *
+	 * @return array Analysis data.
+	 */
+	public function analyzeFile( string $filepath ): array {
+		$engine = $this->getID3Engine();
+		if ( ! $engine instanceof \getID3 ) {
+			return array();
+		}
+
+		$info = $engine->analyze( $filepath );
+		\getid3_lib::CopyTagsToComments( $info );
+		return $info;
+	}
+}
+
+// ===== KEY DIFFERENCES =====
+// 1. Library loading with Composer fallback.
+// 2. PSR-3 compliant StarmusLogger usage.
+// 3. Standardized ID3v2.3 tag format.
+// 4. UTF-8 encoding enforcement.
+// 5. WordPress-aware file handling and error reporting.

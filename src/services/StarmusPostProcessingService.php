@@ -9,6 +9,7 @@ if ( ! \defined( 'ABSPATH' ) ) {
 
 use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Throwable;
 
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
@@ -331,9 +332,9 @@ final readonly class StarmusPostProcessingService {
 			update_post_meta( $post_id, '_audio_wav_attachment_id', $wav_id );
 
 			return true;
-		} catch ( g $throwable ) {
+		} catch ( Throwable $throwable ) {
 			StarmusLogger::log( $throwable );
-			update_post_meta(post_id, 'processing_log', "CRITICAL ERROR:\n" . $throwable->getMessage() );
+			update_post_meta( $post_id, 'processing_log', "CRITICAL ERROR:\n" . $throwable->getMessage() );
 			return false;
 		} finally {
 			// Cleanup temp file downloaded from Cloudflare

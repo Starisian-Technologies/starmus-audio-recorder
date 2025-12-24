@@ -44,7 +44,10 @@ class StarmusAudioRecorderUI {
 	 */
 	private function register_hooks(): void {
 
-		StarmusLogger::info( 'StarmusAudioRecorderUI', 'Recorder component available, registering recorder hooks' );
+		StarmusLogger::info(
+			'Recorder component available, registering recorder hooks',
+			array( 'component' => __CLASS__ )
+		);
 		add_action( 'starmus_after_audio_upload', array( $this, 'save_all_metadata' ), 10, 3 );
 		add_filter( 'starmus_audio_upload_success_response', array( $this, 'add_conditional_redirect' ), 10, 3 );
 
