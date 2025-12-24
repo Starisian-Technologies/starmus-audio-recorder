@@ -1,7 +1,8 @@
 /**
  * @file starmus-sparxstar-integration.js
- * @version 7.1.0-INTEGRATION-FIX
+ * @version 7.1.1-CACHED-INIT
  * @description Integration layer between Sparxstar UEC and Starmus Recorder.
+ * Includes event caching to prevent timeouts on double-initialization.
  */
 
 'use strict';
@@ -62,43 +63,56 @@
 
 
 /* 2. SPARXSTAR INTEGRATION OBJECT */
-/**
- * Integration object used by starmus-main.js to bootstrap the environment.
- * In the minified bundle, this object is referred to as 'pd'.
- */
 const sparxstarIntegration = {
     isAvailable: true,
+    _cachedData: null, // Private cache to store environment data
 
     /**
-     * Initializes the integration and waits for the environment check to finish.
-     * Required by initRecorderInstance in starmus-main.js.
+     * Internal listener: Starts watching for the Sparxstar event immediately 
+     * when the script loads so we don't miss it.
+     */
+    _listen: function() {
+        window.addEventListener('sparxstar:environment-ready', (e) => {
+            console.log('[SparxstarIntegration] Data captured and cached.');
+            this._cachedData = e.detail || {};
+        }, { once: true });
+    },
+
+    /**
+     * Initializes the integration. 
+     * If data is already cached, it returns it instantly.
      * 
      * @returns {Promise<Object>} Resolves with normalized environment data.
      */
     init: function() {
         return new Promise((resolve) => {
+            // If data was already received by the listener, resolve immediately
+            if (this._cachedData) {
+                console.log('[SparxstarIntegration] Returning cached environment data.');
+                return resolve(this._cachedData);
+            }
+
             console.log('[SparxstarIntegration] Initializing environment sync...');
 
-            // If the event has already fired, or we need to wait for it:
             const handleReady = (e) => {
-                console.log('[SparxstarIntegration] Environment event received.');
                 const data = e.detail || {};
+                this._cachedData = data; // Cache for any subsequent calls
                 resolve(data);
             };
 
             // Listen for the event dispatched by the UEC script
             window.addEventListener('sparxstar:environment-ready', handleReady, { once: true });
 
-            // Safety timeout: If Sparxstar doesn't respond in 3.5 seconds, 
-            // boot the recorder anyway with default settings.
+            // Safety timeout: 3.5 seconds
             setTimeout(() => {
+                // Final check to see if data arrived just as we timed out
+                if (this._cachedData) {
+                    return resolve(this._cachedData);
+                }
+
                 window.removeEventListener('sparxstar:environment-ready', handleReady);
-                
-                // Check if data was already dispatched to the store by starmus-integrator.js
-                // If not, resolve with defaults.
-                const fallbackData = this.getEnvironmentData();
                 console.warn('[SparxstarIntegration] Environment timeout. Using fallback.');
-                resolve(fallbackData);
+                resolve(this.getEnvironmentData());
             }, 3500);
         });
     },
@@ -129,6 +143,9 @@ const sparxstarIntegration = {
         console.warn('[SparxstarIntegration] Error Reported:', msg, data);
     }
 };
+
+// Start the listener immediately
+sparxstarIntegration._listen();
 
 // Export for Rollup/Webpack and starmus-main.js
 export default sparxstarIntegration;
