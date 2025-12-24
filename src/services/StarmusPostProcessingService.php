@@ -345,7 +345,7 @@ final readonly class StarmusPostProcessingService {
 				array(
 					'post_id'       => $post_id,
 					'attachment_id' => $attachment_id,
-					'exception'     => $throwable->getMessage(),
+					'exception'     => $throwable,
 				)
 			);
 			update_post_meta(
