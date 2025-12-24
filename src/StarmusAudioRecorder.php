@@ -182,11 +182,24 @@ final class StarmusAudioRecorder {
 			$this->init_components();
 			$this->register_hooks();
 		} catch ( \Throwable $throwable ) {
-			StarmusLogger::log( $throwable );
+			StarmusLogger::log(
+				$throwable,
+				array(
+					'component' => __CLASS__,
+					'stage'     => '__construct',
+				)
+			);
 		}
 
-		if ( ( $this->DAL instanceof StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class ) !== StarmusAudioRecorderDAL::class ) {
-			StarmusLogger::info( 'DAL initialized to: ' . ( $this->DAL instanceof StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class ) );
+		$dal_class = $this->DAL instanceof StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class;
+		if ( $dal_class !== StarmusAudioRecorderDAL::class ) {
+			StarmusLogger::info(
+				'DAL initialized to alternative implementation.',
+				array(
+					'component' => __CLASS__,
+					'dal_class' => $dal_class,
+				)
+			);
 		}
 	}
 
@@ -264,7 +277,13 @@ final class StarmusAudioRecorder {
 				return;
 			}
 		} catch ( Throwable $throwable ) {
-			StarmusLogger::log( $throwable );
+			StarmusLogger::log(
+				$throwable,
+				array(
+					'component' => __CLASS__,
+					'stage'     => 'init_settings',
+				)
+			);
 		}
 
 		// If we reach here, settings is not available — fail loudly to avoid null downstream.
@@ -308,7 +327,13 @@ final class StarmusAudioRecorder {
 			$override_key = \defined( 'STARMUS_DAL_OVERRIDE_KEY' ) ? STARMUS_DAL_OVERRIDE_KEY : null;
 			$filtered_dal = apply_filters( 'starmus_register_dal', $default_dal, $override_key );
 		} catch ( Throwable $throwable ) {
-			StarmusLogger::log( $throwable );
+			StarmusLogger::log(
+				$throwable,
+				array(
+					'component' => __CLASS__,
+					'stage'     => 'set_DAL',
+				)
+			);
 			$this->DAL = $default_dal;
 			return;
 		}
@@ -445,7 +470,13 @@ final class StarmusAudioRecorder {
 
 			$this->hooksRegistered = true;
 		} catch ( Throwable $throwable ) {
-			StarmusLogger::log( $throwable );
+			StarmusLogger::log(
+				$throwable,
+				array(
+					'component' => __CLASS__,
+					'stage'     => 'register_hooks',
+				)
+			);
 		}
 	}
 
@@ -487,7 +518,13 @@ final class StarmusAudioRecorder {
 					'</p></div>';
 			}
 		} catch ( Throwable $throwable ) {
-			StarmusLogger::log( $throwable );
+			StarmusLogger::log(
+				$throwable,
+				array(
+					'component' => __CLASS__,
+					'stage'     => 'displayRuntimeErrorNotice',
+				)
+			);
 		}
 	}
 

@@ -341,11 +341,11 @@ final readonly class StarmusPostProcessingService {
 			return true;
 		} catch ( Throwable $throwable ) {
 			StarmusLogger::error(
-				'Post-processing failed',
+				$throwable,
 				array(
+					'component'     => __CLASS__,
 					'post_id'       => $post_id,
 					'attachment_id' => $attachment_id,
-					'exception'     => $throwable,
 				)
 			);
 			update_post_meta(
