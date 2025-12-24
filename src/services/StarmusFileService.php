@@ -186,7 +186,7 @@ final readonly class StarmusFileService {
 				);
 			}
 		} catch ( \Throwable $throwable ) {
-			StarmusLogger::error(
+			StarmusLogger::log(
 				$throwable,
 				array(
 					'component'     => __CLASS__,
