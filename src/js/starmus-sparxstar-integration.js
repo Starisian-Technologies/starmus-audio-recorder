@@ -1,8 +1,8 @@
 /**
  * @file starmus-sparxstar-integration.js
- * @version 7.1.1-CACHED-INIT
+ * @version 7.1.5-FINAL
  * @description Integration layer between Sparxstar UEC and Starmus Recorder.
- * Includes event caching to prevent timeouts on double-initialization.
+ * Maps environment profiles to recorder tiers and manages data caching.
  */
 
 'use strict';
@@ -65,87 +65,88 @@
 /* 2. SPARXSTAR INTEGRATION OBJECT */
 const sparxstarIntegration = {
     isAvailable: true,
-    _cachedData: null, // Private cache to store environment data
+    _cachedData: null,
 
     /**
-     * Internal listener: Starts watching for the Sparxstar event immediately 
-     * when the script loads so we don't miss it.
+     * Internal listener to capture the event as soon as it fires.
      */
     _listen: function() {
         window.addEventListener('sparxstar:environment-ready', (e) => {
-            console.log('[SparxstarIntegration] Data captured and cached.');
-            this._cachedData = e.detail || {};
+            this._cachedData = this._normalizePayload(e.detail);
+            console.log('[SparxstarIntegration] Data captured and normalized to Tier:', this._cachedData.tier);
         }, { once: true });
     },
 
     /**
-     * Initializes the integration. 
-     * If data is already cached, it returns it instantly.
-     * 
-     * @returns {Promise<Object>} Resolves with normalized environment data.
+     * Maps Sparxstar overallProfile to Starmus A/B/C Tiers.
+     */
+    _normalizePayload: function(raw) {
+        const profile = raw?.technical?.profile?.overallProfile || 'low_capability';
+        
+        // Mapping Logic
+        let tier = 'C';
+        if (profile === 'high_capability') tier = 'A';
+        else if (profile === 'midrange') tier = 'B';
+
+        return {
+            tier: tier,
+            raw: raw,
+            network: raw?.technical?.profile?.networkProfile || 'unknown',
+            device: raw?.technical?.profile?.deviceClass || 'unknown',
+            recordingSettings: { 
+                uploadChunkSize: tier === 'A' ? 1048576 : 524288 
+            }
+        };
+    },
+
+    /**
+     * Initializes the integration for the main recorder boot process.
      */
     init: function() {
         return new Promise((resolve) => {
-            // If data was already received by the listener, resolve immediately
             if (this._cachedData) {
-                console.log('[SparxstarIntegration] Returning cached environment data.');
+                console.log('[SparxstarIntegration] Resolving with cached Tier:', this._cachedData.tier);
                 return resolve(this._cachedData);
             }
 
-            console.log('[SparxstarIntegration] Initializing environment sync...');
-
             const handleReady = (e) => {
-                const data = e.detail || {};
-                this._cachedData = data; // Cache for any subsequent calls
-                resolve(data);
+                this._cachedData = this._normalizePayload(e.detail);
+                resolve(this._cachedData);
             };
 
-            // Listen for the event dispatched by the UEC script
             window.addEventListener('sparxstar:environment-ready', handleReady, { once: true });
 
-            // Safety timeout: 3.5 seconds
+            // Safety timeout
             setTimeout(() => {
-                // Final check to see if data arrived just as we timed out
-                if (this._cachedData) {
-                    return resolve(this._cachedData);
-                }
-
+                if (this._cachedData) return resolve(this._cachedData);
                 window.removeEventListener('sparxstar:environment-ready', handleReady);
-                console.warn('[SparxstarIntegration] Environment timeout. Using fallback.');
+                console.warn('[SparxstarIntegration] Environment timeout. Using fallback Tier C.');
                 resolve(this.getEnvironmentData());
             }, 3500);
         });
     },
 
     /**
-     * Returns baseline environment settings if the live check fails.
+     * Synchronous access for modules like Calibration.
      */
     getEnvironmentData: function() {
+        if (this._cachedData) return this._cachedData;
         return {
             tier: 'C',
-            recordingSettings: { 
-                uploadChunkSize: 524288 
-            },
-            network: { 
-                type: 'unknown',
-                profile: 'standard'
-            },
-            device: {
-                class: 'desktop'
-            }
+            network: 'unknown',
+            device: 'desktop',
+            recordingSettings: { uploadChunkSize: 524288 }
         };
     },
 
     /**
-     * Error reporting bridge.
+     * Reports telemetry or errors back to the Sparxstar logger.
      */
     reportError: function(msg, data) {
-        console.warn('[SparxstarIntegration] Error Reported:', msg, data);
+        console.log('[SparxstarIntegration] Reporting Event:', msg, data);
+        // If a global log function exists from the UEC script, call it here.
     }
 };
 
-// Start the listener immediately
 sparxstarIntegration._listen();
-
-// Export for Rollup/Webpack and starmus-main.js
 export default sparxstarIntegration;
