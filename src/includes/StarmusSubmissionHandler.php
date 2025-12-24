@@ -102,7 +102,12 @@ final class StarmusSubmissionHandler {
 	/**
 	 * Class constructor dependencies.
 	 *
-	 * @param array<string> Fallback file field names for multi-format support
+	 * @var array<string>
+	 *
+	 * @phpstan-var list<string>
+	 * @psalm-var list<string>
+	 *
+	 * Fallback file field names for multi-format support.
 	 *
 	 * @since 1.0.0
 	 */
@@ -114,7 +119,12 @@ final class StarmusSubmissionHandler {
 	 * Explicit MIME types for stricter validation when settings don't specify types.
 	 * Includes common audio formats supported across browsers and platforms.
 	 *
-	 * @param array<string> MIME type allowlist
+	 * @var array<string>
+	 *
+	 * @phpstan-var list<string>
+	 * @psalm-var list<string>
+	 *
+	 * MIME type allowlist for uploads.
 	 *
 	 * @since 1.0.0
 	 */
