@@ -221,6 +221,13 @@ final class StarmusAudioEditorUI {
 		}
 	}
 
+	/**
+	 * Build a secure public URL for stored waveform JSON.
+	 *
+	 * @param int $attachment_id Attachment containing waveform metadata.
+	 *
+	 * @return string Public waveform JSON URL or empty string when invalid.
+	 */
 	private function get_secure_waveform_url( int $attachment_id ): string {
 		$wave_json_path = get_post_meta( $attachment_id, '_waveform_json_path', true );
 		if ( ! \is_string( $wave_json_path ) || ( $wave_json_path === '' || $wave_json_path === '0' ) || ! file_exists( $wave_json_path ) ) {
@@ -235,6 +242,11 @@ final class StarmusAudioEditorUI {
 		return str_replace( $uploads['basedir'], $uploads['baseurl'], $wave_json_path );
 	}
 
+	/**
+	 * Register REST endpoint for waveform annotations persistence.
+	 *
+	 * @return void
+	 */
 	public function register_rest_endpoint(): void {
 		register_rest_route(
 			self::STARMUS_REST_NAMESPACE,
@@ -257,10 +269,24 @@ final class StarmusAudioEditorUI {
 		);
 	}
 
+	/**
+	 * Validate that a provided post ID references an existing post.
+	 *
+	 * @param mixed $value Proposed post identifier.
+	 *
+	 * @return bool True when numeric, positive, and the post exists.
+	 */
 	public function validate_post_id( mixed $value ): bool {
 		return is_numeric( $value ) && $value > 0 && get_post( absint( $value ) ) !== null;
 	}
 
+	/**
+	 * Sanitize incoming annotations payload.
+	 *
+	 * @param mixed $value Raw annotations input from the request.
+	 *
+	 * @return array<int, array<string, mixed>> Cleaned annotation data.
+	 */
 	public function sanitize_annotations( mixed $value ): array {
 		// Full sanitization logic restored
 		if ( ! \is_array( $value ) ) {
@@ -283,6 +309,13 @@ final class StarmusAudioEditorUI {
 		return $sanitized;
 	}
 
+	/**
+	 * Validate structural constraints on incoming annotations.
+	 *
+	 * @param mixed $value Raw annotations input.
+	 *
+	 * @return bool True if the payload size and shape are acceptable.
+	 */
 	public function validate_annotations( mixed $value ): bool {
 		// Full validation logic restored
 		if ( ! \is_array( $value ) || \count( $value ) > self::STARMUS_MAX_ANNOTATIONS ) {
@@ -302,6 +335,13 @@ final class StarmusAudioEditorUI {
 		return true;
 	}
 
+	/**
+	 * Ensure the current request has permission to save annotations.
+	 *
+	 * @param WP_REST_Request $request REST request data.
+	 *
+	 * @return bool True when nonce is valid and user can access the post.
+	 */
 	public function can_save_annotations( WP_REST_Request $request ): bool {
 		$nonce = $request->get_header( 'X-WP-Nonce' );
 		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
@@ -312,6 +352,13 @@ final class StarmusAudioEditorUI {
 		return $post && $this->user_can_access( $post );
 	}
 
+	/**
+	 * Handle REST save requests for waveform annotations.
+	 *
+	 * @param WP_REST_Request $request REST request instance.
+	 *
+	 * @return WP_REST_Response JSON response indicating result status.
+	 */
 	public function handle_save_annotations( WP_REST_Request $request ): WP_REST_Response {
 		try {
 			$post_id     = absint( $request->get_param( 'postId' ) );
@@ -362,6 +409,13 @@ final class StarmusAudioEditorUI {
 		}
 	}
 
+	/**
+	 * Apply a transient to prevent rapid successive annotation saves.
+	 *
+	 * @param int $post_id Post ID being updated.
+	 *
+	 * @return bool True if the user/post combination is currently throttled.
+	 */
 	private function is_rate_limited( int $post_id ): bool {
 		$key = \sprintf( 'starmus_ann_rl_%d_%d', get_current_user_id(), $post_id );
 		if ( get_transient( $key ) ) {
@@ -372,6 +426,13 @@ final class StarmusAudioEditorUI {
 		return false;
 	}
 
+	/**
+	 * Ensure annotation regions are sorted and non-overlapping.
+	 *
+	 * @param array<int, array<string, mixed>> $annotations Sanitized annotations payload.
+	 *
+	 * @return bool|WP_Error True when consistent, WP_Error when overlaps detected.
+	 */
 	private function validate_annotation_consistency( array $annotations ): bool|WP_Error {
 		if ( $annotations === array() ) {
 			return true;
@@ -387,10 +448,24 @@ final class StarmusAudioEditorUI {
 		return true;
 	}
 
+	/**
+	 * Publicly exposed context accessor for rendering the editor.
+	 *
+	 * @param array<string, mixed> $atts Shortcode attributes used to build context.
+	 *
+	 * @return array<string, mixed>|WP_Error Editor context payload or WP_Error on failure.
+	 */
 	public function get_editor_context_public( array $atts = array() ): array|WP_Error {
 		return $this->get_editor_context( $atts );
 	}
 
+	/**
+	 * Record detailed errors to the debug log when enabled.
+	 *
+	 * @param Throwable $e Exception or error instance to log.
+	 *
+	 * @return void
+	 */
 	private function log_error( Throwable $e ): void {
 		if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( 'Starmus Audio Editor UI Error: ' . $e->getMessage() );

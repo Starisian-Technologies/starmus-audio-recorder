@@ -144,10 +144,25 @@ final class StarmusEnhancedId3Service extends StarmusId3Service {
 	}
 
 	// Helper methods
+	/**
+	 * Safely return the first element from a value list.
+	 *
+	 * @param array<int, string> $values Values from ID3 comments.
+	 *
+	 * @return string First value or empty string.
+	 */
 	private function getFirstValue( array $values ): string {
 		return $values[0] ?? '';
 	}
 
+	/**
+	 * Categorize audio quality based on bitrate and sample rate.
+	 *
+	 * @param int $bitrate     Audio bitrate in bits per second.
+	 * @param int $sample_rate Sample rate in Hz.
+	 *
+	 * @return string Quality tier label.
+	 */
 	private function determineQualityTier( int $bitrate, int $sample_rate ): string {
 		if ( $bitrate >= 256000 && $sample_rate >= 44100 ) {
 			return 'high';
@@ -160,16 +175,37 @@ final class StarmusEnhancedId3Service extends StarmusId3Service {
 		return 'low';
 	}
 
+	/**
+	 * Estimate bandwidth string from bitrate.
+	 *
+	 * @param int $bitrate Bitrate in bits per second.
+	 *
+	 * @return string Human-readable kbps string.
+	 */
 	private function estimateBandwidth( int $bitrate ): string {
 		$kbps = $bitrate / 1000;
 		return $kbps . ' kbps';
 	}
 
+	/**
+	 * Recommend a web-friendly format fallback.
+	 *
+	 * @param string $current_format Detected format.
+	 *
+	 * @return string Preferred format choice.
+	 */
 	private function getRecommendedFormat( string $current_format ): string {
 		$web_formats = array( 'mp3', 'wav', 'ogg', 'webm' );
 		return \in_array( $current_format, $web_formats ) ? $current_format : 'mp3';
 	}
 
+	/**
+	 * Construct descriptive comments from submission data.
+	 *
+	 * @param array<string, mixed> $form_data Submission metadata.
+	 *
+	 * @return string Joined comment text.
+	 */
 	private function buildComment( array $form_data ): string {
 		$parts = array();
 
@@ -184,6 +220,13 @@ final class StarmusEnhancedId3Service extends StarmusId3Service {
 		return implode( ' | ', $parts );
 	}
 
+	/**
+	 * Map recording type to a genre tag for ID3 metadata.
+	 *
+	 * @param string $recording_type Recording type slug.
+	 *
+	 * @return string Genre label.
+	 */
 	private function mapRecordingTypeToGenre( string $recording_type ): string {
 		$mapping = array(
 			'interview'    => 'Speech',
@@ -196,6 +239,13 @@ final class StarmusEnhancedId3Service extends StarmusId3Service {
 		return $mapping[ $recording_type ] ?? 'Other';
 	}
 
+	/**
+	 * Detect language preference from comment metadata.
+	 *
+	 * @param array<string, array<int, string>> $comments Comment metadata array.
+	 *
+	 * @return string Language code.
+	 */
 	private function detectLanguage( array $comments ): string {
 		// Simple language detection based on metadata
 		if ( isset( $comments['language'] ) ) {

@@ -21,6 +21,12 @@ final class StarmusCloudflareAudioService {
 
 	private StarmusId3Service $id3_service;
 
+	/**
+	 * Construct the Cloudflare audio service with required collaborators.
+	 *
+	 * @param StarmusFileService $file_service File service for fetching local copies.
+	 * @param StarmusId3Service  $id3_service  ID3 helper for metadata handling.
+	 */
 	public function __construct(
 		StarmusFileService $file_service,
 		StarmusId3Service $id3_service
@@ -31,6 +37,10 @@ final class StarmusCloudflareAudioService {
 
 	/**
 	 * Process audio for African bandwidth - Cloudflare R2 compatible
+	 *
+	 * @param int $attachment_id Attachment ID to optimize.
+	 *
+	 * @return array<string, mixed> Map of quality keys to attachment data or error message.
 	 */
 	public function processForAfrica( int $attachment_id ): array {
 		$results = array();
@@ -83,6 +93,10 @@ final class StarmusCloudflareAudioService {
 
 	/**
 	 * Create bandwidth-optimized versions
+	 *
+	 * @param string $input_path Local source audio path.
+	 *
+	 * @return array<string, string> Temporary file paths keyed by quality label.
 	 */
 	private function createAfricaVersions( string $input_path ): array {
 		$base_name = pathinfo( $input_path, PATHINFO_FILENAME );
@@ -110,6 +124,12 @@ final class StarmusCloudflareAudioService {
 
 	/**
 	 * Convert audio using FFmpeg
+	 *
+	 * @param string             $input  Source audio path.
+	 * @param string             $output Destination output path.
+	 * @param array<int, string> $params FFmpeg parameters.
+	 *
+	 * @return bool True when conversion succeeded.
 	 */
 	private function convertAudio( string $input, string $output, array $params ): bool {
 		$cmd = implode(
@@ -127,6 +147,11 @@ final class StarmusCloudflareAudioService {
 
 	/**
 	 * Copy metadata using getID3
+	 *
+	 * @param string $source      Source audio path.
+	 * @param string $destination Destination audio path.
+	 *
+	 * @return void
 	 */
 	private function copyMetadata( string $source, string $destination ): void {
 		$analysis = $this->id3_service->analyzeFile( $source );
@@ -148,6 +173,12 @@ final class StarmusCloudflareAudioService {
 
 	/**
 	 * Upload processed file to WordPress (will auto-offload to R2)
+	 *
+	 * @param string $temp_path Temporary file path to upload.
+	 * @param int    $parent_id Parent attachment/post ID.
+	 * @param string $quality   Quality label for the rendition.
+	 *
+	 * @return int|null Attachment ID or null on failure.
 	 */
 	private function uploadToWordPress( string $temp_path, int $parent_id, string $quality ): ?int {
 		if ( ! \function_exists( 'media_handle_sideload' ) ) {
@@ -190,6 +221,10 @@ final class StarmusCloudflareAudioService {
 
 	/**
 	 * Get data usage estimates for African networks
+	 *
+	 * @param int $attachment_id Attachment ID to estimate.
+	 *
+	 * @return array<string, float|string> Estimate details keyed by metric.
 	 */
 	public function getAfricaDataEstimate( int $attachment_id ): array {
 		$local_path = $this->file_service->get_local_copy( $attachment_id );

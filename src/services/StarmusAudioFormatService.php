@@ -17,12 +17,21 @@ final class StarmusAudioFormatService {
 
 	private StarmusId3Service $id3_service;
 
+	/**
+	 * Initialize format service with ID3 dependency.
+	 *
+	 * @param StarmusId3Service $id3_service ID3 analysis helper.
+	 */
 	public function __construct( StarmusId3Service $id3_service ) {
 		$this->id3_service = $id3_service;
 	}
 
 	/**
 	 * Analyze and recommend optimal format for web delivery
+	 *
+	 * @param string $filepath Path to the audio file to analyze.
+	 *
+	 * @return array<string, mixed> Analysis summary and recommendations.
 	 */
 	public function analyzeForWebDelivery( string $filepath ): array {
 		$analysis = $this->id3_service->analyzeFile( $filepath );
@@ -46,6 +55,10 @@ final class StarmusAudioFormatService {
 
 	/**
 	 * Get format recommendations for different use cases
+	 *
+	 * @param array<string, mixed> $analysis getID3 analysis data.
+	 *
+	 * @return array<string, array<string, string>> Recommendations keyed by use case.
 	 */
 	private function getWebOptimizationRecommendations( array $analysis ): array {
 		$audio    = $analysis['audio'] ?? array();
@@ -86,6 +99,10 @@ final class StarmusAudioFormatService {
 
 	/**
 	 * Check browser support for audio formats
+	 *
+	 * @param string $format Audio format key.
+	 *
+	 * @return array<string, bool> Browser support matrix.
 	 */
 	private function getBrowserSupport( string $format ): array {
 		$support_matrix = array(
@@ -135,6 +152,10 @@ final class StarmusAudioFormatService {
 
 	/**
 	 * Get mobile-specific considerations
+	 *
+	 * @param array<string, mixed> $analysis getID3 analysis data.
+	 *
+	 * @return array<string, mixed> Mobile optimization metrics.
 	 */
 	private function getMobileConsiderations( array $analysis ): array {
 		$audio    = $analysis['audio'] ?? array();
@@ -152,6 +173,10 @@ final class StarmusAudioFormatService {
 
 	/**
 	 * Generate multiple format versions for progressive enhancement
+	 *
+	 * @param string $filepath Original file path.
+	 *
+	 * @return array<string, array<string, string>> Manifest entries keyed by rendition.
 	 */
 	public function generateFormatManifest( string $filepath ): array {
 		$analysis = $this->id3_service->analyzeFile( $filepath );
@@ -192,6 +217,14 @@ final class StarmusAudioFormatService {
 	}
 
 	// Helper methods
+	/**
+	 * Estimate data usage for streaming/downloading.
+	 *
+	 * @param int   $filesize File size in bytes.
+	 * @param float $duration Duration in seconds.
+	 *
+	 * @return array<string, float|string> Data usage estimates.
+	 */
 	private function estimateDataUsage( int $filesize, float $duration ): array {
 		$mb_size       = $filesize / ( 1024 * 1024 );
 		$mb_per_minute = $duration > 0 ? ( $mb_size / ( $duration / 60 ) ) : 0;
@@ -203,6 +236,14 @@ final class StarmusAudioFormatService {
 		);
 	}
 
+	/**
+	 * Estimate device battery impact based on bitrate and duration.
+	 *
+	 * @param int   $bitrate  Stream bitrate in bits per second.
+	 * @param float $duration Duration in seconds.
+	 *
+	 * @return string Battery impact classification.
+	 */
 	private function estimateBatteryImpact( int $bitrate, float $duration ): string {
 		$processing_load = ( $bitrate / 1000 ) * ( $duration / 60 );
 
@@ -217,6 +258,13 @@ final class StarmusAudioFormatService {
 		return 'low';
 	}
 
+	/**
+	 * Estimate loading times for common network tiers.
+	 *
+	 * @param int $filesize File size in bytes.
+	 *
+	 * @return array<string, string> Estimated load times keyed by network type.
+	 */
 	private function estimateLoadingTime( int $filesize ): array {
 		$mb_size = $filesize / ( 1024 * 1024 );
 
@@ -227,6 +275,14 @@ final class StarmusAudioFormatService {
 		);
 	}
 
+	/**
+	 * Recommend mobile audio quality based on duration and total size.
+	 *
+	 * @param float $duration Duration in seconds.
+	 * @param int   $filesize File size in bytes.
+	 *
+	 * @return string Suggested bitrate label for mobile playback.
+	 */
 	private function getRecommendedMobileQuality( float $duration, int $filesize ): string {
 		$mb_size = $filesize / ( 1024 * 1024 );
 

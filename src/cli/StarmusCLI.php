@@ -28,6 +28,9 @@ class StarmusCLI extends \WP_CLI_Command {
 	 */
 	private ?StarmusWaveformService $waveform_service = null;
 
+	/**
+	 * Initialize CLI command with waveform service dependency.
+	 */
 	public function __construct() {
 		$this->waveform_service = new StarmusWaveformService();
 	}

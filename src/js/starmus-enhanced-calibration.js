@@ -155,6 +155,11 @@ class EnhancedCalibration {
         let currentPhase = 0;
 
         return new Promise((resolve) => {
+            /**
+             * Iterates over calibration phases and captures microphone metrics.
+             *
+             * @returns {void}
+             */
             const calibrationLoop = () => {
                 const elapsed = Date.now() - startTime;
                 const phaseElapsed = elapsed % phaseDuration;

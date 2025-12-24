@@ -96,6 +96,14 @@ class StarmusAdmin {
 		}
 	}
 
+	/**
+	 * Register WordPress hooks for admin menus and settings.
+	 *
+	 * Hooks are added during construction to keep initialization centralized
+	 * and guarantee that settings are registered before the admin UI renders.
+	 *
+	 * @return void
+	 */
 	private function register_hooks(): void {
 		add_action( 'admin_menu', $this->add_admin_menu( ... ) );
 		// REVERTED: Back to admin_init for register_settings.

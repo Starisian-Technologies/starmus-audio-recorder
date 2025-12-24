@@ -83,6 +83,11 @@ const uploadCircuitBreaker = new UploadCircuitBreaker();
  * @property {string} webhookSecret - Secret for webhook authentication
  */
 // 1. Config
+/**
+ * Build the default TUS configuration enriched with environment data.
+ *
+ * @returns {Object} Default configuration object for uploader initialization.
+ */
 function getDefaultConfig() {
   // Get optimized settings from SPARXSTAR if available
   const envData = sparxstarIntegration.getEnvironmentData();

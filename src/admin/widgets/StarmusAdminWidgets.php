@@ -155,11 +155,16 @@ class StarmusAdminWidgets {
 			$nonce    = wp_create_nonce( 'aiwa_jobs_nonce' );
 			$ajax_url = admin_url( 'admin-ajax.php' );
 
-			$script = <<<JS
+            $script = <<<JS
                 <script>
                 (function(){
                     const ajaxUrl = '{$ajax_url}';
                     const nonce = '{$nonce}';
+                    /**
+                     * Refreshes the SageMaker job widget counts via AJAX.
+                     *
+                     * @returns {void}
+                     */
                     function refreshJobs(){
                         fetch(ajaxUrl + '?action=aiwa_get_jobs&nonce=' + nonce, { credentials: 'same-origin' })
                             .then(r => r.json())

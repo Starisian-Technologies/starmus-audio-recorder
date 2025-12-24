@@ -97,6 +97,14 @@ class StarmusSanitizer {
 		return $meta;
 	}
 
+	/**
+	 * Safely determine the user's IP address from the current request.
+	 *
+	 * Checks standard proxy and client headers before falling back to REMOTE_ADDR
+	 * and normalizes the value through WordPress sanitization utilities.
+	 *
+	 * @return string Sanitized IP address or `0.0.0.0` when unavailable.
+	 */
 	public static function get_user_ip(): string {
 		$ipaddress = '';
 		if ( isset( $_SERVER['HTTP_CLIENT_IP'] ) ) {

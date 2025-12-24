@@ -24,6 +24,11 @@ final class StarmusR2DirectService {
 
 	private StarmusId3Service $id3_service;
 
+	/**
+	 * Configure R2 client with credentials and supporting ID3 service.
+	 *
+	 * @param StarmusId3Service $id3_service ID3 helper for metadata operations.
+	 */
 	public function __construct( StarmusId3Service $id3_service ) {
 		$this->id3_service = $id3_service;
 		$this->bucket      = \defined( 'STARMUS_R2_BUCKET' ) ? STARMUS_R2_BUCKET : 'starmus-audio';
@@ -44,6 +49,11 @@ final class StarmusR2DirectService {
 
 	/**
 	 * Process audio for African networks with direct R2 control
+	 *
+	 * @param string $local_path Absolute path to source audio.
+	 * @param int    $post_id    Post ID for namespacing R2 keys.
+	 *
+	 * @return array<string, mixed> Optimization results keyed by quality.
 	 */
 	public function processAfricaAudio( string $local_path, int $post_id ): array {
 		if ( ! $this->id3_service->needsAfricaOptimization( $local_path ) ) {
@@ -85,6 +95,11 @@ final class StarmusR2DirectService {
 
 	/**
 	 * Create optimized audio version
+	 *
+	 * @param string            $input  Source audio path.
+	 * @param array<int, string> $params FFmpeg parameters for optimization.
+	 *
+	 * @return string|null Path to optimized temp file or null on failure.
 	 */
 	private function createOptimizedVersion( string $input, array $params ): ?string {
 		$temp_file = tempnam( sys_get_temp_dir(), 'starmus_africa_' ) . '.mp3';
@@ -111,6 +126,11 @@ final class StarmusR2DirectService {
 
 	/**
 	 * Upload file directly to Cloudflare R2
+	 *
+	 * @param string $file_path Path to file for upload.
+	 * @param string $key       Object key within the bucket.
+	 *
+	 * @return string|null Public URL of uploaded object or null on failure.
 	 */
 	private function uploadToR2( string $file_path, string $key ): ?string {
 		try {
@@ -142,6 +162,11 @@ final class StarmusR2DirectService {
 
 	/**
 	 * Copy metadata using getID3
+	 *
+	 * @param string $source      Source audio path.
+	 * @param string $destination Destination audio path.
+	 *
+	 * @return void
 	 */
 	private function copyMetadata( string $source, string $destination ): void {
 		$analysis = $this->id3_service->analyzeFile( $source );
@@ -161,6 +186,10 @@ final class StarmusR2DirectService {
 
 	/**
 	 * Get bandwidth estimates for Africa
+	 *
+	 * @param string $file_path Path to the original audio file.
+	 *
+	 * @return array<string, float|string> Estimate data for bandwidth planning.
 	 */
 	public function getAfricaEstimates( string $file_path ): array {
 		$size_mb = filesize( $file_path ) / ( 1024 * 1024 );

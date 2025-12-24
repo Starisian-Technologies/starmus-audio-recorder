@@ -225,6 +225,11 @@ class LanguageSignalAnalyzer {
       let lastState = 'silence';
       const startTime = performance.now();
       
+      /**
+       * Monitor waveform data to flag speech/silence transitions.
+       *
+       * @returns {void}
+       */
       const detectSpeechBoundaries = () => {
         if (this._abort) {return;}
         
@@ -342,6 +347,11 @@ async function doCalibration(stream, onUpdate) {
     let maxVolume = 0;
     
     return new Promise(resolve => {
+        /**
+         * Iteratively sample audio to compute calibration metrics.
+         *
+         * @returns {void}
+         */
         function loop() {
             analyser.getByteFrequencyData(data);
             let sum = 0;

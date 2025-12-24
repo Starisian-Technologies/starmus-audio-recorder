@@ -150,6 +150,13 @@ final class StarmusShortcodeLoader {
 		return '<p>You do not have permission to view this recording detail.</p>';
 	}
 
+	/**
+	 * Render the editor UI with required bootstrap data for asset localization.
+	 *
+	 * @param array<string, mixed> $atts Shortcode attributes.
+	 *
+	 * @return string Rendered editor markup or error notice.
+	 */
 	private function render_editor_with_bootstrap( array $atts ): string {
 		// Create editor instance and get context
 		$editor  = new StarmusAudioEditorUI();

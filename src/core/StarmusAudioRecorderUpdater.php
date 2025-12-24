@@ -30,6 +30,11 @@ class StarmusAudioRecorderUpdater {
 		// The crucial hook that starts the process.
 	}
 
+	/**
+	 * Register filters needed to intercept WordPress update checks.
+	 *
+	 * @return void
+	 */
 	private function register_hooks(): void {
 		add_filter( 'pre_set_site_transient_update_plugins', $this->check_for_updates( ... ) );
 	}

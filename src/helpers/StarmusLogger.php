@@ -83,15 +83,95 @@ class StarmusLogger
     }
 
     /**
-     * Log methods for each level (Static Facades)
+     * Log an error-level message to the centralized handler.
+     *
+     * @param mixed                $message Log message or throwable instance.
+     * @param array<string, mixed> $context Optional structured context data.
+     *
+     * @return void
      */
-    public static function error(mixed $message, array $context = []): void      { self::get_handler()->error($message, $context); }
-    public static function info(mixed $message, array $context = []): void       { self::get_handler()->info($message, $context); }
-    public static function debug(mixed $message, array $context = []): void      { self::get_handler()->debug($message, $context); }
-    public static function warning(mixed $message, array $context = []): void    { self::get_handler()->warning($message, $context); }
-    public static function critical(mixed $message, array $context = []): void   { self::get_handler()->critical($message, $context); }
-    public static function alert(mixed $message, array $context = []): void      { self::get_handler()->alert($message, $context); }
-    public static function emergency(mixed $message, array $context = []): void  { self::get_handler()->emergency($message, $context); }
+    public static function error(mixed $message, array $context = []): void
+    {
+        self::get_handler()->error($message, $context);
+    }
+
+    /**
+     * Log an informational message to the centralized handler.
+     *
+     * @param mixed                $message Log message or throwable instance.
+     * @param array<string, mixed> $context Optional structured context data.
+     *
+     * @return void
+     */
+    public static function info(mixed $message, array $context = []): void
+    {
+        self::get_handler()->info($message, $context);
+    }
+
+    /**
+     * Log a debug-level message for verbose troubleshooting.
+     *
+     * @param mixed                $message Log message or throwable instance.
+     * @param array<string, mixed> $context Optional structured context data.
+     *
+     * @return void
+     */
+    public static function debug(mixed $message, array $context = []): void
+    {
+        self::get_handler()->debug($message, $context);
+    }
+
+    /**
+     * Log a warning-level message indicating recoverable issues.
+     *
+     * @param mixed                $message Log message or throwable instance.
+     * @param array<string, mixed> $context Optional structured context data.
+     *
+     * @return void
+     */
+    public static function warning(mixed $message, array $context = []): void
+    {
+        self::get_handler()->warning($message, $context);
+    }
+
+    /**
+     * Log a critical-level message for severe conditions.
+     *
+     * @param mixed                $message Log message or throwable instance.
+     * @param array<string, mixed> $context Optional structured context data.
+     *
+     * @return void
+     */
+    public static function critical(mixed $message, array $context = []): void
+    {
+        self::get_handler()->critical($message, $context);
+    }
+
+    /**
+     * Log an alert-level message requiring immediate action.
+     *
+     * @param mixed                $message Log message or throwable instance.
+     * @param array<string, mixed> $context Optional structured context data.
+     *
+     * @return void
+     */
+    public static function alert(mixed $message, array $context = []): void
+    {
+        self::get_handler()->alert($message, $context);
+    }
+
+    /**
+     * Log an emergency-level message for system unavailability.
+     *
+     * @param mixed                $message Log message or throwable instance.
+     * @param array<string, mixed> $context Optional structured context data.
+     *
+     * @return void
+     */
+    public static function emergency(mixed $message, array $context = []): void
+    {
+        self::get_handler()->emergency($message, $context);
+    }
 
     /**
      * Compatibility alias for log_error
@@ -99,20 +179,35 @@ class StarmusLogger
      * @deprecated Use AiWASWMLogger::error() instead
      * @param mixed $message
      * @param array $context
+     *
+     * @return void
      */
     public static function log_error(mixed $message, array $context = []): void
     {
         self::error($message, $context);
     }
 
-	public static function log(mixed $message, array $context = []): void
-	{
-		self::error($message, $context);
-	}
+    /**
+     * Backwards-compatible logging shim for legacy callers.
+     *
+     * @param mixed                $message Log message or throwable instance.
+     * @param array<string, mixed> $context Optional structured context data.
+     *
+     * @return void
+     */
+    public static function log(mixed $message, array $context = []): void
+    {
+        self::error($message, $context);
+    }
 
     /**
-     * Render an error message for frontend display
-     * @deprecated Use AiWAUIHelper::renderError() instead
+     * Render an error message for frontend display and log it.
+     *
+     * @deprecated Use AiWAUIHelper::renderError() instead.
+     *
+     * @param string $message Message to render and log.
+     *
+     * @return string Safe HTML notice markup.
      */
     public static function renderError(string $message): string
     {

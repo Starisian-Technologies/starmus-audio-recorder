@@ -21,6 +21,12 @@ final class StarmusFFmpegService {
 
 	private StarmusId3Service $id3_service;
 
+	/**
+	 * Instantiate the FFmpeg service with its dependencies.
+	 *
+	 * @param StarmusId3Service $id3_service  ID3 helper used for metadata copy.
+	 * @param string            $ffmpeg_path Path or command name for FFmpeg binary.
+	 */
 	public function __construct( StarmusId3Service $id3_service, string $ffmpeg_path = 'ffmpeg' ) {
 		$this->id3_service = $id3_service;
 		$this->ffmpeg_path = $ffmpeg_path;
@@ -28,6 +34,11 @@ final class StarmusFFmpegService {
 
 	/**
 	 * Convert audio to web-optimized formats
+	 *
+	 * @param string $input_path Absolute path to source audio.
+	 * @param string $output_dir Directory where converted files should be saved.
+	 *
+	 * @return array<string, string> Map of quality key to generated file path.
 	 */
 	public function optimizeForWeb( string $input_path, string $output_dir ): array {
 		$base_name = pathinfo( $input_path, PATHINFO_FILENAME );
@@ -56,6 +67,10 @@ final class StarmusFFmpegService {
 
 	/**
 	 * Generate waveform data for audio editor
+	 *
+	 * @param string $input_path Input audio file path.
+	 *
+	 * @return array<int, float>|null Normalized waveform samples or null on failure.
 	 */
 	public function generateWaveform( string $input_path ): ?array {
 		$temp_file = tempnam( sys_get_temp_dir(), 'starmus_waveform_' );
@@ -88,6 +103,12 @@ final class StarmusFFmpegService {
 
 	/**
 	 * Extract audio segment for preview
+	 *
+	 * @param string $input_path    Source audio path.
+	 * @param int    $start_seconds Offset to begin preview.
+	 * @param int    $duration      Preview length in seconds.
+	 *
+	 * @return string|null Path to preview clip or null when extraction fails.
 	 */
 	public function extractPreview( string $input_path, int $start_seconds = 0, int $duration = 30 ): ?string {
 		$output_path = tempnam( sys_get_temp_dir(), 'starmus_preview_' ) . '.mp3';
@@ -115,6 +136,11 @@ final class StarmusFFmpegService {
 
 	/**
 	 * Normalize audio levels
+	 *
+	 * @param string $input_path  Source audio path.
+	 * @param string $output_path Destination path for normalized audio.
+	 *
+	 * @return bool True when normalization succeeds.
 	 */
 	public function normalizeAudio( string $input_path, string $output_path ): bool {
 		$command = array(
@@ -135,6 +161,12 @@ final class StarmusFFmpegService {
 
 	/**
 	 * Basic audio conversion
+	 *
+	 * @param string $input  Source audio path.
+	 * @param string $output Destination path.
+	 * @param array<int, string> $params FFmpeg parameters to apply.
+	 *
+	 * @return bool True when conversion succeeds.
 	 */
 	private function convertAudio( string $input, string $output, array $params ): bool {
 		$command = array_merge(
@@ -161,6 +193,11 @@ final class StarmusFFmpegService {
 
 	/**
 	 * Copy metadata between files using getID3
+	 *
+	 * @param string $source      Original audio file.
+	 * @param string $destination Target file to receive copied metadata.
+	 *
+	 * @return void
 	 */
 	private function copyMetadata( string $source, string $destination ): void {
 		$analysis = $this->id3_service->analyzeFile( $source );
@@ -181,6 +218,10 @@ final class StarmusFFmpegService {
 
 	/**
 	 * Process raw waveform data into peaks format
+	 *
+	 * @param string $raw_data Raw PCM data from FFmpeg.
+	 *
+	 * @return array<int, array<string, float>> Simplified peak data.
 	 */
 	private function processWaveformData( string $raw_data ): array {
 		$samples    = unpack( 'f*', $raw_data );

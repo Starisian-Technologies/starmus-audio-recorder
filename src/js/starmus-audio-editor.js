@@ -101,6 +101,12 @@
     }
 
     let dirty = false;
+    /**
+     * Toggle dirty state and update save button availability.
+     *
+     * @param {boolean} v - Whether unsaved changes exist.
+     * @returns {void}
+     */
     const setDirty = (v) => {
       dirty = !!v;
       btnSave.disabled = !dirty;
@@ -245,6 +251,11 @@
           }
         });
 
+        /**
+         * Render annotation table rows from Peaks segments.
+         *
+         * @returns {void}
+         */
         const render = () => {
           const segs = normalize(peaks.segments.getSegments());
           regionTable.innerHTML = '';

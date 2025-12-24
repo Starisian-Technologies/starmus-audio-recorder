@@ -21,6 +21,9 @@ final class StarmusAudioPipeline {
 
 	private StarmusFFmpegService $ffmpeg_service;
 
+	/**
+	 * Wire up ID3 and FFmpeg services required for processing.
+	 */
 	public function __construct() {
 		$this->id3_service    = new StarmusId3Service();
 		$this->ffmpeg_service = new StarmusFFmpegService( $this->id3_service );
@@ -28,6 +31,12 @@ final class StarmusAudioPipeline {
 
 	/**
 	 * Process uploaded audio file - call this from your submission handler
+	 *
+	 * @param string               $file_path Absolute path to the uploaded file.
+	 * @param array<string, mixed> $form_data Sanitized submission metadata.
+	 * @param int                  $post_id   Post ID associated with the audio.
+	 *
+	 * @return array<string, mixed> Aggregated processing results.
 	 */
 	public function processUploadedAudio( string $file_path, array $form_data, int $post_id ): array {
 		$results = array(
@@ -90,6 +99,10 @@ final class StarmusAudioPipeline {
 
 	/**
 	 * Extract key metadata for WordPress storage
+	 *
+	 * @param array<string, mixed> $analysis getID3 analysis array.
+	 *
+	 * @return array<string, mixed> Summary metadata for persistence.
 	 */
 	private function extractKeyMetadata( array $analysis ): array {
 		$audio    = $analysis['audio'] ?? array();
@@ -110,6 +123,11 @@ final class StarmusAudioPipeline {
 
 	/**
 	 * Generate Starmus-specific ID3 tags
+	 *
+	 * @param array<string, mixed> $form_data Submission metadata.
+	 * @param int                  $post_id   Post ID for contextual defaults.
+	 *
+	 * @return array<string, array<int, string>> Prepared ID3 tag data.
 	 */
 	private function generateStarmusTags( array $form_data, int $post_id ): array {
 		$site_name = get_bloginfo( 'name' );
@@ -130,6 +148,10 @@ final class StarmusAudioPipeline {
 
 	/**
 	 * Build descriptive comment from form data
+	 *
+	 * @param array<string, mixed> $form_data Submission metadata.
+	 *
+	 * @return string Concatenated comment string.
 	 */
 	private function buildComment( array $form_data ): string {
 		$parts = array();
@@ -151,6 +173,10 @@ final class StarmusAudioPipeline {
 
 	/**
 	 * Assess audio quality tier
+	 *
+	 * @param array<string, mixed> $audio Audio analysis subset.
+	 *
+	 * @return string Quality tier label.
 	 */
 	private function assessQuality( array $audio ): string {
 		$bitrate     = $audio['bitrate'] ?? 0;
@@ -169,9 +195,16 @@ final class StarmusAudioPipeline {
 }
 
 /**
- * Integration hook for StarmusSubmissionHandler
+ * Integration hook for StarmusSubmissionHandler.
  *
- * Add this to your save_all_metadata method:
+ * Add this to your save_all_metadata method to run the processing pipeline
+ * after attachments are created.
+ *
+ * @param int                  $post_id       Audio post ID.
+ * @param int                  $attachment_id Attachment containing the upload.
+ * @param array<string, mixed> $form_data     Sanitized submission data.
+ *
+ * @return void
  */
 function starmus_process_audio_with_pipeline( int $post_id, int $attachment_id, array $form_data ): void {
 	$file_path = get_attached_file( $attachment_id );

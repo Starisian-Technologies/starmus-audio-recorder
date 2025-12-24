@@ -11,12 +11,21 @@ use Starisian\Sparxstar\Starmus\admin\interfaces\IStarmusAdminInterface;
 use Starisian\Sparxstar\Starmus\includes\StarmusSageMakerJobRepository;
 use Starisian\Sparxstar\Starmus\integrations\StarmusSageMakerClient;
 
+/**
+ * Admin manager for viewing and controlling SageMaker job queue entries.
+ *
+ * Provides dashboard rendering, AJAX handlers, and capability checks to keep
+ * orchestration aligned with WordPress permissions.
+ */
 final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInterface {
 
 	private StarmusSageMakerJobRepository $repository;
 
 	private StarmusSageMakerClient $manager;
 
+	/**
+	 * Initialize repository, client, and required hooks.
+	 */
 	public function __construct() {
 		// In a real DI container, these would be injected.
 		$this->repository = new StarmusSageMakerJobRepository();
@@ -27,6 +36,8 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 
 	/**
 	 * Registers WordPress hooks for admin actions and AJAX handlers.
+	 *
+	 * @return void
 	 */
 	private function register_hooks(): void {
 		add_action( 'admin_post_starmus_delete_job', $this->handle_delete_job( ... ) );
@@ -36,6 +47,14 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 		add_action( 'wp_ajax_starmus_delete_job', $this->ajax_delete_job( ... ) );
 	}
 
+	/**
+	 * Render the SageMaker jobs admin page based on requested context.
+	 *
+	 * Performs capability enforcement before dispatching to list or detail
+	 * views and outputs a simple wrap container.
+	 *
+	 * @return void
+	 */
 	public function render(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Insufficient permissions', 'starmus-audio-recorder' ) );
@@ -58,6 +77,8 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 	 * Renders the detailed view for a specific SageMaker job.
 	 *
 	 * @param string $job_id The ID of the job to display details for.
+	 *
+	 * @return void
 	 */
 	private function render_detail_view( string $job_id ): void {
 		$job = $this->repository->find( $job_id );
@@ -94,6 +115,8 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 
 	/**
 	 * Renders the list view showing all SageMaker jobs with pagination.
+	 *
+	 * @return void
 	 */
 	private function render_list_view(): void {
 		$page     = isset( $_GET['paged'] ) ? max( 1, \intval( $_GET['paged'] ) ) : 1;

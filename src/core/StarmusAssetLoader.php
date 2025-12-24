@@ -81,6 +81,11 @@ final class StarmusAssetLoader {
 		error_log( '[Starmus AssetLoader] Assets enqueued successfully' );
 	}
 
+	/**
+	 * Localize rerecorder-specific data for the frontend bundle.
+	 *
+	 * @return void
+	 */
 	public function enqueue_re_recorder_assets(): void {
 		wp_localize_script(
 			'starmus-audio-recorder-script.bundle',

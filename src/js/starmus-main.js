@@ -39,6 +39,13 @@
 
 /* 0. GLOBAL ERROR TRAP */
 (function () {
+  /**
+   * Lightweight console logger for runtime errors.
+   *
+   * @param {string} type - Error event type.
+   * @param {unknown} data - Additional error payload.
+   * @returns {void}
+   */
   const log = (type, data) => {
     console.warn('[STARMUS RUNTIME]', type, data);
   };
