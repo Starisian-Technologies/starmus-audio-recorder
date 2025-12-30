@@ -70,7 +70,7 @@ class StarmusProsodyPlayer {
 		// Enqueue the JS (assuming you saved the JS Class to a file)
 		wp_register_script(
 			'starmus-prosody-js',
-			plugin_dir_url( __FILE__ ) . 'src/frontend/js/starmus-prosody-engine.js',
+			plugin_dir_url( __FILE__ ) . 'src/js/prosody/starmus-prosody-engine.js',
 			array(),
 			STARMUS_VERSION,
 			array( 'strategy' => 'defer' ) // WP 6.3+ feature
