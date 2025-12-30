@@ -12,9 +12,10 @@
  *
  * @version 0.9.2
  */
+
 namespace Starisian\Sparxstar\Starmus;
 
-if ( ! \defined( 'ABSPATH' ) ) {
+if (! \defined('ABSPATH')) {
 	exit;
 }
 
@@ -30,11 +31,11 @@ use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
 use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
 use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
 use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
-use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\frontend\StarmusShortcodeLoader;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
 use Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler;
 use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 use Throwable;
@@ -66,7 +67,8 @@ use Throwable;
  *
  * @since   0.1.0
  */
-final class StarmusAudioRecorder {
+final class StarmusAudioRecorder
+{
 
 	/**
 	 * Capability allowing users to edit uploaded audio recordings.
@@ -164,15 +166,16 @@ final class StarmusAudioRecorder {
 	 *
 	 * @since  0.1.0
 	 */
-	private function __construct() {
+	private function __construct()
+	{
 		try {
 			// Configure logger with appropriate level
 			$log_level = 'error'; // Default for production
-			if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			if (\defined('WP_DEBUG') && WP_DEBUG) {
 				$log_level = 'debug';
-			} elseif ( \function_exists( 'wp_get_environment_type' ) ) {
+			} elseif (\function_exists('wp_get_environment_type')) {
 				$env = wp_get_environment_type();
-				if ( \in_array( $env, array( 'development', 'staging' ), true ) ) {
+				if (\in_array($env, array('development', 'staging'), true)) {
 					$log_level = 'debug';
 				}
 			}
@@ -214,8 +217,9 @@ final class StarmusAudioRecorder {
 	 *
 	 * @return StarmusAudioRecorder The singleton instance.
 	 */
-	public static function starmus_get_instance(): StarmusAudioRecorder {
-		if ( ! self::$instance instanceof StarmusAudioRecorder ) {
+	public static function starmus_get_instance(): StarmusAudioRecorder
+	{
+		if (! self::$instance instanceof StarmusAudioRecorder) {
 			self::$instance = new self();
 		}
 
@@ -233,7 +237,8 @@ final class StarmusAudioRecorder {
 	 *
 	 * @since 0.1.0
 	 */
-	public static function starmus_run(): void {
+	public static function starmus_run(): void
+	{
 		self::starmus_get_instance();
 	}
 
@@ -251,8 +256,9 @@ final class StarmusAudioRecorder {
 	 *
 	 * @return bool True when a supported field framework is available, false otherwise.
 	 */
-	public static function check_field_plugin_dependency(): bool {
-		return \function_exists( 'acf_get_instance' );
+	public static function check_field_plugin_dependency(): bool
+	{
+		return \function_exists('acf_get_instance');
 	}
 
 	/**
@@ -269,10 +275,11 @@ final class StarmusAudioRecorder {
 	 *
 	 * @throws \RuntimeException If StarmusSettings fails to initialize.
 	 */
-	private function init_settings_or_throw(): void {
+	private function init_settings_or_throw(): void
+	{
 		try {
 			// Autoloader should resolve this class. Namespaced class_exists is safest.
-			if ( class_exists( StarmusSettings::class ) ) {
+			if (class_exists(StarmusSettings::class)) {
 				$this->settings = new StarmusSettings();
 				return;
 			}
@@ -287,7 +294,7 @@ final class StarmusAudioRecorder {
 		}
 
 		// If we reach here, settings is not available — fail loudly to avoid null downstream.
-		throw new \RuntimeException( 'StarmusSettings failed to initialize.' );
+		throw new \RuntimeException('StarmusSettings failed to initialize.');
 	}
 
 	/**
@@ -300,9 +307,10 @@ final class StarmusAudioRecorder {
 	 *
 	 * Uses static singleton to prevent duplicate instantiation across the request.
 	 */
-	private function set_DAL(): void {
+	private function set_DAL(): void
+	{
 		// This is the class property for this specific instance.
-		if ( $this->DAL instanceof StarmusAudioRecorderDALInterface ) {
+		if ($this->DAL instanceof StarmusAudioRecorderDALInterface) {
 			return; // Already set on this object.
 		}
 
@@ -311,7 +319,7 @@ final class StarmusAudioRecorder {
 		// If it's already been created, reuse it and stop.
 		static $dal_singleton = null;
 
-		if ( $dal_singleton instanceof StarmusAudioRecorderDALInterface ) {
+		if ($dal_singleton instanceof StarmusAudioRecorderDALInterface) {
 			$this->DAL = $dal_singleton;
 			return;
 		}
@@ -339,8 +347,8 @@ final class StarmusAudioRecorder {
 		}
 
 		// Must implement our interface.
-		if ( ! ( $filtered_dal instanceof StarmusAudioRecorderDALInterface ) ) {
-			error_log( 'StarmusAudioRecorder: Invalid DAL replacement - must implement StarmusAudioRecorderDALInterface' );
+		if (! ($filtered_dal instanceof StarmusAudioRecorderDALInterface)) {
+			error_log('StarmusAudioRecorder: Invalid DAL replacement - must implement StarmusAudioRecorderDALInterface');
 			$dal_singleton = $default_dal; // Store the default DAL in the singleton
 			$this->DAL     = $dal_singleton;
 			return;
@@ -348,9 +356,9 @@ final class StarmusAudioRecorder {
 
 		// Handshake: the replacement must present the same key we expect.
 		$provided = $filtered_dal->get_registration_key();
-		$expected = (string) ( \defined( 'STARMUS_DAL_OVERRIDE_KEY' ) ? STARMUS_DAL_OVERRIDE_KEY : '' );
+		$expected = (string) (\defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : '');
 
-		if ( $expected !== '' && $provided === $expected ) {
+		if ($expected !== '' && $provided === $expected) {
 			// Handshake successful. Use the filtered DAL.
 			$dal_singleton = $filtered_dal;
 		} else {
@@ -384,41 +392,42 @@ final class StarmusAudioRecorder {
 	 *
 	 * @since 0.1.0
 	 */
-	private function init_components(): void {
-		error_log( '[Starmus] === init_components() STARTING ===' );
+	private function init_components(): void
+	{
+		error_log('[Starmus] === init_components() STARTING ===');
 
 		// global services
-		//(new StarPrivateSlugPrefix())->star_boot();
+		// (new StarPrivateSlugPrefix())->star_boot();
 
 		// Register compatibility modules for third-party plugins
-		$file_service = new StarmusFileService( $this->get_DAL(), $this->settings );
+		$file_service = new StarmusFileService($this->get_DAL(), $this->settings);
 		$file_service->register_compatibility_hooks();
 
 		// Admin
-		if ( is_admin() ) {
-			error_log( '[Starmus] Loading StarmusAdmin...' );
-			new StarmusAdmin( $this->DAL, $this->settings );
+		if (is_admin()) {
+			error_log('[Starmus] Loading StarmusAdmin...');
+			new StarmusAdmin($this->DAL, $this->settings);
 		}
 
 		// Assets
-		error_log( '[Starmus] Loading StarmusAssetLoader...' );
+		error_log('[Starmus] Loading StarmusAssetLoader...');
 		new StarmusAssetLoader();
 
 		// TUSD webhook handler
-		error_log( '[Starmus] Loading StarmusTusdHookHandler...' );
-		$submission_handler = new StarmusSubmissionHandler( $this->DAL, $this->settings );
-		$tusd_hook_handler  = new StarmusTusdHookHandler( $submission_handler );
+		error_log('[Starmus] Loading StarmusTusdHookHandler...');
+		$submission_handler = new StarmusSubmissionHandler($this->DAL, $this->settings);
+		$tusd_hook_handler  = new StarmusTusdHookHandler($submission_handler);
 		$tusd_hook_handler->register_hooks();
 
 		// REST API
-		error_log( '[Starmus] Loading StarmusRESTHandler...' );
-		new StarmusRESTHandler( $this->DAL, $this->settings );
+		error_log('[Starmus] Loading StarmusRESTHandler...');
+		new StarmusRESTHandler($this->DAL, $this->settings);
 
 		// SHORTCODES - THIS WAS MISSING!!!
-		error_log( '[Starmus] Loading StarmusShortcodeLoader...' );
-		new StarmusShortcodeLoader( $this->DAL, $this->settings );
+		error_log('[Starmus] Loading StarmusShortcodeLoader...');
+		new StarmusShortcodeLoader($this->DAL, $this->settings);
 
-		error_log( '[Starmus] === init_components() COMPLETE ===' );
+		error_log('[Starmus] === init_components() COMPLETE ===');
 	}
 
 	/**
@@ -434,9 +443,10 @@ final class StarmusAudioRecorder {
 	 *
 	 * @since 0.1.0
 	 */
-	private function register_hooks(): void {
+	private function register_hooks(): void
+	{
 
-		if ( $this->hooksRegistered ) {
+		if ($this->hooksRegistered) {
 			return;
 		}
 
@@ -448,24 +458,24 @@ final class StarmusAudioRecorder {
 					load_plugin_textdomain(
 						'starmus-audio-recorder',
 						false,
-						\dirname( plugin_basename( STARMUS_MAIN_FILE ) ) . '/languages/'
+						\dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/'
 					);
 				}
 			);
 
 			// WP-CLI commands (optional). Load your CLI files and register commands here.
-			if ( \defined( 'WP_CLI' ) && WP_CLI && class_exists( 'WP_CLI' ) ) {
-				$cli_path = plugin_dir_path( \STARMUS_MAIN_FILE ) . 'src/cli/';
-				if ( file_exists( $cli_path . 'StarmusCLI.php' ) && file_exists( $cli_path . 'StarmusCacheCommand.php' ) ) {
+			if (\defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
+				$cli_path = plugin_dir_path(\STARMUS_MAIN_FILE) . 'src/cli/';
+				if (file_exists($cli_path . 'StarmusCLI.php') && file_exists($cli_path . 'StarmusCacheCommand.php')) {
 					require_once $cli_path . 'StarmusCLI.php';
-					\WP_CLI::add_command( 'starmus', 'Starmus\\cli\\StarmusCLI' );
-					\WP_CLI::add_command( 'starmus cache', 'Starmus\\cli\\StarmusCacheCommand' );
+					\WP_CLI::add_command('starmus', 'Starmus\\cli\\StarmusCLI');
+					\WP_CLI::add_command('starmus cache', 'Starmus\\cli\\StarmusCacheCommand');
 				}
 			}
 
 			// Admin runtime error banner
-			if ( is_admin() ) {
-				add_action( 'admin_notices', $this->displayRuntimeErrorNotice( ... ) );
+			if (is_admin()) {
+				add_action('admin_notices', $this->displayRuntimeErrorNotice(...));
 			}
 
 			$this->hooksRegistered = true;
@@ -505,16 +515,17 @@ final class StarmusAudioRecorder {
 	 *
 	 * @since 0.1.0
 	 */
-	public function displayRuntimeErrorNotice(): void {
+	public function displayRuntimeErrorNotice(): void
+	{
 		try {
-			if ( $this->runtimeErrors === array() || ! current_user_can( 'manage_options' ) ) {
+			if ($this->runtimeErrors === array() || ! current_user_can('manage_options')) {
 				return;
 			}
 
-			$unique = array_unique( $this->runtimeErrors );
-			foreach ( $unique as $msg ) {
+			$unique = array_unique($this->runtimeErrors);
+			foreach ($unique as $msg) {
 				echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus Audio Recorder:</strong><br>' .
-					esc_html( $msg ) .
+					esc_html($msg) .
 					'</p></div>';
 			}
 		} catch ( Throwable $throwable ) {
@@ -540,8 +551,9 @@ final class StarmusAudioRecorder {
 	 *
 	 * @return void
 	 */
-	public function __clone() {
-		throw new LogicException( 'Cloning of ' . self::class . ' is not allowed.' );
+	public function __clone()
+	{
+		throw new LogicException('Cloning of ' . self::class . ' is not allowed.');
 	}
 
 	/**
@@ -556,8 +568,9 @@ final class StarmusAudioRecorder {
 	 *
 	 * @return void
 	 */
-	public function __wakeup() {
-		throw new LogicException( 'Unserializing of ' . self::class . ' is not allowed.' );
+	public function __wakeup()
+	{
+		throw new LogicException('Unserializing of ' . self::class . ' is not allowed.');
 	}
 
 	/**
@@ -572,9 +585,9 @@ final class StarmusAudioRecorder {
 	 *
 	 * @return array Never returns - always throws exception.
 	 */
-
-	public function __sleep(): array {
-		throw new LogicException( 'Serializing of ' . self::class . ' is not allowed.' );
+	public function __sleep(): array
+	{
+		throw new LogicException('Serializing of ' . self::class . ' is not allowed.');
 	}
 
 	/**
@@ -589,8 +602,9 @@ final class StarmusAudioRecorder {
 	 *
 	 * @return array Never returns - always throws exception.
 	 */
-	public function __serialize(): array {
-		throw new LogicException( 'Serialization of ' . self::class . ' is not allowed.' );
+	public function __serialize(): array
+	{
+		throw new LogicException('Serialization of ' . self::class . ' is not allowed.');
 	}
 
 	/**
@@ -605,7 +619,8 @@ final class StarmusAudioRecorder {
 	 *
 	 * @throws LogicException Always - unserialization is not allowed.
 	 */
-	public function __unserialize( array $data ): void {
-		throw new LogicException( 'Unserialization of ' . self::class . ' is not allowed.' );
+	public function __unserialize(array $data): void
+	{
+		throw new LogicException('Unserialization of ' . self::class . ' is not allowed.');
 	}
 }

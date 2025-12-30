@@ -95,7 +95,7 @@ final class StarmusSageMakerJobRepository {
 	 * Save a job (create or update).
 	 *
 	 * @param string $job_id Job identifier.
-	 * @param array $job_data Job data to save.
+	 * @param array  $job_data Job data to save.
 	 *
 	 * @return bool True on success, false on failure.
 	 */

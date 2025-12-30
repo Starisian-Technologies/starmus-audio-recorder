@@ -121,7 +121,7 @@ final class StarmusAudioPipeline {
 			'album'             => array( $site_name . ' Audio Archive' ),
 			'year'              => array( $year ),
 			'comment'           => array( $this->buildComment( $form_data ) ),
-			'copyright_message' => array( sprintf( '© %s %s', $year, $site_name ) ),
+			'copyright_message' => array( \sprintf( '© %s %s', $year, $site_name ) ),
 			'publisher'         => array( $site_name ),
 			'language'          => array( $form_data['language'] ?? 'en' ),
 			'genre'             => array( 'Spoken Word' ),

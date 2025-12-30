@@ -106,7 +106,7 @@ final class StarPrefixSlugService {
 	 * "star-" prefix for posts marked as restricted content.
 	 *
 	 * @param string $slug Current unique post slug candidate
-	 * @param int $post_id WordPress post ID being processed
+	 * @param int    $post_id WordPress post ID being processed
 	 *
 	 * @return string Modified slug with prefix if restricted, or original slug
 	 *

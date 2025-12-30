@@ -25,7 +25,7 @@ final class StarmusAfricaBandwidthService {
 			// 2G networks (EDGE) - 32kbps, 16kHz
 			'africa_2g'   => $this->convert(
 				$input_path,
-				sprintf( '%s/%s_2g.mp3', $dir, $base_name ),
+				\sprintf( '%s/%s_2g.mp3', $dir, $base_name ),
 				array(
 					'-b:a',
 					'32k',
@@ -39,7 +39,7 @@ final class StarmusAfricaBandwidthService {
 			// 3G networks - 48kbps, 22kHz
 			'africa_3g'   => $this->convert(
 				$input_path,
-				sprintf( '%s/%s_3g.mp3', $dir, $base_name ),
+				\sprintf( '%s/%s_3g.mp3', $dir, $base_name ),
 				array(
 					'-b:a',
 					'48k',
@@ -53,7 +53,7 @@ final class StarmusAfricaBandwidthService {
 			// WiFi/4G - 64kbps, 44kHz
 			'africa_wifi' => $this->convert(
 				$input_path,
-				sprintf( '%s/%s_wifi.mp3', $dir, $base_name ),
+				\sprintf( '%s/%s_wifi.mp3', $dir, $base_name ),
 				array(
 					'-b:a',
 					'64k',

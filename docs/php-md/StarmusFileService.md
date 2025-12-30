@@ -36,7 +36,7 @@ if ( ! \defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 /**

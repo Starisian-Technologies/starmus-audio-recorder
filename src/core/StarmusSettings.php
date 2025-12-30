@@ -120,7 +120,7 @@ final class StarmusSettings {
 	 * Returns the provided default value if the key doesn't exist.
 	 *
 	 * @param string $key The setting key to retrieve.
-	 * @param mixed $default Default value to return if setting doesn't exist.
+	 * @param mixed  $default Default value to return if setting doesn't exist.
 	 *
 	 * @return mixed The setting value or default.
 	 */
@@ -172,7 +172,7 @@ final class StarmusSettings {
 	 * and clears the cache on success.
 	 *
 	 * @param string $key The setting key to update.
-	 * @param mixed $value The new value to set.
+	 * @param mixed  $value The new value to set.
 	 *
 	 * @return bool True on successful update, false on failure or invalid key.
 	 */
@@ -342,7 +342,7 @@ final class StarmusSettings {
 	 * - Custom sanitization for file types and slugs
 	 *
 	 * @param string $key The setting key being sanitized.
-	 * @param mixed $value The raw value to sanitize.
+	 * @param mixed  $value The raw value to sanitize.
 	 *
 	 * @return mixed Sanitized value appropriate for the key type.
 	 */

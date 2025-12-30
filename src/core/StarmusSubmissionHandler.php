@@ -9,10 +9,8 @@ declare(strict_types=1);
  * upload processing, metadata extraction, post creation, and post-processing tasks.
  * Supports both chunked TUS uploads and traditional fallback uploads.
  *
- * @package   Starisian\Sparxstar\Starmus\includes
- *
+ * @package   Starisian\Sparxstar\Starmus\core
  * @version   6.9.3-GOLDEN-MASTER
- *
  * @since     1.0.0
  *
  * Features:
@@ -37,12 +35,21 @@ declare(strict_types=1);
  * @see StarmusSettings Plugin configuration management
  * @see StarmusPostProcessingService Audio processing service
  */
-namespace Starisian\Sparxstar\Starmus\includes;
+namespace Starisian\Sparxstar\Starmus\core;
 
 if ( ! \defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
+use Starisian\Sparxstar\Starmus\helpers\StarmusSchemaMapper;
+use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
+use Throwable;
+use WP_Errror;
+use WP_REST_Request;
 use function array_map;
 use function file_exists;
 use function filemtime;
@@ -60,35 +67,18 @@ use function pathinfo;
 use function rmdir;
 use function sanitize_key;
 use function sanitize_text_field;
-
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
-use Starisian\Sparxstar\Starmus\core\StarmusSettings;
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
-use Starisian\Sparxstar\Starmus\helpers\StarmusSchemaMapper;
-use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
-
 use function str_contains;
 use function str_starts_with;
 use function strtolower;
 use function sys_get_temp_dir;
-
-use Throwable;
-
 use function time;
 use function trailingslashit;
 use function unlink;
 use function wp_check_filetype;
-
-use WP_Error;
-
 use function wp_get_attachment_url;
 use function wp_get_mime_types;
 use function wp_next_scheduled;
 use function wp_normalize_path;
-
-use WP_REST_Request;
-
 use function wp_schedule_single_event;
 use function wp_set_post_terms;
 use function wp_unique_filename;
@@ -144,7 +134,7 @@ final class StarmusSubmissionHandler {
 	 * successful construction. Throws exceptions on setup failures.
 	 *
 	 * @param StarmusAudioRecorderDALInterface $dal Data Access Layer implementation
-	 * @param StarmusSettings $settings Plugin configuration service
+	 * @param StarmusSettings                  $settings Plugin configuration service
 	 *
 	 * @throws Throwable If construction fails or hooks cannot be registered
 	 *
@@ -158,7 +148,7 @@ final class StarmusSubmissionHandler {
 			// PHP Runtime Error Trap
 			set_error_handler(
 				function ( $severity, string $message, $file, $line ): false {
-					error_log( sprintf( '[STARMUS PHP] %s in %s:%s', $message, $file, $line ) );
+					error_log( \sprintf( '[STARMUS PHP] %s in %s:%s', $message, $file, $line ) );
 					return false; // Continue normal error handling
 				}
 			);
@@ -190,7 +180,7 @@ final class StarmusSubmissionHandler {
 	 * finalization method with proper error handling.
 	 *
 	 * @param string $file_path Absolute path to the uploaded file on disk
-	 * @param array $form_data Sanitized form submission data with metadata
+	 * @param array  $form_data Sanitized form submission data with metadata
 	 *
 	 * @since 1.0.0
 	 * @see _finalize_from_local_disk() Internal finalization implementation
@@ -224,7 +214,7 @@ final class StarmusSubmissionHandler {
 	 * Includes security checks, MIME detection, and comprehensive error handling.
 	 *
 	 * @param string $file_path Path to temporary uploaded file
-	 * @param array $form_data Sanitized form submission data
+	 * @param array  $form_data Sanitized form submission data
 	 *
 	 * @since 1.0.0
 	 *
@@ -485,8 +475,8 @@ final class StarmusSubmissionHandler {
 	 * chunked uploads are not available. Uses WordPress core media handling
 	 * functions with DAL abstraction for consistency.
 	 *
-	 * @param array $files_data $_FILES array data from request
-	 * @param array $form_data Sanitized form submission data
+	 * @param array  $files_data $_FILES array data from request
+	 * @param array  $form_data Sanitized form submission data
 	 * @param string $file_key Detected file field key from files array
 	 *
 	 * @since 1.0.0
@@ -584,8 +574,8 @@ final class StarmusSubmissionHandler {
 	 * including environment data, calibration settings, transcripts, and device
 	 * information. Updates ACF fields and taxonomies with proper sanitization.
 	 *
-	 * @param int $audio_post_id Audio recording custom post ID
-	 * @param int $attachment_id WordPress attachment post ID
+	 * @param int   $audio_post_id Audio recording custom post ID
+	 * @param int   $attachment_id WordPress attachment post ID
 	 * @param array $form_data Complete sanitized form submission data
 	 *
 	 * @since 1.0.0
@@ -822,8 +812,8 @@ final class StarmusSubmissionHandler {
 	 * Attempts immediate post-processing via service, with automatic cron
 	 * scheduling as fallback if processing fails or is unavailable.
 	 *
-	 * @param int $post_id Audio recording custom post ID
-	 * @param int $attachment_id WordPress attachment post ID
+	 * @param int   $post_id Audio recording custom post ID
+	 * @param int   $attachment_id WordPress attachment post ID
 	 * @param array $params Processing parameters for audio optimization
 	 *
 	 * @since 1.0.0
@@ -894,8 +884,8 @@ final class StarmusSubmissionHandler {
 	 * the Data Access Layer interface.
 	 *
 	 * @param string $key ACF field key
-	 * @param mixed $value Field value to save
-	 * @param int $id Post ID to update
+	 * @param mixed  $value Field value to save
+	 * @param int    $id Post ID to update
 	 *
 	 * @since 1.0.0
 	 */
@@ -1016,7 +1006,7 @@ final class StarmusSubmissionHandler {
 	 * WordPress incorrectly maps to video/webm by default.
 	 *
 	 * @param string $mime Detected MIME type from file
-	 * @param int $size_bytes File size in bytes
+	 * @param int    $size_bytes File size in bytes
 	 *
 	 * @since 1.0.0
 	 *
@@ -1111,9 +1101,10 @@ final class StarmusSubmissionHandler {
 	 *
 	 * @param string $code Error code for identification
 	 * @param string $message Human-readable error message
-	 * @param int $status HTTP status code (default: 400)
+	 * @param int    $status HTTP status code (default: 400)
 	 *
 	 * @return WP_Error Formatted error object
+	 *
 	 * @since 1.0.0
 	 */
 	private function err( string $code, string $message, int $status = 400 ): WP_Error {

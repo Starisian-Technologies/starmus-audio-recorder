@@ -56,6 +56,10 @@ Provides karaoke-style transcript synchronization with audio playback.</p>
 <dd><p>Global audio editor module for waveform annotation editing.
 Provides Peaks.js-based audio editing interface.</p>
 </dd>
+<dt><a href="#SparxstarIntegration">SparxstarIntegration</a> : <code>Object</code></dt>
+<dd><p>Global SPARXSTAR integration access for external scripts.
+Provides access to environment detection and error reporting.</p>
+</dd>
 </dl>
 
 ## Constants
@@ -233,6 +237,28 @@ Provides Peaks.js-based audio editing interface.
 ```js
 // Initialize editor manually
 window.StarmusAudioEditor.init();
+```
+<a name="SparxstarIntegration"></a>
+
+## SparxstarIntegration : <code>Object</code>
+Global SPARXSTAR integration access for external scripts.
+Provides access to environment detection and error reporting.
+
+**Kind**: global variable  
+**See**: [sparxstarIntegration](sparxstarIntegration) SPARXSTAR integration implementation  
+**Example**  
+```js
+// Get current environment data
+const envData = window.SparxstarIntegration.getEnvironmentData();
+console.log('Current tier:', envData.tier);
+```
+**Example**  
+```js
+// Report custom error
+window.SparxstarIntegration.reportError('custom_error', {
+  message: 'Something went wrong',
+  context: 'user_action'
+});
 ```
 <a name="store"></a>
 

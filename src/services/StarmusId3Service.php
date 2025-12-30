@@ -113,7 +113,7 @@ final class StarmusId3Service {
 	 * Overwrites existing tags and removes other tag formats for consistency.
 	 *
 	 * @param string $filepath Absolute path to the audio file
-	 * @param array $tagData Associative array of ID3 tag data
+	 * @param array  $tagData Associative array of ID3 tag data
 	 *
 	 * @since 1.0.0
 	 *

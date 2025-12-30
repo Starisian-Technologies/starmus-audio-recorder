@@ -73,7 +73,6 @@ final class Starmusi18NLanguage {
 	 *
 	 * @since 1.0.0
 	 *
-	 *
 	 * @example Translation file examples:
 	 * - starmus-audio-recorder-en_US.mo (English - United States)
 	 * - starmus-audio-recorder-fr_FR.mo (French - France)

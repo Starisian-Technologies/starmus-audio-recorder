@@ -37,17 +37,19 @@
  * @see StarmusAudioRecorderDAL Data access layer
  * @see StarmusFileService File management service
  */
+
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined( 'ABSPATH' ) ) {
+if (! \defined('ABSPATH')) {
 	exit;
 }
 
-use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 // FIX: Removed 'readonly' for PHP < 8.2 compatibility
-final class StarmusWaveformService {
+final class StarmusWaveformService
+{
 
 	/**
 	 * File service for handling offloaded attachments.
@@ -63,11 +65,12 @@ final class StarmusWaveformService {
 	 * flexible initialization while maintaining testability.
 	 *
 	 * @param StarmusAudioRecorderDAL|null $dal Optional DAL instance
-	 * @param StarmusFileService|null $file_service Optional file service instance
+	 * @param StarmusFileService|null      $file_service Optional file service instance
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( ?StarmusAudioRecorderDAL $dal, ?StarmusFileService $file_service ) {
+	public function __construct(?StarmusAudioRecorderDAL $dal, ?StarmusFileService $file_service)
+	{
 		$this->files = $file_service ?: new StarmusFileService();
 	}
 
@@ -96,13 +99,14 @@ final class StarmusWaveformService {
 	 * });
 	 * ```
 	 */
-	private function get_config(): array {
+	private function get_config(): array
+	{
 		$defaults = array(
 			'pixels_per_second' => 100,
 			'bits'              => 8,
 			'output_format'     => 'json',
 		);
-		return apply_filters( 'starmus_waveform_config', $defaults );
+		return apply_filters('starmus_waveform_config', $defaults);
 	}
 
 	/**
@@ -129,8 +133,9 @@ final class StarmusWaveformService {
 	 * }
 	 * ```
 	 */
-	public function is_tool_available(): bool {
-		$path = trim( (string) shell_exec( 'command -v audiowaveform' ) );
+	public function is_tool_available(): bool
+	{
+		$path = trim((string) shell_exec('command -v audiowaveform'));
 		return $path !== '' && $path !== '0';
 	}
 
@@ -141,7 +146,7 @@ final class StarmusWaveformService {
 	 * parent recording post. Handles parent post detection, file access, and
 	 * comprehensive error management.
 	 *
-	 * @param int $attachment_id WordPress attachment post ID for audio file
+	 * @param int      $attachment_id WordPress attachment post ID for audio file
 	 * @param int|null $explicit_parent_id Optional parent post ID (prevents lookup failures)
 	 *
 	 * @return bool True if waveform generated and saved successfully
@@ -200,56 +205,56 @@ final class StarmusWaveformService {
 		}
 
 		// 2. Resolve Parent ID
-		$recording_id = $explicit_parent_id ?: (int) get_post_meta( $attachment_id, '_parent_recording_id', true );
+		$recording_id = $explicit_parent_id ?: (int) get_post_meta($attachment_id, '_parent_recording_id', true);
 
-		if ( $recording_id <= 0 ) {
+		if ($recording_id <= 0) {
 			// Fallback: Check if attachment itself is parented
-			$post = get_post( $attachment_id );
-			if ( $post && $post->post_parent > 0 ) {
+			$post = get_post($attachment_id);
+			if ($post && $post->post_parent > 0) {
 				$recording_id = $post->post_parent;
 			} else {
-				error_log( 'Waveform Gen Failed: Missing parent recording reference for attachment: ' . $attachment_id );
+				error_log('Waveform Gen Failed: Missing parent recording reference for attachment: ' . $attachment_id);
 				return false;
 			}
 		}
 
 		// 3. Skip if exists
-		$existing = get_post_meta( $recording_id, 'waveform_json', true );
-		if ( ! empty( $existing ) ) {
+		$existing = get_post_meta($recording_id, 'waveform_json', true);
+		if (! empty($existing)) {
 			return true;
 		}
 
 		// 4. Get File Path (FIXED SYNTAX)
-		$file_path = $this->files->get_local_copy( $attachment_id );
+		$file_path = $this->files->get_local_copy($attachment_id);
 
-		if ( ! $file_path || ! file_exists( $file_path ) ) {
+		if (! $file_path || ! file_exists($file_path)) {
 			// Fallback to standard WP path
-			$file_path = get_attached_file( $attachment_id );
+			$file_path = get_attached_file($attachment_id);
 		}
 
-		if ( ! $file_path || ! file_exists( $file_path ) ) {
-			error_log( 'Audio file not found: ' . $attachment_id );
+		if (! $file_path || ! file_exists($file_path)) {
+			error_log('Audio file not found: ' . $attachment_id);
 			return false;
 		}
 
 		// 5. Generate
-		$data = $this->extract_waveform_from_file( $file_path );
-		if ( ! $data || empty( $data['data'] ) ) {
-			error_log( 'Waveform extraction returned empty data: ' . $attachment_id );
+		$data = $this->extract_waveform_from_file($file_path);
+		if (! $data || empty($data['data'])) {
+			error_log('Waveform extraction returned empty data: ' . $attachment_id);
 			return false;
 		}
 
 		// 6. Save
 		try {
 			// Save as JSON string
-			$json_str = wp_json_encode( $data['data'] );
+			$json_str = wp_json_encode($data['data']);
 
 			// Save to Post Meta (Standard)
-			update_post_meta( $recording_id, 'waveform_json', $json_str );
+			update_post_meta($recording_id, 'waveform_json', $json_str);
 
 			// Update ACF if available
-			if ( \function_exists( 'update_field' ) ) {
-				update_field( 'waveform_json', $json_str, $recording_id );
+			if (\function_exists('update_field')) {
+				update_field('waveform_json', $json_str, $recording_id);
 			}
 
 			StarmusLogger::info(
@@ -261,8 +266,8 @@ final class StarmusWaveformService {
 				)
 			);
 			return true;
-		} catch ( \Throwable $throwable ) {
-			error_log( 'Waveform Save Error: ' . $throwable->getMessage() );
+		} catch (\Throwable $throwable) {
+			error_log('Waveform Save Error: ' . $throwable->getMessage());
 			return false;
 		}
 	}
@@ -327,7 +332,8 @@ final class StarmusWaveformService {
 	 *
 	 * @see get_config() Configuration management
 	 */
-	private function extract_waveform_from_file( string $file_path ): ?array {
+	private function extract_waveform_from_file(string $file_path): ?array
+	{
 		$config = $this->get_config();
 
 		// Ensure temp dir is writable
@@ -336,34 +342,34 @@ final class StarmusWaveformService {
 
 		$cmd = \sprintf(
 			'audiowaveform -i %s -o %s --pixels-per-second %d --bits %d --output-format %s',
-			escapeshellarg( $file_path ),
-			escapeshellarg( $temp_json ),
+			escapeshellarg($file_path),
+			escapeshellarg($temp_json),
 			(int) $config['pixels_per_second'],
 			(int) $config['bits'],
-			escapeshellarg( (string) $config['output_format'] )
+			escapeshellarg((string) $config['output_format'])
 		);
 
 		try {
-			exec( $cmd . ' 2>&1', $output, $code );
+			exec($cmd . ' 2>&1', $output, $code);
 
-			if ( $code !== 0 || ! file_exists( $temp_json ) ) {
+			if ($code !== 0 || ! file_exists($temp_json)) {
 				// If MP3 fails, try converting to WAV first (common issue with audiowaveform)
-				throw new \RuntimeException( 'CLI Error: ' . implode( "\n", $output ) );
+				throw new \RuntimeException('CLI Error: ' . implode("\n", $output));
 			}
 
-			$json = file_get_contents( $temp_json );
-			$data = json_decode( $json, true );
+			$json = file_get_contents($temp_json);
+			$data = json_decode($json, true);
 
-			@unlink( $temp_json ); // Cleanup
+			@unlink($temp_json); // Cleanup
 
 			return array(
 				'data'      => $data['data'] ?? array(),
 				'json_path' => $file_path . '.waveform.json',
 			);
-		} catch ( \Throwable $throwable ) {
-			error_log( 'Waveform CLI Error: ' . $throwable->getMessage() );
-			if ( file_exists( $temp_json ) ) {
-				@unlink( $temp_json );
+		} catch (\Throwable $throwable) {
+			error_log('Waveform CLI Error: ' . $throwable->getMessage());
+			if (file_exists($temp_json)) {
+				@unlink($temp_json);
 			}
 
 			return null;

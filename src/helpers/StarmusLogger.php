@@ -1,11 +1,10 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\helpers;
 
-if (! defined('ABSPATH')) {
-    exit();
+if ( ! \defined( 'ABSPATH' ) ) {
+	exit();
 }
 
 use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
@@ -111,32 +110,31 @@ class StarmusLogger
      */
     private static int $min_log_level = self::INFO;
 
-    /**
-     * Set the minimum log level
-     *
-     * @param int $level Log level constant
-     * @return void
-     */
-    public static function set_min_level(int $level): void
-    {
-        self::$min_log_level = $level;
-        self::$handler = null; // Reset to refresh instance with new level
-    }
+	/**
+	 * Set the minimum log level
+	 *
+	 * @param int $level Log level constant
+	 *
+	 * @return void
+	 */
+	public static function set_min_level( int $level ): void {
+		self::$min_log_level = $level;
+		self::$handler       = null; // Reset to refresh instance with new level
+	}
 
-    /**
-     * Get the internal handler instance
-     *
-     * @return StarLogger
-     * @throws \Exception
-     *
-     */
-    private static function get_handler(): StarLogger
-    {
-        if (self::$handler === null) {
-            self::$handler = new StarLogger(self::$min_log_level);
-        }
-        return self::$handler;
-    }
+	/**
+	 * Get the internal handler instance
+	 *
+	 * @throws \Exception
+	 *
+	 * @return StarLogger
+	 */
+	private static function get_handler(): StarLogger {
+		if ( self::$handler === null ) {
+			self::$handler = new StarLogger( self::$min_log_level );
+		}
+		return self::$handler;
+	}
 
     /**
      * Log an error-level message.

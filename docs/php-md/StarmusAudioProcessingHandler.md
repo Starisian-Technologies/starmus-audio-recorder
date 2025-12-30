@@ -24,7 +24,7 @@ Full post-save transcoding, mastering, archival, ID3, waveform generation.
 namespace Starisian\Sparxstar\Starmus\services;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
 
 if (! defined('ABSPATH')) {
 	exit;

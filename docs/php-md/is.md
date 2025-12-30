@@ -38,7 +38,7 @@ use function defined;
 use function explode;
 use function json_encode;
 
-use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
 
 use function trim;
 

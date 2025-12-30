@@ -1,1 +1,117 @@
-/**\n * @file starmus-cue-events.js\n * @description Cue events integration for Starmus Audio Editor\n * Provides enhanced interactivity through Peaks.js cue events\n */\n\n/**\n * Starmus Cue Events Manager\n * Handles point and segment cue events for enhanced user experience\n */\nclass StarmusCueEventsManager {\n  constructor(peaksInstance, options = {}) {\n    this.peaks = peaksInstance;\n    this.options = {\n      showNotifications: true,\n      logEvents: true,\n      autoHighlight: true,\n      ...options\n    };\n    \n    this.init();\n  }\n\n  /**\n   * Initialize cue event listeners\n   */\n  init() {\n    if (!this.peaks) {\n      console.warn('[StarmusCueEvents] No Peaks instance provided');\n      return;\n    }\n\n    // Point events\n    this.peaks.on('points.enter', (event) => {\n      this.handlePointEnter(event);\n    });\n\n    // Segment events\n    this.peaks.on('segments.enter', (event) => {\n      this.handleSegmentEnter(event);\n    });\n\n    this.peaks.on('segments.exit', (event) => {\n      this.handleSegmentExit(event);\n    });\n\n    if (this.options.logEvents) {\n      console.log('[StarmusCueEvents] Cue event listeners initialized');\n    }\n  }\n\n  /**\n   * Handle point enter events\n   */\n  handlePointEnter(event) {\n    const { point } = event;\n    \n    if (this.options.logEvents) {\n      console.log('Point entered:', {\n        id: point.id,\n        label: point.labelText,\n        time: point.time\n      });\n    }\n\n    if (this.options.showNotifications) {\n      this.showNotification(`Point: ${point.labelText}`, 'info');\n    }\n\n    if (this.options.autoHighlight) {\n      this.highlightTableRow('points', point.id);\n    }\n\n    // Dispatch custom event for external listeners\n    this.dispatchCustomEvent('starmus:point:enter', { point });\n  }\n\n  /**\n   * Handle segment enter events\n   */\n  handleSegmentEnter(event) {\n    const { segment } = event;\n    \n    if (this.options.logEvents) {\n      console.log('Segment entered:', {\n        id: segment.id,\n        label: segment.labelText,\n        startTime: segment.startTime,\n        endTime: segment.endTime\n      });\n    }\n\n    if (this.options.showNotifications) {\n      this.showNotification(`Segment: ${segment.labelText}`, 'success');\n    }\n\n    if (this.options.autoHighlight) {\n      this.highlightTableRow('segments', segment.id);\n    }\n\n    // Dispatch custom event for external listeners\n    this.dispatchCustomEvent('starmus:segment:enter', { segment });\n  }\n\n  /**\n   * Handle segment exit events\n   */\n  handleSegmentExit(event) {\n    const { segment } = event;\n    \n    if (this.options.logEvents) {\n      console.log('Segment exited:', segment.labelText);\n    }\n\n    if (this.options.autoHighlight) {\n      this.removeHighlight('segments', segment.id);\n    }\n\n    // Dispatch custom event for external listeners\n    this.dispatchCustomEvent('starmus:segment:exit', { segment });\n  }\n\n  /**\n   * Show notification using existing Starmus notification system\n   */\n  showNotification(message, type = 'info') {\n    // Try to use existing showNotice function if available\n    if (typeof window.showNotice === 'function') {\n      window.showNotice(message, type);\n      return;\n    }\n\n    // Fallback to console\n    console.info(`[StarmusCueEvents] ${message}`);\n  }\n\n  /**\n   * Highlight table row for visual feedback\n   */\n  highlightTableRow(type, id) {\n    const table = document.getElementById(type === 'points' ? 'regions-list' : 'regions-list');\n    if (!table) return;\n\n    // Remove existing highlights\n    table.querySelectorAll('tr.starmus-highlight').forEach(row => {\n      row.classList.remove('starmus-highlight');\n    });\n\n    // Add highlight to current row\n    const row = table.querySelector(`tr[data-id=\"${id}\"]`);\n    if (row) {\n      row.classList.add('starmus-highlight');\n    }\n  }\n\n  /**\n   * Remove highlight from table row\n   */\n  removeHighlight(type, id) {\n    const table = document.getElementById(type === 'points' ? 'regions-list' : 'regions-list');\n    if (!table) return;\n\n    const row = table.querySelector(`tr[data-id=\"${id}\"]`);\n    if (row) {\n      row.classList.remove('starmus-highlight');\n    }\n  }\n\n  /**\n   * Dispatch custom DOM events for external integration\n   */\n  dispatchCustomEvent(eventName, detail) {\n    const event = new CustomEvent(eventName, {\n      detail,\n      bubbles: true,\n      cancelable: true\n    });\n    \n    document.dispatchEvent(event);\n  }\n\n  /**\n   * Destroy the cue events manager\n   */\n  destroy() {\n    if (this.peaks) {\n      this.peaks.off('points.enter');\n      this.peaks.off('segments.enter');\n      this.peaks.off('segments.exit');\n    }\n    \n    this.peaks = null;\n    \n    if (this.options.logEvents) {\n      console.log('[StarmusCueEvents] Destroyed');\n    }\n  }\n}\n\n// Export for use in other modules\nexport default StarmusCueEventsManager;\n\n// Global export for direct script usage\nif (typeof window !== 'undefined') {\n  window.StarmusCueEventsManager = StarmusCueEventsManager;\n}
+/**
+ * @file starmus-cue-events.js
+ * @package Starmus Audio Recorder
+ * @description Cue events integration for Starmus Audio Editor
+ */
+
+class StarmusCueEventsManager {
+	constructor(peaksInstance, options = {}) {
+		this.peaks = peaksInstance;
+		this.options = {
+			showNotifications: true,
+			logEvents: true,
+			autoHighlight: true,
+			pointsTableId: 'points-list',   // Fixed: Specific ID for points
+			segmentsTableId: 'segments-list', // Fixed: Specific ID for segments
+			...options
+		};
+
+		this.init();
+	}
+
+	init() {
+		if (!this.peaks) {
+			console.warn('[StarmusCueEvents] No Peaks instance provided');
+			return;
+		}
+
+		this.peaks.on('points.enter', (event) => this.handlePointEnter(event));
+		this.peaks.on('segments.enter', (event) => this.handleSegmentEnter(event));
+		this.peaks.on('segments.exit', (event) => this.handleSegmentExit(event));
+
+		if (this.options.logEvents) {
+			console.log('[StarmusCueEvents] Initialized');
+		}
+	}
+
+	handlePointEnter(event) {
+		const { point } = event;
+		if (this.options.showNotifications) {
+			this.showNotification(`Point reached: ${point.labelText}`, 'info');
+		}
+		if (this.options.autoHighlight) {
+			this.highlightTableRow(this.options.pointsTableId, point.id);
+		}
+		this.dispatchCustomEvent('starmus:point:enter', { point });
+	}
+
+	handleSegmentEnter(event) {
+		const { segment } = event;
+		if (this.options.showNotifications) {
+			this.showNotification(`Entering: ${segment.labelText}`, 'success');
+		}
+		if (this.options.autoHighlight) {
+			this.highlightTableRow(this.options.segmentsTableId, segment.id);
+		}
+		this.dispatchCustomEvent('starmus:segment:enter', { segment });
+	}
+
+	handleSegmentExit(event) {
+		const { segment } = event;
+		if (this.options.autoHighlight) {
+			this.removeHighlight(this.options.segmentsTableId, segment.id);
+		}
+		this.dispatchCustomEvent('starmus:segment:exit', { segment });
+	}
+
+	showNotification(message, type = 'info') {
+		if (typeof window.showNotice === 'function') {
+			window.showNotice(message, type);
+		} else {
+			console.info(`[Starmus Notification] ${message}`);
+		}
+	}
+
+	highlightTableRow(tableId, id) {
+		const table = document.getElementById(tableId);
+		if (!table) {return;}
+
+		// Clear previous highlights in this specific table
+		table.querySelectorAll('tr.starmus-active-row').forEach(row => {
+			row.classList.remove('starmus-active-row');
+		});
+
+		const row = table.querySelector(`tr[data-id="${id}"]`);
+		if (row) {
+			row.classList.add('starmus-active-row');
+			// Optional: Smoothly scroll the row into view if it's a long list
+			row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
+	}
+
+	removeHighlight(tableId, id) {
+		const table = document.getElementById(tableId);
+		if (!table) {return;}
+
+		const row = table.querySelector(`tr[data-id="${id}"]`);
+		if (row) {
+			row.classList.remove('starmus-active-row');
+		}
+	}
+
+	dispatchCustomEvent(eventName, detail) {
+		const event = new CustomEvent(eventName, { detail, bubbles: true });
+		document.dispatchEvent(event);
+	}
+
+	destroy() {
+		if (this.peaks) {
+			this.peaks.off('points.enter');
+			this.peaks.off('segments.enter');
+			this.peaks.off('segments.exit');
+		}
+		this.peaks = null;
+	}
+}
+
+export default StarmusCueEventsManager;

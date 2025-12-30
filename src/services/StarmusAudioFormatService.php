@@ -171,19 +171,19 @@ final class StarmusAudioFormatService {
 				'use_case' => 'archive',
 			),
 			'web_high'     => array(
-				'path'     => sprintf( '%s/%s_web_high.mp3', $dir, $base_name ),
+				'path'     => \sprintf( '%s/%s_web_high.mp3', $dir, $base_name ),
 				'format'   => 'mp3',
 				'quality'  => '192kbps',
 				'use_case' => 'desktop_streaming',
 			),
 			'web_standard' => array(
-				'path'     => sprintf( '%s/%s_web_standard.mp3', $dir, $base_name ),
+				'path'     => \sprintf( '%s/%s_web_standard.mp3', $dir, $base_name ),
 				'format'   => 'mp3',
 				'quality'  => '128kbps',
 				'use_case' => 'general_web',
 			),
 			'mobile'       => array(
-				'path'     => sprintf( '%s/%s_mobile.mp3', $dir, $base_name ),
+				'path'     => \sprintf( '%s/%s_mobile.mp3', $dir, $base_name ),
 				'format'   => 'mp3',
 				'quality'  => '64kbps',
 				'use_case' => 'mobile_low_bandwidth',

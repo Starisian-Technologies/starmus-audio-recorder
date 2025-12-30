@@ -43,7 +43,7 @@ if (! defined('ABSPATH')) {
 
 use getid3_writetags;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
 
 class StarmusAudioProcessingService
 {

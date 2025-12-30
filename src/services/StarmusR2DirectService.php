@@ -65,7 +65,7 @@ final class StarmusR2DirectService {
 
 			if ( $temp_file ) {
 				// Upload directly to R2
-				$r2_key = sprintf( 'audio/%d/%s_%s.mp3', $post_id, $base_name, $quality );
+				$r2_key = \sprintf( 'audio/%d/%s_%s.mp3', $post_id, $base_name, $quality );
 				$r2_url = $this->uploadToR2( $temp_file, $r2_key );
 
 				if ( $r2_url ) {

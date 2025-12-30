@@ -27,7 +27,7 @@ if ( ! \defined( 'ABSPATH' ) ) {
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
-use Starisian\Sparxstar\Starmus\includes\StarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
 
 /**
 Renders the user interface for the audio recorder and recordings list.

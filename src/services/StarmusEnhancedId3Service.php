@@ -115,7 +115,7 @@ final class StarmusEnhancedId3Service extends StarmusId3Service {
 			'album'             => array( $site_name . ' Audio Archive' ),
 			'year'              => array( $current_year ),
 			'comment'           => array( $this->buildComment( $form_data ) ),
-			'copyright_message' => array( sprintf( '© %s %s', $current_year, $site_name ) ),
+			'copyright_message' => array( \sprintf( '© %s %s', $current_year, $site_name ) ),
 			'publisher'         => array( $site_name ),
 			'language'          => array( $form_data['language'] ?? 'en' ),
 			'genre'             => array( $this->mapRecordingTypeToGenre( $form_data['recording_type'] ?? '' ) ),

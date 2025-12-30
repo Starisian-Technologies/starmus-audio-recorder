@@ -24,6 +24,16 @@ Exports initRecorder function for use in other modules.</p>
 </dd>
 </dl>
 
+## Classes
+
+<dl>
+<dt><a href="#LanguageSignalAnalyzer">LanguageSignalAnalyzer</a></dt>
+<dd><p>Language Signal Analyzer - Geographic Policy Enforcement
+Detects colonial language violations based on user location.
+Runs silently on cloned stream without affecting audio recording.</p>
+</dd>
+</dl>
+
 ## Members
 
 <dl>
@@ -42,7 +52,7 @@ Stores MediaRecorder, animation frame ID, and speech recognition objects.</p>
 </dd>
 <dt><a href="#SpeechRecognition">SpeechRecognition</a> : <code>function</code> | <code>undefined</code></dt>
 <dd><p>Speech Recognition API with webkit fallback.
-Used for real-time transcription during recording.</p>
+Used by LanguageSignalAnalyzer for policy enforcement.</p>
 </dd>
 </dl>
 
@@ -93,6 +103,14 @@ All commands are filtered by instanceId to support multiple recorder instances.
 Explicit export for build system compatibility.
 Exports initRecorder function for use in other modules.
 
+<a name="LanguageSignalAnalyzer"></a>
+
+## LanguageSignalAnalyzer
+Language Signal Analyzer - Geographic Policy Enforcement
+Detects colonial language violations based on user location.
+Runs silently on cloned stream without affecting audio recording.
+
+**Kind**: global class  
 <a name="sharedAudioContext"></a>
 
 ## sharedAudioContext : <code>AudioContext</code> \| <code>null</code>
@@ -113,13 +131,13 @@ Stores MediaRecorder, animation frame ID, and speech recognition objects.
 | --- | --- | --- |
 | mediaRecorder | <code>MediaRecorder</code> | MediaRecorder instance for audio capture |
 | rafId | <code>number</code> \| <code>null</code> | RequestAnimationFrame ID for visual updates |
-| recognition | [<code>SpeechRecognition</code>](#SpeechRecognition) \| <code>null</code> | Speech recognition instance |
+| signalAnalyzer | [<code>LanguageSignalAnalyzer</code>](#LanguageSignalAnalyzer) \| <code>null</code> | Language policy analyzer |
 
 <a name="SpeechRecognition"></a>
 
 ## SpeechRecognition : <code>function</code> \| <code>undefined</code>
 Speech Recognition API with webkit fallback.
-Used for real-time transcription during recording.
+Used by LanguageSignalAnalyzer for policy enforcement.
 
 **Kind**: global constant  
 <a name="getContext"></a>

@@ -96,7 +96,7 @@ final class StarmusCloudflareAudioService {
 
 		$results = array();
 		foreach ( $versions as $quality => $params ) {
-			$output_path = sprintf( '%s/%s_%s.mp3', $temp_dir, $base_name, $quality );
+			$output_path = \sprintf( '%s/%s_%s.mp3', $temp_dir, $base_name, $quality );
 
 			if ( $this->convertAudio( $input_path, $output_path, $params ) ) {
 				// Copy metadata to optimized version
@@ -181,7 +181,7 @@ final class StarmusCloudflareAudioService {
 		wp_update_post(
 			array(
 				'ID'         => $attachment_id,
-				'post_title' => get_the_title( $parent_id ) . sprintf( ' (%s)', $quality ),
+				'post_title' => get_the_title( $parent_id ) . \sprintf( ' (%s)', $quality ),
 			)
 		);
 

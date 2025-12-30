@@ -103,14 +103,14 @@ const unsubscribe = initInstance(store, null, 'rec-123');
 DOM element references object.
 Contains all interactive elements found within the instance root.
 
-**Kind**: inner property of [<code>initInstance</code>](#module_initInstance)  
+**Kind**: inner constant of [<code>initInstance</code>](#module_initInstance)  
 <a name="module_initInstance..fileInput"></a>
 
 ### initInstance~fileInput
 File input handler for Tier C browser fallback.
 Handles audio file uploads when MediaRecorder is not supported.
 
-**Kind**: inner property of [<code>initInstance</code>](#module_initInstance)  
+**Kind**: inner constant of [<code>initInstance</code>](#module_initInstance)  
 <a name="currentAudio"></a>
 
 ## currentAudio : <code>Audio</code> \| <code>null</code>

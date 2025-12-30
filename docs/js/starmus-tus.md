@@ -42,12 +42,21 @@ Converts seconds to either &quot;<del>Xs&quot; or &quot;</del>Xm&quot; format fo
 </dd>
 </dl>
 
+## Classes
+
+<dl>
+<dt><a href="#UploadCircuitBreaker">UploadCircuitBreaker</a></dt>
+<dd><p>Circuit breaker for upload failures</p>
+</dd>
+</dl>
+
 ## Constants
 
 <dl>
-<dt><a href="#DEFAULT_CONFIG">DEFAULT_CONFIG</a> : <code>Object</code></dt>
+<dt><a href="#getDefaultConfig">getDefaultConfig</a> : <code>Object</code></dt>
 <dd><p>Default configuration object for TUS uploads.
-Contains chunk sizes, retry settings, and endpoint configuration.</p>
+Contains chunk sizes, retry settings, and endpoint configuration.
+Enhanced with tier-based optimization from SPARXSTAR.</p>
 </dd>
 </dl>
 
@@ -313,18 +322,25 @@ Provides unified interface for TUS and direct upload functionality.
 | estimateUploadTime | <code>function</code> | Upload time estimation |
 | formatUploadEstimate | <code>function</code> | Time format utility |
 
-<a name="DEFAULT_CONFIG"></a>
+<a name="UploadCircuitBreaker"></a>
 
-## DEFAULT\_CONFIG : <code>Object</code>
+## UploadCircuitBreaker
+Circuit breaker for upload failures
+
+**Kind**: global class  
+<a name="getDefaultConfig"></a>
+
+## getDefaultConfig : <code>Object</code>
 Default configuration object for TUS uploads.
 Contains chunk sizes, retry settings, and endpoint configuration.
+Enhanced with tier-based optimization from SPARXSTAR.
 
 **Kind**: global constant  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| chunkSize | <code>number</code> | Size of each upload chunk in bytes (512KB) |
+| chunkSize | <code>number</code> | Size of each upload chunk in bytes (optimized per tier) |
 | retryDelays | <code>Array.&lt;number&gt;</code> | Retry delay intervals in milliseconds |
 | removeFingerprintOnSuccess | <code>boolean</code> | Whether to remove fingerprint after success |
 | maxChunkRetries | <code>number</code> | Maximum retry attempts per chunk |

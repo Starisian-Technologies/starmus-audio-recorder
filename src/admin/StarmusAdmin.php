@@ -63,7 +63,7 @@ class StarmusAdmin {
 	 * and registers admin hooks for menu and settings registration.
 	 *
 	 * @param StarmusAudioRecorderDALInterface $DAL Data Access Layer instance.
-	 * @param StarmusSettings $settings Settings service instance.
+	 * @param StarmusSettings                  $settings Settings service instance.
 	 *
 	 * @throws \Throwable If initialization fails.
 	 *

@@ -41,7 +41,7 @@ final class StarmusFFmpegService {
 		);
 
 		foreach ( $formats as $quality => $params ) {
-			$output_path = sprintf( '%s/%s_%s.mp3', $output_dir, $base_name, $quality );
+			$output_path = \sprintf( '%s/%s_%s.mp3', $output_dir, $base_name, $quality );
 
 			if ( $this->convertAudio( $input_path, $output_path, $params ) ) {
 				$results[ $quality ] = $output_path;

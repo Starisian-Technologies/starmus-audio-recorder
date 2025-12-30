@@ -13,7 +13,7 @@ Sets up event handlers, submission logic, and browser tier detection.</p>
 </dd>
 </dl>
 
-## Members
+## Constants
 
 <dl>
 <dt><a href="#subscribe">subscribe</a> : <code>function</code></dt>
@@ -25,7 +25,8 @@ Sets up event handlers, submission logic, and browser tier detection.</p>
 
 <dl>
 <dt><a href="#detectTier">detectTier()</a> ⇒ <code>string</code></dt>
-<dd><p>Detects browser capabilities and assigns appropriate tier classification.</p>
+<dd><p>Detects browser capabilities and assigns appropriate tier classification.
+Enhanced with SPARXSTAR environment detection for optimal performance.</p>
 </dd>
 </dl>
 
@@ -48,17 +49,18 @@ Sets up event handlers, submission logic, and browser tier detection.
 ## subscribe : <code>function</code>
 Hook subscription function from StarmusHooks or fallback no-op.
 
-**Kind**: global variable  
+**Kind**: global constant  
 <a name="detectTier"></a>
 
 ## detectTier() ⇒ <code>string</code>
 Detects browser capabilities and assigns appropriate tier classification.
+Enhanced with SPARXSTAR environment detection for optimal performance.
 
 **Kind**: global function  
 **Returns**: <code>string</code> - Browser tier classification:
-  - 'A': Full support (MediaRecorder + AudioContext + getUserMedia)
-  - 'B': Limited support (no AudioContext)
-  - 'C': Minimal support (no MediaRecorder or getUserMedia)  
+  - 'A': Full support (MediaRecorder + AudioContext + getUserMedia + good network/device)
+  - 'B': Limited support (basic capabilities but network/device constraints)
+  - 'C': Minimal support (no MediaRecorder, getUserMedia, or very poor conditions)  
 
 
 ---

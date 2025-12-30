@@ -24,7 +24,7 @@ interface StarmusAudioRecorderDALInterface {
 	 *
 	 * @param string $title The title of the audio post.
 	 * @param string $cpt_slug The custom post type slug.
-	 * @param int $author_id The ID of the post author.
+	 * @param int    $author_id The ID of the post author.
 	 *
 	 * @return int|\WP_Error The new post ID on success, or a WP_Error object on failure.
 	 */
@@ -52,10 +52,10 @@ interface StarmusAudioRecorderDALInterface {
 	/**
 	 * Retrieves a user's recordings.
 	 *
-	 * @param int $user_id The ID of the user.
+	 * @param int    $user_id The ID of the user.
 	 * @param string $cpt_slug The custom post type slug.
-	 * @param int $posts_per_page The number of posts to retrieve per page.
-	 * @param int $paged The current page number.
+	 * @param int    $posts_per_page The number of posts to retrieve per page.
+	 * @param int    $paged The current page number.
 	 *
 	 * @return \WP_Query A WP_Query object containing the user's recordings.
 	 */
@@ -73,7 +73,7 @@ interface StarmusAudioRecorderDALInterface {
 	/**
 	 * Updates audio post meta.
 	 *
-	 * @param int $post_id The ID of the post.
+	 * @param int    $post_id The ID of the post.
 	 * @param string $meta_key The meta key to update.
 	 * @param string $value The new meta value.
 	 *
@@ -143,16 +143,16 @@ interface StarmusAudioRecorderDALInterface {
 	/**
 	 * Saves post meta data.
 	 *
-	 * @param int $post_id The ID of the post.
+	 * @param int    $post_id The ID of the post.
 	 * @param string $meta_key The meta key.
-	 * @param mixed $value The meta value.
+	 * @param mixed  $value The meta value.
 	 */
 	public function save_post_meta( int $post_id, string $meta_key, mixed $value ): void;
 
 	/**
 	 * Persists audio output file paths.
 	 *
-	 * @param int $attachment_id The ID of the attachment.
+	 * @param int    $attachment_id The ID of the attachment.
 	 * @param string $mp3 The path to the MP3 file.
 	 * @param string $wav The path to the WAV file.
 	 */
@@ -161,7 +161,7 @@ interface StarmusAudioRecorderDALInterface {
 	/**
 	 * Saves audio output data.
 	 *
-	 * @param int $post_id The ID of the post.
+	 * @param int         $post_id The ID of the post.
 	 * @param string|null $waveform_json The waveform data in JSON format.
 	 * @param string|null $mp3_path The path to the MP3 file.
 	 * @param string|null $wav_path The path to the WAV file.
@@ -171,7 +171,7 @@ interface StarmusAudioRecorderDALInterface {
 	/**
 	 * Sets the processing state of an audio attachment.
 	 *
-	 * @param int $attachment_id The ID of the attachment.
+	 * @param int    $attachment_id The ID of the attachment.
 	 * @param string $state The processing state.
 	 */
 	public function set_audio_state( int $attachment_id, string $state ): void;
@@ -188,9 +188,9 @@ interface StarmusAudioRecorderDALInterface {
 	/**
 	 * Creates a transcription post linked to an audio recording.
 	 *
-	 * @param int $audio_post_id The ID of the parent audio recording.
+	 * @param int    $audio_post_id The ID of the parent audio recording.
 	 * @param string $transcription_text The transcription text.
-	 * @param int $author_id The ID of the author.
+	 * @param int    $author_id The ID of the author.
 	 *
 	 * @return int|\WP_Error The new transcription post ID on success, or WP_Error on failure.
 	 */
@@ -199,9 +199,9 @@ interface StarmusAudioRecorderDALInterface {
 	/**
 	 * Creates a translation post linked to an audio recording.
 	 *
-	 * @param int $audio_post_id The ID of the parent audio recording.
+	 * @param int    $audio_post_id The ID of the parent audio recording.
 	 * @param string $translation_text The translation text.
-	 * @param int $author_id The ID of the author.
+	 * @param int    $author_id The ID of the author.
 	 *
 	 * @return int|\WP_Error The new translation post ID on success, or WP_Error on failure.
 	 */

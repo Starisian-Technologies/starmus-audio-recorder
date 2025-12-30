@@ -31,12 +31,12 @@ window.Starmus.version = '6.5.0';
  */
 // 1. PEAKS BRIDGE
 export function exposePeaksBridge() {
-  if (window.Peaks && (!window.Starmus.Peaks)) {
-    window.Starmus.Peaks = window.Peaks;
-  } else if (!window.Peaks) {
-    window.Peaks = { init: () => null };
-    window.Starmus.Peaks = window.Peaks;
-  }
+	if (window.Peaks && (!window.Starmus.Peaks)) {
+		window.Starmus.Peaks = window.Peaks;
+	} else if (!window.Peaks) {
+		window.Peaks = { init: () => null };
+		window.Starmus.Peaks = window.Peaks;
+	}
 }
 exposePeaksBridge();
 
@@ -47,9 +47,9 @@ exposePeaksBridge();
  */
 // 2. SPEECH API CHECK
 if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
-  console.log('[StarmusIntegrator] Speech API missing (Tier B/C)');
+	console.log('[StarmusIntegrator] Speech API missing (Tier B/C)');
 } else {
-  window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+	window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 }
 
 /**
@@ -65,18 +65,18 @@ if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) 
  */
 // 3. UEC DATA INGESTION (CRITICAL FIX)
 window.addEventListener('sparxstar:environment-ready', (e) => {
-    console.log('[StarmusIntegrator] 📡 Parsing UEC Payload...');
+	console.log('[StarmusIntegrator] 📡 Parsing UEC Payload...');
     
-    if (!window.StarmusStore) {return;}
+	if (!window.StarmusStore) {return;}
 
-    const raw = e.detail || { /* intentionally empty */ };
-    const tech = raw.technical || { /* intentionally empty */ };
-    const rawTech = tech.raw || { /* intentionally empty */ };
-    const profile = tech.profile || { /* intentionally empty */ };
-    const idents = raw.identifiers || { /* intentionally empty */ }; // Sometimes at root
-    // Handle case where identifiers might be inside technical or separate (based on logs)
+	const raw = e.detail || { /* intentionally empty */ };
+	const tech = raw.technical || { /* intentionally empty */ };
+	const rawTech = tech.raw || { /* intentionally empty */ };
+	const profile = tech.profile || { /* intentionally empty */ };
+	const idents = raw.identifiers || { /* intentionally empty */ }; // Sometimes at root
+	// Handle case where identifiers might be inside technical or separate (based on logs)
     
-    /**
+	/**
      * Normalized environment data object matching Starmus backend schema.
      * @type {Object}
      * @property {Object} device - Device information including class, OS, and user agent
@@ -86,54 +86,54 @@ window.addEventListener('sparxstar:environment-ready', (e) => {
      * @property {Object} features - Battery and performance feature detection
      * @property {Array} errors - Array of initialization errors
      */
-    // --- NORMALIZE TO STRICT SCHEMA ---
-    // The server expects keys: 'device', 'browser', 'network', 'errors' at ROOT of _starmus_env
+	// --- NORMALIZE TO STRICT SCHEMA ---
+	// The server expects keys: 'device', 'browser', 'network', 'errors' at ROOT of _starmus_env
     
-    const normalizedEnv = {
-        // 1. Device Info (Merge Detector + Profile)
-        device: {
-            ...(rawTech.device || { /* intentionally empty */ }),
-            class: profile.deviceClass || 'unknown',
-            os: (raw.identifiers?.deviceDetails?.os) || { /* intentionally empty */ }, 
-            userAgent: navigator.userAgent
-        },
+	const normalizedEnv = {
+		// 1. Device Info (Merge Detector + Profile)
+		device: {
+			...(rawTech.device || { /* intentionally empty */ }),
+			class: profile.deviceClass || 'unknown',
+			os: (raw.identifiers?.deviceDetails?.os) || { /* intentionally empty */ }, 
+			userAgent: navigator.userAgent
+		},
 
-        // 2. Browser Info
-        browser: {
-            ...(rawTech.browser || { /* intentionally empty */ }),
-            ... (raw.identifiers?.deviceDetails?.client || { /* intentionally empty */ })
-        },
+		// 2. Browser Info
+		browser: {
+			...(rawTech.browser || { /* intentionally empty */ }),
+			... (raw.identifiers?.deviceDetails?.client || { /* intentionally empty */ })
+		},
 
-        // 3. Network Info
-        network: {
-            ...(rawTech.network || { /* intentionally empty */ }),
-            profile: profile.networkProfile || 'unknown'
-        },
+		// 3. Network Info
+		network: {
+			...(rawTech.network || { /* intentionally empty */ }),
+			profile: profile.networkProfile || 'unknown'
+		},
 
-        // 4. Identifiers (Session/Visitor)
-        identifiers: {
-            sessionId: idents.sessionId || raw.sessionId || 'unknown',
-            visitorId: idents.visitorId || raw.visitorId || 'unknown',
-            ip: idents.ipAddress || '0.0.0.0'
-        },
+		// 4. Identifiers (Session/Visitor)
+		identifiers: {
+			sessionId: idents.sessionId || raw.sessionId || 'unknown',
+			visitorId: idents.visitorId || raw.visitorId || 'unknown',
+			ip: idents.ipAddress || '0.0.0.0'
+		},
 
-        // 5. Features / Battery / Perf
-        features: {
-            battery: rawTech.battery || { /* intentionally empty */ },
-            performance: rawTech.performance || { /* intentionally empty */ }
-        },
+		// 5. Features / Battery / Perf
+		features: {
+			battery: rawTech.battery || { /* intentionally empty */ },
+			performance: rawTech.performance || { /* intentionally empty */ }
+		},
         
-        // 6. Init Error Array (Required by Schema)
-        errors: [] 
-    };
+		// 6. Init Error Array (Required by Schema)
+		errors: [] 
+	};
 
-    console.log('[StarmusIntegrator] ✅ Normalized Env:', normalizedEnv);
+	console.log('[StarmusIntegrator] ✅ Normalized Env:', normalizedEnv);
 
-    // Dispatch merged environment
-    window.StarmusStore.dispatch({ 
-        type: 'starmus/env-update', 
-        payload: normalizedEnv 
-    });
+	// Dispatch merged environment
+	window.StarmusStore.dispatch({ 
+		type: 'starmus/env-update', 
+		payload: normalizedEnv 
+	});
 });
 
 /**
@@ -145,8 +145,8 @@ window.addEventListener('sparxstar:environment-ready', (e) => {
  */
 // 4. AUDIO CONTEXT WATCHDOG
 document.addEventListener('click', () => {
-  try {
-    const ctx = window.StarmusAudioContext;
-    if (ctx && ctx.state === 'suspended') {ctx.resume();}
-  } catch { /* intentionally empty */ }
+	try {
+		const ctx = window.StarmusAudioContext;
+		if (ctx && ctx.state === 'suspended') {ctx.resume();}
+	} catch { /* intentionally empty */ }
 }, { once: true });

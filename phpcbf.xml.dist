@@ -11,7 +11,7 @@
   <file>starmus-audio-recorder.php</file>
   <file>uninstall.php</file>
   <file>src/</file>
-  
+
   <!-- Exclude vendor and build assets -->
   <exclude-pattern>vendor/*</exclude-pattern>
   <exclude-pattern>node_modules/*</exclude-pattern>
@@ -27,7 +27,7 @@
   <arg name="parallel" value="8"/>
 
   <!-- Installed standards -->
-  <config name="installed_paths" value="vendor/wp-coding-standards/wpcs,vendor/automattic/vipwpcs,vendor/phpcompatibility/php-compatibility,vendor/phpcompatibility/phpcompatibility-wp"/>
+  <config name="installed_paths" value="../../wp-coding-standards/wpcs,../../automattic/vipwpcs,../../phpcompatibility/php-compatibility,../../phpcompatibility/phpcompatibility-paragonie,../../phpcompatibility/phpcompatibility-wp,../../phpcsstandards/phpcsextra,../../phpcsstandards/phpcsutils,../../sirbrillig/phpcs-variable-analysis"/>
 
   <!-- Target PHP version -->
   <config name="testVersion" value="8.2-"/>
@@ -42,7 +42,6 @@
     <exclude name="WordPressVIPMinimum.JS"/>
     <exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions"/>
     <exclude name="WordPressVIPMinimum.Constants.RestrictedConstants"/>
-    <exclude name="WordPressVIPMinimum.Variables.VariableAnalysis"/>
   </rule>
 
   <!-- Naming convention fixes -->
