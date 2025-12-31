@@ -10,6 +10,9 @@ if (! \defined('ABSPATH')) {
 
 use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
 use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
+use Starisian\Sparxstar\Starmus\frontend\StarmusAudioEditorUI;
+use Starisian\Sparxstar\Starmus\frontend\StarmusProsodyPlayer;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
@@ -81,8 +84,12 @@ final class StarmusShortcodeLoader
 
 	private function setProsodyEngine(): void
 	{
-		if ($this->prosody === null) {
+		if(class_exists(StarmusProsodyPlayer::class)) && ($this->prosody === null) {
+			try{
 			$this->prosody = new StarmusProsodyPlayer();
+			} catch (Throwable $throwable){
+				StarmusLogger::log($throwable);
+			}
 		}
 	}
 
