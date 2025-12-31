@@ -45,12 +45,13 @@ if (! \defined('ABSPATH')) {
 }
 
 use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starums\services\StarmusFileService;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 // FIX: Removed 'readonly' for PHP < 8.2 compatibility
 final class StarmusWaveformService
 {
-
+	private ?StarmusAudioRecorderDAL $dal = null;
 	/**
 	 * File service for handling offloaded attachments.
 	 *
@@ -71,6 +72,7 @@ final class StarmusWaveformService
 	 */
 	public function __construct(?StarmusAudioRecorderDAL $dal, ?StarmusFileService $file_service)
 	{
+		$this->dal = $dal;
 		$this->files = $file_service ?: new StarmusFileService();
 	}
 
@@ -135,8 +137,12 @@ final class StarmusWaveformService
 	 */
 	public function is_tool_available(): bool
 	{
+		try{
 		$path = trim((string) shell_exec('command -v audiowaveform'));
 		return $path !== '' && $path !== '0';
+		} catch (Throwable $throwable){
+			StarmusLogger::log($throwanble);
+				}
 	}
 
 	/**
@@ -213,7 +219,7 @@ final class StarmusWaveformService
 			if ($post && $post->post_parent > 0) {
 				$recording_id = $post->post_parent;
 			} else {
-				error_log('Waveform Gen Failed: Missing parent recording reference for attachment: ' . $attachment_id);
+				StarmusLogger::error('Waveform Gen Failed: Missing parent recording reference for attachment: ' . $attachment_id);
 				return false;
 			}
 		}
@@ -233,14 +239,14 @@ final class StarmusWaveformService
 		}
 
 		if (! $file_path || ! file_exists($file_path)) {
-			error_log('Audio file not found: ' . $attachment_id);
+			StarmusLogger::info('Audio file not found: ' . $attachment_id);
 			return false;
 		}
 
 		// 5. Generate
 		$data = $this->extract_waveform_from_file($file_path);
 		if (! $data || empty($data['data'])) {
-			error_log('Waveform extraction returned empty data: ' . $attachment_id);
+			StarmusLogger::error('Waveform extraction returned empty data: ' . $attachment_id);
 			return false;
 		}
 
@@ -267,7 +273,7 @@ final class StarmusWaveformService
 			);
 			return true;
 		} catch (\Throwable $throwable) {
-			error_log('Waveform Save Error: ' . $throwable->getMessage());
+			StarmusLogger::log($throwable);
 			return false;
 		}
 	}
@@ -367,7 +373,8 @@ final class StarmusWaveformService
 				'json_path' => $file_path . '.waveform.json',
 			);
 		} catch (\Throwable $throwable) {
-			error_log('Waveform CLI Error: ' . $throwable->getMessage());
+			StarmusLogger::error('Waveform CLI Error: ' . $throwable->getMessage());
+			StarmusLogger::log($throwable);
 			if (file_exists($temp_json)) {
 				@unlink($temp_json);
 			}
