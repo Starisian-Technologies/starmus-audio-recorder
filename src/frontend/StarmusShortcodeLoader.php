@@ -84,7 +84,7 @@ final class StarmusShortcodeLoader
 
 	private function setProsodyEngine(): void
 	{
-		if(class_exists(StarmusProsodyPlayer::class)) && ($this->prosody === null) {
+		if(class_exists(StarmusProsodyPlayer::class) && ($this->prosody === null)) {
 			try{
 			$this->prosody = new StarmusProsodyPlayer();
 			} catch (Throwable $throwable){
