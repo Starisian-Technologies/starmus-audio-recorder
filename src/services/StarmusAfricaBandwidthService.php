@@ -14,6 +14,9 @@ if ( ! \defined( 'ABSPATH' ) ) {
  */
 final class StarmusAfricaBandwidthService {
 
+	public function __contruct(){
+		// do nothing.
+	}
 	/**
 	 * Generate ultra-low bandwidth versions for African networks
 	 */
