@@ -17,13 +17,17 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
  */
 final class StarmusAudioPipeline {
 
-	private StarmusId3Service $id3_service;
+	private ?StarmusId3Service $id3_service = null;
 
-	private StarmusFFmpegService $ffmpeg_service;
+	private ?StarmusFFmpegService $ffmpeg_service =  null;
 
 	public function __construct() {
-		$this->id3_service    = new StarmusId3Service();
-		$this->ffmpeg_service = new StarmusFFmpegService( $this->id3_service );
+		try{
+			$this->id3_service    = new StarmusId3Service();
+			$this->ffmpeg_service = new StarmusFFmpegService( $this->id3_service );
+		} catch (\Throwable $throwable){
+			StarmusLogger::log($throwable);
+		}
 	}
 
 	/**
@@ -174,7 +178,8 @@ final class StarmusAudioPipeline {
  * Add this to your save_all_metadata method:
  */
 function starmus_process_audio_with_pipeline( int $post_id, int $attachment_id, array $form_data ): void {
-	$file_path = get_attached_file( $attachment_id );
+	try{
+		$file_path = get_attached_file( $attachment_id );
 
 	if ( $file_path && file_exists( $file_path ) ) {
 		$pipeline = new StarmusAudioPipeline();
@@ -188,5 +193,8 @@ function starmus_process_audio_with_pipeline( int $post_id, int $attachment_id, 
 		if ( $results['preview_file'] ) {
 			update_post_meta( $post_id, '_starmus_preview_file', $results['preview_file'] );
 		}
+	}
+	} catch (\Throwable $throwable) {
+		StarmusLogger::log($throwable);
 	}
 }
