@@ -14,7 +14,7 @@ use Throwable;
 use WP_Error;
 
 /**
- * Internal handler for AiWA Logging.
+ * Internal handler for Starmus Logging.
  * Extends PSR-3 AbstractLogger to provide standard logging capabilities.
  */
 class StarLogger extends AbstractLogger {
@@ -76,7 +76,7 @@ class StarLogger extends AbstractLogger {
 
 		// 4. Format and send to error_log
 		$formatted = \sprintf(
-			'AiWA-%s [%s]: %s%s',
+			'Starmus-%s [%s]: %s%s',
 			strtoupper( $level_str ),
 			$caller,
 			$processed_message,
