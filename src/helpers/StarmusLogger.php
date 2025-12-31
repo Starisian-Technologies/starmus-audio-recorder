@@ -10,12 +10,12 @@ if ( ! \defined( 'ABSPATH' ) ) {
 use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
 
 /**
- * PSR-3 compliant logging system for AiWA Orchestrator
+ * PSR-3 compliant logging system for Starmus Audio Recorder
  * Implements log levels, message formatting, and context handling
  *
  * Usage:
- * AiWASWMLogger::info('This is an info message');
- * AiWASWMLogger::error('An error occurred', ['error_code' =>
+ * StarmusLogger::info('This is an info message');
+ * StarmusLogger::error('An error occurred', ['error_code' =>
  * 123]);
  *
  * Log Levels:
@@ -31,12 +31,12 @@ use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
  * Each log entry includes a timestamp, log level, calling method, message, and optional context.
  *
  * Example log entry:
- * [2024-06-01 12:00:00] AiWA-ERROR
- * AiWATemplateLoader::aiwa_get_template: Template not found {"template":"queue/recording-queue-list"}
+ * [2024-06-01 12:00:00] Starmus-ERROR
+ * StarmusTemplateLoader::Starmus_get_template: Template not found {"template":"queue/recording-queue-list"}
  *
- * @package AiWA\Orchestrator\helpers
+ * @package Starisian\Sparxstar\Starmus\helpers
  *
- * @author Ai West Africa / Starisian Technologies
+ * @author Starisian Technologies
  */
 class StarmusLogger
 {
@@ -195,7 +195,7 @@ class StarmusLogger
     /**
      * Compatibility alias for log_error
      *
-     * @deprecated Use AiWASWMLogger::error() instead
+     * @deprecated Use StarmusLogger::error() instead
      * @param mixed $message
      * @param array $context
      *
@@ -219,7 +219,7 @@ class StarmusLogger
 
     /**
      * Render an error message for frontend display
-     * @deprecated Use AiWAUIHelper::renderError() instead
+     * @deprecated Use StarmusUIHelper::renderError() instead
      *
      * @param string $message User-facing error text.
      *
