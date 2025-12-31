@@ -44,7 +44,7 @@ class StarmusProsodyPlayer {
 		add_shortcode( 'prosody_reader', array( $this, 'render_shortcode' ) );
 	}
 
-	private function initDAL(): void {
+	public function initDAL(): void {
 		if(class_exists( StarmusProsodyDAL::class ) === false ) {
 			throw new \Exception( 'StarmusProsodyDAL class not found' );
 		}
