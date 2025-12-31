@@ -17,9 +17,9 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
  */
 final class StarmusCloudflareAudioService {
 
-	private StarmusFileService $file_service;
+	private ?StarmusFileService $file_service = null;
 
-	private StarmusId3Service $id3_service;
+	private ?StarmusId3Service $id3_service = null;
 
 	public function __construct(
 		StarmusFileService $file_service,
