@@ -17,7 +17,7 @@ if ( ! \defined( 'ABSPATH' ) ) {
  */
 class StarmusProsodyPlayer {
 
-	private StarmusProsodyDAL $dal;
+	private ?StarmusProsodyDAL $dal = null;
 
 	public function __construct() {		
 		$this->register_hooks();
@@ -49,7 +49,11 @@ class StarmusProsodyPlayer {
 			throw new \Exception( 'StarmusProsodyDAL class not found' );
 		}
 		if($this->dal === null) {
+			try{
 			$this->dal = new StarmusProsodyDAL;
+			}catch (Throwable $throwable){
+				StarmusLogger::log($throwable);
+			]
 		}
 	}
 
@@ -86,6 +90,7 @@ class StarmusProsodyPlayer {
 	 * @return string HTML Output
 	 */
 	public function render_shortcode( array $atts ): string {
+		try{
 		$args = shortcode_atts(
 			array(
 				'id' => get_the_ID(),
@@ -148,6 +153,9 @@ class StarmusProsodyPlayer {
 		</div>
 		<?php
 				return ob_get_clean();
+		}catch(Throwable $throwable){
+			StarmusLogger::log($throwable);
+		}
 	}
 
 	/**
@@ -186,6 +194,7 @@ class StarmusProsodyPlayer {
 		if ( $success ) {
 			wp_send_json_success( array( 'new_pace' => $pace ) );
 		} else {
+			StarmusLogger::log( 'Starmus update failed for $post_id=' . $post_id);
 			wp_send_json_error( 'Update failed' );
 		}
 	}
