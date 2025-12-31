@@ -53,7 +53,7 @@ class StarmusProsodyPlayer {
 			$this->dal = new StarmusProsodyDAL;
 			}catch (Throwable $throwable){
 				StarmusLogger::log($throwable);
-			]
+			}
 		}
 	}
 
