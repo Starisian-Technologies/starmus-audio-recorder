@@ -62,7 +62,7 @@ final readonly class StarmusFileService
 	 *
 	 * @since 1.0.0
 	 */
-	private ?StarmusAudioRecorderDAL $dal = null;
+	private ?StarmusAudioRecorderDAL $dal;
 
 	/**
 	 * Initializes the file service with DAL dependency.
@@ -71,7 +71,7 @@ final readonly class StarmusFileService
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct(StarmusAudioRecorderDAL $dal)
+	public function __construct(?StarmusAudioRecorderDAL $dal = null)
 	{
 		$this->dal = $dal ?: new StarmusAudioRecorderDAL();
 	}
