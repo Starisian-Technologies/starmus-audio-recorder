@@ -15,7 +15,7 @@ if ( ! \defined( 'ABSPATH' ) ) {
  */
 final class StarmusAudioFormatService {
 
-	private StarmusId3Service $id3_service;
+	private ?StarmusId3Service $id3_service = null;
 
 	public function __construct( StarmusId3Service $id3_service ) {
 		$this->id3_service = $id3_service;
