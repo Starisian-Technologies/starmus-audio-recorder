@@ -22,9 +22,10 @@ final class StarmusR2DirectService {
 
 	private string $bucket;
 
-	private StarmusId3Service $id3_service;
+	private ?StarmusId3Service $id3_service = null;
 
 	public function __construct( StarmusId3Service $id3_service ) {
+		try{
 		$this->id3_service = $id3_service;
 		$this->bucket      = \defined( 'STARMUS_R2_BUCKET' ) ? STARMUS_R2_BUCKET : 'starmus-audio';
 
@@ -40,6 +41,9 @@ final class StarmusR2DirectService {
 				'use_path_style_endpoint' => true,
 			)
 		);
+		} catch (Throwable $throwable){
+			StarmusLogger::log($throwable);
+		}
 	}
 
 	/**
@@ -144,6 +148,7 @@ final class StarmusR2DirectService {
 	 * Copy metadata using getID3
 	 */
 	private function copyMetadata( string $source, string $destination ): void {
+		try{
 		$analysis = $this->id3_service->analyzeFile( $source );
 
 		if ( ! empty( $analysis['comments'] ) ) {
@@ -157,6 +162,9 @@ final class StarmusR2DirectService {
 			$tags['comment'] = array( ( $tags['comment'][0] ?? '' ) . ' [R2-Africa]' );
 			$this->id3_service->writeTags( $destination, $tags );
 		}
+		} catch (Throwable $throwable){
+			StarmusLogger::log($throwable)
+				}
 	}
 
 	/**
