@@ -114,21 +114,21 @@ final class StarmusAssetLoader
 	private function enqueue_production_assets(): void
 	{
 		try {
-			error_log('[Starmus AssetLoader] Enqueueing JS: ' . STARMUS_URL . 'assets/js/starmus-audio-recorder-script.bundle.min.js');
+			StarmusLogger::info('[Starmus AssetLoader] Enqueueing JS: ' . STARMUS_URL . 'assets/js/starmus-audio-recorder-script.bundle.min.js');
 
 			// Check if SPARXSTAR environment checker is registered (optional dependency)
 			$dependencies = array();
 			if (wp_script_is('sparxstar-user-environment-check-app', 'registered')) {
 				$dependencies[] = 'sparxstar-user-environment-check-app';
-				error_log('[Starmus AssetLoader] SPARXSTAR environment checker detected - adding as dependency');
+				StarmusLogger::info('[Starmus AssetLoader] SPARXSTAR environment checker detected - adding as dependency');
 
 				// Also check for SPARXSTAR error reporter
 				if (wp_script_is('sparxstar-error-reporter', 'registered')) {
 					$dependencies[] = 'sparxstar-error-reporter';
-					error_log('[Starmus AssetLoader] SPARXSTAR error reporter detected - adding as dependency');
+					StarmusLogger::info('[Starmus AssetLoader] SPARXSTAR error reporter detected - adding as dependency');
 				}
 			} else {
-				error_log('[Starmus AssetLoader] SPARXSTAR not available - will use fallback environment detection');
+				StarmusLogger::info('[Starmus AssetLoader] SPARXSTAR not available - will use fallback environment detection');
 			}
 
 			wp_enqueue_script(
@@ -154,7 +154,7 @@ final class StarmusAssetLoader
 			);
 
 			$config = $this->get_localization_data();
-			error_log('[Starmus AssetLoader] Localizing script with config: ' . json_encode($config));
+			StarmusLogger::info('[Starmus AssetLoader] Localizing script with config: ' . json_encode($config));
 
 			// Keep the legacy config for backward compatibility
 			wp_localize_script(self::HANDLE_PROD_BUNDLE, 'starmusConfig', $config);
@@ -195,10 +195,10 @@ final class StarmusAssetLoader
 				self::$editor_data ?? $default_editor_data
 			);
 
-			error_log('[Starmus AssetLoader] JS enqueued successfully');
+			StarmusLogger::info('[Starmus AssetLoader] JS enqueued successfully');
 		} catch (\Throwable $throwable) {
-			error_log('[Starmus AssetLoader] ERROR in enqueue_production_assets: ' . $throwable->getMessage());
-			error_log($throwable->getMessage());
+			StarmusLogger::error('[Starmus AssetLoader] ERROR in enqueue_production_assets: ' . $throwable->getMessage());
+			StarmusLogger::log($throwable);
 		}
 	}
 
@@ -221,8 +221,8 @@ final class StarmusAssetLoader
 
 			error_log('[Starmus AssetLoader] CSS enqueued successfully');
 		} catch (\Throwable $throwable) {
-			error_log('[Starmus AssetLoader] ERROR in enqueue_styles: ' . $throwable->getMessage());
-			error_log($throwable->getMessage());
+			StarmusLogger::error('[Starmus AssetLoader] ERROR in enqueue_styles: ' . $throwable->getMessage());
+			StarmusLogger::log($throwable);
 		}
 	}
 
@@ -280,7 +280,7 @@ final class StarmusAssetLoader
 				'myRecordingsUrl'       => esc_url_raw($my_recordings_url), // Redirect URL after successful submission
 			);
 		} catch (\Throwable $throwable) {
-			error_log($throwable->getMessage());
+			StarmusLogger::log($throwable);
 			return array(
 				'endpoints'             => array(
 					'directUpload' => '',
@@ -309,7 +309,7 @@ final class StarmusAssetLoader
 		try {
 			return (\defined('STARMUS_VERSION') && STARMUS_VERSION) ? STARMUS_VERSION : '1.0.0';
 		} catch (\Throwable $throwable) {
-			error_log($throwable->getMessage());
+			StarmusLogger::log($throwable);
 			return '1.0.0';
 		}
 	}
