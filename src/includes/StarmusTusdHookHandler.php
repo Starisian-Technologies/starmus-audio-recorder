@@ -8,6 +8,8 @@ if ( ! \defined( 'ABSPATH' ) ) {
 }
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
+use Throwable;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -155,6 +157,7 @@ class StarmusTusdHookHandler {
 	 * - 500: Internal processing errors
 	 */
 	public function handle_tusd_hook( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		try{
 		$json_params = $request->get_json_params();
 
 		// 1. Validate JSON Body exists (tusd sends JSON)
@@ -187,6 +190,9 @@ class StarmusTusdHookHandler {
 			'post-finish' => $this->handle_post_finish( $event_data ),
 			default       => new WP_REST_Response( array(), 200 ), // Return empty JSON object {}
 		};
+		} catch (\Throwable $throwable){
+			StarmusLogger::log($throwable);
+		}
 	}
 
 	/**
@@ -226,7 +232,8 @@ class StarmusTusdHookHandler {
 	 * @return WP_REST_Response|WP_Error Empty success response or error object
 	 */
 	private function handle_post_finish( array $event_data ): WP_REST_Response|WP_Error {
-		if ( empty( $event_data['Upload'] ) ) {
+		try{
+			if ( empty( $event_data['Upload'] ) ) {
 			return new WP_Error( 'invalid_post_finish_payload', 'Missing Upload data.', array( 'status' => 400 ) );
 		}
 
@@ -240,6 +247,9 @@ class StarmusTusdHookHandler {
 				array( 'component' => __CLASS__ )
 			);
 			return $result;
+		}
+		} catch (\Throwable $throwable){
+			StarmusLogger::log($throwable);
 		}
 
 		// 3. IMPORTANT: post-finish is "fire and forget".
@@ -286,7 +296,8 @@ class StarmusTusdHookHandler {
 	 * @return mixed Result from submission handler or WP_Error on failure
 	 */
 	private function process_completed_upload( array $upload_info ): mixed {
-		$temp_path = $upload_info['Storage']['Path'] ?? '';
+		try{
+			$temp_path = $upload_info['Storage']['Path'] ?? '';
 
 		// 4. Use the InfoPath provided by tusd, falling back to concatenation only if missing
 		$info_path = $upload_info['Storage']['InfoPath'] ?? ( $temp_path . '.info' );
@@ -321,6 +332,9 @@ class StarmusTusdHookHandler {
 					'path'      => $normalized_info_path,
 				)
 			);
+		}
+		} catch (\Throwable $throwable){
+			StarmusLogger::log($throwable);
 		}
 
 		return $result;
@@ -367,6 +381,7 @@ class StarmusTusdHookHandler {
 	 * ```
 	 */
 	public function permissions_check( WP_REST_Request $request ): true|WP_Error {
+	try{
 		$expected_secret = \defined( 'TUSD_WEBHOOK_SECRET' ) ? TUSD_WEBHOOK_SECRET : '';
 
 		if ( empty( $expected_secret ) ) {
@@ -386,6 +401,9 @@ class StarmusTusdHookHandler {
 
 		if ( ! hash_equals( $expected_secret, $provided_secret ) ) {
 			return new WP_Error( 'unauthorized', 'Invalid secret.', array( 'status' => 403 ) );
+		}
+		} catch (\Throwable $throwable){
+			StarmusLogger::log($throwable);
 		}
 
 		return true;
