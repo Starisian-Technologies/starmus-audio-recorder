@@ -17,15 +17,16 @@ namespace Starisian\Sparxstar\Starmus\frontend;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Exception;
+use Throwable;
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
 use function file_exists;
 use function is_numeric;
 use function realpath;
 use function str_replace;
-use Throwable;
 use function usort;
-use WP_Error;
-use WP_REST_Request;
-use WP_REST_Response;
+
 
 if ( ! \defined( 'ABSPATH' ) ) {
 	exit;
@@ -107,7 +108,7 @@ final class StarmusAudioEditorUI {
 				array( 'context' => $context )
 			);
 		} catch ( Throwable $throwable ) {
-			$this->log_error( $throwable );
+			STarmusLogger::log( $throwable );
 			return '<div class="notice notice-error"><p>' .
 				esc_html__( 'Audio editor unavailable.', 'starmus-audio-recorder' ) .
 				'</p></div>';
@@ -212,7 +213,7 @@ final class StarmusAudioEditorUI {
 
 			return $this->cached_context;
 		} catch ( Throwable $throwable ) {
-			$this->log_error( $throwable );
+			StarmusLogger::log( $throwable );
 			return new WP_Error( 'context_error', __( 'Unable to load editor context.', 'starmus-audio-recorder' ) );
 		}
 	}
@@ -335,7 +336,7 @@ final class StarmusAudioEditorUI {
 
 			$json_data = wp_json_encode( $annotations );
 			if ( $json_data === false ) {
-				throw new Exception( 'Failed to encode annotations.' );
+				throw new \Exception( 'Failed to encode annotations.' );
 			}
 
 			update_field( 'waveform_json', $json_data, $post_id );
@@ -347,7 +348,7 @@ final class StarmusAudioEditorUI {
 				200
 			);
 		} catch ( Throwable $throwable ) {
-			$this->log_error( $throwable );
+			StarmusLogger::log( $throwable );
 			return new WP_REST_Response(
 				array(
 					'success' => false,
@@ -385,11 +386,5 @@ final class StarmusAudioEditorUI {
 
 	public function get_editor_context_public( array $atts = array() ): array|WP_Error {
 		return $this->get_editor_context( $atts );
-	}
-
-	private function log_error( Throwable $e ): void {
-		if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'Starmus Audio Editor UI Error: ' . $e->getMessage() );
-		}
 	}
 }

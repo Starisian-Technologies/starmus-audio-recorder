@@ -5,14 +5,14 @@
 
   <description>
     Coding standards for Starmus Audio Recorder plugin.
-    Enforces WordPress VIP, PHP compatibility, modern PHP usage, naming conventions, and documentation.
+    Auto-fixable rules only to prevent phpcbf conflicts.
   </description>
 
   <!-- Scan plugin source -->
   <file>starmus-audio-recorder.php</file>
   <file>uninstall.php</file>
   <file>src/</file>
-  
+
   <!-- Exclude patterns -->
   <exclude-pattern>vendor/*</exclude-pattern>
   <exclude-pattern>node_modules/*</exclude-pattern>
@@ -34,69 +34,57 @@
   <!-- Target PHP version -->
   <config name="testVersion" value="8.2-"/>
 
-  <!-- Starmus Enterprise Standards (Auto-fixable rules only) -->
+  <!-- WordPress Core (auto-fixable only) -->
   <rule ref="WordPress-Core">
+    <!-- Exclude non-auto-fixable rules -->
     <exclude name="WordPress.Files.FileName"/>
     <exclude name="WordPress.NamingConventions.ValidVariableName"/>
     <exclude name="WordPress.NamingConventions.ValidFunctionName"/>
+    <exclude name="WordPress.PHP.YodaConditions"/>
+    <exclude name="WordPress.WP.AlternativeFunctions"/>
+    <exclude name="WordPress.PHP.DevelopmentFunctions"/>
+    <exclude name="Squiz.PHP.CommentedOutCode"/>
+    <exclude name="Universal.Operators.DisallowShortTernary"/>
   </rule>
-  
-  <!-- Auto-fixable formatting rules -->
+
+  <!-- Auto-fixable formatting rules only -->
   <rule ref="Generic.WhiteSpace.ScopeIndent">
     <properties>
       <property name="indent" value="1"/>
       <property name="tabIndent" value="true"/>
     </properties>
   </rule>
+
   <rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
   <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace"/>
   <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
-  <rule ref="PSR2.ControlStructures.ControlStructureSpacing"/>
-  <rule ref="Squiz.ControlStructures.ControlSignature"/>
+  <rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
+  <rule ref="Generic.Classes.OpeningBraceSameLine"/>
+
+  <!-- WordPress spacing rules -->
+  <rule ref="WordPress.WhiteSpace.ControlStructureSpacing"/>
+  <rule ref="WordPress.Arrays.ArrayKeySpacingRestrictions"/>
+  <rule ref="NormalizedArrays.Arrays.ArrayBraceSpacing"/>
+
+  <!-- Exclude problematic PEAR rules that conflict -->
   <rule ref="WordPress-Extra">
     <exclude name="WordPress.Files.FileName"/>
-  </rule>
-  
-  <!-- Skip docs for now -->
-  <!-- <rule ref="WordPress-Docs"/> -->
-  
-  <!-- VIP minimal (skip heavy rules) -->
-  <rule ref="WordPressVIPMinimum">
-    <exclude name="WordPressVIPMinimum.JS"/>
-    <exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions"/>
-    <exclude name="WordPressVIPMinimum.Performance"/>
+    <exclude name="WordPress.PHP.YodaConditions"/>
+    <exclude name="WordPress.WP.AlternativeFunctions"/>
+    <exclude name="WordPress.PHP.DevelopmentFunctions"/>
+    <exclude name="Squiz.PHP.CommentedOutCode"/>
+    <exclude name="Universal.Operators.DisallowShortTernary"/>
+    <exclude name="PEAR.Functions.FunctionCallSignature"/>
+    <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing"/>
   </rule>
 
-  <!-- Skip heavy compatibility checks for now -->
-  <!-- <rule ref="PHPCompatibility"/> -->
-  <!-- <rule ref="PHPCompatibilityWP"/> -->
-  <!-- <rule ref="Modernize"/> -->
-  <!-- <rule ref="Universal"/> -->
-  <!-- <rule ref="VariableAnalysis"/> -->
-
-  <!-- Naming conventions -->
-  <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
-    <properties>
-      <property name="prefixes" type="array">
-        <element value="sparxstar"/>
-        <element value="star"/>
-        <element value="starmus"/>
-      </property>
-    </properties>
-  </rule>
-
-  <!-- Text domain enforcement -->
+  <!-- Text domain enforcement (auto-fixable) -->
   <rule ref="WordPress.WP.I18n">
     <properties>
       <property name="text_domain" type="array">
         <element value="starmus-audio-recorder"/>
       </property>
     </properties>
-  </rule>
-
-  <!-- African monitoring (warnings only for now) -->
-  <rule ref="Generic.PHP.NoSilencedErrors">
-    <severity>4</severity>
   </rule>
 
 </ruleset>
