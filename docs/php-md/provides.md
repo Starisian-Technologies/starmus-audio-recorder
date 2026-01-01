@@ -24,7 +24,7 @@ if ( ! \defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface;
+use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL;
 use Throwable;
 use WP_Error;
 use WP_Query;
@@ -32,7 +32,7 @@ use WP_Query;
 /**
 Data Access Layer implementation for Starmus Audio Recorder.
 This class provides concrete implementations for all database and file system
-operations defined in the StarmusAudioDALInterface. It serves as the
+operations defined in the IStarmusAudioDAL. It serves as the
 primary abstraction layer between the plugin's business logic and WordPress
 core database/media functions.
 The DAL handles:
@@ -47,9 +47,9 @@ All database operations include comprehensive error handling with logging
 to ensure graceful degradation and debugging capabilities.
 @package Starisian\Sparxstar\Starmus\core
 @since   0.1.0
-@implements StarmusAudioDALInterface
+@implements IStarmusAudioDAL
 /
-final class StarmusAudioDAL implements StarmusAudioDALInterface {
+final class StarmusAudioDAL implements IStarmusAudioDAL {
 
 	/*
 	------------------------------------*

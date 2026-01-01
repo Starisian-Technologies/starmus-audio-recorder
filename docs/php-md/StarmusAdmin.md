@@ -28,7 +28,7 @@ if ( ! \defined( 'ABSPATH' ) ) {
 	return;
 }
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface;
+use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 
 /**
@@ -64,13 +64,13 @@ Settings service instance.
 	/**
 Data Access Layer instance.
 /
-	private ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface $dal = null;
+	private ?\Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL $dal = null;
 
 	/**
 Constructor - initializes admin settings and hooks.
 Sets up DAL and Settings dependencies, defines field type mappings,
 and registers admin hooks for menu and settings registration.
-@param StarmusAudioDALInterface $DAL Data Access Layer instance.
+@param IStarmusAudioDAL $DAL Data Access Layer instance.
 @param StarmusSettings $settings Settings service instance.
 @throws \Throwable If initialization fails.
 @return void

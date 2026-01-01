@@ -49,7 +49,7 @@ parameters:
 			path: src/core/StarmusAudioDAL.php
 
 		-
-			message: '#^PHPDoc tag @implements has invalid value \(StarmusAudioDALInterface\)\: Unexpected token "\\n ", expected ''\<'' at offset 951 on line 25$#'
+			message: '#^PHPDoc tag @implements has invalid value \(IStarmusAudioDAL\)\: Unexpected token "\\n ", expected ''\<'' at offset 951 on line 25$#'
 			identifier: phpDoc.parseError
 			count: 1
 			path: src/core/StarmusAudioDAL.php
@@ -217,7 +217,7 @@ parameters:
 			path: src/frontend/StarmusShortcodeLoader.php
 
 		-
-			message: '#^Property Starisian\\Sparxstar\\Starmus\\frontend\\StarmusShortcodeLoader\:\:\$dal \(Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\) does not accept Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\.$#'
+			message: '#^Property Starisian\\Sparxstar\\Starmus\\frontend\\StarmusShortcodeLoader\:\:\$dal \(Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\) does not accept Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL\.$#'
 			identifier: assign.propertyType
 			count: 1
 			path: src/frontend/StarmusShortcodeLoader.php

@@ -31,7 +31,7 @@ Data Access Layer instance.
 	private StarmusAudioDAL $dal;
 
 	/**
-@param StarmusAudioDALInterface|null $dal The data access layer.
+@param IStarmusAudioDAL|null $dal The data access layer.
 @param StarmusSettings|null $settings The settings instance.
 
 ### `register_shortcodes()`

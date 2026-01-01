@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\data;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\data\interfaces\StarmusAudioDALInterface;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusBaseDAL;
 use Throwable;
 use WP_Error;
@@ -25,10 +25,10 @@ if (! defined('ABSPATH')) {
 /**
  * Data Access Layer implementation for Starmus Audio Recorder.
  *
- * Concrete implementation of StarmusAudioDALInterface.
+ * Concrete implementation of IStarmusAudioDAL.
  * Handles rigid database interactions with full legacy support.
  */
-final class StarmusAudioDAL extends StarmusBaseDAL implements StarmusAudioDALInterface
+final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
 {
 
 	/*

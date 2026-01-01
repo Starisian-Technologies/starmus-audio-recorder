@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles all reads/writes for the Starmus Script Prosody Engine.
  *
@@ -13,17 +14,18 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\data;
 
-use Starisian\Sparxstar\Starmus\data\interfaces\StarmusProsodyDALInterface;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusBaseDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
 use Throwable;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
-final class StarmusProsodyDAL extends StarmusBaseDAL implements StarmusProsodyDALInterface {
+final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyDAL
+{
 
 	/**
 	 * Heuristic Constants for "Smart Guessing" pace.
@@ -52,17 +54,18 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements StarmusProsodyDA
 	/**
 	 * {@inheritdoc}
 	 */
-	public function get_script_payload( int $post_id ): array {
+	public function get_script_payload(int $post_id): array
+	{
 		try {
 			// 1. Validate Post Type (Legacy Requirement)
-			$post_info = $this->get_post_info( $post_id );
-			if ( ! $post_info || 'starmus-script' !== $post_info['type'] ) {
+			$post_info = $this->get_post_info($post_id);
+			if (! $post_info || 'starmus-script' !== $post_info['type']) {
 				return array();
 			}
 
 			// 2. Get Sanitized Settings via Helper
 			// This cleans mode, energy, density, and calibrated values
-			$data = StarmusSanitizer::get_sanitized_prosody_data( $post_id );
+			$data = StarmusSanitizer::get_sanitized_prosody_data($post_id);
 
 			// 3. Calculate Pace
 			// If sanitizer returned empty (failure), fallback safely
@@ -71,29 +74,28 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements StarmusProsodyDA
 			$energy = $data['energy_level'] ?? 'neutral';
 			$dens   = $data['visual_density'] ?? 28;
 
-			$start_pace = $this->resolve_pace( $calib, $mode, $energy );
+			$start_pace = $this->resolve_pace($calib, $mode, $energy);
 
 			// 4. Retrieve and Clean Text Content
 			// We access raw post content here as it is the "Source of Truth" for the script
-			$post_object = get_post( $post_id );
+			$post_object = get_post($post_id);
 			$source_text = $post_object ? $post_object->post_content : '';
 
 			// We use get_post_meta via our strict method
-			$trans_text  = (string) $this->get_post_meta( $post_id, 'starmus_translation_text' );
+			$trans_text  = (string) $this->get_post_meta($post_id, 'starmus_translation_text');
 
 			return array(
 				'postID'      => $post_id,
-				'source'      => $this->sanitize_stream( $source_text ),
-				'translation' => $this->sanitize_stream( $trans_text ),
+				'source'      => $this->sanitize_stream($source_text),
+				'translation' => $this->sanitize_stream($trans_text),
 				'startPace'   => $start_pace,
 				'density'     => $dens > 0 ? $dens : 28,
 				'mode'        => $mode,
 				'energy'      => $energy,
-				'nonce'       => wp_create_nonce( 'starmus_prosody_save_' . $post_id ),
+				'nonce'       => wp_create_nonce('starmus_prosody_save_' . $post_id),
 			);
-
-		} catch ( Throwable $e ) {
-			StarmusLogger::log( $e );
+		} catch (Throwable $e) {
+			StarmusLogger::log($e);
 			return array();
 		}
 	}
@@ -101,14 +103,15 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements StarmusProsodyDA
 	/**
 	 * {@inheritdoc}
 	 */
-	public function save_calibrated_pace( int $post_id, int $ms_per_word ): bool {
+	public function save_calibrated_pace(int $post_id, int $ms_per_word): bool
+	{
 		// Legacy Sanity Bounds Check (1s to 6s)
-		if ( $ms_per_word < 1000 || $ms_per_word > 6000 ) {
+		if ($ms_per_word < 1000 || $ms_per_word > 6000) {
 			return false;
 		}
 
 		// Use internal strict save method
-		$this->save_post_meta( $post_id, 'calibrated_pace_ms', $ms_per_word );
+		$this->save_post_meta($post_id, 'calibrated_pace_ms', $ms_per_word);
 		return true;
 	}
 
@@ -121,26 +124,28 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements StarmusProsodyDA
 	 * Logic: If human set a pace, use it. Otherwise, guess based on metadata.
 	 * Kept exactly as legacy implementation to ensure consistent user experience.
 	 */
-	private function resolve_pace( int $calibrated, string $mode, string $energy ): int {
+	private function resolve_pace(int $calibrated, string $mode, string $energy): int
+	{
 		// A: Trust the Human
-		if ( $calibrated > 0 ) {
+		if ($calibrated > 0) {
 			return $calibrated;
 		}
 
 		// B: Calculate Heuristic (Legacy Math)
-		$base = self::BASE_SPEEDS[ $mode ] ?? self::BASE_SPEEDS['default'];
-		$mod  = self::ENERGY_MODIFIERS[ $energy ] ?? 1.0;
+		$base = self::BASE_SPEEDS[$mode] ?? self::BASE_SPEEDS['default'];
+		$mod  = self::ENERGY_MODIFIERS[$energy] ?? 1.0;
 
-		return (int) round( $base * $mod );
+		return (int) round($base * $mod);
 	}
 
 	/**
 	 * Clean text for the engine.
 	 * Removes HTML, ensures single spacing, trims whitespace.
 	 */
-	private function sanitize_stream( string $raw ): string {
-		$text = wp_strip_all_tags( $raw );
-		$text = str_replace( array( "\r", "\n" ), ' ', $text ); // Flatten newlines
-		return trim( (string) preg_replace( '/\s+/', ' ', $text ) );
+	private function sanitize_stream(string $raw): string
+	{
+		$text = wp_strip_all_tags($raw);
+		$text = str_replace(array("\r", "\n"), ' ', $text); // Flatten newlines
+		return trim((string) preg_replace('/\s+/', ' ', $text));
 	}
 }

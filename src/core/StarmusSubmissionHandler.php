@@ -39,14 +39,14 @@ declare(strict_types=1);
  * 6. Taxonomy assignment (language, recording type)
  * 7. Post-processing trigger (audio optimization)
  * 8. Temporary file cleanup
- * @see StarmusAudioDALInterface Data Access Layer interface
+ * @see IStarmusAudioDAL Data Access Layer interface
  * @see StarmusSettings Plugin configuration management
  * @see StarmusPostProcessingService Audio processing service
  */
 
 namespace Starisian\Sparxstar\Starmus\core;
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface;
+use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
@@ -147,7 +147,7 @@ final class StarmusSubmissionHandler
 	 * Sets up WordPress action hooks for temporary file cleanup and logs
 	 * successful construction. Throws exceptions on setup failures.
 	 *
-	 * @param StarmusAudioDALInterface $dal Data Access Layer implementation
+	 * @param IStarmusAudioDAL $dal Data Access Layer implementation
 	 * @param StarmusSettings                  $settings Plugin configuration service
 	 *
 	 * @throws Throwable If construction fails or hooks cannot be registered
@@ -155,7 +155,7 @@ final class StarmusSubmissionHandler
 	 * @since 1.0.0
 	 */
 	public function __construct(
-		private readonly StarmusAudioDALInterface $dal,
+		private readonly IStarmusAudioDAL $dal,
 		private readonly StarmusSettings $settings
 	) {
 		try {

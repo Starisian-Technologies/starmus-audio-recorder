@@ -186,65 +186,65 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starisian-Sparxstar-Starmus-cli-StarmusCLI.html#property_waveform_service"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface",
-            "name": "StarmusAudioDALInterface",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL",
+            "name": "IStarmusAudioDAL",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Acreate_audio_post\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL\u003A\u003Acreate_audio_post\u0028\u0029",
             "name": "create_audio_post",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_create_audio_post"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html#method_create_audio_post"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Acreate_attachment_from_file\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL\u003A\u003Acreate_attachment_from_file\u0028\u0029",
             "name": "create_attachment_from_file",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_create_attachment_from_file"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html#method_create_attachment_from_file"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Aget_user_recordings\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL\u003A\u003Aget_user_recordings\u0028\u0029",
             "name": "get_user_recordings",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_get_user_recordings"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html#method_get_user_recordings"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Aget_edit_page_url_admin\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL\u003A\u003Aget_edit_page_url_admin\u0028\u0029",
             "name": "get_edit_page_url_admin",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_get_edit_page_url_admin"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html#method_get_edit_page_url_admin"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Aupdate_audio_post_meta\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL\u003A\u003Aupdate_audio_post_meta\u0028\u0029",
             "name": "update_audio_post_meta",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_update_audio_post_meta"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html#method_update_audio_post_meta"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Aget_ffmpeg_path\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL\u003A\u003Aget_ffmpeg_path\u0028\u0029",
             "name": "get_ffmpeg_path",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_get_ffmpeg_path"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html#method_get_ffmpeg_path"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Aget_registration_key\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL\u003A\u003Aget_registration_key\u0028\u0029",
             "name": "get_registration_key",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_get_registration_key"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html#method_get_registration_key"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Asave_post_meta\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL\u003A\u003Asave_post_meta\u0028\u0029",
             "name": "save_post_meta",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_save_post_meta"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html#method_save_post_meta"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Apersist_audio_outputs\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL\u003A\u003Apersist_audio_outputs\u0028\u0029",
             "name": "persist_audio_outputs",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_persist_audio_outputs"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html#method_persist_audio_outputs"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Asave_audio_outputs\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL\u003A\u003Asave_audio_outputs\u0028\u0029",
             "name": "save_audio_outputs",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_save_audio_outputs"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html#method_save_audio_outputs"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Aset_audio_state\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\IStarmusAudioDAL\u003A\u003Aset_audio_state\u0028\u0029",
             "name": "set_audio_state",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_set_audio_state"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html#method_set_audio_state"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader",
             "name": "StarmusAssetLoader",

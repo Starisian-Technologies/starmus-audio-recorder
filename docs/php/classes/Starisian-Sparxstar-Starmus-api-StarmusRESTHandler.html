@@ -226,7 +226,7 @@
 
 
 					<ul>
-													<li class="interface"><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface">StarmusAudioDALInterface</abbr></a></li>
+													<li class="interface"><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL">IStarmusAudioDAL</abbr></a></li>
 																							</ul>
 				</div>
 			</div>
@@ -629,14 +629,14 @@ post creation, and metadata management.</p>
             <a id="property_dal" name="property_dal" class="anchor"></a>
             <article class="property">
                 <h3 class="private ">$dal</h3>
-                <pre class="signature">$dal : \Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface</pre>
+                <pre class="signature">$dal : \Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL</pre>
                 <p><em>Data Access Layer for WordPress operations.</em></p>
                 <p>Provides abstraction for WordPress database operations,
 post management, and metadata handling.</p>
 
 
                                 <h4>Type</h4>
-                <a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface">StarmusAudioDALInterface</abbr></a>
+                <a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL">IStarmusAudioDAL</abbr></a>
                 &mdash;                             </article>
         </div>
         <aside class="span4 detailsbar">
@@ -707,7 +707,7 @@ user-customizable settings for audio processing.</p>
             <article class="method">
                 <h3 class="public ">__construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__construct(\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface  <span class="argument">$dal</span>, \Starisian\Sparxstar\Starmus\core\StarmusSettings  <span class="argument">$settings</span>, \Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler|null  <span class="argument">$submission_handler = null</span>) : mixed</pre>
+                <pre class="signature" style="margin-right: 54px;">__construct(\Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL  <span class="argument">$dal</span>, \Starisian\Sparxstar\Starmus\core\StarmusSettings  <span class="argument">$settings</span>, \Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler|null  <span class="argument">$submission_handler = null</span>) : mixed</pre>
                 <p><em>Initializes REST handler with dependency injection and route registration.</em></p>
                 <p>Sets up the REST API handler with required services and automatically
 registers WordPress REST API routes via the rest_api_init hook.</p>
@@ -716,7 +716,7 @@ registers WordPress REST API routes via the rest_api_init hook.</p>
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td>\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface</td>
+                                <td>\Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL</td>
                                 <td>$dal </td>
                                 <td><p>Data access layer instance</p>
 </td>
@@ -1054,7 +1054,7 @@ to ensure only audio recording submissions are accessible via this endpoint.</p>
                                                     <dt>Inherited from</dt>
                     <dd><a href="classes/Starisian-Sparxstar-Starmus-api-StarmusRESTHandler.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\api\StarmusRESTHandler</div></a></dd>
                                                                                                                     <dt>See also</dt>
-                                            <dd><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_get_post_info"><span class="namespace-wrapper">Data retrieval</span></a></dd>
+                                            <dd><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-IStarmusAudioDAL.html#method_get_post_info"><span class="namespace-wrapper">Data retrieval</span></a></dd>
                                             <dd><a href="classes/Starisian-Sparxstar-Starmus-includes-StarmusSubmissionHandler.html#method_get_cpt_slug"><span class="namespace-wrapper">Post type validation</span></a></dd>
 
                                                             </dl>

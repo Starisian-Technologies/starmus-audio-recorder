@@ -24,13 +24,13 @@ if (! \defined('ABSPATH')) {
     exit;
 }
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface;
+use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 use WP_Error;
 use WP_Query;
 
-final class StarmusAudioDAL implements StarmusAudioDALInterface
+final class StarmusAudioDAL implements IStarmusAudioDAL
 {
     /*
     ------------------------------------*

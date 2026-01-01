@@ -30,8 +30,8 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 
 // Interfaces
-use Starisian\Sparxstar\Starmus\data\interfaces\StarmusAudioDALInterface;
-use Starisian\Sparxstar\Starmus\data\interfaces\StarmusProsodyDALInterface;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusProsodyDAL;
 
 // Data Layer
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
@@ -151,14 +151,14 @@ final class StarmusAudioRecorder
 	 *
 	 * @since 0.1.0
 	 */
-	private ?StarmusAudioDALInterface $DAL = null;
+	private ?IStarmusAudioDAL $DAL = null;
 
 	/**
 	 * Data Access Layer for Prosody Engine.
 	 *
 	 * @since 1.2.0
 	 */
-	private ?StarmusProsodyDALInterface $prosodyDAL = null;
+	private ?IStarmusProsodyDAL $prosodyDAL = null;
 
 	/**
 	 * Plugin settings and configuration manager.
@@ -323,7 +323,7 @@ final class StarmusAudioRecorder
 	 *
 	 * Applies 'starmus_register_dal' filter to allow DAL replacement.
 	 * Implements handshake mechanism using STARMUS_DAL_OVERRIDE_KEY for security.
-	 * Replacement DAL must implement StarmusAudioDALInterface.
+	 * Replacement DAL must implement IStarmusAudioDAL.
 	 *
 	 * Uses static singleton to prevent duplicate instantiation across the request.
 	 *
@@ -338,7 +338,7 @@ final class StarmusAudioRecorder
 			$override_key = defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
 			$filtered_recorder = apply_filters('starmus_register_dal', $default_recorder, $override_key);
 
-			if ($filtered_recorder instanceof StarmusAudioDALInterface) {
+			if ($filtered_recorder instanceof IStarmusAudioDAL) {
 				// Handshake Validation
 				if ($filtered_recorder !== $default_recorder) {
 					$expected = (string) ($override_key ?? '');
@@ -469,9 +469,9 @@ final class StarmusAudioRecorder
 	 *
 	 * @since 0.1.0
 	 *
-	 * @return StarmusAudioDALInterface|null Active DAL instance or null when unavailable.
+	 * @return IStarmusAudioDAL|null Active DAL instance or null when unavailable.
 	 */
-	public function get_DAL(): ?StarmusAudioDALInterface
+	public function get_DAL(): ?IStarmusAudioDAL
 	{
 		return $this->DAL;
 	}
@@ -480,9 +480,9 @@ final class StarmusAudioRecorder
 	 * Retrieve the active Prosody DAL implementation.
 	 *
 	 * @since 1.2.0
-	 * @return StarmusProsodyDALInterface|null
+	 * @return IStarmusProsodyDAL|null
 	 */
-	public function get_ProsodyDAL(): ?StarmusProsodyDALInterface
+	public function get_ProsodyDAL(): ?IStarmusProsodyDAL
 	{
 		return $this->prosodyDAL;
 	}

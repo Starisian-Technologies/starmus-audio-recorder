@@ -8,7 +8,7 @@ if (! \defined('ABSPATH')) {
 	exit;
 }
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface;
+use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
 use Starisian\Sparxstar\Starmus\frontend\StarmusAudioEditorUI;
@@ -47,10 +47,10 @@ final class StarmusShortcodeLoader
 	private ?StarmusProsodyPlayer $prosody = null;
 
 	/**
-	 * @param StarmusAudioDALInterface|null $dal The data access layer.
+	 * @param IStarmusAudioDAL|null $dal The data access layer.
 	 * @param StarmusSettings|null                  $settings The settings instance.
 	 */
-	public function __construct(?StarmusAudioDALInterface $dal = null, ?StarmusSettings $settings = null)
+	public function __construct(?IStarmusAudioDAL $dal = null, ?StarmusSettings $settings = null)
 	{
 		try {
 			$this->settings = $settings ?? new StarmusSettings();
