@@ -60,24 +60,6 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 		}
 	}
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function get_post_meta(int $post_id, string $key, bool $single = true): mixed
-	{
-		try {
-			if (function_exists('get_field')) {
-				$val = get_field($key, $post_id);
-				if ($val !== null && $val !== false) {
-					return $val;
-				}
-			}
-			return get_post_meta($post_id, $key, $single);
-		} catch (Throwable $e) {
-			StarmusLogger::log($e);
-			return null;
-		}
-	}
 
 	/**
 	 * {@inheritdoc}
@@ -147,6 +129,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 	 */
 	public function log_asset_audit(int $post_id, string $action): bool
 	{
+		$ret = false;
 		try {
 			$row = array(
 				'ts'     => current_time('Y-m-d H:i:s'),
@@ -154,22 +137,22 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 			);
 
 			if (function_exists('add_row')) {
-				$result = add_row('asset_audit_log', $row, $post_id);
-				if (! $result) {
+				$ret = add_row('asset_audit_log', $row, $post_id);
+				if (! $ret) {
 					$this->log_write_failure($post_id, 'asset_audit_log', $row);
 					return false;
 				}
-				return true;
 			}
 
 			// Fallback logic
 			$log = (array) $this->get_post_meta($post_id, 'asset_audit_log');
 			$log[] = $row;
-			return $this->save_post_meta($post_id, 'asset_audit_log', $log);
-		} catch (Throwable $e) {
+			$ret = $this->save_post_meta($post_id, 'asset_audit_log', $log);
+		} catch (\Throwable $e) {
 			StarmusLogger::log($e);
 			return false;
 		}
+		return $ret;
 	}
 
 	/**
