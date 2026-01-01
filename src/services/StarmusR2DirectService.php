@@ -133,7 +133,7 @@ final class StarmusR2DirectService {
 			);
 
 			// Return public URL
-			return 'https://audio.yourdomain.com/' . $key; // Your R2 custom domain
+			return STARMUS_R2_ENDPOINT . $key; // Your R2 custom domain
 
 		} catch ( \Exception ) {
 			StarmusLogger::error(
@@ -163,8 +163,8 @@ final class StarmusR2DirectService {
 			$this->id3_service->writeTags( $destination, $tags );
 		}
 		} catch (Throwable $throwable){
-			StarmusLogger::log($throwable)
-				}
+			StarmusLogger::log($throwable);
+		}
 	}
 
 	/**

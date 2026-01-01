@@ -50,7 +50,7 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSchemaMapper;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Throwable;
-use WP_Errror;
+use WP_Error;
 use WP_REST_Request;
 use function array_map;
 use function file_exists;
@@ -290,12 +290,14 @@ final class StarmusSubmissionHandler {
 			}
 
 			global $wp_filesystem;
-			if ( empty( $wp_filesystem ) ) {
+			if (empty($wp_filesystem)) {
 				require_once ABSPATH . 'wp-admin/includes/file.php';
-				WP_Filesystem();
+				if (! WP_Filesystem()) {
+					return $this->err('fs_init_failed', 'Could not initialize filesystem.', 500);
+				}
 			}
 
-			if ( ! $wp_filesystem->move( $file_path, $destination, true ) ) {
+			if (! $wp_filesystem->move($file_path, $destination, true)) {
 				unlink( $file_path );
 				return $this->err( 'move_failed', 'Failed to move upload.', 500 );
 			}

@@ -1,5 +1,5 @@
 <?php
-
+declare( strict_types=1 );
 /**
  * Optimized and secure settings management for the Starmus plugin.
  *
@@ -105,7 +105,7 @@ final class StarmusSettings {
 			$this->obj_cache         = $this->all(); // This will now fetch from options
 			$this->register_hooks();
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::log( $throwable );
 			// Initialize with defaults on error
 			$this->default_obj_cache = array();
 			$this->obj_cache         = array();
@@ -123,7 +123,7 @@ final class StarmusSettings {
 			add_filter( 'wp_check_filetype_and_ext', $this->filter_filetype_and_ext( ... ), 10, 5 );
 			add_filter( 'upload_mimes', $this->filter_upload_mimes( ... ) );
 		} catch ( \Throwable $throwable ) {
-			StarmusLogger::log( message: $throwable);
+			StarmusLogger::log( $throwable);
 		}
 	}
 
@@ -142,7 +142,7 @@ final class StarmusSettings {
 			$settings = $this->all();
 			return $settings[ $key ] ?? $default;
 		} catch ( \Throwable $throwable ) {
-			StarmusLogger::log(message: $throwable);
+			StarmusLogger::log( $throwable);
 			return $default;
 		}
 	}
@@ -172,7 +172,7 @@ final class StarmusSettings {
 
 			return $this->obj_cache;
 		} catch ( \Throwable $throwable ) {
-			StarmusLogger::log(message: $throwable);
+			StarmusLogger::log( $throwable);
 			return $this->get_defaults();
 		}
 	}
@@ -278,7 +278,7 @@ final class StarmusSettings {
 
 			return $this->default_obj_cache;
 		} catch ( \Throwable $throwable ) {
-			StarmusLogger::log(message: $throwable);
+			StarmusLogger::log( $throwable);
 			// Return hardcoded minimal defaults on error
 			return array(
 				'cpt_slug'                => 'audio-recording',
@@ -425,7 +425,7 @@ final class StarmusSettings {
 			$this->clear_cache();
 			return delete_option( self::STARMUS_OPTION_KEY );
 		} catch ( \Throwable $throwable ) {
-			StarmusLogger::log(message: $throwable);
+			StarmusLogger::log($throwable);
 			return false;
 		}
 	}
@@ -466,7 +466,7 @@ final class StarmusSettings {
 
 			return \is_array( $types ) ? $types : array();
 		} catch ( \Throwable $throwable ) {
-			StarmusLogger::log(message: $throwable);
+			StarmusLogger::log($throwable);
 			return \is_array( $types ) ? $types : array();
 		}
 	}
@@ -485,7 +485,7 @@ final class StarmusSettings {
 
 			return $mimes;
 		} catch ( \Throwable $throwable ) {
-			StarmusLogger::log(message: $throwable);
+			StarmusLogger::log( $throwable);
 			return $mimes;
 		}
 	}
