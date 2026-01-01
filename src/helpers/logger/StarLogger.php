@@ -2,6 +2,16 @@
 
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\helpers\logger;
+/**
+ *
+ * @file StarLogger.php
+ * @package Starisian\Sparxstar\Starmus\helpers\logger
+ * @author Starisian Technologies <support@starisian.com>
+ * @license Starisian Technolgoies Proprietary License
+ * @version 1.0.0
+ * @since
+ *
+ */
 
 
 use Psr\Log\AbstractLogger;
@@ -28,6 +38,13 @@ use function sprintf;
 /**
  * Internal handler for Starmus Logging.
  * Extends PSR-3 AbstractLogger to provide standard logging capabilities.
+ *
+ * @package Starisian\Sparxstar\Starmus\helpers\logger
+ * @author Starisian Technologies <support@starisian.com>
+ * @license Starisian Technolgoies Proprietary License
+ * @version 1.0.0
+ * @since 1.0.0
+ * 
  */
 class StarLogger extends AbstractLogger {
 

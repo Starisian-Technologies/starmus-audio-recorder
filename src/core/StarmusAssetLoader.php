@@ -49,14 +49,32 @@ final class StarmusAssetLoader
 	private const STYLE_HANDLE = 'starmus-audio-recorder-styles';
 
 	/**
+	 * StarmusSettings settings object
+	 * @var StarmusSettings|null
+	 */
+	private ?StarmusSettings $settings = null;
+
+	/**
 	 * Editor data to be localized, set by shortcode loader
+	 * @var array<string, mixed>|null
 	 */
 	private static ?array $editor_data = null;
 
 	/**
 	 * Constructor - Registers WordPress hooks for asset enqueueing.
+	 *
+	 * @param StarmusSettings $settings The settings instance to use for configuration.
 	 */
-	public function __construct()
+	public function __construct(StarmusSettings $settings)
+	{
+		$this->settings = $settings;
+		$this->register_hooks();
+	}
+	/**
+	 * Register enqueue hooks with WordPress.
+	 * @return void
+	 */
+	private function register_hooks(): void
 	{
 		add_action('wp_enqueue_scripts', $this->enqueue_frontend_assets(...));
 	}
@@ -242,7 +260,7 @@ final class StarmusAssetLoader
 	{
 		try {
 			// Get settings instance
-			$settings = new StarmusSettings();
+			$settings = $this->settings ? !$this->settings instanceof StarmusSettings : new StarmusSettings();
 
 			// Get allowed file types from settings (comma-separated string like 'mp3,wav,webm')
 			$allowed_file_types = $settings->get('allowed_file_types', 'mp3,wav,webm');
@@ -269,7 +287,7 @@ final class StarmusAssetLoader
 
 			return array(
 				'endpoints'             => array(
-					'directUpload' => esc_url_raw(rest_url(StarmusSubmissionHandler::STARMUS_REST_NAMESPACE . '/upload-fallback')),
+					'directUpload' => esc_url_raw(rest_url(STARMUS_REST_NAMESPACE . '/upload-fallback')),
 					'tusUpload'    => esc_url_raw($tus_endpoint),
 				),
 				'nonce'                 => wp_create_nonce('wp_rest'),
@@ -284,7 +302,7 @@ final class StarmusAssetLoader
 			return array(
 				'endpoints'             => array(
 					'directUpload' => '',
-					'tusUpload'    => 'https://contribute.sparxstar.com/files/',
+					'tusUpload'    => STARMUS_TUS_ENDPOINT,
 				),
 				'nonce'                 => '',
 				'user_id'               => 0,

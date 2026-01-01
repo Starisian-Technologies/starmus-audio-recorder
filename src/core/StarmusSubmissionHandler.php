@@ -99,8 +99,6 @@ if (! \defined('ABSPATH')) {
 
 final class StarmusSubmissionHandler {
 
-	public const STARMUS_REST_NAMESPACE = 'star-starmus-audio-recorder/v1';
-
 	/**
 	 * Class constructor dependencies.
 	 *

@@ -133,7 +133,7 @@ Uses timing-safe comparison to prevent timing attacks.
 @return true|WP_Error True if authorized, WP_Error if unauthorized
 @since 1.0.0
 Required Configuration:
-- TUSD_WEBHOOK_SECRET constant must be defined
+- TUS_WEBHOOK_SECRET constant must be defined
 - TUS daemon must be started with: -hooks-http-forward-headers x-starmus-secret
 - Client must send header: x-starmus-secret: {shared_secret}
 Security Features:
@@ -142,13 +142,13 @@ Security Features:
 - Logs security violations without exposing secrets
 - Returns appropriate HTTP status codes
 Error Responses:
-- 500: TUSD_WEBHOOK_SECRET not configured
+- 500: TUS_WEBHOOK_SECRET not configured
 - 403: Missing or invalid secret header
 @see hash_equals() Timing-safe string comparison
 @example
 Configuration in wp-config.php:
 ```php
-define('TUSD_WEBHOOK_SECRET', 'your-random-secret-key');
+define('TUS_WEBHOOK_SECRET', 'your-random-secret-key');
 ```
 TUS daemon startup:
 ```bash

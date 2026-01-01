@@ -3,6 +3,14 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\helpers;
 
+/**
+ *
+ * @file src/helpers/StarmusLogger.php
+ * @package Starisian\Sparxstar\Starmus\helpers
+ * @author Starisian Technologies
+ * @license Starisian Technolgoies Proprietary License
+ */
+
 if ( ! \defined( 'ABSPATH' ) ) {
 	exit();
 }
@@ -42,6 +50,8 @@ use function is_admin;
  * @package Starisian\Sparxstar\Starmus\helpers
  *
  * @author Starisian Technologies
+ * @version 1.0.0
+ * @since 1.0.0
  */
 class StarmusLogger
 {
