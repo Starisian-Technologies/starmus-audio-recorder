@@ -8,6 +8,11 @@ if ( ! \defined( 'ABSPATH' ) ) {
 }
 
 use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
+use Starisian\Sparxstar\Starmus\helpers\StarmusUIHelper;
+Use Exception;
+use function error_log;
+use function is_admin;
+
 
 /**
  * PSR-3 compliant logging system for Starmus Audio Recorder
@@ -130,8 +135,14 @@ class StarmusLogger
 	 * @return StarLogger
 	 */
 	private static function get_handler(): StarLogger {
-		if ( self::$handler === null ) {
-			self::$handler = new StarLogger( self::$min_log_level );
+		try{
+			if ( self::$handler === null ) {
+				self::$handler = new StarLogger( self::$min_log_level );
+			}
+		}	catch (\Exception $e){
+			// In case of logger initialization failure, fallback to error_log
+			error_log('StarmusLogger initialization failed: ' . $e->getMessage());
+			throw $e;
 		}
 		return self::$handler;
 	}
@@ -182,7 +193,14 @@ class StarmusLogger
      * @param mixed $message Alert description.
      * @param array $context Additional log context.
      */
-    public static function alert(mixed $message, array $context = []): void      { self::get_handler()->alert($message, $context); }
+    public static function alert(mixed $message, array $context = []): void
+		{
+			if(is_admin()){
+				// For admin users, also output to error_log for immediate visibility
+				StarmusUIHelper::renderError('Starmus ALERT: ' . (is_string($message) ? $message : print_r($message, true)));
+			}
+			self::get_handler()->alert($message, $context);
+		}
 
     /**
      * Log an emergency-level message when system is unusable.

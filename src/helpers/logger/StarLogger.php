@@ -3,15 +3,27 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\helpers\logger;
 
-if ( ! \defined( 'ABSPATH' ) ) {
-	exit;
-}
 
-use Exception;
 use Psr\Log\AbstractLogger;
-use RuntimeException;
-use Throwable;
+use Starisian\Sparxstar\Starmus\helpers\StarmusUIHelper;
+use Exception;
 use WP_Error;
+use Throwable;
+use WP_Runtime_Eroor;
+use WP_Runtime_Exception;
+use RuntimeException;
+use function error_log;
+use function is_admin;
+use function debug_backtrace;
+use function wp_json_encode;
+use function str_contains;
+use function strtolower;
+use function strtoupper;
+use function basename;
+use function str_replace;
+use function implode;
+use function sprintf;
+
 
 /**
  * Internal handler for Starmus Logging.
@@ -59,29 +71,39 @@ class StarLogger extends AbstractLogger {
 	 * @param array $context Additional data
 	 */
 	public function log( $level, $message, array $context = array() ): void {
-		// 1. Determine priority and skip if below min_level
-		$level_str = (string) $level;
-		$priority  = self::LEVEL_PRIORITY[ strtolower( $level_str ) ] ?? 6;
+		try{
+			// 1. Determine priority and skip if below min_level
+			$level_str = (string) $level;
+			$priority  = self::LEVEL_PRIORITY[ strtolower( $level_str ) ] ?? 6;
 
-		if ( $priority > $this->min_level ) {
+			if ( $priority > $this->min_level ) {
+				return;
+			}
+
+			// 2. Parse the message (Handle strings, Throwables, and Objects)
+			$processed_message = $this->process_message( $message );
+
+			// 3. Detect the caller
+			$caller      = $this->get_caller();
+			$context_str = empty( $context ) ? '' : ' ' . wp_json_encode( $context );
+
+			// 4. Format and send to error_log
+			$formatted = \sprintf(
+				'Starmus-%s [%s]: %s%s',
+				strtoupper( $level_str ),
+				$caller,
+				$processed_message,
+				$context_str
+			);
+		}	catch (\Exception $e){
+			// In case of logging failure, fallback to error_log
+			error_log('StarLogger log() failed: ' . $e->getMessage());
+			if(is_admin()){
+				// For admin users, also output to error_log for immediate visibility
+				StarmusUIHelper::renderError('StarLogger log() failed: ' . $e->getMessage());
+			}
 			return;
 		}
-
-		// 2. Parse the message (Handle strings, Throwables, and Objects)
-		$processed_message = $this->process_message( $message );
-
-		// 3. Detect the caller
-		$caller      = $this->get_caller();
-		$context_str = empty( $context ) ? '' : ' ' . wp_json_encode( $context );
-
-		// 4. Format and send to error_log
-		$formatted = \sprintf(
-			'Starmus-%s [%s]: %s%s',
-			strtoupper( $level_str ),
-			$caller,
-			$processed_message,
-			$context_str
-		);
 
 		error_log( $formatted );
 	}
@@ -94,54 +116,65 @@ class StarLogger extends AbstractLogger {
 	 * @return string Processed message string
 	 */
 	private function process_message( mixed $message ): string {
-		if ( \is_string( $message ) ) {
-			return $message;
-		}
+		try{
+			if ( \is_string( $message ) ) {
+				return $message;
+			}
 
-		if ( $message instanceof Throwable ) {
-			return \sprintf(
-				'EXCEPTION [%s]: %s in %s:%d',
-				\get_class( $message ),
-				$message->getMessage(),
-				$message->getFile(),
-				$message->getLine()
-			);
-		}
-
-		if ( $message instanceof Exception ) {
-			return \sprintf(
-				'EXCEPTION [%s]: %s in %s:%d',
-				\get_class( $message ),
-				$message->getMessage(),
-				$message->getFile(),
-				$message->getLine()
-			);
-		}
-
-		if ( $message instanceof WP_Error ) {
-			$errors = array();
-			foreach ( $message->get_error_codes() as $code ) {
-				$errors[] = \sprintf(
-					'WP_Error [%s]: %s',
-					$code,
-					implode( '; ', $message->get_error_messages( $code ) )
+			if ( $message instanceof Throwable ) {
+				return \sprintf(
+					'EXCEPTION [%s]: %s in %s:%d',
+					\get_class( $message ),
+					$message->getMessage(),
+					$message->getFile(),
+					$message->getLine()
 				);
 			}
-			return implode( ' | ', $errors );
-		}
 
-		if ( $message instanceof RuntimeException ) {
-			return \sprintf(
-				'RUNTIME EXCEPTION [%s]: %s in %s:%d',
-				\get_class( $message ),
-				$message->getMessage(),
-				$message->getFile(),
-				$message->getLine()
-			);
-		}
+			if ( $message instanceof Exception ) {
+				return \sprintf(
+					'EXCEPTION [%s]: %s in %s:%d',
+					\get_class( $message ),
+					$message->getMessage(),
+					$message->getFile(),
+					$message->getLine()
+				);
+			}
 
-		if ( \is_array( $message ) || \is_object( $message ) ) {
-			return (string) wp_json_encode( $message );
+			if ( $message instanceof WP_Error ) {
+				$errors = array();
+				foreach ( $message->get_error_codes() as $code ) {
+					$errors[] = \sprintf(
+						'WP_Error [%s]: %s',
+						$code,
+						implode( '; ', $message->get_error_messages( $code ) )
+					);
+				}
+				return implode( ' | ', $errors );
+			}
+
+			if ( $message instanceof RuntimeException ) {
+				return \sprintf(
+					'RUNTIME EXCEPTION [%s]: %s in %s:%d',
+					\get_class( $message ),
+					$message->getMessage(),
+					$message->getFile(),
+					$message->getLine()
+				);
+			}
+
+			if ( \is_array( $message ) || \is_object( $message ) ) {
+				return (string) wp_json_encode( $message );
+			}
+
+		}catch (\Exception $e){
+			// In case of message processing failure, fallback to error_log
+			error_log('StarLogger process_message() failed: ' . $e->getMessage());
+			if(is_admin()){
+				// For admin users, also output to error_log for immediate visibility
+				StarmusUIHelper::renderError('StarLogger process_message() failed: ' . $e->getMessage());
+			}
+			return 'Logging Error: ' . $e->getMessage();
 		}
 
 		return (string) $message;
@@ -153,12 +186,21 @@ class StarLogger extends AbstractLogger {
 	 * @return string Caller in "Class::method" format
 	 */
 	private function get_caller(): string {
-		$trace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 8 );
-		foreach ( $trace as $frame ) {
-			if ( isset( $frame['class'] ) && ! str_contains( $frame['class'], 'Logger' ) ) {
-				$class  = basename( str_replace( '\\', '/', $frame['class'] ) );
-				$method = $frame['function'] ?? 'unknown';
-				return "{$class}::{$method}";
+		try{
+			$trace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 8 );
+			foreach ( $trace as $frame ) {
+				if ( isset( $frame['class'] ) && ! str_contains( $frame['class'], 'Logger' ) ) {
+					$class  = basename( str_replace( '\\', '/', $frame['class'] ) );
+					$method = $frame['function'] ?? 'unknown';
+					return "{$class}::{$method}";
+				}
+			}
+		}	catch (\Exception $e){
+			// In case of caller detection failure, fallback to error_log
+			error_log('StarLogger get_caller() failed: ' . $e->getMessage());
+			if(is_admin()){
+				// For admin users, also output to error_log for immediate visibility
+				StarmusUIHelper::renderError('StarLogger get_caller() failed: ' . $e->getMessage());
 			}
 		}
 		return 'unknown';

@@ -46,10 +46,7 @@
       }
     }
   },
-  "forwardPorts": [
-    8080,
-    9003
-  ],
+  "forwardPorts": [8080, 9003],
   "remoteUser": "vscode",
-  "postCreateCommand": "sudo chmod a+x \"$(pwd)\" && sudo rm -rf /var/www/html && sudo ln -s \"$(pwd)\" /var/www/html; echo 'memory_limit = 1G' | sudo tee /usr/local/etc/php/conf.d/memory-limit.ini && echo 'xdebug.mode = off' | sudo tee /usr/local/etc/php/conf.d/xdebug-off.ini; if [ -f composer.json ]; then composer install; fi"
+  "postCreateCommand": "sudo chmod a+x \"$(pwd)\" && sudo rm -rf /var/www/html && sudo ln -s \"$(pwd)\" /var/www/html; echo 'memory_limit = 1G' | sudo tee /usr/local/etc/php/conf.d/memory-limit.ini && echo 'xdebug.mode = off' | sudo tee /usr/local/etc/php/conf.d/xdebug-off.ini; git config --global commit.gpgsign false && git config --global tag.gpgsign false; if [ -f composer.json ]; then composer install; fi"
 }
