@@ -11,8 +11,9 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\data;
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\data\interfaces\StarmusAudioDALInterface;
+use Starisian\Sparxstar\Starmus\data\StarmusBaseDAL;
 use Throwable;
 use WP_Error;
 use WP_Query;
@@ -27,7 +28,7 @@ if (! defined('ABSPATH')) {
  * Concrete implementation of StarmusAudioRecorderDALInterface.
  * Handles rigid database interactions with full legacy support.
  */
-final class StarmusAudioRecorderDAL extends StarmusBaseDAL implements StarmusAudioRecorderDALInterface
+final class StarmusAudioDAL extends StarmusBaseDAL implements StarmusAudioDALInterface
 {
 
 	/*

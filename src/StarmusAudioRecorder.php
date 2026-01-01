@@ -23,9 +23,10 @@ if (! \defined('ABSPATH')) {
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
 use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface;
 use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
-use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\frontend\StarmusShortcodeLoader;
 use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
@@ -133,8 +134,9 @@ final class StarmusAudioRecorder
 	 * Uses singleton pattern to ensure consistent data layer across components.
 	 *
 	 * @since 0.1.0
+	 * @var StarmusAudioDALInterface|null
 	 */
-	private ?StarmusAudioRecorderDALInterface $DAL = null;
+	private ?StarmusAudioDAL $DAL = null;
 
 	/**
 	 * Plugin settings and configuration manager.
@@ -192,8 +194,8 @@ final class StarmusAudioRecorder
 			);
 		}
 
-		$dal_class = $this->DAL instanceof StarmusAudioRecorderDALInterface ? $this->DAL::class : self::class;
-		if ($dal_class !== StarmusAudioRecorderDAL::class) {
+		$dal_class = $this->DAL instanceof StarmusAudioDALIntreface ? $this->DAL::class : self::class;
+		if ($dal_class !== StarmusAudioDAL::class) {
 			StarmusLogger::info(
 				'DAL initialized to alternative implementation.',
 				array(
@@ -309,7 +311,7 @@ final class StarmusAudioRecorder
 	{
 		// 1. Recorder DAL (With Override Filter)
 		try {
-			$default_recorder = new StarmusAudioRecorderDAL();
+			$default_recorder = new StarmusAudioDAL();
 
 			$override_key = defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
 			$filtered_recorder = apply_filters('starmus_register_dal', $default_recorder, $override_key);
@@ -332,7 +334,7 @@ final class StarmusAudioRecorder
 			}
 		} catch (Throwable $e) {
 			StarmusLogger::log($e);
-			$this->DAL = new StarmusAudioRecorderDAL(); // Fail safe
+			$this->DAL = new StarmusAudioDAL(); // Fail safe
 		}
 
 		// 2. Prosody DAL

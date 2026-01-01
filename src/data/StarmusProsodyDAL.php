@@ -13,7 +13,8 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\data;
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusProsodyDALInterface;
+use Starisian\Sparxstar\Starmus\data\interfaces\StarmusProsodyDALInterface;
+use Starisian\Sparxstar\Starmus\data\StarmusBaseDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
 use Throwable;

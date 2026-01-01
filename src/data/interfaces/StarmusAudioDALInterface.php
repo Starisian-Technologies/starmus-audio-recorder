@@ -1,7 +1,8 @@
 <?php
 
-namespace Starisian\Sparxstar\Starmus\core\interfaces;
+namespace Starisian\Sparxstar\Starmus\data\interfaces;
 
+use Starisian\Sparxstar\Starmus\data\interfaces\StarmusDALInterface;
 use WP_Error;
 use WP_Query;
 

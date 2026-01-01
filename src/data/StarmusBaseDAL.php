@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\data;
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusCoreDALInterface;
+use Starisian\Sparxstar\Starmus\data\interfaces\StarmusBaseDALInterface;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
@@ -23,7 +23,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-abstract class StarmusBaseDAL implements StarmusCoreDALInterface
+abstract class StarmusBaseDAL implements StarmusBaseDALInterface
 {
 
 	// --- META OPERATIONS ---

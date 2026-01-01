@@ -19,7 +19,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-interface StarmusDALInterface
+interface StarmusBaseDALInterface
 {
 
 	// --- 1. META OPERATIONS (UNIVERSAL) ---
@@ -84,6 +84,4 @@ interface StarmusDALInterface
 	 * @param string $action  The action taken (e.g. 'Ingested file', 'Pace Updated').
 	 */
 	public function log_asset_audit(int $post_id, string $action): void;
-
-
 }

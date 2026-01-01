@@ -1,6 +1,8 @@
 <?php
 
-namespace Starisian\Sparxstar\Starmus\core\interfaces;
+namespace Starisian\Sparxstar\Starmus\data\interfaces;
+
+use Starisian\Sparxstar\Starmus\data\interfaces\StarmusDALInterface;
 
 // Extends the Core Interface
 interface StarmusProsodyDALInterface extends StarmusDALInterface
