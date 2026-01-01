@@ -4,20 +4,31 @@
  * Optimized and secure settings management for the Starmus plugin.
  *
  * @package Starisian\Sparxstar\Starmus\core
- *
+ * @file    StarmusSettings.php
+ * @author Starisian Technologies (Max Barrett) <support@starisian.com>
  * @version 0.9.2
- *
  * @since 0.3.1
  */
 namespace Starisian\Sparxstar\Starmus\core;
 
-use Starisian\Spraxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Throwable;
 
 
 if ( ! \defined( 'ABSPATH' ) ) {
 	exit;
 }
-
+/**
+ * Summary of StarmusSettings
+ *
+ * Handles all plugin settings with caching, validation, and sanitization.
+ * Provides methods to get/set individual settings and bulk update.
+ * Integrates with WordPress options API for persistent storage.
+ * @package Starisian\Sparxstar\Starmus\core
+ * @version 0.9.2
+ * @since 0.3.1
+ * @author Starisian Technologies (Max Barrett) <support@starisian.com>
+ */
 final class StarmusSettings {
 
 	/**
@@ -112,7 +123,7 @@ final class StarmusSettings {
 			add_filter( 'wp_check_filetype_and_ext', $this->filter_filetype_and_ext( ... ), 10, 5 );
 			add_filter( 'upload_mimes', $this->filter_upload_mimes( ... ) );
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::log( message: $throwable);
 		}
 	}
 
@@ -124,7 +135,6 @@ final class StarmusSettings {
 	 *
 	 * @param string $key The setting key to retrieve.
 	 * @param mixed  $default Default value to return if setting doesn't exist.
-	 *
 	 * @return mixed The setting value or default.
 	 */
 	public function get( string $key, $default = null ) {
@@ -132,7 +142,7 @@ final class StarmusSettings {
 			$settings = $this->all();
 			return $settings[ $key ] ?? $default;
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::log(message: $throwable);
 			return $default;
 		}
 	}
@@ -162,7 +172,7 @@ final class StarmusSettings {
 
 			return $this->obj_cache;
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::log(message: $throwable);
 			return $this->get_defaults();
 		}
 	}
@@ -176,7 +186,6 @@ final class StarmusSettings {
 	 *
 	 * @param string $key The setting key to update.
 	 * @param mixed  $value The new value to set.
-	 *
 	 * @return bool True on successful update, false on failure or invalid key.
 	 */
 	public function set( string $key, $value ): bool {
@@ -195,7 +204,7 @@ final class StarmusSettings {
 
 			return $updated;
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::log( $throwable);
 			return false;
 		}
 	}
@@ -208,7 +217,6 @@ final class StarmusSettings {
 	 * updates the option, and clears cache on success.
 	 *
 	 * @param array<string, mixed> $settings Associative array of setting keys and values.
-	 *
 	 * @return bool True on successful update, false on failure.
 	 */
 	public function update_all( array $settings ): bool {
@@ -231,7 +239,7 @@ final class StarmusSettings {
 
 			return $updated;
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::log( $throwable);
 			return false;
 		}
 	}
@@ -270,7 +278,7 @@ final class StarmusSettings {
 
 			return $this->default_obj_cache;
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::log(message: $throwable);
 			// Return hardcoded minimal defaults on error
 			return array(
 				'cpt_slug'                => 'audio-recording',
@@ -294,6 +302,10 @@ final class StarmusSettings {
 	/**
 	 * Initialize defaults on plugin activation using options API.
 	 * REVERTED: Uses add_option/update_option.
+	 * Adds the settings option with defaults if it doesn't exist.
+	 * Merges existing settings with defaults for new keys.
+	 * Clears cache to ensure immediate use of new defaults.
+	 * @return void
 	 */
 	public function add_defaults_on_activation(): void {
 		try {
@@ -309,13 +321,11 @@ final class StarmusSettings {
 
 			$this->clear_cache(); // Clear internal cache to ensure new default is used immediately
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::log( $throwable);
 		}
 	}
 
-	/**
-	 * Check if the provided key exists in defaults.
-	 */
+
 	/**
 	 * Validate that a setting key exists in default settings.
 	 *
@@ -323,7 +333,6 @@ final class StarmusSettings {
 	 * by checking against the default settings array.
 	 *
 	 * @param string $key The setting key to validate.
-	 *
 	 * @return bool True if key is valid, false otherwise.
 	 */
 	private function is_valid_key( string $key ): bool {
@@ -346,7 +355,6 @@ final class StarmusSettings {
 	 *
 	 * @param string $key The setting key being sanitized.
 	 * @param mixed  $value The raw value to sanitize.
-	 *
 	 * @return mixed Sanitized value appropriate for the key type.
 	 */
 	private function sanitize_value( string $key, $value ) {
@@ -396,6 +404,10 @@ final class StarmusSettings {
 
 	/**
 	 * Clear in-memory caches.
+	 *
+	 * Resets both the settings cache and defaults cache
+	 * to null, forcing fresh retrieval on next access.
+	 * @return void
 	 */
 	public function clear_cache(): void {
 		$this->obj_cache         = null;
@@ -405,13 +417,15 @@ final class StarmusSettings {
 	/**
 	 * Delete all plugin settings (e.g., on uninstall).
 	 * REVERTED: Now deletes option.
+	 *
+	 * @return bool True on successful deletion, false on failure.
 	 */
 	public function delete_all(): bool {
 		try {
 			$this->clear_cache();
 			return delete_option( self::STARMUS_OPTION_KEY );
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::log(message: $throwable);
 			return false;
 		}
 	}
@@ -420,6 +434,7 @@ final class StarmusSettings {
 	 * Legacy wrapper (deprecated).
 	 *
 	 * @param mixed $default
+	 * @return mixed
 	 */
 	public function starmus_get_option( string $key, $default = '' ) {
 		return $this->get( $key, $default );
@@ -451,13 +466,16 @@ final class StarmusSettings {
 
 			return \is_array( $types ) ? $types : array();
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::log(message: $throwable);
 			return \is_array( $types ) ? $types : array();
 		}
 	}
 
 	/**
 	 * Filter upload MIME whitelist to allow audio/video formats.
+	 *
+	 * @param array<string, string> $mimes Existing MIME types map.
+	 * @return array<string, string> Modified MIME types map.
 	 */
 	public function filter_upload_mimes( array $mimes ): array {
 		try {
@@ -467,13 +485,15 @@ final class StarmusSettings {
 
 			return $mimes;
 		} catch ( \Throwable $throwable ) {
-			error_log( $throwable->getMessage() );
+			StarmusLogger::log(message: $throwable);
 			return $mimes;
 		}
 	}
 
 	/**
 	 * Public static getter for the allowed MIME map.
+	 *
+	 * @returns array<string, string> The allowed MIME types map.
 	 */
 	public static function get_allowed_mimes(): array {
 		return self::ALLOWED_MIMES;

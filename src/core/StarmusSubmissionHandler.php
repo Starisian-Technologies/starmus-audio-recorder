@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * @package \Starisian\Sparxstar\Starmus\core
+ * @file STarusSubmissionHandler.php
+ * @author
+ * @version 1.0.0
+ * @since 1.0.0
+ */
 declare(strict_types=1);
 
 /**
@@ -36,10 +42,6 @@ declare(strict_types=1);
  * @see StarmusPostProcessingService Audio processing service
  */
 namespace Starisian\Sparxstar\Starmus\core;
-
-if ( ! \defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
@@ -84,6 +86,16 @@ use function wp_set_post_terms;
 use function wp_unique_filename;
 use function wp_unslash;
 use function wp_upload_dir;
+
+if (! \defined('ABSPATH')) {
+	exit;
+}
+/**
+ * StarmusSubmissionHandler Class
+ *
+ *
+ *
+ */
 
 final class StarmusSubmissionHandler {
 

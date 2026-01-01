@@ -1,21 +1,21 @@
 <?php
 namespace Starisian\Sparxstar\Starmus\core;
 
-if(! defined(ABSPATH)){
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Throwable;
+use function defined;
+
+
+if (! defined(ABSPATH)) {
 	exit;
 }
-
-use Starisian\Spraxstar\Starmus\helpers\StarmusLogger;
 
 /**
  * Handles checking for and providing updates for the Starmus plugin.
  *
  * @file        StarmusAudioRecorderUpdater.php
- *
  * @package     Starmus\core
- *
  * @version 0.9.2
- *
  * @since       0.7.2
  */
 class StarmusAudioRecorderUpdater {
@@ -48,6 +48,7 @@ class StarmusAudioRecorderUpdater {
 	 * @return object The modified transient.
 	 */
 	public function check_for_updates( $transient ) {
+		try{
 		if ( empty( $transient->checked ) ) {
 			return $transient;
 		}
@@ -75,6 +76,10 @@ class StarmusAudioRecorderUpdater {
 				'package'     => $update_data->package, // The secure S3/download link for the ZIP file
 				'tested'      => $update_data->tested, // e.g., "6.4.1"
 			);
+		}
+		} catch (\Throwable $throwable) {
+			StarmusLogger::error('[Starmus Audio Recorder Updater] ERROR in check_for_updates: ' . $throwable->getMessage());
+			StarmusLogger::log($throwable);
 		}
 
 		return $transient;

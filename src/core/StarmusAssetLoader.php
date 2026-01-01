@@ -17,9 +17,9 @@
 
 namespace Starisian\Sparxstar\Starmus\core;
 
-
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
-use Starisian\Spraxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use function array_filter;
 use function array_map;
 use function defined;
@@ -69,20 +69,20 @@ final class StarmusAssetLoader
 	 */
 	public function enqueue_frontend_assets(): void
 	{
-		error_log('[Starmus AssetLoader] enqueue_frontend_assets() called');
+		StarmusLogger::info('[Starmus AssetLoader] enqueue_frontend_assets() called');
 
 		if (is_admin()) {
 			error_log('[Starmus AssetLoader] Skipping - is admin');
 			return;
 		}
 
-		error_log('[Starmus AssetLoader] Loading assets...');
+		StarmusLogger::info('[Starmus AssetLoader] Loading assets...');
 
 		// Load assets on all frontend pages - shortcode detection happens too late
 		$this->enqueue_production_assets();
 		$this->enqueue_styles();
 
-		error_log('[Starmus AssetLoader] Assets enqueued successfully');
+		StarmusLogger::info('[Starmus AssetLoader] Assets enqueued successfully');
 	}
 
 	public function enqueue_re_recorder_assets(): void
@@ -210,7 +210,7 @@ final class StarmusAssetLoader
 	private function enqueue_styles(): void
 	{
 		try {
-			error_log('[Starmus AssetLoader] Enqueueing CSS: ' . STARMUS_URL . 'assets/css/starmus-audio-recorder-styles.min.css');
+			StarmusLogger::info('[Starmus AssetLoader] Enqueueing CSS: ' . STARMUS_URL . 'assets/css/starmus-audio-recorder-styles.min.css');
 
 			wp_enqueue_style(
 				self::STYLE_HANDLE,
@@ -219,7 +219,7 @@ final class StarmusAssetLoader
 				$this->resolve_version()
 			);
 
-			error_log('[Starmus AssetLoader] CSS enqueued successfully');
+			StarmusLogger::info('[Starmus AssetLoader] CSS enqueued successfully');
 		} catch (\Throwable $throwable) {
 			StarmusLogger::error('[Starmus AssetLoader] ERROR in enqueue_styles: ' . $throwable->getMessage());
 			StarmusLogger::log($throwable);
