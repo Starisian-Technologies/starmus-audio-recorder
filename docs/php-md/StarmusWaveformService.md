@@ -31,7 +31,7 @@ WordPress Integration:
 @version 6.6.0-ROBUST-FIX
 @since   1.0.0
 @see https://github.com/bbc/audiowaveform audiowaveform CLI tool
-@see StarmusAudioRecorderDAL Data access layer
+@see StarmusAudioDAL Data access layer
 @see StarmusFileService File management service
 
 ## Methods
@@ -65,7 +65,7 @@ WordPress Integration:
 @version 6.6.0-ROBUST-FIX
 @since   1.0.0
 @see https://github.com/bbc/audiowaveform audiowaveform CLI tool
-@see StarmusAudioRecorderDAL Data access layer
+@see StarmusAudioDAL Data access layer
 @see StarmusFileService File management service
 /
 namespace Starisian\Sparxstar\Starmus\services;
@@ -74,7 +74,7 @@ if ( ! \defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 // FIX: Removed 'readonly' for PHP < 8.2 compatibility
@@ -90,7 +90,7 @@ File service for handling offloaded attachments.
 Initializes waveform service with optional dependencies.
 Creates new instances of dependencies if not provided, allowing for
 flexible initialization while maintaining testability.
-@param StarmusAudioRecorderDAL|null $dal Optional DAL instance
+@param StarmusAudioDAL|null $dal Optional DAL instance
 @param StarmusFileService|null $file_service Optional file service instance
 @since 1.0.0
 

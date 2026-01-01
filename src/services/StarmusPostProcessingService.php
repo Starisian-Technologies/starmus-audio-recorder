@@ -8,7 +8,7 @@ if (! \defined('ABSPATH')) {
 	exit;
 }
 
-use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
@@ -65,7 +65,7 @@ use Throwable;
  * @see StarmusWaveformService Waveform generation integration
  * @see StarmusId3Service ID3 metadata management
  * @see StarmusFileService Offloaded file handling
- * @see StarmusAudioRecorderDAL WordPress data operations
+ * @see StarmusAudioDAL WordPress data operations
  */
 final readonly class StarmusPostProcessingService
 {
@@ -75,7 +75,7 @@ final readonly class StarmusPostProcessingService
 	 *
 	 * @since 1.0.0
 	 */
-	private StarmusAudioRecorderDAL $dal;
+	private StarmusAudioDAL $dal;
 
 	/**
 	 * Waveform generation service for visualization data.
@@ -109,7 +109,7 @@ final readonly class StarmusPostProcessingService
 	public function __construct()
 	{
 		try {
-			$this->dal              = new StarmusAudioRecorderDAL();
+			$this->dal              = new StarmusAudioDAL();
 			$this->file_service     = new StarmusFileService(); // Instantiated
 			$this->waveform_service = new StarmusWaveformService(null, $this->file_service);
 			$this->id3_service      = new StarmusId3Service();
@@ -181,7 +181,8 @@ final readonly class StarmusPostProcessingService
 	 * @see build_tag_payload() ID3 metadata construction
 	 * @see import_to_media_library() WordPress attachment creation
 	 */
-	public function process( int $post_id, int $attachment_id, array $params = array() ): bool {
+	public function process(int $post_id, int $attachment_id, array $params = array()): bool
+	{
 		$source_path  = null;
 		$is_temp_file = false;
 
@@ -191,7 +192,7 @@ final readonly class StarmusPostProcessingService
 				array(
 					'post_id'       => $post_id,
 					'attachment_id' => $attachment_id,
-					'params'        => array_keys( $params ),
+					'params'        => array_keys($params),
 				)
 			);
 			// 1. CRITICAL: GET LOCAL COPY (Handles Cloudflare offload)
@@ -342,7 +343,7 @@ final readonly class StarmusPostProcessingService
 			update_post_meta($post_id, '_audio_wav_attachment_id', $wav_id);
 
 			return true;
-		} catch ( Throwable $throwable ) {
+		} catch (Throwable $throwable) {
 			StarmusLogger::error(
 				$throwable,
 				array(

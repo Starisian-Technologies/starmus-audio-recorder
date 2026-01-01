@@ -8,15 +8,15 @@ require_once __DIR__ . '/src/StarmusAudioRecorder.php';
 require_once __DIR__ . '/src/core/StarmusSettings.php';
 require_once __DIR__ . '/src/frontend/StarmusShortcodeLoader.php';
 require_once __DIR__ . '/src/frontend/StarmusAudioRecorderUI.php';
-require_once __DIR__ . '/src/core/StarmusAudioRecorderDAL.php';
+require_once __DIR__ . '/src/core/StarmusAudioDAL.php';
 
 use Starisian\Sparxstar\Starmus\frontend\StarmusShortcodeLoader;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
-use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 
 echo "Testing shortcode loader instantiation after constructor fix...\n";
 $settings = new StarmusSettings();
-$dal = new StarmusAudioRecorderDAL();
+$dal = new StarmusAudioDAL();
 
 try {
 	$loader = new StarmusShortcodeLoader($settings, $dal);

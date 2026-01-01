@@ -200,7 +200,7 @@ cat > "$DOCS_DIR/API-INDEX.md" << 'EOF'
 
 ### Core System
 - [StarmusAudioRecorder](./php-md/StarmusAudioRecorder.md) - Main plugin controller
-- [StarmusAudioRecorderDAL](./php-md/StarmusAudioRecorderDAL.md) - Data access layer
+- [StarmusAudioDAL](./php-md/StarmusAudioDAL.md) - Data access layer
 
 ### Frontend
 - [StarmusAudioRecorderUI](./php-md/StarmusAudioRecorderUI.md) - Recording interface

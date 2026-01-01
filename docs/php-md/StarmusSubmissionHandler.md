@@ -30,7 +30,7 @@ Upload Flow:
 6. Taxonomy assignment (language, recording type)
 7. Post-processing trigger (audio optimization)
 8. Temporary file cleanup
-@see StarmusAudioRecorderDALInterface Data Access Layer interface
+@see StarmusAudioDALInterface Data Access Layer interface
 @see StarmusSettings Plugin configuration management
 @see StarmusPostProcessingService Audio processing service
 
@@ -64,7 +64,7 @@ Upload Flow:
 6. Taxonomy assignment (language, recording type)
 7. Post-processing trigger (audio optimization)
 8. Temporary file cleanup
-@see StarmusAudioRecorderDALInterface Data Access Layer interface
+@see StarmusAudioDALInterface Data Access Layer interface
 @see StarmusSettings Plugin configuration management
 @see StarmusPostProcessingService Audio processing service
 /
@@ -92,7 +92,7 @@ use function rmdir;
 use function sanitize_key;
 use function sanitize_text_field;
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
@@ -157,7 +157,7 @@ Includes common audio formats supported across browsers and platforms.
 Initializes the submission handler with required dependencies.
 Sets up WordPress action hooks for temporary file cleanup and logs
 successful construction. Throws exceptions on setup failures.
-@param StarmusAudioRecorderDALInterface $dal Data Access Layer implementation
+@param StarmusAudioDALInterface $dal Data Access Layer implementation
 @param StarmusSettings $settings Plugin configuration service
 @throws Throwable If construction fails or hooks cannot be registered
 @since 1.0.0

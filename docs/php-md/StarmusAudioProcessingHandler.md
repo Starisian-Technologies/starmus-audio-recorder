@@ -24,7 +24,7 @@ Full post-save transcoding, mastering, archival, ID3, waveform generation.
 namespace Starisian\Sparxstar\Starmus\services;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -39,11 +39,11 @@ final readonly class StarmusAudioProcessingHandler
 
 	private StarmusWaveformService $waveform_service;
 
-	private StarmusAudioRecorderDAL $dal;
+	private StarmusAudioDAL $dal;
 
 	public function __construct()
 	{
-		$this->dal                      = new StarmusAudioRecorderDAL();
+		$this->dal                      = new StarmusAudioDAL();
 		$this->audio_processing_service = new StarmusAudioProcessingService($this->dal);
 		$this->file_service             = new StarmusFileService($this->dal);
 		$this->waveform_service         = new StarmusWaveformService();

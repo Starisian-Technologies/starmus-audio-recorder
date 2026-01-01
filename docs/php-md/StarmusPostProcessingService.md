@@ -48,7 +48,7 @@ WordPress Integration:
 @see StarmusWaveformService Waveform generation integration
 @see StarmusId3Service ID3 metadata management
 @see StarmusFileService Offloaded file handling
-@see StarmusAudioRecorderDAL WordPress data operations
+@see StarmusAudioDAL WordPress data operations
 
 ## Methods
 
@@ -98,7 +98,7 @@ WordPress Integration:
 @see StarmusWaveformService Waveform generation integration
 @see StarmusId3Service ID3 metadata management
 @see StarmusFileService Offloaded file handling
-@see StarmusAudioRecorderDAL WordPress data operations
+@see StarmusAudioDAL WordPress data operations
 /
 final readonly class StarmusPostProcessingService {
 
@@ -106,7 +106,7 @@ final readonly class StarmusPostProcessingService {
 Data Access Layer for WordPress operations.
 @since 1.0.0
 /
-	private StarmusAudioRecorderDAL $dal;
+	private StarmusAudioDAL $dal;
 
 	/**
 Waveform generation service for visualization data.

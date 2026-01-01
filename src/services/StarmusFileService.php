@@ -20,7 +20,7 @@ if (! \defined('ABSPATH')) {
 	exit;
 }
 
-use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 /**
@@ -51,7 +51,7 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
  * @version 1.0.0-HARDENED
  *
  * @since   1.0.0
- * @see StarmusAudioRecorderDAL Data access abstraction
+ * @see StarmusAudioDAL Data access abstraction
  * @see Advanced_Media_Offloader\Plugin Third-party offloader integration
  */
 final readonly class StarmusFileService
@@ -62,18 +62,18 @@ final readonly class StarmusFileService
 	 *
 	 * @since 1.0.0
 	 */
-	private ?StarmusAudioRecorderDAL $dal;
+	private ?StarmusAudioDAL $dal;
 
 	/**
 	 * Initializes the file service with DAL dependency.
 	 *
-	 * @param StarmusAudioRecorderDAL|null $dal Optional DAL instance (creates new if null)
+	 * @param StarmusAudioDAL|null $dal Optional DAL instance (creates new if null)
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct(?StarmusAudioRecorderDAL $dal = null)
+	public function __construct(?StarmusAudioDAL $dal = null)
 	{
-		$this->dal = $dal ?: new StarmusAudioRecorderDAL();
+		$this->dal = $dal ?: new StarmusAudioDAL();
 	}
 
 	/**
@@ -138,7 +138,7 @@ final readonly class StarmusFileService
 	 * - Continues execution on non-critical errors
 	 *
 	 * @see wp_generate_attachment_metadata() WordPress metadata generation
-	 * @see StarmusAudioRecorderDAL::update_attachment_metadata() DAL persistence
+	 * @see StarmusAudioDAL::update_attachment_metadata() DAL persistence
 	 */
 	public function ensure_attachment_metadata(int $attachment_id): void
 	{
@@ -155,7 +155,7 @@ final readonly class StarmusFileService
 
 			StarmusLogger::info(
 				'Incomplete attachment detected. Generating missing metadata for offloader compatibility.',
-				array( 'component' => __CLASS__, 'attachment_id' => $attachment_id )
+				array('component' => __CLASS__, 'attachment_id' => $attachment_id)
 			);
 
 			$file_path = get_attached_file($attachment_id);
@@ -181,7 +181,7 @@ final readonly class StarmusFileService
 
 			if (! empty($metadata) && ! is_wp_error($metadata)) {
 				// We use the DAL here to align with your existing architecture.
-				$this->dal->update_attachment_metadata( $attachment_id, $file_path );
+				$this->dal->update_attachment_metadata($attachment_id, $file_path);
 				StarmusLogger::debug(
 					'Successfully generated and saved metadata.',
 					array(
@@ -190,7 +190,7 @@ final readonly class StarmusFileService
 					)
 				);
 			}
-		} catch ( \Throwable $throwable ) {
+		} catch (\Throwable $throwable) {
 			StarmusLogger::log(
 				$throwable,
 				array(
@@ -262,7 +262,7 @@ final readonly class StarmusFileService
 		$local_path = get_attached_file($attachment_id);
 
 		// PHP 8+ Safety: Ensure $local_path is a string before checking existence.
-		if ( \is_string( $local_path ) && file_exists( $local_path ) ) {
+		if (\is_string($local_path) && file_exists($local_path)) {
 			StarmusLogger::debug(
 				'Found local file for attachment.',
 				array(
@@ -275,8 +275,8 @@ final readonly class StarmusFileService
 		}
 
 		// 2. If not local, download from the public URL.
-		$remote_url = wp_get_attachment_url( $attachment_id );
-		if ( ! $remote_url ) {
+		$remote_url = wp_get_attachment_url($attachment_id);
+		if (! $remote_url) {
 			StarmusLogger::error(
 				'Attachment URL not found for download.',
 				array(
@@ -353,10 +353,11 @@ final readonly class StarmusFileService
 	 * - Metadata update fails
 	 * @see as3cf_upload_attachment() WP Offload Media function
 	 * @see WP_Filesystem WordPress filesystem abstraction
-	 * @see StarmusAudioRecorderDAL::update_attachment_metadata() Metadata persistence
+	 * @see StarmusAudioDAL::update_attachment_metadata() Metadata persistence
 	 */
-	public function upload_and_replace_attachment( int $attachment_id, string $local_file_path ): bool {
-		if ( ! file_exists( $local_file_path ) ) {
+	public function upload_and_replace_attachment(int $attachment_id, string $local_file_path): bool
+	{
+		if (! file_exists($local_file_path)) {
 			StarmusLogger::error(
 				'Local file to be uploaded does not exist.',
 				array(
@@ -369,7 +370,7 @@ final readonly class StarmusFileService
 		}
 
 		// Delegate to WP Offload Media if present
-		if ( \function_exists( 'as3cf_upload_attachment' ) ) {
+		if (\function_exists('as3cf_upload_attachment')) {
 			StarmusLogger::debug(
 				'Delegating upload to WP Offload Media.',
 				array(
@@ -377,8 +378,8 @@ final readonly class StarmusFileService
 					'attachment_id' => $attachment_id,
 				)
 			);
-			$result = as3cf_upload_attachment( $attachment_id, null, $local_file_path );
-			if ( is_wp_error( $result ) ) {
+			$result = as3cf_upload_attachment($attachment_id, null, $local_file_path);
+			if (is_wp_error($result)) {
 				StarmusLogger::error(
 					'WP Offload Media failed to upload.',
 					array(

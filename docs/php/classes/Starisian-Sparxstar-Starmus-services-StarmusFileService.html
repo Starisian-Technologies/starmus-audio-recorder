@@ -226,7 +226,7 @@
 
 
 					<ul>
-													<li class="interface"><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr></a></li>
+													<li class="interface"><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface">StarmusAudioDALInterface</abbr></a></li>
 																							</ul>
 				</div>
 			</div>
@@ -236,7 +236,7 @@
 
 					<ul>
 																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAssetLoader">StarmusAssetLoader</abbr></a></li>
-													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL">StarmusAudioRecorderDAL</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL">StarmusAudioDAL</abbr></a></li>
 													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderUpdater.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderUpdater">StarmusAudioRecorderUpdater</abbr></a></li>
 													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a></li>
 											</ul>
@@ -538,7 +538,7 @@ WordPress hosting configurations.</p>
 
 
 																																																																													<dd>
-										<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html">
+										<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html">
 											<span class="namespace-wrapper">Data access abstraction</span>
 										</a>
 									</dd>
@@ -642,12 +642,12 @@ WordPress hosting configurations.</p>
             <a id="property_dal" name="property_dal" class="anchor"></a>
             <article class="property">
                 <h3 class="private ">$dal</h3>
-                <pre class="signature">$dal : \Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</pre>
+                <pre class="signature">$dal : \Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</pre>
                 <p><em>Data Access Layer for consistent WordPress operations.</em></p>
 
 
                                 <h4>Type</h4>
-                <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL">StarmusAudioRecorderDAL</abbr></a>
+                <a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL">StarmusAudioDAL</abbr></a>
                 &mdash;                             </article>
         </div>
         <aside class="span4 detailsbar">
@@ -684,14 +684,14 @@ WordPress hosting configurations.</p>
             <article class="method">
                 <h3 class="public ">__construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="fa-solid fa-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__construct(\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL|null  <span class="argument">$dal = null</span>) : mixed</pre>
+                <pre class="signature" style="margin-right: 54px;">__construct(\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL|null  <span class="argument">$dal = null</span>) : mixed</pre>
                 <p><em>Initializes the file service with DAL dependency.</em></p>
 
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td>\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL|null</td>
+                                <td>\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL|null</td>
                                 <td>$dal </td>
                                 <td><p>Optional DAL instance (creates new if null)</p>
 </td>
@@ -815,7 +815,7 @@ like Advanced Media Offloader that rely on metadata to function correctly.</p>
                     <dd><a href="classes/Starisian-Sparxstar-Starmus-services-StarmusFileService.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\services\StarmusFileService</div></a></dd>
                                                                                                                     <dt>See also</dt>
                                             <dd><a href="\Starisian\Sparxstar\Starmus\services\wp_generate_attachment_metadata()"><span class="namespace-wrapper">WordPress metadata generation</span></a></dd>
-                                            <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_update_attachment_metadata"><span class="namespace-wrapper">DAL persistence</span></a></dd>
+                                            <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_update_attachment_metadata"><span class="namespace-wrapper">DAL persistence</span></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1001,7 +1001,7 @@ Automatically delegates to appropriate storage backend based on active plugins.<
                                                                                                                     <dt>See also</dt>
                                             <dd><a href="\Starisian\Sparxstar\Starmus\services\as3cf_upload_attachment()"><span class="namespace-wrapper">WP Offload Media function</span></a></dd>
                                             <dd><a href="\Starisian\Sparxstar\Starmus\services\WP_Filesystem"><span class="namespace-wrapper">WordPress filesystem abstraction</span></a></dd>
-                                            <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_update_attachment_metadata"><span class="namespace-wrapper">Metadata persistence</span></a></dd>
+                                            <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_update_attachment_metadata"><span class="namespace-wrapper">Metadata persistence</span></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>

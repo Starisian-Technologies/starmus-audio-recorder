@@ -226,7 +226,7 @@
 
 
 					<ul>
-													<li class="interface"><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr></a></li>
+													<li class="interface"><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface">StarmusAudioDALInterface</abbr></a></li>
 																							</ul>
 				</div>
 			</div>
@@ -236,7 +236,7 @@
 
 					<ul>
 																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAssetLoader">StarmusAssetLoader</abbr></a></li>
-													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL">StarmusAudioRecorderDAL</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL">StarmusAudioDAL</abbr></a></li>
 													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderUpdater.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderUpdater">StarmusAudioRecorderUpdater</abbr></a></li>
 													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a></li>
 											</ul>
@@ -427,12 +427,12 @@
 
 					<h1>
 						<small>\Starisian\Sparxstar\Starmus\core</small>
-						StarmusAudioRecorderDAL</h1>
+						StarmusAudioDAL</h1>
 					<p>
 						<em>Data Access Layer implementation for Starmus Audio Recorder.</em>
 					</p>
 					<p>This class provides concrete implementations for all database and file system
-operations defined in the StarmusAudioRecorderDALInterface. It serves as the
+operations defined in the StarmusAudioDALInterface. It serves as the
 primary abstraction layer between the plugin's business logic and WordPress
 core database/media functions.</p>
 <p>The DAL handles:</p>
@@ -464,29 +464,29 @@ to ensure graceful degradation and debugging capabilities.</p>
 						<section class="row-fluid public">
 							<section class="span4">
 
-																											<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_create_audio_post" class="">create_audio_post</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_create_attachment_from_file" class="">create_attachment_from_file</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_create_attachment_from_sideload" class="">create_attachment_from_sideload</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_update_attachment_file_path" class="">update_attachment_file_path</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_update_attachment_metadata" class="">update_attachment_metadata</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_set_attachment_parent" class="">set_attachment_parent</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_delete_attachment" class="">delete_attachment</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_user_recordings" class="">get_user_recordings</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_post_info" class="">get_post_info</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_ffmpeg_path" class="">get_ffmpeg_path</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_edit_page_url_admin" class="">get_edit_page_url_admin</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_page_id_by_slug" class="">get_page_id_by_slug</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_page_slug_by_id" class="">get_page_slug_by_id</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_is_rate_limited" class="">is_rate_limited</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_registration_key" class="">get_registration_key</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_update_audio_post_meta" class="">update_audio_post_meta</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_save_post_meta" class="">save_post_meta</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_set_audio_state" class="">set_audio_state</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_save_audio_outputs" class="">save_audio_outputs</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_persist_audio_outputs" class="">persist_audio_outputs</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_record_id3_timestamp" class="">record_id3_timestamp</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_set_copyright_source" class="">set_copyright_source</a><br/>
-																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_assign_taxonomies" class="">assign_taxonomies</a><br/>
+																											<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_create_audio_post" class="">create_audio_post</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_create_attachment_from_file" class="">create_attachment_from_file</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_create_attachment_from_sideload" class="">create_attachment_from_sideload</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_update_attachment_file_path" class="">update_attachment_file_path</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_update_attachment_metadata" class="">update_attachment_metadata</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_set_attachment_parent" class="">set_attachment_parent</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_delete_attachment" class="">delete_attachment</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_user_recordings" class="">get_user_recordings</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_post_info" class="">get_post_info</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_ffmpeg_path" class="">get_ffmpeg_path</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_edit_page_url_admin" class="">get_edit_page_url_admin</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_page_id_by_slug" class="">get_page_id_by_slug</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_page_slug_by_id" class="">get_page_slug_by_id</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_is_rate_limited" class="">is_rate_limited</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_registration_key" class="">get_registration_key</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_update_audio_post_meta" class="">update_audio_post_meta</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_save_post_meta" class="">save_post_meta</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_set_audio_state" class="">set_audio_state</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_save_audio_outputs" class="">save_audio_outputs</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_persist_audio_outputs" class="">persist_audio_outputs</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_record_id3_timestamp" class="">record_id3_timestamp</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_set_copyright_source" class="">set_copyright_source</a><br/>
+																			<a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_assign_taxonomies" class="">assign_taxonomies</a><br/>
 																								</section>
 							<section class="span4">
 
@@ -535,7 +535,7 @@ to ensure graceful degradation and debugging capabilities.</p>
 						<dt>File</dt>
 						<dd>
 							<a href="files/src-core-starmusaudiorecorderdal.html">
-								<div class="path-wrapper">src/core/StarmusAudioRecorderDAL.php</div>
+								<div class="path-wrapper">src/core/StarmusAudioDAL.php</div>
 							</a>
 						</dd>
 													<dt>Package</dt>
@@ -544,13 +544,13 @@ to ensure graceful degradation and debugging capabilities.</p>
 							</dd>
 												<dt>Class hierarchy</dt>
 						<dd class="hierarchy">
-																																				<div class="namespace-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div>
+																																				<div class="namespace-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div>
 						</dd>
 
 																					<dt>Implements</dt>
 														<dd>
-								<a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html">
-									<div class="namespace-wrapper">\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface</div>
+								<a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html">
+									<div class="namespace-wrapper">\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface</div>
 								</a>
 							</dd>
 
@@ -583,7 +583,7 @@ to ensure graceful degradation and debugging capabilities.</p>
 										@implements
 									</th>
 									<td>
-																																<p>StarmusAudioRecorderDALInterface</p>
+																																<p>StarmusAudioDALInterface</p>
 
 																			</td>
 								</tr>
@@ -679,7 +679,7 @@ to ensure graceful degradation and debugging capabilities.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -726,7 +726,7 @@ to ensure graceful degradation and debugging capabilities.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -767,7 +767,7 @@ to ensure graceful degradation and debugging capabilities.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -817,7 +817,7 @@ reference to point to the new file location.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -874,7 +874,7 @@ Validates file existence before attempting metadata generation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -928,7 +928,7 @@ Validates file existence before attempting metadata generation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -968,7 +968,7 @@ Validates file existence before attempting metadata generation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1027,7 +1027,7 @@ Validates file existence before attempting metadata generation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1068,7 +1068,7 @@ Validates file existence before attempting metadata generation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1100,7 +1100,7 @@ Validates file existence before attempting metadata generation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1141,7 +1141,7 @@ Validates file existence before attempting metadata generation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1182,7 +1182,7 @@ Validates file existence before attempting metadata generation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1225,7 +1225,7 @@ Returns empty string if the page doesn't exist.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1282,7 +1282,7 @@ within a one-minute window.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1324,7 +1324,7 @@ replace the default DAL implementation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1384,7 +1384,7 @@ replace the default DAL implementation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1436,7 +1436,7 @@ replace the default DAL implementation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1482,7 +1482,7 @@ replace the default DAL implementation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1540,7 +1540,7 @@ replace the default DAL implementation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1592,7 +1592,7 @@ replace the default DAL implementation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1632,7 +1632,7 @@ replace the default DAL implementation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1678,7 +1678,7 @@ replace the default DAL implementation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1730,7 +1730,7 @@ replace the default DAL implementation.</p>
             <h1><i class="fas fa-arrow-down"></i></h1>
                                                             <dl>
                                                     <dt>Inherited from</dt>
-                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL</div></a></dd>
+                    <dd><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><div class="path-wrapper">\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL</div></a></dd>
 
                                                             </dl>
             <h2>Tags</h2>
@@ -1746,10 +1746,10 @@ replace the default DAL implementation.</p>
 	<div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3 id="source-view-label">StarmusAudioRecorderDAL.php</h3>
+			<h3 id="source-view-label">StarmusAudioDAL.php</h3>
 		</div>
 		<div class="modal-body">
-			<pre data-src="files/src/core/StarmusAudioRecorderDAL.php.txt" class="language-php line-numbers"></pre>
+			<pre data-src="files/src/core/StarmusAudioDAL.php.txt" class="language-php line-numbers"></pre>
 		</div>
 	</div>
 

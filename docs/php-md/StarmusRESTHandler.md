@@ -60,7 +60,7 @@ WordPress Integration:
 @version 6.5.0-PHP7-COMPAT
 @since   1.0.0
 @see StarmusSubmissionHandler Submission processing service
-@see StarmusAudioRecorderDALInterface Data access layer
+@see StarmusAudioDALInterface Data access layer
 @see WP_REST_Request WordPress request object
 @see WP_REST_Response WordPress response object
 
@@ -124,7 +124,7 @@ WordPress Integration:
 @version 6.5.0-PHP7-COMPAT
 @since   1.0.0
 @see StarmusSubmissionHandler Submission processing service
-@see StarmusAudioRecorderDALInterface Data access layer
+@see StarmusAudioDALInterface Data access layer
 @see WP_REST_Request WordPress request object
 @see WP_REST_Response WordPress response object
 /
@@ -139,7 +139,7 @@ use function current_user_can;
 use function is_wp_error;
 use function register_rest_route;
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
@@ -171,7 +171,7 @@ Provides abstraction for WordPress database operations,
 post management, and metadata handling.
 @since 1.0.0
 /
-	private StarmusAudioRecorderDALInterface $dal;
+	private StarmusAudioDALInterface $dal;
 
 	/**
 Plugin settings and configuration management.
@@ -185,7 +185,7 @@ user-customizable settings for audio processing.
 Initializes REST handler with dependency injection and route registration.
 Sets up the REST API handler with required services and automatically
 registers WordPress REST API routes via the rest_api_init hook.
-@param StarmusAudioRecorderDALInterface $dal Data access layer instance
+@param StarmusAudioDALInterface $dal Data access layer instance
 @param StarmusSettings $settings Plugin settings and configuration
 @param StarmusSubmissionHandler|null $submission_handler Optional submission handler (auto-created if null)
 @since 1.0.0
@@ -383,7 +383,7 @@ Performance Considerations:
 - No file system operations
 @throws \Throwable Caught and converted to HTTP 500 response
 @return WP_REST_Response REST response with status data or error
-@see StarmusAudioRecorderDALInterface::get_post_info() Data retrieval
+@see StarmusAudioDALInterface::get_post_info() Data retrieval
 @see StarmusSubmissionHandler::get_cpt_slug() Post type validation
 
 ## Properties

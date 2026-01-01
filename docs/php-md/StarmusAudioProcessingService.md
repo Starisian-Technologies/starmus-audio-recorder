@@ -43,18 +43,18 @@ if (! defined('ABSPATH')) {
 
 use getid3_writetags;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 
 class StarmusAudioProcessingService
 {
 
-	private readonly StarmusAudioRecorderDAL $dal;
+	private readonly StarmusAudioDAL $dal;
 
 	private readonly StarmusFileService $files;
 
-	public function __construct(?StarmusAudioRecorderDAL $dal = null, ?StarmusFileService $file_service = null)
+	public function __construct(?StarmusAudioDAL $dal = null, ?StarmusFileService $file_service = null)
 	{
-		$this->dal   = $dal ?: new StarmusAudioRecorderDAL();
+		$this->dal   = $dal ?: new StarmusAudioDAL();
 		$this->files = $file_service ?: new StarmusFileService();
 	}
 

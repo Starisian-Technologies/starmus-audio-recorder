@@ -1,8 +1,8 @@
-# StarmusAudioRecorderDAL
+# StarmusAudioDAL
 
 **Namespace:** `Starisian\Sparxstar\Starmus\core`
 
-**File:** `/workspaces/starmus-audio-recorder/src/core/StarmusAudioRecorderDAL.php`
+**File:** `/workspaces/starmus-audio-recorder/src/core/StarmusAudioDAL.php`
 
 ## Description
 
@@ -24,13 +24,13 @@ if (! \defined('ABSPATH')) {
     exit;
 }
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 use WP_Error;
 use WP_Query;
 
-final class StarmusAudioRecorderDAL implements StarmusAudioRecorderDALInterface
+final class StarmusAudioDAL implements StarmusAudioDALInterface
 {
     /*
     ------------------------------------*

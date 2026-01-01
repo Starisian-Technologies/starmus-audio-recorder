@@ -114,7 +114,7 @@ class StarmusCLI extends \WP_CLI_Command
 
 		// Cleanup is handled by StarmusSubmissionHandler, not UI
 		$handler = new \Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler(
-			new \Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL(),
+			new \Starisian\Sparxstar\Starmus\data\StarmusAudioDAL(),
 			new \Starisian\Sparxstar\Starmus\core\StarmusSettings()
 		);
 		if (method_exists($handler, 'cleanup_stale_temp_files')) {

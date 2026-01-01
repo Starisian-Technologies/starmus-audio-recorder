@@ -25,7 +25,7 @@ if (! defined('ABSPATH')) {
 /**
  * Data Access Layer implementation for Starmus Audio Recorder.
  *
- * Concrete implementation of StarmusAudioRecorderDALInterface.
+ * Concrete implementation of StarmusAudioDALInterface.
  * Handles rigid database interactions with full legacy support.
  */
 final class StarmusAudioDAL extends StarmusBaseDAL implements StarmusAudioDALInterface

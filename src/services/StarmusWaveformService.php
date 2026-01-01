@@ -34,7 +34,7 @@
  *
  * @since   1.0.0
  * @see https://github.com/bbc/audiowaveform audiowaveform CLI tool
- * @see StarmusAudioRecorderDAL Data access layer
+ * @see StarmusAudioDAL Data access layer
  * @see StarmusFileService File management service
  */
 
@@ -44,14 +44,14 @@ if (! \defined('ABSPATH')) {
 	exit;
 }
 
-use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starums\services\StarmusFileService;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 // FIX: Removed 'readonly' for PHP < 8.2 compatibility
 final class StarmusWaveformService
 {
-	private ?StarmusAudioRecorderDAL $dal = null;
+	private ?StarmusAudioDAL $dal = null;
 	/**
 	 * File service for handling offloaded attachments.
 	 *
@@ -65,12 +65,12 @@ final class StarmusWaveformService
 	 * Creates new instances of dependencies if not provided, allowing for
 	 * flexible initialization while maintaining testability.
 	 *
-	 * @param StarmusAudioRecorderDAL|null $dal Optional DAL instance
+	 * @param StarmusAudioDAL|null $dal Optional DAL instance
 	 * @param StarmusFileService|null      $file_service Optional file service instance
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct(?StarmusAudioRecorderDAL $dal, ?StarmusFileService $file_service)
+	public function __construct(?StarmusAudioDAL $dal, ?StarmusFileService $file_service)
 	{
 		$this->dal = $dal;
 		$this->files = $file_service ?: new StarmusFileService();
@@ -137,12 +137,12 @@ final class StarmusWaveformService
 	 */
 	public function is_tool_available(): bool
 	{
-		try{
-		$path = trim((string) shell_exec('command -v audiowaveform'));
-		return $path !== '' && $path !== '0';
-		} catch (Throwable $throwable){
+		try {
+			$path = trim((string) shell_exec('command -v audiowaveform'));
+			return $path !== '' && $path !== '0';
+		} catch (Throwable $throwable) {
 			StarmusLogger::log($throwanble);
-				}
+		}
 	}
 
 	/**
@@ -191,7 +191,8 @@ final class StarmusWaveformService
 	 * @see extract_waveform_from_file() CLI extraction implementation
 	 * @see StarmusFileService::get_local_copy() File access management
 	 */
-	public function generate_waveform_data( int $attachment_id, ?int $explicit_parent_id = null ): bool {
+	public function generate_waveform_data(int $attachment_id, ?int $explicit_parent_id = null): bool
+	{
 		StarmusLogger::info(
 			'Waveform generation started',
 			array(
@@ -202,10 +203,10 @@ final class StarmusWaveformService
 		);
 
 		// 1. Tool Check
-		if ( ! $this->is_tool_available() ) {
+		if (! $this->is_tool_available()) {
 			StarmusLogger::warning(
 				'audiowaveform binary missing. Skipping.',
-				array( 'component' => __CLASS__, 'attachment_id' => $attachment_id )
+				array('component' => __CLASS__, 'attachment_id' => $attachment_id)
 			);
 			return false;
 		}

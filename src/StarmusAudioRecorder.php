@@ -30,11 +30,11 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 
 // Interfaces
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusProsodyDALInterface;
+use Starisian\Sparxstar\Starmus\data\interfaces\StarmusAudioDALInterface;
+use Starisian\Sparxstar\Starmus\data\interfaces\StarmusProsodyDALInterface;
 
 // Data Layer
-use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
 
 // Components
@@ -151,7 +151,7 @@ final class StarmusAudioRecorder
 	 *
 	 * @since 0.1.0
 	 */
-	private ?StarmusAudioRecorderDALInterface $DAL = null;
+	private ?StarmusAudioDALInterface $DAL = null;
 
 	/**
 	 * Data Access Layer for Prosody Engine.
@@ -323,7 +323,7 @@ final class StarmusAudioRecorder
 	 *
 	 * Applies 'starmus_register_dal' filter to allow DAL replacement.
 	 * Implements handshake mechanism using STARMUS_DAL_OVERRIDE_KEY for security.
-	 * Replacement DAL must implement StarmusAudioRecorderDALInterface.
+	 * Replacement DAL must implement StarmusAudioDALInterface.
 	 *
 	 * Uses static singleton to prevent duplicate instantiation across the request.
 	 *
@@ -333,12 +333,12 @@ final class StarmusAudioRecorder
 	{
 		// 1. Recorder DAL (With Override Filter)
 		try {
-			$default_recorder = new StarmusAudioRecorderDAL();
+			$default_recorder = new StarmusAudioDAL();
 
 			$override_key = defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
 			$filtered_recorder = apply_filters('starmus_register_dal', $default_recorder, $override_key);
 
-			if ($filtered_recorder instanceof StarmusAudioRecorderDALInterface) {
+			if ($filtered_recorder instanceof StarmusAudioDALInterface) {
 				// Handshake Validation
 				if ($filtered_recorder !== $default_recorder) {
 					$expected = (string) ($override_key ?? '');
@@ -356,7 +356,7 @@ final class StarmusAudioRecorder
 			}
 		} catch (Throwable $e) {
 			StarmusLogger::log($e);
-			$this->DAL = new StarmusAudioRecorderDAL(); // Fail safe
+			$this->DAL = new StarmusAudioDAL(); // Fail safe
 		}
 
 		// 2. Prosody DAL (New Architecture)
@@ -469,9 +469,9 @@ final class StarmusAudioRecorder
 	 *
 	 * @since 0.1.0
 	 *
-	 * @return StarmusAudioRecorderDALInterface|null Active DAL instance or null when unavailable.
+	 * @return StarmusAudioDALInterface|null Active DAL instance or null when unavailable.
 	 */
-	public function get_DAL(): ?StarmusAudioRecorderDALInterface
+	public function get_DAL(): ?StarmusAudioDALInterface
 	{
 		return $this->DAL;
 	}

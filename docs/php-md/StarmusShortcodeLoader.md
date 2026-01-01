@@ -28,10 +28,10 @@ Settings service instance.
 	/**
 Data Access Layer instance.
 /
-	private StarmusAudioRecorderDAL $dal;
+	private StarmusAudioDAL $dal;
 
 	/**
-@param StarmusAudioRecorderDALInterface|null $dal The data access layer.
+@param StarmusAudioDALInterface|null $dal The data access layer.
 @param StarmusSettings|null $settings The settings instance.
 
 ### `register_shortcodes()`

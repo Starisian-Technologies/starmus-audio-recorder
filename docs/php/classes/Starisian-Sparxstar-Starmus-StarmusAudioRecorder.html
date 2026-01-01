@@ -226,7 +226,7 @@
 
 
 					<ul>
-													<li class="interface"><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr></a></li>
+													<li class="interface"><a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface">StarmusAudioDALInterface</abbr></a></li>
 																							</ul>
 				</div>
 			</div>
@@ -236,7 +236,7 @@
 
 					<ul>
 																									<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAssetLoader">StarmusAssetLoader</abbr></a></li>
-													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL">StarmusAudioRecorderDAL</abbr></a></li>
+													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"><abbr title="\Starisian\Sparxstar\Starmus\data\StarmusAudioDAL">StarmusAudioDAL</abbr></a></li>
 													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderUpdater.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusAudioRecorderUpdater">StarmusAudioRecorderUpdater</abbr></a></li>
 													<li class="class"><a href="classes/Starisian-Sparxstar-Starmus-core-StarmusSettings.html"><abbr title="\Starisian\Sparxstar\Starmus\core\StarmusSettings">StarmusSettings</abbr></a></li>
 											</ul>
@@ -805,7 +805,7 @@ might be accessed multiple times during a request.</p>
             <a id="property_DAL" name="property_DAL" class="anchor"></a>
             <article class="property">
                 <h3 class="private ">$DAL</h3>
-                <pre class="signature">$DAL : ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface</pre>
+                <pre class="signature">$DAL : ?\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface</pre>
                 <p><em>Data Access Layer instance for database operations.</em></p>
                 <p>Provides abstraction layer for all plugin database interactions.
 Supports dependency injection through filters for testing and extensibility.
@@ -813,7 +813,7 @@ Uses singleton pattern to ensure consistent data layer across components.</p>
 
 
                                 <h4>Type</h4>
-                <a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface">StarmusAudioRecorderDALInterface</abbr></a>|null
+                <a href="classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html"><abbr title="\Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface">StarmusAudioDALInterface</abbr></a>|null
                                             </article>
         </div>
         <aside class="span4 detailsbar">
@@ -1406,7 +1406,7 @@ components require configuration values during their setup.</p>
                 <p><em>Initialize and set the Data Access Layer (DAL) with singleton pattern and filter support.</em></p>
                 <p>Applies 'starmus_register_dal' filter to allow DAL replacement.
 Implements handshake mechanism using STARMUS_DAL_OVERRIDE_KEY for security.
-Replacement DAL must implement StarmusAudioRecorderDALInterface and
+Replacement DAL must implement StarmusAudioDALInterface and
 return the same key from get_registration_key().</p>
 <p>Uses static singleton to prevent duplicate instantiation across the request.</p>
 

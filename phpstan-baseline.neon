@@ -28,31 +28,31 @@ parameters:
 			message: '#^Call to function is_wp_error\(\) with int\<0, max\> will always evaluate to false\.$#'
 			identifier: function.impossibleType
 			count: 1
-			path: src/core/StarmusAudioRecorderDAL.php
+			path: src/core/StarmusAudioDAL.php
 
 		-
-			message: '#^Method Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\:\:get_post_info\(\) never returns array\{id\: int, title\: string, type\: string, status\: string\} so it can be removed from the return type\.$#'
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\:\:get_post_info\(\) never returns array\{id\: int, title\: string, type\: string, status\: string\} so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
-			path: src/core/StarmusAudioRecorderDAL.php
+			path: src/core/StarmusAudioDAL.php
 
 		-
-			message: '#^Method Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\:\:get_post_info\(\) should return array\{id\: int, title\: string, type\: string, status\: string\}\|null but returns array\{status\: non\-falsy\-string, type\: string\|false\}\.$#'
+			message: '#^Method Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\:\:get_post_info\(\) should return array\{id\: int, title\: string, type\: string, status\: string\}\|null but returns array\{status\: non\-falsy\-string, type\: string\|false\}\.$#'
 			identifier: return.type
 			count: 1
-			path: src/core/StarmusAudioRecorderDAL.php
+			path: src/core/StarmusAudioDAL.php
 
 		-
 			message: '#^Offset ''type'' on array\{ext\: string\|false, type\: string\|false\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
-			path: src/core/StarmusAudioRecorderDAL.php
+			path: src/core/StarmusAudioDAL.php
 
 		-
-			message: '#^PHPDoc tag @implements has invalid value \(StarmusAudioRecorderDALInterface\)\: Unexpected token "\\n ", expected ''\<'' at offset 951 on line 25$#'
+			message: '#^PHPDoc tag @implements has invalid value \(StarmusAudioDALInterface\)\: Unexpected token "\\n ", expected ''\<'' at offset 951 on line 25$#'
 			identifier: phpDoc.parseError
 			count: 1
-			path: src/core/StarmusAudioRecorderDAL.php
+			path: src/core/StarmusAudioDAL.php
 
 		-
 			message: '#^Method Starisian\\Sparxstar\\Starmus\\core\\StarmusSettings\:\:filter_filetype_and_ext\(\) return type has no value type specified in iterable type array\.$#'
@@ -217,7 +217,7 @@ parameters:
 			path: src/frontend/StarmusShortcodeLoader.php
 
 		-
-			message: '#^Property Starisian\\Sparxstar\\Starmus\\frontend\\StarmusShortcodeLoader\:\:\$dal \(Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\) does not accept Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\.$#'
+			message: '#^Property Starisian\\Sparxstar\\Starmus\\frontend\\StarmusShortcodeLoader\:\:\$dal \(Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\) does not accept Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\.$#'
 			identifier: assign.propertyType
 			count: 1
 			path: src/frontend/StarmusShortcodeLoader.php

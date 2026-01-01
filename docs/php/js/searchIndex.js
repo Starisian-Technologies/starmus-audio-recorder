@@ -186,65 +186,65 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starisian-Sparxstar-Starmus-cli-StarmusCLI.html#property_waveform_service"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface",
-            "name": "StarmusAudioRecorderDALInterface",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface",
+            "name": "StarmusAudioDALInterface",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Acreate_audio_post\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Acreate_audio_post\u0028\u0029",
             "name": "create_audio_post",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_create_audio_post"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_create_audio_post"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Acreate_attachment_from_file\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Acreate_attachment_from_file\u0028\u0029",
             "name": "create_attachment_from_file",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_create_attachment_from_file"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_create_attachment_from_file"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Aget_user_recordings\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Aget_user_recordings\u0028\u0029",
             "name": "get_user_recordings",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_get_user_recordings"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_get_user_recordings"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Aget_edit_page_url_admin\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Aget_edit_page_url_admin\u0028\u0029",
             "name": "get_edit_page_url_admin",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_get_edit_page_url_admin"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_get_edit_page_url_admin"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Aupdate_audio_post_meta\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Aupdate_audio_post_meta\u0028\u0029",
             "name": "update_audio_post_meta",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_update_audio_post_meta"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_update_audio_post_meta"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Aget_ffmpeg_path\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Aget_ffmpeg_path\u0028\u0029",
             "name": "get_ffmpeg_path",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_get_ffmpeg_path"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_get_ffmpeg_path"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Aget_registration_key\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Aget_registration_key\u0028\u0029",
             "name": "get_registration_key",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_get_registration_key"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_get_registration_key"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Asave_post_meta\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Asave_post_meta\u0028\u0029",
             "name": "save_post_meta",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_save_post_meta"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_save_post_meta"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Apersist_audio_outputs\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Apersist_audio_outputs\u0028\u0029",
             "name": "persist_audio_outputs",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_persist_audio_outputs"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_persist_audio_outputs"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Asave_audio_outputs\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Asave_audio_outputs\u0028\u0029",
             "name": "save_audio_outputs",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_save_audio_outputs"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_save_audio_outputs"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioRecorderDALInterface\u003A\u003Aset_audio_state\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\interfaces\\StarmusAudioDALInterface\u003A\u003Aset_audio_state\u0028\u0029",
             "name": "set_audio_state",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioRecorderDALInterface.html#method_set_audio_state"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-interfaces-StarmusAudioDALInterface.html#method_set_audio_state"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAssetLoader",
             "name": "StarmusAssetLoader",
@@ -316,130 +316,130 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAssetLoader.html#constant_STYLE_HANDLE"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL",
-            "name": "StarmusAudioRecorderDAL",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL",
+            "name": "StarmusAudioDAL",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Acreate_audio_post\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Acreate_audio_post\u0028\u0029",
             "name": "create_audio_post",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_create_audio_post"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_create_audio_post"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Acreate_attachment_from_file\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Acreate_attachment_from_file\u0028\u0029",
             "name": "create_attachment_from_file",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_create_attachment_from_file"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_create_attachment_from_file"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Acreate_attachment_from_sideload\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Acreate_attachment_from_sideload\u0028\u0029",
             "name": "create_attachment_from_sideload",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_create_attachment_from_sideload"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_create_attachment_from_sideload"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aupdate_attachment_file_path\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aupdate_attachment_file_path\u0028\u0029",
             "name": "update_attachment_file_path",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_update_attachment_file_path"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_update_attachment_file_path"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aupdate_attachment_metadata\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aupdate_attachment_metadata\u0028\u0029",
             "name": "update_attachment_metadata",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_update_attachment_metadata"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_update_attachment_metadata"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aset_attachment_parent\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aset_attachment_parent\u0028\u0029",
             "name": "set_attachment_parent",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_set_attachment_parent"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_set_attachment_parent"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Adelete_attachment\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Adelete_attachment\u0028\u0029",
             "name": "delete_attachment",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_delete_attachment"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_delete_attachment"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Asave_post_meta\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Asave_post_meta\u0028\u0029",
             "name": "save_post_meta",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_save_post_meta"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_save_post_meta"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aupdate_audio_post_fields\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aupdate_audio_post_fields\u0028\u0029",
             "name": "update_audio_post_fields",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_update_audio_post_fields"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_update_audio_post_fields"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aupdate_audio_post_meta\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aupdate_audio_post_meta\u0028\u0029",
             "name": "update_audio_post_meta",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_update_audio_post_meta"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_update_audio_post_meta"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Apersist_audio_outputs\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Apersist_audio_outputs\u0028\u0029",
             "name": "persist_audio_outputs",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_persist_audio_outputs"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_persist_audio_outputs"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Arecord_id3_timestamp\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Arecord_id3_timestamp\u0028\u0029",
             "name": "record_id3_timestamp",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_record_id3_timestamp"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_record_id3_timestamp"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aset_copyright_source\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aset_copyright_source\u0028\u0029",
             "name": "set_copyright_source",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_set_copyright_source"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_set_copyright_source"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aassign_taxonomies\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aassign_taxonomies\u0028\u0029",
             "name": "assign_taxonomies",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_assign_taxonomies"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_assign_taxonomies"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Asave_audio_outputs\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Asave_audio_outputs\u0028\u0029",
             "name": "save_audio_outputs",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_save_audio_outputs"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_save_audio_outputs"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aget_post_info\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aget_post_info\u0028\u0029",
             "name": "get_post_info",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_post_info"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_post_info"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aget_user_recordings\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aget_user_recordings\u0028\u0029",
             "name": "get_user_recordings",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_user_recordings"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_user_recordings"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aget_edit_page_url_admin\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aget_edit_page_url_admin\u0028\u0029",
             "name": "get_edit_page_url_admin",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_edit_page_url_admin"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_edit_page_url_admin"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aget_page_id_by_slug\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aget_page_id_by_slug\u0028\u0029",
             "name": "get_page_id_by_slug",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_page_id_by_slug"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_page_id_by_slug"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aget_page_slug_by_id\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aget_page_slug_by_id\u0028\u0029",
             "name": "get_page_slug_by_id",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_page_slug_by_id"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_page_slug_by_id"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Ais_rate_limited\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Ais_rate_limited\u0028\u0029",
             "name": "is_rate_limited",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_is_rate_limited"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_is_rate_limited"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aget_ffmpeg_path\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aget_ffmpeg_path\u0028\u0029",
             "name": "get_ffmpeg_path",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_ffmpeg_path"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_ffmpeg_path"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aget_registration_key\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aget_registration_key\u0028\u0029",
             "name": "get_registration_key",
             "summary": "",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_get_registration_key"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_get_registration_key"
         },                {
-            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderDAL\u003A\u003Aset_audio_state\u0028\u0029",
+            "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioDAL\u003A\u003Aset_audio_state\u0028\u0029",
             "name": "set_audio_state",
             "summary": "Set\u0020a\u0020short\u0020processing\u0020state\u0020on\u0020an\u0020attachment\u0020\u0028centralized\u0029.",
-            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioRecorderDAL.html#method_set_audio_state"
+            "url": "classes/Starisian-Sparxstar-Starmus-core-StarmusAudioDAL.html#method_set_audio_state"
         },                {
             "fqsen": "\\Starisian\\Sparxstar\\Starmus\\core\\StarmusAudioRecorderUpdater",
             "name": "StarmusAudioRecorderUpdater",

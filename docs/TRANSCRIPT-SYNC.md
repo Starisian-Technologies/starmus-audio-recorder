@@ -1,7 +1,7 @@
 # Transcript Panel Integration
 
-**Version:** 0.9.0  
-**Status:** ✅ Production Ready (Mock Data)  
+**Version:** 0.9.0
+**Status:** ✅ Production Ready (Mock Data)
 **AiWA Integration:** 🔜 Pending
 
 ## Overview
@@ -82,9 +82,9 @@ const transcript = [
 <aside class="starmus-editor__side">
   <section class="starmus-editor__transcript">
     <h2>Transcript</h2>
-    <div id="starmus-transcript-panel" 
+    <div id="starmus-transcript-panel"
          class="starmus-transcript-panel"
-         role="list" 
+         role="list"
          aria-live="polite">
       <!-- JS renders tokens here -->
     </div>
@@ -169,7 +169,7 @@ wp_enqueue_script(
 
 ### ✅ User Scroll Detection
 
-**Problem:** Auto-scroll fights with manual scrolling  
+**Problem:** Auto-scroll fights with manual scrolling
 **Solution:** 1-second pause after user scrolls
 
 ```javascript
@@ -243,7 +243,7 @@ span.title = `Low confidence: ${Math.round(token.confidence * 100)}%`;
 ### Step 1: Add Transcript Field to Post Meta
 
 ```php
-// In StarmusAudioRecorderDAL.php or equivalent
+// In StarmusAudioDAL.php or equivalent
 update_post_meta(
   $post_id,
   'star_transcript_json',
@@ -397,7 +397,7 @@ transcriptController = new StarmusTranscript(
 
 ### Issue: Words don't highlight during playback
 
-**Cause:** `timeupdate` event not firing  
+**Cause:** `timeupdate` event not firing
 **Fix:** Check that Peaks.js media element is valid
 
 ```javascript
@@ -407,7 +407,7 @@ console.log('Media element:', mediaElement);
 
 ### Issue: Click-to-seek doesn't work
 
-**Cause:** `data-start` attribute missing  
+**Cause:** `data-start` attribute missing
 **Fix:** Verify render() adds attributes
 
 ```javascript
@@ -417,7 +417,7 @@ console.log('Rendered spans:', this.container.children);
 
 ### Issue: Auto-scroll is jerky
 
-**Cause:** Rapid DOM updates  
+**Cause:** Rapid DOM updates
 **Fix:** Ensure early exit in `syncHighlight()`
 
 ```javascript
@@ -428,8 +428,8 @@ if (currentToken && time >= currentToken.start && time <= currentToken.end) {
 
 ## Credits
 
-**Architecture:** Based on Soundscape/Otter.ai transcript sync patterns  
-**UX:** Inspired by YouTube auto-scrolling captions  
+**Architecture:** Based on Soundscape/Otter.ai transcript sync patterns
+**UX:** Inspired by YouTube auto-scrolling captions
 **Implementation:** Starisian Technologies © 2025
 
 ---

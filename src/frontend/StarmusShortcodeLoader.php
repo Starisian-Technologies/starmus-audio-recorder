@@ -8,8 +8,8 @@ if (! \defined('ABSPATH')) {
 	exit;
 }
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
-use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
 use Starisian\Sparxstar\Starmus\frontend\StarmusAudioEditorUI;
 use Starisian\Sparxstar\Starmus\frontend\StarmusProsodyPlayer;
@@ -36,9 +36,9 @@ final class StarmusShortcodeLoader
 	/**
 	 * Data Access Layer instance.
 	 *
-	 * @var StarmusAudioRecorderDAL
+	 * @var StarmusAudioDAL
 	 */
-	private StarmusAudioRecorderDAL $dal;
+	private StarmusAudioDAL $dal;
 	/**
 	 * Prosody player instance.
 	 *
@@ -47,14 +47,14 @@ final class StarmusShortcodeLoader
 	private ?StarmusProsodyPlayer $prosody = null;
 
 	/**
-	 * @param StarmusAudioRecorderDALInterface|null $dal The data access layer.
+	 * @param StarmusAudioDALInterface|null $dal The data access layer.
 	 * @param StarmusSettings|null                  $settings The settings instance.
 	 */
-	public function __construct(?StarmusAudioRecorderDALInterface $dal = null, ?StarmusSettings $settings = null)
+	public function __construct(?StarmusAudioDALInterface $dal = null, ?StarmusSettings $settings = null)
 	{
 		try {
 			$this->settings = $settings ?? new StarmusSettings();
-			$this->dal      = $dal ?? new StarmusAudioRecorderDAL();
+			$this->dal      = $dal ?? new StarmusAudioDAL();
 			// Ensure prosody engine is set up
 			$this->setProsodyEngine();
 			$this->register_hooks();
@@ -89,10 +89,10 @@ final class StarmusShortcodeLoader
 
 	private function setProsodyEngine(): void
 	{
-		if(class_exists(StarmusProsodyPlayer::class) && ($this->prosody === null)) {
-			try{
-			$this->prosody = new StarmusProsodyPlayer();
-			} catch (Throwable $throwable){
+		if (class_exists(StarmusProsodyPlayer::class) && ($this->prosody === null)) {
+			try {
+				$this->prosody = new StarmusProsodyPlayer();
+			} catch (Throwable $throwable) {
 				StarmusLogger::log($throwable);
 			}
 		}

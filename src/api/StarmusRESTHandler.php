@@ -69,7 +69,7 @@ declare(strict_types=1);
  *
  * @since   1.0.0
  * @see StarmusSubmissionHandler Submission processing service
- * @see StarmusAudioRecorderDALInterface Data access layer
+ * @see StarmusAudioDALInterface Data access layer
  * @see WP_REST_Request WordPress request object
  * @see WP_REST_Response WordPress response object
  */
@@ -85,7 +85,7 @@ use function current_user_can;
 use function is_wp_error;
 use function register_rest_route;
 
-use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioRecorderDALInterface;
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDALInterface;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
@@ -125,7 +125,7 @@ final class StarmusRESTHandler
 	 *
 	 * @since 1.0.0
 	 */
-	private StarmusAudioRecorderDALInterface $dal;
+	private StarmusAudioDALInterface $dal;
 
 	/**
 	 * Plugin settings and configuration management.
@@ -143,7 +143,7 @@ final class StarmusRESTHandler
 	 * Sets up the REST API handler with required services and automatically
 	 * registers WordPress REST API routes via the rest_api_init hook.
 	 *
-	 * @param StarmusAudioRecorderDALInterface $dal Data access layer instance
+	 * @param StarmusAudioDALInterface $dal Data access layer instance
 	 * @param StarmusSettings                  $settings Plugin settings and configuration
 	 * @param StarmusSubmissionHandler|null    $submission_handler Optional submission handler (auto-created if null)
 	 *
@@ -166,7 +166,7 @@ final class StarmusRESTHandler
 	 * @see register_routes() Route registration implementation
 	 */
 	public function __construct(
-		StarmusAudioRecorderDALInterface $dal,
+		StarmusAudioDALInterface $dal,
 		StarmusSettings $settings,
 		?StarmusSubmissionHandler $submission_handler = null
 	) {
@@ -366,7 +366,7 @@ final class StarmusRESTHandler
 				'Fallback upload request',
 				array(
 					'component' => __CLASS__,
-					'file_keys' => array_keys( $files ),
+					'file_keys' => array_keys($files),
 				)
 			);
 
@@ -516,7 +516,7 @@ final class StarmusRESTHandler
 	 *
 	 * @return WP_REST_Response REST response with status data or error
 	 *
-	 * @see StarmusAudioRecorderDALInterface::get_post_info() Data retrieval
+	 * @see StarmusAudioDALInterface::get_post_info() Data retrieval
 	 * @see StarmusSubmissionHandler::get_cpt_slug() Post type validation
 	 */
 	public function handle_status(WP_REST_Request $request): WP_REST_Response

@@ -36,7 +36,7 @@ if ( ! \defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Starisian\Sparxstar\Starmus\data\StarmusAudioRecorderDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 /**
@@ -60,7 +60,7 @@ Compatibility Layers:
 @package Starisian\Sparxstar\Starmus\services
 @version 1.0.0-HARDENED
 @since   1.0.0
-@see StarmusAudioRecorderDAL Data access abstraction
+@see StarmusAudioDAL Data access abstraction
 @see Advanced_Media_Offloader\Plugin Third-party offloader integration
 /
 final readonly class StarmusFileService {
@@ -69,11 +69,11 @@ final readonly class StarmusFileService {
 Data Access Layer for consistent WordPress operations.
 @since 1.0.0
 /
-	private StarmusAudioRecorderDAL $dal;
+	private StarmusAudioDAL $dal;
 
 	/**
 Initializes the file service with DAL dependency.
-@param StarmusAudioRecorderDAL|null $dal Optional DAL instance (creates new if null)
+@param StarmusAudioDAL|null $dal Optional DAL instance (creates new if null)
 @since 1.0.0
 
 ### `register_compatibility_hooks()`
@@ -115,7 +115,7 @@ Error Handling:
 - Gracefully handles missing files or generation failures
 - Continues execution on non-critical errors
 @see wp_generate_attachment_metadata() WordPress metadata generation
-@see StarmusAudioRecorderDAL::update_attachment_metadata() DAL persistence
+@see StarmusAudioDAL::update_attachment_metadata() DAL persistence
 
 ### `get_local_copy()`
 
@@ -191,7 +191,7 @@ Error Conditions:
 - Metadata update fails
 @see as3cf_upload_attachment() WP Offload Media function
 @see WP_Filesystem WordPress filesystem abstraction
-@see StarmusAudioRecorderDAL::update_attachment_metadata() Metadata persistence
+@see StarmusAudioDAL::update_attachment_metadata() Metadata persistence
 
 ### `star_get_public_url()`
 
