@@ -156,13 +156,28 @@ if (! file_exists($autoloader)) {
 } else {
 	require_once $autoloader;
 
-	$logClassFile = STARMUS_PATH . 'src/helpers/StarmusLogger.php';
-	if (file_exists($logClassFile)) {
-		require_once STARMUS_PATH . 'src/helpers/StarmusLogger.php';
-		class_alias(Starisian\Sparxstar\Starmus\helpers\StarmusLogger::class, 'StarmusLogger');
-		StarmusLogger::set_min_level(STARMUS_LOG_LEVEL);
-	}
+	// 1. Define Path Safely (Prevent undefined constant error)
+	if (defined('STARMUS_PATH')) {
+		$logClassFile = STARMUS_PATH . 'src/helpers/StarmusLogger.php';
 
+		if (file_exists($logClassFile)) {
+			// 2. Manual Load
+			require_once $logClassFile;
+
+			// 3. Create Alias Safely (Prevent Fatal Error: Cannot redeclare class)
+			// We use the fully qualified name string to be safe.
+			$fqcn = 'Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger';
+
+			if (class_exists($fqcn) && ! class_exists('StarmusLogger')) {
+				class_alias($fqcn, 'StarmusLogger');
+			}
+
+			// 4. Configure Level Safely
+			if (defined('STARMUS_LOG_LEVEL') && method_exists($fqcn, 'set_min_level')) {
+				$fqcn::set_min_level(STARMUS_LOG_LEVEL);
+			}
+		}
+	}
 	// =========================================================================
 	// 3. BUNDLED SCF DEPENDENCY LOADER
 	// =========================================================================

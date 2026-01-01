@@ -305,76 +305,43 @@ final class StarmusAudioRecorder
 	 *
 	 * Uses static singleton to prevent duplicate instantiation across the request.
 	 */
-	private function set_DAL(): void
+	private function init_dals(): void
 	{
-		// This is the class property for this specific instance.
-		if ($this->DAL instanceof StarmusAudioRecorderDALInterface) {
-			return; // Already set on this object.
-		}
-
-		// --- SINGLETON FIX STARTS HERE ---
-		// This is the static property that persists across the entire request.
-		// If it's already been created, reuse it and stop.
-		static $dal_singleton = null;
-
-		if ($dal_singleton instanceof StarmusAudioRecorderDALInterface) {
-			$this->DAL = $dal_singleton;
-			return;
-		}
-
-		// --- SINGLETON FIX ENDS HERE ---
-
-		// If we've reached here, the DAL has not been created yet in this request.
-		// We will now create it.
-
+		// 1. Recorder DAL (With Override Filter)
 		try {
-			$default_dal = new StarmusAudioRecorderDAL();
+			$default_recorder = new StarmusAudioRecorderDAL();
 
-			$override_key = \defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
-			$filtered_dal = apply_filters('starmus_register_dal', $default_dal, $override_key);
-		} catch (Throwable $throwable) {
-			StarmusLogger::log(
-				$throwable,
-				array(
-					'component' => __CLASS__,
-					'stage'     => 'set_DAL',
-				)
-			);
-			$this->DAL = $default_dal;
-			return;
-		}
+			$override_key = defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
+			$filtered_recorder = apply_filters('starmus_register_dal', $default_recorder, $override_key);
 
-		// Must implement our interface.
-		if (! ($filtered_dal instanceof StarmusAudioRecorderDALInterface)) {
-			error_log('StarmusAudioRecorder: Invalid DAL replacement - must implement StarmusAudioRecorderDALInterface');
-			$dal_singleton = $default_dal; // Store the default DAL in the singleton
-			$this->DAL     = $dal_singleton;
-			return;
-		}
-
-		// Handshake: the replacement must present the same key we expect.
-		$provided = $filtered_dal->get_registration_key();
-		$expected = (string) (\defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : '');
-
-		if ($expected !== '' && $provided === $expected) {
-			// Handshake successful. Use the filtered DAL.
-			$dal_singleton = $filtered_dal;
-		} else {
-			// Handshake failed or was not attempted. Use the default DAL.
-			if ($filtered_dal !== $default_dal) {
-				StarmusLogger::warning(
-					'Unauthorized or misconfigured DAL replacement attempt rejected.',
-					array('component' => __CLASS__)
-				);
+			if ($filtered_recorder instanceof StarmusDALInterface) {
+				// Handshake Validation
+				if ($filtered_recorder !== $default_recorder) {
+					$expected = (string) ($override_key ?? '');
+					if ($expected && $filtered_recorder->get_registration_key() === $expected) {
+						$this->DAL = $filtered_recorder;
+					} else {
+						StarmusLogger::warning('DAL Override rejected: Key mismatch.');
+						$this->DAL = $default_recorder;
+					}
+				} else {
+					$this->DAL = $default_recorder;
+				}
+			} else {
+				$this->DAL = $default_recorder;
 			}
-
-			$dal_singleton = $default_dal;
+		} catch (Throwable $e) {
+			StarmusLogger::log($e);
+			$this->DAL = new StarmusAudioRecorderDAL(); // Fail safe
 		}
 
-		// Finally, assign the one true instance to our class property.
-		$this->DAL = $dal_singleton;
+		// 2. Prosody DAL
+		try {
+			$this->prosodyDAL = new StarmusProsodyDAL();
+		} catch (Throwable $e) {
+			StarmusLogger::log($e);
+		}
 	}
-
 	/**
 	 * Instantiate components that depend on settings and environment.
 	 *
@@ -390,49 +357,40 @@ final class StarmusAudioRecorder
 	 *
 	 * @since 0.1.0
 	 */
-	private function init_components(): void
-	{
-		try{
-			StarmusLogger::info('[Starmus] === init_components() STARTING ===');
+	private function init_components(): void {
+		try {
+			StarmusLogger::info( '[Starmus] === init_components() STARTING ===' );
 
-			// global services
-			// (new StarPrivateSlugPrefix())->star_boot();
-
-			// Register compatibility modules for third-party plugins
-			$file_service = new StarmusFileService($this->get_DAL());
+			// Services
+			$file_service = new StarmusFileService( $this->DAL );
 			$file_service->register_compatibility_hooks();
 
 			// Admin
-			if (is_admin()) {
-				StarmusLogger::info('[Starmus] Loading StarmusAdmin...');
-				new StarmusAdmin($this->DAL, $this->settings);
+			if ( is_admin() ) {
+				new StarmusAdmin( $this->DAL, $this->settings );
 			}
 
 			// Assets
-			StarmusLogger::info('[Starmus] Loading StarmusAssetLoader...');
-			new StarmusAssetLoader($this->settings);
+			new StarmusAssetLoader( $this->settings );
 
-			// TUSD webhook handler
-			StarmusLogger::info('[Starmus] Loading StarmusSubmissionHandler...');
-			$submission_handler = new StarmusSubmissionHandler($this->DAL, $this->settings);
-			StarmusLogger::info('[Starmus] Loading StarmusTusdHookHandler...');
-			$tusd_hook_handler  = new StarmusTusdHookHandler($submission_handler);
+			// Submission Logic
+			$submission_handler = new StarmusSubmissionHandler( $this->DAL, $this->settings );
+			$tusd_hook_handler  = new StarmusTusdHookHandler( $submission_handler );
 			$tusd_hook_handler->register_hooks();
 
 			// REST API
-			StarmusLogger::info('[Starmus] Loading StarmusRESTHandler...');
-			new StarmusRESTHandler($this->DAL, $this->settings);
+			new StarmusRESTHandler( $this->DAL, $this->settings );
 
-			// SHORTCODES - THIS WAS MISSING!!!
-			StarmusLogger::info('[Starmus] Loading StarmusShortcodeLoader...');
-			new StarmusShortcodeLoader($this->DAL, $this->settings);
+			// Shortcodes (Includes Prosody Logic context if needed)
+			new StarmusShortcodeLoader( $this->DAL, $this->settings );
 
-			StarmusLogger::info('[Starmus] === init_components() COMPLETE ===');
+			StarmusLogger::info( '[Starmus] === init_components() COMPLETE ===' );
 
-		} catch (\Throwable $throwable) {
-			StarmusLogger::log($throwable);
+		} catch ( Throwable $throwable ) {
+			StarmusLogger::log( $throwable );
 		}
 	}
+
 
 	/**
 	 * Register cross-cutting WordPress hooks once.
@@ -447,55 +405,38 @@ final class StarmusAudioRecorder
 	 *
 	 * @since 0.1.0
 	 */
-	private function register_hooks(): void
-	{
-		StarmusLogger::info('[Starmus] register_hooks() called.');
-		if ($this->hooksRegistered) {
+	private function register_hooks(): void {
+		if ( $this->hooksRegistered ) {
 			return;
 		}
 
 		try {
-			// Load translations on the 'init' hook.
-			add_action(
-				'init',
-				function (): void {
-					load_plugin_textdomain(
-						'starmus-audio-recorder',
-						false,
-						\dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/'
-					);
-				}
-			);
+			add_action( 'init', function (): void {
+				load_plugin_textdomain(
+					'starmus-audio-recorder',
+					false,
+					dirname( plugin_basename( STARMUS_MAIN_FILE ) ) . '/languages/'
+				);
+			} );
 
-			// WP-CLI commands (optional). Load your CLI files and register commands here.
-			if (\defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
-				$cli_path = plugin_dir_path(\STARMUS_MAIN_FILE) . 'src/cli/';
-				if (file_exists($cli_path . 'StarmusCLI.php') && file_exists($cli_path . 'StarmusCacheCommand.php')) {
+			// WP-CLI
+			if ( defined( 'WP_CLI' ) && WP_CLI && class_exists( 'WP_CLI' ) ) {
+				$cli_path = plugin_dir_path( STARMUS_MAIN_FILE ) . 'src/cli/';
+				if ( file_exists( $cli_path . 'StarmusCLI.php' ) ) {
 					require_once $cli_path . 'StarmusCLI.php';
-					\WP_CLI::add_command('starmus', 'Starmus\\cli\\StarmusCLI');
-					\WP_CLI::add_command('starmus cache', 'Starmus\\cli\\StarmusCacheCommand');
+					// Commands...
 				}
 			}
 
-			// Admin runtime error banner
-			if (is_admin()) {
-				add_action('admin_notices', $this->displayRuntimeErrorNotice(...));
+			if ( is_admin() ) {
+				add_action( 'admin_notices', $this->displayRuntimeErrorNotice(...) );
 			}
-
-			$this->StarmusLogger::info('[Starmus] register_hooks() completed.');
 
 			$this->hooksRegistered = true;
-		} catch (Throwable $throwable) {
-			StarmusLogger::log(
-				$throwable,
-				array(
-					'component' => __CLASS__,
-					'stage'     => 'register_hooks',
-				)
-			);
+		} catch ( Throwable $throwable ) {
+			StarmusLogger::log( $throwable );
 		}
 	}
-
 	/**
 	 * Retrieve the active Data Access Layer implementation.
 	 *
@@ -522,32 +463,21 @@ final class StarmusAudioRecorder
 	 *
 	 * @since 0.1.0
 	 */
-	public function displayRuntimeErrorNotice(): void
-	{
+	public function displayRuntimeErrorNotice(): void {
 		try {
-
-			if($this->runtimeErrors === null) {
+			if ( empty( $this->runtimeErrors ) || ! current_user_can( 'manage_options' ) ) {
 				return;
 			}
-			if ($this->runtimeErrors === array() || ! current_user_can('manage_options')) {
-				return;
-			}
+			$unique = array_unique( $this->runtimeErrors );
 
-			$unique = array_unique($this->runtimeErrors);
-			StarmusLogger::log('Starmus Runtime Errors:', $unique);
-			foreach ($unique as $msg) {
-				echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus Audio Recorder:</strong><br>' .
-					esc_html($msg) .
-					'</p></div>';
+			// Log strict errors
+			StarmusLogger::log( 'Runtime Errors', $unique );
+
+			foreach ( $unique as $msg ) {
+				echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus:</strong> ' . esc_html( $msg ) . '</p></div>';
 			}
-		} catch (Throwable $throwable) {
-			StarmusLogger::log(
-				$throwable,
-				array(
-					'component' => __CLASS__,
-					'stage'     => 'displayRuntimeErrorNotice',
-				)
-			);
+		} catch ( Throwable $e ) {
+			// Squelch
 		}
 	}
 
