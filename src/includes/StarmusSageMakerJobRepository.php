@@ -3,6 +3,11 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\includes;
 
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+if ( ! \defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Repository for SageMaker transcription jobs stored in wp_options.
  *

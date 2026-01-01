@@ -1,6 +1,9 @@
 <?php
 namespace Starisian\Sparxstar\Starmus\helpers;
 
+use Starisian\Sparxstar\Starmus\core\StarmusSchemaMapper;
+use Starisian\Sparxstar\Starmus\hel[ers\StarmusLogger;]
+
 if ( ! \defined( 'ABSPATH' ) ) {
 	exit;
 }

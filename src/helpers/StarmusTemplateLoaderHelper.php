@@ -11,6 +11,12 @@
  */
 namespace Starisian\Sparxstar\Starmus\helpers;
 
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+
+if(! defined(ABSPATH)){
+	exit;
+}
+
 class StarmusTemplateLoaderHelper {
 
 	/**

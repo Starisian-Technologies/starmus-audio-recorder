@@ -1,6 +1,12 @@
 <?php
 namespace Starisian\Sparxstar\Starmus\core;
 
+if(! defined(ABSPATH)){
+	exit;
+}
+
+use Starisian\Spraxstar\Starmus\helpers\StarmusLogger;
+
 /**
  * Handles checking for and providing updates for the Starmus plugin.
  *

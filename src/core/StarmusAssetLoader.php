@@ -10,21 +10,21 @@
  *   ES Module (`type="module"`), allowing the browser to handle the dependency tree for
  *   the best possible debugging experience.
  *
- * @package Starmus
+ * @package Starisian\Sparxstar\Starmus\core
  *
  * @version 0.9.2
  */
 
 namespace Starisian\Sparxstar\Starmus\core;
 
+
+use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
+use Starisian\Spraxstar\Starmus\helpers\StarmusLogger;
 use function array_filter;
 use function array_map;
 use function defined;
 use function explode;
 use function json_encode;
-
-use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
-
 use function trim;
 
 if (! \defined('ABSPATH')) {

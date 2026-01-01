@@ -11,6 +11,9 @@
  */
 namespace Starisian\Sparxstar\Starmus\core;
 
+use Starisian\Spraxstar\Starmus\helpers\StarmusLogger;
+
+
 if ( ! \defined( 'ABSPATH' ) ) {
 	exit;
 }

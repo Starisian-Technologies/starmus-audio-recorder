@@ -13,20 +13,16 @@
  */
 namespace Starisian\Sparxstar\Starmus\frontend;
 
-use Exception;
 
+use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Exception;
 use function file_exists;
 use function is_numeric;
 use function realpath;
-
-use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
-
 use function str_replace;
-
 use Throwable;
-
 use function usort;
-
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;

@@ -4,6 +4,10 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\integrations;
 
 use Starisian\Sparxstar\Starmus\includes\StarmusSageMakerJobRepository;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+if ( ! \defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Service for managing SageMaker transcription job business logic.

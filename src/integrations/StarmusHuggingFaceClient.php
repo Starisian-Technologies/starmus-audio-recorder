@@ -3,6 +3,9 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\integrations;
 
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+
+
 // Prevent direct access
 if ( ! \defined( 'ABSPATH' ) ) {
 	exit;

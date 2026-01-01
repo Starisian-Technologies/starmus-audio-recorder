@@ -18,10 +18,15 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\i18n;
 
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use function esc_attr;
 use function esc_html;
 use function load_plugin_textdomain;
 use function plugin_basename;
+
+if(! defined(ABSPATH)){
+	exit;
+}
 
 /**
  * Internationalization and localization manager for AiWA Orchestrator
