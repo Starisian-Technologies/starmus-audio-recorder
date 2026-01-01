@@ -49,7 +49,6 @@ if (! defined('ABSPATH')) {
 // =========================================================================
 // 1. BOOTSTRAP GUARD & CORE CONSTANTS
 // =========================================================================
-
 /**
  * Prevent multiple plugin instances from loading.
  * If STARMUS_LOADED is already defined, exit early to avoid conflicts.
@@ -116,279 +115,133 @@ if(!defined('STARMUS_R2_ENDPOINT')){
 }
 
 // =========================================================================
-// 2. ACTION SCHEDULER LIBRARY
+// 2. DEPENDENCIES & LOGGER FAILSAFE
 // =========================================================================
 
-/**
- * Load Action Scheduler library for background job processing.
- *
- * Action Scheduler provides reliable background job processing for WordPress.
- * It automatically handles version negotiation if multiple versions are present
- * (e.g., from WooCommerce, other plugins, etc.). We load it early to ensure
- * availability for our cron and background processing needs.
- */
-$action_scheduler_path = STARMUS_PATH . 'libraries/action-scheduler/action-scheduler.php';
-if (file_exists($action_scheduler_path)) {
-	require_once $action_scheduler_path;
-}
-
-// =========================================================================
-// 3. COMPOSER AUTOLOADER
-// =========================================================================
-
-/**
- * Load Composer autoloader for PSR-4 class loading.
- *
- * The autoloader is required for all plugin classes and dependencies.
- * If missing, we show an admin notice but don't completely halt execution
- * to allow for graceful degradation during development.
- */
+// Load Composer Autoloader
 $autoloader = STARMUS_PATH . 'vendor/autoload.php';
 
-if (! file_exists($autoloader)) {
-	add_action(
-		'admin_notices',
-		function () {
-			echo '<div class="notice notice-error"><p><strong>Starmus Audio Recorder Error:</strong> missing <code>vendor/autoload.php</code>. Please run <code>composer install</code>.</p></div>';
-		}
-	);
-	// Do not return here; let the activation hook handle the hard stop if this is an activation attempt.
-} else {
+if ( file_exists( $autoloader ) ) {
 	require_once $autoloader;
-
-	// 1. Define Path Safely (Prevent undefined constant error)
-	if (defined('STARMUS_PATH')) {
-		$logClassFile = STARMUS_PATH . 'src/helpers/StarmusLogger.php';
-
-		if (file_exists($logClassFile)) {
-			// 2. Manual Load
-			require_once $logClassFile;
-
-			// 3. Create Alias Safely (Prevent Fatal Error: Cannot redeclare class)
-			// We use the fully qualified name string to be safe.
-			$fqcn = 'Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger';
-
-			if (class_exists($fqcn) && ! class_exists('StarmusLogger')) {
-				class_alias($fqcn, 'StarmusLogger');
-			}
-
-			// 4. Configure Level Safely
-			if (defined('STARMUS_LOG_LEVEL') && method_exists($fqcn, 'set_min_level')) {
-				$fqcn::set_min_level(STARMUS_LOG_LEVEL);
-			}
-		}
-	}
-	// =========================================================================
-	// 3. BUNDLED SCF DEPENDENCY LOADER
-	// =========================================================================
-	/**
-	 * Loads the bundled Secure Custom Fields plugin if ACF is not already active.
-	 *
-	 * This function checks if ACF/SCF is already loaded from another plugin.
-	 * If not, it loads our bundled version and configures the appropriate paths.
-	 * Called early on 'plugins_loaded' hook with priority 5.
-	 *
-	 * @since 0.8.5
-	 * @return void
-	 */
-	function starmus_load_bundled_scf(): void
-	{
-		// If ACF/SCF is already active from another plugin, do nothing.
-		if (class_exists('ACF')) {
-			return;
-		}
-
-		$scf_main_file = STARMUS_PATH . 'vendor/secure-custom-fields/secure-custom-fields.php';
-
-		if (file_exists($scf_main_file)) {
-			if (! defined('STARMUS_ACF_PATH')) {
-				define('STARMUS_ACF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
-			}
-			if (! defined('STARMUS_ACF_URL')) {
-				define('STARMUS_ACF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
-			}
-
-			// Configure SCF/ACF to load from our local path
-			add_filter('acf/settings/path', fn() => STARMUS_ACF_PATH);
-			add_filter('acf/settings/url', fn() => STARMUS_ACF_URL);
-			add_filter('acf/settings/show_admin', '__return_false');
-			add_filter('acf/settings/show_updates', '__return_false', 100);
-
-			require_once $scf_main_file;
-		}
-	}
-	// Load Bundled SCF early (Priority 5)
-	add_action('plugins_loaded', 'starmus_load_bundled_scf', 5);
-
-
-	// =========================================================================
-	// 4. ACF JSON INTEGRATION
-	// =========================================================================
-	/**
-	 * Configure ACF JSON save and load paths for field definitions.
-	 *
-	 * Sets up ACF to save field group configurations to our plugin's acf-json
-	 * directory and load field definitions from the same location. This ensures
-	 * field definitions are version-controlled and portable.
-	 *
-	 * @since 0.8.5
-	 * @return void
-	 */
-	function starmus_acf_json_integration(): void
-	{
-		add_filter('acf/settings/save_json', fn() => STARMUS_PATH . 'acf-json');
-		add_filter(
-			'acf/settings/load_json',
-			function ($paths) {
-				// Append our path
-				$paths[] = STARMUS_PATH . 'acf-json';
-				return $paths;
-			}
-		);
-	}
-	add_action('acf/init', 'starmus_acf_json_integration');
-
-
-	// =========================================================================
-	// 5. MAIN PLUGIN INITIALIZATION
-	// =========================================================================
-
-	// Initialize multi-language support
-	require_once __DIR__ . '/src/i18n/Starmusi18NLanguage.php';
-	new \Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage();
-
-	/**
-	 * Initialize and run the main plugin application.
-	 *
-	 * This is the main entry point for the plugin, called on 'plugins_loaded'
-	 * with priority 20 to ensure SCF (priority 5) is already loaded.
-	 * Performs dependency checks and initializes the core plugin class.
-	 *
-	 * @since 0.8.5
-	 * @return void
-	 */
-	function starmus_run_plugin(): void
-	{
-		// Check if ACF class exists now that plugins_loaded(5) has fired.
-		if (! class_exists('ACF')) {
-			// Only show error if we are NOT in the middle of activating/deactivating
-			if (! isset($_GET['activate'])) {
-				add_action(
-					'admin_notices',
-					function () {
-						echo '<div class="notice notice-error"><p><strong>Starmus Error:</strong> Secure Custom Fields failed to load.</p></div>';
-					}
-				);
-			}
-			return;
-		}
-
-		try {
-			\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_run();
-
-			// Check if we need to flush rewrite rules (set during activation)
-			if (get_transient('starmus_flush_rewrite_rules')) {
-				flush_rewrite_rules();
-				delete_transient('starmus_flush_rewrite_rules');
-			}
-		} catch (\Throwable $e) {
-			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log($e);
-		}
-	}
-	add_action('plugins_loaded', 'starmus_run_plugin', 20);
-
-
-	// =========================================================================
-	// 6. ACTIVATION & DEACTIVATION (STRICT MODE)
-	// =========================================================================
-	/**
-	 * Plugin activation hook with strict dependency checking.
-	 *
-	 * Performs comprehensive checks for required dependencies including:
-	 * - Composer autoloader
-	 * - Secure Custom Fields plugin
-	 * - Internal cron system activation
-	 *
-	 * If any critical dependency is missing, the activation is halted with wp_die().
-	 * Schedules a rewrite rules flush for the next page load to ensure CPTs are registered.
-	 *
-	 * @since 0.8.5
-	 * @return void
-	 * @throws \Throwable If cron activation fails (logged but not fatal)
-	 */
-	function starmus_on_activate(): void
-	{
-		// 1. Check Autoloader
-		if (! file_exists(STARMUS_PATH . 'vendor/autoload.php')) {
-			wp_die('Starmus Error: Composer dependencies missing. Please run `composer install`.');
-		}
-
-		// 2. Force load SCF just for this check (since plugins_loaded hasn't fired for this request yet)
-		starmus_load_bundled_scf();
-
-		// 3. Verify ACF/SCF loaded
-		if (! class_exists('ACF') && ! file_exists(STARMUS_PATH . 'vendor/secure-custom-fields/secure-custom-fields.php')) {
-			wp_die('Starmus Error: Secure Custom Fields plugin missing from vendor folder.');
-		}
-
-		// 4. Trigger internal activation logic
-		try {
-			\Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
-		} catch (\Throwable $e) {
-			StarmusLogger::log($e);
-		}
-
-		// 5. Request a rewrite flush on the NEXT page load.
-		// We do this because CPTs registered via ACF JSON are not registered
-		// at this exact moment of activation. They load on 'init'.
-		set_transient('starmus_flush_rewrite_rules', true, 60);
-	}
-
-	/**
-	 * Plugin deactivation hook.
-	 *
-	 * Safely deactivates the plugin by:
-	 * - Deactivating cron jobs
-	 * - Flushing rewrite rules to clean up custom post type URLs
-	 *
-	 * Catches and silently handles any errors during deactivation to prevent
-	 * WordPress admin from showing error messages during plugin deactivation.
-	 *
-	 * @since 0.8.5
-	 * @return void
-	 */
-	function starmus_on_deactivate(): void
-	{
-		try {
-			if (class_exists('\Starisian\Sparxstar\Starmus\cron\StarmusCron')) {
-				\Starisian\Sparxstar\Starmus\cron\StarmusCron::deactivate();
-			}
-			flush_rewrite_rules();
-		} catch (\Throwable $e) {
-			// catch errors silently on deactivation
-		}
-	}
-
-	/**
-	 * Plugin uninstall hook.
-	 *
-	 * Handles complete plugin removal by loading and executing the uninstall.php
-	 * script which contains the actual cleanup logic. This separation keeps
-	 * the uninstall logic organized and testable.
-	 *
-	 * @since 0.8.5
-	 * @return void
-	 * @see uninstall.php For the actual uninstall implementation
-	 */
-	function starmus_on_uninstall(): void
-	{
-		$uninstall_file = STARMUS_PATH . 'uninstall.php';
-		if (file_exists($uninstall_file)) {
-			require_once $uninstall_file;
-		}
-	}
-
-	register_activation_hook(STARMUS_MAIN_FILE, 'starmus_on_activate');
-	register_deactivation_hook(STARMUS_MAIN_FILE, 'starmus_on_deactivate');
-	register_uninstall_hook(STARMUS_MAIN_FILE, 'starmus_on_uninstall');
+} else {
+	// Graceful degradation if composer missing
+	add_action( 'admin_notices', function() {
+		echo '<div class="notice notice-error"><p><strong>Starmus Error:</strong> vendor/autoload.php missing.</p></div>';
+	} );
 }
+
+// Manual Logger Failsafe (Must happen after autoloader or as fallback)
+$logClassFile = STARMUS_PATH . 'src/helpers/StarmusLogger.php';
+if ( file_exists( $logClassFile ) ) {
+	require_once $logClassFile;
+
+	$fqcn = 'Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger';
+	if ( class_exists( $fqcn ) && ! class_exists( 'StarmusLogger' ) ) {
+		class_alias( $fqcn, 'StarmusLogger' );
+	}
+
+	if ( defined( 'STARMUS_LOG_LEVEL' ) && method_exists( $fqcn, 'set_min_level' ) ) {
+		$fqcn::set_min_level( STARMUS_LOG_LEVEL );
+	}
+}
+
+// Load Action Scheduler
+if ( file_exists( STARMUS_PATH . 'libraries/action-scheduler/action-scheduler.php' ) ) {
+	require_once STARMUS_PATH . 'libraries/action-scheduler/action-scheduler.php';
+}
+
+// =========================================================================
+// 3. PLUGIN INITIALIZATION
+// =========================================================================
+
+// Load i18n
+require_once STARMUS_PATH . 'src/i18n/Starmusi18NLanguage.php';
+new \Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage();
+
+// Define Main Runner
+function starmus_run_plugin(): void {
+	// Check for ACF/SCF
+	if ( ! class_exists( 'ACF' ) ) {
+		// Attempt to load bundled SCF if missing
+		$scf = STARMUS_PATH . 'vendor/secure-custom-fields/secure-custom-fields.php';
+		if ( file_exists( $scf ) ) {
+			// Configure SCF Paths
+			add_filter( 'acf/settings/path', fn() => STARMUS_PATH . 'vendor/secure-custom-fields/' );
+			add_filter( 'acf/settings/url', fn() => STARMUS_URL . 'vendor/secure-custom-fields/' );
+			add_filter( 'acf/settings/show_admin', '__return_false' );
+			require_once $scf;
+		}
+	}
+
+	// Verify ACF loaded successfully
+	if ( ! function_exists( 'acf_get_instance' ) ) {
+		return; // Stop silently if dependencies failed
+	}
+
+	// Configure ACF JSON
+	add_filter( 'acf/settings/save_json', fn() => STARMUS_PATH . 'acf-json' );
+	add_filter( 'acf/settings/load_json', function( $paths ) {
+		$paths[] = STARMUS_PATH . 'acf-json';
+		return $paths;
+	} );
+
+	// Boot the Core
+	try {
+		\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_run();
+
+		if ( get_transient( 'starmus_flush_rewrite_rules' ) ) {
+			flush_rewrite_rules();
+			delete_transient( 'starmus_flush_rewrite_rules' );
+		}
+	} catch ( \Throwable $e ) {
+		if ( class_exists( 'StarmusLogger' ) ) {
+			\StarmusLogger::log( $e );
+		}
+	}
+}
+
+// Hook into WordPress (Priority 20 to let other plugins load)
+add_action( 'plugins_loaded', __NAMESPACE__ . '\\starmus_run_plugin', 20 );
+
+// =========================================================================
+// 4. ACTIVATION HOOKS
+// =========================================================================
+
+function starmus_on_activate(): void {
+	if ( ! file_exists( STARMUS_PATH . 'vendor/autoload.php' ) ) {
+		wp_die( 'Starmus Error: Run composer install.' );
+	}
+
+	try {
+		// Initialize Cron if class exists
+		if ( class_exists( '\Starisian\Sparxstar\Starmus\cron\StarmusCron' ) ) {
+			\Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
+		}
+	} catch ( \Throwable $e ) {}
+
+	set_transient( 'starmus_flush_rewrite_rules', true, 60 );
+}
+
+function starmus_on_deactivate(): void {
+	try {
+		if ( class_exists( '\Starisian\Sparxstar\Starmus\cron\StarmusCron' ) ) {
+			\Starisian\Sparxstar\Starmus\cron\StarmusCron::deactivate();
+		}
+		flush_rewrite_rules();
+	} catch ( \Throwable $e ) {}
+}
+
+function starmus_on_uninstall(): void {
+	if ( STARMUS_DELETE_ON_UNINSTALL ) {
+		try {
+			$uninstallFile = STARMUS_PATH . 'uninstall.php';
+			if ( file_exists( $uninstallFile ) ) {
+				require_once $uninstallFile;
+			}
+		} catch ( \Throwable $e ) {}
+	}
+}
+
+register_activation_hook( STARMUS_MAIN_FILE, __NAMESPACE__ . '\\starmus_on_activate' );
+register_deactivation_hook( STARMUS_MAIN_FILE, __NAMESPACE__ . '\\starmus_on_deactivate' );
+register_activation_hook( STARMUS_MAIN_FILE, __NAMESPACE__ . '\\starmus_on_uninstall' );
