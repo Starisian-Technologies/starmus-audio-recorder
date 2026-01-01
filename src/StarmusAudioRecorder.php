@@ -410,11 +410,12 @@ final class StarmusAudioRecorder
 
 			// Assets
 			StarmusLogger::info('[Starmus] Loading StarmusAssetLoader...');
-			new StarmusAssetLoader();
+			new StarmusAssetLoader($this->settings);
 
 			// TUSD webhook handler
-			StarmusLogger::info('[Starmus] Loading StarmusTusdHookHandler...');
+			StarmusLogger::info('[Starmus] Loading StarmusSubmissionHandler...');
 			$submission_handler = new StarmusSubmissionHandler($this->DAL, $this->settings);
+			StarmusLogger::info('[Starmus] Loading StarmusTusdHookHandler...');
 			$tusd_hook_handler  = new StarmusTusdHookHandler($submission_handler);
 			$tusd_hook_handler->register_hooks();
 
@@ -423,7 +424,7 @@ final class StarmusAudioRecorder
 			new StarmusRESTHandler($this->DAL, $this->settings);
 
 			// SHORTCODES - THIS WAS MISSING!!!
-			StarmudLogger::info('[Starmus] Loading StarmusShortcodeLoader...');
+			StarmusLogger::info('[Starmus] Loading StarmusShortcodeLoader...');
 			new StarmusShortcodeLoader($this->DAL, $this->settings);
 
 			StarmusLogger::info('[Starmus] === init_components() COMPLETE ===');
@@ -448,7 +449,7 @@ final class StarmusAudioRecorder
 	 */
 	private function register_hooks(): void
 	{
-
+		StarmusLogger::info('[Starmus] register_hooks() called.');
 		if ($this->hooksRegistered) {
 			return;
 		}
@@ -480,6 +481,8 @@ final class StarmusAudioRecorder
 			if (is_admin()) {
 				add_action('admin_notices', $this->displayRuntimeErrorNotice(...));
 			}
+
+			$this->StarmusLogger::info('[Starmus] register_hooks() completed.');
 
 			$this->hooksRegistered = true;
 		} catch (Throwable $throwable) {
@@ -522,11 +525,16 @@ final class StarmusAudioRecorder
 	public function displayRuntimeErrorNotice(): void
 	{
 		try {
+
+			if($this->runtimeErrors === null) {
+				return;
+			}
 			if ($this->runtimeErrors === array() || ! current_user_can('manage_options')) {
 				return;
 			}
 
 			$unique = array_unique($this->runtimeErrors);
+			StarmusLogger::log('Starmus Runtime Errors:', $unique);
 			foreach ($unique as $msg) {
 				echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus Audio Recorder:</strong><br>' .
 					esc_html($msg) .

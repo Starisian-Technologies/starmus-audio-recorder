@@ -57,11 +57,16 @@ final class StarmusShortcodeLoader
 			$this->dal      = $dal ?? new StarmusAudioRecorderDAL();
 			// Ensure prosody engine is set up
 			$this->setProsodyEngine();
-			// Register shortcodes on init
-			add_action('init', $this->register_shortcodes(...));
+			$this->register_hooks();
 		} catch (\Throwable $throwable) {
 			StarmusLogger::log($throwable);
 		}
+	}
+
+	private function register_hooks(): void
+	{
+		// Currently no additional hooks to register
+		add_action('init', [$this, 'register_shortcodes']);
 	}
 
 	/**
@@ -240,5 +245,10 @@ final class StarmusShortcodeLoader
 
 		// Render the UI with context
 		return $editor->render_audio_editor_shortcode($atts);
+	}
+
+	public function get_prosody_engine(): ?StarmusProsodyPlayer
+	{
+		return $this->prosody;
 	}
 }
