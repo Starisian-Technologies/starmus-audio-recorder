@@ -11,9 +11,10 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\core\interfaces;
 
-use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusBaseDAL
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusBaseDAL;
 use WP_Error;
 use WP_Query;
+use function defined;
 
 if (! defined('ABSPATH')) {
 	exit;
