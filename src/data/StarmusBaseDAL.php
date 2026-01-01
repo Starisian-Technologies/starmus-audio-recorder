@@ -60,6 +60,42 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 		}
 	}
 
+	/** Strictly retrieves metadata.
+	 *
+	 * Prefers ACF's get_field() to ensure complex data types (Arrays/Repeaters)
+	 * are returned as usable structures, not serialized strings.
+	 * Falls back to native get_post_meta() for raw data or if ACF is missing.
+	 *
+	 * @param int    $post_id Target Post ID.
+	 * @param string $key     Meta Key.
+	 * @param bool   $single  Whether to return a single value (default true).
+	 * @return mixed          Value on success, null on failure/exception.
+	 */
+	public function get_post_meta( int $post_id, string $key, bool $single = true ): mixed {
+		try {
+			// 1. Prefer ACF for structured data retrieval
+			if ( function_exists( 'get_field' ) ) {
+				$value = get_field( $key, $post_id );
+
+				// Logic: ACF returns 'false' on failure OR if the boolean value is false.
+				// We accept the value if it is not null and not false.
+				// If it IS false, we fall back to native meta to distinguish between
+				// "actually false" and "field doesn't exist".
+				if ( $value !== null && $value !== false ) {
+					return $value;
+				}
+			}
+
+			// 2. Native Fallback (Source of Truth for raw DB values)
+			return get_post_meta( $post_id, $key, $single );
+
+		} catch ( Throwable $e ) {
+			// 3. Fail Safe: Log the error and return null to prevent WSOD
+			StarmusLogger::log( $e );
+			return null;
+		}
+	}
+
 
 	/**
 	 * {@inheritdoc}
