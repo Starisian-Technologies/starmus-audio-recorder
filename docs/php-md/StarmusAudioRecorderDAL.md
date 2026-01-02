@@ -24,7 +24,7 @@ if (! \defined('ABSPATH')) {
     exit;
 }
 
-use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 use WP_Error;

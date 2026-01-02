@@ -1,16 +1,12 @@
 <?php
 
 /**
- * Dependency Detection Guard.
+ * Dependency Manager.
  *
- * Implements the "Detection Only" commercial standard.
- *
- * Handles the "ACF vs SCF" conflict resolution:
- * - If Standard ACF is active, we report it as a conflict (because it blocks SCF).
- * - If SCF or ACF Pro is active, we proceed.
+ * Handles detection of external conflicts and loading of bundled dependencies.
  *
  * @package Starisian\Sparxstar\Starmus\helpers
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 declare(strict_types=1);
@@ -18,11 +14,11 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 use function add_action;
+use function add_filter;
 use function class_exists;
 use function defined;
-use function esc_html;
+use function define;
 use function function_exists;
-use function implode;
 use function is_admin;
 
 if (! defined('ABSPATH')) {
@@ -33,99 +29,73 @@ class StarmusDependencies
 {
 
 	/**
-	 * Detect if a SUFFICIENT version of ACF/SCF is active.
+	 * Attempt to load the bundled Secure Custom Fields plugin.
 	 *
-	 * Returns true ONLY if:
-	 * 1. Secure Custom Fields is active (Preferred)
-	 * 2. OR ACF Pro is active (Acceptable)
+	 * LOGIC:
+	 * 1. Check if ACF/SCF is already active (Conflict).
+	 * 2. If active -> Register Error & Return False (Do not load bundled).
+	 * 3. If inactive -> Load Bundled SCF & Return True.
 	 *
-	 * Returns false if:
-	 * 1. ACF is missing completely.
-	 * 2. Standard ACF (Free) is active (Insufficient).
+	 * @return void
+	 */
+	public static function try_load_bundled_scf(): void
+	{
+		error_log('STARMUS TRY LOAD BUNDLED SCF');
+		// 1. Check for Interference
+		if (function_exists('acf_get_instance') || class_exists('ACF')) {
+			// Conflict: External ACF is running.
+			if (is_admin() && (! defined('DOING_AJAX') || ! DOING_AJAX)) {
+				add_action('admin_notices', function () {
+					echo '<div class="notice notice-error"><p><strong>Starmus Error:</strong> An external version of ACF/SCF is active. Please deactivate it to allow Starmus to load its bundled Secure Custom Fields.</p></div>';
+				});
+			}
+			// Mark conflict so Bootstrapper knows to stop
+			define('STARMUS_ACF_CONFLICT', true);
+			return;
+		}
+
+		// 2. Load Bundled
+		$scf_path = STARMUS_PATH . 'vendor/secure-custom-fields/secure-custom-fields.php';
+
+		if (file_exists($scf_path)) {
+			// Configure Paths using Constants defined in Main File
+			if (! defined('STARMUS_ACF_PATH')) define('STARMUS_ACF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
+			if (! defined('STARMUS_ACF_URL')) define('STARMUS_ACF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
+
+			// Hook Filters
+			add_filter('acf/settings/path', fn() => STARMUS_ACF_PATH);
+			add_filter('acf/settings/url', fn() => STARMUS_ACF_URL);
+			add_filter('acf/settings/show_admin', '__return_false');
+			add_filter('acf/settings/show_updates', '__return_false', 100);
+
+			// Load
+			require_once $scf_path;
+		}
+	}
+
+	/**
+	 * Check if the system is stable enough to boot the Core.
 	 *
 	 * @return bool
 	 */
-	public static function has_valid_acf(): bool
+	public static function is_safe_to_boot(): bool
 	{
-		error_log('CHECKING FOR VALID ACF/SCF');
-		// 1. Check if ANY ACF is running
-		if (! function_exists('acf_get_instance')) {
+		error_log('STARMUS IS SAFE TO BOOT CHECK');
+		// If we flagged a conflict earlier, stop.
+		if (defined('STARMUS_ACF_CONFLICT')) {
 			return false;
 		}
 
-		// 2. Check for SCF specifically (Preferred)
-		// SCF usually defines SCF_VERSION or maps to acf_pro class depending on version
-		if (defined('SCF_VERSION') || class_exists('SCF')) {
-			return true;
-		}
-
-		// 3. Check for ACF Pro (Acceptable fallback)
-		if (class_exists('acf_pro')) {
-			return true;
-		}
-
-		// 4. If we are here, it's likely Standard ACF Free, which lacks required features.
-		return false;
-	}
-
-	/**
-	 * Detect if Action Scheduler is available.
-	 *
-	 * @return bool
-	 */
-	public static function has_action_scheduler(): bool
-	{
-		return class_exists('ActionScheduler') || function_exists('as_enqueue_async_action');
-	}
-
-	/**
-	 * Check requirements and register admin notices if missing or conflicting.
-	 *
-	 * @return bool True if safe to boot, False if dependencies failed.
-	 */
-	public static function check_critical_dependencies(): bool
-	{
-		error_log('CHECKING CRITICAL DEPENDENCIES');
-		$errors = array();
-
-		// --- ACF / SCF LOGIC ---
-		if (! self::has_valid_acf()) {
-			if (function_exists('acf_get_instance')) {
-				// INTERFERENCE DETECTED: ACF Free is running, blocking bundled SCF.
-				$errors[] = 'Standard ACF is active but insufficient. Please deactivate it to allow Secure Custom Fields (SCF) to load.';
-			} else {
-				// NOTHING LOADED: This shouldn't happen if bundled SCF works,
-				// but catches cases where bundle failed.
-				$errors[] = 'Secure Custom Fields (SCF) failed to load.';
+		// If ACF isn't loaded (bundled load failed), stop.
+		if (! function_exists('acf_get_instance')) {
+			if (is_admin()) {
+				add_action('admin_notices', function () {
+					echo '<div class="notice notice-error"><p><strong>Starmus Error:</strong> Bundled Secure Custom Fields failed to load.</p></div>';
+				});
 			}
+			return false;
 		}
 
-		// --- ACTION SCHEDULER LOGIC ---
-		// (Optional: You can decide if AS is hard-critical or soft-critical)
-		// if ( ! self::has_action_scheduler() ) {
-		//    $errors[] = 'Action Scheduler';
-		// }
-
-		if (empty($errors)) {
-			return true;
-		}
-
-		// Register notice only if we are in admin
-		if (is_admin() && (! defined('DOING_AJAX') || ! DOING_AJAX)) {
-			add_action('admin_notices', function () use ($errors) {
-?>
-				<div class="notice notice-error">
-					<p><strong>Starmus Audio Recorder Error:</strong></p>
-					<ul>
-						<?php foreach ($errors as $err) : ?>
-							<li><?php echo esc_html($err); ?></li>
-						<?php endforeach; ?>
-					</ul>
-				</div>
-<?php
-			});
-		}
-
-		return false;
+		return true;
 	}
 }

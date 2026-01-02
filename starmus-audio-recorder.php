@@ -39,13 +39,9 @@
  *
  * define( 'TUS_WEBHOOK_SECRET', 'YOUR_SECRET_STRING' );
  */
-
-declare(strict_types=1);
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-error_log('STARMUS STARTED');
 
 // -------------------------------------------------------------------------
 // 0. SHUTDOWN SAFETY NET
@@ -57,27 +53,13 @@ register_shutdown_function( function() {
 	}
 } );
 
-function starmus_shutdown_callback(): void
-{
-	// This code will run after WordPress has finished rendering the page
-	// and just before PHP terminates the script.
-	$error = error_get_last();
-	if ($error && in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR), true)) {
-		error_log('STARMUS FATAL CRASH: ' . print_r($error, true));
-	}
-	error_log('WordPress script is shutting down. Goodbye!');
+// -------------------------------------------------------------------------
+// 1. CONSTANTS
+// -------------------------------------------------------------------------
 
-	// You can perform cleanup tasks here, like:
-	// * Logging data
-	// * Priming a cache for the next request
-	// * Handling fatal errors that might have occurred
+if ( defined( 'STARMUS_LOADED' ) ) {
+	return;
 }
-
-add_action('shutdown', 'starmus_shutdown_callback');
-
-// -------------------------------------------------------------------------
-// 1. CONSTANTS & GUARDS
-// -------------------------------------------------------------------------
 
 define( 'STARMUS_LOADED', true );
 define( 'STARMUS_VERSION', '0.9.4' );
@@ -87,7 +69,6 @@ define( 'STARMUS_URL', plugin_dir_url( STARMUS_MAIN_FILE ) );
 define( 'STARMUS_PLUGIN_PREFIX', 'starmus' );
 define( 'STARMUS_PLUGIN_DIR', plugin_dir_path( STARMUS_MAIN_FILE ) );
 
-// Config Defaults
 if ( ! defined( 'STARMUS_LOG_LEVEL' ) ) define( 'STARMUS_LOG_LEVEL', 8 );
 if ( ! defined( 'STARMUS_TUS_ENDPOINT' ) ) define( 'STARMUS_TUS_ENDPOINT', 'https://upload.sparxstar.com/files/' );
 if ( ! defined( 'STARMUS_R2_ENDPOINT' ) ) define( 'STARMUS_R2_ENDPOINT', 'https://cdn.sparxstar.com/' );
@@ -97,18 +78,8 @@ if ( ! defined( 'TUS_WEBHOOK_SECRET' ) ) define( 'TUS_WEBHOOK_SECRET', '84d34624
 // 2. ENVIRONMENT INITIALIZATION (Priority 0)
 // -------------------------------------------------------------------------
 
-/**
- * Loads Composer Autoloader and sets up Logger aliases.
- * Runs at Priority 0 to ensure classes are available before booting.
- */
 function starmus_init_environment(): void {
 	// A. Composer Autoloader
-	error_log('STARMUS INIT ENVIRONMENT');
-	try{
-		if (!file_exists(STARMUS_PATH . 'vendor/autoload.php')) {
-			throw new RuntimeException('Composer autoloader missing.');
-		}
-
 	$autoloader = STARMUS_PATH . 'vendor/autoload.php';
 	if ( file_exists( $autoloader ) ) {
 		require_once $autoloader;
@@ -120,39 +91,40 @@ function starmus_init_environment(): void {
 	}
 
 	// B. Logger Failsafe & Alias
-	// Using FQCN (Fully Qualified Class Name) to avoid illegal file-scope `use`.
 	if ( class_exists( \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::class ) ) {
 		if ( ! class_exists( 'StarmusLogger' ) ) {
 			class_alias( \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::class, 'StarmusLogger' );
 		}
 		\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::set_min_level( STARMUS_LOG_LEVEL );
 	}
-	} catch (Throwable $e) {
-		error_log('Starmus Init Error: ' . $e->getMessage());
-	}
 }
-// Run early to prepare environment
 add_action( 'plugins_loaded', 'starmus_init_environment', 0 );
 
 
 // -------------------------------------------------------------------------
-// 3. MAIN PLUGIN BOOTSTRAP (Priority 10)
+// 3. DEPENDENCY LOADING (Priority 1)
 // -------------------------------------------------------------------------
 
-/**
- * Boots the main plugin logic.
- * Checks dependencies and initializes the Orchestrator.
- */
-function starmus_boot_plugin(): void {
-	error_log('STARMUS BOOT PLUGIN');
-	try {
-		// 1. Dependency Detection (Safe method)
-		if ( ! class_exists( \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class ) ) {
-			return; // Autoloader failed
-		}
+function starmus_load_bundled_deps(): void {
+	// Delegate to Dependencies Class
+	if ( class_exists( \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class ) ) {
+		\Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::try_load_bundled_scf();
+	}
+}
+add_action( 'plugins_loaded', 'starmus_load_bundled_deps', 1 );
 
-		if ( ! \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::check_critical_dependencies() ) {
-			return; // Missing ACF/SCF
+
+// -------------------------------------------------------------------------
+// 4. MAIN PLUGIN BOOTSTRAP (Priority 10)
+// -------------------------------------------------------------------------
+
+function starmus_boot_plugin(): void {
+	try {
+		// 1. Verify Safety
+		if ( ! class_exists( \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class ) ) return;
+
+		if ( ! \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::is_safe_to_boot() ) {
+			return; // Stop. Admin notice already registered by Dependencies class.
 		}
 
 		// 2. Load i18n
@@ -160,7 +132,7 @@ function starmus_boot_plugin(): void {
 			new \Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage();
 		}
 
-		// 3. ACF JSON Integration (Guarded)
+		// 3. ACF JSON Integration (Only runs if ACF loaded)
 		if ( function_exists( 'acf_get_instance' ) ) {
 			add_filter( 'acf/settings/save_json', fn() => STARMUS_PATH . 'acf-json' );
 			add_filter( 'acf/settings/load_json', function( $paths ) {
@@ -183,7 +155,6 @@ function starmus_boot_plugin(): void {
 		}
 
 	} catch ( Throwable $e ) {
-		// Safe logging via FQCN
 		if ( class_exists( \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::class ) ) {
 			\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::log( $e );
 		} else {
@@ -191,31 +162,29 @@ function starmus_boot_plugin(): void {
 		}
 	}
 }
-// Run at standard priority
 add_action( 'plugins_loaded', 'starmus_boot_plugin', 10 );
 
 
 // -------------------------------------------------------------------------
-// 4. LIFECYCLE HOOKS
+// 5. LIFECYCLE HOOKS
 // -------------------------------------------------------------------------
 
 function starmus_on_activate(): void {
-	error_log('STARMUS ACTIVATING');
-	try{
-	// Safe load of autoloader to ensure classes exist during activation
-	if ( ! class_exists( \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class ) ) {
-		if ( file_exists( STARMUS_PATH . 'vendor/autoload.php' ) ) {
-			require_once STARMUS_PATH . 'vendor/autoload.php';
-		} else {
-			wp_die( 'Starmus Error: Composer missing.' );
+	if ( ! file_exists( STARMUS_PATH . 'vendor/autoload.php' ) ) {
+		wp_die( 'Starmus Error: Composer missing.' );
+	}
+	require_once STARMUS_PATH . 'vendor/autoload.php';
+
+	// Delegate loading logic to class if available
+	if ( class_exists( \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class ) ) {
+		\Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::try_load_bundled_scf();
+
+		if ( ! \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::is_safe_to_boot() ) {
+			wp_die( 'Starmus Activation Error: Conflict with existing ACF/SCF or failed load.' );
 		}
 	}
 
-	// Check dependencies using the helper class
-	if ( ! \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::check_critical_dependencies() ) {
-		wp_die( 'Starmus Error: Secure Custom Fields (or ACF) is required.' );
-	}
-
+	try {
 		if ( class_exists( \Starisian\Sparxstar\Starmus\cron\StarmusCron::class ) ) {
 			\Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
 		}

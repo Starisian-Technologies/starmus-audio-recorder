@@ -3,7 +3,7 @@
 /**
  * Contract for the Audio Data Access Layer.
  *
- * @package Starisian\Sparxstar\Starmus\core\interfaces
+ * @package Starisian\Sparxstar\Starmus\data\interfaces
  * @version 1.3.0
  */
 

@@ -92,7 +92,7 @@ use function rmdir;
 use function sanitize_key;
 use function sanitize_text_field;
 
-use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;

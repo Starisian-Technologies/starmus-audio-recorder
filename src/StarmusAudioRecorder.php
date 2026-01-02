@@ -408,7 +408,7 @@ final class StarmusAudioRecorder
 			new StarmusRESTHandler($this->DAL, $this->settings);
 
 			// Shortcodes
-			new StarmusShortcodeLoader($this->DAL, $this->settings);
+			new StarmusShortcodeLoader($this->DAL, $this->settings, $this->prosodyDAL);
 
 			StarmusLogger::info('[Starmus] === init_components() COMPLETE ===');
 		} catch (Throwable $throwable) {

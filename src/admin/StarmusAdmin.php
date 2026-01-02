@@ -16,7 +16,7 @@ if (! \defined('ABSPATH')) {
 	return;
 }
 
-use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 
 /**
@@ -56,7 +56,7 @@ class StarmusAdmin
 	/**
 	 * Data Access Layer instance.
 	 */
-	private ?\Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL $dal = null;
+	private ?\Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL $dal = null;
 
 	/**
 	 * Constructor - initializes admin settings and hooks.

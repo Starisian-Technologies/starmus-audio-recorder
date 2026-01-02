@@ -6,7 +6,7 @@
  * Enforces standard methods for meta retrieval and error handling
  * across both the Recorder and the Prosody engine.
  *
- * @package Starisian\Sparxstar\Starmus\core\interfaces
+ * @package Starisian\Sparxstar\Starmus\data\interfaces
  */
 
 declare(strict_types=1);

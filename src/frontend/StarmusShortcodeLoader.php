@@ -8,7 +8,8 @@ if (! \defined('ABSPATH')) {
 	exit;
 }
 
-use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
 use Starisian\Sparxstar\Starmus\frontend\StarmusAudioEditorUI;
@@ -48,15 +49,16 @@ final class StarmusShortcodeLoader
 
 	/**
 	 * @param IStarmusAudioDAL|null $dal The data access layer.
-	 * @param StarmusSettings|null                  $settings The settings instance.
+	 * @param StarmusSettings|null  $settings The settings instance.
+	 * @param StarmusProsodyDAL|null  $prosodyDal The prosody DAL instance.
 	 */
-	public function __construct(?IStarmusAudioDAL $dal = null, ?StarmusSettings $settings = null)
+	public function __construct(?IStarmusAudioDAL $dal = null, ?StarmusSettings $settings = null, ?StarmusProsodyDAL $prosodyDal)
 	{
 		try {
 			$this->settings = $settings ?? new StarmusSettings();
 			$this->dal      = $dal ?? new StarmusAudioDAL();
 			// Ensure prosody engine is set up
-			$this->setProsodyEngine();
+			$this->setProsodyEngine($prosodyDal);
 			$this->register_hooks();
 		} catch (\Throwable $throwable) {
 			StarmusLogger::log($throwable);
@@ -87,11 +89,11 @@ final class StarmusShortcodeLoader
 		}
 	}
 
-	private function setProsodyEngine(): void
+	private function setProsodyEngine(StarmusProsodyDAL $prosodyDal): void
 	{
 		if (class_exists(StarmusProsodyPlayer::class) && ($this->prosody === null)) {
 			try {
-				$this->prosody = new StarmusProsodyPlayer();
+				$this->prosody = new StarmusProsodyPlayer($prosodyDal);
 			} catch (Throwable $throwable) {
 				StarmusLogger::log($throwable);
 			}
