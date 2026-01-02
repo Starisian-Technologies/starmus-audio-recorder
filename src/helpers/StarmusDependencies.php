@@ -1,12 +1,14 @@
 <?php
 
 /**
- * Dependency Manager.
+ * Dependency Manager & System Validator.
  *
- * Handles detection of external conflicts and loading of bundled dependencies.
+ * A self-contained static class responsible for the "Environment Negotiation" phase.
+ * It enforces version requirements, detects conflicts, and loads bundled dependencies
+ * in a deterministic order.
  *
  * @package Starisian\Sparxstar\Starmus\helpers
- * @version 1.2.0
+ * @version 1.5.0
  */
 
 declare(strict_types=1);
@@ -16,10 +18,15 @@ namespace Starisian\Sparxstar\Starmus\helpers;
 use function add_action;
 use function add_filter;
 use function class_exists;
-use function defined;
 use function define;
+use function defined;
+use function file_exists;
 use function function_exists;
+use function implode;
 use function is_admin;
+use function is_plugin_active;
+use function phpversion;
+use function version_compare;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -28,128 +35,169 @@ if (! defined('ABSPATH')) {
 class StarmusDependencies
 {
 
+	private const MIN_PHP_VERSION = '8.2';
+	private const MIN_WP_VERSION  = '6.8';
+
 	/**
-	 * Attempt to load the bundled Secure Custom Fields plugin.
+	 * Main Entry Point: Validates environment and loads dependencies.
 	 *
-	 * LOGIC:
-	 * 1. Check if ACF/SCF is already active (Conflict).
-	 * 2. If active -> Register Error & Return False (Do not load bundled).
-	 * 3. If inactive -> Load Bundled SCF & Return True.
+	 * Call this from the bootloader. If it returns true, the Core is safe to launch.
 	 *
-	 * @return void
+	 * @return bool True if environment is healthy and dependencies loaded.
 	 */
-	public static function try_load_bundled_scf(): void
+	public static function bootstrap_scf(): bool
 	{
-		error_log('STARMUS TRY LOAD BUNDLED SCF');
-		// 1. Check for Interference
-		if (function_exists('acf_get_instance') || class_exists('ACF')) {
-			// Conflict: External ACF is running.
-			if (is_admin() && (! defined('DOING_AJAX') || ! DOING_AJAX)) {
-				add_action('admin_notices', function () {
-					echo '<div class="notice notice-error"><p><strong>Starmus Error:</strong> An external version of ACF/SCF is active. Please deactivate it to allow Starmus to load its bundled Secure Custom Fields.</p></div>';
-				});
-			}
-			// Mark conflict so Bootstrapper knows to stop
-			define('STARMUS_ACF_CONFLICT', true);
-			return;
+		// 1. Check System Requirements (PHP/WP)
+		if (! self::check_versions()) {
+			return false;
+		}
+		if (! self::is_safe_to_load_scf()) {
+			return false;
+		}
+		// 2. Negotiate Secure Custom Fields (Conflict Check + Loading)
+		if (! self::load_scf()) {
+			return false;
 		}
 
-		// 2. Load Bundled
-		$scf_path = STARMUS_PATH . 'vendor/secure-custom-fields/secure-custom-fields.php';
+		// 3. Register Schema (Only if SCF loaded successfully)
+		self::register_acf_schema();
 
-		if (file_exists($scf_path)) {
-			// Configure Paths using Constants defined in Main File
-			if (! defined('STARMUS_ACF_PATH')) define('STARMUS_ACF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
-			if (! defined('STARMUS_ACF_URL')) define('STARMUS_ACF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
-
-			// Hook Filters
-			add_filter('acf/settings/path', fn() => STARMUS_ACF_PATH);
-			add_filter('acf/settings/url', fn() => STARMUS_ACF_URL);
-			add_filter('acf/settings/show_admin', '__return_false');
-			add_filter('acf/settings/show_updates', '__return_false', 100);
-
-			// Load
-			require_once $scf_path;
-		}
+		return true;
 	}
 
 	/**
-	 * Check if the system is stable enough to boot the Core.
-	 *
-	 * @return bool
+	 * 1. Check PHP and WordPress Versions.
 	 */
-	public static function ensure_scf(): bool
+	private static function check_versions(): bool
 	{
+		$errors = array();
 
-		// 1. HARD STOP — ANY ACTIVE ACF (FREE OR PRO)
-		if (function_exists('acf_get_instance')) {
+		if (version_compare(phpversion(), self::MIN_PHP_VERSION, '<')) {
+			$errors[] = 'PHP version ' . self::MIN_PHP_VERSION . '+ is required. Running: ' . phpversion();
+		}
 
-			// SCF plugin active?
-			if (defined('SCF_VERSION') || class_exists('SCF', false)) {
-				self::fail(
-					'SCF_PLUGIN_ACTIVE',
-					'Secure Custom Fields is active as a plugin. Starmus requires the bundled Composer version.'
-				);
+		global $wp_version;
+		if (version_compare($wp_version, self::MIN_WP_VERSION, '<')) {
+			$errors[] = 'WordPress version ' . self::MIN_WP_VERSION . '+ is required. Running: ' . $wp_version;
+		}
+
+		if (! empty($errors)) {
+			self::render_error($errors);
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * 1 Check if ACF/SCF is installed.
+	 */
+	public static function is_safe_to_load_scf(): bool
+	{
+		// Ensure helper functions are available
+		if (! function_exists('is_plugin_active')) {
+			include_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		// A. Check for HARD CONFLICTS (Active Plugins)
+		// These plugins explicitly conflict with our bundled version logic.
+		$conflicting_plugins = array(
+			'secure-custom-fields/secure-custom-fields.php',
+			'advanced-custom-fields-pro/acf.php',
+			'advanced-custom-fields/acf.php',
+		);
+
+		foreach ($conflicting_plugins as $plugin) {
+			if (is_plugin_active($plugin)) {
+				self::render_error(array(
+					'Conflict Detected: An external version of ACF or SCF is active (' . $plugin . ').',
+					'Please deactivate it to allow Starmus to load its required bundled version.'
+				));
 				return false;
 			}
-
-			// Any ACF (free or pro) active
-			self::fail(
-				'ACF_ACTIVE',
-				'Advanced Custom Fields is active. Starmus requires Secure Custom Fields (Composer only).'
-			);
-			return false;
 		}
 
-		// 2. SCF PLUGIN INSTALLED BUT INACTIVE → OK (IGNORE)
-		// (do nothing)
-
-		// 3. SCF ALREADY LOADED VIA COMPOSER (by another plugin) → OK
-		if (class_exists('SCF', false)) {
+		// B. Check for PRE-LOADED ENVIRONMENT (Composer/Other)
+		// If code is present but not an active plugin, it is likely a shared library.
+		if (function_exists('acf_get_instance') || class_exists('ACF')) {
+			// VALIDATION: Ensure the environment is actually usable.
+			if (! function_exists('acf_add_local_field_group')) {
+				self::render_error(array(
+					'Dependency Error: A preloaded ACF/SCF environment was detected, but it appears incomplete or corrupted.',
+					'Missing required function: acf_add_local_field_group'
+				));
+				return false;
+			}
+			// Environment is valid. Skip loading our bundle.
 			return true;
 		}
+		return true;
+	}
+	/**
+	 * 2. Load Bundled SCF (With Strict Activation Checks).
+	 */
+	private static function load_scf(): bool
+	{
+		// C. Installation: Load Bundled Version
+		$scf_path = STARMUS_PATH . 'vendor/secure-custom-fields/secure-custom-fields.php';
 
-		// 4. LOAD COMPOSER SCF
-		$scf = STARMUS_PATH . 'vendor/secure-custom-fields/secure-custom-fields.php';
-
-		if (! file_exists($scf)) {
-			self::fail(
-				'SCF_MISSING',
-				'Secure Custom Fields not found (Composer package missing).'
-			);
+		if (! file_exists($scf_path)) {
+			self::render_error(array('Critical Dependency Missing: bundled Secure Custom Fields not found.'));
 			return false;
 		}
 
-		define('STARMUS_ACF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
-		define('STARMUS_ACF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
+		// Configure SCF Constants & Filters
+		if (! defined('STARMUS_ACF_PATH')) define('STARMUS_ACF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
+		if (! defined('STARMUS_ACF_URL')) define('STARMUS_ACF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
 
 		add_filter('acf/settings/path', fn() => STARMUS_ACF_PATH);
 		add_filter('acf/settings/url', fn() => STARMUS_ACF_URL);
 		add_filter('acf/settings/show_admin', '__return_false');
 		add_filter('acf/settings/show_updates', '__return_false', 100);
 
-		require_once $scf;
+		require_once $scf_path;
 
-		// 5. VERIFY
-		if (function_exists('acf_get_instance')) {
-			return true;
+		// Final Verification
+		if (! function_exists('acf_get_instance')) {
+			self::render_error(array('Dependency Load Failed: Secure Custom Fields could not initialize.'));
+			return false;
 		}
 
-		self::fail(
-			'SCF_BOOT_FAILED',
-			'Composer Secure Custom Fields failed to initialize.'
-		);
-		return false;
+		return true;
 	}
+
 	/**
-	 * Log failure reason.
-	 *
-	 * @param string $code Error Code.
-	 * @param string $message Error Message.
-	 * @return void
+	 * 3. Register JSON Schema Paths.
 	 */
-	private static function fail(string $code, string $message): void
+	private static function register_acf_schema(): void
 	{
-		error_log("STARMUS DEPENDENCY ERROR [{$code}]: {$message}");
+		add_filter('acf/settings/save_json', fn() => STARMUS_PATH . 'acf-json');
+		add_filter('acf/settings/load_json', function ($paths) {
+			$paths[] = STARMUS_PATH . 'acf-json';
+			return $paths;
+		});
+	}
+
+	/**
+	 * Helper to display admin notices.
+	 */
+	private static function render_error(array $messages): void
+	{
+		if (! is_admin() || (defined('DOING_AJAX') && DOING_AJAX)) {
+			return;
+		}
+
+		add_action('admin_notices', function () use ($messages) {
+?>
+			<div class="notice notice-error">
+				<p><strong>Starmus Audio Recorder Error:</strong></p>
+				<ul>
+					<?php foreach ($messages as $msg) : ?>
+						<li><?php echo esc_html($msg); ?></li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+<?php
+		});
 	}
 }
