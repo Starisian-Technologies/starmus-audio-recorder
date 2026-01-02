@@ -78,24 +78,78 @@ class StarmusDependencies
 	 *
 	 * @return bool
 	 */
-	public static function is_safe_to_boot(): bool
+	public static function ensure_scf(): bool
 	{
-		error_log('STARMUS IS SAFE TO BOOT CHECK');
-		// If we flagged a conflict earlier, stop.
-		if (defined('STARMUS_ACF_CONFLICT')) {
-			return false;
-		}
 
-		// If ACF isn't loaded (bundled load failed), stop.
-		if (! function_exists('acf_get_instance')) {
-			if (is_admin()) {
-				add_action('admin_notices', function () {
-					echo '<div class="notice notice-error"><p><strong>Starmus Error:</strong> Bundled Secure Custom Fields failed to load.</p></div>';
-				});
+		// 1. HARD STOP — ANY ACTIVE ACF (FREE OR PRO)
+		if (function_exists('acf_get_instance')) {
+
+			// SCF plugin active?
+			if (defined('SCF_VERSION') || class_exists('SCF', false)) {
+				self::fail(
+					'SCF_PLUGIN_ACTIVE',
+					'Secure Custom Fields is active as a plugin. Starmus requires the bundled Composer version.'
+				);
+				return false;
 			}
+
+			// Any ACF (free or pro) active
+			self::fail(
+				'ACF_ACTIVE',
+				'Advanced Custom Fields is active. Starmus requires Secure Custom Fields (Composer only).'
+			);
 			return false;
 		}
 
-		return true;
+		// 2. SCF PLUGIN INSTALLED BUT INACTIVE → OK (IGNORE)
+		// (do nothing)
+
+		// 3. SCF ALREADY LOADED VIA COMPOSER (by another plugin) → OK
+		if (class_exists('SCF', false)) {
+			return true;
+		}
+
+		// 4. LOAD COMPOSER SCF
+		$scf = STARMUS_PATH . 'vendor/secure-custom-fields/secure-custom-fields.php';
+
+		if (! file_exists($scf)) {
+			self::fail(
+				'SCF_MISSING',
+				'Secure Custom Fields not found (Composer package missing).'
+			);
+			return false;
+		}
+
+		define('STARMUS_ACF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
+		define('STARMUS_ACF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
+
+		add_filter('acf/settings/path', fn() => STARMUS_ACF_PATH);
+		add_filter('acf/settings/url', fn() => STARMUS_ACF_URL);
+		add_filter('acf/settings/show_admin', '__return_false');
+		add_filter('acf/settings/show_updates', '__return_false', 100);
+
+		require_once $scf;
+
+		// 5. VERIFY
+		if (function_exists('acf_get_instance')) {
+			return true;
+		}
+
+		self::fail(
+			'SCF_BOOT_FAILED',
+			'Composer Secure Custom Fields failed to initialize.'
+		);
+		return false;
+	}
+	/**
+	 * Log failure reason.
+	 *
+	 * @param string $code Error Code.
+	 * @param string $message Error Message.
+	 * @return void
+	 */
+	private static function fail(string $code, string $message): void
+	{
+		error_log("STARMUS DEPENDENCY ERROR [{$code}]: {$message}");
 	}
 }
