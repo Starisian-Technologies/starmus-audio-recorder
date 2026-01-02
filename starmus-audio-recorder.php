@@ -45,6 +45,7 @@ declare(strict_types=1);
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+error_log('STARMUS STARTED');
 
 // -------------------------------------------------------------------------
 // 0. SHUTDOWN SAFETY NET
@@ -55,6 +56,24 @@ register_shutdown_function( function() {
 		error_log( 'STARMUS FATAL CRASH: ' . print_r( $error, true ) );
 	}
 } );
+
+function starmus_shutdown_callback(): void
+{
+	// This code will run after WordPress has finished rendering the page
+	// and just before PHP terminates the script.
+	$error = error_get_last();
+	if ($error && in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR), true)) {
+		error_log('STARMUS FATAL CRASH: ' . print_r($error, true));
+	}
+	error_log('WordPress script is shutting down. Goodbye!');
+
+	// You can perform cleanup tasks here, like:
+	// * Logging data
+	// * Priming a cache for the next request
+	// * Handling fatal errors that might have occurred
+}
+
+add_action('shutdown', 'starmus_shutdown_callback');
 
 // -------------------------------------------------------------------------
 // 1. CONSTANTS & GUARDS
@@ -84,6 +103,7 @@ if ( ! defined( 'TUS_WEBHOOK_SECRET' ) ) define( 'TUS_WEBHOOK_SECRET', '84d34624
  */
 function starmus_init_environment(): void {
 	// A. Composer Autoloader
+	error_log('STARMUS INIT ENVIRONMENT');
 	$autoloader = STARMUS_PATH . 'vendor/autoload.php';
 	if ( file_exists( $autoloader ) ) {
 		require_once $autoloader;
@@ -116,6 +136,7 @@ add_action( 'plugins_loaded', 'starmus_init_environment', 0 );
  * Checks dependencies and initializes the Orchestrator.
  */
 function starmus_boot_plugin(): void {
+	error_log('STARMUS BOOT PLUGIN');
 	try {
 		// 1. Dependency Detection (Safe method)
 		if ( ! class_exists( \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class ) ) {
@@ -171,6 +192,7 @@ add_action( 'plugins_loaded', 'starmus_boot_plugin', 10 );
 // -------------------------------------------------------------------------
 
 function starmus_on_activate(): void {
+	error_log('STARMUS ACTIVATING');
 	// Safe load of autoloader to ensure classes exist during activation
 	if ( ! class_exists( \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class ) ) {
 		if ( file_exists( STARMUS_PATH . 'vendor/autoload.php' ) ) {
