@@ -102,14 +102,29 @@ function starmus_init_environment(): void
 		\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::set_min_level(STARMUS_LOG_LEVEL);
 	}
 }
-add_action('plugins_loaded', 'starmus_init_environment', 0);
+starmus_init_environment();
 
 
 function starmus_load_dependencies(): void
 {
-	// Delegate all heavy lifting to the Dependencies Class
-	if (class_exists(\Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class)) {
-		\Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::bootstrap();
+	try{
+		require_once STARMUS_PATH . 'src/helpers/StarmusDependencies.php';
+
+		// Delegate all heavy lifting to the Dependencies Class
+		if (class_exists(\Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class)) {
+			$success = \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::bootstrap_scf();
+			if(! $success) {
+				//deactivate plugin on failure.
+				self::starmus_on_deactivate();
+				error_log('Starmus Dependency Load Failed.');
+				wp_die('Starmus Error: Failed to load dependencies. Check admin notices for details.');
+			}
+		}
+	} catch (\Throwable $e) {
+		// deactivate plugin on exception.
+		self::starmus_on_deactivate();
+		error_log('Starmus Dependency Load Error: ' . $e->getMessage());
+		wp_die('Starmus Error: Exception during dependency load. Check error logs for details.');
 	}
 }
 // Run early (Priority 1) so SCF loads before other plugins
@@ -123,13 +138,6 @@ add_action('plugins_loaded', 'starmus_load_dependencies', 1);
 function starmus_boot_plugin(): void
 {
 	try {
-		// 1. Safety Check (DRY: Ask the class if we are good)
-		if (! class_exists(\Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class)) return;
-
-		if (! \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::bootstrap_scf()) {
-			error_log('Starmus Boot Aborted: Dependency check failed.');
-			return; // Stop. Admin notice handled by Dependencies class.
-		}
 
 		// 2. Load i18n
 		if (class_exists(\Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage::class)) {
@@ -148,7 +156,7 @@ function starmus_boot_plugin(): void
 			flush_rewrite_rules();
 			delete_transient('starmus_flush_rewrite_rules');
 		}
-	} catch (Throwable $e) {
+	} catch (\Throwable $e) {
 		if (class_exists('StarmusLogger')) \StarmusLogger::log($e);
 		error_log('Starmus Boot Error: ' . $e->getMessage());
 	}
@@ -163,24 +171,16 @@ add_action('plugins_loaded', 'starmus_boot_plugin', 10);
 
 function starmus_on_activate(): void
 {
-	if (! file_exists(STARMUS_PATH . 'vendor/autoload.php')) {
-		wp_die('Starmus Error: Composer missing.');
-	}
-	require_once STARMUS_PATH . 'vendor/autoload.php';
 
 	try {
 	// Delegate checks to Dependencies Class
-	if (class_exists(\Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class)) {
-		\Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::bootstrap_scf();
-
-	}
-
+		self::starmus_load_dependencies();
 
 		if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
 			\Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
 		}
 		set_transient('starmus_flush_rewrite_rules', true, 60);
-	} catch (Throwable $e) {
+	} catch (\Throwable $e) {
 		error_log('Starmus Activation Error: ' . $e->getMessage());
 	}
 }
@@ -192,7 +192,7 @@ function starmus_on_deactivate(): void
 			\Starisian\Sparxstar\Starmus\cron\StarmusCron::deactivate();
 		}
 		flush_rewrite_rules();
-	} catch (Throwable $e) {
+	} catch (\Throwable $e) {
 	}
 }
 
