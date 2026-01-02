@@ -80,12 +80,8 @@ if (! \defined('ABSPATH')) {
 	exit;
 }
 
-use function __;
-use function current_user_can;
-use function is_wp_error;
-use function register_rest_route;
 
-use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
@@ -93,7 +89,10 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
-
+use function __;
+use function current_user_can;
+use function is_wp_error;
+use function register_rest_route;
 /**
  * WordPress REST API handler for audio submissions.
  *
@@ -125,7 +124,7 @@ final class StarmusRESTHandler
 	 *
 	 * @since 1.0.0
 	 */
-	private IStarmusAudioDAL $dal;
+	private StarmusAudioDAL $dal;
 
 	/**
 	 * Plugin settings and configuration management.
@@ -143,7 +142,7 @@ final class StarmusRESTHandler
 	 * Sets up the REST API handler with required services and automatically
 	 * registers WordPress REST API routes via the rest_api_init hook.
 	 *
-	 * @param IStarmusAudioDAL $dal Data access layer instance
+	 * @param StarmusAudioDAL $dal Data access layer instance
 	 * @param StarmusSettings                  $settings Plugin settings and configuration
 	 * @param StarmusSubmissionHandler|null    $submission_handler Optional submission handler (auto-created if null)
 	 *
@@ -166,7 +165,7 @@ final class StarmusRESTHandler
 	 * @see register_routes() Route registration implementation
 	 */
 	public function __construct(
-		IStarmusAudioDAL $dal,
+		StarmusAudioDAL $dal,
 		StarmusSettings $settings,
 		?StarmusSubmissionHandler $submission_handler = null
 	) {
@@ -215,7 +214,7 @@ final class StarmusRESTHandler
 	 * - Supports both logged-in users and API authentication
 	 *
 	 * Route Parameters:
-	 * - Namespace: StarmusSubmissionHandler::STARMUS_REST_NAMESPACE
+	 * - Namespace: StarmusSubmissionHandler::STARMUS_REST_ENDPOINT
 	 * - Methods: Explicitly defined for security
 	 * - Validation: Numeric ID validation for status route
 	 * - Callbacks: Array syntax for PHP 7.4 compatibility
@@ -229,7 +228,7 @@ final class StarmusRESTHandler
 	{
 		// 1. Multipart Chunk Handler
 		register_rest_route(
-			StarmusSubmissionHandler::STARMUS_REST_NAMESPACE,
+			STARMUS_REST_ENDPOINT,
 			'/upload-chunk',
 			array(
 				'methods'             => 'POST', // or WP_REST_Server::CREATABLE
@@ -240,7 +239,7 @@ final class StarmusRESTHandler
 
 		// 2. Fallback Handler (Direct POST)
 		register_rest_route(
-			StarmusSubmissionHandler::STARMUS_REST_NAMESPACE,
+			STARMUS_REST_ENDPOINT,
 			'/upload-fallback',
 			array(
 				'methods'             => 'POST',
@@ -251,7 +250,7 @@ final class StarmusRESTHandler
 
 		// 3. Legacy Base64
 		register_rest_route(
-			StarmusSubmissionHandler::STARMUS_REST_NAMESPACE,
+			STARMUS_REST_ENDPOINT,
 			'/upload-chunk-legacy',
 			array(
 				'methods'             => 'POST',
@@ -262,7 +261,7 @@ final class StarmusRESTHandler
 
 		// 4. Status Check
 		register_rest_route(
-			StarmusSubmissionHandler::STARMUS_REST_NAMESPACE,
+			STARMUS_REST_ENDPOINT,
 			'/status/(?P<id>\d+)',
 			array(
 				'methods'             => 'GET',
