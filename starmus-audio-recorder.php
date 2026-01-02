@@ -143,16 +143,19 @@ function starmus_boot_plugin(): void
 
 		// 2. Load i18n
 		if (class_exists(\Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage::class)) {
+			error_log('Starmus i18n Load Started.');
+			$language = 'en_Us';
 			new \Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage();
 		}
 
 		// 3. Boot Orchestrator
 		if (class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
+			error_log('Starmus Core Boot Started.');
 			\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_run();
 		} else {
 			throw new RuntimeException('StarmusAudioRecorder class missing.');
 		}
-
+		error_log('Starmus Boot Completed.');
 		// 4. Cleanup
 		if (get_transient('starmus_flush_rewrite_rules')) {
 			flush_rewrite_rules();

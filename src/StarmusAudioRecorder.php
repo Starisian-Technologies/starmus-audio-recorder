@@ -190,8 +190,7 @@ final class StarmusAudioRecorder
 	 */
 	private function __construct()
 	{
-		// Double-check logger is available (Failsafe)
-		$this->ensure_logger_loaded();
+		error_log('Starmus Constructor Started.');
 
 		try {
 			// 1. Initialize Foundation (Settings & DALs)
@@ -211,28 +210,6 @@ final class StarmusAudioRecorder
 					$throwable,
 					array('component' => __CLASS__, 'stage' => '__construct')
 				);
-			}
-		}
-	}
-
-	/**
-	 * Ensures Logger class is available even if Composer failed.
-	 *
-	 * @since 1.2.0
-	 */
-	private function ensure_logger_loaded(): void
-	{
-		if (class_exists(StarmusLogger::class)) {
-			return;
-		}
-		// Fallback load if Main Plugin File didn't catch it
-		if (defined('STARMUS_PATH')) {
-			$file = STARMUS_PATH . 'src/helpers/StarmusLogger.php';
-			if (file_exists($file)) {
-				require_once $file;
-				if (! class_exists('StarmusLogger') && class_exists('Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger')) {
-					class_alias('Starisian\\Sparxstar\\Starmus\\helpers\\StarmusLogger', 'StarmusLogger');
-				}
 			}
 		}
 	}
@@ -269,6 +246,7 @@ final class StarmusAudioRecorder
 	 */
 	public static function starmus_run(): void
 	{
+		error_log('Starmus Run Started.');
 		self::starmus_get_instance();
 	}
 

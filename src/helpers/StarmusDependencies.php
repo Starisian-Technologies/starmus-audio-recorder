@@ -179,9 +179,15 @@ class StarmusDependencies
 	 */
 	private static function register_acf_schema(): void
 	{
-		add_filter('acf/settings/save_json', fn() => STARMUS_PATH . 'acf-json');
-		add_filter('acf/settings/load_json', function ($paths) {
-			$paths[] = STARMUS_PATH . 'acf-json';
+		error_log('Starmus ACF Schema Registration Started.');
+		$acfPath = STARMUS_PATH . 'acf-json';
+		// Ensure directory exists
+		if(! file_exists($acfPath)) {
+			wp_die('Starmus Error: ACF JSON schema directory missing at ' . esc_html($acfPath));
+		}
+		add_filter('acf/settings/save_json', fn() => $acfPath);
+		add_filter('acf/settings/load_json', function ($acfPath) {
+			$paths[] = $acfPath;
 			return $paths;
 		});
 	}
