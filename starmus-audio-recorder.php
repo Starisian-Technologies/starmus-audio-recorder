@@ -168,16 +168,14 @@ function starmus_on_activate(): void
 	}
 	require_once STARMUS_PATH . 'vendor/autoload.php';
 
+	try {
 	// Delegate checks to Dependencies Class
 	if (class_exists(\Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class)) {
-		\Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::bootstrap();
+		\Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::bootstrap_scf();
 
-		if (! \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::is_safe_to_boot()) {
-			wp_die('Starmus Activation Failed: Dependencies missing or conflict detected.');
-		}
 	}
 
-	try {
+
 		if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
 			\Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
 		}
