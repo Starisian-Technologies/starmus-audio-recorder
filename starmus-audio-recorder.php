@@ -114,14 +114,14 @@ function starmus_load_dependencies(): void
 			$success = \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::bootstrap_scf();
 			if(! $success) {
 				//deactivate plugin on failure.
-				self::starmus_on_deactivate();
+				starmus_on_deactivate();
 				error_log('Starmus Dependency Load Failed.');
 				wp_die('Starmus Error: Failed to load dependencies. Check admin notices for details.');
 			}
 		}
 	} catch (\Throwable $e) {
 		// deactivate plugin on exception.
-		self::starmus_on_deactivate();
+		starmus_on_deactivate();
 		error_log('Starmus Dependency Load Error: ' . $e->getMessage());
 		wp_die('Starmus Error: Exception during dependency load. Check error logs for details.');
 	}
@@ -173,7 +173,7 @@ function starmus_on_activate(): void
 
 	try {
 	// Delegate checks to Dependencies Class
-		self::starmus_load_dependencies();
+		starmus_load_dependencies();
 
 		if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
 			\Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
