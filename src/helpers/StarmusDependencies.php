@@ -180,6 +180,11 @@ class StarmusDependencies
 	private static function register_acf_schema(): void
 	{
 		error_log('Starmus ACF Schema Registration Started.');
+		try{
+			if (! function_exists('acf_add_local_field_group')) {
+				throw new \RuntimeException('ACF function acf_add_local_field_group missing.');
+			}
+
 		$acfPath = STARMUS_PATH . 'acf-json';
 		// Ensure directory exists
 		if(! file_exists($acfPath)) {
@@ -190,6 +195,9 @@ class StarmusDependencies
 			$paths[] = $acfPath;
 			return $paths;
 		});
+		} catch (\Throwable $e) {
+			self::render_error(array('Exception during ACF schema registration: ' . $e->getMessage()));
+		}
 	}
 
 	/**
@@ -197,6 +205,7 @@ class StarmusDependencies
 	 */
 	private static function render_error(array $messages): void
 	{
+		error_log('Starmus Dependency Error: ' . implode(' | ', $messages));
 		if (! is_admin() || (defined('DOING_AJAX') && DOING_AJAX)) {
 			return;
 		}
