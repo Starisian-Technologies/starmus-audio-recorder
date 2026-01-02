@@ -1,19 +1,44 @@
 <?php
+<?php
+
 /**
  * SPARXSTAR Starmus Audio
  *
  * @package Starisian\Sparxstar\Starmus
- * @version 0.9.4
+ * @author Starisian Technologies (Max Barrett) <support@starisian.com>
+ * @license Starisian Technologies Proprietary License
+ * @copyright Copyright (c) 2023-2026 Starisian Technologies. All rights reserved.
+ * @version 0.9.3
+ *
  *
  * Plugin Name:       Starmus Audio Recorder
  * Plugin URI:        https://github.com/Starisian-Technologies/starmus-audio-recorder
  * Description:       Adds a mobile-friendly MP3 audio recorder for oral history submission.
- * Author:            Starisian Technologies (Max Barrett)
- * Text Domain:       starmus-audio-recorder
- * Domain Path:       /languages
+ * Version:           0.9.3
  * Requires at least: 6.8
  * Requires PHP:      8.2
+ * Author:            Starisian Technologies (Max Barrett)
+ * Author URI:        https://starisian.com
+ * Contributors:      Max Barrett
+ * Text Domain:       starmus-audio-recorder
+ * Update URI:		  https://starism.com/sparxstar/starmus-audio-recorder/update
+ * GitHub Plugin URI:  Starisian-Technologies/starmus-audio-recorder
+ * Domain Path:       /languages
  * Requires Plugins:  secure-custom-fields/secure-custom-fields.php
+ *
+ *
+ *
+ *  Copyright (c) 2023-2024 Starisian Technologies (https://starisian.com)
+ *
+ * create a secret key using openssl:
+ *
+ * Set the tus key to use for webhook validation:
+ * tusd \
+	-hooks-http "https://contribute.sparxstar.com/wp-json/starmus/v1/hook" \
+	-hooks-http-header "x-starmus-secret: Y84d34624286938554e5e19d9fafe9f5da3562c4d1d443e02c186f8e44019406e" \
+	-hooks-enabled-events "post-finish"
+ *
+ * define( 'TUS_WEBHOOK_SECRET', 'YOUR_SECRET_STRING' );
  */
 
 declare(strict_types=1);
@@ -159,7 +184,7 @@ function starmus_on_activate(): void {
 			wp_die( 'Starmus Error: Composer missing.' );
 		}
 	}
-	
+
 	// Check dependencies using the helper class
 	if ( ! \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::check_critical_dependencies() ) {
 		wp_die( 'Starmus Error: Secure Custom Fields (or ACF) is required.' );
