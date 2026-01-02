@@ -47,29 +47,34 @@ class StarmusDependencies
 	 */
 	public static function bootstrap_scf(): bool
 	{
-		// 1. Check System Requirements (PHP/WP)
-		if (! self::check_versions()) {
-			return false;
-		}
-		if (! self::is_safe_to_load_scf()) {
-			return false;
-		}
-		// 2. Negotiate Secure Custom Fields (Conflict Check + Loading)
-		if (! self::load_scf()) {
-			return false;
-		}
+		try{
+			// 1. Check System Requirements (PHP/WP)
+			if (! self::check_versions()) {
+				return false;
+			}
+			if (! self::is_safe_to_load_scf()) {
+				return false;
+			}
+			// 2. Negotiate Secure Custom Fields (Conflict Check + Loading)
+			if (! self::load_scf()) {
+				return false;
+			}
 
-		// 3. Register Schema (Only if SCF loaded successfully)
-		self::register_acf_schema();
-
+			// 3. Register Schema (Only if SCF loaded successfully)
+			self::register_acf_schema();
+		} catch (\Throwable $e) {
+			self::render_error(array('Exception during dependency bootstrap: ' . $e->getMessage()));
+			return false;
+		}
 		return true;
 	}
 
 	/**
-	 * 1. Check PHP and WordPress Versions.
+	 * 0. Check PHP and WordPress Versions.
 	 */
 	private static function check_versions(): bool
 	{
+		error_log('Starmus Version Check Started.');
 		$errors = array();
 
 		if (version_compare(phpversion(), self::MIN_PHP_VERSION, '<')) {
@@ -94,6 +99,7 @@ class StarmusDependencies
 	 */
 	public static function is_safe_to_load_scf(): bool
 	{
+		error_log('Starmus SCF Load Safety Check Started.');
 		// Ensure helper functions are available
 		if (! function_exists('is_plugin_active')) {
 			include_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -138,6 +144,8 @@ class StarmusDependencies
 	 */
 	private static function load_scf(): bool
 	{
+		error_log('Starmus SCF Load Started.');
+		// A. Preloaded Environment Detected: Skip Loading
 		// C. Installation: Load Bundled Version
 		$scf_path = STARMUS_PATH . 'vendor/secure-custom-fields/secure-custom-fields.php';
 

@@ -83,6 +83,7 @@ if (! defined('TUS_WEBHOOK_SECRET')) define('TUS_WEBHOOK_SECRET', '84d3462428693
 
 function starmus_init_environment(): void
 {
+	error_log('Starmus Environment Init Started.');
 	// A. Autoloader
 	$autoloader = STARMUS_PATH . 'vendor/autoload.php';
 	if (file_exists($autoloader)) {
@@ -106,6 +107,7 @@ add_action('plugins_loaded', 'starmus_init_environment', 0);
 
 function starmus_load_dependencies(): void
 {
+	error_log('Starmus Dependency Load Started.');
 	try{
 		require_once STARMUS_PATH . 'src/helpers/StarmusDependencies.php';
 
@@ -136,6 +138,7 @@ add_action('plugins_loaded', 'starmus_load_dependencies', 1);
 
 function starmus_boot_plugin(): void
 {
+	error_log('Starmus Boot Started.');
 	try {
 
 		// 2. Load i18n
@@ -170,7 +173,7 @@ add_action('plugins_loaded', 'starmus_boot_plugin', 10);
 
 function starmus_on_activate(): void
 {
-
+    error_log('Starmus Activation Started.');
 	try {
 	// Delegate checks to Dependencies Class
 		starmus_load_dependencies();
