@@ -60,10 +60,6 @@ register_shutdown_function( function() {
 // 1. CONSTANTS & GUARDS
 // -------------------------------------------------------------------------
 
-if ( defined( 'STARMUS_LOADED' ) ) {
-	return;
-}
-
 define( 'STARMUS_LOADED', true );
 define( 'STARMUS_VERSION', '0.9.4' );
 define( 'STARMUS_MAIN_FILE', __FILE__ );
