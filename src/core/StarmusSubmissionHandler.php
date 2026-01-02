@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\core;
 
-use Starisian\Sparxstar\Starmus\core\StarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
