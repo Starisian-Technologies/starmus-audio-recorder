@@ -102,8 +102,7 @@ function starmus_init_environment(): void
 		\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::set_min_level(STARMUS_LOG_LEVEL);
 	}
 }
-starmus_init_environment();
-
+add_action('plugins_loaded', 'starmus_init_environment', 0);
 
 function starmus_load_dependencies(): void
 {
