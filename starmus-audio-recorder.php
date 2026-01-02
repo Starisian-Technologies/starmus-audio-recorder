@@ -104,6 +104,11 @@ if ( ! defined( 'TUS_WEBHOOK_SECRET' ) ) define( 'TUS_WEBHOOK_SECRET', '84d34624
 function starmus_init_environment(): void {
 	// A. Composer Autoloader
 	error_log('STARMUS INIT ENVIRONMENT');
+	try{
+		if (!file_exists(STARMUS_PATH . 'vendor/autoload.php')) {
+			throw new RuntimeException('Composer autoloader missing.');
+		}
+
 	$autoloader = STARMUS_PATH . 'vendor/autoload.php';
 	if ( file_exists( $autoloader ) ) {
 		require_once $autoloader;
@@ -121,6 +126,9 @@ function starmus_init_environment(): void {
 			class_alias( \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::class, 'StarmusLogger' );
 		}
 		\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::set_min_level( STARMUS_LOG_LEVEL );
+	}
+	} catch (Throwable $e) {
+		error_log('Starmus Init Error: ' . $e->getMessage());
 	}
 }
 // Run early to prepare environment
@@ -193,6 +201,7 @@ add_action( 'plugins_loaded', 'starmus_boot_plugin', 10 );
 
 function starmus_on_activate(): void {
 	error_log('STARMUS ACTIVATING');
+	try{
 	// Safe load of autoloader to ensure classes exist during activation
 	if ( ! class_exists( \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::class ) ) {
 		if ( file_exists( STARMUS_PATH . 'vendor/autoload.php' ) ) {
@@ -207,7 +216,6 @@ function starmus_on_activate(): void {
 		wp_die( 'Starmus Error: Secure Custom Fields (or ACF) is required.' );
 	}
 
-	try {
 		if ( class_exists( \Starisian\Sparxstar\Starmus\cron\StarmusCron::class ) ) {
 			\Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
 		}
