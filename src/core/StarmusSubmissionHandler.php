@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\core;
 
-use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\core\interfaces\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
@@ -147,7 +147,7 @@ final class StarmusSubmissionHandler
 	 * Sets up WordPress action hooks for temporary file cleanup and logs
 	 * successful construction. Throws exceptions on setup failures.
 	 *
-	 * @param IStarmusAudioDAL $dal Data Access Layer implementation
+	 * @param StarmusAudioDAL $dal Data Access Layer implementation
 	 * @param StarmusSettings                  $settings Plugin configuration service
 	 *
 	 * @throws Throwable If construction fails or hooks cannot be registered
@@ -155,7 +155,7 @@ final class StarmusSubmissionHandler
 	 * @since 1.0.0
 	 */
 	public function __construct(
-		private readonly IStarmusAudioDAL $dal,
+		private readonly StarmusAudioDAL $dal,
 		private readonly StarmusSettings $settings
 	) {
 		try {
