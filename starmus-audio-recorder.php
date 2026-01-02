@@ -28,6 +28,18 @@ if (! defined('ABSPATH')) {
 }
 
 // =========================================================================
+// 0. SHUTDOWN HANDLER (The Ultimate Safety Net)
+// =========================================================================
+register_shutdown_function(function () {
+	$error = error_get_last();
+	// Check if the script died due to a fatal error
+	if ($error && in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR), true)) {
+		// Force write to server error log
+		error_log('STARMUS FATAL CRASH: ' . print_r($error, true));
+	}
+});
+
+// =========================================================================
 // 1. BOOTSTRAP GUARD & CORE CONSTANTS
 // =========================================================================
 
