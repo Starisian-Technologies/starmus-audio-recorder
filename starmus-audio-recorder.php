@@ -1,5 +1,4 @@
 <?php
-<?php
 
 /**
  * SPARXSTAR Starmus Audio
