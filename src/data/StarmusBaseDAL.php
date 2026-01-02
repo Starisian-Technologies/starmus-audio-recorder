@@ -60,16 +60,8 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 		}
 	}
 
-	/** Strictly retrieves metadata.
-	 *
-	 * Prefers ACF's get_field() to ensure complex data types (Arrays/Repeaters)
-	 * are returned as usable structures, not serialized strings.
-	 * Falls back to native get_post_meta() for raw data or if ACF is missing.
-	 *
-	 * @param int    $post_id Target Post ID.
-	 * @param string $key     Meta Key.
-	 * @param bool   $single  Whether to return a single value (default true).
-	 * @return mixed          Value on success, null on failure/exception.
+	/**
+	 * {@inheritdoc}
 	 */
 	public function get_post_meta( int $post_id, string $key, bool $single = true ): mixed {
 		try {
@@ -163,32 +155,37 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 	/**
 	 * {@inheritdoc}
 	 */
-	public function log_asset_audit(int $post_id, string $action): bool
-	{
-		$ret = false;
+	public function log_asset_audit( int $post_id, string $action ): bool {
 		try {
 			$row = array(
-				'ts'     => current_time('Y-m-d H:i:s'),
+				'ts'     => current_time( 'Y-m-d H:i:s' ),
 				'action' => $action,
 			);
 
-			if (function_exists('add_row')) {
-				$ret = add_row('asset_audit_log', $row, $post_id);
-				if (! $ret) {
-					$this->log_write_failure($post_id, 'asset_audit_log', $row);
-					return false;
+			// 1. Try ACF
+			if ( function_exists( 'add_row' ) ) {
+				$result = add_row( 'asset_audit_log', $row, $post_id );
+
+				if ( $result ) {
+					return true; // <--- CRITICAL FIX: Stop here on success
 				}
+
+				// Only log failure if we aren't going to try the fallback?
+				// Or log it and try fallback? Let's try fallback.
+				$this->log_write_failure( $post_id, 'asset_audit_log (ACF)', $row );
 			}
 
-			// Fallback logic
-			$log = (array) $this->get_post_meta($post_id, 'asset_audit_log');
+			// 2. Fallback Logic (Native)
+			// Only runs if ACF is missing or add_row failed
+			$log = (array) $this->get_post_meta( $post_id, 'asset_audit_log' );
 			$log[] = $row;
-			$ret = $this->save_post_meta($post_id, 'asset_audit_log', $log);
-		} catch (\Throwable $e) {
-			StarmusLogger::log($e);
+
+			return $this->save_post_meta( $post_id, 'asset_audit_log', $log );
+
+		} catch ( Throwable $e ) {
+			StarmusLogger::log( $e );
 			return false;
 		}
-		return $ret;
 	}
 
 	/**

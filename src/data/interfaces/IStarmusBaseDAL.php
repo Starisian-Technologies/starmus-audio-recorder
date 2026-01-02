@@ -31,7 +31,7 @@ interface IStarmusBaseDAL
 	 * @param int    $post_id Target Post ID.
 	 * @param string $key     Meta Key.
 	 * @param mixed  $value   Value to save.
-	 * @return void
+	 * @return bool           True on success, False on failure.
 	 */
 	public function save_post_meta(int $post_id, string $key, mixed $value): bool;
 
@@ -46,17 +46,6 @@ interface IStarmusBaseDAL
 	public function get_post_meta(int $post_id, string $key, bool $single = true): mixed;
 
 	/**
-	 * Basic post info retrieval.
-	 *
-	 * @param int $post_id
-	 * @return array{id: int, type: string, status: string}|null
-	 */
-	public function get_post_info(int $post_id): ?array;
-
-
-	// --- 2. PROVENANCE & SECURITY (UNIVERSAL) ---
-
-	/**
 	 * Sets the cryptographic hashes and integrity status.
 	 * For Files: Hash of the binary.
 	 * For Scripts/Text: Hash of the content string.
@@ -64,6 +53,7 @@ interface IStarmusBaseDAL
 	 * @param int    $post_id Target Post ID.
 	 * @param string $sha256  SHA-256 Hash.
 	 * @param string $md5     MD5 Hash.
+	 * @return bool           True if all integrity fields were saved successfully.
 	 */
 	public function set_integrity_data(int $post_id, string $sha256, string $md5): bool;
 
@@ -75,13 +65,16 @@ interface IStarmusBaseDAL
 	 * @param string $agent       Who made the change.
 	 * @param string $description What changed.
 	 * @param string $hash        State hash (optional).
+	 * @return bool               True if the row was added successfully.
 	 */
 	public function log_provenance_event(int $post_id, string $type, string $agent, string $description, string $hash = ''): bool;
+
 	/**
 	 * Appends an entry to the 'asset_audit_log' ACF Repeater.
 	 *
 	 * @param int    $post_id Target Post ID.
 	 * @param string $action  The action taken (e.g. 'Ingested file', 'Pace Updated').
+	 * @return bool           True if the log entry was saved.
 	 */
 	public function log_asset_audit(int $post_id, string $action): bool;
 }

@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\data;
 
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusProsodyDAL;
-use Starisian\Sparxstar\Starmus\data\StarmusBaseDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
 use Throwable;
@@ -58,6 +57,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
 	{
 		try {
 			// 1. Validate Post Type (Legacy Requirement)
+			// Uses inherited get_post_info from StarmusBaseDAL
 			$post_info = $this->get_post_info($post_id);
 			if (! $post_info || 'starmus-script' !== $post_info['type']) {
 				return array();
@@ -81,8 +81,8 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
 			$post_object = get_post($post_id);
 			$source_text = $post_object ? $post_object->post_content : '';
 
-			// We use get_post_meta via our strict method
-			$trans_text  = (string) $this->get_post_meta($post_id, 'starmus_translation_text');
+			// We use get_post_meta via our strict inherited method
+			$trans_text = (string) $this->get_post_meta($post_id, 'starmus_translation_text');
 
 			return array(
 				'postID'      => $post_id,
@@ -110,13 +110,10 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
 			return false;
 		}
 
-		// Use internal strict save method
-		$this->save_post_meta($post_id, 'calibrated_pace_ms', $ms_per_word);
-		return true;
+		// Use internal strict save method from StarmusBaseDAL
+		// This respects ACF/Native logic and Error Logging
+		return $this->save_post_meta($post_id, 'calibrated_pace_ms', $ms_per_word);
 	}
-
-	// --- CORE INTERFACE IMPLEMENTATION (StarmusCoreDALInterface) ---
-	// @{inheritdoc}
 
 	// --- INTERNAL LOGIC ---
 

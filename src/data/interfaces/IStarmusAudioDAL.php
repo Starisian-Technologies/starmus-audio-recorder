@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace Starisian\Sparxstar\Starmus\core\interfaces;
+namespace Starisian\Sparxstar\Starmus\data\interfaces;
 
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusBaseDAL;
 use WP_Error;
