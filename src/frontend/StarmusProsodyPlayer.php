@@ -59,7 +59,7 @@ class StarmusProsodyPlayer
 	public function setDAL(?StarmusProsodyDAL $prosodyDal = null): void
 	{
 		if($prosodyDal !== null){
-			this->dal = $prosodyDal;
+			$this->dal = $prosodyDal;
 		}
 		if (!class_exists(StarmusProsodyDAL::class)) {
 			throw new \Exception('StarmusProsodyDAL class not found');
