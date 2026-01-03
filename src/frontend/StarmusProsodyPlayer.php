@@ -27,9 +27,9 @@ class StarmusProsodyPlayer
 
 	private ?StarmusProsodyDAL $dal = null;
 
-	public function __construct(StarmusProsodyDAL $prosodyDal)
+	public function __construct(?StarmusProsodyDAL $prosodyDal = null)
 	{
-		$this->dal = $prosodyDal;
+		$this->setDal($prosodyDal);
 		$this->register_hooks();
 	}
 
@@ -56,8 +56,11 @@ class StarmusProsodyPlayer
 		add_shortcode('prosody_reader', array($this, 'render_shortcode'));
 	}
 
-	public function initDAL(): void
+	public function setDAL(?StarmusProsodyDAL $prosodyDal = null): void
 	{
+		if($prosodyDal !== null){
+			this->dal = $prosodyDal;
+		}
 		if (class_exists(StarmusProsodyDAL::class) === false) {
 			throw new \Exception('StarmusProsodyDAL class not found');
 		}
