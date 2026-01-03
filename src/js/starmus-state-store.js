@@ -366,6 +366,13 @@
 })(typeof window !== 'undefined' ? window : globalThis);
 
 /**
+ * Safe reference to the active global object for environments without window (e.g., SSR).
+ * Ensures createStore export does not throw during server-side rendering.
+ * @type {Window|typeof globalThis}
+ */
+const runtimeGlobal = typeof window !== 'undefined' ? window : globalThis;
+
+/**
  * ES6 module export wrapper that delegates to global StarmusStore.
  * Ensures compatibility between module systems.
  *
@@ -374,4 +381,4 @@
  * @param {Object} [initial={}] - Initial state to merge with defaults
  * @returns {Object} Store instance with state management methods
  */
-export function createStore(initial) { return window.StarmusStore.createStore(initial); }
+export function createStore(initial) { return runtimeGlobal.StarmusStore.createStore(initial); }
