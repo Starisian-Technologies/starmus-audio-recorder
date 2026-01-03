@@ -52,7 +52,7 @@ final class StarmusShortcodeLoader
 	 * @param StarmusSettings|null  $settings The settings instance.
 	 * @param StarmusProsodyDAL|null  $prosodyDal The prosody DAL instance.
 	 */
-	public function __construct(?IStarmusAudioDAL $dal = null, ?StarmusSettings $settings = null, ?StarmusProsodyDAL $prosodyDal)
+	public function __construct(?IStarmusAudioDAL $dal = null, ?StarmusSettings $settings = null, ?StarmusProsodyDAL $prosodyDal = null)
 	{
 		try {
 			$this->settings = $settings ?? new StarmusSettings();
@@ -89,15 +89,19 @@ final class StarmusShortcodeLoader
 		}
 	}
 
-	private function setProsodyEngine(StarmusProsodyDAL $prosodyDal): void
+	private function setProsodyEngine(?StarmusProsodyDAL $prosodyDal = null): void
 	{
-		if (class_exists(StarmusProsodyPlayer::class) && ($this->prosody === null)) {
-			try {
+		if ($this->prosody !=== null)) {
+			$this->prosodoy = $prosodyDal
+			return;
+		}
+			try{
 				$this->prosody = new StarmusProsodyPlayer($prosodyDal);
 			} catch (Throwable $throwable) {
 				StarmusLogger::log($throwable);
 			}
 		}
+		
 	}
 
 	/**
