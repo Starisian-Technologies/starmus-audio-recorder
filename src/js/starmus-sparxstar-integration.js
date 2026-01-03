@@ -104,10 +104,10 @@
 		}
 	}
 
-	if ($ && $.fn && typeof $.fn.ready === 'function') {
-		$(document).ready(attachAiwaRecorderHandlers);
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', attachAiwaRecorderHandlers);
 	} else {
-		console.warn('[SparxstarIntegration] jQuery ready handler unavailable; initialization deferred.');
+		attachAiwaRecorderHandlers();
 	}
 })(typeof jQuery !== 'undefined' ? jQuery : null);
 
