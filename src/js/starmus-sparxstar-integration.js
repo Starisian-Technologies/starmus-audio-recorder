@@ -16,7 +16,6 @@
 	 * @returns {void}
 	 */
 	function attachAiwaRecorderHandlers() {
-		const $ = typeof window.jQuery !== 'undefined' ? window.jQuery : null;
 		const acfInstance = typeof window.acf !== 'undefined' ? window.acf : null;
 		const tinyMCEInstance = typeof window.tinyMCE !== 'undefined' ? window.tinyMCE : null;
 		const aiwaRecorderData = typeof window.aiwa_recorder_data !== 'undefined' ? window.aiwa_recorder_data : null;
