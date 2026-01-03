@@ -110,7 +110,7 @@
 	} else {
 		console.warn('[SparxstarIntegration] jQuery ready handler unavailable; initialization deferred.');
 	}
-})(typeof jQuery !== 'undefined' ? jQuery : function(){});
+})(typeof jQuery !== 'undefined' ? jQuery : null);
 
 
 /* 2. SPARXSTAR INTEGRATION OBJECT */
