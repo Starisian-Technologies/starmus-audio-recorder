@@ -149,6 +149,7 @@ final class StarmusShortcodeLoader
 	 */
 	public function render_submission_detail_shortcode(): string
 	{
+		try{
 		if (! is_singular('audio-recording')) {
 			return '<p><em>[starmus_recording_detail] can only be used on a single audio recording page.</em></p>';
 		}
@@ -164,6 +165,9 @@ final class StarmusShortcodeLoader
 		if ($template_to_load !== '' && $template_to_load !== '0') {
 			return StarmusTemplateLoaderHelper::render_template($template_to_load);
 		}
+		} catch (\Throwable $throwable){
+			StarmusLogger::log($throwable);
+		}
 
 		return is_user_logged_in()
 			? '<p>You do not have permission to view this recording detail.</p>'
@@ -175,6 +179,7 @@ final class StarmusShortcodeLoader
 	 */
 	public function render_submission_detail_via_filter(string $content): string
 	{
+		try{
 		if (! is_singular('audio-recording') || ! in_the_loop() || ! is_main_query()) {
 			return $content;
 		}
@@ -190,6 +195,9 @@ final class StarmusShortcodeLoader
 
 		if ($template_to_load !== '' && $template_to_load !== '0') {
 			return StarmusTemplateLoaderHelper::render_template($template_to_load);
+		}
+		} catch (\Throwable $throwable){
+			StarmusLogger::log($throwable);
 		}
 
 		return '<p>You do not have permission to view this recording detail.</p>';
