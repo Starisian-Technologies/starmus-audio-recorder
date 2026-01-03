@@ -133,8 +133,8 @@ const sparxstarIntegration = {
 	 * @function init
 	 * @returns {Promise<Object>} Resolved environment payload
 	 */
-	init() {
-		return Promise.resolve(this.getEnvironmentData());
+	init: () => {
+		return Promise.resolve(sparxstarIntegration.getEnvironmentData());
 	},
 	/**
 	 * Returns a default environment data object for compatibility.
