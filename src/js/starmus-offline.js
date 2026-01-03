@@ -31,6 +31,7 @@ import { uploadWithPriority } from './starmus-tus.js';
  * @property {number} maxRetries - Maximum retry attempts per submission
  * @property {Array<number>} retryDelays - Retry delay intervals in milliseconds
  * @property {Object<string, number>} maxBlobSizes - Tier-based maximum blob sizes in bytes
+ * @property {number} defaultMaxBlobSize - Fallback maximum blob size in bytes when tier is unknown
  */
 const CONFIG = {
 	dbName: 'StarmusSubmissions',
