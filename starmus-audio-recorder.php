@@ -166,7 +166,7 @@ function starmus_on_activate(){
     } catch (\Throwable $e) {
         error_log('Starmus Activation Error: ' . $e->getMessage());
     }
-});
+}
 
 
 function starmus_on_deactivate(): void
