@@ -32,14 +32,14 @@ final class StarmusShortcodeLoader
 	 *
 	 * @var StarmusSettings
 	 */
-	private StarmusSettings $settings;
+	private ?StarmusSettings $settings = null;
 
 	/**
 	 * Data Access Layer instance.
 	 *
 	 * @var StarmusAudioDAL
 	 */
-	private StarmusAudioDAL $dal;
+	private ?StarmusAudioDAL $dal = null;
 	/**
 	 * Prosody player instance.
 	 *
@@ -52,7 +52,7 @@ final class StarmusShortcodeLoader
 	 * @param StarmusSettings|null  $settings The settings instance.
 	 * @param StarmusProsodyDAL|null  $prosodyDal The prosody DAL instance.
 	 */
-	public function __construct(?IStarmusAudioDAL $dal = null, ?StarmusSettings $settings = null, ?StarmusProsodyDAL $prosodyDal = null)
+	public function __construct(?StarmusAudioDAL $dal = null, ?StarmusSettings $settings = null, ?StarmusProsodyDAL $prosodyDal = null)
 	{
 		try {
 			$this->settings = $settings ?? new StarmusSettings();
