@@ -34,13 +34,13 @@ final class StarmusAudioPipeline {
 	 * Process uploaded audio file - call this from your submission handler
 	 */
 	public function processUploadedAudio( string $file_path, array $form_data, int $post_id ): array {
-		$results = array(
-			'original_analysis' => array(),
-			'web_versions'      => array(),
+		$results = [
+			'original_analysis' => [],
+			'web_versions'      => [],
 			'waveform_data'     => null,
 			'preview_file'      => null,
 			'metadata_written'  => false,
-		);
+		];
 
 		try {
 			// 1. Analyze original file with getID3
@@ -72,20 +72,20 @@ final class StarmusAudioPipeline {
 
 			StarmusLogger::info(
 				'Processing completed',
-				array(
-					'component' => __CLASS__,
+				[
+					'component' => self::class,
 					'post_id'   => $post_id,
-				)
+				]
 			);
 
 		} catch ( \Throwable $throwable ) {
 			StarmusLogger::log(
 				$throwable,
-				array(
-					'component' => __CLASS__,
+				[
+					'component' => self::class,
 					'post_id'   => $post_id,
 					'file_path' => $file_path,
-				)
+				]
 			);
 		}
 
@@ -96,10 +96,10 @@ final class StarmusAudioPipeline {
 	 * Extract key metadata for WordPress storage
 	 */
 	private function extractKeyMetadata( array $analysis ): array {
-		$audio    = $analysis['audio'] ?? array();
-		$comments = $analysis['comments'] ?? array();
+		$audio    = $analysis['audio'] ?? [];
+		$comments = $analysis['comments'] ?? [];
 
-		return array(
+		return [
 			'format'       => $analysis['fileformat'] ?? 'unknown',
 			'duration'     => $audio['playtime_seconds'] ?? 0,
 			'bitrate'      => $audio['bitrate'] ?? 0,
@@ -109,7 +109,7 @@ final class StarmusAudioPipeline {
 			'title'        => $comments['title'][0] ?? '',
 			'artist'       => $comments['artist'][0] ?? '',
 			'quality_tier' => $this->assessQuality( $audio ),
-		);
+		];
 	}
 
 	/**
@@ -119,24 +119,24 @@ final class StarmusAudioPipeline {
 		$site_name = get_bloginfo( 'name' );
 		$year      = date( 'Y' );
 
-		return array(
-			'title'             => array( $form_data['title'] ?? 'Recording #' . $post_id ),
-			'artist'            => array( $form_data['speaker_name'] ?? $site_name ),
-			'album'             => array( $site_name . ' Audio Archive' ),
-			'year'              => array( $year ),
-			'comment'           => array( $this->buildComment( $form_data ) ),
-			'copyright_message' => array( \sprintf( '© %s %s', $year, $site_name ) ),
-			'publisher'         => array( $site_name ),
-			'language'          => array( $form_data['language'] ?? 'en' ),
-			'genre'             => array( 'Spoken Word' ),
-		);
+		return [
+			'title'             => [ $form_data['title'] ?? 'Recording #' . $post_id ],
+			'artist'            => [ $form_data['speaker_name'] ?? $site_name ],
+			'album'             => [ $site_name . ' Audio Archive' ],
+			'year'              => [ $year ],
+			'comment'           => [ $this->buildComment( $form_data ) ],
+			'copyright_message' => [ \sprintf( '© %s %s', $year, $site_name ) ],
+			'publisher'         => [ $site_name ],
+			'language'          => [ $form_data['language'] ?? 'en' ],
+			'genre'             => [ 'Spoken Word' ],
+		];
 	}
 
 	/**
 	 * Build descriptive comment from form data
 	 */
 	private function buildComment( array $form_data ): string {
-		$parts = array();
+		$parts = [];
 
 		if ( ! empty( $form_data['description'] ) ) {
 			$parts[] = $form_data['description'];

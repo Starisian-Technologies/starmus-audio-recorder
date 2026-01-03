@@ -37,7 +37,7 @@ class StarmusSchemaMapper
 	/**
 	 * List of fields that map 1:1 from Frontend to ACF (New Schema).
 	 */
-	private const PASSTHROUGH_ALLOWLIST = array(
+	private const PASSTHROUGH_ALLOWLIST = [
 		// -- Group: aiwa_core_metadata --
 		'stable_uri',
 		'linked_data_uri',
@@ -87,7 +87,7 @@ class StarmusSchemaMapper
 		'musical_key',
 		'isrc_code',
 		'integrated_lufs'
-	);
+	];
 
 	/**
 	 * Maps form data to the ACF Schema structure.
@@ -97,7 +97,7 @@ class StarmusSchemaMapper
 	 */
 	public static function map_form_data(array $data): array
 	{
-		$mapped = array();
+		$mapped = [];
 
 		try {
 			$user_id = get_current_user_id();
@@ -112,22 +112,22 @@ class StarmusSchemaMapper
 			// 2. PROCESS COMPLEX MAPPINGS
 
 			// DC Creator (Used by Sanitizer to generate _starmus_title)
-			$mapped['dc_creator'] = ! empty($data['dc_creator'])
-				? sanitize_text_field($data['dc_creator'])
-				: ($mapped['contributor_name'] ?? 'Unknown Creator');
+			$mapped['dc_creator'] = empty($data['dc_creator'])
+				? $mapped['contributor_name'] ?? 'Unknown Creator'
+				: (sanitize_text_field($data['dc_creator']));
 
 			// User Links
 			$mapped['copyright_licensor'] = $user_id;
 			$mapped['authorized_user_id'] = $user_id;
 
 			// Dates
-			$mapped['dc_date_created'] = ! empty($data['date_created'])
-				? $data['date_created']
-				: date('Ymd');
+			$mapped['dc_date_created'] = empty($data['date_created'])
+				? date('Ymd')
+				: $data['date_created'];
 
-			$mapped['session_date'] = ! empty($data['session_date'])
-				? $data['session_date']
-				: date('Ymd');
+			$mapped['session_date'] = empty($data['session_date'])
+				? date('Ymd')
+				: $data['session_date'];
 
 			// Geolocation (Used by Sanitizer to generate _starmus_geolocation)
 			if (! empty($data['geolocation'])) {
@@ -169,6 +169,7 @@ class StarmusSchemaMapper
 			if (! empty($data['language'])) {
 				$mapped['language'] = (int) $data['language'];
 			}
+
 			if (! empty($data['dialect'])) {
 				$mapped['dialect'] = (int) $data['dialect'];
 			}
@@ -186,7 +187,7 @@ class StarmusSchemaMapper
 	 */
 	public static function is_json_field(string $field_name): bool
 	{
-		return in_array($field_name, array(
+		return in_array($field_name, [
 			'environment_data',
 			'waveform_json',
 			'transcriber',
@@ -195,7 +196,7 @@ class StarmusSchemaMapper
 			'contributor_verification',
 			'transcription_json',
 			'recording_metadata',
-		), true);
+		], true);
 	}
 
 	/**
@@ -206,9 +207,10 @@ class StarmusSchemaMapper
 		if (is_array($value)) {
 			$json = json_encode($value);
 			if (false === $json) {
-				StarmusLogger::error("Mapper JSON Encode Failed ($context): " . json_last_error_msg());
+				StarmusLogger::error(sprintf('Mapper JSON Encode Failed (%s): ', $context) . json_last_error_msg());
 				return '{}';
 			}
+
 			return $json;
 		}
 
@@ -217,8 +219,9 @@ class StarmusSchemaMapper
 			if (json_last_error() === JSON_ERROR_NONE) {
 				return $value;
 			}
-			StarmusLogger::warning("Mapper received invalid JSON string for ($context). Wrapping.");
-			return (string) json_encode(array('raw_preserved' => $value));
+
+			StarmusLogger::warning(sprintf('Mapper received invalid JSON string for (%s). Wrapping.', $context));
+			return (string) json_encode(['raw_preserved' => $value]);
 		}
 
 		return '{}';
@@ -232,11 +235,13 @@ class StarmusSchemaMapper
 		if (is_array($value)) {
 			return $value;
 		}
+
 		if (is_string($value)) {
 			$decoded = json_decode(wp_unslash($value), true);
-			return is_array($decoded) ? $decoded : array();
+			return is_array($decoded) ? $decoded : [];
 		}
-		return array();
+
+		return [];
 	}
 }
 		

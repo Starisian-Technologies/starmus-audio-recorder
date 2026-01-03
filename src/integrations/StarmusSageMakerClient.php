@@ -43,13 +43,13 @@ final readonly class StarmusSageMakerClient {
 	public function get_job_counts(): array {
 		$jobs = $this->get_all_jobs();
 
-		$counts = array(
+		$counts = [
 			'total'      => 0,
 			'pending'    => 0,
 			'processing' => 0,
 			'done'       => 0,
 			'failed'     => 0,
-		);
+		];
 
 		foreach ( $jobs as $job ) {
 			++$counts['total'];
@@ -84,8 +84,8 @@ final readonly class StarmusSageMakerClient {
 		$this->repository->save( $job_id, $job );
 
 		// Schedule WP Cron event if not already scheduled
-		if ( ! wp_next_scheduled( 'aiwa_orch_process_transcription_job', array( $job_id ) ) ) {
-			wp_schedule_single_event( time() + 5, 'aiwa_orch_process_transcription_job', array( $job_id ) );
+		if ( ! wp_next_scheduled( 'aiwa_orch_process_transcription_job', [ $job_id ] ) ) {
+			wp_schedule_single_event( time() + 5, 'aiwa_orch_process_transcription_job', [ $job_id ] );
 		}
 
 		return true;
@@ -119,7 +119,7 @@ final readonly class StarmusSageMakerClient {
 	 * @return array All jobs.
 	 */
 	private function get_all_jobs(): array {
-		$jobs = get_option( 'aiwa_sagemaker_jobs', array() );
-		return \is_array( $jobs ) ? $jobs : array();
+		$jobs = get_option( 'aiwa_sagemaker_jobs', [] );
+		return \is_array( $jobs ) ? $jobs : [];
 	}
 }

@@ -15,12 +15,12 @@ namespace Starisian\Sparxstar\Starmus\data\interfaces;
 
 use function defined;
 
-if (! defined('ABSPATH')) {
+if ( ! defined('ABSPATH') ) {
 	exit;
 }
 
-interface IStarmusBaseDAL
-{
+interface IStarmusBaseDAL {
+
 
 	// --- 1. META OPERATIONS (UNIVERSAL) ---
 
@@ -41,7 +41,6 @@ interface IStarmusBaseDAL
 	 * @param int    $post_id Target Post ID.
 	 * @param string $key     Meta Key.
 	 * @param bool   $single  Whether to return a single value.
-	 * @return mixed
 	 */
 	public function get_post_meta(int $post_id, string $key, bool $single = true): mixed;
 

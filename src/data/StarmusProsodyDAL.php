@@ -30,23 +30,23 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
 	 * Heuristic Constants for "Smart Guessing" pace.
 	 * Kept identical to legacy for backward compatibility.
 	 */
-	private const BASE_SPEEDS = array(
+	private const BASE_SPEEDS = [
 		'announcer'      => 2200,
 		'conversational' => 2800,
 		'character'      => 3000,
 		'narration'      => 3500,
 		'default'        => 3000,
-	);
+	];
 
 	/**
 	 * Energy modifiers.
 	 * Kept identical to legacy for backward compatibility.
 	 */
-	private const ENERGY_MODIFIERS = array(
+	private const ENERGY_MODIFIERS = [
 		'high'    => 0.85, // Faster (Lower ms/line)
 		'neutral' => 1.0,  // Normal
 		'low'     => 1.2,  // Slower (Higher ms/line)
-	);
+	];
 
 	// --- PROSODY SPECIFIC OPERATIONS ---
 
@@ -60,7 +60,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
 			// Uses inherited get_post_info from StarmusBaseDAL
 			$post_info = $this->get_post_info($post_id);
 			if (! $post_info || 'starmus-script' !== $post_info['type']) {
-				return array();
+				return [];
 			}
 
 			// 2. Get Sanitized Settings via Helper
@@ -84,7 +84,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
 			// We use get_post_meta via our strict inherited method
 			$trans_text = (string) $this->get_post_meta($post_id, 'starmus_translation_text');
 
-			return array(
+			return [
 				'postID'      => $post_id,
 				'source'      => $this->sanitize_stream($source_text),
 				'translation' => $this->sanitize_stream($trans_text),
@@ -93,10 +93,10 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
 				'mode'        => $mode,
 				'energy'      => $energy,
 				'nonce'       => wp_create_nonce('starmus_prosody_save_' . $post_id),
-			);
-		} catch (Throwable $e) {
-			StarmusLogger::log($e);
-			return array();
+			];
+		} catch (Throwable $throwable) {
+			StarmusLogger::log($throwable);
+			return [];
 		}
 	}
 
@@ -142,7 +142,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
 	private function sanitize_stream(string $raw): string
 	{
 		$text = wp_strip_all_tags($raw);
-		$text = str_replace(array("\r", "\n"), ' ', $text); // Flatten newlines
+		$text = str_replace(["\r", "\n"], ' ', $text); // Flatten newlines
 		return trim((string) preg_replace('/\s+/', ' ', $text));
 	}
 }

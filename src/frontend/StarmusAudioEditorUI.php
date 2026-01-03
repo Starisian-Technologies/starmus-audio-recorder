@@ -89,7 +89,7 @@ final class StarmusAudioEditorUI {
 	/**
 	 * Render the audio editor shortcode.
 	 */
-	public function render_audio_editor_shortcode( array $atts = array() ): string {
+	public function render_audio_editor_shortcode( array $atts = [] ): string {
 		try {
 			if ( ! is_user_logged_in() ) {
 				return '<p>' . esc_html__( 'You must be logged in to edit audio.', 'starmus-audio-recorder' ) . '</p>';
@@ -105,7 +105,7 @@ final class StarmusAudioEditorUI {
 
 			return StarmusTemplateLoaderHelper::secure_render_template(
 				'starmus-audio-editor-ui.php',
-				array( 'context' => $context )
+				[ 'context' => $context ]
 			);
 		} catch ( Throwable $throwable ) {
 			STarmusLogger::log( $throwable );
@@ -148,7 +148,7 @@ final class StarmusAudioEditorUI {
 	/**
 	 * Build the editor rendering context.
 	 */
-	private function get_editor_context( array $atts = array() ): array|WP_Error {
+	private function get_editor_context( array $atts = [] ): array|WP_Error {
 		try {
 			if ( $this->cached_context !== null ) {
 				return $this->cached_context;
@@ -200,7 +200,7 @@ final class StarmusAudioEditorUI {
 			$annotations_json = get_field( 'waveform_json', $post_id );
 			$transcript_json  = get_field( 'first_pass_transcription', $post_id );
 
-			$this->cached_context = array(
+			$this->cached_context = [
 				'post_id'          => $post_id,
 				'attachment_id'    => $attachment_id,
 				'audio_url'        => $audio_url,
@@ -209,7 +209,7 @@ final class StarmusAudioEditorUI {
 				'transcript_json'  => \is_string( $transcript_json ) ? $transcript_json : '',
 				'waveform_json'    => \is_string( $annotations_json ) ? $annotations_json : '[]',
 				'transcript_data'  => \is_string( $transcript_json ) ? $transcript_json : '',
-			);
+			];
 
 			return $this->cached_context;
 		} catch ( Throwable $throwable ) {
@@ -239,21 +239,21 @@ final class StarmusAudioEditorUI {
 		register_rest_route(
 			self::STARMUS_REST_NAMESPACE,
 			'/annotations',
-			array(
+			[
 				'methods'             => 'POST',
 				'callback'            => $this->handle_save_annotations( ... ),
 				'permission_callback' => $this->can_save_annotations( ... ),
-				'args'                => array(
-					'postId'      => array(
+				'args'                => [
+					'postId'      => [
 						'required'          => true,
 						'validate_callback' => $this->validate_post_id( ... ),
-					),
-					'annotations' => array(
+					],
+					'annotations' => [
 						'required'          => true,
 						'validate_callback' => $this->validate_annotations( ... ),
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 	}
 
@@ -265,19 +265,19 @@ final class StarmusAudioEditorUI {
 		try{
 		// Full sanitization logic restored
 		if ( ! \is_array( $value ) ) {
-			return array();
+			return [];
 		}
 
-		$sanitized = array();
+		$sanitized = [];
 		foreach ( $value as $a ) {
 			if ( \is_array( $a ) ) {
-				$sanitized[] = array(
+				$sanitized[] = [
 					'id'        => sanitize_key( $a['id'] ?? '' ),
 					'startTime' => (float) ( $a['startTime'] ?? 0 ),
 					'endTime'   => (float) ( $a['endTime'] ?? 0 ),
 					'labelText' => wp_kses_post( $a['labelText'] ?? '' ),
 					'color'     => sanitize_hex_color( $a['color'] ?? '#000000' ),
-				);
+				];
 			}
 		}
 		} catch (\Throwable $throwable){
@@ -326,20 +326,20 @@ final class StarmusAudioEditorUI {
 
 			if ( $this->is_rate_limited( $post_id ) ) {
 				return new WP_REST_Response(
-					array(
+					[
 						'success' => false,
 						'message' => 'Too many requests.',
-					),
+					],
 					429
 				);
 			}
 
 			if ( is_wp_error( $val = $this->validate_annotation_consistency( $annotations ) ) ) {
 				return new WP_REST_Response(
-					array(
+					[
 						'success' => false,
 						'message' => $val->get_error_message(),
-					),
+					],
 					400
 				);
 			}
@@ -351,19 +351,19 @@ final class StarmusAudioEditorUI {
 
 			update_field( 'waveform_json', $json_data, $post_id );
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => true,
 					'count'   => \count( $annotations ),
-				),
+				],
 				200
 			);
 		} catch ( Throwable $throwable ) {
 			StarmusLogger::log( $throwable );
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => 'Internal server error.',
-				),
+				],
 				500
 			);
 		}
@@ -380,7 +380,7 @@ final class StarmusAudioEditorUI {
 	}
 
 	private function validate_annotation_consistency( array $annotations ): bool|WP_Error {
-		if ( $annotations === array() ) {
+		if ( $annotations === [] ) {
 			return true;
 		}
 
@@ -394,7 +394,7 @@ final class StarmusAudioEditorUI {
 		return true;
 	}
 
-	public function get_editor_context_public( array $atts = array() ): array|WP_Error {
+	public function get_editor_context_public( array $atts = [] ): array|WP_Error {
 		return $this->get_editor_context( $atts );
 	}
 }

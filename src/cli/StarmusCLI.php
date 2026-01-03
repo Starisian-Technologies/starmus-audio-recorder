@@ -144,23 +144,23 @@ class StarmusCLI extends \WP_CLI_Command
 	public function export($args, array $assoc_args): void
 	{
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'audio-recording',
 				'post_status'    => 'any',
 				'posts_per_page' => -1,
-			)
+			]
 		);
 
 		if (! $query->have_posts()) {
 			WP_CLI::error('No recordings found to export.');
 		}
 
-		$items   = array();
-		$headers = array('ID', 'Title', 'Date', 'Author ID', 'Audio URL', 'Language', 'Recording Type');
+		$items   = [];
+		$headers = ['ID', 'Title', 'Date', 'Author ID', 'Audio URL', 'Language', 'Recording Type'];
 
 		foreach ($query->posts as $post) {
 			$attachment_id = get_post_meta($post->ID, '_audio_attachment_id', true);
-			$items[]       = array(
+			$items[]       = [
 				'ID'             => $post->ID,
 				'Title'          => $post->post_title,
 				'Date'           => $post->post_date,
@@ -168,7 +168,7 @@ class StarmusCLI extends \WP_CLI_Command
 				'Audio URL'      => $attachment_id ? wp_get_attachment_url($attachment_id) : '',
 				'Language'       => wp_strip_all_tags(get_the_term_list($post->ID, 'language', '', ', ')),
 				'Recording Type' => wp_strip_all_tags(get_the_term_list($post->ID, 'recording-type', '', ', ')),
-			);
+			];
 		}
 
 		$format = $assoc_args['format'] ?? 'csv';
@@ -231,13 +231,13 @@ class StarmusCLI extends \WP_CLI_Command
 			return; // Exit immediately.
 		}
 
-		$query_args = array(
+		$query_args = [
 			'post_type'      => 'audio-recording',
 			'post_status'    => 'publish',
 			'posts_per_page' => (int) ($assoc_args['chunk_size'] ?? 100),
 			'fields'         => 'ids',
 			'paged'          => 1,
-		);
+		];
 
 		if (! empty($assoc_args['post_ids'])) {
 			$query_args['post__in']       = array_map(absint(...), explode(',', (string) $assoc_args['post_ids']));
@@ -392,23 +392,23 @@ class StarmusCLI extends \WP_CLI_Command
 
 		\WP_CLI::log('Scanning for audio recordings with missing waveform_json...');
 
-		$query_args = array(
+		$query_args = [
 			'post_type'      => 'audio-recording',
 			'post_status'    => 'any',
 			'posts_per_page' => $limit,
-			'meta_query'     => array(
+			'meta_query'     => [
 				'relation' => 'OR',
-				array(
+				[
 					'key'     => 'waveform_json',
 					'compare' => 'NOT EXISTS',
-				),
-				array(
+				],
+				[
 					'key'     => 'waveform_json',
 					'value'   => '',
 					'compare' => '=',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		$recordings = get_posts($query_args);
 
@@ -472,13 +472,13 @@ class StarmusCLI extends \WP_CLI_Command
 		\WP_CLI::log(\sprintf('Batch regenerating waveforms for audio attachments (limit: %d, offset: %d)...', $limit, $offset));
 
 		$attachments = get_posts(
-			array(
+			[
 				'post_type'      => 'attachment',
 				'post_mime_type' => 'audio',
 				'posts_per_page' => $limit,
 				'offset'         => $offset,
 				'post_status'    => 'inherit',
-			)
+			]
 		);
 
 		if (empty($attachments)) {

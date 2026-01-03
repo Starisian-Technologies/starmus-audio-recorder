@@ -96,13 +96,13 @@ final class StarmusId3Service {
 		if ( ! class_exists( 'getID3' ) ) {
 			StarmusLogger::error(
 				'getID3 library class not found.',
-				array( 'component' => __CLASS__ )
+				[ 'component' => self::class ]
 			);
 			return null;
 		}
 
 		$getID3 = new \getID3();
-		$getID3->setOption( array( 'encoding' => self::TEXT_ENCODING ) );
+		$getID3->setOption( [ 'encoding' => self::TEXT_ENCODING ] );
 		return $getID3;
 	}
 
@@ -162,10 +162,10 @@ final class StarmusId3Service {
 		if ( ! file_exists( $filepath ) ) {
 			StarmusLogger::error(
 				'File missing for tagging',
-				array(
-					'component' => __CLASS__,
+				[
+					'component' => self::class,
 					'path'      => $filepath,
-				)
+				]
 			);
 			return false;
 		}
@@ -180,14 +180,14 @@ final class StarmusId3Service {
 			if ( ! class_exists( 'getid3_writetags' ) ) {
 				StarmusLogger::error(
 					'getid3_writetags class missing.',
-					array( 'component' => __CLASS__ )
+					[ 'component' => self::class ]
 				);
 				return false;
 			}
 
 			$tagwriter                    = new \getid3_writetags();
 			$tagwriter->filename          = $filepath;
-			$tagwriter->tagformats        = array( 'id3v2.3' );
+			$tagwriter->tagformats        = [ 'id3v2.3' ];
 			$tagwriter->overwrite_tags    = true;
 			$tagwriter->tag_encoding      = self::TEXT_ENCODING;
 			$tagwriter->remove_other_tags = true;
@@ -196,21 +196,21 @@ final class StarmusId3Service {
 			if ( ! $tagwriter->WriteTags() ) {
 				StarmusLogger::error(
 					'WriteTags Failed',
-					array(
-						'component' => __CLASS__,
+					[
+						'component' => self::class,
 						'errors'    => $tagwriter->errors,
-					)
+					]
 				);
 				return false;
 			}
 
-			if ( $tagwriter->warnings !== array() ) {
+			if ( $tagwriter->warnings !== [] ) {
 				StarmusLogger::warning(
 					'WriteTags Warnings',
-					array(
-						'component' => __CLASS__,
+					[
+						'component' => self::class,
 						'warnings'  => $tagwriter->warnings,
-					)
+					]
 				);
 			}
 
@@ -218,10 +218,10 @@ final class StarmusId3Service {
 		} catch ( Throwable $throwable ) {
 			StarmusLogger::log(
 				$throwable,
-				array(
-					'component' => __CLASS__,
+				[
+					'component' => self::class,
 					'path'      => $filepath,
-				)
+				]
 			);
 			return false;
 		}
@@ -232,7 +232,7 @@ final class StarmusId3Service {
 	 */
 	public function needsAfricaOptimization( string $filepath ): bool {
 		$analysis = $this->analyzeFile( $filepath );
-		$audio    = $analysis['audio'] ?? array();
+		$audio    = $analysis['audio'] ?? [];
 
 		$bitrate  = $audio['bitrate'] ?? 0;
 		$filesize = $analysis['filesize'] ?? 0;
@@ -301,7 +301,7 @@ final class StarmusId3Service {
 	public function analyzeFile( string $filepath ): array {
 		$engine = $this->getID3Engine();
 		if ( ! $engine instanceof \getID3 ) {
-			return array();
+			return [];
 		}
 
 		$info = $engine->analyze( $filepath );

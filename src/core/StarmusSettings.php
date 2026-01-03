@@ -18,6 +18,7 @@ use Throwable;
 if ( ! \defined( 'ABSPATH' ) ) {
 	exit;
 }
+
 /**
  * Summary of StarmusSettings
  *
@@ -39,7 +40,7 @@ final class StarmusSettings {
 	 *
 	 * @var array<string, string>
 	 */
-	private const ALLOWED_MIMES = array(
+	private const ALLOWED_MIMES = [
 		'mp3'  => 'audio/mpeg',
 		'wav'  => 'audio/wav',
 		'ogg'  => 'audio/ogg',
@@ -58,7 +59,7 @@ final class StarmusSettings {
 		'wmv'  => 'video/x-ms-wmv',
 		'3gp'  => 'video/3gpp',
 		'3g2'  => 'video/3gpp2',
-	);
+	];
 
 	/**
 	 * WordPress option key for storing plugin settings.
@@ -107,8 +108,8 @@ final class StarmusSettings {
 		} catch ( \Throwable $throwable ) {
 			StarmusLogger::log( $throwable );
 			// Initialize with defaults on error
-			$this->default_obj_cache = array();
-			$this->obj_cache         = array();
+			$this->default_obj_cache = [];
+			$this->obj_cache         = [];
 		}
 	}
 
@@ -159,11 +160,11 @@ final class StarmusSettings {
 	public function all(): array {
 		try {
 			if ( $this->obj_cache === null ) {
-				$saved = get_option( self::STARMUS_OPTION_KEY, array() );
+				$saved = get_option( self::STARMUS_OPTION_KEY, [] );
 
 				\Starisian\Sparxstar\Starmus\helpers\StarmusLogger::info(
 					'get_option result',
-					array( 'component' => __CLASS__ )
+					[ 'component' => self::class ]
 				);
 
 				$merged          = wp_parse_args( $saved, $this->get_defaults() );
@@ -221,7 +222,7 @@ final class StarmusSettings {
 	 */
 	public function update_all( array $settings ): bool {
 		try {
-			$sanitized = array();
+			$sanitized = [];
 			foreach ( $settings as $key => $value ) {
 				if ( $this->is_valid_key( $key ) ) {
 					$sanitized[ $key ] = $this->sanitize_value( $key, $value );
@@ -257,7 +258,7 @@ final class StarmusSettings {
 	public function get_defaults(): array {
 		try {
 			if ( $this->default_obj_cache === null ) {
-				$this->default_obj_cache = array(
+				$this->default_obj_cache = [
 					'cpt_slug'                => 'audio-recording',
 					'file_size_limit'         => 10,
 					'recording_time_limit'    => 300,
@@ -272,7 +273,7 @@ final class StarmusSettings {
 					'edit_page_id'            => 0,
 					'recorder_page_id'        => 0,
 					'my_recordings_page_id'   => 0,
-				);
+				];
 				$this->default_obj_cache = apply_filters( 'starmus_default_settings', $this->default_obj_cache );
 			}
 
@@ -280,7 +281,7 @@ final class StarmusSettings {
 		} catch ( \Throwable $throwable ) {
 			StarmusLogger::log( $throwable);
 			// Return hardcoded minimal defaults on error
-			return array(
+			return [
 				'cpt_slug'                => 'audio-recording',
 				'file_size_limit'         => 10,
 				'recording_time_limit'    => 300,
@@ -295,19 +296,18 @@ final class StarmusSettings {
 				'edit_page_id'            => 0,
 				'recorder_page_id'        => 0,
 				'my_recordings_page_id'   => 0,
-			);
+			];
 		}
 	}
 
 	/**
-	 * Initialize defaults on plugin activation using options API.
-	 * REVERTED: Uses add_option/update_option.
-	 * Adds the settings option with defaults if it doesn't exist.
-	 * Merges existing settings with defaults for new keys.
-	 * Clears cache to ensure immediate use of new defaults.
-	 * @return void
-	 */
-	public function add_defaults_on_activation(): void {
+     * Initialize defaults on plugin activation using options API.
+     * REVERTED: Uses add_option/update_option.
+     * Adds the settings option with defaults if it doesn't exist.
+     * Merges existing settings with defaults for new keys.
+     * Clears cache to ensure immediate use of new defaults.
+     */
+    public function add_defaults_on_activation(): void {
 		try {
 			$existing_options = get_option( self::STARMUS_OPTION_KEY, false );
 			if ( false === $existing_options ) {
@@ -403,13 +403,12 @@ final class StarmusSettings {
 	}
 
 	/**
-	 * Clear in-memory caches.
-	 *
-	 * Resets both the settings cache and defaults cache
-	 * to null, forcing fresh retrieval on next access.
-	 * @return void
-	 */
-	public function clear_cache(): void {
+     * Clear in-memory caches.
+     *
+     * Resets both the settings cache and defaults cache
+     * to null, forcing fresh retrieval on next access.
+     */
+    public function clear_cache(): void {
 		$this->obj_cache         = null;
 		$this->default_obj_cache = null;
 	}
@@ -457,17 +456,17 @@ final class StarmusSettings {
 			$whitelist = self::get_allowed_mimes();
 
 			if ( isset( $whitelist[ $ext ] ) ) {
-				return array(
+				return [
 					'ext'             => $ext,
 					'type'            => $whitelist[ $ext ],
 					'proper_filename' => $filename,
-				);
+				];
 			}
 
-			return \is_array( $types ) ? $types : array();
+			return \is_array( $types ) ? $types : [];
 		} catch ( \Throwable $throwable ) {
 			StarmusLogger::log($throwable);
-			return \is_array( $types ) ? $types : array();
+			return \is_array( $types ) ? $types : [];
 		}
 	}
 

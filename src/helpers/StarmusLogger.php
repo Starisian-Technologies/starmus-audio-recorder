@@ -113,47 +113,40 @@ class StarmusLogger
 
     /**
      * Shared logger handler instance used to dispatch PSR-3 calls.
-     *
-     * @var StarLogger|null
      */
     private static ?StarLogger $handler = null;
 
     /**
      * Minimum severity level that will be recorded.
-     *
-     * @var int
      */
     private static int $min_log_level = self::INFO;
 
 	/**
-	 * Set the minimum log level
-	 *
-	 * @param int $level Log level constant
-	 *
-	 * @return void
-	 */
-	public static function set_min_level( int $level ): void {
+     * Set the minimum log level
+     *
+     * @param int $level Log level constant
+     */
+    public static function set_min_level( int $level ): void {
 		self::$min_log_level = $level;
 		self::$handler       = null; // Reset to refresh instance with new level
 	}
 
 	/**
-	 * Get the internal handler instance
-	 *
-	 * @throws \Exception
-	 *
-	 * @return StarLogger
-	 */
-	private static function get_handler(): StarLogger {
+     * Get the internal handler instance
+     *
+     * @throws \Exception
+     */
+    private static function get_handler(): StarLogger {
 		try{
-			if ( self::$handler === null ) {
+			if ( !self::$handler instanceof \Starisian\Sparxstar\Starmus\helpers\logger\StarLogger ) {
 				self::$handler = new StarLogger( self::$min_log_level );
 			}
-		}	catch (\Exception $e){
+		}	catch (\Exception $exception){
 			// In case of logger initialization failure, fallback to error_log
-			error_log('StarmusLogger initialization failed: ' . $e->getMessage());
-			throw $e;
+			error_log('StarmusLogger initialization failed: ' . $exception->getMessage());
+			throw $exception;
 		}
+
 		return self::$handler;
 	}
 
@@ -209,6 +202,7 @@ class StarmusLogger
 				// For admin users, also output to error_log for immediate visibility
 				StarmusUIHelper::renderError('Starmus ALERT: ' . (is_string($message) ? $message : print_r($message, true)));
 			}
+
 			self::get_handler()->alert($message, $context);
 		}
 
@@ -224,10 +218,7 @@ class StarmusLogger
      * Compatibility alias for log_error
      *
      * @deprecated Use StarmusLogger::error() instead
-     * @param mixed $message
-     * @param array $context
      *
-     * @return void
      */
     public static function log_error(mixed $message, array $context = []): void
     {

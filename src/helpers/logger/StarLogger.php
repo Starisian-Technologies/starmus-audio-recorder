@@ -49,11 +49,9 @@ use function sprintf;
 class StarLogger extends AbstractLogger {
 
 	/**
-	 * Summary of min_level
-	 *
-	 * @var int
-	 */
-	private int $min_level;
+     * Summary of min_level
+     */
+    private int $min_level;
 
 	/**
 	 * Map PSR-3 string levels to integer priorities for filtering.
@@ -61,7 +59,7 @@ class StarLogger extends AbstractLogger {
 	 *
 	 * @var array<string, int>
 	 */
-	private const LEVEL_PRIORITY = array(
+	private const LEVEL_PRIORITY = [
 		'emergency' => 0,
 		'alert'     => 1,
 		'critical'  => 2,
@@ -70,7 +68,7 @@ class StarLogger extends AbstractLogger {
 		'notice'    => 5,
 		'info'      => 6,
 		'debug'     => 7,
-	);
+	];
 
 	/**
 	 * @param int $min_level The minimum priority level to log.
@@ -87,7 +85,7 @@ class StarLogger extends AbstractLogger {
 	 * @param mixed $message Message or Object (like an Exception)
 	 * @param array $context Additional data
 	 */
-	public function log( $level, $message, array $context = array() ): void {
+	public function log( $level, $message, array $context = [] ): void {
 		try{
 			// 1. Determine priority and skip if below min_level
 			$level_str = (string) $level;
@@ -102,7 +100,7 @@ class StarLogger extends AbstractLogger {
 
 			// 3. Detect the caller
 			$caller      = $this->get_caller();
-			$context_str = empty( $context ) ? '' : ' ' . wp_json_encode( $context );
+			$context_str = $context === [] ? '' : ' ' . wp_json_encode( $context );
 
 			// 4. Format and send to error_log
 			$formatted = \sprintf(
@@ -112,13 +110,14 @@ class StarLogger extends AbstractLogger {
 				$processed_message,
 				$context_str
 			);
-		}	catch (\Exception $e){
+		}	catch (\Exception $exception){
 			// In case of logging failure, fallback to error_log
-			error_log('StarLogger log() failed: ' . $e->getMessage());
+			error_log('StarLogger log() failed: ' . $exception->getMessage());
 			if(is_admin()){
 				// For admin users, also output to error_log for immediate visibility
-				StarmusUIHelper::renderError('StarLogger log() failed: ' . $e->getMessage());
+				StarmusUIHelper::renderError('StarLogger log() failed: ' . $exception->getMessage());
 			}
+
 			return;
 		}
 
@@ -126,13 +125,12 @@ class StarLogger extends AbstractLogger {
 	}
 
 	/**
-	 * Logic for parsing different message types.
-	 *
-	 * @param mixed $message
-	 *
-	 * @return string Processed message string
-	 */
-	private function process_message( mixed $message ): string {
+     * Logic for parsing different message types.
+     *
+     *
+     * @return string Processed message string
+     */
+    private function process_message( mixed $message ): string {
 		try{
 			if ( \is_string( $message ) ) {
 				return $message;
@@ -141,7 +139,7 @@ class StarLogger extends AbstractLogger {
 			if ( $message instanceof Throwable ) {
 				return \sprintf(
 					'EXCEPTION [%s]: %s in %s:%d',
-					\get_class( $message ),
+					$message::class,
 					$message->getMessage(),
 					$message->getFile(),
 					$message->getLine()
@@ -151,7 +149,7 @@ class StarLogger extends AbstractLogger {
 			if ( $message instanceof Exception ) {
 				return \sprintf(
 					'EXCEPTION [%s]: %s in %s:%d',
-					\get_class( $message ),
+					$message::class,
 					$message->getMessage(),
 					$message->getFile(),
 					$message->getLine()
@@ -159,7 +157,7 @@ class StarLogger extends AbstractLogger {
 			}
 
 			if ( $message instanceof WP_Error ) {
-				$errors = array();
+				$errors = [];
 				foreach ( $message->get_error_codes() as $code ) {
 					$errors[] = \sprintf(
 						'WP_Error [%s]: %s',
@@ -167,13 +165,14 @@ class StarLogger extends AbstractLogger {
 						implode( '; ', $message->get_error_messages( $code ) )
 					);
 				}
+
 				return implode( ' | ', $errors );
 			}
 
 			if ( $message instanceof RuntimeException ) {
 				return \sprintf(
 					'RUNTIME EXCEPTION [%s]: %s in %s:%d',
-					\get_class( $message ),
+					$message::class,
 					$message->getMessage(),
 					$message->getFile(),
 					$message->getLine()
@@ -184,14 +183,15 @@ class StarLogger extends AbstractLogger {
 				return (string) wp_json_encode( $message );
 			}
 
-		}catch (\Exception $e){
+		}catch (\Exception $exception){
 			// In case of message processing failure, fallback to error_log
-			error_log('StarLogger process_message() failed: ' . $e->getMessage());
+			error_log('StarLogger process_message() failed: ' . $exception->getMessage());
 			if(is_admin()){
 				// For admin users, also output to error_log for immediate visibility
-				StarmusUIHelper::renderError('StarLogger process_message() failed: ' . $e->getMessage());
+				StarmusUIHelper::renderError('StarLogger process_message() failed: ' . $exception->getMessage());
 			}
-			return 'Logging Error: ' . $e->getMessage();
+
+			return 'Logging Error: ' . $exception->getMessage();
 		}
 
 		return (string) $message;
@@ -209,17 +209,18 @@ class StarLogger extends AbstractLogger {
 				if ( isset( $frame['class'] ) && ! str_contains( $frame['class'], 'Logger' ) ) {
 					$class  = basename( str_replace( '\\', '/', $frame['class'] ) );
 					$method = $frame['function'] ?? 'unknown';
-					return "{$class}::{$method}";
+					return sprintf('%s::%s', $class, $method);
 				}
 			}
-		}	catch (\Exception $e){
+		}	catch (\Exception $exception){
 			// In case of caller detection failure, fallback to error_log
-			error_log('StarLogger get_caller() failed: ' . $e->getMessage());
+			error_log('StarLogger get_caller() failed: ' . $exception->getMessage());
 			if(is_admin()){
 				// For admin users, also output to error_log for immediate visibility
-				StarmusUIHelper::renderError('StarLogger get_caller() failed: ' . $e->getMessage());
+				StarmusUIHelper::renderError('StarLogger get_caller() failed: ' . $exception->getMessage());
 			}
 		}
+
 		return 'unknown';
 	}
 }

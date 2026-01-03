@@ -41,7 +41,7 @@ class StarmusSanitizer {
 	 * List of keys that contain JSON or long text and must NOT use sanitize_text_field.
 	 * This prevents JSON from being corrupted (quotes stripped).
 	 */
-	private const COMPLEX_FIELDS = array(
+	private const COMPLEX_FIELDS = [
 		'environment_data',
 		'_starmus_env',
 		'waveform_json',
@@ -52,20 +52,7 @@ class StarmusSanitizer {
 		'_starmus_description',
 		'transcription_text',
 		'translation_text'
-	);
-
-	/**
-	 * Reference list of allowed fields (Documentation/Validation purpose).
-	 */
-	private const PASSTHROUGH_ALLOWLIST = array(
-		'title', 'description', 'language', 'dialect', 'project_id',
-		'interview_type', 'story_type', 'rating', 'geolocation',
-		'countries_lived', 'custom_fields', 'environment_data', 'waveform_json',
-		'dc_title', 'dc_description', 'dc_language', 'dc_identifier',
-		'dc_subject', 'dc_publisher', 'dc_format', 'dc_rights',
-		'contributor_name', 'contributor_email', 'contributor_affiliation',
-		'date_created', 'session_date'
-	);
+	];
 
 	/**
 	 * Sanitize general submission data from forms or REST params.
@@ -74,7 +61,7 @@ class StarmusSanitizer {
 	 * @return array<string, mixed> Sanitized data.
 	 */
 	public static function sanitize_submission_data( array $data ): array {
-		$clean = array();
+		$clean = [];
 
 		foreach ( $data as $key => $value ) {
 			$safe_key = sanitize_key( $key );
@@ -106,7 +93,7 @@ class StarmusSanitizer {
 	 * @return array<string, mixed> Key → Value metadata array.
 	 */
 	public static function sanitize_metadata( array $form_data ): array {
-		$meta = array();
+		$meta = [];
 
 		// Use SchemaMapper for consistent field mapping (New Schema)
 		$mapped_data = StarmusSchemaMapper::map_form_data( $form_data );
@@ -174,14 +161,14 @@ class StarmusSanitizer {
 	 */
 	public static function get_user_ip(): string {
 		$ip = '';
-		$headers = array(
+		$headers = [
 			'HTTP_CLIENT_IP',
 			'HTTP_X_FORWARDED_FOR',
 			'HTTP_X_FORWARDED',
 			'HTTP_FORWARDED_FOR',
 			'HTTP_FORWARDED',
 			'REMOTE_ADDR'
-		);
+		];
 
 		foreach ( $headers as $header ) {
 			if ( ! empty( $_SERVER[ $header ] ) ) {
@@ -206,61 +193,59 @@ class StarmusSanitizer {
 	 * @return array<string, string>
 	 */
 	public static function capture_system_context(): array {
-		return array(
+		return [
 			'user_agent'      => sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ?? '' ),
 			'server_protocol' => sanitize_text_field( $_SERVER['SERVER_PROTOCOL'] ?? '' ),
 			'request_method'  => sanitize_text_field( $_SERVER['REQUEST_METHOD'] ?? '' ),
 			'content_type'    => sanitize_text_field( $_SERVER['CONTENT_TYPE'] ?? '' ),
 			'timestamp_utc'   => gmdate( 'Y-m-d H:i:s' ),
-		);
+		];
 	}
 
 	/**
-	 * Retrieves and sanitizes prosody data for a given post ID.
-	 * Used by the Prosody Engine.
-	 *
-	 * @param int $post_id
-	 * @return array<string, mixed>
-	 */
-	public static function get_sanitized_prosody_data( int $post_id ): array {
+     * Retrieves and sanitizes prosody data for a given post ID.
+     * Used by the Prosody Engine.
+     *
+     * @return array<string, mixed>
+     */
+    public static function get_sanitized_prosody_data( int $post_id ): array {
 		try {
-			$post_id = (int) $post_id;
 			$post    = get_post( $post_id );
 
 			// Note: Adjusted check to match 'audio-script' or 'starmus-script' depending on your CPT name
-			if ( ! $post || ! in_array( $post->post_type, array( 'starmus-script', 'audio-script' ), true ) ) {
-				return array();
+			if ( ! $post || ! in_array( $post->post_type, [ 'starmus-script', 'audio-script' ], true ) ) {
+				return [];
 			}
 
-			$raw_data = array(
+			$raw_data = [
 				'performance_mode'   => get_field( 'performance_mode', $post_id ) ?: 'conversational',
 				'energy_level'       => get_field( 'energy_level', $post_id ) ?: 'neutral',
 				'visual_density'     => (int) get_field( 'visual_density', $post_id ),
 				'calibrated_pace_ms' => (int) get_field( 'calibrated_pace_ms', $post_id ),
-			);
+			];
 
 			// Sanitize Selections
 			$raw_data['performance_mode'] = self::sanitize_selection(
 				(string) $raw_data['performance_mode'],
-				array( 'conversational', 'narrative', 'dramatic', 'announcer' )
+				[ 'conversational', 'narrative', 'dramatic', 'announcer' ]
 			);
 
 			$raw_data['energy_level'] = self::sanitize_selection(
 				(string) $raw_data['energy_level'],
-				array( 'high', 'neutral', 'low' )
+				[ 'high', 'neutral', 'low' ]
 			);
 
 			return $raw_data;
-		} catch ( \Throwable $e ) {
-			StarmusLogger::log( $e );
-			return array();
+		} catch ( \Throwable $throwable ) {
+			StarmusLogger::log( $throwable );
+			return [];
 		}
 	}
 
 	// --- PRIVATE HELPERS ---
 
 	private static function sanitize_array_recursive( array $array ): array {
-		$clean = array();
+		$clean = [];
 		foreach ( $array as $key => $val ) {
 			if ( is_array( $val ) ) {
 				$clean[ $key ] = self::sanitize_array_recursive( $val );
@@ -268,6 +253,7 @@ class StarmusSanitizer {
 				$clean[ $key ] = is_string( $val ) ? sanitize_text_field( $val ) : $val;
 			}
 		}
+
 		return $clean;
 	}
 
@@ -275,6 +261,7 @@ class StarmusSanitizer {
 		if ( ! is_string( $value ) ) {
 			return (string) json_encode( $value );
 		}
+
 		return sanitize_textarea_field( wp_unslash( $value ) );
 	}
 

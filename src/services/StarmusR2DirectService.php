@@ -30,16 +30,16 @@ final class StarmusR2DirectService {
 		$this->bucket      = \defined( 'STARMUS_R2_BUCKET' ) ? STARMUS_R2_BUCKET : 'starmus-audio';
 
 		$this->r2_client = new S3Client(
-			array(
+			[
 				'version'                 => 'latest',
 				'region'                  => 'auto',
 				'endpoint'                => 'https://' . ( \defined( 'STARMUS_R2_ACCOUNT_ID' ) ? STARMUS_R2_ACCOUNT_ID : '' ) . '.r2.cloudflarestorage.com',
-				'credentials'             => array(
+				'credentials'             => [
 					'key'    => \defined( 'STARMUS_R2_ACCESS_KEY' ) ? STARMUS_R2_ACCESS_KEY : '',
 					'secret' => \defined( 'STARMUS_R2_SECRET_KEY' ) ? STARMUS_R2_SECRET_KEY : '',
-				),
+				],
 				'use_path_style_endpoint' => true,
-			)
+			]
 		);
 		} catch (Throwable $throwable){
 			StarmusLogger::log($throwable);
@@ -51,18 +51,18 @@ final class StarmusR2DirectService {
 	 */
 	public function processAfricaAudio( string $local_path, int $post_id ): array {
 		if ( ! $this->id3_service->needsAfricaOptimization( $local_path ) ) {
-			return array( 'message' => 'No optimization needed' );
+			return [ 'message' => 'No optimization needed' ];
 		}
 
-		$results   = array();
+		$results   = [];
 		$base_name = pathinfo( $local_path, PATHINFO_FILENAME );
 
 		// Create optimized versions
-		$versions = array(
-			'2g'   => array( '-b:a', '32k', '-ar', '16000', '-ac', '1' ),
-			'3g'   => array( '-b:a', '48k', '-ar', '22050', '-ac', '1' ),
-			'wifi' => array( '-b:a', '64k', '-ar', '44100', '-ac', '1' ),
-		);
+		$versions = [
+			'2g'   => [ '-b:a', '32k', '-ar', '16000', '-ac', '1' ],
+			'3g'   => [ '-b:a', '48k', '-ar', '22050', '-ac', '1' ],
+			'wifi' => [ '-b:a', '64k', '-ar', '44100', '-ac', '1' ],
+		];
 
 		foreach ( $versions as $quality => $params ) {
 			$temp_file = $this->createOptimizedVersion( $local_path, $params );
@@ -73,11 +73,11 @@ final class StarmusR2DirectService {
 				$r2_url = $this->uploadToR2( $temp_file, $r2_key );
 
 				if ( $r2_url ) {
-					$results[ $quality ] = array(
+					$results[ $quality ] = [
 						'url'     => $r2_url,
 						'size_mb' => round( filesize( $temp_file ) / ( 1024 * 1024 ), 2 ),
 						'r2_key'  => $r2_key,
-					);
+					];
 				}
 
 				unlink( $temp_file );
@@ -96,9 +96,9 @@ final class StarmusR2DirectService {
 		$cmd = implode(
 			' ',
 			array_merge(
-				array( 'ffmpeg -y -i', escapeshellarg( $input ) ),
+				[ 'ffmpeg -y -i', escapeshellarg( $input ) ],
 				$params,
-				array( '-f mp3', escapeshellarg( $temp_file ), '2>/dev/null' )
+				[ '-f mp3', escapeshellarg( $temp_file ), '2>/dev/null' ]
 			)
 		);
 
@@ -119,17 +119,17 @@ final class StarmusR2DirectService {
 	private function uploadToR2( string $file_path, string $key ): ?string {
 		try {
 			$result = $this->r2_client->putObject(
-				array(
+				[
 					'Bucket'       => $this->bucket,
 					'Key'          => $key,
 					'Body'         => fopen( $file_path, 'rb' ),
 					'ContentType'  => 'audio/mpeg',
 					'CacheControl' => 'public, max-age=31536000', // 1 year cache
-					'Metadata'     => array(
+					'Metadata'     => [
 						'starmus-optimized' => 'africa',
 						'created'           => date( 'c' ),
-					),
-				)
+					],
+				]
 			);
 
 			// Return public URL
@@ -138,7 +138,7 @@ final class StarmusR2DirectService {
 		} catch ( \Exception ) {
 			StarmusLogger::error(
 				'Upload failed',
-				array( 'component' => __CLASS__, 'key' => $key )
+				[ 'component' => self::class, 'key' => $key ]
 			);
 			return null;
 		}
@@ -152,14 +152,14 @@ final class StarmusR2DirectService {
 		$analysis = $this->id3_service->analyzeFile( $source );
 
 		if ( ! empty( $analysis['comments'] ) ) {
-			$tags = array();
+			$tags = [];
 			foreach ( $analysis['comments'] as $key => $values ) {
 				if ( ! empty( $values[0] ) ) {
 					$tags[ $key ] = $values;
 				}
 			}
 
-			$tags['comment'] = array( ( $tags['comment'][0] ?? '' ) . ' [R2-Africa]' );
+			$tags['comment'] = [ ( $tags['comment'][0] ?? '' ) . ' [R2-Africa]' ];
 			$this->id3_service->writeTags( $destination, $tags );
 		}
 		} catch (Throwable $throwable){
@@ -173,11 +173,11 @@ final class StarmusR2DirectService {
 	public function getAfricaEstimates( string $file_path ): array {
 		$size_mb = filesize( $file_path ) / ( 1024 * 1024 );
 
-		return array(
+		return [
 			'original_mb'       => round( $size_mb, 2 ),
 			'africa_2g_mb'      => round( $size_mb * 0.15, 2 ), // 85% reduction
 			'cost_savings_usd'  => round( $size_mb * 0.13, 2 ), // Gambia rates
 			'bandwidth_savings' => '85%',
-		);
+		];
 	}
 }

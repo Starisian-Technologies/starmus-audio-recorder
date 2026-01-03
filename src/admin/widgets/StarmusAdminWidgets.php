@@ -27,10 +27,10 @@ class StarmusAdminWidgets {
 		} catch ( Throwable $throwable ) {
 			error_log(
 				'StarmusAdminWidgets::__construct() failed: ' . $throwable->getMessage(),
-				array(
+				[
 					'file' => $throwable->getFile(),
 					'line' => $throwable->getLine(),
-				)
+				]
 			);
 		}
 	}
@@ -44,10 +44,10 @@ class StarmusAdminWidgets {
 		} catch ( Throwable $throwable ) {
 			error_log(
 				'StarmusAdminWidgets::register_hooks() failed: ' . $throwable->getMessage(),
-				array(
+				[
 					'file' => $throwable->getFile(),
 					'line' => $throwable->getLine(),
-				)
+				]
 			);
 		}
 	}
@@ -66,10 +66,10 @@ class StarmusAdminWidgets {
 		} catch ( Throwable $throwable ) {
 			error_log(
 				'StarmusAdminWidgets::register_widgets() failed: ' . $throwable->getMessage(),
-				array(
+				[
 					'file' => $throwable->getFile(),
 					'line' => $throwable->getLine(),
-				)
+				]
 			);
 		}
 	}
@@ -79,15 +79,15 @@ class StarmusAdminWidgets {
 	 */
 	public function render_jobs_widget(): void {
 		try {
-			$jobs = get_option( 'aiwa_sagemaker_jobs', array() );
+			$jobs = get_option( 'aiwa_sagemaker_jobs', [] );
 
-			$counts = array(
+			$counts = [
 				'total'      => 0,
 				'pending'    => 0,
 				'processing' => 0,
 				'done'       => 0,
 				'failed'     => 0,
-			);
+			];
 
 			foreach ( $jobs as $job ) {
 				++$counts['total'];
@@ -138,10 +138,10 @@ class StarmusAdminWidgets {
 		} catch ( Throwable $throwable ) {
 			error_log(
 				'StarmusAdminWidgets::render_jobs_widget() failed: ' . $throwable->getMessage(),
-				array(
+				[
 					'file' => $throwable->getFile(),
 					'line' => $throwable->getLine(),
-				)
+				]
 			);
 			echo '<p>' . esc_html__( 'Unable to load job data.', 'starmus-audio-recorder' ) . '</p>';
 		}
@@ -200,10 +200,10 @@ class StarmusAdminWidgets {
 		} catch ( Throwable $throwable ) {
 			error_log(
 				'StarmusAdminWidgets::enqueue_jobs_widget_script() failed: ' . $throwable->getMessage(),
-				array(
+				[
 					'file' => $throwable->getFile(),
 					'line' => $throwable->getLine(),
-				)
+				]
 			);
 		}
 	}

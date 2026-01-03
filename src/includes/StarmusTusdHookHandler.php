@@ -103,24 +103,24 @@ class StarmusTusdHookHandler
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
-			array(
-				array(
+			[
+				[
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => $this->handle_tusd_hook(...),
 					'permission_callback' => $this->permissions_check(...),
-					'args'                => array(
-						'Type'  => array(
+					'args'                => [
+						'Type'  => [
 							'required'          => true,
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_key',
-						),
-						'Event' => array(
+						],
+						'Event' => [
 							'required' => true,
 							'type'     => 'object',
-						),
-					),
-				),
-			)
+						],
+					],
+				],
+			]
 		);
 	}
 
@@ -166,23 +166,23 @@ class StarmusTusdHookHandler
 
 			// 1. Validate JSON Body exists (tusd sends JSON)
 			if (empty($json_params) || ! \is_array($json_params)) {
-				return new WP_Error('invalid_json', 'Invalid JSON body.', array('status' => 400));
+				return new WP_Error('invalid_json', 'Invalid JSON body.', ['status' => 400]);
 			}
 
 			$event_type = sanitize_key($json_params['Type'] ?? '');
-			$event_data = $json_params['Event'] ?? array();
+			$event_data = $json_params['Event'] ?? [];
 
 			if (empty($event_type) || empty($event_data)) {
-				return new WP_Error('invalid_payload', 'Invalid payload.', array('status' => 400));
+				return new WP_Error('invalid_payload', 'Invalid payload.', ['status' => 400]);
 			}
 
 			if (\defined('WP_DEBUG') && WP_DEBUG) {
 				StarmusLogger::debug(
 					'Received payload',
-					array(
-						'component'  => __CLASS__,
+					[
+						'component'  => self::class,
 						'event_type' => $event_type,
-					)
+					]
 				);
 			}
 
@@ -192,7 +192,7 @@ class StarmusTusdHookHandler
 			// WP_REST_Response handles this automatically.
 			return match ($event_type) {
 				'post-finish' => $this->handle_post_finish($event_data),
-				default       => new WP_REST_Response(array(), 200), // Return empty JSON object {}
+				default       => new WP_REST_Response([], 200), // Return empty JSON object {}
 			};
 		} catch (\Throwable $throwable) {
 			StarmusLogger::log($throwable);
@@ -239,7 +239,7 @@ class StarmusTusdHookHandler
 	{
 		try {
 			if (empty($event_data['Upload'])) {
-				return new WP_Error('invalid_post_finish_payload', 'Missing Upload data.', array('status' => 400));
+				return new WP_Error('invalid_post_finish_payload', 'Missing Upload data.', ['status' => 400]);
 			}
 
 			$result = $this->process_completed_upload($event_data['Upload']);
@@ -249,7 +249,7 @@ class StarmusTusdHookHandler
 				// the client will not see this error message directly.
 				StarmusLogger::error(
 					'Upload processing failed',
-					array('component' => __CLASS__)
+					['component' => self::class]
 				);
 				return $result;
 			}
@@ -260,7 +260,7 @@ class StarmusTusdHookHandler
 		// 3. IMPORTANT: post-finish is "fire and forget".
 		// The client DOES NOT receive this response body.
 		// We return an empty JSON object to satisfy tusd's requirement for a hook response.
-		return new WP_REST_Response(array(), 200);
+		return new WP_REST_Response([], 200);
 	}
 
 	/**
@@ -308,7 +308,7 @@ class StarmusTusdHookHandler
 			// 4. Use the InfoPath provided by tusd, falling back to concatenation only if missing
 			$info_path = $upload_info['Storage']['InfoPath'] ?? ($temp_path . '.info');
 
-			$metadata = $upload_info['MetaData'] ?? array();
+			$metadata = $upload_info['MetaData'] ?? [];
 
 			$sanitized_form_data = $this->submission_handler->sanitize_submission_data($metadata);
 
@@ -324,19 +324,19 @@ class StarmusTusdHookHandler
 				if (! unlink($normalized_info_path)) {
 					StarmusLogger::warning(
 						'Failed to delete temp info file',
-						array(
-							'component' => __CLASS__,
+						[
+							'component' => self::class,
 							'path'      => $normalized_info_path,
-						)
+						]
 					);
 				}
 			} elseif (file_exists($normalized_info_path)) {
 				StarmusLogger::warning(
 					'Security: Attempted deletion outside uploads',
-					array(
-						'component' => __CLASS__,
+					[
+						'component' => self::class,
 						'path'      => $normalized_info_path,
-					)
+					]
 				);
 			}
 		} catch (\Throwable $throwable) {
@@ -360,7 +360,7 @@ class StarmusTusdHookHandler
 	 * @since 1.0.0
 	 *
 	 * Required Configuration:
-	 * - TUS_WEBHOOK_SECRET constant must be defined
+	 * - STARMUS_TUS_WEBHOOK_SECRET constant must be defined
 	 * - TUS daemon must be started with: -hooks-http-forward-headers x-starmus-secret
 	 * - Client must send header: x-starmus-secret: {shared_secret}
 	 *
@@ -371,14 +371,14 @@ class StarmusTusdHookHandler
 	 * - Returns appropriate HTTP status codes
 	 *
 	 * Error Responses:
-	 * - 500: TUS_WEBHOOK_SECRET not configured
+	 * - 500: STARMUS_TUS_WEBHOOK_SECRET not configured
 	 * - 403: Missing or invalid secret header
 	 * @see hash_equals() Timing-safe string comparison
 	 *
 	 * @example
 	 * Configuration in wp-config.php:
 	 * ```php
-	 * define('TUS_WEBHOOK_SECRET', 'your-random-secret-key');
+	 * define('STARMUS_TUS_WEBHOOK_SECRET', 'your-random-secret-key');
 	 * ```
 	 *
 	 * TUS daemon startup:
@@ -389,25 +389,25 @@ class StarmusTusdHookHandler
 	public function permissions_check(WP_REST_Request $request): true|WP_Error
 	{
 		try {
-			$expected_secret = \defined('TUS_WEBHOOK_SECRET') ? TUS_WEBHOOK_SECRET : '';
+			$expected_secret = \defined('STARMUS_TUS_WEBHOOK_SECRET') ? STARMUS_TUS_WEBHOOK_SECRET : '';
 
 			if (empty($expected_secret)) {
 				StarmusLogger::error(
-					'TUS_WEBHOOK_SECRET missing in configuration.',
-					array('component' => __CLASS__)
+					'STARMUS_TUS_WEBHOOK_SECRET missing in configuration.',
+					['component' => self::class]
 				);
-				return new WP_Error('internal_server_error', 'Internal Service Error', array('status' => 500));
+				return new WP_Error('internal_server_error', 'Internal Service Error', ['status' => 500]);
 			}
 
 			// 5. Ensure tusd is started with -hooks-http-forward-headers x-starmus-secret
 			$provided_secret = trim((string) $request->get_header('x-starmus-secret'));
 
 			if ('' === $provided_secret || '0' === $provided_secret) {
-				return new WP_Error('unauthorized', 'Missing secret header.', array('status' => 403));
+				return new WP_Error('unauthorized', 'Missing secret header.', ['status' => 403]);
 			}
 
 			if (! hash_equals($expected_secret, $provided_secret)) {
-				return new WP_Error('unauthorized', 'Invalid secret.', array('status' => 403));
+				return new WP_Error('unauthorized', 'Invalid secret.', ['status' => 403]);
 			}
 		} catch (\Throwable $throwable) {
 			StarmusLogger::log($throwable);

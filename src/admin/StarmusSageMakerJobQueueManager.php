@@ -112,7 +112,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 		echo '<th>' . esc_html__( 'Actions', 'starmus-audio-recorder' ) . '</th>';
 		echo '</tr></thead><tbody>';
 
-		if ( $jobs === array() ) {
+		if ( $jobs === [] ) {
 			echo '<tr><td colspan="5">' . esc_html__( 'No jobs found.', 'starmus-audio-recorder' ) . '</td></tr>';
 		} else {
 			foreach ( $jobs as $id => $job ) {
@@ -124,10 +124,10 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 				echo '<td>' . esc_html( $created ) . '</td>';
 
 				$view_url   = add_query_arg(
-					array(
+					[
 						'page'   => 'starmus-sagemaker-jobs',
 						'job_id' => $id,
-					),
+					],
 					admin_url( 'admin.php' )
 				);
 				$delete_url = wp_nonce_url( admin_url( 'admin-post.php?action=starmus_delete_job&job_id=' . rawurlencode( (string) $id ) ), 'starmus_delete_job_' . $id );
@@ -142,14 +142,14 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 		if ( $total_pages > 1 ) {
 			echo '<div class="tablenav"><div class="tablenav-pages">';
 			echo paginate_links(
-				array(
+				[
 					'base'      => add_query_arg( 'paged', '%#%' ),
 					'format'    => '',
 					'prev_text' => __( '&laquo;', 'starmus-audio-recorder' ),
 					'next_text' => __( '&raquo;', 'starmus-audio-recorder' ),
 					'total'     => (int) $total_pages,
 					'current'   => max( 1, (int) $page ),
-				)
+				]
 			);
 			echo '</div></div>';
 		}
@@ -190,10 +190,10 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 		$recent = $this->repository->get_recent_jobs( 10 );
 
 		wp_send_json_success(
-			array(
+			[
 				'counts' => $counts,
 				'recent' => $recent,
-			)
+			]
 		);
 	}
 
@@ -215,7 +215,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 		$result = $this->manager->retry_job( $job_id );
 
 		if ( $result ) {
-			wp_send_json_success( array( 'message' => 'scheduled' ) );
+			wp_send_json_success( [ 'message' => 'scheduled' ] );
 		} else {
 			wp_send_json_error( 'job_not_found', 404 );
 		}
@@ -237,7 +237,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 		}
 
 		$this->manager->delete_job( $job_id );
-		wp_send_json_success( array( 'message' => 'deleted' ) );
+		wp_send_json_success( [ 'message' => 'deleted' ] );
 	}
 
 	/**

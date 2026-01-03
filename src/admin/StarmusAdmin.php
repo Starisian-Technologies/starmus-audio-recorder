@@ -46,7 +46,7 @@ class StarmusAdmin
 	 *
 	 * @var array<string, string>
 	 */
-	private array $field_types = array();
+	private array $field_types = [];
 
 	/**
 	 * Settings service instance.
@@ -78,7 +78,7 @@ class StarmusAdmin
 		try {
 			$this->dal         = $DAL;
 			$this->settings    = $settings;
-			$this->field_types = array(
+			$this->field_types = [
 				'cpt_slug'                => 'text',
 				'file_size_limit'         => 'number',
 				'allowed_file_types'      => 'textarea',
@@ -91,7 +91,7 @@ class StarmusAdmin
 				'edit_page_id'            => 'slug_input',
 				'recorder_page_id'        => 'slug_input',
 				'my_recordings_page_id'   => 'slug_input',
-			);
+			];
 			$this->register_hooks();
 		} catch (\Throwable $throwable) {
 			error_log($throwable->getMessage());
@@ -200,10 +200,10 @@ class StarmusAdmin
 			register_setting(
 				self::STARMUS_SETTINGS_GROUP,
 				StarmusSettings::STARMUS_OPTION_KEY, // CORRECTED: Access constant from StarmusSettings class
-				array(
+				[
 					'sanitize_callback' => $this->sanitize_settings(...),
 					'default'           => $this->settings->get_defaults(), // Passed for initial defaults handling
-				)
+				]
 			);
 
 			$this->add_settings_sections();
@@ -230,7 +230,7 @@ class StarmusAdmin
 		try {
 			$defaults = $this->settings->get_defaults();
 
-			$sanitized = array();
+			$sanitized = [];
 
 			// CPT Slug
 			$cpt_slug              = trim($input['cpt_slug'] ?? '');
@@ -244,7 +244,7 @@ class StarmusAdmin
 			$file_types = sanitize_text_field($input['allowed_file_types'] ?? '');
 			if (! empty($file_types)) {
 				$types                           = array_map(trim(...), explode(',', $file_types));
-				$types                           = array_filter($types, array($this, 'is_valid_file_extension'));
+				$types                           = array_filter($types, [$this, 'is_valid_file_extension']);
 				$sanitized['allowed_file_types'] = implode(',', $types);
 			} else {
 				$sanitized['allowed_file_types'] = $defaults['allowed_file_types'] ?? 'mp3,wav,webm';
@@ -282,11 +282,11 @@ class StarmusAdmin
 			$sanitized['delete_on_uninstall'] = empty($input['delete_on_uninstall']) ? 0 : 1;
 
 			// Logic for page IDs - Convert slug to ID
-			$page_slug_fields = array(
+			$page_slug_fields = [
 				'edit_page_id'          => __('Edit Audio Page', 'starmus-audio-recorder'),
 				'recorder_page_id'      => __('Audio Recorder Page', 'starmus-audio-recorder'),
 				'my_recordings_page_id' => __('My Recordings Page', 'starmus-audio-recorder'),
-			);
+			];
 
 			foreach ($page_slug_fields as $key => $title) {
 				$slug_input = sanitize_text_field($input[$key] ?? '');
@@ -384,70 +384,70 @@ class StarmusAdmin
 	{
 		try {
 			// Define all fields with their properties
-			$fields = array(
-				'cpt_slug'                => array(
+			$fields = [
+				'cpt_slug'                => [
 					'title'       => __('Post Type Slug', 'starmus-audio-recorder'),
 					'section'     => 'starmus_cpt_section',
 					'description' => __('Use lowercase letters, numbers, and hyphens only.', 'starmus-audio-recorder'),
-				),
-				'file_size_limit'         => array(
+				],
+				'file_size_limit'         => [
 					'title'       => __('Max File Size (MB)', 'starmus-audio-recorder'),
 					'section'     => 'starmus_rules_section',
 					'description' => __('Maximum allowed file size for uploads.', 'starmus-audio-recorder'),
-				),
-				'allowed_file_types'      => array(
+				],
+				'allowed_file_types'      => [
 					'title'       => __('Allowed File Extensions', 'starmus-audio-recorder'),
 					'section'     => 'starmus_rules_section',
 					'description' => __('Comma-separated list of allowed extensions (e.g., mp3, wav, webm).', 'starmus-audio-recorder'),
-				),
-				'tus_endpoint'            => array(
+				],
+				'tus_endpoint'            => [
 					'title'       => __('TUS Resumable Upload Endpoint', 'starmus-audio-recorder'),
 					'section'     => 'starmus_upload_section',
 					'description' => __('URL where TUS resumable uploads are handled. Default: https://contribute.sparxstar.com/files/', 'starmus-audio-recorder'),
-				),
-				'allowed_languages'       => array(
+				],
+				'allowed_languages'       => [
 					'title'       => __('Allowed Languages (ISO codes)', 'starmus-audio-recorder'),
 					'section'     => 'starmus_language_section',
 					'description' => __('Comma-separated list of allowed language ISO codes (e.g., en, fr, de). Leave blank to allow any language.', 'starmus-audio-recorder'),
-				),
-				'speech_recognition_lang' => array(
+				],
+				'speech_recognition_lang' => [
 					'title'       => __('Speech Recognition Language', 'starmus-audio-recorder'),
 					'section'     => 'starmus_language_section',
 					'description' => __('Default language for speech recognition in BCP 47 format (e.g., en-US, fr-FR, ha-NG for Hausa-Nigeria). Used to generate live transcripts during recording.', 'starmus-audio-recorder'),
-				),
-				'consent_message'         => array(
+				],
+				'consent_message'         => [
 					'title'       => __('Consent Checkbox Message', 'starmus-audio-recorder'),
 					'section'     => 'starmus_privacy_section',
 					'description' => __('Text displayed next to consent checkbox for data collection.', 'starmus-audio-recorder'),
-				),
-				'collect_ip_ua'           => array(
+				],
+				'collect_ip_ua'           => [
 					'title'       => __('Store IP & User Agent', 'starmus-audio-recorder'),
 					'section'     => 'starmus_privacy_section',
 					'label'       => __('Save submitter IP and user agent for all submissions.', 'starmus-audio-recorder'),
 					'description' => __('Enabling this may have privacy implications. Ensure compliance with data protection laws.', 'starmus-audio-recorder'),
-				),
-				'delete_on_uninstall'     => array(
+				],
+				'delete_on_uninstall'     => [
 					'title'       => __('Delete All Data on Uninstall', 'starmus-audio-recorder'),
 					'section'     => 'starmus_privacy_section',
 					'label'       => __('Permanently delete all recordings, submissions, and plugin data when the plugin is uninstalled.', 'starmus-audio-recorder'),
 					'description' => __('WARNING: This action cannot be undone. If unchecked, data will be preserved even after plugin deletion.', 'starmus-audio-recorder'),
-				),
-				'edit_page_id'            => array(
+				],
+				'edit_page_id'            => [
 					'title'       => __('Edit Audio Page Slug', 'starmus-audio-recorder'),
 					'section'     => 'starmus_page_section',
 					'description' => __('Enter the slug of the page where users can edit their audio recordings (e.g., "my-audio-editor"). This page must exist and contain the appropriate shortcode.', 'starmus-audio-recorder'),
-				),
-				'recorder_page_id'        => array(
+				],
+				'recorder_page_id'        => [
 					'title'       => __('Audio Recorder Page Slug', 'starmus-audio-recorder'),
 					'section'     => 'starmus_page_section',
 					'description' => __('Enter the slug of the page containing the [starmus-audio-recorder] shortcode (e.g., "record-audio").', 'starmus-audio-recorder'),
-				),
-				'my_recordings_page_id'   => array(
+				],
+				'my_recordings_page_id'   => [
 					'title'       => __('My Recordings Page Slug', 'starmus-audio-recorder'),
 					'section'     => 'starmus_page_section',
 					'description' => __('Enter the slug of the page containing the [starmus-my-recordings] shortcode (e.g., "my-submissions").', 'starmus-audio-recorder'),
-				),
-			);
+				],
+			];
 
 			foreach ($fields as $id => $field) {
 				add_settings_field(
@@ -457,10 +457,10 @@ class StarmusAdmin
 					self::STARMUS_MENU_SLUG,
 					$field['section'],
 					array_merge(
-						array(
+						[
 							'id'   => $id,
 							'type' => $this->field_types[$id] ?? 'text',
-						),
+						],
 						$field
 					)
 				);
@@ -540,13 +540,13 @@ class StarmusAdmin
 
 				case 'pages_dropdown':
 					wp_dropdown_pages(
-						array(
+						[
 							'name'              => esc_attr($name),
 							'id'                => esc_attr($id),
 							'selected'          => esc_attr($value),
 							'show_option_none'  => esc_html__('— Select a Page —', 'starmus-audio-recorder'),
 							'option_none_value' => '0',
-						)
+						]
 					);
 					break;
 
@@ -577,7 +577,7 @@ class StarmusAdmin
 			if (! empty($args['description'])) {
 				printf(
 					'<p class="description">%s</p>',
-					wp_kses($args['description'], array('strong' => array()))
+					wp_kses($args['description'], ['strong' => []])
 				);
 			}
 		} catch (\Throwable $throwable) {

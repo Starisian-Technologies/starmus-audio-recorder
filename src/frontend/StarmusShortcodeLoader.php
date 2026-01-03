@@ -41,11 +41,9 @@ final class StarmusShortcodeLoader
 	 */
 	private ?StarmusAudioDAL $dal = null;
 	/**
-	 * Prosody player instance.
-	 *
-	 * @var StarmusProsodyPlayer
-	 */
-	private ?StarmusProsodyPlayer $prosody = null;
+     * Prosody player instance.
+     */
+    private ?StarmusProsodyPlayer $prosody = null;
 
 	/**
 	 * @param IStarmusAudioDAL|null $dal The data access layer.
@@ -68,7 +66,7 @@ final class StarmusShortcodeLoader
 	private function register_hooks(): void
 	{
 		// Currently no additional hooks to register
-		add_action('init', [$this, 'register_shortcodes']);
+		add_action('init', $this->register_shortcodes(...));
 	}
 
 	/**
@@ -78,10 +76,10 @@ final class StarmusShortcodeLoader
 	{
 		try {
 			add_shortcode('starmus_audio_recorder', fn(): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode()));
-			add_shortcode('starmus_audio_editor', fn(array $atts = array()): string => $this->safe_render(fn(): string => $this->render_editor_with_bootstrap($atts)));
+			add_shortcode('starmus_audio_editor', fn(array $atts = []): string => $this->safe_render(fn(): string => $this->render_editor_with_bootstrap($atts)));
 			add_shortcode('starmus_my_recordings', $this->render_my_recordings_shortcode(...));
 			add_shortcode('starmus_recording_detail', $this->render_submission_detail_shortcode(...));
-			add_shortcode('starmus_audio_re_recorder', fn(array $atts = array()): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts)));
+			add_shortcode('starmus_audio_re_recorder', fn(array $atts = []): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts)));
 
 			add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);
 		} catch (\Throwable $throwable) {
@@ -118,14 +116,14 @@ final class StarmusShortcodeLoader
 	/**
 	 * Render the "My Recordings" shortcode.
 	 */
-	public function render_my_recordings_shortcode(array $atts = array()): string
+	public function render_my_recordings_shortcode(array $atts = []): string
 	{
 		if (! is_user_logged_in()) {
 			return '<p>' . esc_html__('You must be logged in to view your recordings.', 'starmus-audio-recorder') . '</p>';
 		}
 
 		try {
-			$attributes     = shortcode_atts(array('posts_per_page' => 10), $atts);
+			$attributes     = shortcode_atts(['posts_per_page' => 10], $atts);
 			$posts_per_page = max(1, absint($attributes['posts_per_page']));
 			$paged          = get_query_var('paged') ? (int) get_query_var('paged') : 1;
 			$cpt_slug       = $this->settings->get('cpt_slug', 'audio-recording');
@@ -133,10 +131,10 @@ final class StarmusShortcodeLoader
 
 			return StarmusTemplateLoaderHelper::render_template(
 				'parts/starmus-my-recordings-list.php',
-				array(
+				[
 					'query'         => $query,
 					'edit_page_url' => $this->dal->get_edit_page_url_admin($cpt_slug),
-				)
+				]
 			);
 		} catch (\Throwable $throwable) {
 			StarmusLogger::log($throwable);
@@ -219,7 +217,7 @@ final class StarmusShortcodeLoader
 
 			// Get transcript data
 			$transcript_json = get_post_meta($context['post_id'], 'star_transcript_json', true);
-			$transcript_data = array();
+			$transcript_data = [];
 			if ($transcript_json && \is_string($transcript_json)) {
 				$decoded = json_decode($transcript_json, true);
 				if (\is_array($decoded)) {
@@ -228,7 +226,7 @@ final class StarmusShortcodeLoader
 			}
 
 			// Parse annotations
-			$annotations_data = array();
+			$annotations_data = [];
 			if (! empty($context['annotations_json']) && \is_string($context['annotations_json'])) {
 				$decoded = json_decode($context['annotations_json'], true);
 				if (\is_array($decoded)) {
@@ -238,7 +236,7 @@ final class StarmusShortcodeLoader
 
 			// Set editor data for asset loader to localize
 			\Starisian\Sparxstar\Starmus\core\StarmusAssetLoader::set_editor_data(
-				array(
+				[
 					'postId'          => $context['post_id'],
 					'restUrl'         => esc_url_raw(rest_url('star_uec/v1/annotations')),
 					'audioUrl'        => esc_url($context['audio_url']),
@@ -248,7 +246,7 @@ final class StarmusShortcodeLoader
 					'nonce'           => wp_create_nonce('wp_rest'),
 					'mode'            => 'editor',
 					'canCommit'       => current_user_can('publish_posts'),
-				)
+				]
 			);
 		} catch (\Throwable $throwable) {
 			StarmusLogger::log($throwable);

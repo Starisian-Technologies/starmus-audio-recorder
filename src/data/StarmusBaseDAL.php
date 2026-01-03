@@ -53,9 +53,9 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 			}
 
 			return $success;
-		} catch (Throwable $e) {
-			StarmusLogger::log($e);
-			$this->log_write_failure($post_id, $key, $value, $e->getMessage());
+		} catch (Throwable $throwable) {
+			StarmusLogger::log($throwable);
+			$this->log_write_failure($post_id, $key, $value, $throwable->getMessage());
 			return false;
 		}
 	}
@@ -81,9 +81,9 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 			// 2. Native Fallback (Source of Truth for raw DB values)
 			return get_post_meta( $post_id, $key, $single );
 
-		} catch ( Throwable $e ) {
+		} catch ( Throwable $throwable ) {
 			// 3. Fail Safe: Log the error and return null to prevent WSOD
-			StarmusLogger::log( $e );
+			StarmusLogger::log( $throwable );
 			return null;
 		}
 	}
@@ -95,11 +95,11 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 	public function get_post_info(int $post_id): ?array
 	{
 		$post = get_post($post_id);
-		return $post ? array(
+		return $post ? [
 			'id'     => $post->ID,
 			'type'   => $post->post_type,
 			'status' => $post->post_status,
-		) : null;
+		] : null;
 	}
 
 	// --- PROVENANCE & SECURITY ---
@@ -124,14 +124,14 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 	public function log_provenance_event(int $post_id, string $type, string $agent, string $description, string $hash = ''): bool
 	{
 		try {
-			$row = array(
+			$row = [
 				'revision_date'        => current_time('Y-m-d H:i:s'),
 				'revision_type'        => $type,
 				'revision_agent'       => $agent,
 				'revision_description' => $description,
 				'revision_hash'        => $hash,
 				'signature'            => '',
-			);
+			];
 
 			if (function_exists('add_row')) {
 				$result = add_row('revision_history', $row, $post_id);
@@ -139,6 +139,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 					$this->log_write_failure($post_id, 'revision_history', $row);
 					return false;
 				}
+
 				return true;
 			}
 
@@ -146,8 +147,8 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 			$history = (array) $this->get_post_meta($post_id, 'revision_history');
 			$history[] = $row;
 			return $this->save_post_meta($post_id, 'revision_history', $history);
-		} catch (Throwable $e) {
-			StarmusLogger::log($e);
+		} catch (Throwable $throwable) {
+			StarmusLogger::log($throwable);
 			return false;
 		}
 	}
@@ -157,10 +158,10 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 	 */
 	public function log_asset_audit( int $post_id, string $action ): bool {
 		try {
-			$row = array(
+			$row = [
 				'ts'     => current_time( 'Y-m-d H:i:s' ),
 				'action' => $action,
-			);
+			];
 
 			// 1. Try ACF
 			if ( function_exists( 'add_row' ) ) {
@@ -182,30 +183,25 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 
 			return $this->save_post_meta( $post_id, 'asset_audit_log', $log );
 
-		} catch ( Throwable $e ) {
-			StarmusLogger::log( $e );
+		} catch ( Throwable $throwable ) {
+			StarmusLogger::log( $throwable );
 			return false;
 		}
 	}
 
 	/**
-	 * Helper: Dumps failed data to logs to prevent total data loss.
-	 *
-	 * @param int    $post_id
-	 * @param string $key
-	 * @param mixed  $value
-	 * @param string $error_msg
-	 */
-	protected function log_write_failure(int $post_id, string $key, mixed $value, string $error_msg = 'DB Write Returned False'): void
+     * Helper: Dumps failed data to logs to prevent total data loss.
+     */
+    protected function log_write_failure(int $post_id, string $key, mixed $value, string $error_msg = 'DB Write Returned False'): void
 	{
 		// We JSON encode the value to ensure complex arrays/objects are readable in the text log
 		$safe_value = json_encode($value);
 
 		StarmusLogger::error(
-			"DATA LOSS PREVENTION: Write failed for Post {$post_id}, Key: {$key}. Reason: {$error_msg}",
-			array(
+			sprintf('DATA LOSS PREVENTION: Write failed for Post %d, Key: %s. Reason: %s', $post_id, $key, $error_msg),
+			[
 				'failed_payload' => $safe_value // The data is now safe in the log
-			)
+			]
 		);
 	}
 }

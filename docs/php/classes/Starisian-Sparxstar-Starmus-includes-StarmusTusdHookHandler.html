@@ -980,7 +980,7 @@ Uses timing-safe comparison to prevent timing attacks.</p>
                                                                                         <h4>Examples</h4>
                                             <h5>Configuration in wp-config.php:
 ```php
-define(&#039;TUS_WEBHOOK_SECRET&#039;, &#039;your-random-secret-key&#039;);
+define(&#039;STARMUS_TUS_WEBHOOK_SECRET&#039;, &#039;your-random-secret-key&#039;);
 ```
 
 TUS daemon startup:
@@ -1008,7 +1008,7 @@ tusd -hooks-http-forward-headers x-starmus-secret
                             <td>
                                                                     1.0.0                                    <p>Required Configuration:</p>
 <ul>
-<li>TUS_WEBHOOK_SECRET constant must be defined</li>
+<li>STARMUS_TUS_WEBHOOK_SECRET constant must be defined</li>
 <li>TUS daemon must be started with: -hooks-http-forward-headers x-starmus-secret</li>
 <li>Client must send header: x-starmus-secret: {shared_secret}</li>
 </ul>
@@ -1021,7 +1021,7 @@ tusd -hooks-http-forward-headers x-starmus-secret
 </ul>
 <p>Error Responses:</p>
 <ul>
-<li>500: TUS_WEBHOOK_SECRET not configured</li>
+<li>500: STARMUS_TUS_WEBHOOK_SECRET not configured</li>
 <li>403: Missing or invalid secret header</li>
 </ul>
 

@@ -135,7 +135,7 @@ final class StarmusSageMakerJobRepository {
 	 * @return array Associative array of all jobs.
 	 */
 	private function get_all(): array {
-		$jobs = get_option( self::OPTION_KEY, array() );
-		return \is_array( $jobs ) ? $jobs : array();
+		$jobs = get_option( self::OPTION_KEY, [] );
+		return \is_array( $jobs ) ? $jobs : [];
 	}
 }

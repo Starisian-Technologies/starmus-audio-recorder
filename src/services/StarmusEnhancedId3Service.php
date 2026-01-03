@@ -24,25 +24,25 @@ final class StarmusEnhancedId3Service extends StarmusId3Service {
 	public function extractEnhancedMetadata( string $filepath ): array {
 		$analysis = $this->analyzeFile( $filepath );
 
-		if ( $analysis === array() ) {
-			return array();
+		if ( $analysis === [] ) {
+			return [];
 		}
 
-		return array(
+		return [
 			'technical'     => $this->extractTechnicalData( $analysis ),
 			'metadata'      => $this->extractStandardizedMetadata( $analysis ),
 			'quality'       => $this->assessAudioQuality( $analysis ),
 			'compatibility' => $this->checkFormatCompatibility( $analysis ),
-		);
+		];
 	}
 
 	/**
 	 * Extract technical audio properties
 	 */
 	private function extractTechnicalData( array $analysis ): array {
-		$audio = $analysis['audio'] ?? array();
+		$audio = $analysis['audio'] ?? [];
 
-		return array(
+		return [
 			'format'       => $analysis['fileformat'] ?? 'unknown',
 			'codec'        => $audio['dataformat'] ?? 'unknown',
 			'bitrate'      => $audio['bitrate'] ?? 0,
@@ -52,42 +52,42 @@ final class StarmusEnhancedId3Service extends StarmusId3Service {
 			'bitrate_mode' => $audio['bitrate_mode'] ?? 'unknown',
 			'lossless'     => $audio['lossless'] ?? false,
 			'file_size'    => $analysis['filesize'] ?? 0,
-		);
+		];
 	}
 
 	/**
 	 * Standardize metadata from various tag formats
 	 */
 	private function extractStandardizedMetadata( array $analysis ): array {
-		$comments = $analysis['comments'] ?? array();
+		$comments = $analysis['comments'] ?? [];
 
-		return array(
-			'title'        => $this->getFirstValue( $comments['title'] ?? array() ),
-			'artist'       => $this->getFirstValue( $comments['artist'] ?? array() ),
-			'album'        => $this->getFirstValue( $comments['album'] ?? array() ),
-			'year'         => $this->getFirstValue( $comments['year'] ?? array() ),
-			'genre'        => $this->getFirstValue( $comments['genre'] ?? array() ),
-			'comment'      => $this->getFirstValue( $comments['comment'] ?? array() ),
-			'track_number' => $this->getFirstValue( $comments['track_number'] ?? array() ),
+		return [
+			'title'        => $this->getFirstValue( $comments['title'] ?? [] ),
+			'artist'       => $this->getFirstValue( $comments['artist'] ?? [] ),
+			'album'        => $this->getFirstValue( $comments['album'] ?? [] ),
+			'year'         => $this->getFirstValue( $comments['year'] ?? [] ),
+			'genre'        => $this->getFirstValue( $comments['genre'] ?? [] ),
+			'comment'      => $this->getFirstValue( $comments['comment'] ?? [] ),
+			'track_number' => $this->getFirstValue( $comments['track_number'] ?? [] ),
 			'language'     => $this->detectLanguage( $comments ),
-		);
+		];
 	}
 
 	/**
 	 * Assess audio quality for Starmus use cases
 	 */
 	private function assessAudioQuality( array $analysis ): array {
-		$audio       = $analysis['audio'] ?? array();
+		$audio       = $analysis['audio'] ?? [];
 		$bitrate     = $audio['bitrate'] ?? 0;
 		$sample_rate = $audio['sample_rate'] ?? 0;
 
-		return array(
+		return [
 			'quality_tier'         => $this->determineQualityTier( $bitrate, $sample_rate ),
 			'suitable_for_web'     => $bitrate >= 64000 && $bitrate <= 320000,
 			'suitable_for_archive' => $bitrate >= 128000 || ( $audio['lossless'] ?? false ),
 			'mobile_friendly'      => $bitrate <= 128000,
 			'bandwidth_estimate'   => $this->estimateBandwidth( $bitrate ),
-		);
+		];
 	}
 
 	/**
@@ -96,13 +96,13 @@ final class StarmusEnhancedId3Service extends StarmusId3Service {
 	private function checkFormatCompatibility( array $analysis ): array {
 		$format = $analysis['fileformat'] ?? '';
 
-		return array(
-			'web_compatible'         => \in_array( $format, array( 'mp3', 'wav', 'ogg', 'webm' ) ),
-			'mobile_compatible'      => \in_array( $format, array( 'mp3', 'wav' ) ),
+		return [
+			'web_compatible'         => \in_array( $format, [ 'mp3', 'wav', 'ogg', 'webm' ] ),
+			'mobile_compatible'      => \in_array( $format, [ 'mp3', 'wav' ] ),
 			'legacy_compatible'      => $format === 'mp3',
-			'modern_web'             => \in_array( $format, array( 'webm', 'ogg' ) ),
+			'modern_web'             => \in_array( $format, [ 'webm', 'ogg' ] ),
 			'recommended_conversion' => $this->getRecommendedFormat( $format ),
-		);
+		];
 	}
 
 	/**
@@ -112,35 +112,35 @@ final class StarmusEnhancedId3Service extends StarmusId3Service {
 		$site_name    = get_bloginfo( 'name' );
 		$current_year = date( 'Y' );
 
-		return array(
-			'title'             => array( $form_data['title'] ?? 'Recording #' . $post_id ),
-			'artist'            => array( $form_data['speaker_name'] ?? get_bloginfo( 'name' ) ),
-			'album'             => array( $site_name . ' Audio Archive' ),
-			'year'              => array( $current_year ),
-			'comment'           => array( $this->buildComment( $form_data ) ),
-			'copyright_message' => array( \sprintf( '© %s %s', $current_year, $site_name ) ),
-			'publisher'         => array( $site_name ),
-			'language'          => array( $form_data['language'] ?? 'en' ),
-			'genre'             => array( $this->mapRecordingTypeToGenre( $form_data['recording_type'] ?? '' ) ),
-		);
+		return [
+			'title'             => [ $form_data['title'] ?? 'Recording #' . $post_id ],
+			'artist'            => [ $form_data['speaker_name'] ?? get_bloginfo( 'name' ) ],
+			'album'             => [ $site_name . ' Audio Archive' ],
+			'year'              => [ $current_year ],
+			'comment'           => [ $this->buildComment( $form_data ) ],
+			'copyright_message' => [ \sprintf( '© %s %s', $current_year, $site_name ) ],
+			'publisher'         => [ $site_name ],
+			'language'          => [ $form_data['language'] ?? 'en' ],
+			'genre'             => [ $this->mapRecordingTypeToGenre( $form_data['recording_type'] ?? '' ) ],
+		];
 	}
 
 	/**
 	 * Batch process multiple audio files
 	 */
 	public function batchProcessAudio( array $file_paths ): array {
-		$results = array();
+		$results = [];
 
 		foreach ( $file_paths as $path ) {
 			if ( ! file_exists( $path ) ) {
 				continue;
 			}
 
-			$results[ basename( (string) $path ) ] = array(
+			$results[ basename( (string) $path ) ] = [
 				'path'         => $path,
 				'metadata'     => $this->extractEnhancedMetadata( $path ),
 				'processed_at' => time(),
-			);
+			];
 		}
 
 		return $results;
@@ -169,12 +169,12 @@ final class StarmusEnhancedId3Service extends StarmusId3Service {
 	}
 
 	private function getRecommendedFormat( string $current_format ): string {
-		$web_formats = array( 'mp3', 'wav', 'ogg', 'webm' );
+		$web_formats = [ 'mp3', 'wav', 'ogg', 'webm' ];
 		return \in_array( $current_format, $web_formats ) ? $current_format : 'mp3';
 	}
 
 	private function buildComment( array $form_data ): string {
-		$parts = array();
+		$parts = [];
 
 		if ( ! empty( $form_data['description'] ) ) {
 			$parts[] = $form_data['description'];
@@ -188,13 +188,13 @@ final class StarmusEnhancedId3Service extends StarmusId3Service {
 	}
 
 	private function mapRecordingTypeToGenre( string $recording_type ): string {
-		$mapping = array(
+		$mapping = [
 			'interview'    => 'Speech',
 			'oral-history' => 'Documentary',
 			'music'        => 'Music',
 			'podcast'      => 'Podcast',
 			'lecture'      => 'Educational',
-		);
+		];
 
 		return $mapping[ $recording_type ] ?? 'Other';
 	}

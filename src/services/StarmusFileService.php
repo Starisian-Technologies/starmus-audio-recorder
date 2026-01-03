@@ -155,7 +155,7 @@ final readonly class StarmusFileService
 
 			StarmusLogger::info(
 				'Incomplete attachment detected. Generating missing metadata for offloader compatibility.',
-				array('component' => __CLASS__, 'attachment_id' => $attachment_id)
+				['component' => self::class, 'attachment_id' => $attachment_id]
 			);
 
 			$file_path = get_attached_file($attachment_id);
@@ -164,10 +164,10 @@ final readonly class StarmusFileService
 			if (! $file_path || ! file_exists($file_path)) {
 				StarmusLogger::error(
 					'Metadata generation skipped: Attached file does not exist.',
-					array(
-						'component'     => __CLASS__,
+					[
+						'component'     => self::class,
 						'attachment_id' => $attachment_id,
-					)
+					]
 				);
 				return;
 			}
@@ -184,19 +184,19 @@ final readonly class StarmusFileService
 				$this->dal->update_attachment_metadata($attachment_id, $file_path);
 				StarmusLogger::debug(
 					'Successfully generated and saved metadata.',
-					array(
-						'component'     => __CLASS__,
+					[
+						'component'     => self::class,
 						'attachment_id' => $attachment_id,
-					)
+					]
 				);
 			}
 		} catch (\Throwable $throwable) {
 			StarmusLogger::log(
 				$throwable,
-				array(
-					'component'     => __CLASS__,
+				[
+					'component'     => self::class,
 					'attachment_id' => $attachment_id,
-				)
+				]
 			);
 		}
 	}
@@ -265,11 +265,11 @@ final readonly class StarmusFileService
 		if (\is_string($local_path) && file_exists($local_path)) {
 			StarmusLogger::debug(
 				'Found local file for attachment.',
-				array(
-					'component'     => __CLASS__,
+				[
+					'component'     => self::class,
 					'attachment_id' => $attachment_id,
 					'path'          => $local_path,
-				)
+				]
 			);
 			return $local_path;
 		}
@@ -279,21 +279,21 @@ final readonly class StarmusFileService
 		if (! $remote_url) {
 			StarmusLogger::error(
 				'Attachment URL not found for download.',
-				array(
-					'component'     => __CLASS__,
+				[
+					'component'     => self::class,
 					'attachment_id' => $attachment_id,
-				)
+				]
 			);
 			return null;
 		}
 
 		StarmusLogger::info(
 			'File is offloaded. Downloading local copy.',
-			array(
-				'component'     => __CLASS__,
+			[
+				'component'     => self::class,
 				'attachment_id' => $attachment_id,
 				'remote_url'    => $remote_url,
-			)
+			]
 		);
 
 		if (! \function_exists('download_url')) {
@@ -305,11 +305,11 @@ final readonly class StarmusFileService
 		if (is_wp_error($temp_file)) {
 			StarmusLogger::error(
 				'Failed to download offloaded file.',
-				array(
-					'component'     => __CLASS__,
+				[
+					'component'     => self::class,
 					'attachment_id' => $attachment_id,
 					'remote_url'    => $remote_url,
-				)
+				]
 			);
 			return null;
 		}
@@ -360,11 +360,11 @@ final readonly class StarmusFileService
 		if (! file_exists($local_file_path)) {
 			StarmusLogger::error(
 				'Local file to be uploaded does not exist.',
-				array(
-					'component'     => __CLASS__,
+				[
+					'component'     => self::class,
 					'attachment_id' => $attachment_id,
 					'path'          => $local_file_path,
-				)
+				]
 			);
 			return false;
 		}
@@ -373,19 +373,19 @@ final readonly class StarmusFileService
 		if (\function_exists('as3cf_upload_attachment')) {
 			StarmusLogger::debug(
 				'Delegating upload to WP Offload Media.',
-				array(
-					'component'     => __CLASS__,
+				[
+					'component'     => self::class,
 					'attachment_id' => $attachment_id,
-				)
+				]
 			);
 			$result = as3cf_upload_attachment($attachment_id, null, $local_file_path);
 			if (is_wp_error($result)) {
 				StarmusLogger::error(
 					'WP Offload Media failed to upload.',
-					array(
-						'component'     => __CLASS__,
+					[
+						'component'     => self::class,
 						'attachment_id' => $attachment_id,
-					)
+					]
 				);
 				return false;
 			}
@@ -410,11 +410,11 @@ final readonly class StarmusFileService
 
 		StarmusLogger::error(
 			'Filesystem failed to move local file.',
-			array(
-				'component'     => __CLASS__,
+			[
+				'component'     => self::class,
 				'attachment_id' => $attachment_id,
 				'path'          => $local_file_path,
-			)
+			]
 		);
 
 		return false;

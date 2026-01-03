@@ -135,7 +135,7 @@ final class Starmusi18NLanguage {
 	 * document.getElementById('save-btn').textContent = aiwaL10n.saveButtonText;
 	 */
 	public function get_js_strings(): array {
-		return array(
+		return [
 			// All strings pass through self::t() for consistency and single translation entry
 			'newsLabel'      => esc_html( self::t( 'News' ) ),
 			'showcaseLabel'  => esc_html( self::t( 'Showcase' ) ),
@@ -148,6 +148,6 @@ final class Starmusi18NLanguage {
 
 			// CORRECTED: Translate first, then escape for attribute use.
 			'saveButtonText' => esc_attr( self::t( 'Save Settings' ) ),
-		);
+		];
 	}
 }

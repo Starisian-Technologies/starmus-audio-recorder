@@ -26,6 +26,24 @@
  * Requires at least: 6.8
  * Requires PHP:      8.2
  * Text Domain:       starmus-audio-recorder
+ * Update URI:		  https://starism.com/sparxstar/starmus-audio-recorder/update
+ * GitHub Plugin URI:  Starisian-Technologies/starmus-audio-recorder
+ * Domain Path:       /languages
+ * Requires Plugins:  secure-custom-fields/secure-custom-fields.php
+ *
+ *
+ *
+ *  Copyright (c) 2023-2024 Starisian Technologies (https://starisian.com)
+ *
+ * create a secret key using openssl:
+ *
+ * Set the tus key to use for webhook validation:
+ * tusd \
+	-hooks-http "https://contribute.sparxstar.com/wp-json/starmus/v1/hook" \
+	-hooks-http-header "x-starmus-secret: Y84d34624286938554e5e19d9fafe9f5da3562c4d1d443e02c186f8e44019406e" \
+	-hooks-enabled-events "post-finish"
+ *
+ * define( 'STARMUS_TUS_WEBHOOK_SECRET', 'YOUR_SECRET_STRING' );
  */
 
 declare(strict_types=1);
@@ -52,6 +70,17 @@ register_shutdown_function(static function (): void {
  * ------------------------------------------------------------------------- */
 define('STARMUS_VERSION', '0.9.3');
 define('STARMUS_MAIN_FILE', __FILE__);
+define('STARMUS_PATH', plugin_dir_path(STARMUS_MAIN_FILE));
+define('STARMUS_URL', plugin_dir_url(STARMUS_MAIN_FILE));
+define('STARMUS_PLUGIN_PREFIX', 'starmus');
+define('STARMUS_PLUGIN_DIR', plugin_dir_path(STARMUS_MAIN_FILE));
+
+if (! defined('STARMUS_LOG_LEVEL')) define('STARMUS_LOG_LEVEL', 8);
+if (! defined('STARMUS_TUS_ENDPOINT')) define('STARMUS_TUS_ENDPOINT', 'https://upload.sparxstar.com/files/');
+if (! defined('STARMUS_R2_ENDPOINT')) define('STARMUS_R2_ENDPOINT', 'https://cdn.sparxstar.com/');
+if (! defined('STARMUS_TUS_WEBHOOK_SECRET')) define('STARMUS_TUS_WEBHOOK_SECRET', '84d34624286938554e5e19d9fafe9f5da3562c4d1d443e02c186f8e44019406e');
+if (! defined('STARMUS_REST_NAMESPACE')) define('STARMUS_REST_NAMESPACE', 'starmus/v1');
+if (! defined('STARMUS_DELETE_ON_UNINSTALL')) define('STARMUS_DELETE_ON_UNINSTALL', false);
 define('STARMUS_PATH', plugin_dir_path(__FILE__));
 define('STARMUS_URL', plugin_dir_url(__FILE__));
 
@@ -99,69 +128,60 @@ add_action('plugins_loaded', static function (): void {
 // -------------------------------------------------------------------------
 // 2. INFRASTRUCTURE (Priority 5)
 // -------------------------------------------------------------------------
-add_action('plugins_loaded', static function (): void {
-    try {
-        // Safe check for Runtime existence
-        if (!class_exists(Sparxstar_SCF_Runtime::class)) {
-            return;
-        }
 
-       // PATH UPDATE: Using the standard 'vendor/secure-custom-fields/' 
-	    // based on the wpackagist installer-paths documentation.
-	    $vendor_path = STARMUS_PATH . 'vendor/secure-custom-fields/';
-	    $vendor_url  = STARMUS_URL . 'vendor/secure-custom-fields/';
+function starmus_boot_plugin(): void
+{
+	error_log('Starmus Boot Started.');
+	try {
 
-       // 1. Register Source (Runtime will check existence later)
-	    Sparxstar_SCF_Runtime::register_source('starmus-audio', $vendor_path, $vendor_url);
-	
-	    // 2. Ensure Active State (Self-healing)
-	    if (!Sparxstar_SCF_Runtime::is_active_site()) {
-	        Sparxstar_SCF_Runtime::activate_site();
-	    }
-	
-	    // 3. Register JSON (Only happens if Runtime fires 'loaded')
-	    add_action('sparxstar_scf/loaded', static function (): void {
-	        add_filter('acf/settings/load_json', static function (array $paths): array {
-	            $paths[] = STARMUS_PATH . 'acf-json';
-	            return $paths;
-	        });
-	    });
+		// 2. Load i18n
+		if (class_exists(\Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage::class)) {
+			error_log('Starmus i18n Load Started.');
+			$language = new \Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage();
 
-    } catch (\Throwable $e) {
-        error_log('Starmus Infrastructure Failed: ' . $e->getMessage());
-    }
-}, 5);
+		}
 
-// -------------------------------------------------------------------------
-// 3. APP BOOT (Priority 10)
-// -------------------------------------------------------------------------
-add_action('plugins_loaded', static function (): void {
-    
-    // Autoload
-    $autoloader = STARMUS_PATH . 'vendor/autoload.php';
-    if (file_exists($autoloader)) require_once $autoloader;
+		// 3. Boot Orchestrator
+		if (class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
+			error_log('Starmus Core Boot Started.');
+			$starmus = \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_get_instance();
+			$starmus::starmus_run();
+		} else {
+			throw new RuntimeException('StarmusAudioRecorder class missing.');
+		}
+		error_log('Starmus Boot Completed.');
+		// 4. Cleanup
+		if (get_transient('starmus_flush_rewrite_rules')) {
+			flush_rewrite_rules();
+			delete_transient('starmus_flush_rewrite_rules');
+		}
+	} catch (\Throwable $e) {
+		if (class_exists('StarmusLogger')) \StarmusLogger::log($e);
+		error_log('Starmus Boot Error: ' . $e->getMessage());
+	}
+}
+// Run at Priority 10 (Standard)
+add_action('plugins_loaded', 'starmus_boot_plugin', 10);
 
-    // Boot App
-    try {
-        if (class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
-            $instance = \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_get_instance();
-            $instance::starmus_run();
-        }
-
-    } catch (\Throwable $e) {
-        error_log('Starmus App Boot Failed: ' . $e->getMessage());
-        // User-facing generic error (optional)
-        if (is_admin()) {
-            add_action('admin_notices', function() {
-                echo '<div class="notice notice-error"><p>Starmus Audio failed to start. Check logs.</p></div>';
-            });
-        }
-    }
-}, 10);
 
 // -------------------------------------------------------------------------
 // 4. LIFECYCLE
 // -------------------------------------------------------------------------
+
+function starmus_on_activate(): void
+{
+	error_log('Starmus Activation Started.');
+	try {
+		// Delegate checks to Dependencies Class
+		starmus_load_dependencies();
+
+		if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
+			\Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
+		}
+		set_transient('starmus_flush_rewrite_rules', true, 60);
+	} catch (\Throwable $e) {
+		error_log('Starmus Activation Error: ' . $e->getMessage());
+	}
 function starmus_on_activate(){
     try {
         if (class_exists(Sparxstar_SCF_Runtime::class)) {
@@ -181,7 +201,7 @@ function starmus_on_deactivate(): void
 			\Starisian\Sparxstar\Starmus\cron\StarmusCron::deactivate();
 		}
 		flush_rewrite_rules();
-		
+
 		/**
 		 * NOTE: We do NOT deactivate the SCF Runtime here.
 		 * Other plugins might still need it. We only remove our Cron/Rules.

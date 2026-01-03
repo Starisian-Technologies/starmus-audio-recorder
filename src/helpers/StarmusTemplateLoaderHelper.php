@@ -28,7 +28,7 @@ class StarmusTemplateLoaderHelper {
 	 *
 	 * @return string Rendered HTML output.
 	 */
-	public static function secure_render_template( string $template, array $args = array(), string $user_group = 'admin' ): string {
+	public static function secure_render_template( string $template, array $args = [], string $user_group = 'admin' ): string {
 		if ( ! is_user_logged_in() ) {
 			return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus-audio-recorder' ) . '</p>';
 		}
@@ -78,7 +78,7 @@ class StarmusTemplateLoaderHelper {
 	 *
 	 * @return string Rendered markup or error notice.
 	 */
-	public static function render_template( string $template, array $args = array() ): string {
+	public static function render_template( string $template, array $args = [] ): string {
 		try {
 			error_log( '[StarmusTemplateLoader] Attempting to load template: ' . $template );
 
@@ -118,11 +118,11 @@ class StarmusTemplateLoaderHelper {
 	 */
 	private static function locate_template( string $template ): string|false {
 		$template_name = basename( $template );
-		$locations     = array(
+		$locations     = [
 			trailingslashit( get_stylesheet_directory() ) . 'starmus/' . $template_name,
 			trailingslashit( get_template_directory() ) . 'starmus/' . $template_name,
 			trailingslashit( STARMUS_PATH ) . 'src/templates/' . $template_name,
-		);
+		];
 
 		foreach ( $locations as $location ) {
 			if ( file_exists( $location ) ) {

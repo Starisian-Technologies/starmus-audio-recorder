@@ -51,7 +51,6 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 // FIX: Removed 'readonly' for PHP < 8.2 compatibility
 final class StarmusWaveformService
 {
-	private ?StarmusAudioDAL $dal = null;
 	/**
 	 * File service for handling offloaded attachments.
 	 *
@@ -72,7 +71,6 @@ final class StarmusWaveformService
 	 */
 	public function __construct(?StarmusAudioDAL $dal, ?StarmusFileService $file_service)
 	{
-		$this->dal = $dal;
 		$this->files = $file_service ?: new StarmusFileService();
 	}
 
@@ -103,11 +101,11 @@ final class StarmusWaveformService
 	 */
 	private function get_config(): array
 	{
-		$defaults = array(
+		$defaults = [
 			'pixels_per_second' => 100,
 			'bits'              => 8,
 			'output_format'     => 'json',
-		);
+		];
 		return apply_filters('starmus_waveform_config', $defaults);
 	}
 
@@ -140,7 +138,7 @@ final class StarmusWaveformService
 		try {
 			$path = trim((string) shell_exec('command -v audiowaveform'));
 			return $path !== '' && $path !== '0';
-		} catch (Throwable $throwable) {
+		} catch (Throwable) {
 			StarmusLogger::log($throwanble);
 		}
 	}
@@ -195,18 +193,18 @@ final class StarmusWaveformService
 	{
 		StarmusLogger::info(
 			'Waveform generation started',
-			array(
-				'component'     => __CLASS__,
+			[
+				'component'     => self::class,
 				'attachment_id' => $attachment_id,
 				'post_id'       => $explicit_parent_id,
-			)
+			]
 		);
 
 		// 1. Tool Check
 		if (! $this->is_tool_available()) {
 			StarmusLogger::warning(
 				'audiowaveform binary missing. Skipping.',
-				array('component' => __CLASS__, 'attachment_id' => $attachment_id)
+				['component' => self::class, 'attachment_id' => $attachment_id]
 			);
 			return false;
 		}
@@ -266,11 +264,11 @@ final class StarmusWaveformService
 
 			StarmusLogger::info(
 				'Waveform saved.',
-				array(
-					'component'     => __CLASS__,
+				[
+					'component'     => self::class,
 					'attachment_id' => $attachment_id,
 					'post_id'       => $recording_id,
-				)
+				]
 			);
 			return true;
 		} catch (\Throwable $throwable) {
@@ -369,10 +367,10 @@ final class StarmusWaveformService
 
 			@unlink($temp_json); // Cleanup
 
-			return array(
-				'data'      => $data['data'] ?? array(),
+			return [
+				'data'      => $data['data'] ?? [],
 				'json_path' => $file_path . '.waveform.json',
-			);
+			];
 		} catch (\Throwable $throwable) {
 			StarmusLogger::error('Waveform CLI Error: ' . $throwable->getMessage());
 			StarmusLogger::log($throwable);

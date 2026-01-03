@@ -130,7 +130,7 @@ final class StarmusAudioRecorder
 	 * @since 0.1.0
 	 * @var array<string, mixed>
 	 */
-	private array $runtimeErrors = array();
+	private array $runtimeErrors = [];
 
 	/**
 	 * WordPress hooks registration guard flag.
@@ -208,7 +208,7 @@ final class StarmusAudioRecorder
 			if (class_exists(StarmusLogger::class)) {
 				StarmusLogger::log(
 					$throwable,
-					array('component' => __CLASS__, 'stage' => '__construct')
+					['component' => self::class, 'stage' => '__construct']
 				);
 			}
 		}
@@ -230,6 +230,7 @@ final class StarmusAudioRecorder
 		if (! self::$instance instanceof StarmusAudioRecorder) {
 			self::$instance = new self();
 		}
+
 		return self::$instance;
 	}
 
@@ -290,9 +291,10 @@ final class StarmusAudioRecorder
 				$this->settings = new StarmusSettings();
 				return;
 			}
-		} catch (Throwable $throwable) {
+		} catch (Throwable) {
 			// Log handled below
 		}
+
 		throw new RuntimeException('StarmusSettings failed to initialize.');
 	}
 
@@ -332,16 +334,16 @@ final class StarmusAudioRecorder
 			} else {
 				$this->DAL = $default_recorder;
 			}
-		} catch (Throwable $e) {
-			StarmusLogger::log($e);
+		} catch (Throwable $throwable) {
+			StarmusLogger::log($throwable);
 			$this->DAL = new StarmusAudioDAL(); // Fail safe
 		}
 
 		// 2. Prosody DAL (New Architecture)
 		try {
 			$this->prosodyDAL = new StarmusProsodyDAL();
-		} catch (Throwable $e) {
-			StarmusLogger::log($e);
+		} catch (Throwable $throwable) {
+			StarmusLogger::log($throwable);
 		}
 	}
 
@@ -455,12 +457,11 @@ final class StarmusAudioRecorder
 	}
 
 	/**
-	 * Retrieve the active Prosody DAL implementation.
-	 *
-	 * @since 1.2.0
-	 * @return IStarmusProsodyDAL|null
-	 */
-	public function get_ProsodyDAL(): ?IStarmusProsodyDAL
+     * Retrieve the active Prosody DAL implementation.
+     *
+     * @since 1.2.0
+     */
+    public function get_ProsodyDAL(): ?IStarmusProsodyDAL
 	{
 		return $this->prosodyDAL;
 	}
@@ -479,9 +480,10 @@ final class StarmusAudioRecorder
 	public function displayRuntimeErrorNotice(): void
 	{
 		try {
-			if (empty($this->runtimeErrors) || ! current_user_can('manage_options')) {
+			if ($this->runtimeErrors === [] || ! current_user_can('manage_options')) {
 				return;
 			}
+
 			$unique = array_unique($this->runtimeErrors);
 
 			if (class_exists(StarmusLogger::class)) {
@@ -491,7 +493,7 @@ final class StarmusAudioRecorder
 			foreach ($unique as $msg) {
 				echo '<div class="notice notice-error is-dismissible"><p><strong>Starmus:</strong> ' . esc_html($msg) . '</p></div>';
 			}
-		} catch (Throwable $e) {
+		} catch (Throwable) {
 			// Squelch
 		}
 	}

@@ -34,26 +34,24 @@ class StarmusProsodyPlayer
 	}
 
 	/**
-	 * Summary of register_hooks
-	 *
-	 * @return void
-	 */
-	private function register_hooks()
+     * Summary of register_hooks
+     */
+    private function register_hooks(): void
 	{
 
 		// Hooks
-		add_action('init', array($this, 'register_shortcodes'));
-		add_action('init', array($this, 'initDal'));
-		add_action('wp_enqueue_scripts', array($this, 'register_assets'));
+		add_action('init', $this->register_shortcodes(...));
+		add_action('init', $this->initDAL(...));
+		add_action('wp_enqueue_scripts', $this->register_assets(...));
 
 		// AJAX Endpoints (Authenticated & Public if needed, usually Auth only for this)
-		add_action('wp_ajax_starmus_save_pace', array($this, 'handle_ajax_save'));
+		add_action('wp_ajax_starmus_save_pace', $this->handle_ajax_save(...));
 	}
 
 	public function register_shortcodes(): void
 	{
 		// Register the shortcode
-		add_shortcode('prosody_reader', array($this, 'render_shortcode'));
+		add_shortcode('prosody_reader', $this->render_shortcode(...));
 	}
 
 	public function initDAL(): void
@@ -61,7 +59,7 @@ class StarmusProsodyPlayer
 		if (!class_exists(StarmusProsodyDAL::class)) {
 			throw new \Exception('StarmusProsodyDAL class not found');
 		}
-		if (($this->dal === null) || !($this->dal instanceof StarmusProsodyDAL)) {
+		if (!$this->dal instanceof \Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL || !($this->dal instanceof StarmusProsodyDAL)){
 			try {
 				$this->dal = new StarmusProsodyDAL;
 			} catch (Throwable $throwable) {
@@ -71,17 +69,15 @@ class StarmusProsodyPlayer
 	}
 
 	/**
-	 * 1. Register JS/CSS
-	 *
-	 * @return void
-	 */
-	public function register_assets(): void
+     * 1. Register JS/CSS
+     */
+    public function register_assets(): void
 	{
 		// Enqueue the CSS (assuming you saved the CSS from previous chat to a file)
 		wp_register_style(
 			'starmus-prosody-css',
 			plugin_dir_url(__FILE__) . 'src/css/starmus-prosody-enginge.css',
-			array(),
+			[],
 			STARMUS_VERSION
 		);
 
@@ -89,9 +85,9 @@ class StarmusProsodyPlayer
 		wp_register_script(
 			'starmus-prosody-js',
 			plugin_dir_url(__FILE__) . 'src/js/prosody/starmus-prosody-engine.js',
-			array(),
+			[],
 			STARMUS_VERSION,
-			array('strategy' => 'defer') // WP 6.3+ feature
+			['strategy' => 'defer'] // WP 6.3+ feature
 		);
 	}
 
@@ -107,16 +103,16 @@ class StarmusProsodyPlayer
 	{
 		try {
 			$args = shortcode_atts(
-				array(
+				[
 					'id' => get_the_ID(),
-				),
+				],
 				$atts
 			);
 
 			$post_id = (int) $args['id'];
 			$data    = $this->dal->get_script_payload($post_id);
 
-			if (empty($data)) {
+			if ($data === []) {
 				return '<div class="prosody-error">Error: Script data not found.</div>';
 			}
 
@@ -175,12 +171,10 @@ class StarmusProsodyPlayer
 	}
 
 	/**
-	 * 3. AJAX Handler
-	 * Only updates the specific 'calibrated_pace_ms' field.
-	 *
-	 * @return void
-	 */
-	public function handle_ajax_save(): void
+     * 3. AJAX Handler
+     * Only updates the specific 'calibrated_pace_ms' field.
+     */
+    public function handle_ajax_save(): void
 	{
 		try {
 			// Ensure it's a POST request
@@ -202,13 +196,13 @@ class StarmusProsodyPlayer
 
 			// 2. Perform Save via DAL
 			$success = $this->dal->save_calibrated_pace($post_id, $pace);
-		} catch (\Throwable $e) {
-			wp_send_json_error('An error occurred: ' . $e->getMessage());
-			StarmusLogger::log($e);
+		} catch (\Throwable $throwable) {
+			wp_send_json_error('An error occurred: ' . $throwable->getMessage());
+			StarmusLogger::log($throwable);
 		}
 
 		if ($success) {
-			wp_send_json_success(array('new_pace' => $pace));
+			wp_send_json_success(['new_pace' => $pace]);
 		} else {
 			StarmusLogger::log('Starmus update failed for $post_id=' . $post_id);
 			wp_send_json_error('Update failed');

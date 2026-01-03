@@ -73,7 +73,7 @@ class StarmusHuggingFaceClient {
 		if ( $audio_base64 === '' || $audio_base64 === '0' ) {
 			$url = wp_get_attachment_url( $attachment_id );
 			if ( $url ) {
-				$resp = wp_remote_get( $url, array( 'timeout' => 30 ) );
+				$resp = wp_remote_get( $url, [ 'timeout' => 30 ] );
 				if ( ! is_wp_error( $resp ) ) {
 					$body = wp_remote_retrieve_body( $resp );
 					if ( ! empty( $body ) ) {
@@ -90,18 +90,18 @@ class StarmusHuggingFaceClient {
 			return null;
 		}
 
-		$payload = array(
+		$payload = [
 			'filename'                 => $filename,
 			'mime_type'                => $mime_type,
 			'audio_base64'             => $audio_base64,
 			'first_pass_transcription' => $first_pass_transcription,
-		);
+		];
 
-		$args = array(
-			'headers' => array( 'Content-Type' => 'application/json' ),
+		$args = [
+			'headers' => [ 'Content-Type' => 'application/json' ],
 			'body'    => wp_json_encode( $payload ),
 			'timeout' => 60,
-		);
+		];
 
 		if ( $this->api_key !== '' && $this->api_key !== '0' ) {
 			$args['headers']['Authorization'] = 'Bearer ' . $this->api_key;
