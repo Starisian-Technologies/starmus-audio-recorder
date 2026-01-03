@@ -219,6 +219,7 @@ final class StarmusAudioEditorUI {
 	}
 
 	private function get_secure_waveform_url( int $attachment_id ): string {
+		try{
 		$wave_json_path = get_post_meta( $attachment_id, '_waveform_json_path', true );
 		if ( ! \is_string( $wave_json_path ) || ( $wave_json_path === '' || $wave_json_path === '0' ) || ! file_exists( $wave_json_path ) ) {
 			return '';
@@ -228,7 +229,9 @@ final class StarmusAudioEditorUI {
 		if ( ! str_starts_with( realpath( $wave_json_path ), realpath( $uploads['basedir'] ) ) ) {
 			return '';
 		}
-
+		} catch (\Throwable $throwable){
+			StarmusLogger::log($throwable);
+		}
 		return str_replace( $uploads['basedir'], $uploads['baseurl'], $wave_json_path );
 	}
 
@@ -259,6 +262,7 @@ final class StarmusAudioEditorUI {
 	}
 
 	public function sanitize_annotations( mixed $value ): array {
+		try{
 		// Full sanitization logic restored
 		if ( ! \is_array( $value ) ) {
 			return array();
@@ -276,11 +280,15 @@ final class StarmusAudioEditorUI {
 				);
 			}
 		}
+		} catch (\Throwable $throwable){
+			StarmusLogger::log($throwable);
+		}
 
 		return $sanitized;
 	}
 
 	public function validate_annotations( mixed $value ): bool {
+		try{
 		// Full validation logic restored
 		if ( ! \is_array( $value ) || \count( $value ) > self::STARMUS_MAX_ANNOTATIONS ) {
 			return false;
@@ -295,7 +303,9 @@ final class StarmusAudioEditorUI {
 				return false;
 			}
 		}
-
+		} catch (\Throwable $throwable){
+			StarmusLogger::log($throwable);
+		}
 		return true;
 	}
 
