@@ -43,7 +43,7 @@ class StarmusProsodyPlayer
 
 		// Hooks
 		add_action('init', array($this, 'register_shortcodes'));
-		add_action('init', array($this, 'setDal'));
+		add_action('init', array($this, 'initDal'));
 		add_action('wp_enqueue_scripts', array($this, 'register_assets'));
 
 		// AJAX Endpoints (Authenticated & Public if needed, usually Auth only for this)
@@ -56,11 +56,8 @@ class StarmusProsodyPlayer
 		add_shortcode('prosody_reader', array($this, 'render_shortcode'));
 	}
 
-	public function setDAL(?StarmusProsodyDAL $prosodyDal = null): void
+	public function initDAL(): void
 	{
-		if($prosodyDal !== null){
-			$this->dal = $prosodyDal;
-		}
 		if (!class_exists(StarmusProsodyDAL::class)) {
 			throw new \Exception('StarmusProsodyDAL class not found');
 		}
