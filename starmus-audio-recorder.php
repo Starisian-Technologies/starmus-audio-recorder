@@ -100,25 +100,26 @@ add_action('plugins_loaded', static function (): void {
             return;
         }
 
-        // Register Source
-        Sparxstar_SCF_Runtime::register_source(
-            'starmus-audio-recorder',
-            STARMUS_PATH . 'vendor/advanced-custom-fields/secure-custom-fields/',
-            STARMUS_URL . 'vendor/advanced-custom-fields/secure-custom-fields/'
-        );
+       // PATH UPDATE: Using the standard 'vendor/secure-custom-fields/' 
+	    // based on the wpackagist installer-paths documentation.
+	    $vendor_path = STARMUS_PATH . 'vendor/secure-custom-fields/';
+	    $vendor_url  = STARMUS_URL . 'vendor/secure-custom-fields/';
 
-        // Auto-heal activation state
-        if (!Sparxstar_SCF_Runtime::is_active_on_current_site()) {
-            Sparxstar_SCF_Runtime::activate_site();
-        }
-
-        // Register JSON (Syntax verified)
-        add_action('sparxstar_scf/loaded', static function (): void {
-            add_filter('acf/settings/load_json', static function (array $paths): array {
-                $paths[] = STARMUS_PATH . 'acf-json';
-                return $paths;
-            });
-        });
+       // 1. Register Source (Runtime will check existence later)
+	    Sparxstar_SCF_Runtime::register_source('starmus-audio', $vendor_path, $vendor_url);
+	
+	    // 2. Ensure Active State (Self-healing)
+	    if (!Sparxstar_SCF_Runtime::is_active_site()) {
+	        Sparxstar_SCF_Runtime::activate_site();
+	    }
+	
+	    // 3. Register JSON (Only happens if Runtime fires 'loaded')
+	    add_action('sparxstar_scf/loaded', static function (): void {
+	        add_filter('acf/settings/load_json', static function (array $paths): array {
+	            $paths[] = STARMUS_PATH . 'acf-json';
+	            return $paths;
+	        });
+	    });
 
     } catch (\Throwable $e) {
         error_log('Starmus Infrastructure Failed: ' . $e->getMessage());
@@ -129,20 +130,16 @@ add_action('plugins_loaded', static function (): void {
 // 3. APP BOOT (Priority 10)
 // -------------------------------------------------------------------------
 add_action('plugins_loaded', static function (): void {
-    try {
-        // Dependency Check
-        if (!class_exists('ACF') && !function_exists('acf_add_local_field_group')) {
-            // Log warning but do NOT throw fatal
-            error_log('Starmus Warning: SCF/ACF not loaded. Plugin features disabled.');
-            return;
-        }
+    
+    // Autoload
+    $autoloader = STARMUS_PATH . 'vendor/autoload.php';
+    if (file_exists($autoloader)) require_once $autoloader;
 
-        // Boot Main Class
+    // Boot App
+    try {
         if (class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
             $instance = \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_get_instance();
             $instance::starmus_run();
-        } else {
-            throw new \RuntimeException('Main class StarmusAudioRecorder not found.');
         }
 
     } catch (\Throwable $e) {
