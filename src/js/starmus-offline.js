@@ -30,7 +30,7 @@ import { uploadWithPriority } from './starmus-tus.js';
  * @property {number} dbVersion - Database schema version
  * @property {number} maxRetries - Maximum retry attempts per submission
  * @property {Array<number>} retryDelays - Retry delay intervals in milliseconds
- * @property {number} maxBlobSize - Maximum allowed audio file size in bytes (40MB)
+ * @property {Object<string, number>} maxBlobSizes - Tier-based maximum blob sizes in bytes
  */
 const CONFIG = {
 	dbName: 'StarmusSubmissions',
@@ -46,6 +46,23 @@ const CONFIG = {
 	},
 	defaultMaxBlobSize: 5 * 1024 * 1024, // Default to Tier C for safety
 };
+
+/**
+ * Resolves the maximum allowed blob size based on environment tier metadata.
+ * Uses conservative defaults for safety in low-bandwidth markets.
+ *
+ * @param {Object} metadata - Submission metadata containing environment details
+ * @param {Object} [metadata.env] - Environment object with tier classification
+ * @param {string} [metadata.tier] - Explicit tier override
+ * @returns {number} Maximum blob size in bytes allowed for the submission
+ */
+function getMaxBlobSize(metadata = {}) {
+	const tier = metadata.tier || metadata.env?.tier;
+	if (tier && CONFIG.maxBlobSizes[tier]) {
+		return CONFIG.maxBlobSizes[tier];
+	}
+	return CONFIG.defaultMaxBlobSize;
+}
 
 /**
  * Internal queue class for managing offline audio submissions.
@@ -157,8 +174,9 @@ class OfflineQueue {
 			throw new Error('OfflineQueue: DB not initialized');
 		}
 
-		if (audioBlob.size > CONFIG.maxBlobSize) {
-			throw new Error(`Audio too large (${(audioBlob.size / 1024 / 1024).toFixed(2)} MB)`);
+		const maxAllowedSize = getMaxBlobSize(metadata);
+		if (audioBlob.size > maxAllowedSize) {
+			throw new Error(`Audio too large (${(audioBlob.size / 1024 / 1024).toFixed(2)} MB); limit ${(maxAllowedSize / 1024 / 1024).toFixed(0)} MB`);
 		}
 
 		// Clone blob to detach underlying buffer
