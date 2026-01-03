@@ -12,7 +12,7 @@ namespace Starisian\Sparxstar\Starmus\helpers;
  */
 
 if ( ! \defined( 'ABSPATH' ) ) {
-	exit();
+    exit();
 }
 
 use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
@@ -121,34 +121,34 @@ class StarmusLogger
      */
     private static int $min_log_level = self::INFO;
 
-	/**
-     * Set the minimum log level
-     *
-     * @param int $level Log level constant
-     */
+    /**
+        * Set the minimum log level
+        *
+        * @param int $level Log level constant
+        */
     public static function set_min_level( int $level ): void {
-		self::$min_log_level = $level;
-		self::$handler       = null; // Reset to refresh instance with new level
-	}
+        self::$min_log_level = $level;
+        self::$handler       = null; // Reset to refresh instance with new level
+    }
 
-	/**
-     * Get the internal handler instance
-     *
-     * @throws \Exception
-     */
+    /**
+        * Get the internal handler instance
+        *
+        * @throws \Exception
+        */
     private static function get_handler(): StarLogger {
-		try{
-			if ( !self::$handler instanceof \Starisian\Sparxstar\Starmus\helpers\logger\StarLogger ) {
-				self::$handler = new StarLogger( self::$min_log_level );
-			}
-		}	catch (\Exception $exception){
-			// In case of logger initialization failure, fallback to error_log
-			error_log('StarmusLogger initialization failed: ' . $exception->getMessage());
-			throw $exception;
-		}
+        try{
+            if ( ! self::$handler instanceof \Starisian\Sparxstar\Starmus\helpers\logger\StarLogger ) {
+                self::$handler = new StarLogger( self::$min_log_level );
+            }
+        }	catch (\Exception $exception){
+            // In case of logger initialization failure, fallback to error_log
+            error_log('StarmusLogger initialization failed: ' . $exception->getMessage());
+            throw $exception;
+        }
 
-		return self::$handler;
-	}
+        return self::$handler;
+    }
 
     /**
      * Log an error-level message.
@@ -197,14 +197,14 @@ class StarmusLogger
      * @param array $context Additional log context.
      */
     public static function alert(mixed $message, array $context = []): void
-		{
-			if(is_admin()){
-				// For admin users, also output to error_log for immediate visibility
-				StarmusUIHelper::renderError('Starmus ALERT: ' . (is_string($message) ? $message : print_r($message, true)));
-			}
+    {
+        if(is_admin()){
+            // For admin users, also output to error_log for immediate visibility
+            StarmusUIHelper::renderError('Starmus ALERT: ' . (is_string($message) ? $message : print_r($message, true)));
+        }
 
-			self::get_handler()->alert($message, $context);
-		}
+        self::get_handler()->alert($message, $context);
+    }
 
     /**
      * Log an emergency-level message when system is unusable.

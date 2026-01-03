@@ -8,7 +8,7 @@
 namespace Starisian\Sparxstar\Starmus\admin\widgets;
 
 if ( ! \defined( 'ABSPATH' ) ) {
-	exit;
+    exit;
 }
 
 use Throwable;
@@ -18,144 +18,144 @@ use Throwable;
  */
 class StarmusAdminWidgets {
 
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		try {
-			$this->register_hooks();
-		} catch ( Throwable $throwable ) {
-			error_log(
-				'StarmusAdminWidgets::__construct() failed: ' . $throwable->getMessage(),
-				[
-					'file' => $throwable->getFile(),
-					'line' => $throwable->getLine(),
-				]
-			);
-		}
-	}
+    /**
+     * Constructor.
+     */
+    public function __construct() {
+        try {
+            $this->register_hooks();
+        } catch ( Throwable $throwable ) {
+            error_log(
+            'StarmusAdminWidgets::__construct() failed: ' . $throwable->getMessage(),
+            [
+            'file' => $throwable->getFile(),
+            'line' => $throwable->getLine(),
+            ]
+            );
+        }
+    }
 
-	/**
-	 * Hook widget registration into WordPress.
-	 */
-	public function register_hooks(): void {
-		try {
-			add_action( 'wp_dashboard_setup', $this->register_widgets( ... ) );
-		} catch ( Throwable $throwable ) {
-			error_log(
-				'StarmusAdminWidgets::register_hooks() failed: ' . $throwable->getMessage(),
-				[
-					'file' => $throwable->getFile(),
-					'line' => $throwable->getLine(),
-				]
-			);
-		}
-	}
+    /**
+     * Hook widget registration into WordPress.
+     */
+    public function register_hooks(): void {
+        try {
+            add_action( 'wp_dashboard_setup', $this->register_widgets( ... ) );
+        } catch ( Throwable $throwable ) {
+            error_log(
+            'StarmusAdminWidgets::register_hooks() failed: ' . $throwable->getMessage(),
+            [
+            'file' => $throwable->getFile(),
+            'line' => $throwable->getLine(),
+            ]
+            );
+        }
+    }
 
-	/**
-	 * Register the dashboard widgets.
-	 */
-	public function register_widgets(): void {
-		try {
+    /**
+     * Register the dashboard widgets.
+     */
+    public function register_widgets(): void {
+        try {
 
-			wp_add_dashboard_widget(
-				'aiwa_jobs_widget',
-				__( 'AIWA: Transcription Jobs', 'starmus-audio-recorder' ),
-				$this->render_jobs_widget( ... )
-			);
-		} catch ( Throwable $throwable ) {
-			error_log(
-				'StarmusAdminWidgets::register_widgets() failed: ' . $throwable->getMessage(),
-				[
-					'file' => $throwable->getFile(),
-					'line' => $throwable->getLine(),
-				]
-			);
-		}
-	}
+            wp_add_dashboard_widget(
+            'aiwa_jobs_widget',
+            __( 'AIWA: Transcription Jobs', 'starmus-audio-recorder' ),
+            $this->render_jobs_widget( ... )
+            );
+        } catch ( Throwable $throwable ) {
+            error_log(
+            'StarmusAdminWidgets::register_widgets() failed: ' . $throwable->getMessage(),
+            [
+            'file' => $throwable->getFile(),
+            'line' => $throwable->getLine(),
+            ]
+            );
+        }
+    }
 
-	/**
-	 * Render recent transcription jobs widget.
-	 */
-	public function render_jobs_widget(): void {
-		try {
-			$jobs = get_option( 'aiwa_sagemaker_jobs', [] );
+    /**
+     * Render recent transcription jobs widget.
+     */
+    public function render_jobs_widget(): void {
+        try {
+            $jobs = get_option( 'aiwa_sagemaker_jobs', [] );
 
-			$counts = [
-				'total'      => 0,
-				'pending'    => 0,
-				'processing' => 0,
-				'done'       => 0,
-				'failed'     => 0,
-			];
+            $counts = [
+            'total'      => 0,
+            'pending'    => 0,
+            'processing' => 0,
+            'done'       => 0,
+            'failed'     => 0,
+            ];
 
-			foreach ( $jobs as $job ) {
-				++$counts['total'];
-				$status = $job['status'] ?? 'pending';
-				if ( isset( $counts[ $status ] ) ) {
-					++$counts[ $status ];
-				}
-			}
+            foreach ( $jobs as $job ) {
+                ++$counts['total'];
+                $status = $job['status'] ?? 'pending';
+                if ( isset( $counts[ $status ] ) ) {
+                    ++$counts[ $status ];
+                }
+            }
 
-			echo '<div class="aiwa-jobs-widget">';
-			echo '<p><strong>' . esc_html__( 'Total jobs:', 'starmus-audio-recorder' ) . '</strong> ' . \intval( $counts['total'] ) . '</p>';
-			echo '<p><strong>' . esc_html__( 'Pending:', 'starmus-audio-recorder' ) . '</strong> ' . \intval( $counts['pending'] ) . ' — ' . esc_html__( 'Processing:', 'starmus-audio-recorder' ) . ' ' . \intval( $counts['processing'] ) . ' — ' . esc_html__( 'Done:', 'starmus-audio-recorder' ) . ' ' . \intval( $counts['done'] ) . ' — ' . esc_html__( 'Failed:', 'starmus-audio-recorder' ) . ' ' . \intval( $counts['failed'] ) . '</p>';
-			if ( empty( $jobs ) ) {
-				echo '<p>' . esc_html__( 'No jobs queued.', 'starmus-audio-recorder' ) . '</p>';
-				echo '</div>';
-				return;
-			}
+            echo '<div class="aiwa-jobs-widget">';
+            echo '<p><strong>' . esc_html__( 'Total jobs:', 'starmus-audio-recorder' ) . '</strong> ' . \intval( $counts['total'] ) . '</p>';
+            echo '<p><strong>' . esc_html__( 'Pending:', 'starmus-audio-recorder' ) . '</strong> ' . \intval( $counts['pending'] ) . ' — ' . esc_html__( 'Processing:', 'starmus-audio-recorder' ) . ' ' . \intval( $counts['processing'] ) . ' — ' . esc_html__( 'Done:', 'starmus-audio-recorder' ) . ' ' . \intval( $counts['done'] ) . ' — ' . esc_html__( 'Failed:', 'starmus-audio-recorder' ) . ' ' . \intval( $counts['failed'] ) . '</p>';
+            if ( empty( $jobs ) ) {
+                echo '<p>' . esc_html__( 'No jobs queued.', 'starmus-audio-recorder' ) . '</p>';
+                echo '</div>';
+                return;
+            }
 
-			// Sort jobs by created_at desc and show 5 most recent
-			usort(
-				$jobs,
-				function ( array $a, array $b ): int {
-					$ta = isset( $a['created_at'] ) ? (int) $a['created_at'] : 0;
-					$tb = isset( $b['created_at'] ) ? (int) $b['created_at'] : 0;
-					return $tb <=> $ta;
-				}
-			);
+            // Sort jobs by created_at desc and show 5 most recent
+            usort(
+            $jobs,
+            function ( array $a, array $b ): int {
+                $ta = isset( $a['created_at'] ) ? (int) $a['created_at'] : 0;
+                $tb = isset( $b['created_at'] ) ? (int) $b['created_at'] : 0;
+                return $tb <=> $ta;
+            }
+            );
 
-			$recent = \array_slice( $jobs, 0, 5, true );
+            $recent = \array_slice( $jobs, 0, 5, true );
 
-			echo '<table class="widefat"><thead><tr><th>' . esc_html__( 'Job ID', 'starmus-audio-recorder' ) . '</th><th>' . esc_html__( 'Status', 'starmus-audio-recorder' ) . '</th><th>' . esc_html__( 'Attempts', 'starmus-audio-recorder' ) . '</th><th>' . esc_html__( 'Created', 'starmus-audio-recorder' ) . '</th></tr></thead><tbody>';
-			foreach ( $recent as $id => $job ) {
-				$created = isset( $job['created_at'] ) ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $job['created_at'] ) : '';
-				echo '<tr>';
-				echo '<td>' . esc_html( $id ) . '</td>';
-				echo '<td>' . esc_html( $job['status'] ?? '' ) . '</td>';
-				echo '<td>' . esc_html( (string) \intval( $job['attempts'] ?? 0 ) ) . '</td>';
-				echo '<td>' . esc_html( $created ) . '</td>';
-				echo '</tr>';
-			}
+            echo '<table class="widefat"><thead><tr><th>' . esc_html__( 'Job ID', 'starmus-audio-recorder' ) . '</th><th>' . esc_html__( 'Status', 'starmus-audio-recorder' ) . '</th><th>' . esc_html__( 'Attempts', 'starmus-audio-recorder' ) . '</th><th>' . esc_html__( 'Created', 'starmus-audio-recorder' ) . '</th></tr></thead><tbody>';
+            foreach ( $recent as $id => $job ) {
+                   $created = isset( $job['created_at'] ) ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $job['created_at'] ) : '';
+                   echo '<tr>';
+                   echo '<td>' . esc_html( $id ) . '</td>';
+                   echo '<td>' . esc_html( $job['status'] ?? '' ) . '</td>';
+                   echo '<td>' . esc_html( (string) \intval( $job['attempts'] ?? 0 ) ) . '</td>';
+                   echo '<td>' . esc_html( $created ) . '</td>';
+                   echo '</tr>';
+            }
 
-			echo '</tbody></table>';
+            echo '</tbody></table>';
 
-			echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=aiwa-sagemaker-jobs' ) ) . '">' . esc_html__( 'View all jobs', 'starmus-audio-recorder' ) . '</a></p>';
-			echo '</div>';
+            echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=aiwa-sagemaker-jobs' ) ) . '">' . esc_html__( 'View all jobs', 'starmus-audio-recorder' ) . '</a></p>';
+            echo '</div>';
 
-			$this->enqueue_jobs_widget_script();
-		} catch ( Throwable $throwable ) {
-			error_log(
-				'StarmusAdminWidgets::render_jobs_widget() failed: ' . $throwable->getMessage(),
-				[
-					'file' => $throwable->getFile(),
-					'line' => $throwable->getLine(),
-				]
-			);
-			echo '<p>' . esc_html__( 'Unable to load job data.', 'starmus-audio-recorder' ) . '</p>';
-		}
-	}
+            $this->enqueue_jobs_widget_script();
+        } catch ( Throwable $throwable ) {
+            error_log(
+            'StarmusAdminWidgets::render_jobs_widget() failed: ' . $throwable->getMessage(),
+            [
+            'file' => $throwable->getFile(),
+            'line' => $throwable->getLine(),
+            ]
+            );
+            echo '<p>' . esc_html__( 'Unable to load job data.', 'starmus-audio-recorder' ) . '</p>';
+        }
+    }
 
-	/**
-	 * Enqueue small inline JS for polling and quick actions.
-	 */
-	private function enqueue_jobs_widget_script(): void {
-		try {
-			$nonce    = wp_create_nonce( 'aiwa_jobs_nonce' );
-			$ajax_url = admin_url( 'admin-ajax.php' );
+    /**
+     * Enqueue small inline JS for polling and quick actions.
+     */
+    private function enqueue_jobs_widget_script(): void {
+        try {
+            $nonce    = wp_create_nonce( 'aiwa_jobs_nonce' );
+            $ajax_url = admin_url( 'admin-ajax.php' );
 
-			$script = <<<JS
+            $script = <<<JS
                 <script>
                 (function(){
                     const ajaxUrl = '{$ajax_url}';
@@ -196,15 +196,15 @@ class StarmusAdminWidgets {
                 </script>
                 JS;
 
-			echo $script;
-		} catch ( Throwable $throwable ) {
-			error_log(
-				'StarmusAdminWidgets::enqueue_jobs_widget_script() failed: ' . $throwable->getMessage(),
-				[
-					'file' => $throwable->getFile(),
-					'line' => $throwable->getLine(),
-				]
-			);
-		}
-	}
+            echo $script;
+        } catch ( Throwable $throwable ) {
+            error_log(
+            'StarmusAdminWidgets::enqueue_jobs_widget_script() failed: ' . $throwable->getMessage(),
+            [
+            'file' => $throwable->getFile(),
+            'line' => $throwable->getLine(),
+            ]
+            );
+        }
+    }
 }

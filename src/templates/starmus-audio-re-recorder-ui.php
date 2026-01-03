@@ -6,7 +6,7 @@
  * @version 1.0.2-DATA-SAFE
  */
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+    exit;
 }
 
 /** @var int $post_id */

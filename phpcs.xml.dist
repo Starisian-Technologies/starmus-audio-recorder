@@ -34,57 +34,29 @@
   <!-- Target PHP version -->
   <config name="testVersion" value="8.2-"/>
 
-  <!-- WordPress Core (auto-fixable only) -->
-  <rule ref="WordPress-Core">
-    <!-- Exclude non-auto-fixable rules -->
-    <exclude name="WordPress.Files.FileName"/>
-    <exclude name="WordPress.NamingConventions.ValidVariableName"/>
-    <exclude name="WordPress.NamingConventions.ValidFunctionName"/>
-    <exclude name="WordPress.PHP.YodaConditions"/>
-    <exclude name="WordPress.WP.AlternativeFunctions"/>
-    <exclude name="WordPress.PHP.DevelopmentFunctions"/>
-    <exclude name="Squiz.PHP.CommentedOutCode"/>
-    <exclude name="Universal.Operators.DisallowShortTernary"/>
-  </rule>
+  <!-- Auto-fixable whitespace rules only -->
+  <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace"/>
+  <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
 
-  <!-- Auto-fixable formatting rules only -->
+  <!-- Basic indentation only -->
   <rule ref="Generic.WhiteSpace.ScopeIndent">
     <properties>
-      <property name="indent" value="1"/>
-      <property name="tabIndent" value="true"/>
+      <property name="indent" value="4"/>
+      <property name="tabIndent" value="false"/>
     </properties>
   </rule>
 
-  <rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
-  <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace"/>
-  <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
-  <rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
-  <rule ref="Generic.Classes.OpeningBraceSameLine"/>
+  <!-- WordPress specific auto-fixable rules -->
+  <rule ref="WordPress.WhiteSpace.OperatorSpacing"/>
 
-  <!-- WordPress spacing rules -->
-  <rule ref="WordPress.WhiteSpace.ControlStructureSpacing"/>
-  <rule ref="WordPress.Arrays.ArrayKeySpacingRestrictions"/>
-  <rule ref="NormalizedArrays.Arrays.ArrayBraceSpacing"/>
-
-  <!-- Exclude problematic PEAR rules that conflict -->
-  <rule ref="WordPress-Extra">
-    <exclude name="WordPress.Files.FileName"/>
-    <exclude name="WordPress.PHP.YodaConditions"/>
-    <exclude name="WordPress.WP.AlternativeFunctions"/>
-    <exclude name="WordPress.PHP.DevelopmentFunctions"/>
-    <exclude name="Squiz.PHP.CommentedOutCode"/>
-    <exclude name="Universal.Operators.DisallowShortTernary"/>
-    <exclude name="PEAR.Functions.FunctionCallSignature"/>
-    <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing"/>
-  </rule>
-
-  <!-- Text domain enforcement (auto-fixable) -->
+  <!-- Text domain enforcement (auto-fixable only) -->
   <rule ref="WordPress.WP.I18n">
     <properties>
       <property name="text_domain" type="array">
         <element value="starmus-audio-recorder"/>
       </property>
     </properties>
+    <exclude name="WordPress.WP.I18n.NonSingularStringLiteralText"/>
   </rule>
 
 </ruleset>

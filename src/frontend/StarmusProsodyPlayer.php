@@ -11,8 +11,8 @@ use function ob_get_clean;
 use Throwable;
 use Exception;
 
-if (! \defined('ABSPATH')) {
-	exit; // Exit if accessed directly
+if ( ! \defined('ABSPATH')) {
+    exit; // Exit if accessed directly
 }
 
 /**
@@ -25,111 +25,111 @@ if (! \defined('ABSPATH')) {
 class StarmusProsodyPlayer
 {
 
-	private ?StarmusProsodyDAL $dal = null;
+    private ?StarmusProsodyDAL $dal = null;
 
-	public function __construct(?StarmusProsodyDAL $prosodyDal = null)
-	{
-		$this->dal = $prosodyDal;
-		$this->register_hooks();
-	}
+    public function __construct(?StarmusProsodyDAL $prosodyDal = null)
+    {
+        $this->dal = $prosodyDal;
+        $this->register_hooks();
+    }
 
-	/**
-     * Summary of register_hooks
-     */
+    /**
+        * Summary of register_hooks
+        */
     private function register_hooks(): void
-	{
+    {
 
-		// Hooks
-		add_action('init', $this->register_shortcodes(...));
-		add_action('init', $this->initDAL(...));
-		add_action('wp_enqueue_scripts', $this->register_assets(...));
+        // Hooks
+        add_action('init', $this->register_shortcodes(...));
+        add_action('init', $this->initDAL(...));
+        add_action('wp_enqueue_scripts', $this->register_assets(...));
 
-		// AJAX Endpoints (Authenticated & Public if needed, usually Auth only for this)
-		add_action('wp_ajax_starmus_save_pace', $this->handle_ajax_save(...));
-	}
+        // AJAX Endpoints (Authenticated & Public if needed, usually Auth only for this)
+        add_action('wp_ajax_starmus_save_pace', $this->handle_ajax_save(...));
+    }
 
-	public function register_shortcodes(): void
-	{
-		// Register the shortcode
-		add_shortcode('prosody_reader', $this->render_shortcode(...));
-	}
+    public function register_shortcodes(): void
+    {
+        // Register the shortcode
+        add_shortcode('prosody_reader', $this->render_shortcode(...));
+    }
 
-	public function initDAL(): void
-	{
-		if (!class_exists(StarmusProsodyDAL::class)) {
-			throw new \Exception('StarmusProsodyDAL class not found');
-		}
-		if (!$this->dal instanceof \Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL || !($this->dal instanceof StarmusProsodyDAL)){
-			try {
-				$this->dal = new StarmusProsodyDAL;
-			} catch (Throwable $throwable) {
-				StarmusLogger::log($throwable);
-			}
-		}
-	}
+    public function initDAL(): void
+    {
+        if ( ! class_exists(StarmusProsodyDAL::class)) {
+            throw new \Exception('StarmusProsodyDAL class not found');
+        }
+        if ( ! $this->dal instanceof \Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL || ! ($this->dal instanceof StarmusProsodyDAL)){
+            try {
+                $this->dal = new StarmusProsodyDAL;
+            } catch (Throwable $throwable) {
+                StarmusLogger::log($throwable);
+            }
+        }
+    }
 
-	/**
-     * 1. Register JS/CSS
-     */
+    /**
+        * 1. Register JS/CSS
+        */
     public function register_assets(): void
-	{
-		// Enqueue the CSS (assuming you saved the CSS from previous chat to a file)
-		wp_register_style(
-			'starmus-prosody-css',
-			plugin_dir_url(__FILE__) . 'src/css/starmus-prosody-enginge.css',
-			[],
-			STARMUS_VERSION
-		);
+    {
+        // Enqueue the CSS (assuming you saved the CSS from previous chat to a file)
+        wp_register_style(
+        'starmus-prosody-css',
+        plugin_dir_url(__FILE__) . 'src/css/starmus-prosody-enginge.css',
+        [],
+        STARMUS_VERSION
+        );
 
-		// Enqueue the JS (assuming you saved the JS Class to a file)
-		wp_register_script(
-			'starmus-prosody-js',
-			plugin_dir_url(__FILE__) . 'src/js/prosody/starmus-prosody-engine.js',
-			[],
-			STARMUS_VERSION,
-			['strategy' => 'defer'] // WP 6.3+ feature
-		);
-	}
+        // Enqueue the JS (assuming you saved the JS Class to a file)
+        wp_register_script(
+        'starmus-prosody-js',
+        plugin_dir_url(__FILE__) . 'src/js/prosody/starmus-prosody-engine.js',
+        [],
+        STARMUS_VERSION,
+        ['strategy' => 'defer'] // WP 6.3+ feature
+        );
+    }
 
-	/**
-	 * 2. The Shortcode Output
-	 * Usage: [prosody_reader] (uses current post) OR [prosody_reader id="123"]
-	 *
-	 * @param array $atts Shortcode attributes
-	 *
-	 * @return string HTML Output
-	 */
-	public function render_shortcode(array $atts): string
-	{
-		try {
-			$args = shortcode_atts(
-				[
-					'id' => get_the_ID(),
-				],
-				$atts
-			);
+    /**
+     * 2. The Shortcode Output
+     * Usage: [prosody_reader] (uses current post) OR [prosody_reader id="123"]
+     *
+     * @param array $atts Shortcode attributes
+     *
+     * @return string HTML Output
+     */
+    public function render_shortcode(array $atts): string
+    {
+        try {
+            $args = shortcode_atts(
+            [
+            'id' => get_the_ID(),
+            ],
+            $atts
+            );
 
-			$post_id = (int) $args['id'];
-			$data    = $this->dal->get_script_payload($post_id);
+            $post_id = (int) $args['id'];
+            $data    = $this->dal->get_script_payload($post_id);
 
-			if ($data === []) {
-				return '<div class="prosody-error">Error: Script data not found.</div>';
-			}
+            if ($data === []) {
+                   return '<div class="prosody-error">Error: Script data not found.</div>';
+            }
 
-			// Load Assets
-			wp_enqueue_style('starmus-prosody-css');
-			wp_enqueue_script('starmus-prosody-js');
+            // Load Assets
+            wp_enqueue_style('starmus-prosody-css');
+            wp_enqueue_script('starmus-prosody-js');
 
-			// Pass Data to JS via Inline Script (Modern approach)
-			wp_add_inline_script(
-				'starmus-prosody-js',
-				'const StarmusData = ' . json_encode($data) . ';',
-				'before'
-			);
+            // Pass Data to JS via Inline Script (Modern approach)
+            wp_add_inline_script(
+            'starmus-prosody-js',
+            'const StarmusData = ' . json_encode($data) . ';',
+            'before'
+            );
 
-			// Render The HTML Shell
-			ob_start();
-?>
+            // Render The HTML Shell
+            ob_start();
+            ?>
 			<div id="cognitive-regulator">
 				<!-- CALIBRATION LAYER -->
 				<div id="calibration-layer">
@@ -162,50 +162,50 @@ class StarmusProsodyPlayer
 					<button id="btn-recal" class="secondary-text-btn" title="Reset Rhythm">[ Re-Tap ]</button>
 				</div>
 			</div>
-<?php
-			return ob_get_clean();
-		} catch (Throwable $throwable) {
-			StarmusLogger::log($throwable);
-			return ''; // Always return a string even on error
-		}
-	}
+            <?php
+            return ob_get_clean();
+        } catch (Throwable $throwable) {
+            StarmusLogger::log($throwable);
+            return ''; // Always return a string even on error
+        }
+    }
 
-	/**
-     * 3. AJAX Handler
-     * Only updates the specific 'calibrated_pace_ms' field.
-     */
+    /**
+        * 3. AJAX Handler
+        * Only updates the specific 'calibrated_pace_ms' field.
+        */
     public function handle_ajax_save(): void
-	{
-		try {
-			// Ensure it's a POST request
-			if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-				wp_send_json_error('Invalid request method');
-			}
-			// 1. Verify Request
-			$post_id = (int) $_POST['post_id'];
-			$pace    = (int) $_POST['pace_ms'];
-			$nonce   = $_POST['nonce'];
+    {
+        try {
+            // Ensure it's a POST request
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                wp_send_json_error('Invalid request method');
+            }
+            // 1. Verify Request
+            $post_id = (int) $_POST['post_id'];
+            $pace    = (int) $_POST['pace_ms'];
+            $nonce   = $_POST['nonce'];
 
-			if (! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
-				wp_send_json_error('Security check failed');
-			}
+            if ( ! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
+                wp_send_json_error('Security check failed');
+            }
 
-			if (! current_user_can('edit_post', $post_id)) {
-				wp_send_json_error('Permission denied');
-			}
+            if ( ! current_user_can('edit_post', $post_id)) {
+                wp_send_json_error('Permission denied');
+            }
 
-			// 2. Perform Save via DAL
-			$success = $this->dal->save_calibrated_pace($post_id, $pace);
-		} catch (\Throwable $throwable) {
-			wp_send_json_error('An error occurred: ' . $throwable->getMessage());
-			StarmusLogger::log($throwable);
-		}
+            // 2. Perform Save via DAL
+            $success = $this->dal->save_calibrated_pace($post_id, $pace);
+        } catch (\Throwable $throwable) {
+            wp_send_json_error('An error occurred: ' . $throwable->getMessage());
+            StarmusLogger::log($throwable);
+        }
 
-		if ($success) {
-			wp_send_json_success(['new_pace' => $pace]);
-		} else {
-			StarmusLogger::log('Starmus update failed for $post_id=' . $post_id);
-			wp_send_json_error('Update failed');
-		}
-	}
+        if ($success) {
+            wp_send_json_success(['new_pace' => $pace]);
+        } else {
+            StarmusLogger::log('Starmus update failed for $post_id=' . $post_id);
+            wp_send_json_error('Update failed');
+        }
+    }
 }

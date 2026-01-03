@@ -21,7 +21,7 @@ use function esc_html;
  */
 
 if ( ! \defined('ABSPATH') ) {
-	exit();
+    exit();
 }
 
 /**
@@ -33,14 +33,14 @@ if ( ! \defined('ABSPATH') ) {
 
 final class StarmusUIHelper {
 
-	/**
-	 * Render an error message in the WordPress admin area.
-	 *
-	 * @param string $message The error message to display.
-	 */
-	public static function renderError(string $message): void {
-		if ( is_admin() ) {
-			echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($message) . '</p></div>';
-		}
-	}
+    /**
+     * Render an error message in the WordPress admin area.
+     *
+     * @param string $message The error message to display.
+     */
+    public static function renderError(string $message): void {
+        if ( is_admin() ) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($message) . '</p></div>';
+        }
+    }
 }

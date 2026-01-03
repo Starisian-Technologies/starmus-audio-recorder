@@ -12,20 +12,20 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\data\interfaces;
 
 if ( ! defined('ABSPATH') ) {
-	exit;
+    exit;
 }
 
 // Extends the Base Interface
 interface IStarmusProsodyDAL extends IStarmusBaseDAL {
 
 
-	/**
-	 * Retrieves the full configuration payload.
-	 */
-	public function get_script_payload(int $post_id): array;
+    /**
+     * Retrieves the full configuration payload.
+     */
+    public function get_script_payload(int $post_id): array;
 
-	/**
-	 * Saves the user-calibrated reading pace.
-	 */
-	public function save_calibrated_pace(int $post_id, int $ms_per_word): bool;
+    /**
+     * Saves the user-calibrated reading pace.
+     */
+    public function save_calibrated_pace(int $post_id, int $ms_per_word): bool;
 }
