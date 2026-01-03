@@ -95,13 +95,11 @@ final class StarmusShortcodeLoader
 			$this->prosody = $prosodyDal;
 			return;
 		}
-			try{
-				$this->prosody = new StarmusProsodyPlayer($prosodyDal);
-			} catch (Throwable $throwable) {
-				StarmusLogger::log($throwable);
-			}
+		try{
+			$this->prosody = new StarmusProsodyPlayer($prosodyDal);
+		} catch (Throwable $throwable) {
+			StarmusLogger::log($throwable);
 		}
-		
 	}
 
 	/**
