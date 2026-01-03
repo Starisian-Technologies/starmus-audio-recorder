@@ -180,7 +180,7 @@ class OfflineQueue {
 
 		const maxAllowedSize = getMaxBlobSize(metadata);
 		if (audioBlob.size > maxAllowedSize) {
-			throw new Error(`Audio too large (${(audioBlob.size / 1024 / 1024).toFixed(2)} MB); limit ${(maxAllowedSize / 1024 / 1024).toFixed(0)} MB`);
+			throw new Error(`Audio too large (${(audioBlob.size / 1024 / 1024).toFixed(2)} MB); limit ${(maxAllowedSize / 1024 / 1024).toFixed(2)} MB`);
 		}
 
 		// Clone blob to detach underlying buffer
