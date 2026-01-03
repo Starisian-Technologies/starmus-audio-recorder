@@ -42,7 +42,9 @@ if (!defined('ABSPATH')) {
 register_shutdown_function(static function (): void {
     $error = error_get_last();
     // Only log actual fatal errors, not warnings/notices
-    error_log('[STARMUS FATAL] File: ' . $error['file'] . ' Line: ' . $error['line'] . ' Msg: ' . $error['message']);
+	if(!empty($error) && is_array($error)){
+    	error_log('[STARMUS FATAL] File: ' . $error['file'] . ' Line: ' . $error['line'] . ' Msg: ' . $error['message']);
+	}
 });
 
 /* -------------------------------------------------------------------------
