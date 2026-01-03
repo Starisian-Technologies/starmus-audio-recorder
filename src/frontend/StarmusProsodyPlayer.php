@@ -64,7 +64,7 @@ class StarmusProsodyPlayer
 		if (!class_exists(StarmusProsodyDAL::class)) {
 			throw new \Exception('StarmusProsodyDAL class not found');
 		}
-		if ($this->dal === null) || !($this->dal instanceof StarmusProsodyDAL)) {
+		if (($this->dal === null) || !($this->dal instanceof StarmusProsodyDAL)) {
 			try {
 				$this->dal = new StarmusProsodyDAL;
 			} catch (Throwable $throwable) {
