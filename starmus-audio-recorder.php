@@ -63,7 +63,13 @@ if (!defined('STARMUS_TUS_ENDPOINT')) {
     define('STARMUS_TUS_ENDPOINT', 'https://upload.sparxstar.com/files/');
 }
 if (!defined('STARMUS_R2_ENDPOINT')) {
-    define('STARMUS_R2_ENDPOINT', 'https://cdn.sparxstar.com/');
+    define('STARMUS_R2_ENDPOINT', 'https://cdn8.sparxstar.com/');
+}
+if (!defined('TUS_WEBHOOK_SECRET')) {
+    define('TUS_WEBHOOK_SECRET', 'CHANGE_ME');
+}
+if (!defined('STARMUS_REST_ENDPOINT')) {
+    define('STARMUS_REST_ENDPOINT', 'https://api.sparxstar.com/');
 }
 if (!defined('TUS_WEBHOOK_SECRET')) {
     define('TUS_WEBHOOK_SECRET', 'CHANGE_ME');
