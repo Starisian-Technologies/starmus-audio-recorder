@@ -29,7 +29,7 @@ class StarmusProsodyPlayer
 
 	public function __construct(?StarmusProsodyDAL $prosodyDal = null)
 	{
-		$this->setDal($prosodyDal);
+		$this->dal = $prosodyDal;
 		$this->register_hooks();
 	}
 
@@ -43,7 +43,7 @@ class StarmusProsodyPlayer
 
 		// Hooks
 		add_action('init', array($this, 'register_shortcodes'));
-		add_action('init', array($this, 'initDAL'));
+		add_action('init', array($this, 'setDal'));
 		add_action('wp_enqueue_scripts', array($this, 'register_assets'));
 
 		// AJAX Endpoints (Authenticated & Public if needed, usually Auth only for this)
