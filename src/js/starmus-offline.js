@@ -57,9 +57,12 @@ const CONFIG = {
  * @returns {number} Maximum blob size in bytes allowed for the submission
  */
 function getMaxBlobSize(metadata = {}) {
-	const tier = metadata.tier || metadata.env?.tier;
-	if (tier && CONFIG.maxBlobSizes[tier]) {
-		return CONFIG.maxBlobSizes[tier];
+	const rawTier = (metadata && typeof metadata === 'object')
+		? (metadata.tier ?? metadata.env?.tier)
+		: undefined;
+
+	if (typeof rawTier === 'string' && Object.prototype.hasOwnProperty.call(CONFIG.maxBlobSizes, rawTier)) {
+		return CONFIG.maxBlobSizes[rawTier];
 	}
 	return CONFIG.defaultMaxBlobSize;
 }
