@@ -91,8 +91,8 @@ final class StarmusShortcodeLoader
 
 	private function setProsodyEngine(?StarmusProsodyDAL $prosodyDal = null): void
 	{
-		if ($this->prosody !== null)) {
-			$this->prosody = $prosodyDal
+		if ($this->prosody !== null) {
+			$this->prosody = $prosodyDal;
 			return;
 		}
 			try{
