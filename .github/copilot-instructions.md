@@ -1,130 +1,301 @@
-Copilot Instructions: Starmus Audio Recorder
-============================================
+Copilot Instructions --- Starmus Audio Recorder
+---------------------------------------------
 
-Mission
--------
+**(Hard-Enforced Engineering Specification)**
 
-Maintain a WordPress-based audio-recording system optimized for **mobile, weak networks, and offline submission**. All changes must preserve:
+### Purpose
 
-*   **Offline-first behavior**
-    
-*   **Small payloads** (≤60KB JS, ≤25KB CSS gzipped)
-    
-*   **Progressive enhancement** across browser tiers
-    
+Copilot is an **engineering agent**, not a code generator.\
+Its role is to **maintain, correct, and extend** the Starmus Audio Recorder system **without breaking offline behavior, bootstrap invariants, or mobile compatibility**.
 
-Do not introduce abstractions that increase complexity or break compatibility.
+Copilot may modify:
 
-System Boundaries
------------------
+-   PHP code
+
+-   JavaScript modules
+
+-   WordPress hooks, actions, and REST endpoints
+
+-   Workflow logic (submission, queueing, editor/recorder transitions)
+
+Copilot must **not** introduce architectural drift, abstractions, or stylistic refactors.
+
+* * * * *
+
+Core Mission (Non-Negotiable)
+-----------------------------
+
+Maintain a WordPress-based audio recording system optimized for:
+
+-   **Mobile devices**
+
+-   **Weak or hostile networks**
+
+-   **Offline-first submission**
+
+-   **Progressive enhancement across browser tiers**
+
+All changes must preserve:
+
+-   Offline functionality
+
+-   Deterministic execution
+
+-   Payload budgets
+
+-   Existing user behavior
+
+If a change improves elegance but risks reliability, **reject the change**.
+
+* * * * *
+
+Platform & Standards (Hard Rules)
+---------------------------------
+
+-   **PHP**: 8.2+
+
+-   **WordPress**: 6.8+
+
+-   **Code Quality**: Enterprise-class, commercial-grade
+
+-   **Standards**:
+
+    -   Follow modern **PSR standards** (PSR-1, PSR-4, PSR-12)
+
+    -   Except where they conflict with WordPress
+
+    -   In all conflicts: **WordPress behavior wins**
+
+    -   **WordPress VIP standards apply**
+
+No legacy PHP support.\
+No modern JS features without polyfills.
+
+* * * * *
+
+System Boundaries (Must Be Preserved)
+-------------------------------------
 
 ### PHP Kernel
 
-Main components live under PSR-4 namespaces:
+Primary components live under PSR-4 namespaces and must remain layered:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   Starmus\    StarmusPlugin.php                // Entry point: registers hooks, loads services    frontend/      StarmusAudioRecorderUI.php     // Recorder UI + bootstrap      StarmusAudioEditorUI.php       // Editor UI + Peaks bootstrap   `
+-   `Starmus\StarmusPlugin.php`\
+    Entry point. Registers hooks. Loads services. No business logic.
 
-### Storage Model
+-   `frontend/StarmusAudioRecorderUI.php`\
+    Recorder UI + bootstrap injection.
 
-Custom post types:
+-   `frontend/StarmusAudioEditorUI.php`\
+    Editor UI + Peaks.js bootstrap.
 
-*   audio-recording (primary artifact)
-    
-*   consent-agreement (legal metadata)
-    
+Copilot must not move logic between these layers.
+
+* * * * *
+
+### Storage Model (Strict)
+
+Custom Post Types:
+
+-   `audio-recording` (primary artifact)
+
+-   `consent-agreement` (legal metadata)
 
 Taxonomies:
 
-*   language
-    
-*   recording\_type
-    
+-   `language`
 
-All metadata must be created, retrieved, or mutated via WordPress APIs. No direct DB writes.
+-   `recording_type`
+
+Rules:
+
+-   All reads/writes go through **WordPress APIs**
+
+-   No direct database access
+
+-   No schema invention
+
+-   No silent mutation
+
+* * * * *
 
 JavaScript Execution Model
 --------------------------
 
-The JS layer is modular. Do not collapse responsibilities.
+The JS layer is **modular and separated by responsibility**.
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   starmus-audio-recorder-module.js       // MediaRecorder, audio graph, calibration  starmus-audio-recorder-ui-controller.js// Form wizard (step1/step2), UI state  starmus-audio-recorder-submissions.js  // Upload, IndexedDB queue, tus.io support  starmus-offline-sync.js                // Polyfills + legacy queue   `
+Copilot must not collapse modules or merge concerns.
 
-Each module assumes:
+Modules include:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window.STARMUS_BOOTSTRAP exists before any init   `
+-   Recorder core (MediaRecorder, audio graph, calibration)
 
-If this object is missing or late-loaded, **the system will not initialize**.
+-   UI controller (step flow, UI state)
 
-Runtime Invariants
-------------------
+-   Submissions (IndexedDB queue, uploads, tus.io resume)
 
-Claude must respect these rules at all times:
+-   Offline sync (polyfills, legacy support)
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   1. The bootstrap object is created by PHP before JS runs:     window.STARMUS_BOOTSTRAP = { postId, restUrl, mode, canCommit, ... }  2. Recorder pages initialize only when:   `
+Each module assumes **exactly one bootstrap source**.
 
-   `3. Editor pages initialize only when:`
+* * * * *
 
-   `4. No JS module fetches DOM nodes until bootstrap is detected.`
+Bootstrap Contract (Critical)
+-----------------------------
 
-Any change that breaks these invariants is rejected.
+The system relies on a single authoritative bootstrap object:
 
-Naming Rules (strict)
----------------------
+`window.STARMUS_BOOTSTRAP = {
+  postId,
+  restUrl,
+  mode,
+  canCommit,
+  ...
+}`
 
-*   PHP Namespace: Starmus\\\*
-    
-*   REST Namespace: star-/v1
-    
-*   Actions/filters: starmus\_\*
-    
-*   Frontend handles: starmus-audio-\*
-    
-*   Error objects: WP\_Error only at boundaries
-    
-*   No globals except the bootstrap object
-    
+Rules:
+
+-   PHP must define this **before any JS runs**
+
+-   JS must not infer state from the DOM
+
+-   JS must not initialize if bootstrap is missing or incomplete
+
+-   No alternate or fallback bootstrap paths are allowed
+
+If this invariant is broken, the change is invalid.
+
+* * * * *
+
+Runtime Invariants (Must Always Hold)
+-------------------------------------
+
+Copilot must ensure:
+
+1.  Bootstrap is created by PHP before JS executes
+
+2.  Recorder pages initialize only when recorder conditions are met
+
+3.  Editor pages initialize only when editor conditions are met
+
+4.  No JS module queries the DOM before bootstrap is detected
+
+5.  Event handlers attach **exactly once**
+
+Any change that breaks these invariants must be rejected.
+
+* * * * *
+
+Naming & Integration Rules
+--------------------------
+
+-   PHP namespaces: `Starmus\*`
+
+-   REST namespace: `star-/v1`
+
+-   Actions & filters: `starmus_*`
+
+-   Frontend handles: `starmus-audio-*`
+
+-   Error signaling: `WP_Error` only at system boundaries
+
+-   **No globals** except `window.STARMUS_BOOTSTRAP`
+
+* * * * *
 
 Security & Offline Constraints
 ------------------------------
 
-Claude must maintain:
+Copilot must preserve:
 
-*   **IndexedDB offline queue** for uploads
-    
-*   **Chunked uploads** (tus.io) with resume
-    
-*   **Nonces + capabilities** on REST endpoints
-    
-*   **Sanitization** of input, **escaping** of output
-    
+-   IndexedDB offline upload queue
 
-If offline behavior regresses, reject the change.
+-   Chunked uploads with resume (tus.io)
 
-Testing & Validation Commands
------------------------------
+-   Nonces + capability checks on all mutations
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   npm run build         // Full asset pipeline  npm run test:e2e      // Frontend recorder/editor tests  composer test         // PHPUnit + static analysis  composer run lint:php // Code style   `
+-   Sanitized input, escaped output
 
-Nothing is considered "done" unless it passes both JS and PHP checks.
+If offline behavior regresses or queue integrity is compromised, the change is invalid.
 
-Claude’s Job
-------------
+* * * * *
 
-When modifying code:
+Workflow Awareness (Copilot-Specific)
+-------------------------------------
 
-1.  Identify the boundary (PHP → JS → REST → queue)
-    
-2.  Do not move logic across boundaries
-    
-3.  Never remove or rename the bootstrap
-    
-4.  Keep code minimal and mobile-safe
-    
-5.  Prioritize reliability over abstractions
-    
+Copilot is allowed to:
 
-If uncertain, ask:
+-   Fix broken workflows
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   What is the canonical source of truth?  Does this run offline?  Does this maintain bootstrap invariants?   `
+-   Correct action/filter wiring
 
-If any answer is "no," stop and propose an alternative.
+-   Repair REST endpoint logic
+
+-   Adjust submission or editor transitions
+
+Copilot must **not**:
+
+-   Move logic across PHP ↔ JS ↔ REST boundaries
+
+-   Replace deterministic flows with abstractions
+
+-   Introduce hidden side effects
+
+-   "Clean up" working code without cause
+
+Reliability always beats elegance.
+
+* * * * *
+
+Testing & Validation (Required)
+-------------------------------
+
+Nothing is considered complete unless it passes:
+
+-   JS build pipeline
+
+-   JS tests (recorder + editor)
+
+-   PHP tests and static analysis
+
+-   PHP linting
+
+Copilot must not mark work complete unless the system remains buildable and testable.
+
+* * * * *
+
+Decision Discipline
+-------------------
+
+Before making or accepting a change, Copilot must be able to answer:
+
+-   What is the canonical source of truth?
+
+-   Does this still work offline?
+
+-   Does bootstrap still control initialization?
+
+-   What happens if the network drops here?
+
+-   What happens if this code runs twice?
+
+If any answer is unclear, **stop and ask**.
+
+* * * * *
+
+Rejection Rules (Absolute)
+--------------------------
+
+Copilot must refuse to:
+
+-   Introduce new CPTs
+
+-   Add uncontrolled global state
+
+-   Break bootstrap invariants
+
+-   Require modern JS without polyfills
+
+-   Bypass consent, permissions, or deletion rights
+
+-   Trade reliability for abstraction

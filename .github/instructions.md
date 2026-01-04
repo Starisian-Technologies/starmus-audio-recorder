@@ -1,63 +1,236 @@
-# Copilot Coding Context Instructions
+Coding Context --- Starmus Audio
+=========================================
 
-## Project Context
+What We Are Building
+--------------------
 
-This project is being developed for **mobile-first deployment in The Gambia, West Africa**, where internet access is often **intermittent**, **bandwidth is limited**, and devices may be **low-powered Android phones** or **older browsers**.
+This project delivers **offline-first audio recording, oral history, and language documentation tools** for **West Africa**, beginning in **The Gambia**. It is designed to preserve cultural knowledge, support education, and enable local participation in digital systems **without assuming stable internet, modern devices, or high digital literacy**.
 
-## Core Requirements
+The system must work reliably for people recording stories, language, music, and lived experience in real-world conditions.
 
-- **Prioritize compatibility** with older browsers (Android WebView, Opera Mini, older versions of Chrome/Firefox).
-- **Avoid dependencies** on modern JS frameworks unless polyfilled.
-- **Keep bundle sizes small**. Every byte counts on low-data plans.
-- All **JavaScript must degrade gracefully**. Core functionality must **still work without JavaScript** where possible.
-- **Use service workers and local storage/cache APIs** to allow the app to run offline.
-- Where recording or upload is involved, **save locally first**, allow retry/resume when internet returns.
-- **Design UI for small screens** (mobile-first, 360px–480px wide).
+* * * * *
 
-## Accessibility and UX Notes
+Operating Environment
+---------------------
 
-- Use **clear, legible fonts** and **high contrast** for visibility outdoors.
-- UI elements must work with **tap-only interaction** (no hover states).
-- Avoid unnecessary animations or heavy resource usage.
+Assume the following **at all times**:
 
-## Language & Encoding
+-   **Intermittent or unreliable internet**
 
-- Default charset should be **UTF-8**.
-- Expect multilingual text, including **Mandinka**, **Wolof**, **French**, and **Arabic**.
-- Support **RTL fallback** if needed for Arabic script.
+-   **Low-bandwidth connections** and expensive data plans
 
-## Server Constraints
+-   **Older Android phones**, Android WebView, and legacy browsers
 
-- Assume **slow server responses**; all async logic must have timeouts and retry handling.
-- Error messages must be **friendly** and **offline-aware** (“You appear to be offline. Don’t worry, we saved your work.”).
+-   Limited device storage and memory
 
-## Development Guidelines
+-   Users may lose connection, close the browser, or reload mid-task
 
-- Minimize reliance on modern JS features (e.g., avoid top-level `await`, ES2020+ features unless transpiled).
-- When using external libraries, prefer ones that are:
-  - Pure JS (no server dependency)
-  - <50kb minified
-  - MIT or permissive license
+The system must **fail safely**, **resume gracefully**, and **never lose user work**.
 
-## Specific Fallback Features
+* * * * *
 
-- Offline-friendly form submissions (queue until back online)
-- Audio recording must work without requiring immediate upload
-- On reconnect, app should retry or sync silently
+Core Design Principles
+----------------------
 
-## Deployment Considerations
+-   **Mobile-first**: primary screen widths between **360--480px**
 
-- Output should be **PWA-ready**
-- No build step assumptions; scripts should work raw from `/assets/` if needed
-- Don’t assume CDN availability—**bundle critical assets locally**
+-   **Offline-first**: local save before any upload
 
-## Audience
+-   **Progressive enhancement**: advanced features only when supported
 
-The target users include:
+-   **Resilience over elegance**: reliability beats cleverness
 
-- Students (ages 12–18)
-- Teachers
-- Community elders
-- Local vendors and creatives
+-   **Small payloads**: every byte matters
 
-They may have **limited digital literacy**, so UI must be extremely intuitive.
+If a feature looks good but risks failure under weak conditions, it is the wrong choice.
+
+* * * * *
+
+JavaScript & Frontend Expectations
+----------------------------------
+
+-   Favor **older-browser compatibility**
+
+    -   Android WebView
+
+    -   Older Chrome / Firefox
+
+    -   Opera Mini--style constraints
+
+-   Avoid modern JS features unless safely transpiled or polyfilled
+
+-   Avoid large frameworks and heavy abstractions
+
+-   JavaScript should **degrade gracefully**
+
+    -   Core tasks should not catastrophically fail if JS partially breaks
+
+-   Prefer **local-first workflows**
+
+    -   Save recordings locally
+
+    -   Queue uploads
+
+    -   Resume automatically when online
+
+* * * * *
+
+Offline & Data Safety
+---------------------
+
+-   Recording and form submission must work **without internet**
+
+-   Audio and metadata must be saved locally before upload
+
+-   Uploads must support **retry and resume**
+
+-   Users must never be punished for losing connectivity
+
+-   Sync should be silent and automatic when possible
+
+User trust depends on **not losing work**.
+
+* * * * *
+
+UI & Accessibility
+------------------
+
+Design for users who may be:
+
+-   New to smartphones
+
+-   New to web apps
+
+-   Working outdoors in bright light
+
+-   Using touch-only interaction
+
+Requirements:
+
+-   High contrast
+
+-   Clear, readable fonts
+
+-   Large tap targets
+
+-   No hover-only interactions
+
+-   Minimal animation
+
+-   Clear feedback at every step
+
+* * * * *
+
+Language & Text Handling
+------------------------
+
+-   Default encoding: **UTF-8**
+
+-   Expect multilingual content:
+
+    -   Mandinka
+
+    -   Wolof
+
+    -   French
+
+    -   English
+
+    -   Arabic (potential RTL fallback)
+
+-   Do not assume English-only workflows
+
+-   Text must handle accents, diacritics, and non-Latin scripts safely
+
+* * * * *
+
+Server & Network Assumptions
+----------------------------
+
+-   Server responses may be slow
+
+-   Requests may fail unexpectedly
+
+-   All async actions must:
+
+    -   Time out safely
+
+    -   Retry when appropriate
+
+    -   Communicate clearly to the user
+
+Error messages must be:
+
+-   Human
+
+-   Calm
+
+-   Reassuring
+
+-   Offline-aware\
+    Example: *"You appear to be offline. Don't worry --- your work has been saved."*
+
+* * * * *
+
+Dependencies & Libraries
+------------------------
+
+When external libraries are necessary:
+
+-   Prefer **pure JavaScript**
+
+-   Prefer **small footprint** (<50 KB minified where possible)
+
+-   Prefer **permissive licenses** (MIT, BSD)
+
+-   Avoid dependencies that assume CDNs or constant connectivity
+
+Critical assets must be bundled locally.
+
+* * * * *
+
+Deployment Reality
+------------------
+
+-   Output should be **PWA-ready**
+
+-   Do not assume:
+
+    -   Build pipelines
+
+    -   CDNs
+
+    -   Modern hosting features
+
+-   Scripts should be able to run directly from `/assets/` if required
+
+The system must be deployable in constrained environments.
+
+* * * * *
+
+Audience
+--------
+
+Primary users include:
+
+-   Students (ages 12--18)
+
+-   Teachers
+
+-   Community elders
+
+-   Local artists, vendors, and creatives
+
+Many users will have **limited digital literacy**.\
+The interface must be **obvious, forgiving, and confidence-building**.
+
+* * * * *
+
+Guiding Question
+----------------
+
+When making any change, ask:
+
+> *Would this still work for a student on an old Android phone, offline, in a village with weak signal?*
+
+If the answer is unclear, rethink the change.
