@@ -10,6 +10,7 @@ STARISIAN TECHNOLOGIES CONFIDENTIAL
 © 2023–2025 Starisian Technologies. All Rights Reserved.
 StarmusAudioProcessingService (DAL-integrated)
 ---------------------------------------
+
 - WEBA/WEBM → MP3 (distribution) + WAV (archival)
 - Robust FFmpeg path resolution (via DAL)
 - Explicit per-phase status updates through DAL
@@ -27,6 +28,7 @@ STARISIAN TECHNOLOGIES CONFIDENTIAL
 © 2023–2025 Starisian Technologies. All Rights Reserved.
 StarmusAudioProcessingService (DAL-integrated)
 ---------------------------------------
+
 - WEBA/WEBM → MP3 (distribution) + WAV (archival)
 - Robust FFmpeg path resolution (via DAL)
 - Explicit per-phase status updates through DAL
@@ -38,7 +40,7 @@ StarmusAudioProcessingService (DAL-integrated)
 namespace Starisian\Sparxstar\Starmus\services;
 
 if (! defined('ABSPATH')) {
-	exit;
+ exit;
 }
 
 use getid3_writetags;
@@ -48,17 +50,17 @@ use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 class StarmusAudioProcessingService
 {
 
-	private readonly StarmusAudioDAL $dal;
+ private readonly StarmusAudioDAL $dal;
 
-	private readonly StarmusFileService $files;
+ private readonly StarmusFileService $files;
 
-	public function __construct(?StarmusAudioDAL $dal = null, ?StarmusFileService $file_service = null)
-	{
-		$this->dal   = $dal ?: new StarmusAudioDAL();
-		$this->files = $file_service ?: new StarmusFileService();
-	}
+ public function __construct(?StarmusAudioDAL $dal = null, ?StarmusFileService $file_service = null)
+ {
+  $this->dal   = $dal ?: new StarmusAudioDAL();
+  $this->files = $file_service ?: new StarmusFileService();
+ }
 
-	/** Main entry — returns a structured result for higher-level orchestration.
+ /** Main entry — returns a structured result for higher-level orchestration.
 
 ---
 

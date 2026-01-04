@@ -7,7 +7,10 @@
 ## Description
 
 Sanitizer for Starmus audio submissions.
-Handles general request params and structured metadata.
+Handles general request params, structured metadata, and system context.
+Preserves legacy key mapping for strict backward compatibility.
+@package Starisian\Sparxstar\Starmus\helpers
+@version 1.2.0
 
 ## Methods
 
@@ -16,11 +19,56 @@ Handles general request params and structured metadata.
 **Visibility:** `public`
 
 Sanitizer for Starmus audio submissions.
-Handles general request params and structured metadata.
+Handles general request params, structured metadata, and system context.
+Preserves legacy key mapping for strict backward compatibility.
+@package Starisian\Sparxstar\Starmus\helpers
+@version 1.2.0
 /
-class StarmusSanitizer {
 
-	/**
+declare(strict_types=1);
+namespace Starisian\Sparxstar\Starmus\helpers;
+
+use function array_map;
+use function array_merge;
+use function explode;
+use function get_field;
+use function get_post;
+use function json_encode;
+use function sanitize_key;
+use function sanitize_text_field;
+use function sanitize_textarea_field;
+
+use Starisian\Sparxstar\Starmus\data\mappers\StarmusSchemaMapper;
+
+use function str_contains;
+use function str_starts_with;
+use function trim;
+use function wp_unslash;
+
+if (! \defined('ABSPATH')) {
+    exit;
+}
+
+class StarmusSanitizer
+{
+    /**
+List of keys that contain JSON or long text and must NOT use sanitize_text_field.
+This prevents JSON from being corrupted (quotes stripped).
+/
+    private const COMPLEX_FIELDS = [
+    'environment_data',
+    '_starmus_env',
+    'waveform_json',
+    'recording_metadata',
+    'transcriber',
+    '_starmus_calibration',
+    'description',
+    '_starmus_description',
+    'transcription_text',
+    'translation_text',
+    ];
+
+    /**
 Sanitize general submission data from forms or REST params.
 @param array<string, mixed> $data Raw request parameters.
 @return array<string, mixed> Sanitized data.
@@ -30,9 +78,33 @@ Sanitize general submission data from forms or REST params.
 **Visibility:** `public`
 
 Sanitize structured metadata for saving into CPT/attachment.
-Maps form fields into normalized meta keys.
+Maps form fields into normalized meta keys (Legacy Support).
 @param array<string, mixed> $form_data Sanitized form parameters.
 @return array<string, mixed> Key → Value metadata array.
+
+### `get_user_ip()`
+
+**Visibility:** `public`
+
+Retrieve the best-effort client IP address.
+Handles complex proxy chains (X-Forwarded-For) securely.
+@return string Sanitized IPv4/IPv6 address string.
+
+### `capture_system_context()`
+
+**Visibility:** `public`
+
+Captures system-level context to prevent data loss from environment stripping.
+Useful for debugging firewall/proxy issues.
+@return array<string, string>
+
+### `get_sanitized_prosody_data()`
+
+**Visibility:** `public`
+
+Retrieves and sanitizes prosody data for a given post ID.
+Used by the Prosody Engine.
+@return array<string, mixed>
 
 ---
 

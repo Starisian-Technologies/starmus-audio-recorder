@@ -11,7 +11,7 @@ This class handles all internationalization functionality for the Starmus Audio 
 including text domain loading, translation management, and JavaScript localization strings.
 @package   Starisian\Sparxstar\Starmus\i18n
 @version 0.9.2
-@author    Starisian Technologies <Max Barrett - support@starisian.com>
+@author    Starisian Technologies <Max Barrett - <support@starisian.com>>
 @copyright 2025 Starisian Technologies
 @license   proprietary
 
@@ -26,7 +26,7 @@ This class handles all internationalization functionality for the Starmus Audio 
 including text domain loading, translation management, and JavaScript localization strings.
 @package   Starisian\Sparxstar\Starmus\i18n
 @version 0.9.2
-@author    Starisian Technologies <Max Barrett - support@starisian.com>
+@author    Starisian Technologies <Max Barrett - <support@starisian.com>>
 @copyright 2025 Starisian Technologies
 @license   proprietary
 /
@@ -39,9 +39,14 @@ use function esc_html;
 use function load_plugin_textdomain;
 use function plugin_basename;
 
+if (! \defined(ABSPATH)) {
+    exit;
+}
+
 /**
 Internationalization and localization manager for AiWA Orchestrator
 Provides centralized translation functionality including:
+
 - WordPress text domain loading
 - Static translation helper methods
 - JavaScript localization string preparation
@@ -49,9 +54,9 @@ Provides centralized translation functionality including:
 @final This class should not be extended
 @since 1.0.0
 /
-final class Starmusi18NLanguage {
-
-	/**
+final class Starmusi18NLanguage
+{
+    /**
 WordPress text domain for translation strings
 This constant defines the text domain used for all translations
 within the AiWA Orchestrator plugin. It must match the domain
@@ -59,9 +64,9 @@ specified in the plugin header and translation files.
 @var string
 @since 1.0.0
 /
-	private const DOMAIN = 'starmus-audio-recorder';
+    private const DOMAIN = 'starmus-audio-recorder';
 
-	/**
+    /**
 Initialize the internationalization system
 Sets up WordPress hooks to load the plugin text domain when WordPress
 has finished loading all active plugins. This ensures translations are
@@ -77,8 +82,8 @@ Loads translation files from the plugin's languages directory.
 This method is automatically called via the 'plugins_loaded' WordPress hook.
 Translation files should be named in the format: {domain}-{locale}.mo
 @since 1.0.0
-@return void
 @example Translation file examples:
+
 - starmus-audio-recorder-en_US.mo (English - United States)
 - starmus-audio-recorder-fr_FR.mo (French - France)
 - starmus-audio-recorder-es_ES.mo (Spanish - Spain)

@@ -14,20 +14,21 @@
  *
  * @version 0.9.2
  */
-
 namespace Starisian\Sparxstar\Starmus\core;
 
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\core\StarmusSettings;
-use Throwable;
 use function array_filter;
 use function array_map;
 use function array_values;
 use function defined;
 use function explode;
 use function is_admin;
-use function json_encode;
+
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+
 use function str_replace;
+
+use Throwable;
+
 use function trim;
 
 if ( ! \defined('ABSPATH')) {
@@ -36,7 +37,6 @@ if ( ! \defined('ABSPATH')) {
 
 final class StarmusAssetLoader
 {
-
     /**
      * Handle for the production bundle script.
      *
@@ -52,12 +52,13 @@ final class StarmusAssetLoader
     private const STYLE_HANDLE = 'starmus-audio-recorder-styles';
 
     /**
-        * StarmusSettings settings object
-        */
+     * StarmusSettings settings object
+     */
     private ?StarmusSettings $settings = null;
 
     /**
      * Editor data to be localized, set by shortcode loader
+     *
      * @var array<string, mixed>|null
      */
     private static ?array $editor_data = null;
@@ -74,12 +75,12 @@ final class StarmusAssetLoader
     }
 
     /**
-        * Register enqueue hooks with WordPress.
-        */
+     * Register enqueue hooks with WordPress.
+     */
     private function register_hooks(): void
     {
         // PHP 8.1+ First-class callable syntax
-        add_action('wp_enqueue_scripts', $this->enqueue_frontend_assets(...));
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
     }
 
     /**
@@ -106,9 +107,9 @@ final class StarmusAssetLoader
     public function enqueue_re_recorder_assets(): void
     {
         wp_localize_script(
-        'starmus-audio-recorder-script.bundle',
-        'STARMUS_RERECORDER_DATA',
-        ['mode' => 'rerecorder']
+            'starmus-audio-recorder-script.bundle',
+            'STARMUS_RERECORDER_DATA',
+            ['mode' => 'rerecorder']
         );
     }
 
@@ -132,7 +133,7 @@ final class StarmusAssetLoader
     private function enqueue_production_assets(): void
     {
         try {
-            $url     = defined('STARMUS_URL') ? STARMUS_URL : '';
+            $url     = \defined('STARMUS_URL') ? STARMUS_URL : '';
             $js_path = $url . 'assets/js/starmus-audio-recorder-script.bundle.min.js';
 
             StarmusLogger::info('[Starmus AssetLoader] Enqueueing JS: ' . $js_path);
@@ -146,25 +147,25 @@ final class StarmusAssetLoader
             }
 
             wp_enqueue_script(
-            self::HANDLE_PROD_BUNDLE,
-            $js_path,
-            $dependencies,
-            $this->resolve_version(),
-            true
+                self::HANDLE_PROD_BUNDLE,
+                $js_path,
+                $dependencies,
+                $this->resolve_version(),
+                true
             );
 
             // Add type="module" (PHP 8.2 Strict Closure)
             add_filter(
-            'script_loader_tag',
-            function (string $tag, string $handle): string {
-                if ($handle === self::HANDLE_PROD_BUNDLE) {
-                    return str_replace('<script ', '<script type="module" ', $tag);
-                }
+                'script_loader_tag',
+                function (string $tag, string $handle): string {
+                    if ($handle === self::HANDLE_PROD_BUNDLE) {
+                        return str_replace('<script ', '<script type="module" ', $tag);
+                    }
 
-                return $tag;
-            },
-            10,
-            2
+                    return $tag;
+                },
+                10,
+                2
             );
 
             // Get Config safely
@@ -174,37 +175,37 @@ final class StarmusAssetLoader
             wp_localize_script(self::HANDLE_PROD_BUNDLE, 'starmusConfig', $config);
 
             wp_localize_script(
-            self::HANDLE_PROD_BUNDLE,
-            'STARMUS_BOOTSTRAP',
-            [
-            'version'   => $this->resolve_version(),
-            'config'    => $config,
-            'env'       => defined('WP_ENV') ? WP_ENV : 'production',
-            'postId'    => get_the_ID() ?: 0,
-            'restUrl'   => \esc_url_raw(\rest_url()),
-            'homeUrl'   => \esc_url_raw(\home_url('/')),
-            'sparxstar' => [
-            'available'       => wp_script_is('sparxstar-user-environment-check-app', 'registered'),
-            'error_reporting' => wp_script_is('sparxstar-error-reporter', 'registered'),
-            'timeout'         => 2000,
-            ],
-            ]
+                self::HANDLE_PROD_BUNDLE,
+                'STARMUS_BOOTSTRAP',
+                [
+                    'version'   => $this->resolve_version(),
+                    'config'    => $config,
+                    'env'       => \defined('WP_ENV') ? WP_ENV : 'production',
+                    'postId'    => get_the_ID() ?: 0,
+                    'restUrl'   => esc_url_raw(rest_url()),
+                    'homeUrl'   => esc_url_raw(home_url('/')),
+                    'sparxstar' => [
+                        'available'       => wp_script_is('sparxstar-user-environment-check-app', 'registered'),
+                        'error_reporting' => wp_script_is('sparxstar-error-reporter', 'registered'),
+                        'timeout'         => 2000,
+                    ],
+                ]
             );
 
             $default_editor_data = [
-            'enabled'     => false,
-            'post_id'     => get_the_ID() ?: 0,
-            'mode'        => 'recorder',
-            'audio'       => null,
-            'waveform'    => [],
-            'transcript'  => '',
-            'annotations' => [],
+                'enabled'     => false,
+                'post_id'     => get_the_ID() ?: 0,
+                'mode'        => 'recorder',
+                'audio'       => null,
+                'waveform'    => [],
+                'transcript'  => '',
+                'annotations' => [],
             ];
 
             wp_localize_script(
-            self::HANDLE_PROD_BUNDLE,
-            'STARMUS_EDITOR_DATA',
-            self::$editor_data ?? $default_editor_data
+                self::HANDLE_PROD_BUNDLE,
+                'STARMUS_EDITOR_DATA',
+                self::$editor_data ?? $default_editor_data
             );
         } catch (Throwable $throwable) {
             // This is where your error happened.
@@ -222,14 +223,14 @@ final class StarmusAssetLoader
     private function enqueue_styles(): void
     {
         try {
-            $url      = defined('STARMUS_URL') ? STARMUS_URL : '';
+            $url      = \defined('STARMUS_URL') ? STARMUS_URL : '';
             $css_path = $url . 'assets/css/starmus-audio-recorder-styles.min.css';
 
             wp_enqueue_style(
-            self::STYLE_HANDLE,
-            $css_path,
-            [],
-            $this->resolve_version()
+                self::STYLE_HANDLE,
+                $css_path,
+                [],
+                $this->resolve_version()
             );
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -258,10 +259,10 @@ final class StarmusAssetLoader
             // Parse allowed file types (PHP 8.1+ syntax)
             $allowed_string = (string) $settings->get('allowed_file_types', 'mp3,wav,webm');
             $allowed_types  = array_values(
-            array_filter(
-            array_map(trim(...), explode(',', $allowed_string)),
-            fn(string $v): bool => $v !== ''
-				)
+                array_filter(
+                    array_map(trim(...), explode(',', $allowed_string)),
+                    fn (string $v): bool => $v !== ''
+                )
             );
 
             // Safely map MIME types
@@ -276,31 +277,31 @@ final class StarmusAssetLoader
             $tus_endpoint = (string) $settings->get('tus_endpoint', 'https://contribute.sparxstar.com/files/');
             $speech_lang  = (string) $settings->get('speech_recognition_lang', 'en-US');
             $slug         = (string) $settings->get('my_recordings_page_slug', 'my-submissions');
-            $namespace    = defined('STARMUS_REST_NAMESPACE') ? STARMUS_REST_NAMESPACE : 'starmus/v1';
+            $namespace    = \defined('STARMUS_REST_NAMESPACE') ? STARMUS_REST_NAMESPACE : 'starmus/v1';
 
             return [
-            'endpoints'             => [
-            'directUpload' => \esc_url_raw(\rest_url($namespace . '/upload-fallback')),
-            'tusUpload'    => \esc_url_raw($tus_endpoint),
-            ],
-            'nonce'                 => \wp_create_nonce('wp_rest'),
-            'user_id'               => \get_current_user_id(),
-            'allowedFileTypes'      => $allowed_types,
-            'allowedMimeTypes'      => $allowed_mimes,
-            'speechRecognitionLang' => \sanitize_text_field($speech_lang),
-            'myRecordingsUrl'       => \esc_url_raw(\home_url('/' . $slug . '/')),
+                'endpoints' => [
+                    'directUpload' => esc_url_raw(rest_url($namespace . '/upload-fallback')),
+                    'tusUpload'    => esc_url_raw($tus_endpoint),
+                ],
+                'nonce'                 => wp_create_nonce('wp_rest'),
+                'user_id'               => get_current_user_id(),
+                'allowedFileTypes'      => $allowed_types,
+                'allowedMimeTypes'      => $allowed_mimes,
+                'speechRecognitionLang' => sanitize_text_field($speech_lang),
+                'myRecordingsUrl'       => esc_url_raw(home_url('/' . $slug . '/')),
             ];
         } catch (Throwable $throwable) {
             // Fallback if settings completely fail
             StarmusLogger::log($throwable);
             return [
-            'endpoints' => ['directUpload' => '', 'tusUpload' => ''],
-            'nonce' => '',
-            'user_id' => 0,
-            'allowedFileTypes' => [],
-            'allowedMimeTypes' => [],
-            'speechRecognitionLang' => 'en-US',
-            'myRecordingsUrl' => ''
+                'endpoints'             => ['directUpload' => '', 'tusUpload' => ''],
+                'nonce'                 => '',
+                'user_id'               => 0,
+                'allowedFileTypes'      => [],
+                'allowedMimeTypes'      => [],
+                'speechRecognitionLang' => 'en-US',
+                'myRecordingsUrl'       => '',
             ];
         }
     }
@@ -315,6 +316,6 @@ final class StarmusAssetLoader
      */
     private function resolve_version(): string
     {
-        return (defined('STARMUS_VERSION') && STARMUS_VERSION) ? (string) STARMUS_VERSION : '1.0.0';
+        return (\defined('STARMUS_VERSION') && STARMUS_VERSION) ? (string) STARMUS_VERSION : '1.0.0';
     }
 }

@@ -417,4 +417,8 @@
  * import StarmusAudioEditor from './starmus-audio-editor.js';
  * StarmusAudioEditor.init();
  */
-export default { init: window.StarmusAudioEditor.init };
+export default {
+	init: function() {
+		return window.StarmusAudioEditor.init();
+	}
+};

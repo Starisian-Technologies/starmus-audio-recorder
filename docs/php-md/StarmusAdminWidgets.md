@@ -20,8 +20,8 @@ Registers and renders WordPress Dashboard widgets for Starmus transcription Work
 /
 namespace Starisian\Sparxstar\Starmus\admin\widgets;
 
-if ( ! \defined( 'ABSPATH' ) ) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
 use Throwable;
@@ -29,9 +29,9 @@ use Throwable;
 /**
 Dashboard Widgets for AIWA Workflow
 /
-class StarmusAdminWidgets {
-
-	/**
+class StarmusAdminWidgets
+{
+    /**
 Constructor.
 
 ### `register_hooks()`

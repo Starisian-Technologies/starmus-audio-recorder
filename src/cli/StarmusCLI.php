@@ -9,7 +9,6 @@
  *
  * @version 0.9.2
  */
-
 namespace Starisian\Sparxstar\Starmus\cli;
 
 use Starisian\Sparxstar\Starmus\cron\StarmusCron;
@@ -24,7 +23,6 @@ use WP_Query;
  */
 class StarmusCLI extends \WP_CLI_Command
 {
-
     /**
      * Waveform service instance.
      */
@@ -114,8 +112,8 @@ class StarmusCLI extends \WP_CLI_Command
 
         // Cleanup is handled by StarmusSubmissionHandler, not UI
         $handler = new \Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler(
-        new \Starisian\Sparxstar\Starmus\data\StarmusAudioDAL(),
-        new \Starisian\Sparxstar\Starmus\core\StarmusSettings()
+            new \Starisian\Sparxstar\Starmus\data\StarmusAudioDAL(),
+            new \Starisian\Sparxstar\Starmus\core\StarmusSettings()
         );
         if (method_exists($handler, 'cleanup_stale_temp_files')) {
             $handler->cleanup_stale_temp_files();
@@ -144,11 +142,11 @@ class StarmusCLI extends \WP_CLI_Command
     public function export($args, array $assoc_args): void
     {
         $query = new WP_Query(
-        [
+            [
         'post_type'      => 'audio-recording',
         'post_status'    => 'any',
         'posts_per_page' => -1,
-        ]
+            ]
         );
 
         if ( ! $query->have_posts()) {
@@ -175,7 +173,7 @@ class StarmusCLI extends \WP_CLI_Command
         if ('json' === $format) {
             WP_CLI::line(json_encode($items, JSON_PRETTY_PRINT));
         } else {
-         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- CLI context requires direct stdout access
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- CLI context requires direct stdout access
             $output = fopen('php://stdout', 'w');
             if ($output) {
                 fputcsv($output, $headers);
@@ -183,7 +181,7 @@ class StarmusCLI extends \WP_CLI_Command
                     fputcsv($output, $item);
                 }
 
-             // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- CLI context requires direct stdout access
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- CLI context requires direct stdout access
                 fclose($output);
             }
         }
@@ -225,7 +223,7 @@ class StarmusCLI extends \WP_CLI_Command
         // PRE-FLIGHT CHECK: Verify the tool is available before doing anything else.
         if ( ! $this->waveform_service->is_tool_available()) {
             WP_CLI::error(
-            "The 'audiowaveform' command-line tool is not installed or not in the server's PATH. " .
+                "The 'audiowaveform' command-line tool is not installed or not in the server's PATH. " .
             'Please install it to generate waveforms. See: https://github.com/bbc/audiowaveform'
             );
             return; // Exit immediately.
@@ -472,13 +470,13 @@ class StarmusCLI extends \WP_CLI_Command
         \WP_CLI::log(\sprintf('Batch regenerating waveforms for audio attachments (limit: %d, offset: %d)...', $limit, $offset));
 
         $attachments = get_posts(
-        [
+            [
         'post_type'      => 'attachment',
         'post_mime_type' => 'audio',
         'posts_per_page' => $limit,
         'offset'         => $offset,
         'post_status'    => 'inherit',
-        ]
+            ]
         );
 
         if (empty($attachments)) {

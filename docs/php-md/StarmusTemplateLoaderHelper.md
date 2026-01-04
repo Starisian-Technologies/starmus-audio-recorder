@@ -24,9 +24,13 @@ Template Loaders Helper class
 /
 namespace Starisian\Sparxstar\Starmus\helpers;
 
-class StarmusTemplateLoaderHelper {
+if (! \defined(ABSPATH)) {
+    exit;
+}
 
-	/**
+class StarmusTemplateLoaderHelper
+{
+    /**
 Securely render a template for logged-in users only.
 @param string $template Path or slug of the template to render.
 @param array<string, mixed> $args Variables to pass into the template.

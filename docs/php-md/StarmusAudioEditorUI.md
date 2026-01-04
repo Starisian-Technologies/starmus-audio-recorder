@@ -28,12 +28,11 @@ modern PHP 8.2+ syntax as per project requirements.
 /
 namespace Starisian\Sparxstar\Starmus\frontend;
 
-use Exception;
-
 use function file_exists;
 use function is_numeric;
 use function realpath;
 
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 
 use function str_replace;
@@ -46,34 +45,34 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
-if ( ! \defined( 'ABSPATH' ) ) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
 // RESTORING PHP 8.2+ SYNTAX
-final class StarmusAudioEditorUI {
-
-	/**
+final class StarmusAudioEditorUI
+{
+    /**
 REST namespace for editor endpoints.
 /
-	public const STARMUS_REST_NAMESPACE = 'star_uec/v1';
+    public const STARMUS_REST_NAMESPACE = 'star_uec/v1';
 
-	/**
+    /**
 Upper bound for stored annotations.
 /
-	public const STARMUS_MAX_ANNOTATIONS = 1000;
+    public const STARMUS_MAX_ANNOTATIONS = 1000;
 
-	/**
+    /**
 Time-based throttle.
 /
-	public const STARMUS_RATE_LIMIT_SECONDS = 2;
+    public const STARMUS_RATE_LIMIT_SECONDS = 2;
 
-	/**
+    /**
 Cached rendering context.
 /
-	private ?array $cached_context = null;
+    private ?array $cached_context = null;
 
-	/**
+    /**
 Bootstrap the editor.
 RESTORING PHP 8.0+ Constructor Property Promotion (if you were using it)
 For this example, I'll keep the explicit declaration for clarity.

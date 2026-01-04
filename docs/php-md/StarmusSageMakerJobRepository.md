@@ -22,15 +22,15 @@ Encapsulates storage access to the aiwa_sagemaker_jobs option.
 @package Starisian\Sparxstar\Starmus
 @since 1.0.0
 /
-final class StarmusSageMakerJobRepository {
-
-	/**
+final class StarmusSageMakerJobRepository
+{
+    /**
 Option key in wp_options where jobs are stored.
 @var string
 /
-	private const OPTION_KEY = 'aiwa_sagemaker_jobs';
+    private const OPTION_KEY = 'aiwa_sagemaker_jobs';
 
-	/**
+    /**
 Find a job by ID.
 @param string $job_id The job identifier.
 @return array|null Job data or null if not found.

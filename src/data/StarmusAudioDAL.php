@@ -4,21 +4,20 @@
  * Handles all database and data persistence operations for Starmus.
  *
  * @package Starisian\Sparxstar\Starmus\data
+ *
  * @version 1.2.0
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\data;
 
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
-use Starisian\Sparxstar\Starmus\data\StarmusBaseDAL;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 use WP_Error;
 use WP_Query;
 
-if ( ! defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -30,7 +29,6 @@ if ( ! defined('ABSPATH')) {
  */
 final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
 {
-
     /*
     ------------------------------------*
     * 🧩 CREATION
@@ -43,13 +41,13 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
     {
         try {
             $post_id = wp_insert_post(
-            [
+                [
             'post_title'  => $title,
             'post_type'   => $cpt_slug,
             'post_status' => 'publish',
             'post_author' => $author_id,
-            ],
-            true
+                ],
+                true
             );
 
             return is_wp_error($post_id) ? $post_id : (int) $post_id;
@@ -66,18 +64,18 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
     {
         try {
             $post_id = wp_insert_post(
-            [
-            'post_title'   => 'Transcription for Recording #' . $audio_post_id,
-            'post_type'    => 'audio-transcription',
-            'post_status'  => 'publish',
-            'post_author'  => $author_id,
-            'post_parent'  => $audio_post_id,
-            ],
-            true
+                [
+            'post_title'  => 'Transcription for Recording #' . $audio_post_id,
+            'post_type'   => 'audio-transcription',
+            'post_status' => 'publish',
+            'post_author' => $author_id,
+            'post_parent' => $audio_post_id,
+                ],
+                true
             );
 
             if (is_wp_error($post_id)) {
-                   return $post_id;
+                return $post_id;
             }
 
             $this->save_post_meta((int) $post_id, 'audio', $audio_post_id);
@@ -97,18 +95,18 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
     {
         try {
             $post_id = wp_insert_post(
-            [
-            'post_title'   => 'Translation for Recording #' . $audio_post_id,
-            'post_type'    => 'audio-translation',
-            'post_status'  => 'publish',
-            'post_author'  => $author_id,
-            'post_parent'  => $audio_post_id,
-            ],
-            true
+                [
+            'post_title'  => 'Translation for Recording #' . $audio_post_id,
+            'post_type'   => 'audio-translation',
+            'post_status' => 'publish',
+            'post_author' => $author_id,
+            'post_parent' => $audio_post_id,
+                ],
+                true
             );
 
             if (is_wp_error($post_id)) {
-                   return $post_id;
+                return $post_id;
             }
 
             $this->save_post_meta((int) $post_id, 'audio', $audio_post_id);
@@ -131,16 +129,16 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
             $filetype = wp_check_filetype($filename, null);
 
             $attachment_id = wp_insert_attachment(
-            [
+                [
             'post_mime_type' => $filetype['type'] ?: 'application/octet-stream',
             'post_title'     => pathinfo($filename, PATHINFO_FILENAME),
             'post_status'    => 'inherit',
-            ],
-            $file_path
+                ],
+                $file_path
             );
 
             if (is_wp_error($attachment_id)) {
-                   return $attachment_id;
+                return $attachment_id;
             }
 
             return $this->update_attachment_metadata((int) $attachment_id, $file_path)
@@ -158,7 +156,7 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
     public function create_attachment_from_sideload(array $file_data): int|WP_Error
     {
         try {
-            if ( ! function_exists('media_handle_sideload')) {
+            if ( ! \function_exists('media_handle_sideload')) {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
                 require_once ABSPATH . 'wp-admin/includes/image.php';
                 require_once ABSPATH . 'wp-admin/includes/media.php';
@@ -185,10 +183,10 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
         try {
             update_attached_file($attachment_id, $file_path);
             return (bool) wp_update_post(
-            [
+                [
             'ID'             => $attachment_id,
             'post_mime_type' => 'audio/mpeg',
-            ]
+                ]
             );
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -207,13 +205,13 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
             }
 
             // Required for wp_generate_attachment_metadata
-            if ( ! function_exists('wp_generate_attachment_metadata')) {
+            if ( ! \function_exists('wp_generate_attachment_metadata')) {
                 require_once ABSPATH . 'wp-admin/includes/image.php';
             }
 
             wp_update_attachment_metadata(
-            $attachment_id,
-            wp_generate_attachment_metadata($attachment_id, $file_path)
+                $attachment_id,
+                wp_generate_attachment_metadata($attachment_id, $file_path)
             );
             return true;
         } catch (Throwable $throwable) {
@@ -229,10 +227,10 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
     {
         try {
             return (bool) wp_update_post(
-            [
+                [
             'ID'          => $attachment_id,
             'post_parent' => $parent_post_id,
-            ]
+                ]
             );
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -264,7 +262,7 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
     {
         try {
             return new WP_Query(
-            [
+                [
             'post_type'      => $cpt_slug,
             'author'         => $user_id,
             'posts_per_page' => $posts_per_page,
@@ -272,7 +270,7 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
             'post_status'    => ['publish', 'draft', 'pending', 'private'],
             'orderby'        => 'date',
             'order'          => 'DESC',
-            ]
+                ]
             );
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -281,7 +279,6 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
     }
 
     /**
-     *
      * {@inheritdoc}
      */
 
@@ -361,7 +358,7 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
      */
     public function get_registration_key(): string
     {
-        return defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : '';
+        return \defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : '';
     }
 
     /*
@@ -373,7 +370,7 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
      *
      * Preserved for backward compatibility, though new code should use save_post_meta.
      *
-     * @param int    $post_id Target Post ID.
+     * @param int $post_id Target Post ID.
      * @param string $meta_key Key.
      * @param string $value Value.
      */
@@ -386,7 +383,6 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
             return false;
         }
     }
-
 
     /**
      * {@inheritdoc}
@@ -434,11 +430,11 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
             update_post_meta($attachment_id, '_starmus_archival_path', $wav);
         } catch (Throwable $throwable) {
             StarmusLogger::log(
-            $throwable,
-            [
+                $throwable,
+                [
             'phase'         => 'DAL persist_audio_outputs',
             'attachment_id' => $attachment_id,
-            ]
+                ]
             );
         }
     }

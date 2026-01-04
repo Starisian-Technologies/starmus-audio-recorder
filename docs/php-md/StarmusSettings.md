@@ -8,6 +8,8 @@
 
 Optimized and secure settings management for the Starmus plugin.
 @package Starisian\Sparxstar\Starmus\core
+@file    StarmusSettings.php
+@author Starisian Technologies (Max Barrett) <support@starisian.com>
 @version 0.9.2
 @since 0.3.1
 
@@ -19,69 +21,83 @@ Optimized and secure settings management for the Starmus plugin.
 
 Optimized and secure settings management for the Starmus plugin.
 @package Starisian\Sparxstar\Starmus\core
+@file    StarmusSettings.php
+@author Starisian Technologies (Max Barrett) <support@starisian.com>
 @version 0.9.2
 @since 0.3.1
 /
 namespace Starisian\Sparxstar\Starmus\core;
 
-if ( ! \defined( 'ABSPATH' ) ) {
-	exit;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
-final class StarmusSettings {
-
-	/**
+/**
+Summary of StarmusSettings
+Handles all plugin settings with caching, validation, and sanitization.
+Provides methods to get/set individual settings and bulk update.
+Integrates with WordPress options API for persistent storage.
+@package Starisian\Sparxstar\Starmus\core
+@version 0.9.2
+@since 0.3.1
+@author Starisian Technologies (Max Barrett) <support@starisian.com>
+/
+final class StarmusSettings
+{
+    /**
 Whitelisted MIME types for audio/video file uploads.
 Centralized in a constant for clarity and reuse across the plugin.
 Maps file extensions to their corresponding MIME types.
 @var array<string, string>
 /
-	private const ALLOWED_MIMES = array(
-		'mp3'  => 'audio/mpeg',
-		'wav'  => 'audio/wav',
-		'ogg'  => 'audio/ogg',
-		'oga'  => 'audio/ogg',
-		'opus' => 'audio/ogg; codecs=opus',
-		'weba' => 'audio/webm',
-		'aac'  => 'audio/aac',
-		'm4a'  => 'audio/mp4',
-		'flac' => 'audio/flac',
-		'mp4'  => 'video/mp4',
-		'm4v'  => 'video/x-m4v',
-		'mov'  => 'video/quicktime',
-		'webm' => 'video/webm',
-		'ogv'  => 'video/ogg',
-		'avi'  => 'video/x-msvideo',
-		'wmv'  => 'video/x-ms-wmv',
-		'3gp'  => 'video/3gpp',
-		'3g2'  => 'video/3gpp2',
-	);
+    private const ALLOWED_MIMES = [
+        'mp3'  => 'audio/mpeg',
+        'wav'  => 'audio/wav',
+        'ogg'  => 'audio/ogg',
+        'oga'  => 'audio/ogg',
+        'opus' => 'audio/ogg; codecs=opus',
+        'weba' => 'audio/webm',
+        'aac'  => 'audio/aac',
+        'm4a'  => 'audio/mp4',
+        'flac' => 'audio/flac',
+        'mp4'  => 'video/mp4',
+        'm4v'  => 'video/x-m4v',
+        'mov'  => 'video/quicktime',
+        'webm' => 'video/webm',
+        'ogv'  => 'video/ogg',
+        'avi'  => 'video/x-msvideo',
+        'wmv'  => 'video/x-ms-wmv',
+        '3gp'  => 'video/3gpp',
+        '3g2'  => 'video/3gpp2',
+    ];
 
-	/**
+    /**
 WordPress option key for storing plugin settings.
 REVERTED: Back to OPTION_KEY, no transients.
 All plugin settings are stored under this single option key in wp_options table.
 @var string
 /
-	public const STARMUS_OPTION_KEY = 'starmus_options';
+    public const STARMUS_OPTION_KEY = 'starmus_options';
 
-	/**
+    /**
 Cached plugin settings for current request.
 Using nullable type allows simple cache invalidation with `null`.
 Reduces repeated database queries within a single request.
 @var array<string, mixed>|null
 /
-	private ?array $obj_cache = null;
+    private ?array $obj_cache = null;
 
-	/**
+    /**
 Cached default settings to avoid recomputation.
 Stores the default configuration values for all plugin settings.
 Computed once and reused throughout the request lifecycle.
 @var array<string, mixed>|null
 /
-	private ?array $default_obj_cache = null;
+    private ?array $default_obj_cache = null;
 
-	/**
+    /**
 Constructor - Initializes settings and primes caches.
 Loads default settings, fetches current settings from database,
 and registers WordPress hooks for MIME type validation.
@@ -148,12 +164,17 @@ Results are cached in default_obj_cache for the request.
 
 Initialize defaults on plugin activation using options API.
 REVERTED: Uses add_option/update_option.
+Adds the settings option with defaults if it doesn't exist.
+Merges existing settings with defaults for new keys.
+Clears cache to ensure immediate use of new defaults.
 
 ### `clear_cache()`
 
 **Visibility:** `public`
 
 Clear in-memory caches.
+Resets both the settings cache and defaults cache
+to null, forcing fresh retrieval on next access.
 
 ### `delete_all()`
 
@@ -161,6 +182,7 @@ Clear in-memory caches.
 
 Delete all plugin settings (e.g., on uninstall).
 REVERTED: Now deletes option.
+@return bool True on successful deletion, false on failure.
 
 ### `starmus_get_option()`
 
@@ -168,6 +190,7 @@ REVERTED: Now deletes option.
 
 Legacy wrapper (deprecated).
 @param mixed $default
+@return mixed
 
 ### `filter_filetype_and_ext()`
 
@@ -185,12 +208,15 @@ Filter MIME type detection to whitelist allowed formats.
 **Visibility:** `public`
 
 Filter upload MIME whitelist to allow audio/video formats.
+@param array<string, string> $mimes Existing MIME types map.
+@return array<string, string> Modified MIME types map.
 
 ### `get_allowed_mimes()`
 
 **Visibility:** `public`
 
 Public static getter for the allowed MIME map.
+@returns array<string, string> The allowed MIME types map.
 
 ## Properties
 

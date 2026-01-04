@@ -56,22 +56,22 @@ import './starmus-integrator.js';
 import sparxstarIntegration from './starmus-sparxstar-integration.js';
 
 (function () {
-  const log = (type, data) => {
-    console.warn('[STARMUS RUNTIME]', type, data);
-  };
+	const log = (type, data) => {
+		console.warn('[STARMUS RUNTIME]', type, data);
+	};
 
-  window.addEventListener('error', (e) => {
-    log('window.error', {
-      message: e.message,
-      file: e.filename,
-      line: e.lineno,
-      col: e.colno,
-    });
-  });
+	window.addEventListener('error', (e) => {
+		log('window.error', {
+			message: e.message,
+			file: e.filename,
+			line: e.lineno,
+			col: e.colno,
+		});
+	});
 
-  window.addEventListener('unhandledrejection', (e) => {
-    log('unhandledrejection', e.reason);
-  });
+	window.addEventListener('unhandledrejection', (e) => {
+		log('unhandledrejection', e.reason);
+	});
 })();
 
 /* 3. SETUP STORE */

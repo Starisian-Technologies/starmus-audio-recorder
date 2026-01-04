@@ -5,7 +5,6 @@
  *
  * @package   Starmus
  */
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 if ( ! \defined('ABSPATH')) {
@@ -15,7 +14,6 @@ if ( ! \defined('ABSPATH')) {
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
-use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
 
 /**
  * Renders the user interface for the audio recorder and recordings list.
@@ -24,7 +22,6 @@ use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
  */
 class StarmusAudioRecorderUI
 {
-
     /**
      * Prime the UI layer with optional settings for template hydration.
      *
@@ -42,17 +39,17 @@ class StarmusAudioRecorderUI
     {
 
         StarmusLogger::info(
-        'Recorder component available, registering recorder hooks',
-        [ 'component' => self::class ]
+            'Recorder component available, registering recorder hooks',
+            ['component' => self::class]
         );
-        add_action( 'starmus_after_audio_upload', [ $this, 'save_all_metadata' ], 10, 3 );
-        add_filter( 'starmus_audio_upload_success_response', [ $this, 'add_conditional_redirect' ], 10, 3 );
+        add_action('starmus_after_audio_upload', [$this, 'save_all_metadata'], 10, 3);
+        add_filter('starmus_audio_upload_success_response', [$this, 'add_conditional_redirect'], 10, 3);
 
         // Cron scheduling moved to activation to avoid performance issues
         // Clear cache when a Language is added, edited, or deleted.
-        add_action('delete_language', $this->clear_taxonomy_transients(...));
+        add_action('delete_language', [$this, 'clear_taxonomy_transients']);
         // Clear cache when a Recording Type is added, edited, or deleted.
-        add_action('delete_recording-type', $this->clear_taxonomy_transients(...));
+        add_action('delete_recording-type', [$this, 'clear_taxonomy_transients']);
     }
 
     /**
@@ -63,11 +60,11 @@ class StarmusAudioRecorderUI
 
         try {
             $template_args = [
-            'form_id'         => 'starmus_recorder_form',
-            'consent_message' => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings ? $this->settings->get('consent_message', 'I consent to the terms and conditions.') : 'I consent to the terms and conditions.',
-            'data_policy_url' => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings ? $this->settings->get('data_policy_url', '') : '',
-            'recording_types' => $this->get_cached_terms('recording-type', 'starmus_recording_types_list'),
-            'languages'       => $this->get_cached_terms('language', 'starmus_languages_list'),
+                'form_id'         => 'starmus_recorder_form',
+                'consent_message' => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings ? $this->settings->get('consent_message', 'I consent to the terms and conditions.') : 'I consent to the terms and conditions.',
+                'data_policy_url' => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings ? $this->settings->get('data_policy_url', '') : '',
+                'recording_types' => $this->get_cached_terms('recording-type', 'starmus_recording_types_list'),
+                'languages'       => $this->get_cached_terms('language', 'starmus_languages_list'),
             ];
 
             return StarmusTemplateLoaderHelper::secure_render_template('starmus-audio-recorder-ui.php', $template_args);
@@ -86,18 +83,18 @@ class StarmusAudioRecorderUI
     {
         try {
             $atts = shortcode_atts(
-            [
-            'post_id'        => 0,
-            'target_post_id' => 0,
-            ],
-            $atts,
-            'starmus_audio_re_recorder'
+                [
+                    'post_id'        => 0,
+                    'target_post_id' => 0,
+                ],
+                $atts,
+                'starmus_audio_re_recorder'
             );
 
             // Get post_id from shortcode attribute or URL parameter
             $post_id = absint($atts['post_id']);
             if ($post_id <= 0 && isset($_GET['recording_id'])) {
-                   $post_id = absint($_GET['recording_id']); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only parameter
+                $post_id = absint($_GET['recording_id']); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only parameter
             }
 
             // Validate post exists and is an audio-recording
@@ -106,8 +103,8 @@ class StarmusAudioRecorderUI
             }
 
             $cpt_slug = $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
-            ? $this->settings->get('cpt_slug', 'audio-recording')
-            : 'audio-recording';
+                ? $this->settings->get('cpt_slug', 'audio-recording')
+                : 'audio-recording';
 
             if (get_post_type($post_id) !== $cpt_slug) {
                 return '<p>' . esc_html__('Invalid recording ID.', 'starmus-audio-recorder') . '</p>';
@@ -125,28 +122,28 @@ class StarmusAudioRecorderUI
             $type_id    = ( ! is_wp_error($type_terms) && ! empty($type_terms)) ? $type_terms[0]->term_id : 0;
 
             $template_args = [
-            'form_id'            => 'rerecord',
-            'post_id'            => $post_id,
-            'artifact_id'        => $post_id, // Link to original recording
-            'existing_title'     => $existing_title,
-            'existing_language'  => $language_id,
-            'existing_type'      => $type_id,
-            'consent_message'    => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
-            ? $this->settings->get('consent_message', 'I consent to the terms and conditions.')
-            : 'I consent to the terms and conditions.',
-            'data_policy_url'    => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
-            ? $this->settings->get('data_policy_url', '')
-            : '',
-            'allowed_file_types' => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
-            ? $this->settings->get('allowed_file_types', 'webm')
-            : 'webm',
-            'recording_types'    => $this->get_cached_terms('recording-type', 'starmus_recording_types_list'),
-            'languages'          => $this->get_cached_terms('language', 'starmus_languages_list'),
+                'form_id'           => 'rerecord',
+                'post_id'           => $post_id,
+                'artifact_id'       => $post_id, // Link to original recording
+                'existing_title'    => $existing_title,
+                'existing_language' => $language_id,
+                'existing_type'     => $type_id,
+                'consent_message'   => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
+                    ? $this->settings->get('consent_message', 'I consent to the terms and conditions.')
+                    : 'I consent to the terms and conditions.',
+                'data_policy_url' => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
+                    ? $this->settings->get('data_policy_url', '')
+                    : '',
+                'allowed_file_types' => $this->settings instanceof \Starisian\Sparxstar\Starmus\core\StarmusSettings
+                    ? $this->settings->get('allowed_file_types', 'webm')
+                    : 'webm',
+                'recording_types' => $this->get_cached_terms('recording-type', 'starmus_recording_types_list'),
+                'languages'       => $this->get_cached_terms('language', 'starmus_languages_list'),
             ];
 
             return \Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper::secure_render_template(
-            'starmus-audio-re-recorder-ui.php',
-            $template_args
+                'starmus-audio-re-recorder-ui.php',
+                $template_args
             );
         } catch (\Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -162,13 +159,13 @@ class StarmusAudioRecorderUI
         $terms = get_transient($cache_key);
         if (false === $terms) {
             $terms = get_terms(
-            [
-            'taxonomy'   => $taxonomy,
-            'hide_empty' => false,
-            ]
+                [
+                    'taxonomy'   => $taxonomy,
+                    'hide_empty' => false,
+                ]
             );
             if ( ! is_wp_error($terms)) {
-                   set_transient($cache_key, $terms, 12 * HOUR_IN_SECONDS);
+                set_transient($cache_key, $terms, 12 * HOUR_IN_SECONDS);
             } else {
                 StarmusLogger::log(new \Exception($terms->get_error_message()));
                 $terms = [];

@@ -8,7 +8,7 @@
  * @version 1.1.0-ROBUST-TEMPLATE
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 
@@ -16,41 +16,41 @@ if ( ! defined( 'ABSPATH' ) ) {
 $current_post_id = $context['post_id'] ?? 0;
 $audio_url       = $context['audio_url'] ?? '';
 $editor_data     = [
-	'postId'        => $current_post_id,
-	'audioUrl'      => $audio_url,
-	'restUrl'       => esc_url_raw( rest_url( 'star_uec/v1/annotations' ) ),
-	'nonce'         => wp_create_nonce( 'wp_rest' ),
-	'annotations'   => isset( $context['annotations_json'] ) ? json_decode( $context['annotations_json'], true ) : [],
-	'transcript'    => $context['transcript_data'] ?? [],
-	'waveform_data' => isset( $context['waveform_json'] ) ? json_decode( $context['waveform_json'], true ) : null,
-	'canCommit'     => current_user_can( 'edit_post', $current_post_id ),
+    'postId'        => $current_post_id,
+    'audioUrl'      => $audio_url,
+    'restUrl'       => esc_url_raw(rest_url('star_uec/v1/annotations')),
+    'nonce'         => wp_create_nonce('wp_rest'),
+    'annotations'   => isset($context['annotations_json']) ? json_decode($context['annotations_json'], true) : [],
+    'transcript'    => $context['transcript_data'] ?? [],
+    'waveform_data' => isset($context['waveform_json']) ? json_decode($context['waveform_json'], true) : null,
+    'canCommit'     => current_user_can('edit_post', $current_post_id),
 ];
 ?>
 
 <!-- JS Bootstrap Data -->
 <script>
-	window.STARMUS_EDITOR_DATA = <?php echo wp_json_encode( $editor_data ); ?>;
+	window.STARMUS_EDITOR_DATA = <?php echo wp_json_encode($editor_data); ?>;
 </script>
 
 <div
 	id="starmus-editor-root"
 	class="starmus-editor sparxstar-glass-card"
 	role="region"
-	aria-label="<?php esc_attr_e( 'Audio editor', 'starmus-audio-recorder' ); ?>"
+	aria-label="<?php esc_attr_e('Audio editor', 'starmus-audio-recorder'); ?>"
 	style="margin-top: 20px;">
 
 	<div class="starmus-editor__head">
 		<h1 class="starmus-editor__title">
-			<?php esc_html_e( 'Audio Editor', 'starmus-audio-recorder' ); ?>
+			<?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?>
 			<span class="starmus-editor__id-badge">
 				<?php
-				if ( $current_post_id ) {
+    if ($current_post_id) {
         /* translators: %d: Recording ID */
-        printf( esc_html__( 'ID: %d', 'starmus-audio-recorder' ), (int) $current_post_id );
-				} else {
-        esc_html_e( 'No Recording', 'starmus-audio-recorder' );
-				}
-				?>
+        printf(esc_html__('ID: %d', 'starmus-audio-recorder'), (int) $current_post_id);
+    } else {
+        esc_html_e('No Recording', 'starmus-audio-recorder');
+    }
+    ?>
 			</span>
 		</h1>
 		<div class="starmus-editor__time">
@@ -58,10 +58,10 @@ $editor_data     = [
 		</div>
 	</div>
 
-	<?php if ( empty( $audio_url ) ) { ?>
+	<?php if (empty($audio_url)) { ?>
 		<div class="starmus-alert starmus-alert--error">
-			<p><strong><?php esc_html_e( 'Error:', 'starmus-audio-recorder' ); ?></strong>
-        <?php esc_html_e( 'Audio file missing for this recording.', 'starmus-audio-recorder' ); ?></p>
+			<p><strong><?php esc_html_e('Error:', 'starmus-audio-recorder'); ?></strong>
+        <?php esc_html_e('Audio file missing for this recording.', 'starmus-audio-recorder'); ?></p>
 		</div>
 	<?php } else { ?>
 		<div class="starmus-editor__layout">
@@ -93,23 +93,23 @@ $editor_data     = [
 			<!-- SIDEBAR COLUMN -->
 			<aside class="starmus-editor__side">
 				<section class="starmus-editor__transcript">
-					<h3><?php esc_html_e( 'Transcript', 'starmus-audio-recorder' ); ?></h3>
+					<h3><?php esc_html_e('Transcript', 'starmus-audio-recorder'); ?></h3>
 					<div id="starmus-transcript-panel" class="starmus-transcript-panel">
-						<?php if ( empty( $editor_data['transcript'] ) ) { ?>
-							<p class="starmus-empty-state"><?php esc_html_e( 'No transcription data.', 'starmus-audio-recorder' ); ?></p>
+						<?php if (empty($editor_data['transcript'])) { ?>
+							<p class="starmus-empty-state"><?php esc_html_e('No transcription data.', 'starmus-audio-recorder'); ?></p>
 						<?php } ?>
 					</div>
 				</section>
 				<section class="starmus-editor__list">
-					<h3><?php esc_html_e( 'Regions', 'starmus-audio-recorder' ); ?></h3>
+					<h3><?php esc_html_e('Regions', 'starmus-audio-recorder'); ?></h3>
 					<table class="starmus-info-table">
 						<thead>
 							<tr>
-								<th><?php esc_html_e( 'Label', 'starmus-audio-recorder' ); ?></th>
-								<th style="width:60px"><?php esc_html_e( 'Start', 'starmus-audio-recorder' ); ?></th>
-								<th style="width:60px"><?php esc_html_e( 'End', 'starmus-audio-recorder' ); ?></th>
-								<th style="width:50px"><?php esc_html_e( 'Dur', 'starmus-audio-recorder' ); ?></th>
-								<th style="width:100px"><?php esc_html_e( 'Actions', 'starmus-audio-recorder' ); ?></th>
+								<th><?php esc_html_e('Label', 'starmus-audio-recorder'); ?></th>
+								<th style="width:60px"><?php esc_html_e('Start', 'starmus-audio-recorder'); ?></th>
+								<th style="width:60px"><?php esc_html_e('End', 'starmus-audio-recorder'); ?></th>
+								<th style="width:50px"><?php esc_html_e('Dur', 'starmus-audio-recorder'); ?></th>
+								<th style="width:100px"><?php esc_html_e('Actions', 'starmus-audio-recorder'); ?></th>
 							</tr>
 						</thead>
 						<tbody id="regions-list"></tbody>

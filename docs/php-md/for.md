@@ -1,135 +1,48 @@
 # for
 
-**Namespace:** `Starisian\Sparxstar\Starmus\services`
+**Namespace:** `Starisian\Sparxstar\Starmus\helpers`
 
-**File:** `/workspaces/starmus-audio-recorder/src/services/StarmusId3Service.php`
+**File:** `/workspaces/starmus-audio-recorder/src/helpers/StarmusUIHelper.php`
 
 ## Description
 
-getID3 Library Wrapper for Audio Metadata Management
-Provides a clean, secure interface to the getID3 library for reading and writing
-ID3 metadata tags in audio files. Handles library loading, encoding consistency,
-and error management for WordPress integration.
-Features:
-- Automatic getID3 library detection and loading
-- UTF-8 encoding enforcement for international content
-- ID3v2.3 tag writing with overwrite capability
-- Comprehensive error handling and logging
-- WordPress integration with proper file path handling
-Supported Operations:
-- ID3 tag writing with complete metadata payload
-- Audio file analysis and metadata extraction
-- Tag format standardization (ID3v2.3)
-- Error and warning collection
-Library Requirements:
-- getID3 library must be available via Composer autoload
-- getid3_writetags class for tag writing operations
-- getid3_lib class for utility functions
-@package Starisian\Sparxstar\Starmus\services
-@since   1.0.0
-@version PHP 8.2 Compatible
-@see https://www.getid3.org/ getID3 library documentation
-@see StarmusLogger Logging service integration
+Starmus UI Helper Functions
+@file src/helpers/StarmusUIHelper.php
+@package Starisian\Sparxstar\Starmus\helpers
+@author Starisian Technologies
+@license Starisian Technologies Proprietary License
+@version 1.0.0
+@since 1.0.0
 
 ## Methods
 
-### `writeTags()`
+### `renderError()`
 
 **Visibility:** `public`
 
-Writes ID3 metadata tags to an audio file.
-Embeds comprehensive metadata into audio files using ID3v2.3 format.
-Overwrites existing tags and removes other tag formats for consistency.
-@param string $filepath Absolute path to the audio file
-@param array $tagData Associative array of ID3 tag data
+Starmus UI Helper Functions
+@file src/helpers/StarmusUIHelper.php
+@package Starisian\Sparxstar\Starmus\helpers
+@author Starisian Technologies
+@license Starisian Technologies Proprietary License
+@version 1.0.0
 @since 1.0.0
-Tag Data Structure:
-```php
-[
-  'title' => ['Song Title'],
-  'artist' => ['Artist Name'],
-  'album' => ['Album Name'],
-  'year' => ['2025'],
-  'comment' => ['Recording comments'],
-  'copyright_message' => ['© 2025 Site Name'],
-  'publisher' => ['Publisher Name'],
-  'language' => ['en']
-]
-```
-Writer Configuration:
-- Format: ID3v2.3 (maximum compatibility)
-- Encoding: UTF-8 (international character support)
-- Overwrite: True (replaces existing tags)
-- Remove others: True (removes ID3v1, APE, etc.)
-Error Handling:
-- Validates file existence before processing
-- Checks getID3 library availability
-- Logs detailed error information
-- Collects and logs warnings separately
-@throws \Throwable Caught and logged, returns false
-@return bool True if tags written successfully, false on failure
-@example
-```php
-$tags = [
-  'title' => ['My Recording'],
-  'artist' => ['John Doe'],
-  'album' => ['Site Archives'],
-  'year' => ['2025']
-];
-$success = $service->writeTags('/path/to/audio.mp3', $tags, 123);
-```
+/
 
-### `analyzeFile()`
+if (! \defined('ABSPATH')) {
+    exit();
+}
 
-**Visibility:** `public`
+/**
+Static helper class for Starmus UI related functions.
+@package Starisian\Sparxstar\Starmus\helpers
+/
 
-Analyzes an audio file and extracts comprehensive metadata.
-Performs deep analysis of audio files to extract technical information,
-embedded metadata, and format details using the getID3 library.
-@param string $filepath Absolute path to the audio file to analyze
-@return array Complete analysis data or empty array if library unavailable
-@since 1.0.0
-Analysis Data Includes:
-- **Format Information**: File type, codec, bitrate, sample rate
-- **Technical Details**: Duration, channels, bit depth
-- **Metadata Tags**: ID3, Vorbis, APE, and other embedded tags
-- **Audio Properties**: Lossless/lossy, VBR/CBR detection
-- **File Structure**: Header information, stream details
-Processing Steps:
-1. Initialize getID3 engine with proper configuration
-2. Analyze file structure and format
-3. Extract technical audio properties
-4. Copy embedded tags to standardized comments array
-5. Return comprehensive analysis data
-Supported Formats:
-- MP3 (all versions and VBR types)
-- WAV (PCM and compressed)
-- FLAC (lossless compression)
-- OGG Vorbis (open source)
-- WebM (modern web audio)
-- Many others via getID3 library
-Return Data Structure:
-```php
-[
-  'fileformat' => 'mp3',
-  'audio' => [
-    'dataformat' => 'mp3',
-    'bitrate' => 192000,
-    'sample_rate' => 44100,
-    'channels' => 2,
-    'playtime_seconds' => 180.5
-  ],
-  'tags' => [
-    'id3v2' => ['title' => ['Song'], 'artist' => ['Artist']]
-  ],
-  'comments' => [
-    'title' => ['Song'],
-    'artist' => ['Artist']
-  ]
-]
-```
-@see \getID3::analyze() Core analysis method
-@see \getid3_lib::CopyTagsToComments() Tag standardization
+final class StarmusUIHelper
+{
+    /**
+Render an error message in the WordPress admin area.
+@param string $message The error message to display.
 
 ---
 

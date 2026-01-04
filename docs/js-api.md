@@ -53,6 +53,7 @@ WordPress REST API to save annotation data.</p>
 <a name="STARMUS_EDITOR_DATA"></a>
 
 ## STARMUS\_EDITOR\_DATA : <code>object</code>
+
 Data localized from PHP.
 
 **Kind**: global constant  
@@ -69,6 +70,7 @@ Data localized from PHP.
 <a name="handlers"></a>
 
 ## handlers
+
 Simple command bus for decoupled communication.
 Command handlers receive (payload, meta).
 
@@ -76,6 +78,7 @@ Command handlers receive (payload, meta).
 <a name="initCore"></a>
 
 ## initCore(store, instanceId, env)
+
 Wire submission logic for a specific instance.
 
 **Kind**: global function  
@@ -89,6 +92,7 @@ Wire submission logic for a specific instance.
 <a name="wireInstance"></a>
 
 ## wireInstance(env, formEl)
+
 Wire a single <form data-starmus="recorder"> into the Starmus system.
 
 **Kind**: global function  
@@ -101,6 +105,7 @@ Wire a single <form data-starmus="recorder"> into the Starmus system.
 <a name="onEnvironmentReady"></a>
 
 ## onEnvironmentReady()
+
 Entry point: waits for sparxstar-user-environment-check to fire,
 then wires all recorder forms on the page.
 
@@ -108,41 +113,45 @@ then wires all recorder forms on the page.
 <a name="initRecorder"></a>
 
 ## initRecorder(store, instanceId)
+
 Wires microphone + file logic for a specific instance.
 
 **Kind**: global function  
 
 | Param | Type |
 | --- | --- |
-| store | <code>object</code> | 
-| instanceId | <code>string</code> | 
+| store | <code>object</code> |
+| instanceId | <code>string</code> |
 
 <a name="reducer"></a>
 
 ## reducer(state, action) ⇒ <code>object</code>
+
 Pure reducer for Starmus state.
 
 **Kind**: global function  
 
 | Param | Type |
 | --- | --- |
-| state | <code>object</code> | 
-| action | <code>object</code> | 
+| state | <code>object</code> |
+| action | <code>object</code> |
 
 <a name="createStore"></a>
 
 ## createStore([initial]) ⇒ <code>Object</code>
+
 Creates a minimal store with getState, dispatch, subscribe.
 
 **Kind**: global function  
 
 | Param | Type |
 | --- | --- |
-| [initial] | <code>object</code> | 
+| [initial] | <code>object</code> |
 
 <a name="render"></a>
 
 ## render(state, elements)
+
 Renders the current state of a Starmus instance to the DOM.
 
 **Kind**: global function  
@@ -155,6 +164,7 @@ Renders the current state of a Starmus instance to the DOM.
 <a name="initInstance"></a>
 
 ## initInstance(store, elements) ⇒ <code>function</code>
+
 Initializes a UI instance and binds it to a state store.
 
 **Kind**: global function  
@@ -168,6 +178,7 @@ Initializes a UI instance and binds it to a state store.
 <a name="Annotation"></a>
 
 ## Annotation : <code>object</code>
+
 This script initializes the audio waveform editor, handles user interactions
 (playback, zoom, annotations), manages unsaved changes, and communicates with the
 WordPress REST API to save annotation data.
@@ -181,4 +192,3 @@ WordPress REST API to save annotation data.
 | startTime | <code>number</code> | The start time of the annotation in seconds. |
 | endTime | <code>number</code> | The end time of the annotation in seconds. |
 | [label] | <code>string</code> | The user-defined text for the annotation. |
-

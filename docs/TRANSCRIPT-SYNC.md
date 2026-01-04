@@ -23,6 +23,7 @@ starmus-audio-recorder-style.css     ← Styles (transcript panel + tokens)
 ### Layout Structure
 
 **Mobile (< 1024px):**
+
 ```
 ┌─────────────────────┐
 │   Waveform          │
@@ -36,6 +37,7 @@ starmus-audio-recorder-style.css     ← Styles (transcript panel + tokens)
 ```
 
 **Desktop (≥ 1024px):**
+
 ```
 ┌───────────────┬───────────┐
 │  Waveform     │ Transcript│
@@ -156,12 +158,14 @@ wp_enqueue_script(
 ### ✅ Bidirectional Sync
 
 **Audio → Text:**
+
 - `timeupdate` event triggers `syncHighlight(currentTime)`
 - Finds matching token based on `start` and `end` times
 - Adds `.is-active` class to current word
 - Auto-scrolls panel to keep active word centered
 
 **Text → Audio:**
+
 - Click any word
 - Reads `data-start` attribute
 - Calls `peaks.player.seek(startTime)`
@@ -185,6 +189,7 @@ this.container.addEventListener('scroll', () => {
 ### ✅ Confidence Indicators
 
 **Low Confidence (< 80%):**
+
 ```css
 .starmus-word[data-confidence="low"] {
   border-bottom: 2px dotted #d63638; /* Red underline */
@@ -192,6 +197,7 @@ this.container.addEventListener('scroll', () => {
 ```
 
 **Tooltip:**
+
 ```javascript
 span.title = `Low confidence: ${Math.round(token.confidence * 100)}%`;
 ```
@@ -311,29 +317,34 @@ transcriptController = new StarmusTranscript(
 ## AiWA Integration Roadmap
 
 ### Phase 1: Basic Transcript (Current)
+
 - ✅ Mock data rendering
 - ✅ Click-to-seek
 - ✅ Auto-scroll with user detection
 - ✅ Confidence indicators
 
 ### Phase 2: Live Transcript Generation
+
 - 🔜 Whisper API integration
 - 🔜 Real-time transcription during upload
 - 🔜 Progress indicator in UI
 - 🔜 Retry logic for failed jobs
 
 ### Phase 3: Speaker Diarization
+
 - 🔜 Identify multiple speakers
 - 🔜 Color-code by speaker
 - 🔜 Speaker labels (Elder 1, Elder 2, etc.)
 
 ### Phase 4: Editing & Correction
+
 - 🔜 Click-to-edit low-confidence words
 - 🔜 Inline editing (contenteditable)
 - 🔜 Auto-save edits to post meta
 - 🔜 Revision history
 
 ### Phase 5: Export & Search
+
 - 🔜 Export as SRT/VTT for video captions
 - 🔜 Full-text search in transcript
 - 🔜 Keyword highlighting
@@ -435,6 +446,7 @@ if (currentToken && time >= currentToken.start && time <= currentToken.end) {
 ---
 
 **Next Steps:**
+
 1. Replace mock data with AiWA Whisper transcripts
 2. Add speaker diarization support
 3. Implement inline editing for corrections

@@ -9,7 +9,7 @@
 Wraps the procedural james-heinrich/getid3 library for both reading and writing.
 This isolates the global-namespace dependency on getID3 classes.
 
-NOTE: getID3, getid3_writetags (and other needed files) must be autoloaded 
+NOTE: getID3, getid3_writetags (and other needed files) must be autoloaded
 via Composer's "files" autoloading for this to work.
 
 ## Methods

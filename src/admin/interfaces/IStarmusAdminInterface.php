@@ -9,7 +9,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\admin\interfaces;
 
-if ( ! \defined( 'ABSPATH' ) ) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -24,8 +24,8 @@ if ( ! \defined( 'ABSPATH' ) ) {
  *  - Be instantiated and injected into the orchestrator's constructor.
  *  - Optionally, use is_active() to disable the module without removing it from DI.
  */
-interface IStarmusAdminInterface {
-
+interface IStarmusAdminInterface
+{
     /**
      * Renders the admin page content. This is hooked into `load-{$page_hook}`.
      */

@@ -8,11 +8,12 @@
 
 Unified, build-process-aware, and ES-Module-aware asset loader for the Starmus Audio System.
 This class is the sole authority for enqueuing all Starmus client-side assets.
+
 - In production (WP_DEBUG is false), it loads a single, minified, bundled file for performance.
 - In development (WP_DEBUG is true), it loads the 'starmus-integrator.js' as a native
   ES Module (`type="module"`), allowing the browser to handle the dependency tree for
   the best possible debugging experience.
-@package Starmus
+@package Starisian\Sparxstar\Starmus\core
 @version 0.9.2
 
 ## Methods
@@ -23,50 +24,63 @@ This class is the sole authority for enqueuing all Starmus client-side assets.
 
 Unified, build-process-aware, and ES-Module-aware asset loader for the Starmus Audio System.
 This class is the sole authority for enqueuing all Starmus client-side assets.
+
 - In production (WP_DEBUG is false), it loads a single, minified, bundled file for performance.
 - In development (WP_DEBUG is true), it loads the 'starmus-integrator.js' as a native
   ES Module (`type="module"`), allowing the browser to handle the dependency tree for
   the best possible debugging experience.
-@package Starmus
+@package Starisian\Sparxstar\Starmus\core
 @version 0.9.2
 /
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;
 use function array_map;
+use function array_values;
 use function defined;
 use function explode;
-use function json_encode;
+use function is_admin;
 
-use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+
+use function str_replace;
+
+use Throwable;
 
 use function trim;
 
-if ( ! \defined( 'ABSPATH' ) ) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
-final class StarmusAssetLoader {
-
-	/**
+final class StarmusAssetLoader
+{
+    /**
 Handle for the production bundle script.
 @var string
 /
-	private const HANDLE_PROD_BUNDLE = 'starmus-audio-recorder-script.bundle';
+    private const HANDLE_PROD_BUNDLE = 'starmus-audio-recorder-script.bundle';
 
-	/**
+    /**
 Handle for the main stylesheet.
 @var string
 /
-	private const STYLE_HANDLE = 'starmus-audio-recorder-styles';
+    private const STYLE_HANDLE = 'starmus-audio-recorder-styles';
 
-	/**
-Editor data to be localized, set by shortcode loader
+    /**
+StarmusSettings settings object
 /
-	private static ?array $editor_data = null;
+    private ?StarmusSettings $settings = null;
 
-	/**
+    /**
+Editor data to be localized, set by shortcode loader
+@var array<string, mixed>|null
+/
+    private static ?array $editor_data = null;
+
+    /**
 Constructor - Registers WordPress hooks for asset enqueueing.
+@param StarmusSettings $settings The settings instance to use for configuration.
 
 ### `enqueue_frontend_assets()`
 

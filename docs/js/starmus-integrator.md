@@ -33,6 +33,7 @@ Provides a fallback implementation if Peaks.js is not available.</p>
 <a name="module_exposePeaksBridge"></a>
 
 ## exposePeaksBridge ⇒ <code>void</code>
+
 Exposes Peaks.js waveform library through the Starmus namespace.
 Creates a bridge between the global Peaks library and Starmus.Peaks.
 Provides a fallback implementation if Peaks.js is not available.
@@ -40,16 +41,17 @@ Provides a fallback implementation if Peaks.js is not available.
 <a name="version"></a>
 
 ## version : <code>string</code>
+
 Current version of the Starmus integration layer.
 
 **Kind**: global variable  
 <a name="Starmus"></a>
 
 ## Starmus : <code>object</code>
+
 Global Starmus namespace object.
 
 **Kind**: global namespace  
-
 
 ---
 

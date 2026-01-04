@@ -8,6 +8,7 @@
 
 Minimal client to send audio files + first-pass transcription to a HuggingFace-compatible endpoint.
 Implementation notes:
+
 - Reads the local file using `get_attached_file()` when possible and base64-encodes it.
 - Sends JSON payload: { filename, mime_type, audio_base64, first_pass_transcription }
 - Uses the option `aiwa_ai_endpoint` and `aiwa_ai_api_key` for configuration.
@@ -21,24 +22,25 @@ The remote model should accept this shape; adjust as needed.
 
 Minimal client to send audio files + first-pass transcription to a HuggingFace-compatible endpoint.
 Implementation notes:
+
 - Reads the local file using `get_attached_file()` when possible and base64-encodes it.
 - Sends JSON payload: { filename, mime_type, audio_base64, first_pass_transcription }
 - Uses the option `aiwa_ai_endpoint` and `aiwa_ai_api_key` for configuration.
 The remote model should accept this shape; adjust as needed.
 /
-class StarmusHuggingFaceClient {
-
-	/**
+class StarmusHuggingFaceClient
+{
+    /**
 The API endpoint URL.
 /
-	private readonly string $endpoint;
+    private readonly string $endpoint;
 
-	/**
+    /**
 The API key for authentication.
 /
-	private readonly string $api_key;
+    private readonly string $api_key;
 
-	/**
+    /**
 Constructor.
 @param string|null $endpoint The API endpoint URL.
 @param string|null $api_key The API key.

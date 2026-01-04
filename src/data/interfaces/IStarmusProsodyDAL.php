@@ -4,21 +4,20 @@
  * Contract for the Script Prosody Engine Data Layer.
  *
  * @package Starisian\Sparxstar\Starmus\data\interfaces
+ *
  * @version 1.1.0
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\data\interfaces;
 
-if ( ! defined('ABSPATH') ) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
 // Extends the Base Interface
-interface IStarmusProsodyDAL extends IStarmusBaseDAL {
-
-
+interface IStarmusProsodyDAL extends IStarmusBaseDAL
+{
     /**
      * Retrieves the full configuration payload.
      */

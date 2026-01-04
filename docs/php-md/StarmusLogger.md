@@ -6,131 +6,203 @@
 
 ## Description
 
-Centralized logger for Starmus, configured to write strictly to wp-content/debug.log
-using forced file writing mode (error_log mode 3). This logger is reliable as it
-bypasses the need for WP_DEBUG_LOG being set to true.
+@file src/helpers/StarmusLogger.php
+@package Starisian\Sparxstar\Starmus\helpers
+@author Starisian Technologies
+@license Starisian Technolgoies Proprietary License
 
 ## Methods
 
-### `get_log_path()`
-
-**Visibility:** `protected`
-
-Centralized logger for Starmus, configured to write strictly to wp-content/debug.log
-using forced file writing mode (error_log mode 3). This logger is reliable as it
-bypasses the need for WP_DEBUG_LOG being set to true.
-/
-final class StarmusLogger {
-
-	// Log Levels
-	public const DEBUG   = 100;
-	public const INFO    = 200;
-	public const NOTICE  = 250;
-	public const WARNING = 300;
-	public const ERROR   = 400;
-
-	/**
-Minimum log level to record.
-/
-	protected static int $min_log_level = self::DEBUG;
-
-	/**
-Current correlation ID for tracking related operations.
-/
-	protected static ?string $correlation_id = null;
-
-	/**
-Timer storage for performance tracking.
-/
-	protected static array $timers = array();
-
-	/**
-Single source of truth for the log file path.
-Forces the path to wp-content/debug.log using standard WP constants.
-
-### `debug()`
+### `set_min_level()`
 
 **Visibility:** `public`
 
-@param string $context The source of the log message (e.g., 'Setup', 'AJAX', 'API').
-@param string $message The human-readable message.
-@param array<string|int, mixed> $data Optional associative array of extra data to log.
+@file src/helpers/StarmusLogger.php
+@package Starisian\Sparxstar\Starmus\helpers
+@author Starisian Technologies
+@license Starisian Technolgoies Proprietary License
+/
 
-### `info()`
+if (! \defined('ABSPATH')) {
+    exit();
+}
 
-**Visibility:** `public`
+use function error_log;
+use function is_admin;
 
-@param string $context The source of the log message.
-@param string $message The human-readable message.
-@param array<string|int, mixed> $data Optional associative array of extra data to log.
+use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
 
-### `notice()`
+/**
+PSR-3 compliant logging system for Starmus Audio Recorder
+Implements log levels, message formatting, and context handling
+Usage:
+StarmusLogger::info('This is an info message');
+StarmusLogger::error('An error occurred', ['error_code' =>
+123]);
+Log Levels:
+     - EMERGENCY
+    - ALERT
 
-**Visibility:** `public`
+- CRITICAL
+- ERROR
+- WARNING
+- NOTICE
+- INFO
+- DEBUG
+Each log entry includes a timestamp, log level, calling method, message, and optional context.
+Example log entry:
+[2024-06-01 12:00:00] Starmus-ERROR
+StarmusTemplateLoader::Starmus_get_template: Template not found {"template":"queue/recording-queue-list"}
+@package Starisian\Sparxstar\Starmus\helpers
+@author Starisian Technologies
+@version 1.0.0
+@since 1.0.0
+/
+class StarmusLogger
+{
+    /**
+Emergency log level indicating system is unusable.
+@var int
+/
+    public const EMERGENCY = 0;
 
-@param string $context The source of the log message.
-@param string $message The human-readable message.
-@param array<string|int, mixed> $data Optional associative array of extra data to log.
+    /**
+Alert log level for immediate action required.
+@var int
+/
+    public const ALERT = 1;
 
-### `warning()`
+    /**
+Critical log level for critical conditions.
+@var int
+/
+    public const CRITICAL = 2;
 
-**Visibility:** `public`
+    /**
+Error log level for runtime errors that do not require immediate intervention.
+@var int
+/
+    public const ERROR = 3;
 
-@param string $context The source of the log message.
-@param string $message The human-readable message.
-@param array<string|int, mixed> $data Optional associative array of extra data to log.
+    /**
+Warning log level for exceptional occurrences that are not errors.
+@var int
+/
+    public const WARNING = 4;
+
+    /**
+Notice log level for normal but significant events.
+@var int
+/
+    public const NOTICE = 5;
+
+    /**
+Info log level for informational messages.
+@var int
+/
+    public const INFO = 6;
+
+    /**
+Debug log level for detailed diagnostic information.
+@var int
+/
+    public const DEBUG = 7;
+
+    /**
+Shared logger handler instance used to dispatch PSR-3 calls.
+/
+    private static ?StarLogger $handler = null;
+
+    /**
+Minimum severity level that will be recorded.
+/
+    private static int $min_log_level = self::INFO;
+
+    /**
+Set the minimum log level
+@param int $level Log level constant
 
 ### `error()`
 
 **Visibility:** `public`
 
-@param string $context The source of the log message.
-@param string $message The human-readable message.
-@param array<string|int, mixed> $data Optional associative array of extra data to log.
+Log an error-level message.
+@param mixed $message Error message or throwable to log.
+@param array $context Context array for interpolation and metadata.
+
+### `info()`
+
+**Visibility:** `public`
+
+Log an informational message.
+@param mixed $message Information to capture.
+@param array $context Additional context data.
+
+### `debug()`
+
+**Visibility:** `public`
+
+Log a debug-level message for detailed troubleshooting.
+@param mixed $message Diagnostic information.
+@param array $context Structured context for the log entry.
+
+### `warning()`
+
+**Visibility:** `public`
+
+Log a warning-level message for recoverable issues.
+@param mixed $message Warning description.
+@param array $context Context array supplying metadata.
+
+### `critical()`
+
+**Visibility:** `public`
+
+Log a critical-level message for serious failures.
+@param mixed $message Critical error details.
+@param array $context Context array for the log entry.
+
+### `alert()`
+
+**Visibility:** `public`
+
+Log an alert-level message requiring immediate attention.
+@param mixed $message Alert description.
+@param array $context Additional log context.
+
+### `emergency()`
+
+**Visibility:** `public`
+
+Log an emergency-level message when system is unusable.
+@param mixed $message Emergency message.
+@param array $context Contextual metadata for the event.
+
+### `log_error()`
+
+**Visibility:** `public`
+
+Compatibility alias for log_error
+@deprecated Use StarmusLogger::error() instead
 
 ### `log()`
 
-**Visibility:** `protected`
+**Visibility:** `public`
 
-Main logging method.
-@param int $level_int The log level constant (e.g., self::DEBUG, self::ERROR).
-@param string $context The source of the log message.
-@param string $message The human-readable message.
-@param array<string|int, mixed> $data Optional associative array of extra data.
+Backward-compatible log shim mapping to error level.
+@param mixed $message Log message or throwable instance.
+@param array $context Context array for additional fields.
+
+### `renderError()`
+
+**Visibility:** `public`
+
+Render an error message for frontend display
+@deprecated Use StarmusUIHelper::renderError() instead
+@param string $message User-facing error text.
+@return string HTML markup for a WordPress error notice.
 
 ## Properties
-
-### `$min_log_level`
-
-**Visibility:** `protected`
-
-Centralized logger for Starmus, configured to write strictly to wp-content/debug.log
-using forced file writing mode (error_log mode 3). This logger is reliable as it
-bypasses the need for WP_DEBUG_LOG being set to true.
-/
-final class StarmusLogger {
-
-	// Log Levels
-	public const DEBUG   = 100;
-	public const INFO    = 200;
-	public const NOTICE  = 250;
-	public const WARNING = 300;
-	public const ERROR   = 400;
-
-	/**
-Minimum log level to record.
-
-### `$correlation_id`
-
-**Visibility:** `protected`
-
-Current correlation ID for tracking related operations.
-
-### `$timers`
-
-**Visibility:** `protected`
-
-Timer storage for performance tracking.
 
 ---
 

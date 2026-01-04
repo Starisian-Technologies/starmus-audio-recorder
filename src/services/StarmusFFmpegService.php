@@ -3,7 +3,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined( 'ABSPATH' ) ) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -15,13 +15,14 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
  * Handles audio conversion, optimization, and processing using FFmpeg.
  * Works in conjunction with StarmusId3Service for complete audio workflow.
  */
-final class StarmusFFmpegService {
-
+final class StarmusFFmpegService
+{
     private string $ffmpeg_path;
 
     private ?StarmusId3Service $id3_service = null;
 
-    public function __construct( StarmusId3Service $id3_service, string $ffmpeg_path = 'ffmpeg' ) {
+    public function __construct(StarmusId3Service $id3_service, string $ffmpeg_path = 'ffmpeg')
+    {
         $this->id3_service = $id3_service;
         $this->ffmpeg_path = $ffmpeg_path;
     }
@@ -29,25 +30,26 @@ final class StarmusFFmpegService {
     /**
      * Convert audio to web-optimized formats
      */
-    public function optimizeForWeb( string $input_path, string $output_dir ): array {
-        $base_name = pathinfo( $input_path, PATHINFO_FILENAME );
+    public function optimizeForWeb(string $input_path, string $output_dir): array
+    {
+        $base_name = pathinfo($input_path, PATHINFO_FILENAME);
         $results   = [];
 
         // Generate multiple quality versions
         $formats = [
-        'high'     => [ '-b:a', '192k', '-ar', '44100' ],
-        'standard' => [ '-b:a', '128k', '-ar', '44100' ],
-        'mobile'   => [ '-b:a', '64k', '-ar', '22050' ],
+        'high'     => ['-b:a', '192k', '-ar', '44100'],
+        'standard' => ['-b:a', '128k', '-ar', '44100'],
+        'mobile'   => ['-b:a', '64k', '-ar', '22050'],
         ];
 
-        foreach ( $formats as $quality => $params ) {
-            $output_path = \sprintf( '%s/%s_%s.mp3', $output_dir, $base_name, $quality );
+        foreach ($formats as $quality => $params) {
+            $output_path = \sprintf('%s/%s_%s.mp3', $output_dir, $base_name, $quality);
 
-            if ( $this->convertAudio( $input_path, $output_path, $params ) ) {
+            if ($this->convertAudio($input_path, $output_path, $params)) {
                 $results[ $quality ] = $output_path;
 
                 // Copy metadata from original using getID3
-                $this->copyMetadata( $input_path, $output_path );
+                $this->copyMetadata($input_path, $output_path);
             }
         }
 
@@ -57,30 +59,31 @@ final class StarmusFFmpegService {
     /**
      * Generate waveform data for audio editor
      */
-    public function generateWaveform( string $input_path ): ?array {
-        $temp_file = tempnam( sys_get_temp_dir(), 'starmus_waveform_' );
+    public function generateWaveform(string $input_path): ?array
+    {
+        $temp_file = tempnam(sys_get_temp_dir(), 'starmus_waveform_');
 
         $command = [
         $this->ffmpeg_path,
         '-i',
-        escapeshellarg( $input_path ),
+        escapeshellarg($input_path),
         '-ac',
         '1',
         '-ar',
         '8000',
         '-f',
         'f32le',
-        escapeshellarg( $temp_file ),
+        escapeshellarg($temp_file),
         '2>/dev/null',
         ];
 
-        exec( implode( ' ', $command ), $output, $return_code );
+        exec(implode(' ', $command), $output, $return_code);
 
-        if ( $return_code === 0 && file_exists( $temp_file ) ) {
-            $data = file_get_contents( $temp_file );
-            unlink( $temp_file );
+        if ($return_code === 0 && file_exists($temp_file)) {
+            $data = file_get_contents($temp_file);
+            unlink($temp_file);
 
-            return $this->processWaveformData( $data );
+            return $this->processWaveformData($data);
         }
 
         return null;
@@ -89,13 +92,14 @@ final class StarmusFFmpegService {
     /**
      * Extract audio segment for preview
      */
-    public function extractPreview( string $input_path, int $start_seconds = 0, int $duration = 30 ): ?string {
-        $output_path = tempnam( sys_get_temp_dir(), 'starmus_preview_' ) . '.mp3';
+    public function extractPreview(string $input_path, int $start_seconds = 0, int $duration = 30): ?string
+    {
+        $output_path = tempnam(sys_get_temp_dir(), 'starmus_preview_') . '.mp3';
 
         $command = [
         $this->ffmpeg_path,
         '-i',
-        escapeshellarg( $input_path ),
+        escapeshellarg($input_path),
         '-ss',
         (string) $start_seconds,
         '-t',
@@ -104,11 +108,11 @@ final class StarmusFFmpegService {
         '96k',
         '-ar',
         '22050',
-        escapeshellarg( $output_path ),
+        escapeshellarg($output_path),
         '2>/dev/null',
         ];
 
-        exec( implode( ' ', $command ), $output, $return_code );
+        exec(implode(' ', $command), $output, $return_code);
 
         return $return_code === 0 ? $output_path : null;
     }
@@ -116,43 +120,45 @@ final class StarmusFFmpegService {
     /**
      * Normalize audio levels
      */
-    public function normalizeAudio( string $input_path, string $output_path ): bool {
+    public function normalizeAudio(string $input_path, string $output_path): bool
+    {
         $command = [
         $this->ffmpeg_path,
         '-i',
-        escapeshellarg( $input_path ),
+        escapeshellarg($input_path),
         '-af',
         'loudnorm=I=-16:TP=-1.5:LRA=11',
         '-ar',
         '44100',
-        escapeshellarg( $output_path ),
+        escapeshellarg($output_path),
         '2>/dev/null',
         ];
 
-        exec( implode( ' ', $command ), $output, $return_code );
+        exec(implode(' ', $command), $output, $return_code);
         return $return_code === 0;
     }
 
     /**
      * Basic audio conversion
      */
-    private function convertAudio( string $input, string $output, array $params ): bool {
+    private function convertAudio(string $input, string $output, array $params): bool
+    {
         $command = array_merge(
-        [ $this->ffmpeg_path, '-i', escapeshellarg( $input ) ],
-        $params,
-        [ escapeshellarg( $output ), '2>/dev/null' ]
+            [$this->ffmpeg_path, '-i', escapeshellarg($input)],
+            $params,
+            [escapeshellarg($output), '2>/dev/null']
         );
 
-        exec( implode( ' ', $command ), $cmd_output, $return_code );
+        exec(implode(' ', $command), $cmd_output, $return_code);
 
-        if ( $return_code !== 0 ) {
+        if ($return_code !== 0) {
             StarmusLogger::error(
-            'Conversion failed',
-            [
+                'Conversion failed',
+                [
             'component'  => self::class,
             'input_file' => $input,
             'output'     => $output,
-            ]
+                ]
             );
         }
 
@@ -162,19 +168,20 @@ final class StarmusFFmpegService {
     /**
      * Copy metadata between files using getID3
      */
-    private function copyMetadata( string $source, string $destination ): void {
-        $analysis = $this->id3_service->analyzeFile( $source );
+    private function copyMetadata(string $source, string $destination): void
+    {
+        $analysis = $this->id3_service->analyzeFile($source);
 
-        if ( ! empty( $analysis['comments'] ) ) {
+        if ( ! empty($analysis['comments'])) {
             $tags = [];
-            foreach ( $analysis['comments'] as $key => $values ) {
-                if ( ! empty( $values[0] ) ) {
+            foreach ($analysis['comments'] as $key => $values) {
+                if ( ! empty($values[0])) {
                     $tags[ $key ] = $values;
                 }
             }
 
-            if ( $tags !== [] ) {
-                $this->id3_service->writeTags( $destination, $tags );
+            if ($tags !== []) {
+                $this->id3_service->writeTags($destination, $tags);
             }
         }
     }
@@ -182,17 +189,18 @@ final class StarmusFFmpegService {
     /**
      * Process raw waveform data into peaks format
      */
-    private function processWaveformData( string $raw_data ): array {
-        $samples    = unpack( 'f*', $raw_data );
+    private function processWaveformData(string $raw_data): array
+    {
+        $samples    = unpack('f*', $raw_data);
         $peaks      = [];
         $chunk_size = 100;
-        $counter    = \count( $samples ); // Samples per peak
+        $counter    = \count($samples); // Samples per peak
 
-        for ( $i = 0; $i < $counter; $i += $chunk_size ) {
-            $chunk   = \array_slice( $samples, $i, $chunk_size );
+        for ($i = 0; $i < $counter; $i += $chunk_size) {
+            $chunk   = \array_slice($samples, $i, $chunk_size);
             $peaks[] = [
-            'min' => min( $chunk ),
-            'max' => max( $chunk ),
+            'min' => min($chunk),
+            'max' => max($chunk),
             ];
         }
 

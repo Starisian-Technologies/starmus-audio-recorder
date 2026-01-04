@@ -4,23 +4,22 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\helpers;
 
 /**
- *
  * @file src/helpers/StarmusLogger.php
+ *
  * @package Starisian\Sparxstar\Starmus\helpers
+ *
  * @author Starisian Technologies
  * @license Starisian Technolgoies Proprietary License
  */
 
-if ( ! \defined( 'ABSPATH' ) ) {
+if ( ! \defined('ABSPATH')) {
     exit();
 }
 
-use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
-use Starisian\Sparxstar\Starmus\helpers\StarmusUIHelper;
-Use Exception;
 use function error_log;
 use function is_admin;
 
+use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
 
 /**
  * PSR-3 compliant logging system for Starmus Audio Recorder
@@ -50,7 +49,9 @@ use function is_admin;
  * @package Starisian\Sparxstar\Starmus\helpers
  *
  * @author Starisian Technologies
+ *
  * @version 1.0.0
+ *
  * @since 1.0.0
  */
 class StarmusLogger
@@ -67,49 +68,49 @@ class StarmusLogger
      *
      * @var int
      */
-    public const ALERT     = 1;
+    public const ALERT = 1;
 
     /**
      * Critical log level for critical conditions.
      *
      * @var int
      */
-    public const CRITICAL  = 2;
+    public const CRITICAL = 2;
 
     /**
      * Error log level for runtime errors that do not require immediate intervention.
      *
      * @var int
      */
-    public const ERROR     = 3;
+    public const ERROR = 3;
 
     /**
      * Warning log level for exceptional occurrences that are not errors.
      *
      * @var int
      */
-    public const WARNING   = 4;
+    public const WARNING = 4;
 
     /**
      * Notice log level for normal but significant events.
      *
      * @var int
      */
-    public const NOTICE    = 5;
+    public const NOTICE = 5;
 
     /**
      * Info log level for informational messages.
      *
      * @var int
      */
-    public const INFO      = 6;
+    public const INFO = 6;
 
     /**
      * Debug log level for detailed diagnostic information.
      *
      * @var int
      */
-    public const DEBUG     = 7;
+    public const DEBUG = 7;
 
     /**
      * Shared logger handler instance used to dispatch PSR-3 calls.
@@ -122,26 +123,28 @@ class StarmusLogger
     private static int $min_log_level = self::INFO;
 
     /**
-        * Set the minimum log level
-        *
-        * @param int $level Log level constant
-        */
-    public static function set_min_level( int $level ): void {
+     * Set the minimum log level
+     *
+     * @param int $level Log level constant
+     */
+    public static function set_min_level(int $level): void
+    {
         self::$min_log_level = $level;
         self::$handler       = null; // Reset to refresh instance with new level
     }
 
     /**
-        * Get the internal handler instance
-        *
-        * @throws \Exception
-        */
-    private static function get_handler(): StarLogger {
-        try{
-            if ( ! self::$handler instanceof \Starisian\Sparxstar\Starmus\helpers\logger\StarLogger ) {
-                self::$handler = new StarLogger( self::$min_log_level );
+     * Get the internal handler instance
+     *
+     * @throws \Exception
+     */
+    private static function get_handler(): StarLogger
+    {
+        try {
+            if ( ! self::$handler instanceof \Starisian\Sparxstar\Starmus\helpers\logger\StarLogger) {
+                self::$handler = new StarLogger(self::$min_log_level);
             }
-        }	catch (\Exception $exception){
+        } catch (\Exception $exception) {
             // In case of logger initialization failure, fallback to error_log
             error_log('StarmusLogger initialization failed: ' . $exception->getMessage());
             throw $exception;
@@ -156,7 +159,10 @@ class StarmusLogger
      * @param mixed $message Error message or throwable to log.
      * @param array $context Context array for interpolation and metadata.
      */
-    public static function error(mixed $message, array $context = []): void      { self::get_handler()->error($message, $context); }
+    public static function error(mixed $message, array $context = []): void
+    {
+        self::get_handler()->error($message, $context);
+    }
 
     /**
      * Log an informational message.
@@ -164,7 +170,10 @@ class StarmusLogger
      * @param mixed $message Information to capture.
      * @param array $context Additional context data.
      */
-    public static function info(mixed $message, array $context = []): void       { self::get_handler()->info($message, $context); }
+    public static function info(mixed $message, array $context = []): void
+    {
+        self::get_handler()->info($message, $context);
+    }
 
     /**
      * Log a debug-level message for detailed troubleshooting.
@@ -172,7 +181,10 @@ class StarmusLogger
      * @param mixed $message Diagnostic information.
      * @param array $context Structured context for the log entry.
      */
-    public static function debug(mixed $message, array $context = []): void      { self::get_handler()->debug($message, $context); }
+    public static function debug(mixed $message, array $context = []): void
+    {
+        self::get_handler()->debug($message, $context);
+    }
 
     /**
      * Log a warning-level message for recoverable issues.
@@ -180,7 +192,10 @@ class StarmusLogger
      * @param mixed $message Warning description.
      * @param array $context Context array supplying metadata.
      */
-    public static function warning(mixed $message, array $context = []): void    { self::get_handler()->warning($message, $context); }
+    public static function warning(mixed $message, array $context = []): void
+    {
+        self::get_handler()->warning($message, $context);
+    }
 
     /**
      * Log a critical-level message for serious failures.
@@ -188,7 +203,10 @@ class StarmusLogger
      * @param mixed $message Critical error details.
      * @param array $context Context array for the log entry.
      */
-    public static function critical(mixed $message, array $context = []): void   { self::get_handler()->critical($message, $context); }
+    public static function critical(mixed $message, array $context = []): void
+    {
+        self::get_handler()->critical($message, $context);
+    }
 
     /**
      * Log an alert-level message requiring immediate attention.
@@ -198,9 +216,9 @@ class StarmusLogger
      */
     public static function alert(mixed $message, array $context = []): void
     {
-        if(is_admin()){
+        if (is_admin()) {
             // For admin users, also output to error_log for immediate visibility
-            StarmusUIHelper::renderError('Starmus ALERT: ' . (is_string($message) ? $message : print_r($message, true)));
+            StarmusUIHelper::renderError('Starmus ALERT: ' . (\is_string($message) ? $message : print_r($message, true)));
         }
 
         self::get_handler()->alert($message, $context);
@@ -212,13 +230,15 @@ class StarmusLogger
      * @param mixed $message Emergency message.
      * @param array $context Contextual metadata for the event.
      */
-    public static function emergency(mixed $message, array $context = []): void  { self::get_handler()->emergency($message, $context); }
+    public static function emergency(mixed $message, array $context = []): void
+    {
+        self::get_handler()->emergency($message, $context);
+    }
 
     /**
      * Compatibility alias for log_error
      *
      * @deprecated Use StarmusLogger::error() instead
-     *
      */
     public static function log_error(mixed $message, array $context = []): void
     {
@@ -238,6 +258,7 @@ class StarmusLogger
 
     /**
      * Render an error message for frontend display
+     *
      * @deprecated Use StarmusUIHelper::renderError() instead
      *
      * @param string $message User-facing error text.

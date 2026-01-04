@@ -37,7 +37,6 @@
  * @see StarmusAudioDAL Data access layer
  * @see StarmusFileService File management service
  */
-
 namespace Starisian\Sparxstar\Starmus\services;
 
 if ( ! \defined('ABSPATH')) {
@@ -45,8 +44,20 @@ if ( ! \defined('ABSPATH')) {
 }
 
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
-use Starisian\Sparxstar\Starums\services\StarmusFileService;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\services\StarmusFileService;
+use Throwable;
+use RuntimeException;
+use	function apply_filters;
+use	function exec;
+use	function file_exists;
+use	function file_get_contents;
+use	function escapeshellarg;
+use	function sys_get_temp_dir;
+use	function trim;
+use	function uniqid;
+use	function wp_json_encode;
+
 
 // FIX: Removed 'readonly' for PHP < 8.2 compatibility
 final class StarmusWaveformService
@@ -65,7 +76,7 @@ final class StarmusWaveformService
      * flexible initialization while maintaining testability.
      *
      * @param StarmusAudioDAL|null $dal Optional DAL instance
-     * @param StarmusFileService|null      $file_service Optional file service instance
+     * @param StarmusFileService|null $file_service Optional file service instance
      *
      * @since 1.0.0
      */
@@ -150,7 +161,7 @@ final class StarmusWaveformService
      * parent recording post. Handles parent post detection, file access, and
      * comprehensive error management.
      *
-     * @param int      $attachment_id WordPress attachment post ID for audio file
+     * @param int $attachment_id WordPress attachment post ID for audio file
      * @param int|null $explicit_parent_id Optional parent post ID (prevents lookup failures)
      *
      * @return bool True if waveform generated and saved successfully
@@ -192,19 +203,19 @@ final class StarmusWaveformService
     public function generate_waveform_data(int $attachment_id, ?int $explicit_parent_id = null): bool
     {
         StarmusLogger::info(
-        'Waveform generation started',
-        [
+            'Waveform generation started',
+            [
         'component'     => self::class,
         'attachment_id' => $attachment_id,
         'post_id'       => $explicit_parent_id,
-        ]
+            ]
         );
 
         // 1. Tool Check
         if ( ! $this->is_tool_available()) {
             StarmusLogger::warning(
-            'audiowaveform binary missing. Skipping.',
-            ['component' => self::class, 'attachment_id' => $attachment_id]
+                'audiowaveform binary missing. Skipping.',
+                ['component' => self::class, 'attachment_id' => $attachment_id]
             );
             return false;
         }
@@ -263,12 +274,12 @@ final class StarmusWaveformService
             }
 
             StarmusLogger::info(
-            'Waveform saved.',
-            [
+                'Waveform saved.',
+                [
             'component'     => self::class,
             'attachment_id' => $attachment_id,
             'post_id'       => $recording_id,
-            ]
+                ]
             );
             return true;
         } catch (\Throwable $throwable) {
@@ -346,12 +357,12 @@ final class StarmusWaveformService
         $temp_json = $temp_dir . '/waveform-' . uniqid() . '.json';
 
         $cmd = \sprintf(
-        'audiowaveform -i %s -o %s --pixels-per-second %d --bits %d --output-format %s',
-        escapeshellarg($file_path),
-        escapeshellarg($temp_json),
-        (int) $config['pixels_per_second'],
-        (int) $config['bits'],
-        escapeshellarg((string) $config['output_format'])
+            'audiowaveform -i %s -o %s --pixels-per-second %d --bits %d --output-format %s',
+            escapeshellarg($file_path),
+            escapeshellarg($temp_json),
+            (int) $config['pixels_per_second'],
+            (int) $config['bits'],
+            escapeshellarg((string) $config['output_format'])
         );
 
         try {

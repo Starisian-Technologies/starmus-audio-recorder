@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\integrations;
 
 use Starisian\Sparxstar\Starmus\includes\StarmusSageMakerJobRepository;
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-if ( ! \defined( 'ABSPATH' ) ) {
+
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -18,20 +18,20 @@ if ( ! \defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-final readonly class StarmusSageMakerClient {
-
+final readonly class StarmusSageMakerClient
+{
     /**
      * Constructor.
      *
      * @param StarmusSageMakerJobRepository $repository Job repository instance.
      */
     public function __construct(
-    /**
-     * Job repository.
-     *
-     * @var StarmusSageMakerJobRepository
-     */
-    private StarmusSageMakerJobRepository $repository
+        /**
+         * Job repository.
+         *
+         * @var StarmusSageMakerJobRepository
+         */
+        private StarmusSageMakerJobRepository $repository
     ) {
     }
 
@@ -40,7 +40,8 @@ final readonly class StarmusSageMakerClient {
      *
      * @return array Associative array with keys: total, pending, processing, done, failed.
      */
-    public function get_job_counts(): array {
+    public function get_job_counts(): array
+    {
         $jobs = $this->get_all_jobs();
 
         $counts = [
@@ -51,10 +52,10 @@ final readonly class StarmusSageMakerClient {
         'failed'     => 0,
         ];
 
-        foreach ( $jobs as $job ) {
+        foreach ($jobs as $job) {
             ++$counts['total'];
             $status = $job['status'] ?? 'pending';
-            if ( isset( $counts[ $status ] ) ) {
+            if (isset($counts[ $status ])) {
                 ++$counts[ $status ];
             }
         }
@@ -69,10 +70,11 @@ final readonly class StarmusSageMakerClient {
      *
      * @return bool True on success, false if job not found.
      */
-    public function retry_job( string $job_id ): bool {
-        $job = $this->repository->find( $job_id );
+    public function retry_job(string $job_id): bool
+    {
+        $job = $this->repository->find($job_id);
 
-        if ( ! $job ) {
+        if ( ! $job) {
             return false;
         }
 
@@ -81,11 +83,11 @@ final readonly class StarmusSageMakerClient {
         $job['attempts']     = 0;
         $job['scheduled_at'] = time();
 
-        $this->repository->save( $job_id, $job );
+        $this->repository->save($job_id, $job);
 
         // Schedule WP Cron event if not already scheduled
-        if ( ! wp_next_scheduled( 'aiwa_orch_process_transcription_job', [ $job_id ] ) ) {
-            wp_schedule_single_event( time() + 5, 'aiwa_orch_process_transcription_job', [ $job_id ] );
+        if ( ! wp_next_scheduled('aiwa_orch_process_transcription_job', [$job_id])) {
+            wp_schedule_single_event(time() + 5, 'aiwa_orch_process_transcription_job', [$job_id]);
         }
 
         return true;
@@ -98,19 +100,20 @@ final readonly class StarmusSageMakerClient {
      *
      * @return bool True if deleted, false if not found.
      */
-    public function delete_job( string $job_id ): bool {
-        $job = $this->repository->find( $job_id );
+    public function delete_job(string $job_id): bool
+    {
+        $job = $this->repository->find($job_id);
 
-        if ( ! $job ) {
+        if ( ! $job) {
             return false;
         }
 
         // Attempt to delete associated file if present
-        if ( ! empty( $job['file'] ) && file_exists( $job['file'] ) ) {
-            @unlink( $job['file'] );
+        if ( ! empty($job['file']) && file_exists($job['file'])) {
+            @unlink($job['file']);
         }
 
-        return $this->repository->delete( $job_id );
+        return $this->repository->delete($job_id);
     }
 
     /**
@@ -118,8 +121,9 @@ final readonly class StarmusSageMakerClient {
      *
      * @return array All jobs.
      */
-    private function get_all_jobs(): array {
-        $jobs = get_option( 'aiwa_sagemaker_jobs', [] );
-        return \is_array( $jobs ) ? $jobs : [];
+    private function get_all_jobs(): array
+    {
+        $jobs = get_option('aiwa_sagemaker_jobs', []);
+        return \is_array($jobs) ? $jobs : [];
     }
 }

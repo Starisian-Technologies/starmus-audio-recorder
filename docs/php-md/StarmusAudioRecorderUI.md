@@ -20,29 +20,22 @@ Front-end presentation layer for the Starmus recorder experience.
 /
 namespace Starisian\Sparxstar\Starmus\frontend;
 
-if ( ! \defined( 'ABSPATH' ) ) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
-use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
 
 /**
 Renders the user interface for the audio recorder and recordings list.
 Pure presentation: shortcodes + template rendering.
 Assets are handled separately in StarmusAssets.
 /
-class StarmusAudioRecorderUI {
-
-	/**
-REST namespace exposed to localized front-end scripts.
-@var string
-/
-	public const STARMUS_REST_NAMESPACE = StarmusSubmissionHandler::STARMUS_REST_NAMESPACE;
-
-	/**
+class StarmusAudioRecorderUI
+{
+    /**
 Prime the UI layer with optional settings for template hydration.
 @param StarmusSettings|null $settings Configuration object, if available.
 

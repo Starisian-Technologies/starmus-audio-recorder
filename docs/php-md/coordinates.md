@@ -7,11 +7,11 @@
 ## Description
 
 STARISIAN TECHNOLOGIES CONFIDENTIAL
-© 2023–2025 Starisian Technologies. All Rights Reserved.
+© 2023–2026 Starisian Technologies. All Rights Reserved.
 Main bootstrapper for the Starmus Audio Recorder plugin lifecycle.
 @package   Starisian\Sparxstar\Starmus
 @since     0.1.0
-@version 0.9.2
+@version   1.2.3
 
 ## Methods
 
@@ -49,6 +49,23 @@ This check is performed before plugin initialization to ensure graceful failure
 if the required dependency is not available.
 @since  0.1.0
 @return bool True when a supported field framework is available, false otherwise.
+
+### `get_DAL()`
+
+**Visibility:** `public`
+
+Retrieve the active Data Access Layer implementation.
+Exposes the DAL instance for consumers that require direct persistence
+access while preserving the singleton DAL contract.
+@since 0.1.0
+@return IStarmusAudioDAL|null Active DAL instance or null when unavailable.
+
+### `get_ProsodyDAL()`
+
+**Visibility:** `public`
+
+Retrieve the active Prosody DAL implementation.
+@since 1.2.0
 
 ### `displayRuntimeErrorNotice()`
 

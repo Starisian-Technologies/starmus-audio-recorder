@@ -285,35 +285,35 @@ Analysis of features from the old monolithic JavaScript architecture (`starmus-a
 
 ### Phase 2: Progressive Enhancement (P1)
 
-3. **Add Tier C fallback**
+1. **Add Tier C fallback**
    - Check `hasMediaRecorder` in `starmus-integrator.js`
    - If false, dispatch action to show file upload UI
    - Hide recorder controls
 
-4. **Enhance device telemetry**
+2. **Enhance device telemetry**
    - Add `deviceMemory`, `hardwareConcurrency`, `screen` to `initWithFallback()`
    - Pass to `_starmus_env` in uploads
 
-5. **Permission state monitoring**
+3. **Permission state monitoring**
    - Create `checkMicPermission()` helper
    - Call before showing record button
    - Update UI based on state
 
 ### Phase 3: Enhanced UX (P2)
 
-6. **Device enumeration**
+1. **Device enumeration**
    - List available microphones
    - Let user select preferred device
    - Monitor `devicechange` events
 
-7. **PWA scaffolding**
+2. **PWA scaffolding**
    - Register Service Worker
    - Implement background sync for uploads
    - Cache static assets
 
 ### Phase 4: Clarification Required (P3)
 
-8. **User to clarify**:
+1. **User to clarify**:
    - What is "Box Office Sync"?
    - What are "QR Workflows"? (QR code for what purpose?)
    - What does "Three Mode" mean? (already have mic, file, re-record)

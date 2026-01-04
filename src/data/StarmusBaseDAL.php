@@ -8,24 +8,23 @@
  * so it can be recovered manually.
  *
  * @package Starisian\Sparxstar\Starmus\data
+ *
  * @version 1.1.0
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\data;
 
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusBaseDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if ( ! defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
 abstract class StarmusBaseDAL implements IStarmusBaseDAL
 {
-
     // --- META OPERATIONS ---
 
     /**
@@ -36,13 +35,13 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
         try {
             $success = false;
 
-            if (function_exists('update_field')) {
+            if (\function_exists('update_field')) {
                 $success = (bool) update_field($key, $value, $post_id);
             } else {
                 // update_post_meta returns int|bool. False on failure, true/int on success.
                 // Note: It returns false if the value is the same as existing, which is technically a "success",
                 // but for data loss prevention, we care about DB errors.
-                $result = update_post_meta($post_id, $key, $value);
+                $result  = update_post_meta($post_id, $key, $value);
                 $success = (false !== $result);
             }
 
@@ -63,31 +62,31 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     /**
      * {@inheritdoc}
      */
-    public function get_post_meta( int $post_id, string $key, bool $single = true ): mixed {
+    public function get_post_meta(int $post_id, string $key, bool $single = true): mixed
+    {
         try {
             // 1. Prefer ACF for structured data retrieval
-            if ( function_exists( 'get_field' ) ) {
-                $value = get_field( $key, $post_id );
+            if (\function_exists('get_field')) {
+                $value = get_field($key, $post_id);
 
                 // Logic: ACF returns 'false' on failure OR if the boolean value is false.
                 // We accept the value if it is not null and not false.
                 // If it IS false, we fall back to native meta to distinguish between
                 // "actually false" and "field doesn't exist".
-                if ( $value !== null && $value !== false ) {
+                if ($value !== null && $value !== false) {
                     return $value;
                 }
             }
 
             // 2. Native Fallback (Source of Truth for raw DB values)
-            return get_post_meta( $post_id, $key, $single );
+            return get_post_meta($post_id, $key, $single);
 
-        } catch ( Throwable $throwable ) {
+        } catch (Throwable $throwable) {
             // 3. Fail Safe: Log the error and return null to prevent WSOD
-            StarmusLogger::log( $throwable );
+            StarmusLogger::log($throwable);
             return null;
         }
     }
-
 
     /**
      * {@inheritdoc}
@@ -133,7 +132,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
             'signature'            => '',
             ];
 
-            if (function_exists('add_row')) {
+            if (\function_exists('add_row')) {
                 $result = add_row('revision_history', $row, $post_id);
                 if ( ! $result) {
                     $this->log_write_failure($post_id, 'revision_history', $row);
@@ -144,7 +143,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
             }
 
             // Fallback logic
-            $history = (array) $this->get_post_meta($post_id, 'revision_history');
+            $history   = (array) $this->get_post_meta($post_id, 'revision_history');
             $history[] = $row;
             return $this->save_post_meta($post_id, 'revision_history', $history);
         } catch (Throwable $throwable) {
@@ -156,52 +155,53 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     /**
      * {@inheritdoc}
      */
-    public function log_asset_audit( int $post_id, string $action ): bool {
+    public function log_asset_audit(int $post_id, string $action): bool
+    {
         try {
             $row = [
-            'ts'     => current_time( 'Y-m-d H:i:s' ),
+            'ts'     => current_time('Y-m-d H:i:s'),
             'action' => $action,
             ];
 
             // 1. Try ACF
-            if ( function_exists( 'add_row' ) ) {
-                $result = add_row( 'asset_audit_log', $row, $post_id );
+            if (\function_exists('add_row')) {
+                $result = add_row('asset_audit_log', $row, $post_id);
 
-                if ( $result ) {
+                if ($result) {
                     return true; // <--- CRITICAL FIX: Stop here on success
                 }
 
                 // Only log failure if we aren't going to try the fallback?
                 // Or log it and try fallback? Let's try fallback.
-                $this->log_write_failure( $post_id, 'asset_audit_log (ACF)', $row );
+                $this->log_write_failure($post_id, 'asset_audit_log (ACF)', $row);
             }
 
             // 2. Fallback Logic (Native)
             // Only runs if ACF is missing or add_row failed
-            $log = (array) $this->get_post_meta( $post_id, 'asset_audit_log' );
+            $log   = (array) $this->get_post_meta($post_id, 'asset_audit_log');
             $log[] = $row;
 
-            return $this->save_post_meta( $post_id, 'asset_audit_log', $log );
+            return $this->save_post_meta($post_id, 'asset_audit_log', $log);
 
-        } catch ( Throwable $throwable ) {
-            StarmusLogger::log( $throwable );
+        } catch (Throwable $throwable) {
+            StarmusLogger::log($throwable);
             return false;
         }
     }
 
     /**
-        * Helper: Dumps failed data to logs to prevent total data loss.
-        */
+     * Helper: Dumps failed data to logs to prevent total data loss.
+     */
     protected function log_write_failure(int $post_id, string $key, mixed $value, string $error_msg = 'DB Write Returned False'): void
     {
         // We JSON encode the value to ensure complex arrays/objects are readable in the text log
         $safe_value = json_encode($value);
 
         StarmusLogger::error(
-        sprintf('DATA LOSS PREVENTION: Write failed for Post %d, Key: %s. Reason: %s', $post_id, $key, $error_msg),
-        [
-        'failed_payload' => $safe_value // The data is now safe in the log
-        ]
+            \sprintf('DATA LOSS PREVENTION: Write failed for Post %d, Key: %s. Reason: %s', $post_id, $key, $error_msg),
+            [
+        'failed_payload' => $safe_value, // The data is now safe in the log
+            ]
         );
     }
 }

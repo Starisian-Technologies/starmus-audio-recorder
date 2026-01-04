@@ -9,22 +9,20 @@
  *
  * @since 0.3.1
  */
-
 namespace Starisian\Sparxstar\Starmus\admin;
 
 if ( ! \defined('ABSPATH')) {
     return;
 }
 
-use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 
 /**
  * Secure and optimized admin settings class.
  */
 class StarmusAdmin
 {
-
     /**
      * Menu slug for the plugin settings page.
      *
@@ -65,7 +63,7 @@ class StarmusAdmin
      * and registers admin hooks for menu and settings registration.
      *
      * @param IStarmusAudioDAL $DAL Data Access Layer instance.
-     * @param StarmusSettings                  $settings Settings service instance.
+     * @param StarmusSettings $settings Settings service instance.
      *
      * @throws \Throwable If initialization fails.
      *
@@ -101,9 +99,9 @@ class StarmusAdmin
 
     private function register_hooks(): void
     {
-        add_action('admin_menu', $this->add_admin_menu(...));
+        add_action('admin_menu', [$this, 'add_admin_menu']);
         // REVERTED: Back to admin_init for register_settings.
-        add_action('admin_init', $this->register_settings(...));
+        add_action('admin_init', [$this, 'register_settings']);
     }
 
     /**
@@ -123,12 +121,12 @@ class StarmusAdmin
             $parent_slug = 'edit.php?post_type=' . sanitize_key($cpt_slug);
 
             add_submenu_page(
-            $parent_slug,
-            __('Audio Recorder Settings', 'starmus-audio-recorder'),
-            __('Settings', 'starmus-audio-recorder'),
-            'manage_options',
-            self::STARMUS_MENU_SLUG,
-            $this->render_settings_page(...)
+                $parent_slug,
+                __('Audio Recorder Settings', 'starmus-audio-recorder'),
+                __('Settings', 'starmus-audio-recorder'),
+                'manage_options',
+                self::STARMUS_MENU_SLUG,
+                $this->render_settings_page(...)
             );
         } catch (\Throwable $throwable) {
             error_log($throwable->getMessage());
@@ -198,12 +196,12 @@ class StarmusAdmin
     {
         try {
             register_setting(
-            self::STARMUS_SETTINGS_GROUP,
-            StarmusSettings::STARMUS_OPTION_KEY, // CORRECTED: Access constant from StarmusSettings class
-            [
-            'sanitize_callback' => $this->sanitize_settings(...),
-            'default'           => $this->settings->get_defaults(), // Passed for initial defaults handling
-            ]
+                self::STARMUS_SETTINGS_GROUP,
+                StarmusSettings::STARMUS_OPTION_KEY, // CORRECTED: Access constant from StarmusSettings class
+                [
+                'sanitize_callback' => $this->sanitize_settings(...),
+                'default'           => $this->settings->get_defaults(), // Passed for initial defaults handling
+                ]
             );
 
             $this->add_settings_sections();
@@ -253,10 +251,10 @@ class StarmusAdmin
             // Allowed languages
             $allowed_langs = sanitize_text_field($input['allowed_languages'] ?? '');
             if ( ! empty($allowed_langs)) {
-                $langs                          = array_map(trim(...), explode(',', $allowed_langs));
-                $langs                          = array_filter(
-                $langs,
-                fn($l): int|false => preg_match('/^[a-z]{2,4}$/', (string) $l)
+                $langs = array_map(trim(...), explode(',', $allowed_langs));
+                $langs = array_filter(
+                    $langs,
+                    fn ($l): int|false => preg_match('/^[a-z]{2,4}$/', (string) $l)
                 );
                 $sanitized['allowed_languages'] = implode(',', $langs);
             } else {
@@ -296,16 +294,16 @@ class StarmusAdmin
                     $page_id = $this->dal->get_page_id_by_slug($slug_input);
                     if ($page_id <= 0) {
                         add_settings_error(
-                         self::STARMUS_SETTINGS_GROUP,
-                         \sprintf('starmus_%s_not_found', $key),
-                         \sprintf(
-                          /* translators: 1: page slug, 2: setting title */
-                          __('The page with slug "%1$s" for "%2$s" could not be found. Please ensure the page exists.', 'starmus-audio-recorder'),
-                          esc_html($slug_input),
-                          esc_html($title)
-                         ),
-                         'error'
-                           );
+                            self::STARMUS_SETTINGS_GROUP,
+                            \sprintf('starmus_%s_not_found', $key),
+                            \sprintf(
+                                /* translators: 1: page slug, 2: setting title */
+                                __('The page with slug "%1$s" for "%2$s" could not be found. Please ensure the page exists.', 'starmus-audio-recorder'),
+                                esc_html($slug_input),
+                                esc_html($title)
+                            ),
+                            'error'
+                        );
                     }
                 }
                 $sanitized[$key] = $page_id;
@@ -332,45 +330,45 @@ class StarmusAdmin
     {
         try {
             add_settings_section(
-            'starmus_cpt_section',
-            __('Custom Post Type Settings', 'starmus-audio-recorder'),
-            '__return_empty_string',
-            self::STARMUS_MENU_SLUG
+                'starmus_cpt_section',
+                __('Custom Post Type Settings', 'starmus-audio-recorder'),
+                '__return_empty_string',
+                self::STARMUS_MENU_SLUG
             );
 
             add_settings_section(
-            'starmus_rules_section',
-            __('File Upload & Recording Rules', 'starmus-audio-recorder'),
-            '__return_empty_string',
-            self::STARMUS_MENU_SLUG
+                'starmus_rules_section',
+                __('File Upload & Recording Rules', 'starmus-audio-recorder'),
+                '__return_empty_string',
+                self::STARMUS_MENU_SLUG
             );
 
             add_settings_section(
-            'starmus_upload_section',
-            __('Upload Configuration', 'starmus-audio-recorder'),
-            '__return_empty_string',
-            self::STARMUS_MENU_SLUG
+                'starmus_upload_section',
+                __('Upload Configuration', 'starmus-audio-recorder'),
+                '__return_empty_string',
+                self::STARMUS_MENU_SLUG
             );
 
             add_settings_section(
-            'starmus_language_section',
-            __('Language Validation', 'starmus-audio-recorder'),
-            '__return_empty_string',
-            self::STARMUS_MENU_SLUG
+                'starmus_language_section',
+                __('Language Validation', 'starmus-audio-recorder'),
+                '__return_empty_string',
+                self::STARMUS_MENU_SLUG
             );
 
             add_settings_section(
-            'starmus_privacy_section',
-            __('Privacy & Form Settings', 'starmus-audio-recorder'),
-            '__return_empty_string',
-            self::STARMUS_MENU_SLUG
+                'starmus_privacy_section',
+                __('Privacy & Form Settings', 'starmus-audio-recorder'),
+                '__return_empty_string',
+                self::STARMUS_MENU_SLUG
             );
 
             add_settings_section(
-            'starmus_page_section',
-            __('Frontend Page Settings', 'starmus-audio-recorder'),
-            '__return_empty_string',
-            self::STARMUS_MENU_SLUG
+                'starmus_page_section',
+                __('Frontend Page Settings', 'starmus-audio-recorder'),
+                '__return_empty_string',
+                self::STARMUS_MENU_SLUG
             );
         } catch (\Throwable $throwable) {
             error_log($throwable->getMessage());
@@ -385,27 +383,27 @@ class StarmusAdmin
         try {
             // Define all fields with their properties
             $fields = [
-            'cpt_slug'                => [
+            'cpt_slug' => [
             'title'       => __('Post Type Slug', 'starmus-audio-recorder'),
             'section'     => 'starmus_cpt_section',
             'description' => __('Use lowercase letters, numbers, and hyphens only.', 'starmus-audio-recorder'),
             ],
-            'file_size_limit'         => [
+            'file_size_limit' => [
             'title'       => __('Max File Size (MB)', 'starmus-audio-recorder'),
             'section'     => 'starmus_rules_section',
             'description' => __('Maximum allowed file size for uploads.', 'starmus-audio-recorder'),
             ],
-            'allowed_file_types'      => [
+            'allowed_file_types' => [
             'title'       => __('Allowed File Extensions', 'starmus-audio-recorder'),
             'section'     => 'starmus_rules_section',
             'description' => __('Comma-separated list of allowed extensions (e.g., mp3, wav, webm).', 'starmus-audio-recorder'),
             ],
-            'tus_endpoint'            => [
+            'tus_endpoint' => [
             'title'       => __('TUS Resumable Upload Endpoint', 'starmus-audio-recorder'),
             'section'     => 'starmus_upload_section',
             'description' => __('URL where TUS resumable uploads are handled. Default: https://contribute.sparxstar.com/files/', 'starmus-audio-recorder'),
             ],
-            'allowed_languages'       => [
+            'allowed_languages' => [
             'title'       => __('Allowed Languages (ISO codes)', 'starmus-audio-recorder'),
             'section'     => 'starmus_language_section',
             'description' => __('Comma-separated list of allowed language ISO codes (e.g., en, fr, de). Leave blank to allow any language.', 'starmus-audio-recorder'),
@@ -415,34 +413,34 @@ class StarmusAdmin
             'section'     => 'starmus_language_section',
             'description' => __('Default language for speech recognition in BCP 47 format (e.g., en-US, fr-FR, ha-NG for Hausa-Nigeria). Used to generate live transcripts during recording.', 'starmus-audio-recorder'),
             ],
-            'consent_message'         => [
+            'consent_message' => [
             'title'       => __('Consent Checkbox Message', 'starmus-audio-recorder'),
             'section'     => 'starmus_privacy_section',
             'description' => __('Text displayed next to consent checkbox for data collection.', 'starmus-audio-recorder'),
             ],
-            'collect_ip_ua'           => [
+            'collect_ip_ua' => [
             'title'       => __('Store IP & User Agent', 'starmus-audio-recorder'),
             'section'     => 'starmus_privacy_section',
             'label'       => __('Save submitter IP and user agent for all submissions.', 'starmus-audio-recorder'),
             'description' => __('Enabling this may have privacy implications. Ensure compliance with data protection laws.', 'starmus-audio-recorder'),
             ],
-            'delete_on_uninstall'     => [
+            'delete_on_uninstall' => [
             'title'       => __('Delete All Data on Uninstall', 'starmus-audio-recorder'),
             'section'     => 'starmus_privacy_section',
             'label'       => __('Permanently delete all recordings, submissions, and plugin data when the plugin is uninstalled.', 'starmus-audio-recorder'),
             'description' => __('WARNING: This action cannot be undone. If unchecked, data will be preserved even after plugin deletion.', 'starmus-audio-recorder'),
             ],
-            'edit_page_id'            => [
+            'edit_page_id' => [
             'title'       => __('Edit Audio Page Slug', 'starmus-audio-recorder'),
             'section'     => 'starmus_page_section',
             'description' => __('Enter the slug of the page where users can edit their audio recordings (e.g., "my-audio-editor"). This page must exist and contain the appropriate shortcode.', 'starmus-audio-recorder'),
             ],
-            'recorder_page_id'        => [
+            'recorder_page_id' => [
             'title'       => __('Audio Recorder Page Slug', 'starmus-audio-recorder'),
             'section'     => 'starmus_page_section',
             'description' => __('Enter the slug of the page containing the [starmus-audio-recorder] shortcode (e.g., "record-audio").', 'starmus-audio-recorder'),
             ],
-            'my_recordings_page_id'   => [
+            'my_recordings_page_id' => [
             'title'       => __('My Recordings Page Slug', 'starmus-audio-recorder'),
             'section'     => 'starmus_page_section',
             'description' => __('Enter the slug of the page containing the [starmus-my-recordings] shortcode (e.g., "my-submissions").', 'starmus-audio-recorder'),
@@ -451,18 +449,18 @@ class StarmusAdmin
 
             foreach ($fields as $id => $field) {
                 add_settings_field(
-                $id,
-                $field['title'],
-                $this->render_field(...),
-                self::STARMUS_MENU_SLUG,
-                $field['section'],
-                array_merge(
-                [
+                    $id,
+                    $field['title'],
+                    $this->render_field(...),
+                    self::STARMUS_MENU_SLUG,
+                    $field['section'],
+                    array_merge(
+                        [
                 'id'   => $id,
                 'type' => $this->field_types[$id] ?? 'text',
-                ],
-                $field
-                )
+                        ],
+                        $field
+                    )
                 );
             }
         } catch (\Throwable $throwable) {
@@ -503,52 +501,52 @@ class StarmusAdmin
             switch ($type) {
                 case 'textarea':
                     printf(
-                     '<textarea id="%s" name="%s" rows="4" class="large-text">%s</textarea>',
-                     esc_attr($id),
-                     esc_attr($name),
-                     esc_textarea($value)
+                        '<textarea id="%s" name="%s" rows="4" class="large-text">%s</textarea>',
+                        esc_attr($id),
+                        esc_attr($name),
+                        esc_textarea($value)
                     );
-              break;
+                    break;
 
                 case 'checkbox':
                     printf(
-                    '<label><input type="checkbox" id="%s" name="%s" value="1" %s /> %s</label>',
-                    esc_attr($id),
-                    esc_attr($name),
-                    checked(1, $value, false),
-                    esc_html($args['label'] ?? '')
+                        '<label><input type="checkbox" id="%s" name="%s" value="1" %s /> %s</label>',
+                        esc_attr($id),
+                        esc_attr($name),
+                        checked(1, $value, false),
+                        esc_html($args['label'] ?? '')
                     );
-              break;
+                    break;
 
                 case 'number':
                     printf(
-                    '<input type="number" id="%s" name="%s" value="%s" class="small-text" min="1" max="100" />',
-                    esc_attr($id),
-                    esc_attr($name),
-                    esc_attr($value)
+                        '<input type="number" id="%s" name="%s" value="%s" class="small-text" min="1" max="100" />',
+                        esc_attr($id),
+                        esc_attr($name),
+                        esc_attr($value)
                     );
-              break;
+                    break;
 
                 case 'url':
                     printf(
-                    '<input type="url" id="%s" name="%s" value="%s" class="regular-text" placeholder="https://contribute.sparxstar.com/files/" />',
-                    esc_attr($id),
-                    esc_attr($name),
-                    esc_attr((string) $value)
+                        '<input type="url" id="%s" name="%s" value="%s" class="regular-text" placeholder="https://contribute.sparxstar.com/files/" />',
+                        esc_attr($id),
+                        esc_attr($name),
+                        esc_attr((string) $value)
                     );
-              break;
+                    break;
 
                 case 'pages_dropdown':
                     wp_dropdown_pages(
-                    [
+                        [
                     'name'              => esc_attr($name),
                     'id'                => esc_attr($id),
                     'selected'          => esc_attr($value),
                     'show_option_none'  => esc_html__('— Select a Page —', 'starmus-audio-recorder'),
                     'option_none_value' => '0',
-                    ]
+                        ]
                     );
-              break;
+                    break;
 
                 case 'slug_input':
                     $current_slug = '';
@@ -556,28 +554,28 @@ class StarmusAdmin
                         $current_slug = $this->dal->get_page_slug_by_id((int) $value);
                     }
                     printf(
-                    '<input type="text" id="%s" name="%s" value="%s" class="regular-text" placeholder="e.g., starmus-audio-editor" />',
-                    esc_attr($id),
-                    esc_attr($name),
-                    esc_attr($current_slug)
+                        '<input type="text" id="%s" name="%s" value="%s" class="regular-text" placeholder="e.g., starmus-audio-editor" />',
+                        esc_attr($id),
+                        esc_attr($name),
+                        esc_attr($current_slug)
                     );
-              break;
+                    break;
 
                 case 'text':
                 default:
                     printf(
-                    '<input type="text" id="%s" name="%s" value="%s" class="regular-text" />',
-                    esc_attr($id),
-                    esc_attr($name),
-                    esc_attr($value)
+                        '<input type="text" id="%s" name="%s" value="%s" class="regular-text" />',
+                        esc_attr($id),
+                        esc_attr($name),
+                        esc_attr($value)
                     );
-              break;
+                    break;
             }
 
             if ( ! empty($args['description'])) {
                 printf(
-                '<p class="description">%s</p>',
-                wp_kses($args['description'], ['strong' => []])
+                    '<p class="description">%s</p>',
+                    wp_kses($args['description'], ['strong' => []])
                 );
             }
         } catch (\Throwable $throwable) {

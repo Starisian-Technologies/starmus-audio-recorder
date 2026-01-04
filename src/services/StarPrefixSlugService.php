@@ -1,12 +1,9 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\services;
 
-use function defined;
-
-if ( ! \defined('ABSPATH') ) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -56,9 +53,8 @@ if ( ! \defined('ABSPATH') ) {
  * @see wp_unique_post_slug() WordPress slug generation
  * @see get_post_meta() WordPress metadata retrieval
  */
-final class StarPrefixSlugService {
-
-
+final class StarPrefixSlugService
+{
     /**
      * URL slug prefix for restricted content identification.
      *
@@ -98,9 +94,10 @@ final class StarPrefixSlugService {
      * Hook Arguments: 6 (full parameter access)
      * @see star_prefix_slug() Filter callback implementation
      */
-    public function star_boot(): void {
+    public function star_boot(): void
+    {
         // Hook into slug generation (save/update)
-        add_filter('wp_unique_post_slug', $this->star_prefix_slug(...), 10, 2);
+        add_filter('wp_unique_post_slug', [$this, 'star_prefix_slug'], 10, 2);
     }
 
     /**
@@ -110,7 +107,7 @@ final class StarPrefixSlugService {
      * "star-" prefix for posts marked as restricted content.
      *
      * @param string $slug Current unique post slug candidate
-     * @param int    $post_id WordPress post ID being processed
+     * @param int $post_id WordPress post ID being processed
      *
      * @return string Modified slug with prefix if restricted, or original slug
      *
@@ -153,13 +150,14 @@ final class StarPrefixSlugService {
      * @see get_post_meta() WordPress metadata access
      * @see str_starts_with() PHP 8 string function
      */
-    public function star_prefix_slug(string $slug, int $post_id): string {
+    public function star_prefix_slug(string $slug, int $post_id): string
+    {
         // 1. Check restriction status
         $restricted = get_post_meta($post_id, self::META_KEY, true);
 
         // 2. Apply Prefix if needed
         // We use '1' as the standard boolean true for checkbox meta
-        if ( $restricted === '1' && ! str_starts_with($slug, self::PREFIX) ) {
+        if ($restricted === '1' && ! str_starts_with($slug, self::PREFIX)) {
             return self::PREFIX . $slug;
         }
 

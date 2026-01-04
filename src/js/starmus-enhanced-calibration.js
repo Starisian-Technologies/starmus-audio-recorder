@@ -19,8 +19,8 @@ class EnhancedCalibration {
 	}
 
 	/**
-     * Initialize calibration with SPARXSTAR environment data
-     */
+   * Initialize calibration with SPARXSTAR environment data
+   */
 	async init() {
 		this.environmentData = sparxstarIntegration.getEnvironmentData();
 		this.tier = this.environmentData?.tier || 'C';
@@ -30,54 +30,54 @@ class EnhancedCalibration {
 	}
 
 	/**
-     * Get tier-specific calibration settings
-     */
+   * Get tier-specific calibration settings
+   */
 	getTierSettings() {
 		const settings = {
 			A: {
-				duration: 15000,        // 15 seconds
-				phases: 3,              // 3 calibration phases
-				noiseThreshold: 5,      // Lower noise threshold
-				speechThreshold: 20,    // Higher speech detection
-				sampleRate: 44100,      // High quality sampling
-				fftSize: 2048,          // High resolution analysis
-				smoothing: 0.8,         // High smoothing
-				gainRange: [0.5, 2.0],  // Wide gain range
-				autoGainControl: true   // Enable AGC
+				duration: 15000, // 15 seconds
+				phases: 3, // 3 calibration phases
+				noiseThreshold: 5, // Lower noise threshold
+				speechThreshold: 20, // Higher speech detection
+				sampleRate: 44100, // High quality sampling
+				fftSize: 2048, // High resolution analysis
+				smoothing: 0.8, // High smoothing
+				gainRange: [0.5, 2.0], // Wide gain range
+				autoGainControl: true, // Enable AGC
 			},
 			B: {
-				duration: 10000,        // 10 seconds
-				phases: 2,              // 2 calibration phases
-				noiseThreshold: 8,      // Medium noise threshold
-				speechThreshold: 15,    // Medium speech detection
-				sampleRate: 22050,      // Medium quality sampling
-				fftSize: 1024,          // Medium resolution analysis
-				smoothing: 0.6,         // Medium smoothing
-				gainRange: [0.7, 1.5],  // Moderate gain range
-				autoGainControl: true   // Enable AGC
+				duration: 10000, // 10 seconds
+				phases: 2, // 2 calibration phases
+				noiseThreshold: 8, // Medium noise threshold
+				speechThreshold: 15, // Medium speech detection
+				sampleRate: 22050, // Medium quality sampling
+				fftSize: 1024, // Medium resolution analysis
+				smoothing: 0.6, // Medium smoothing
+				gainRange: [0.7, 1.5], // Moderate gain range
+				autoGainControl: true, // Enable AGC
 			},
 			C: {
-				duration: 5000,         // 5 seconds
-				phases: 1,              // 1 calibration phase
-				noiseThreshold: 12,     // Higher noise threshold
-				speechThreshold: 10,    // Lower speech detection
-				sampleRate: 16000,      // Basic quality sampling
-				fftSize: 512,           // Low resolution analysis
-				smoothing: 0.4,         // Low smoothing
-				gainRange: [0.8, 1.2],  // Narrow gain range
-				autoGainControl: false  // Disable AGC for performance
-			}
+				duration: 5000, // 5 seconds
+				phases: 1, // 1 calibration phase
+				noiseThreshold: 12, // Higher noise threshold
+				speechThreshold: 10, // Lower speech detection
+				sampleRate: 16000, // Basic quality sampling
+				fftSize: 512, // Low resolution analysis
+				smoothing: 0.4, // Low smoothing
+				gainRange: [0.8, 1.2], // Narrow gain range
+				autoGainControl: false, // Disable AGC for performance
+			},
 		};
 
 		return settings[this.tier] || settings.C;
 	}
 
 	/**
-     * Perform enhanced calibration with tier-based optimization
-     */
+   * Perform enhanced calibration with tier-based optimization
+   */
 	/**
-     * Perform enhanced calibration with tier-based optimization
-     */
+   * Perform enhanced calibration with tier-based optimization
+   */
 	async performCalibration(stream, onUpdate) {
 		const settings = this.getTierSettings();
 		let actualSampleRate = 0; // Initialize early for scoping
@@ -87,14 +87,16 @@ class EnhancedCalibration {
 			try {
 				this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
 					sampleRate: settings.sampleRate,
-					latencyHint: 'interactive'
+					latencyHint: 'interactive',
 				});
 			} catch (sampleRateError) {
-				console.warn(`[Calibration] Preferred sampleRate ${settings.sampleRate}Hz failed. Falling back to hardware default.`);
+				console.warn(
+					`[Calibration] Preferred sampleRate ${settings.sampleRate}Hz failed. Falling back to hardware default.`
+				);
 
 				// 2. Fallback: Initialize with hardware default (omit sampleRate)
 				this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
-					latencyHint: 'interactive'
+					latencyHint: 'interactive',
 				});
 
 				// Report the fallback event to SPARXSTAR
@@ -104,7 +106,7 @@ class EnhancedCalibration {
 						requestedSampleRate: settings.sampleRate,
 						error: sampleRateError.message,
 						network: this.environmentData?.network?.type,
-						device: this.environmentData?.device?.type
+						device: this.environmentData?.device?.type,
 					});
 				}
 			}
@@ -135,18 +137,17 @@ class EnhancedCalibration {
 					tier: this.tier,
 					actualSampleRate: actualSampleRate,
 					duration: settings.duration,
-					result: calibrationResult
+					result: calibrationResult,
 				});
 			}
 
 			return calibrationResult;
-
 		} catch (error) {
 			console.error('[Enhanced Calibration] Fatal Error:', error);
 			if (sparxstarIntegration.isAvailable) {
 				sparxstarIntegration.reportError('calibration_failed', {
 					error: error.message,
-					tier: this.tier
+					tier: this.tier,
 				});
 			}
 			throw error;
@@ -155,10 +156,9 @@ class EnhancedCalibration {
 		}
 	}
 
-
 	/**
-     * Run tier-based calibration process
-     */
+   * Run tier-based calibration process
+   */
 	async runTierBasedCalibration(settings, onUpdate) {
 		const data = new Uint8Array(this.analyser.frequencyBinCount);
 		const startTime = Date.now();
@@ -201,10 +201,14 @@ class EnhancedCalibration {
 				const dbSPL = dbV - micSensitivity + 94;
 				const volume = Math.min(100, Math.max(0, (dbSPL - 30) * 1.67)); // 30-90 dB SPL -> 0-100%
 				sampleCount++;
-				avgVolume = ((avgVolume * (sampleCount - 1)) + volume) / sampleCount;
+				avgVolume = (avgVolume * (sampleCount - 1) + volume) / sampleCount;
 
-				if (volume > maxVolume) {maxVolume = volume;}
-				if (volume < minVolume) {minVolume = volume;}
+				if (volume > maxVolume) {
+					maxVolume = volume;
+				}
+				if (volume < minVolume) {
+					minVolume = volume;
+				}
 
 				// Phase-specific processing
 				let message = '';
@@ -216,13 +220,10 @@ class EnhancedCalibration {
 					if (volume < settings.noiseThreshold) {
 						noiseFloor = Math.max(noiseFloor, volume);
 					}
-					message = this.tier === 'C' ?
-						'Quick setup...' :
-						`Phase 1: Measuring background noise (${Math.ceil((phaseDuration - phaseElapsed) / 1000)}s)`;
+					message =
+              this.tier === 'C' ? 'Quick setup...' : `Phase 1: Measuring background noise (${Math.ceil((phaseDuration - phaseElapsed) / 1000)}s)`;
 					break;
-
 				case 1:
-					// Speech detection (Tier A & B only)
 					if (volume > settings.speechThreshold) {
 						speechPeaks.push(volume);
 					}
@@ -243,16 +244,16 @@ class EnhancedCalibration {
 						phase: currentPhase + 1,
 						totalPhases: settings.phases,
 						progress: Math.min(progress, 100),
-						tier: this.tier
+						tier: this.tier,
 					});
 				}
 
 				if (elapsed >= settings.duration) {
 					// Calculate final calibration values
-					const avgSpeechLevel = speechPeaks.length > 0 ?
-						speechPeaks.reduce((a, b) => a + b, 0) / speechPeaks.length :
-						maxVolume;
-
+					const avgSpeechLevel =
+					speechPeaks.length > 0
+						? speechPeaks.reduce((a, b) => a + b, 0) / speechPeaks.length
+						: maxVolume;
 					const dynamicRange = maxVolume - noiseFloor;
 					const signalToNoise = avgSpeechLevel / Math.max(noiseFloor, 1);
 
@@ -276,7 +277,7 @@ class EnhancedCalibration {
 						duration: elapsed,
 						phases: settings.phases,
 						quality: this.assessCalibrationQuality(dynamicRange, signalToNoise, settings),
-						recommendations: this.generateRecommendations(dynamicRange, signalToNoise, settings)
+						recommendations: this.generateRecommendations(dynamicRange, signalToNoise, settings),
 					};
 
 					if (onUpdate) {
@@ -295,8 +296,8 @@ class EnhancedCalibration {
 	}
 
 	/**
-     * Calculate optimal gain based on measurements and tier
-     */
+   * Calculate optimal gain based on measurements and tier
+   */
 	calculateOptimalGain(speechLevel, noiseFloor, dynamicRange, settings) {
 		const targetLevel = 60; // Target speech level
 		const baseGain = targetLevel / Math.max(speechLevel, 1);
@@ -324,34 +325,48 @@ class EnhancedCalibration {
 	}
 
 	/**
-     * Assess calibration quality
-     */
-	assessCalibrationQuality(dynamicRange, signalToNoise, settings) {
+   * Assess calibration quality
+   */
+	assessCalibrationQuality(dynamicRange, signalToNoise, _settings) {
 		let score = 0;
 
 		// Dynamic range scoring
-		if (dynamicRange > 40) {score += 3;}
-		else if (dynamicRange > 20) {score += 2;}
-		else if (dynamicRange > 10) {score += 1;}
+		if (dynamicRange > 40) {
+			score += 3;
+		} else if (dynamicRange > 20) {
+			score += 2;
+		} else if (dynamicRange > 10) {
+			score += 1;
+		}
 
 		// Signal-to-noise ratio scoring
-		if (signalToNoise > 5) {score += 3;}
-		else if (signalToNoise > 3) {score += 2;}
-		else if (signalToNoise > 2) {score += 1;}
+		if (signalToNoise > 5) {
+			score += 3;
+		} else if (signalToNoise > 3) {
+			score += 2;
+		} else if (signalToNoise > 2) {
+			score += 1;
+		}
 
 		// Tier-based quality expectations
 		const maxScore = this.tier === 'A' ? 6 : this.tier === 'B' ? 5 : 4;
 		const qualityPercent = (score / maxScore) * 100;
 
-		if (qualityPercent >= 80) {return 'excellent';}
-		if (qualityPercent >= 60) {return 'good';}
-		if (qualityPercent >= 40) {return 'fair';}
+		if (qualityPercent >= 80) {
+			return 'excellent';
+		}
+		if (qualityPercent >= 60) {
+			return 'good';
+		}
+		if (qualityPercent >= 40) {
+			return 'fair';
+		}
 		return 'poor';
 	}
 
 	/**
-     * Generate recommendations based on calibration results
-     */
+   * Generate recommendations based on calibration results
+   */
 	generateRecommendations(dynamicRange, signalToNoise, settings) {
 		const recommendations = [];
 
@@ -375,8 +390,8 @@ class EnhancedCalibration {
 	}
 
 	/**
-     * Cleanup audio resources
-     */
+   * Cleanup audio resources
+   */
 	cleanup() {
 		try {
 			if (this.source) {
@@ -400,4 +415,3 @@ class EnhancedCalibration {
 }
 
 export default EnhancedCalibration;
-

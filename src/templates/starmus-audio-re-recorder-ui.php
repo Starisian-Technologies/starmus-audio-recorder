@@ -5,47 +5,47 @@
  *
  * @version 1.0.2-DATA-SAFE
  */
-if ( ! defined( 'ABSPATH' ) ) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 
 /** @var int $post_id */
 /** @var string $existing_title */
 
-$instance_id = 'starmus_form_' . sanitize_key( 'rerecord_' . wp_generate_uuid4() );
+$instance_id = 'starmus_form_' . sanitize_key('rerecord_' . wp_generate_uuid4());
 
 $allowed_file_types ??= 'webm';
-$allowed_types_arr    = array_values( array_filter( array_map( trim( ... ), explode( ',', (string) $allowed_file_types ) ), fn ( $v ): bool => $v !== '' ) );
-$is_admin             = current_user_can( 'manage_options' );
-$consent_message    ??= __( 'By submitting this recording, you agree to our', 'starmus-audio-recorder' );
-$data_policy_url    ??= '';
+$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+$is_admin          = current_user_can('manage_options');
+$consent_message ??= __('By submitting this recording, you agree to our', 'starmus-audio-recorder');
+$data_policy_url ??= '';
 ?>
 
 <div class="starmus-recorder-form sparxstar-glass-card">
 	<form
-		id="<?php echo esc_attr( $instance_id ); ?>"
+		id="<?php echo esc_attr($instance_id); ?>"
 		class="starmus-audio-form"
 		method="post"
 		enctype="multipart/form-data"
 		novalidate
 		data-starmus="recorder"
 		data-starmus-mode="update"
-		data-starmus-instance="<?php echo esc_attr( $instance_id ); ?>">
+		data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
 
-		<div id="starmus_step1_<?php echo esc_attr( $instance_id ); ?>" class="starmus-step" data-starmus-step="1">
-			<h2><?php esc_html_e( 'Re-Record Audio', 'starmus-audio-recorder' ); ?></h2>
+		<div id="starmus_step1_<?php echo esc_attr($instance_id); ?>" class="starmus-step" data-starmus-step="1">
+			<h2><?php esc_html_e('Re-Record Audio', 'starmus-audio-recorder'); ?></h2>
 
 			<div class="starmus-notice">
-				<p><?php esc_html_e( 'You are replacing audio for:', 'starmus-audio-recorder' ); ?> <strong><?php echo esc_html( $existing_title ); ?></strong></p>
-				<p style="font-size:0.8em; opacity:0.8">ID: <?php echo intval( $post_id ); ?></p>
+				<p><?php esc_html_e('You are replacing audio for:', 'starmus-audio-recorder'); ?> <strong><?php echo esc_html($existing_title); ?></strong></p>
+				<p style="font-size:0.8em; opacity:0.8">ID: <?php echo intval($post_id); ?></p>
 			</div>
 
 			<!-- UPDATE LOGIC -->
-			<input type="hidden" name="post_id" value="<?php echo esc_attr( (string) $post_id ); ?>">
+			<input type="hidden" name="post_id" value="<?php echo esc_attr((string) $post_id); ?>">
 			<input type="hidden" name="action" value="starmus_update_audio">
 
 			<!-- METADATA PERSISTENCE -->
-			<input type="hidden" name="dc_creator" value="<?php echo esc_attr( $existing_title ); ?>">
+			<input type="hidden" name="dc_creator" value="<?php echo esc_attr($existing_title); ?>">
 			<input type="hidden" name="audio_file_type" value="audio/webm">
 
 			<!-- INJECTED BY JS (Protected by Safe Sync) -->
@@ -56,13 +56,13 @@ $data_policy_url    ??= '';
 			<!-- INJECTED FROM PHP (If Available) -->
 
 			<button type="button" class="starmus-btn starmus-btn--primary" data-starmus-action="next">
-				<?php esc_html_e( 'Proceed to Recorder', 'starmus-audio-recorder' ); ?>
+				<?php esc_html_e('Proceed to Recorder', 'starmus-audio-recorder'); ?>
 			</button>
 		</div>
 
 		<!-- Step 2: Recorder -->
-		<div id="starmus_step2_<?php echo esc_attr( $instance_id ); ?>" class="starmus-step" style="display:none;" data-starmus-step="2">
-			<h2><?php esc_html_e( 'Record Replacement', 'starmus-audio-recorder' ); ?></h2>
+		<div id="starmus_step2_<?php echo esc_attr($instance_id); ?>" class="starmus-step" style="display:none;" data-starmus-step="2">
+			<h2><?php esc_html_e('Record Replacement', 'starmus-audio-recorder'); ?></h2>
 
 			<div class="starmus-setup-container" data-starmus-setup-container>
 				<button type="button" class="starmus-btn starmus-btn--primary" data-starmus-action="setup-mic">
@@ -94,7 +94,7 @@ $data_policy_url    ??= '';
 			</div>
 
 			<button type="submit" class="starmus-btn starmus-btn--primary starmus-btn--full" data-starmus-action="submit" disabled>
-				<?php esc_html_e( 'Save Replacement', 'starmus-audio-recorder' ); ?>
+				<?php esc_html_e('Save Replacement', 'starmus-audio-recorder'); ?>
 			</button>
 		</div>
 	</form>

@@ -81,6 +81,7 @@ Removes newlines, tabs, and carriage returns from strings.</p>
 <a name="module_uploadDirect"></a>
 
 ## uploadDirect ⇒ <code>Promise.&lt;Object&gt;</code>
+
 Direct upload implementation as fallback for TUS.
 Uploads file directly to WordPress REST API using FormData and XMLHttpRequest.
 Handles progress tracking and proper metadata mapping for WordPress controller.
@@ -89,7 +90,6 @@ Handles progress tracking and proper metadata mapping for WordPress controller.
 **Throws**:
 
 - <code>Error</code> When blob is invalid, network fails, or server responds with error
-
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -107,6 +107,7 @@ Handles progress tracking and proper metadata mapping for WordPress controller.
 | onProgress.total | <code>number</code> |  | Total bytes to upload |
 
 **Example**  
+
 ```js
 const result = await uploadDirect(
   audioBlob,
@@ -117,9 +118,11 @@ const result = await uploadDirect(
   (loaded, total) => console.log(`${loaded}/${total}`)
 );
 ```
+
 <a name="module_uploadWithPriority"></a>
 
 ## uploadWithPriority ⇒ <code>Promise.&lt;Object&gt;</code>
+
 Priority upload wrapper that tries TUS first, then falls back to direct upload.
 Automatically selects the best upload method based on availability and blob size.
 Supports both object parameter and individual arguments for backward compatibility.
@@ -128,7 +131,6 @@ Supports both object parameter and individual arguments for backward compatibili
 **Throws**:
 
 - <code>Error</code> When no blob provided or all upload methods fail
-
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -146,6 +148,7 @@ Supports both object parameter and individual arguments for backward compatibili
 | [onProgress] | <code>function</code> | Legacy parameter: progress callback |
 
 **Example**  
+
 ```js
 // Object syntax
 const result = await uploadWithPriority({
@@ -162,9 +165,11 @@ const result = await uploadWithPriority(
   audioBlob, 'recording.webm', {}, {}, 'rec-123', progressFn
 );
 ```
+
 <a name="module_isTusAvailable"></a>
 
 ## isTusAvailable ⇒ <code>boolean</code>
+
 Checks if TUS upload is available and viable.
 Verifies TUS library presence, endpoint configuration, and minimum file size.
 
@@ -175,15 +180,19 @@ Verifies TUS library presence, endpoint configuration, and minimum file size.
 | [blobSize] | <code>number</code> | <code>0</code> | Size of blob to upload in bytes |
 
 **Example**  
+
 ```js
 if (isTusAvailable(audioBlob.size)) {
   console.log('TUS upload available');
 }
 ```
+
 <a name="module_uploadWithTus"></a>
 
 ## uploadWithTus ⇒ <code>Promise.&lt;Object&gt;</code> \| <code>boolean</code> \| <code>string</code> \| <code>string</code>
+
 Process:
+
 1. Prepares metadata by flattening objects to strings
 2. Configures TUS upload with security headers
 3. Attempts to resume previous uploads if found
@@ -208,6 +217,7 @@ Process:
 | onProgress.bytesTotal | <code>number</code> | Total bytes to upload |
 
 **Example**  
+
 ```js
 const result = await uploadWithTus(
   audioBlob,
@@ -219,14 +229,15 @@ const result = await uploadWithTus(
 );
 ```
 
-* [uploadWithTus](#module_uploadWithTus) ⇒ <code>Promise.&lt;Object&gt;</code> \| <code>boolean</code> \| <code>string</code> \| <code>string</code>
-    * [~onError(error)](#module_uploadWithTus..onError)
-    * [~onProgress(bytesUploaded, bytesTotal)](#module_uploadWithTus..onProgress)
-    * [~onSuccess()](#module_uploadWithTus..onSuccess)
+- [uploadWithTus](#module_uploadWithTus) ⇒ <code>Promise.&lt;Object&gt;</code> \| <code>boolean</code> \| <code>string</code> \| <code>string</code>
+  - [~onError(error)](#module_uploadWithTus..onError)
+  - [~onProgress(bytesUploaded, bytesTotal)](#module_uploadWithTus..onProgress)
+  - [~onSuccess()](#module_uploadWithTus..onSuccess)
 
 <a name="module_uploadWithTus..onError"></a>
 
 ### uploadWithTus~onError(error)
+
 Error handler for upload failures.
 
 **Kind**: inner method of [<code>uploadWithTus</code>](#module_uploadWithTus)  
@@ -238,6 +249,7 @@ Error handler for upload failures.
 <a name="module_uploadWithTus..onProgress"></a>
 
 ### uploadWithTus~onProgress(bytesUploaded, bytesTotal)
+
 Progress handler for upload tracking.
 
 **Kind**: inner method of [<code>uploadWithTus</code>](#module_uploadWithTus)  
@@ -250,6 +262,7 @@ Progress handler for upload tracking.
 <a name="module_uploadWithTus..onSuccess"></a>
 
 ### uploadWithTus~onSuccess()
+
 Success handler when upload transfer completes.
 Note: PHP post-finish hook runs asynchronously.
 
@@ -257,6 +270,7 @@ Note: PHP post-finish hook runs asynchronously.
 <a name="module_estimateUploadTime"></a>
 
 ## estimateUploadTime ⇒ <code>number</code>
+
 Estimates upload time based on file size and network information.
 Uses connection downlink speed to calculate approximate transfer duration.
 Includes 50% buffer for realistic estimation with network variations.
@@ -270,13 +284,16 @@ Includes 50% buffer for realistic estimation with network variations.
 | [networkInfo.downlink] | <code>number</code> | <code>0.5</code> | Downlink speed in Mbps |
 
 **Example**  
+
 ```js
 const estimate = estimateUploadTime(1024000, { downlink: 2.5 });
 console.log(`Estimated: ${estimate} seconds`);
 ```
+
 <a name="module_formatUploadEstimate"></a>
 
 ## formatUploadEstimate ⇒ <code>string</code>
+
 Formats upload time estimate into human-readable string.
 Converts seconds to either "~Xs" or "~Xm" format for display.
 
@@ -287,19 +304,21 @@ Converts seconds to either "~Xs" or "~Xm" format for display.
 | s | <code>number</code> | Time in seconds |
 
 **Example**  
+
 ```js
 formatUploadEstimate(45)  // '~45s'
 formatUploadEstimate(120) // '~2m'
 formatUploadEstimate(NaN) // '...'
 ```
 
-* [formatUploadEstimate](#module_formatUploadEstimate) ⇒ <code>string</code>
-    * [module.exports](#exp_module_formatUploadEstimate--module.exports) ⏏
-        * [~StarmusTus](#module_formatUploadEstimate--module.exports..StarmusTus) : <code>Object</code>
+- [formatUploadEstimate](#module_formatUploadEstimate) ⇒ <code>string</code>
+  - [module.exports](#exp_module_formatUploadEstimate--module.exports) ⏏
+    - [~StarmusTus](#module_formatUploadEstimate--module.exports..StarmusTus) : <code>Object</code>
 
 <a name="exp_module_formatUploadEstimate--module.exports"></a>
 
 ### module.exports ⏏
+
 Default export for ES6 modules.
 
 **Kind**: Exported member  
@@ -307,6 +326,7 @@ Default export for ES6 modules.
 <a name="module_formatUploadEstimate--module.exports..StarmusTus"></a>
 
 #### module.exports~StarmusTus : <code>Object</code>
+
 StarmusTus module object with all upload functions.
 Provides unified interface for TUS and direct upload functionality.
 
@@ -325,12 +345,14 @@ Provides unified interface for TUS and direct upload functionality.
 <a name="UploadCircuitBreaker"></a>
 
 ## UploadCircuitBreaker
+
 Circuit breaker for upload failures
 
 **Kind**: global class  
 <a name="getDefaultConfig"></a>
 
 ## getDefaultConfig : <code>Object</code>
+
 Default configuration object for TUS uploads.
 Contains chunk sizes, retry settings, and endpoint configuration.
 Enhanced with tier-based optimization from SPARXSTAR.
@@ -350,19 +372,23 @@ Enhanced with tier-based optimization from SPARXSTAR.
 <a name="getConfig"></a>
 
 ## getConfig() ⇒ <code>Object</code>
+
 Gets merged configuration from defaults and global settings.
 Combines DEFAULT_CONFIG with window.starmusTus or window.starmusConfig.
 
 **Kind**: global function  
 **Returns**: <code>Object</code> - Merged configuration object  
 **Example**  
+
 ```js
 const config = getConfig();
 console.log(config.chunkSize); // 524288 (512KB)
 ```
+
 <a name="normalizeFormFields"></a>
 
 ## normalizeFormFields(fields) ⇒ <code>Object</code>
+
 Normalizes form fields to ensure object type.
 Converts non-object values to empty object for safety.
 
@@ -376,6 +402,7 @@ Converts non-object values to empty object for safety.
 <a name="sanitizeMetadata"></a>
 
 ## sanitizeMetadata(value) ⇒ <code>string</code>
+
 Sanitizes metadata values for TUS compatibility.
 TUS metadata must be strings, so objects are JSON stringified.
 Removes newlines, tabs, and carriage returns from strings.
@@ -388,11 +415,11 @@ Removes newlines, tabs, and carriage returns from strings.
 | value | <code>\*</code> | Value to sanitize (any type) |
 
 **Example**  
+
 ```js
 sanitizeMetadata({key: 'value'}) // '{"key":"value"}'
 sanitizeMetadata('text\nwith\ttabs') // 'text with tabs'
 ```
-
 
 ---
 

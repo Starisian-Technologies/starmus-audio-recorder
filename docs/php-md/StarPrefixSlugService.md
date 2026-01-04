@@ -11,6 +11,7 @@ Automatically prefixes WordPress post slugs with "star-" for posts marked
 as restricted content. Ensures URL pattern consistency across all environments
 (Development/Production) for reliable CloudFlare caching rule application.
 Key Features:
+
 - **Automatic Prefix Application**: Seamless slug modification
 - **Environment Consistency**: Uniform URL patterns Dev/Prod
 - **CloudFlare Rule Support**: Predictable URL structure
@@ -52,6 +53,7 @@ Automatically prefixes WordPress post slugs with "star-" for posts marked
 as restricted content. Ensures URL pattern consistency across all environments
 (Development/Production) for reliable CloudFlare caching rule application.
 Key Features:
+
 - **Automatic Prefix Application**: Seamless slug modification
 - **Environment Consistency**: Uniform URL patterns Dev/Prod
 - **CloudFlare Rule Support**: Predictable URL structure
@@ -82,27 +84,27 @@ CloudFlare Use Cases:
 @see wp_unique_post_slug() WordPress slug generation
 @see get_post_meta() WordPress metadata retrieval
 /
-final class StarPrefixSlugService {
-
-	/**
+final class StarPrefixSlugService
+{
+    /**
 URL slug prefix for restricted content identification.
-Applied to post slugs when _star_restricted meta is active.
+Applied to post slugs when_star_restricted meta is active.
 Enables CloudFlare rules to target restricted content URLs.
 @var string PREFIX
 @since 0.8.0
 /
-	private const PREFIX = 'star-';
+    private const PREFIX = 'star-';
 
-	/**
+    /**
 WordPress post meta key for restriction status detection.
 Custom field that indicates when a post should receive
 the star- URL prefix for restricted content handling.
 @var string META_KEY
 @since 0.8.0
 /
-	private const META_KEY = '_star_restricted';
+    private const META_KEY = '_star_restricted';
 
-	/**
+    /**
 Initializes the service by registering WordPress filter hooks.
 Sets up automatic slug modification during WordPress post save/update
 operations through the wp_unique_post_slug filter integration.
@@ -125,11 +127,13 @@ Modifies post slugs during WordPress unique slug generation to add
 @return string Modified slug with prefix if restricted, or original slug
 @since 0.8.0
 Decision Logic:
+
 1. **Meta Check**: Read `_star_restricted` post meta field
 2. **Value Validation**: Check for boolean true ('1' string)
 3. **Prefix Check**: Verify slug doesn't already have prefix
 4. **Application**: Add "star-" prefix if conditions met
 Meta Field Values:
+
 - '1': Restricted content (triggers prefix)
 - '0' or empty: Public content (no prefix)
 - WordPress checkbox fields store '1' for checked state

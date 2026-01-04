@@ -52,24 +52,31 @@ class LanguageSignalAnalyzer {
 		this.results = {
 			signal_analysis: {
 				country: country,
-				probe_language: this.probeLanguages[0] || null
+				probe_language: this.probeLanguages[0] || null,
 			},
-			violation_flags: { /* intentionally empty */ },
-			timing_hints: []
+			violation_flags: {
+				/* intentionally empty */
+			},
+			timing_hints: [],
 		};
 
 		this._abort = false;
 	}
 
 	getProbeLanguages() {
-		if (this.tier === 'C') {return [];}
+		if (this.tier === 'C') {
+			return [];
+		}
 
 		switch (this.country) {
-		case 'GM': return ['en-US']; // Gambia - English probe only
+		case 'GM':
+			return ['en-US']; // Gambia - English probe only
 		case 'SN':
 		case 'GN':
-		case 'ML': return ['fr-FR']; // Francophone - French probe only
-		default:   return ['en-US']; // Unknown - English fallback
+		case 'ML':
+			return ['fr-FR']; // Francophone - French probe only
+		default:
+			return ['en-US']; // Unknown - English fallback
 		}
 	}
 
@@ -91,8 +98,10 @@ class LanguageSignalAnalyzer {
 	}
 
 	runViolationProbe(stream, language) {
-		return new Promise(resolve => {
-			if (!SpeechRecognition) {return resolve();}
+		return new Promise((resolve) => {
+			if (!SpeechRecognition) {
+				return resolve();
+			}
 
 			const rec = new SpeechRecognition();
 			rec.lang = language;
@@ -104,9 +113,11 @@ class LanguageSignalAnalyzer {
 			let weightedConfidence = 0;
 			let lastTime = null;
 
-			rec.onresult = e => {
+			rec.onresult = (e) => {
 				for (const res of e.results) {
-					if (!res.isFinal) {continue;}
+					if (!res.isFinal) {
+						continue;
+					}
 
 					const text = res[0].transcript.trim();
 					const conf = res[0].confidence ?? 0;
@@ -123,7 +134,7 @@ class LanguageSignalAnalyzer {
 							end: currentTime,
 							type: 'speech',
 							lang: language,
-							violation_confidence: conf
+							violation_confidence: conf,
 						});
 					}
 
@@ -135,15 +146,20 @@ class LanguageSignalAnalyzer {
 				const langCode = language.split('-')[0];
 
 				this.results.signal_analysis[`${langCode}_word_count`] = totalWords;
-				this.results.signal_analysis[`${langCode}_violation_confidence`] =
-          totalWords ? weightedConfidence / totalWords : 0;
+				this.results.signal_analysis[`${langCode}_violation_confidence`] = totalWords
+					? weightedConfidence / totalWords
+					: 0;
 
 				resolve();
 			};
 
 			rec.start();
 			setTimeout(() => {
-				try { rec.stop(); } catch (_e) { /* intentionally empty */ }
+				try {
+					rec.stop();
+				} catch (_e) {
+					/* intentionally empty */
+				}
 			}, this.maxDuration);
 		});
 	}
@@ -160,7 +176,7 @@ class LanguageSignalAnalyzer {
 			if (enWords < 3) {
 				this.results.violation_flags = {
 					mostly_english: false,
-					detection_quality: 'insufficient'
+					detection_quality: 'insufficient',
 				};
 				return;
 			}
@@ -168,16 +184,12 @@ class LanguageSignalAnalyzer {
 			const estimatedTotalWords = enWords + 5;
 
 			this.results.violation_flags = {
-				mostly_english:
-          enWords > 8 &&
-          enConf > 0.6 &&
-          enWords >= (0.6 * estimatedTotalWords),
+				mostly_english: enWords > 8 && enConf > 0.6 && enWords >= 0.6 * estimatedTotalWords,
 
-				violation_reason: enWords > 8 ?
-					"Recording appears mostly English for this location" : null,
+				violation_reason: enWords > 8 ? 'Recording appears mostly English for this location' : null,
 
-				estimated_local_content: Math.max(0, 1 - (enWords / estimatedTotalWords)),
-				detection_quality: enWords >= 8 ? 'sufficient' : 'insufficient'
+				estimated_local_content: Math.max(0, 1 - enWords / estimatedTotalWords),
+				detection_quality: enWords >= 8 ? 'sufficient' : 'insufficient',
 			};
 		}
 
@@ -189,7 +201,7 @@ class LanguageSignalAnalyzer {
 			if (frWords < 3) {
 				this.results.violation_flags = {
 					mostly_french: false,
-					detection_quality: 'insufficient'
+					detection_quality: 'insufficient',
 				};
 				return;
 			}
@@ -197,22 +209,18 @@ class LanguageSignalAnalyzer {
 			const estimatedTotalWords = frWords + 5;
 
 			this.results.violation_flags = {
-				mostly_french:
-          frWords > 8 &&
-          frConf > 0.6 &&
-          frWords >= (0.6 * estimatedTotalWords),
+				mostly_french: frWords > 8 && frConf > 0.6 && frWords >= 0.6 * estimatedTotalWords,
 
-				violation_reason: frWords > 8 ?
-					"Recording appears mostly French for this location" : null,
+				violation_reason: frWords > 8 ? 'Recording appears mostly French for this location' : null,
 
-				estimated_local_content: Math.max(0, 1 - (frWords / estimatedTotalWords)),
-				detection_quality: frWords >= 8 ? 'sufficient' : 'insufficient'
+				estimated_local_content: Math.max(0, 1 - frWords / estimatedTotalWords),
+				detection_quality: frWords >= 8 ? 'sufficient' : 'insufficient',
 			};
 		}
 	}
 
 	audioOnlySignals(stream) {
-		return new Promise(resolve => {
+		return new Promise((resolve) => {
 			const ctx = new AudioContext();
 			const src = ctx.createMediaStreamSource(stream);
 			const analyser = ctx.createAnalyser();
@@ -226,16 +234,18 @@ class LanguageSignalAnalyzer {
 			const startTime = performance.now();
 
 			const detectSpeechBoundaries = () => {
-				if (this._abort) {return;}
+				if (this._abort) {
+					return;
+				}
 
 				analyser.getByteTimeDomainData(buf);
-				const rms = Math.sqrt(buf.reduce((s,v) => s + (v-128)**2, 0) / buf.length);
+				const rms = Math.sqrt(buf.reduce((s, v) => s + (v - 128) ** 2, 0) / buf.length);
 
 				const state = rms > 10 ? 'speech' : 'silence';
 				if (state !== lastState) {
 					speechBoundaries.push({
 						time: (performance.now() - startTime) / 1000,
-						transition: `${lastState}_to_${state}`
+						transition: `${lastState}_to_${state}`,
 					});
 					lastState = state;
 				}
@@ -250,13 +260,13 @@ class LanguageSignalAnalyzer {
 				resolve({
 					signal_analysis: {
 						audio_only: true,
-						country: this.country
+						country: this.country,
 					},
 					timing_hints: speechBoundaries,
 					violation_flags: {
 						estimated_local_content: 1,
-						detection_quality: 'audio_only'
-					}
+						detection_quality: 'audio_only',
+					},
 				});
 			}, this.maxDuration);
 		});
@@ -278,7 +288,9 @@ class LanguageSignalAnalyzer {
  */
 function getContext() {
 	const Ctx = window.AudioContext || window.webkitAudioContext;
-	if (!Ctx) {throw new Error('Audio API not supported');}
+	if (!Ctx) {
+		throw new Error('Audio API not supported');
+	}
 	if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
 		sharedAudioContext = new Ctx({ latencyHint: 'interactive' });
 		window.StarmusAudioContext = sharedAudioContext;
@@ -330,7 +342,7 @@ async function wakeAudio() {
  * - Phase 2 (5-10s): Detect speech levels
  * - Phase 3 (10-15s): Optimize settings
  */
-async function doCalibration(stream, onUpdate) {
+async function _doCalibration(stream, onUpdate) {
 	const ctx = await wakeAudio();
 	const source = ctx.createMediaStreamSource(stream);
 	const analyser = ctx.createAnalyser();
@@ -341,11 +353,13 @@ async function doCalibration(stream, onUpdate) {
 	const startTime = Date.now();
 	let maxVolume = 0;
 
-	return new Promise(resolve => {
+	return new Promise((resolve) => {
 		function loop() {
 			analyser.getByteFrequencyData(data);
 			let sum = 0;
-			for(let i=0; i<data.length; i++) {sum += data[i];}
+			for (let i = 0; i < data.length; i++) {
+				sum += data[i];
+			}
 			const avg = sum / data.length;
 
 			// Proper SPL calculation for calibration
@@ -354,7 +368,9 @@ async function doCalibration(stream, onUpdate) {
 			const micSensitivity = -50; // Typical condenser mic sensitivity
 			const dbSPL = dbV - micSensitivity + 94;
 			const volume = Math.min(100, Math.max(0, (dbSPL - 30) * 1.67)); // 30-90 dB SPL -> 0-100%
-			if (volume > maxVolume) {maxVolume = volume;}
+			if (volume > maxVolume) {
+				maxVolume = volume;
+			}
 
 			const elapsed = Date.now() - startTime;
 			let message = '';
@@ -363,18 +379,22 @@ async function doCalibration(stream, onUpdate) {
 				const sec = Math.ceil((5000 - elapsed) / 1000);
 				message = `Step 1: Measuring background noise (${sec}s)...`;
 			} else if (elapsed < 10000) {
-				message = "Step 2: Speak your name clearly...";
+				message = 'Step 2: Speak your name clearly...';
 			} else if (elapsed < 15000) {
-				message = "Step 3: Optimizing settings...";
+				message = 'Step 3: Optimizing settings...';
 			} else {
 				source.disconnect();
 				analyser.disconnect();
-				if (onUpdate) {onUpdate('Microphone Calibrated', 0, true);}
+				if (onUpdate) {
+					onUpdate('Microphone Calibrated', 0, true);
+				}
 				resolve({ complete: true, gain: 1.0, speechLevel: maxVolume });
 				return;
 			}
 
-			if (onUpdate) {onUpdate(message, volume, false);}
+			if (onUpdate) {
+				onUpdate(message, volume, false);
+			}
 			requestAnimationFrame(loop);
 		}
 		loop();
@@ -406,13 +426,15 @@ function initRecorder(store, instanceId) {
 	console.log('[Recorder] 🎧 Listening for commands for ID:', instanceId);
 
 	/**
-   * Handler for 'setup-mic' command.
-   * Requests microphone permissions, performs enhanced calibration, and updates store.
-   * @listens CommandBus~setup-mic
-   */
+	 * Handler for 'setup-mic' command.
+	 * Requests microphone permissions, performs enhanced calibration, and updates store.
+	 * @listens CommandBus~setup-mic
+	 */
 	// 1. SETUP MIC
 	CommandBus.subscribe('setup-mic', async (_p, meta) => {
-		if (meta?.instanceId !== instanceId) {return;}
+		if (meta?.instanceId !== instanceId) {
+			return;
+		}
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			await wakeAudio();
@@ -423,20 +445,26 @@ function initRecorder(store, instanceId) {
 			const enhancedCalibration = new EnhancedCalibration();
 			await enhancedCalibration.init();
 
-			const calibration = await enhancedCalibration.performCalibration(stream, (msg, vol, done, extra) => {
-				if(!done) {
-					store.dispatch({
-						type: 'starmus/calibration-update',
-						message: msg,
-						volumePercent: vol,
-						extra: extra || { /* intentionally empty */ }
-					});
+			const calibration = await enhancedCalibration.performCalibration(
+				stream,
+				(msg, vol, done, extra) => {
+					if (!done) {
+						store.dispatch({
+							type: 'starmus/calibration-update',
+							message: msg,
+							volumePercent: vol,
+							extra:
+								extra ||
+								{
+									/* intentionally empty */
+								},
+						});
+					}
 				}
-			});
+			);
 
-			stream.getTracks().forEach(t => t.stop());
+			stream.getTracks().forEach((t) => t.stop());
 			store.dispatch({ type: 'starmus/calibration-complete', payload: { calibration } });
-
 		} catch (e) {
 			console.error('[Recorder] Calibration failed:', e);
 
@@ -445,7 +473,7 @@ function initRecorder(store, instanceId) {
 				sparxstarIntegration.reportError('calibration_setup_failed', {
 					error: e.message,
 					instanceId,
-					userAgent: navigator.userAgent
+					userAgent: navigator.userAgent,
 				});
 			}
 
@@ -454,17 +482,23 @@ function initRecorder(store, instanceId) {
 	});
 
 	/**
-   * Handler for 'start-recording' command.
-   * Creates MediaRecorder with optimized settings based on SPARXSTAR environment data.
-   * @listens CommandBus~start-recording
-   */
+	 * Handler for 'start-recording' command.
+	 * Creates MediaRecorder with optimized settings based on SPARXSTAR environment data.
+	 * @listens CommandBus~start-recording
+	 */
 	// 2. START RECORDING
 	CommandBus.subscribe('start-recording', async (_p, meta) => {
-		if (meta?.instanceId !== instanceId) {return;}
+		if (meta?.instanceId !== instanceId) {
+			return;
+		}
 		try {
 			// Get optimized settings from SPARXSTAR
 			const envData = sparxstarIntegration.getEnvironmentData();
-			const settings = envData.recordingSettings || { /* intentionally empty */ };
+			const settings =
+				envData.recordingSettings ||
+				{
+					/* intentionally empty */
+				};
 
 			// Apply tier-based audio constraints
 			const audioConstraints = {
@@ -473,11 +507,15 @@ function initRecorder(store, instanceId) {
 					channelCount: settings.channels || 1,
 					echoCancellation: settings.enableEchoCancellation !== false,
 					noiseSuppression: settings.enableNoiseSupression !== false,
-					autoGainControl: settings.enableAutoGainControl !== false
-				}
+					autoGainControl: settings.enableAutoGainControl !== false,
+				},
 			};
 
-			console.log('[Recorder] Using optimized constraints for tier', envData.tier, audioConstraints);
+			console.log(
+				'[Recorder] Using optimized constraints for tier',
+				envData.tier,
+				audioConstraints
+			);
 
 			const stream = await navigator.mediaDevices.getUserMedia(audioConstraints);
 			const ctx = await wakeAudio();
@@ -501,7 +539,7 @@ function initRecorder(store, instanceId) {
 			// MediaRecorder with optimized options
 			const mediaRecorderOptions = {
 				mimeType: 'audio/webm;codecs=opus',
-				audioBitsPerSecond: settings.bitrate || 32000
+				audioBitsPerSecond: settings.bitrate || 32000,
 			};
 
 			const mediaRecorder = new MediaRecorder(dest.stream, mediaRecorderOptions);
@@ -517,27 +555,38 @@ function initRecorder(store, instanceId) {
 				signalAnalyzer = new LanguageSignalAnalyzer({
 					tier: deviceTier,
 					country: userCountry,
-					maxDuration: 20000
+					maxDuration: 20000,
 				});
 
 				// Silent observer - never blocks recording
-				signalAnalyzer.analyze(stream).then(signals => {
-					store.dispatch({
-						type: 'starmus/signal-analysis-complete',
-						payload: signals
+				signalAnalyzer
+					.analyze(stream)
+					.then((signals) => {
+						store.dispatch({
+							type: 'starmus/signal-analysis-complete',
+							payload: signals,
+						});
+					})
+					.catch((err) => {
+						console.warn('[Recorder] Signal analysis failed:', err.message);
 					});
-				}).catch(err => {
-					console.warn('[Recorder] Signal analysis failed:', err.message);
-				});
 			}
 
 			// MediaRecorder event handlers with chunk size optimization
 			const chunkInterval = settings.chunkSize || 1000;
-			mediaRecorder.ondataavailable = e => { if (e.data.size > 0) {chunks.push(e.data);} };
+			mediaRecorder.ondataavailable = (e) => {
+				if (e.data.size > 0) {
+					chunks.push(e.data);
+				}
+			};
 			mediaRecorder.onstop = () => {
 				const rec = recorderRegistry.get(instanceId);
-				if(rec?.rafId) {cancelAnimationFrame(rec.rafId);}
-				if(signalAnalyzer) {signalAnalyzer.stop();}
+				if (rec?.rafId) {
+					cancelAnimationFrame(rec.rafId);
+				}
+				if (signalAnalyzer) {
+					signalAnalyzer.stop();
+				}
 				const blob = new Blob(chunks, { type: 'audio/webm' });
 
 				// Report recording completion to SPARXSTAR
@@ -546,13 +595,20 @@ function initRecorder(store, instanceId) {
 						duration: (Date.now() - startTime) / 1000,
 						fileSize: blob.size,
 						tier: envData.tier,
-						settings: settings
+						settings: settings,
 					});
 				}
 
-				store.dispatch({ type: 'starmus/recording-available', payload: { blob, fileName: `rec-${Date.now()}.webm` } });
-				stream.getTracks().forEach(t => t.stop());
-				try { source.disconnect(); } catch(e) { console.debug('[ANALYZER]', 'disconnect failed'); }
+				store.dispatch({
+					type: 'starmus/recording-available',
+					payload: { blob, fileName: `rec-${Date.now()}.webm` },
+				});
+				stream.getTracks().forEach((t) => t.stop());
+				try {
+					source.disconnect();
+				} catch (e) {
+					console.debug('[ANALYZER]', 'disconnect failed');
+				}
 				recorderRegistry.delete(instanceId);
 			};
 
@@ -570,14 +626,19 @@ function initRecorder(store, instanceId) {
 			const visualStartTs = Date.now();
 
 			/**
-       * Animation loop for real-time amplitude visualization.
-       * Updates store with duration and amplitude data.
-       */
+			 * Animation loop for real-time amplitude visualization.
+			 * Updates store with duration and amplitude data.
+			 */
 			function visLoop() {
 				const rec = recorderRegistry.get(instanceId);
-				if(!rec || mediaRecorder.state !== 'recording') {return;}
+				if (!rec || mediaRecorder.state !== 'recording') {
+					return;
+				}
 				analyser.getByteFrequencyData(buf);
-				let sum=0; for(let x=0; x<buf.length; x++) {sum+=buf[x];}
+				let sum = 0;
+				for (let x = 0; x < buf.length; x++) {
+					sum += buf[x];
+				}
 				const rawAmp = sum / buf.length;
 
 				// Proper SPL calculation assuming typical mic sensitivity (-50 dBV/Pa)
@@ -589,7 +650,11 @@ function initRecorder(store, instanceId) {
 
 				// Map dB SPL to visual meter (30-90 dB SPL -> 0-100%)
 				const amp = Math.min(100, Math.max(0, (dbSPL - 30) * 1.67));
-				store.dispatch({ type: 'starmus/recorder-tick', duration: (Date.now()-visualStartTs)/1000, amplitude: amp });
+				store.dispatch({
+					type: 'starmus/recorder-tick',
+					duration: (Date.now() - visualStartTs) / 1000,
+					amplitude: amp,
+				});
 				rec.rafId = requestAnimationFrame(visLoop);
 			}
 			visLoop();
@@ -601,7 +666,7 @@ function initRecorder(store, instanceId) {
 				sparxstarIntegration.reportError('recording_failed', {
 					error: e.message,
 					instanceId,
-					userAgent: navigator.userAgent
+					userAgent: navigator.userAgent,
 				});
 			}
 
@@ -610,45 +675,55 @@ function initRecorder(store, instanceId) {
 	});
 
 	/**
-   * Handler for 'stop-mic' command.
-   * Stops MediaRecorder and speech recognition, triggers audio blob creation.
-   * @listens CommandBus~stop-mic
-   */
+	 * Handler for 'stop-mic' command.
+	 * Stops MediaRecorder and speech recognition, triggers audio blob creation.
+	 * @listens CommandBus~stop-mic
+	 */
 	// 3. STOP / PAUSE / RESUME
 	CommandBus.subscribe('stop-mic', (_p, meta) => {
-		if (meta?.instanceId !== instanceId) {return;}
+		if (meta?.instanceId !== instanceId) {
+			return;
+		}
 		const rec = recorderRegistry.get(instanceId);
-		if(rec?.mediaRecorder?.state === 'recording' || rec?.mediaRecorder?.state === 'paused') {
+		if (rec?.mediaRecorder?.state === 'recording' || rec?.mediaRecorder?.state === 'paused') {
 			rec.mediaRecorder.stop();
-			if(rec.signalAnalyzer) {rec.signalAnalyzer.stop();}
+			if (rec.signalAnalyzer) {
+				rec.signalAnalyzer.stop();
+			}
 			store.dispatch({ type: 'starmus/mic-stop' });
 		}
 	});
 
 	/**
-   * Handler for 'pause-mic' command.
-   * Pauses MediaRecorder and stops speech recognition temporarily.
-   * @listens CommandBus~pause-mic
-   */
+	 * Handler for 'pause-mic' command.
+	 * Pauses MediaRecorder and stops speech recognition temporarily.
+	 * @listens CommandBus~pause-mic
+	 */
 	CommandBus.subscribe('pause-mic', (_p, meta) => {
-		if (meta?.instanceId !== instanceId) {return;}
+		if (meta?.instanceId !== instanceId) {
+			return;
+		}
 		const rec = recorderRegistry.get(instanceId);
-		if(rec?.mediaRecorder?.state === 'recording') {
+		if (rec?.mediaRecorder?.state === 'recording') {
 			rec.mediaRecorder.pause();
-			if(rec.signalAnalyzer) {rec.signalAnalyzer.stop();}
+			if (rec.signalAnalyzer) {
+				rec.signalAnalyzer.stop();
+			}
 			store.dispatch({ type: 'starmus/mic-pause' });
 		}
 	});
 
 	/**
-   * Handler for 'resume-mic' command.
-   * Resumes MediaRecorder and restarts speech recognition.
-   * @listens CommandBus~resume-mic
-   */
+	 * Handler for 'resume-mic' command.
+	 * Resumes MediaRecorder and restarts speech recognition.
+	 * @listens CommandBus~resume-mic
+	 */
 	CommandBus.subscribe('resume-mic', (_p, meta) => {
-		if (meta?.instanceId !== instanceId) {return;}
+		if (meta?.instanceId !== instanceId) {
+			return;
+		}
 		const rec = recorderRegistry.get(instanceId);
-		if(rec?.mediaRecorder?.state === 'paused') {
+		if (rec?.mediaRecorder?.state === 'paused') {
 			rec.mediaRecorder.resume();
 			// Note: Signal analyzer doesn't restart on resume - single probe only
 			store.dispatch({ type: 'starmus/mic-resume' });

@@ -7,11 +7,11 @@
  * Implements strict contracts for deterministic behavior.
  *
  * @package Starisian\Sparxstar\Starmus\data
+ *
  * @version 1.1.0
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\data;
 
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusProsodyDAL;
@@ -19,13 +19,12 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
 use Throwable;
 
-if ( ! defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
 final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyDAL
 {
-
     /**
      * Heuristic Constants for "Smart Guessing" pace.
      * Kept identical to legacy for backward compatibility.

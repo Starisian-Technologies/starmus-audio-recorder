@@ -11,35 +11,34 @@
  */
 namespace Starisian\Sparxstar\Starmus\helpers;
 
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-
-if( ! defined(ABSPATH)){
+if ( ! \defined(ABSPATH)) {
     exit;
 }
 
-class StarmusTemplateLoaderHelper {
-
+class StarmusTemplateLoaderHelper
+{
     /**
      * Securely render a template for logged-in users only.
      *
-     * @param string               $template Path or slug of the template to render.
+     * @param string $template Path or slug of the template to render.
      * @param array<string, mixed> $args Variables to pass into the template.
-     * @param string               $user_group Optional. User group required. Defaults to 'admin'.
+     * @param string $user_group Optional. User group required. Defaults to 'admin'.
      *
      * @return string Rendered HTML output.
      */
-    public static function secure_render_template( string $template, array $args = [], string $user_group = 'admin' ): string {
-        if ( ! is_user_logged_in() ) {
-            return '<p>' . esc_html__( 'You must be logged in to record audio.', 'starmus-audio-recorder' ) . '</p>';
+    public static function secure_render_template(string $template, array $args = [], string $user_group = 'admin'): string
+    {
+        if ( ! is_user_logged_in()) {
+            return '<p>' . esc_html__('You must be logged in to record audio.', 'starmus-audio-recorder') . '</p>';
         }
 
-        do_action( 'starmus_before_secure_template_render' );
+        do_action('starmus_before_secure_template_render');
 
-        $is_admin = current_user_can( 'administrator' ) || current_user_can( 'manage_options' ) || current_user_can( 'super_admin' );
+        $is_admin = current_user_can('administrator') || current_user_can('manage_options') || current_user_can('super_admin');
 
-        $secure_flag = '<script>window.isStarmusAdmin = ' . ( $is_admin ? 'true' : 'false' ) . ';</script>';
+        $secure_flag = '<script>window.isStarmusAdmin = ' . ($is_admin ? 'true' : 'false') . ';</script>';
 
-        return $secure_flag . self::render_template( $template, $args );
+        return $secure_flag . self::render_template($template, $args);
     }
 
     /**
@@ -49,22 +48,24 @@ class StarmusTemplateLoaderHelper {
      *
      * @return string The rendered output.
      */
-    private static function post_template_render( string $output ): string {
-        do_action( 'starmus_after_template_render' );
+    private static function post_template_render(string $output): string
+    {
+        do_action('starmus_after_template_render');
         return $output;
     }
 
     /**
      * Render a PHP template file with variables.
      *
-     * @param string               $template Full template path.
+     * @param string $template Full template path.
      * @param array<string, mixed> $args Variables.
      *
      * @return string The rendered output.
      */
-    private static function render( string $template, array $args ): string {
+    private static function render(string $template, array $args): string
+    {
         ob_start();
-        extract( $args, EXTR_SKIP );
+        extract($args, EXTR_SKIP);
 
         include $template;
         return ob_get_clean();
@@ -73,39 +74,40 @@ class StarmusTemplateLoaderHelper {
     /**
      * Render the editor template with provided arguments.
      *
-     * @param string               $template Template file to be rendered.
+     * @param string $template Template file to be rendered.
      * @param array<string, mixed> $args Data exposed to the template during rendering.
      *
      * @return string Rendered markup or error notice.
      */
-    public static function render_template( string $template, array $args = [] ): string {
+    public static function render_template(string $template, array $args = []): string
+    {
         try {
-            error_log( '[StarmusTemplateLoader] Attempting to load template: ' . $template );
+            error_log('[StarmusTemplateLoader] Attempting to load template: ' . $template);
 
-            $template_path = self::locate_template( $template );
+            $template_path = self::locate_template($template);
 
-            if ( ! $template_path ) {
-                error_log( '[StarmusTemplateLoader] Template not found: ' . $template );
-                error_log( '[StarmusTemplateLoader] STARMUS_PATH: ' . ( \defined( 'STARMUS_PATH' ) ? STARMUS_PATH : 'NOT DEFINED' ) );
-                return '<div class="notice notice-error"><p>Template not found: ' . esc_html( $template ) . '</p></div>';
+            if ( ! $template_path) {
+                error_log('[StarmusTemplateLoader] Template not found: ' . $template);
+                error_log('[StarmusTemplateLoader] STARMUS_PATH: ' . (\defined('STARMUS_PATH') ? STARMUS_PATH : 'NOT DEFINED'));
+                return '<div class="notice notice-error"><p>Template not found: ' . esc_html($template) . '</p></div>';
             }
 
-            error_log( '[StarmusTemplateLoader] Template found at: ' . $template_path );
-            error_log( '[StarmusTemplateLoader] Template args logged' );
+            error_log('[StarmusTemplateLoader] Template found at: ' . $template_path);
+            error_log('[StarmusTemplateLoader] Template args logged');
 
-            do_action( 'starmus_before_template_render' );
+            do_action('starmus_before_template_render');
 
             // Allow filters to modify the args if needed.
-            $args = apply_filters( basename( $template_path ), $args, $template_path );
+            $args = apply_filters(basename($template_path), $args, $template_path);
 
-            $output = self::post_template_render( self::render( $template_path, $args ) );
+            $output = self::post_template_render(self::render($template_path, $args));
 
-            error_log( '[StarmusTemplateLoader] Template rendered successfully' );
+            error_log('[StarmusTemplateLoader] Template rendered successfully');
 
             return $output;
-        } catch ( \Throwable $throwable ) {
-            error_log( $throwable->getMessage() );
-            return '<div class="notice notice-error"><p>' . esc_html__( 'Template loading failed: ', 'starmus-audio-recorder' ) . esc_html( $throwable->getMessage() ) . '</p></div>';
+        } catch (\Throwable $throwable) {
+            error_log($throwable->getMessage());
+            return '<div class="notice notice-error"><p>' . esc_html__('Template loading failed: ', 'starmus-audio-recorder') . esc_html($throwable->getMessage()) . '</p></div>';
         }
     }
 
@@ -116,29 +118,31 @@ class StarmusTemplateLoaderHelper {
      *
      * @return string|false The path to the template file, or false if not found.
      */
-    private static function locate_template( string $template ): string|false {
-        $template_name = basename( $template );
+    private static function locate_template(string $template): string|false
+    {
+        $template_name = basename($template);
         $locations     = [
-        trailingslashit( get_stylesheet_directory() ) . 'starmus/' . $template_name,
-        trailingslashit( get_template_directory() ) . 'starmus/' . $template_name,
-        trailingslashit( STARMUS_PATH ) . 'src/templates/' . $template_name,
+            trailingslashit(get_stylesheet_directory()) . 'starmus/' . $template_name,
+            trailingslashit(get_template_directory()) . 'starmus/' . $template_name,
+            trailingslashit(STARMUS_PATH) . 'src/templates/' . $template_name,
         ];
 
-        foreach ( $locations as $location ) {
-            if ( file_exists( $location ) ) {
+        foreach ($locations as $location) {
+            if (file_exists($location)) {
                 return $location;
             }
         }
 
         // Log for debugging if template not found.
-        error_log( 'Template not found: ' . $template_name );
+        error_log('Template not found: ' . $template_name);
         return null;
     }
 
     /**
      * Admin edit screen URL.
      */
-    public static function get_edit_page_url_admin( ?string $cpt_slug = 'audio-recording' ): string {
-        return admin_url( 'edit.php?post_type=' . $cpt_slug );
+    public static function get_edit_page_url_admin(?string $cpt_slug = 'audio-recording'): string
+    {
+        return admin_url('edit.php?post_type=' . $cpt_slug);
     }
 }

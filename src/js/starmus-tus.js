@@ -34,10 +34,14 @@ class UploadCircuitBreaker {
 		if (this.state === 'open') {
 			const timeSinceOpen = Date.now() - this.openedAt;
 			if (timeSinceOpen < this.timeout) {
-				throw new Error(`Upload circuit breaker open - too many failures` . concat(context ? ` [${context}]` : ''));
+				throw new Error(
+					`Upload circuit breaker open - too many failures${context ? ` [${context}]` : ''}`
+				);
 			} else {
 				this.state = 'half-open';
-				console.log('[Circuit Breaker] Attempting half-open state' . concat(context ? ` [${context}]` : '')	);
+				console.log(
+					`[Circuit Breaker] Attempting half-open state${context ? ` [${context}]` : ''}`
+				);
 			}
 		}
 
@@ -94,7 +98,7 @@ function getDefaultConfig() {
 		removeFingerprintOnSuccess: true,
 		maxChunkRetries: 10,
 		endpoint: '/files/',
-		webhookSecret: ''
+		webhookSecret: '',
 	};
 }
 
@@ -122,7 +126,7 @@ function getConfig() {
 		console.log('[TUS] Using tier-optimized config:', {
 			tier: envData.tier,
 			chunkSize: config.chunkSize,
-			network: envData.network?.type
+			network: envData.network?.type,
 		});
 	}
 
@@ -138,7 +142,9 @@ function getConfig() {
  * @returns {Object} Normalized form fields object
  */
 function normalizeFormFields(fields) {
-	if (fields && typeof fields === 'object') {return fields;}
+	if (fields && typeof fields === 'object') {
+		return fields;
+	}
 	return {};
 }
 
@@ -197,7 +203,14 @@ function sanitizeMetadata(value) {
  * );
  */
 // 2. Direct Upload (Fallback)
-export async function uploadDirect(blob, fileName, formFields = {}, metadata = {}, _instanceId = '', onProgress) {
+export async function uploadDirect(
+	blob,
+	fileName,
+	formFields = {},
+	metadata = {},
+	_instanceId = '',
+	onProgress
+) {
 	const cfg = getConfig();
 	const nonce = cfg.nonce || window.starmusConfig?.nonce || '';
 
@@ -219,7 +232,7 @@ export async function uploadDirect(blob, fileName, formFields = {}, metadata = {
 				sparxstarIntegration.reportError('upload_invalid_blob', {
 					error: error.message,
 					fileSize: blob?.size || 0,
-					tier: envData?.tier
+					tier: envData?.tier,
 				});
 			}
 			return reject(error);
@@ -228,22 +241,32 @@ export async function uploadDirect(blob, fileName, formFields = {}, metadata = {
 		// Filter out fields we will add manually or via specific keys
 		const SKIP = ['_starmus_env', '_starmus_calibration'];
 		Object.entries(fields).forEach(([k, v]) => {
-			if (!SKIP.includes(k)) {fd.append(k, v);}
+			if (!SKIP.includes(k)) {
+				fd.append(k, v);
+			}
 		});
 
 		fd.append('audio_file', blob, fileName);
 
 		// Map metadata to form fields expected by the WP Controller
-		if (metadata?.calibration) {fd.append('_starmus_calibration', JSON.stringify(metadata.calibration));}
-		if (metadata?.env) {fd.append('_starmus_env', JSON.stringify(metadata.env));}
-		if (metadata?.tier) {fd.append('tier', metadata.tier);}
+		if (metadata?.calibration) {
+			fd.append('_starmus_calibration', JSON.stringify(metadata.calibration));
+		}
+		if (metadata?.env) {
+			fd.append('_starmus_env', JSON.stringify(metadata.env));
+		}
+		if (metadata?.tier) {
+			fd.append('tier', metadata.tier);
+		}
 
 		const xhr = new XMLHttpRequest();
 		xhr.open('POST', endpoint, true);
-		if (nonce) {xhr.setRequestHeader('X-WP-Nonce', nonce);}
+		if (nonce) {
+			xhr.setRequestHeader('X-WP-Nonce', nonce);
+		}
 
 		if (xhr.upload && typeof onProgress === 'function') {
-			xhr.upload.onprogress = e => {
+			xhr.upload.onprogress = (e) => {
 				if (e.lengthComputable) {
 					onProgress(e.loaded, e.total);
 				}
@@ -261,7 +284,7 @@ export async function uploadDirect(blob, fileName, formFields = {}, metadata = {
 							fileSize: blob.size,
 							duration: Date.now() - startTime,
 							tier: envData?.tier,
-							network: envData?.network?.type
+							network: envData?.network?.type,
 						});
 					}
 
@@ -278,7 +301,7 @@ export async function uploadDirect(blob, fileName, formFields = {}, metadata = {
 						error: error.message,
 						status: xhr.status,
 						fileSize: blob.size,
-						tier: envData?.tier
+						tier: envData?.tier,
 					});
 				}
 
@@ -295,7 +318,7 @@ export async function uploadDirect(blob, fileName, formFields = {}, metadata = {
 					error: error.message,
 					fileSize: blob.size,
 					tier: envData?.tier,
-					network: envData?.network?.type
+					network: envData?.network?.type,
 				});
 			}
 
@@ -356,7 +379,9 @@ export async function uploadWithPriority(arg1) {
 		[blob, fileName, formFields, metadata, instanceId, onProgress] = arguments;
 	}
 
-	if (!blob) {throw new Error('No blob provided');}
+	if (!blob) {
+		throw new Error('No blob provided');
+	}
 
 	// Use circuit breaker for all uploads
 	return uploadCircuitBreaker.execute(async () => {
@@ -443,15 +468,15 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
 
 	return new Promise((resolve, reject) => {
 		/**
-         * TUS metadata object with flattened values.
-         * All values must be strings for TUS protocol compatibility.
-         */
+     * TUS metadata object with flattened values.
+     * All values must be strings for TUS protocol compatibility.
+     */
 		// 1. Prepare Metadata for PHP Hook
 		// The PHP hook looks at $event_data['Upload']['MetaData']
 		const tusMetadata = {
 			filename: fileName,
 			filetype: blob.type || 'application/octet-stream',
-			name: fileName
+			name: fileName,
 		};
 
 		// Merge standard form fields (post_id, nonce, etc)
@@ -461,13 +486,19 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
 		});
 
 		// Merge complex metadata objects (mapped to specific keys for PHP)
-		if (metadata?.calibration) {tusMetadata['_starmus_calibration'] = sanitizeMetadata(metadata.calibration);}
-		if (metadata?.env) {tusMetadata['_starmus_env'] = sanitizeMetadata(metadata.env);}
-		if (metadata?.tier) {tusMetadata['tier'] = sanitizeMetadata(metadata.tier);}
+		if (metadata?.calibration) {
+			tusMetadata['_starmus_calibration'] = sanitizeMetadata(metadata.calibration);
+		}
+		if (metadata?.env) {
+			tusMetadata['_starmus_env'] = sanitizeMetadata(metadata.env);
+		}
+		if (metadata?.tier) {
+			tusMetadata['tier'] = sanitizeMetadata(metadata.tier);
+		}
 
 		/**
-         * TUS Upload instance with complete configuration.
-         */
+     * TUS Upload instance with complete configuration.
+     */
 		// 2. Configure TUS Upload
 
 		// CRITICAL: Secure webhook headers - never allow empty secrets
@@ -481,7 +512,7 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
 				sparxstarIntegration.reportError('tus_security_no_secret', {
 					error: error.message,
 					endpoint: cfg.endpoint,
-					timestamp: Date.now()
+					timestamp: Date.now(),
 				});
 			}
 
@@ -505,13 +536,13 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
 				'x-starmus-timestamp': timestamp,
 				'x-starmus-payload-hash': btoa(payload), // Simple payload verification
 				'x-starmus-tier': envData?.tier || 'C',
-				'x-starmus-network': envData?.network?.type || 'unknown'
+				'x-starmus-network': envData?.network?.type || 'unknown',
 			},
 
 			/**
-             * Error handler for upload failures.
-             * @param {Error} error - TUS upload error
-             */
+       * Error handler for upload failures.
+       * @param {Error} error - TUS upload error
+       */
 			onError: (error) => {
 				console.error('[StarmusTus] Upload Error:', error);
 
@@ -522,7 +553,7 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
 						fileSize: blob.size,
 						tier: envData?.tier,
 						network: envData?.network?.type,
-						chunkSize: cfg.chunkSize
+						chunkSize: cfg.chunkSize,
 					});
 				}
 
@@ -530,10 +561,10 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
 			},
 
 			/**
-             * Progress handler for upload tracking.
-             * @param {number} bytesUploaded - Bytes uploaded so far
-             * @param {number} bytesTotal - Total bytes to upload
-             */
+       * Progress handler for upload tracking.
+       * @param {number} bytesUploaded - Bytes uploaded so far
+       * @param {number} bytesTotal - Total bytes to upload
+       */
 			onProgress: (bytesUploaded, bytesTotal) => {
 				if (typeof onProgress === 'function') {
 					onProgress(bytesUploaded, bytesTotal);
@@ -541,9 +572,9 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
 			},
 
 			/**
-             * Success handler when upload transfer completes.
-             * Note: PHP post-finish hook runs asynchronously.
-             */
+       * Success handler when upload transfer completes.
+       * Note: PHP post-finish hook runs asynchronously.
+       */
 			onSuccess: () => {
 				// Report successful TUS upload to SPARXSTAR
 				if (sparxstarIntegration.isAvailable) {
@@ -552,7 +583,7 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
 						duration: Date.now() - startTime,
 						tier: envData?.tier,
 						network: envData?.network?.type,
-						chunkSize: cfg.chunkSize
+						chunkSize: cfg.chunkSize,
 					});
 				}
 
@@ -562,15 +593,15 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
 				resolve({
 					success: true,
 					tus_url: upload.url,
-					message: 'Upload transfer complete. Processing in background.'
+					message: 'Upload transfer complete. Processing in background.',
 				});
-			}
+			},
 		});
 
 		/**
-         * Start upload with resume capability.
-         * Checks for previous incomplete uploads and resumes if found.
-         */
+     * Start upload with resume capability.
+     * Checks for previous incomplete uploads and resumes if found.
+     */
 		// 3. Start Upload
 		// Check for previous uploads to resume
 		upload.findPreviousUploads().then(function (previousUploads) {
@@ -620,7 +651,7 @@ export function estimateUploadTime(fileSize, networkInfo) {
  * formatUploadEstimate(NaN) // '...'
  */
 export function formatUploadEstimate(s) {
-	return !isFinite(s) ? '...' : (s < 60 ? `~${s}s` : `~${Math.ceil(s/60)}m`);
+	return !isFinite(s) ? '...' : s < 60 ? `~${s}s` : `~${Math.ceil(s / 60)}m`;
 }
 
 /**
@@ -642,7 +673,7 @@ const StarmusTus = {
 	uploadWithPriority,
 	isTusAvailable,
 	estimateUploadTime,
-	formatUploadEstimate
+	formatUploadEstimate,
 };
 
 /**
@@ -650,7 +681,9 @@ const StarmusTus = {
  * Makes StarmusTus available on window object.
  * @global
  */
-if (typeof window !== 'undefined') {window.StarmusTus = StarmusTus;}
+if (typeof window !== 'undefined') {
+	window.StarmusTus = StarmusTus;
+}
 
 /**
  * Default export for ES6 modules.

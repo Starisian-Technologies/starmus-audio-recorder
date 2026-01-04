@@ -65,7 +65,7 @@
 			browser: {},
 			network: {},
 			identifiers: {},
-			errors: []
+			errors: [],
 		},
 		source: {
 			kind: null,
@@ -78,8 +78,8 @@
 			metadata: {
 				duration: 0,
 				mimeType: '',
-				fileSize: 0
-			}
+				fileSize: 0,
+			},
 		},
 		calibration: {
 			phase: null,
@@ -87,7 +87,7 @@
 			volumePercent: 0,
 			complete: false,
 			gain: 1.0,
-			speechLevel: 0
+			speechLevel: 0,
 		},
 		recorder: {
 			duration: 0,
@@ -111,7 +111,11 @@
    */
 	function shallowClone(obj) {
 		const out = {};
-		for (const k in obj) {if (Object.prototype.hasOwnProperty.call(obj, k)) {out[k] = obj[k];}}
+		for (const k in obj) {
+			if (Object.prototype.hasOwnProperty.call(obj, k)) {
+				out[k] = obj[k];
+			}
+		}
 		return out;
 	}
 
@@ -126,7 +130,11 @@
    */
 	function merge(a, b) {
 		const out = shallowClone(a);
-		for (const k in b) {if (Object.prototype.hasOwnProperty.call(b, k)) {out[k] = b[k];}}
+		for (const k in b) {
+			if (Object.prototype.hasOwnProperty.call(b, k)) {
+				out[k] = b[k];
+			}
+		}
 		return out;
 	}
 
@@ -167,7 +175,9 @@
    * - 'starmus/reset' - Reset state while preserving instance data
    */
 	function reducer(state, action) {
-		if (!action || !action.type) {return state;}
+		if (!action || !action.type) {
+			return state;
+		}
 
 		if (!state.instanceId && action.payload && action.payload.instanceId) {
 			state = merge(state, { instanceId: action.payload.instanceId });
@@ -177,21 +187,25 @@
 		case 'starmus/init':
 			return merge(state, merge(action.payload || {}, { status: 'idle', error: null }));
 
-		case 'starmus/env-update':
-		{ const newEnv = merge(state.env, action.payload || {});
-			if (!newEnv.errors) {newEnv.errors = state.env.errors || [];}
-			return merge(state, { env: newEnv }); }
+		case 'starmus/env-update': {
+			const newEnv = merge(state.env, action.payload || {});
+			if (!newEnv.errors) {
+				newEnv.errors = state.env.errors || [];
+			}
+			return merge(state, { env: newEnv });
+		}
 
-		case 'starmus/error':
-		{ const errObj = action.error || action.payload;
-			const currentErrors = (state.env && state.env.errors) ? state.env.errors.slice() : [];
+		case 'starmus/error': {
+			const errObj = action.error || action.payload;
+			const currentErrors = state.env && state.env.errors ? state.env.errors.slice() : [];
 			currentErrors.push({
 				code: errObj.code || 'RUNTIME_ERROR',
 				message: errObj.message || 'Unknown',
 				timestamp: Date.now(),
-				severity: errObj.retryable === false ? 'hard' : 'soft'
+				severity: errObj.retryable === false ? 'hard' : 'soft',
 			});
-			return merge(state, { error: errObj, env: merge(state.env, { errors: currentErrors }) }); }
+			return merge(state, { error: errObj, env: merge(state.env, { errors: currentErrors }) });
+		}
 
 		case 'starmus/tier-ready':
 			return merge(state, { tier: action.payload.tier || state.tier });
@@ -213,23 +227,41 @@
 		case 'starmus/calibration-complete':
 			return merge(state, {
 				status: 'ready',
-				calibration: merge(state.calibration, merge(action.payload.calibration || {}, { complete: true })),
+				calibration: merge(
+					state.calibration,
+					merge(action.payload.calibration || {}, { complete: true })
+				),
 			});
 
 		case 'starmus/mic-start':
-			return merge(state, { status: 'recording', error: null, recorder: merge(state.recorder, { duration: 0, isPaused: false }) });
+			return merge(state, {
+				status: 'recording',
+				error: null,
+				recorder: merge(state.recorder, { duration: 0, isPaused: false }),
+			});
 
 		case 'starmus/mic-pause':
-			return merge(state, { status: 'paused', recorder: merge(state.recorder, { isPaused: true }) });
+			return merge(state, {
+				status: 'paused',
+				recorder: merge(state.recorder, { isPaused: true }),
+			});
 
 		case 'starmus/mic-resume':
-			return merge(state, { status: 'recording', recorder: merge(state.recorder, { isPaused: false }) });
+			return merge(state, {
+				status: 'recording',
+				recorder: merge(state.recorder, { isPaused: false }),
+			});
 
 		case 'starmus/mic-stop':
 			return merge(state, { status: 'ready_to_submit' });
 
 		case 'starmus/recorder-tick':
-			return merge(state, { recorder: merge(state.recorder, { duration: action.duration, amplitude: action.amplitude }) });
+			return merge(state, {
+				recorder: merge(state.recorder, {
+					duration: action.duration,
+					amplitude: action.amplitude,
+				}),
+			});
 
 			// CRITICAL UPDATE: Capture metadata when blob is ready
 		case 'starmus/recording-available':
@@ -242,8 +274,8 @@
 					metadata: {
 						duration: state.recorder.duration || 0,
 						mimeType: action.payload.blob.type || 'audio/webm',
-						fileSize: action.payload.blob.size || 0
-					}
+						fileSize: action.payload.blob.size || 0,
+					},
 				}),
 			});
 
@@ -263,9 +295,9 @@
 					metadata: {
 						duration: 0, // Cannot know duration of uploaded file easily
 						mimeType: action.file.type,
-						fileSize: action.file.size
-					}
-				}
+						fileSize: action.file.size,
+					},
+				},
 			});
 
 		case 'starmus/submit-start':
@@ -280,7 +312,7 @@
 		case 'starmus/submit-queued':
 			return merge(state, {
 				status: 'complete',
-				submission: { progress: 0, isQueued: true }
+				submission: { progress: 0, isQueued: true },
 			});
 
 		case 'starmus/reset':
@@ -288,7 +320,7 @@
 				instanceId: state.instanceId,
 				env: state.env,
 				tier: state.tier,
-				status: 'idle'
+				status: 'idle',
 			});
 
 		default:
@@ -321,7 +353,9 @@
        * Returns the current state object.
        * @returns {Object} Current application state
        */
-			getState: function () { return state; },
+			getState: function () {
+				return state;
+			},
 
 			/**
        * Dispatches an action to update state.
@@ -329,7 +363,9 @@
        */
 			dispatch: function (action) {
 				state = reducer(state, action);
-				for (let i = 0; i < listeners.length; i++) {listeners[i](state);}
+				for (let i = 0; i < listeners.length; i++) {
+					listeners[i](state);
+				}
 			},
 
 			/**
@@ -339,7 +375,9 @@
        */
 			subscribe: function (fn) {
 				listeners.push(fn);
-				return function () { listeners.splice(listeners.indexOf(fn), 1); };
+				return function () {
+					listeners.splice(listeners.indexOf(fn), 1);
+				};
 			},
 		};
 	}
@@ -361,14 +399,15 @@
 	/**
    * CommonJS module export for Node.js environments.
    */
-	if (typeof module !== 'undefined' && module.exports) {module.exports = { createStore: createStore };}
-
+	if (typeof module !== 'undefined' && module.exports) {
+		module.exports = { createStore: createStore };
+	}
 })(typeof window !== 'undefined' ? window : globalThis);
 
 /**
  * Safe reference to the active global object for environments without window (e.g., SSR).
  * Ensures createStore export does not throw during server-side rendering.
- * @type {Window|typeof globalThis}
+ * @type {Window|Object}
  */
 const runtimeGlobal = typeof window !== 'undefined' ? window : globalThis;
 
@@ -381,4 +420,6 @@ const runtimeGlobal = typeof window !== 'undefined' ? window : globalThis;
  * @param {Object} [initial={}] - Initial state to merge with defaults
  * @returns {Object} Store instance with state management methods
  */
-export function createStore(initial) { return runtimeGlobal.StarmusStore.createStore(initial); }
+export function createStore(initial) {
+	return runtimeGlobal.StarmusStore.createStore(initial);
+}

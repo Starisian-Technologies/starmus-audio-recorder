@@ -9,8 +9,35 @@ if ( ! \defined('ABSPATH')) {
 }
 
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\services\StarmusId3Service;
+use Starisian\Sparxstar\Starmus\services\StarmusFileService;
+use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
+use function date;
+use function escapeshellarg;
+use function file_exists;
+use function filesize;
+use function get_attached_file;
+use function get_post;
+use function get_post_meta;
+use function get_the_author_meta;
+use function get_the_terms;
+use function gmdate;
+use function is_dir;
+use function is_wp_error;
+use function json_decode;
+use function json_encode;
+use function preg_match;
+use function shell_exec;
+use function sprintf;
+use function trailingslashit;
+use function trim;
+use function wp_insert_attachment;
+use function wp_mkdir_p;
+use function wp_update_attachment_metadata;
+use function wp_upload_dir;
+
 
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
@@ -69,7 +96,6 @@ use Throwable;
  */
 final readonly class StarmusPostProcessingService
 {
-
     /**
      * Data Access Layer for WordPress operations.
      *
@@ -111,7 +137,7 @@ final readonly class StarmusPostProcessingService
         try {
             $this->dal              = new StarmusAudioDAL();
             $this->file_service     = new StarmusFileService(); // Instantiated
-            $this->waveform_service = new StarmusWaveformService(null, $this->file_service);
+            $this->waveform_service = new StarmusWaveformService($this->dal, $this->file_service);
             $this->id3_service      = new StarmusId3Service();
         } catch (\Exception $exception) {
             error_log('StarmusPostProcessingService initialization error: ' . $exception->getMessage());
@@ -120,13 +146,13 @@ final readonly class StarmusPostProcessingService
     }
 
     /**
-     * Main entry point for comprehensive audio processing pipeline.
+     * Main entry point for comprehensive audo processing pipeline.
      *
      * Executes complete post-processing workflow from raw recording to
      * delivery-ready formats with metadata, normalization, and visualization.
      *
-     * @param int   $post_id WordPress post ID for the recording
-     * @param int   $attachment_id WordPress attachment ID for source audio file
+     * @param int $post_id WordPress post ID for the recording
+     * @param int $attachment_id WordPress attachment ID for source audio file
      * @param array $params Processing configuration options
      *
      * @since 1.0.0
@@ -233,7 +259,7 @@ final readonly class StarmusPostProcessingService
             };
 
             // Pass 1: Loudness Scan
-            $cmd_scan    = \sprintf(
+            $cmd_scan = \sprintf(
             '%s -hide_banner -nostats -i %s -af "loudnorm=I=-23:LRA=7:tp=-2:print_format=json" -f null - 2>&1',
             escapeshellarg($ffmpeg_path),
             escapeshellarg($source_path)
@@ -251,7 +277,7 @@ final readonly class StarmusPostProcessingService
             $loudness_data['input_thresh'] ?? -70,
             $loudness_data['target_offset'] ?? 0
             );
-            $full_filter     = \sprintf('%s,%s', $highpass, $loudnorm_filter);
+            $full_filter = \sprintf('%s,%s', $highpass, $loudnorm_filter);
 
             // 6. Define Output Paths
             $mp3_path    = $output_dir . '/' . $post_id . '_master.mp3';
@@ -271,7 +297,7 @@ final readonly class StarmusPostProcessingService
             $ffmpeg_meta,
             escapeshellarg($mp3_path)
             );
-            $log[]   = "---\nMP3 Command:\n" . $cmd_mp3 . "\nOutput:\n" . shell_exec($cmd_mp3);
+            $log[] = "---\nMP3 Command:\n" . $cmd_mp3 . "\nOutput:\n" . shell_exec($cmd_mp3);
 
             $cmd_wav = \sprintf(
             '%s -hide_banner -y -i %s -ar %d -ac 1 -sample_fmt s16 -af "%s" %s %s 2>&1',
@@ -282,7 +308,7 @@ final readonly class StarmusPostProcessingService
             $ffmpeg_meta,
             escapeshellarg($wav_path)
             );
-            $log[]   = "---\nWAV Command:\n" . $cmd_wav . "\nOutput:\n" . shell_exec($cmd_wav);
+            $log[] = "---\nWAV Command:\n" . $cmd_wav . "\nOutput:\n" . shell_exec($cmd_wav);
 
             // 8. ID3 Tagging (Full Payload Restored)
             $post = get_post($post_id);
@@ -316,7 +342,7 @@ final readonly class StarmusPostProcessingService
             'bitrate'           => $bitrate,
             'processing_date'   => gmdate('c'), // UTC ISO 8601
             ],
-            'files'      => [
+            'files' => [
             'mp3_size'    => file_exists($mp3_path) ? filesize($mp3_path) : 0,
             'wav_size'    => file_exists($wav_path) ? filesize($wav_path) : 0,
             'source_size' => file_exists($source_path) ? filesize($source_path) : 0,
@@ -373,7 +399,7 @@ final readonly class StarmusPostProcessingService
      * MIME type detection and metadata generation.
      *
      * @param string $filepath Absolute path to the processed audio file
-     * @param int    $parent_post_id Recording post ID to attach file to
+     * @param int $parent_post_id Recording post ID to attach file to
      * @param string $mime_type MIME type for the audio file
      *
      * @return int WordPress attachment ID or 0 on failure
@@ -448,9 +474,9 @@ final readonly class StarmusPostProcessingService
      * to create standardized ID3 tag data for audio file embedding.
      *
      * @param \WP_Post $post WordPress post object for the recording
-     * @param string   $author_name Display name of the recording author
-     * @param string   $site_name WordPress site name for attribution
-     * @param int      $post_id Recording post ID for reference
+     * @param string $author_name Display name of the recording author
+     * @param string $site_name WordPress site name for attribution
+     * @param int $post_id Recording post ID for reference
      *
      * @return array ID3 tag data array with standardized fields
      *

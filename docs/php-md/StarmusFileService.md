@@ -9,6 +9,7 @@
 STARISIAN TECHNOLOGIES CONFIDENTIAL
 © 2023–2025 Starisian Technologies. All Rights Reserved.
 StarmusFileService (DAL-integrated)
+
 - Guarantees local access for offloaded files.
 - Routes all persistence and attachment updates through DAL.
 - Supports external offloaders like WP Offload Media (AS3CF).
@@ -24,6 +25,7 @@ StarmusFileService (DAL-integrated)
 STARISIAN TECHNOLOGIES CONFIDENTIAL
 © 2023–2025 Starisian Technologies. All Rights Reserved.
 StarmusFileService (DAL-integrated)
+
 - Guarantees local access for offloaded files.
 - Routes all persistence and attachment updates through DAL.
 - Supports external offloaders like WP Offload Media (AS3CF).
@@ -32,8 +34,8 @@ StarmusFileService (DAL-integrated)
 /
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined( 'ABSPATH' ) ) {
-	exit;
+if (! \defined('ABSPATH')) {
+    exit;
 }
 
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
@@ -48,6 +50,7 @@ external offload services like Cloudflare R2 via WP Offload Media. Guarantees
 local file access for processing while maintaining compatibility with various
 WordPress hosting configurations.
 Key Features:
+
 - Local file access guarantee for offloaded attachments
 - Automatic metadata generation for third-party plugin compatibility
 - DAL-routed persistence for consistent data access patterns
@@ -63,15 +66,15 @@ Compatibility Layers:
 @see StarmusAudioDAL Data access abstraction
 @see Advanced_Media_Offloader\Plugin Third-party offloader integration
 /
-final readonly class StarmusFileService {
-
-	/**
+final readonly class StarmusFileService
+{
+    /**
 Data Access Layer for consistent WordPress operations.
 @since 1.0.0
 /
-	private StarmusAudioDAL $dal;
+    private ?StarmusAudioDAL $dal;
 
-	/**
+    /**
 Initializes the file service with DAL dependency.
 @param StarmusAudioDAL|null $dal Optional DAL instance (creates new if null)
 @since 1.0.0
@@ -85,6 +88,7 @@ Conditionally loads compatibility layers to maintain clean, modular
 integrations with external plugins. Only activates hooks when the
 target plugins are detected as present.
 Current Integrations:
+
 - Advanced Media Offloader: Metadata generation bridge
 @since 1.0.0
 @hook add_attachment Priority 20 for metadata generation
@@ -101,16 +105,18 @@ like Advanced Media Offloader that rely on metadata to function correctly.
 @since 1.0.0
 @hook add_attachment Called when new attachments are created
 Guard Conditions:
+
 1. Skip if metadata already exists (performance optimization)
 2. Only target Starmus API endpoints (prevents interference)
 3. Validate file existence before processing
 Process Flow:
-1. Check for existing metadata
-2. Validate request originates from Starmus endpoint
-3. Verify physical file existence
-4. Generate WordPress attachment metadata
-5. Save via DAL for consistency
+4. Check for existing metadata
+5. Validate request originates from Starmus endpoint
+6. Verify physical file existence
+7. Generate WordPress attachment metadata
+8. Save via DAL for consistency
 Error Handling:
+
 - Logs detailed information for debugging
 - Gracefully handles missing files or generation failures
 - Continues execution on non-critical errors
@@ -128,10 +134,12 @@ file system access.
 @param int $attachment_id WordPress attachment post ID
 @since 1.0.0
 Resolution Strategy:
+
 1. **Local Check**: Verify existing local file via get_attached_file()
 2. **Remote Download**: Download from public URL if offloaded
 3. **Temporary Storage**: Return temp file path (caller must clean up)
 Use Cases:
+
 - Audio processing (FFmpeg operations)
 - Metadata extraction (getID3 analysis)
 - Waveform generation (audiowaveform CLI)
@@ -148,6 +156,7 @@ Important Notes:
 @throws \Exception Implicitly via download_url() on network failures
 @return string|null Local file path if available, null on failure
 @example
+
 ```php
 $local_path = $service->get_local_copy($attachment_id);
 if ($local_path && file_exists($local_path)) {
@@ -172,19 +181,23 @@ Automatically delegates to appropriate storage backend based on active plugins.
 @return bool True if upload successful, false on failure
 @since 1.0.0
 Upload Strategy:
+
 1. **WP Offload Media**: Delegate to as3cf_upload_attachment() if available
 2. **Local Filesystem**: Use WordPress filesystem API as fallback
 3. **DAL Integration**: Update metadata through Data Access Layer
 Supported Offloaders:
+
 - WP Offload Media (AS3CF): S3, CloudFlare R2, DigitalOcean Spaces
 - Local filesystem: Standard WordPress uploads directory
 Process Flow:
+
 1. Validate local file existence
 2. Detect active offloader plugins
 3. Delegate upload to appropriate handler
 4. Update attachment metadata via DAL
 5. Log results for monitoring
 Error Conditions:
+
 - Local file doesn't exist
 - Offloader upload fails
 - Filesystem move operation fails
@@ -205,10 +218,12 @@ offloader plugins and CDN configurations.
 @return string|null Public URL if available, null on failure
 @since 1.0.0
 Resolution Strategy:
+
 1. **WordPress API**: Use wp_get_attachment_url() (honors all filters)
 2. **Metadata Fallback**: Reconstruct from attachment metadata if primary fails
 3. **Base URL Construction**: Combine upload dir with relative file path
 URL Sources (Priority Order):
+
 - Offloader plugin URLs (S3, CloudFlare R2, etc.)
 - CDN-transformed URLs
 - Local WordPress upload URLs
@@ -226,6 +241,7 @@ WordPress Integration:
 @return string Escaped public URL ready for HTML output
 @return null If attachment not found or URL cannot be determined
 @example
+
 ```php
 $url = $service->star_get_public_url($attachment_id);
 if ($url) {

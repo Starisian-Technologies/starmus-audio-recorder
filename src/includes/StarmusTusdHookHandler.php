@@ -1,19 +1,18 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\includes;
+
+use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
 
 if ( ! \defined('ABSPATH')) {
     exit;
 }
 
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
-use Throwable;
-use WP_Error;
-use WP_REST_Request;
-use WP_REST_Response;
 use WP_REST_Server;
 
 /**
@@ -41,7 +40,6 @@ use WP_REST_Server;
  */
 class StarmusTusdHookHandler
 {
-
     /**
      * REST API namespace for webhook endpoints.
      *
@@ -64,8 +62,9 @@ class StarmusTusdHookHandler
      * @since 1.0.0
      */
     public function __construct(
-    private readonly StarmusSubmissionHandler $submission_handler
-    ) {}
+        private readonly StarmusSubmissionHandler $submission_handler
+    ) {
+    }
 
     /**
      * Registers WordPress action hooks for REST API initialization.
@@ -79,7 +78,7 @@ class StarmusTusdHookHandler
      */
     public function register_hooks(): void
     {
-        add_action('rest_api_init', $this->register_routes(...));
+        add_action('rest_api_init', [$this, 'register_routes']);
     }
 
     /**
@@ -101,26 +100,26 @@ class StarmusTusdHookHandler
     public function register_routes(): void
     {
         register_rest_route(
-        $this->namespace,
-        '/' . $this->rest_base,
-        [
-        [
-        'methods'             => WP_REST_Server::CREATABLE,
-        'callback'            => $this->handle_tusd_hook(...),
-        'permission_callback' => $this->permissions_check(...),
-        'args'                => [
-         'Type'  => [
-          'required'          => true,
-          'type'              => 'string',
-          'sanitize_callback' => 'sanitize_key',
-         ],
-         'Event' => [
-          'required' => true,
-          'type'     => 'object',
-         ],
-        ],
-        ],
-        ]
+            $this->namespace,
+            '/' . $this->rest_base,
+            [
+                [
+                    'methods'             => WP_REST_Server::CREATABLE,
+                    'callback'            => [$this, 'handle_tusd_hook'],
+                    'permission_callback' => [$this, 'permissions_check'],
+                    'args'                => [
+                        'Type' => [
+                            'required'          => true,
+                            'type'              => 'string',
+                            'sanitize_callback' => 'sanitize_key',
+                        ],
+                        'Event' => [
+                            'required' => true,
+                            'type'     => 'object',
+                        ],
+                    ],
+                ],
+            ]
         );
     }
 
@@ -178,11 +177,11 @@ class StarmusTusdHookHandler
 
             if (\defined('WP_DEBUG') && WP_DEBUG) {
                 StarmusLogger::debug(
-                'Received payload',
-                [
-                'component'  => self::class,
-                'event_type' => $event_type,
-                ]
+                    'Received payload',
+                    [
+                        'component'  => self::class,
+                        'event_type' => $event_type,
+                    ]
                 );
             }
 
@@ -196,6 +195,7 @@ class StarmusTusdHookHandler
             };
         } catch (\Throwable $throwable) {
             StarmusLogger::log($throwable);
+            return new WP_Error('internal_error', 'Internal server error', ['status' => 500]);
         }
     }
 
@@ -248,8 +248,8 @@ class StarmusTusdHookHandler
                 // Note: tusd will verify this is a non-2xx error and log it, but
                 // the client will not see this error message directly.
                 StarmusLogger::error(
-                'Upload processing failed',
-                ['component' => self::class]
+                    'Upload processing failed',
+                    ['component' => self::class]
                 );
                 return $result;
             }
@@ -323,20 +323,20 @@ class StarmusTusdHookHandler
             if (file_exists($normalized_info_path) && str_starts_with($normalized_info_path, $basedir)) {
                 if ( ! unlink($normalized_info_path)) {
                     StarmusLogger::warning(
-                    'Failed to delete temp info file',
-                    [
-                    'component' => self::class,
-                    'path'      => $normalized_info_path,
-                    ]
+                        'Failed to delete temp info file',
+                        [
+                            'component' => self::class,
+                            'path'      => $normalized_info_path,
+                        ]
                     );
                 }
             } elseif (file_exists($normalized_info_path)) {
                 StarmusLogger::warning(
-                'Security: Attempted deletion outside uploads',
-                [
-                'component' => self::class,
-                'path'      => $normalized_info_path,
-                ]
+                    'Security: Attempted deletion outside uploads',
+                    [
+                        'component' => self::class,
+                        'path'      => $normalized_info_path,
+                    ]
                 );
             }
         } catch (\Throwable $throwable) {
@@ -393,8 +393,8 @@ class StarmusTusdHookHandler
 
             if (empty($expected_secret)) {
                 StarmusLogger::error(
-                 'STARMUS_TUS_WEBHOOK_SECRET missing in configuration.',
-                 ['component' => self::class]
+                    'STARMUS_TUS_WEBHOOK_SECRET missing in configuration.',
+                    ['component' => self::class]
                 );
                 return new WP_Error('internal_server_error', 'Internal Service Error', ['status' => 500]);
             }

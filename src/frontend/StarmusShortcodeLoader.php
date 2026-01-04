@@ -1,20 +1,16 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 if ( ! \defined('ABSPATH')) {
     exit;
 }
 
-use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
-use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
-use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
-use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
-use Starisian\Sparxstar\Starmus\frontend\StarmusAudioEditorUI;
-use Starisian\Sparxstar\Starmus\frontend\StarmusProsodyPlayer;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 use Throwable;
@@ -26,7 +22,6 @@ use Throwable;
  */
 final class StarmusShortcodeLoader
 {
-
     /**
      * Settings service instance.
      *
@@ -41,14 +36,14 @@ final class StarmusShortcodeLoader
      */
     private ?StarmusAudioDAL $dal = null;
     /**
-        * Prosody player instance.
-        */
+     * Prosody player instance.
+     */
     private ?StarmusProsodyPlayer $prosody = null;
 
     /**
      * @param IStarmusAudioDAL|null $dal The data access layer.
-     * @param StarmusSettings|null  $settings The settings instance.
-     * @param StarmusProsodyDAL|null  $prosodyDal The prosody DAL instance.
+     * @param StarmusSettings|null $settings The settings instance.
+     * @param StarmusProsodyDAL|null $prosodyDal The prosody DAL instance.
      */
     public function __construct(?StarmusAudioDAL $dal = null, ?StarmusSettings $settings = null, ?StarmusProsodyDAL $prosodyDal = null)
     {
@@ -66,7 +61,7 @@ final class StarmusShortcodeLoader
     private function register_hooks(): void
     {
         // Currently no additional hooks to register
-        add_action('init', $this->register_shortcodes(...));
+        add_action('init', [$this, 'register_shortcodes']);
     }
 
     /**
@@ -75,11 +70,11 @@ final class StarmusShortcodeLoader
     public function register_shortcodes(): void
     {
         try {
-            add_shortcode('starmus_audio_recorder', fn(): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode()));
-            add_shortcode('starmus_audio_editor', fn(array $atts = []): string => $this->safe_render(fn(): string => $this->render_editor_with_bootstrap($atts)));
+            add_shortcode('starmus_audio_recorder', fn (): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode()));
+            add_shortcode('starmus_audio_editor', fn (array $atts = []): string => $this->safe_render(fn (): string => $this->render_editor_with_bootstrap($atts)));
             add_shortcode('starmus_my_recordings', $this->render_my_recordings_shortcode(...));
             add_shortcode('starmus_recording_detail', $this->render_submission_detail_shortcode(...));
-            add_shortcode('starmus_audio_re_recorder', fn(array $atts = []): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts)));
+            add_shortcode('starmus_audio_re_recorder', fn (array $atts = []): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts)));
 
             add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);
         } catch (\Throwable $throwable) {
@@ -93,7 +88,7 @@ final class StarmusShortcodeLoader
             $this->prosody = $prosodyDal;
             return;
         }
-        try{
+        try {
             $this->prosody = new StarmusProsodyPlayer($prosodyDal);
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -130,11 +125,11 @@ final class StarmusShortcodeLoader
             $query          = $this->dal->get_user_recordings(get_current_user_id(), $cpt_slug, $posts_per_page, $paged);
 
             return StarmusTemplateLoaderHelper::render_template(
-            'parts/starmus-my-recordings-list.php',
-            [
-            'query'         => $query,
-            'edit_page_url' => $this->dal->get_edit_page_url_admin($cpt_slug),
-            ]
+                'parts/starmus-my-recordings-list.php',
+                [
+                    'query'         => $query,
+                    'edit_page_url' => $this->dal->get_edit_page_url_admin($cpt_slug),
+                ]
             );
         } catch (\Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -147,9 +142,9 @@ final class StarmusShortcodeLoader
      */
     public function render_submission_detail_shortcode(): string
     {
-        try{
+        try {
             if ( ! is_singular('audio-recording')) {
-                  return '<p><em>[starmus_recording_detail] can only be used on a single audio recording page.</em></p>';
+                return '<p><em>[starmus_recording_detail] can only be used on a single audio recording page.</em></p>';
             }
 
             $post_id          = get_the_ID();
@@ -163,13 +158,13 @@ final class StarmusShortcodeLoader
             if ($template_to_load !== '' && $template_to_load !== '0') {
                 return StarmusTemplateLoaderHelper::render_template($template_to_load);
             }
-        } catch (\Throwable $throwable){
+        } catch (\Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
 
         return is_user_logged_in()
-        ? '<p>You do not have permission to view this recording detail.</p>'
-        : '<p><em>You must be logged in to view this recording detail.</em></p>';
+            ? '<p>You do not have permission to view this recording detail.</p>'
+            : '<p><em>You must be logged in to view this recording detail.</em></p>';
     }
 
     /**
@@ -177,9 +172,9 @@ final class StarmusShortcodeLoader
      */
     public function render_submission_detail_via_filter(string $content): string
     {
-        try{
+        try {
             if ( ! is_singular('audio-recording') || ! in_the_loop() || ! is_main_query()) {
-                  return $content;
+                return $content;
             }
 
             $post_id          = get_the_ID();
@@ -194,7 +189,7 @@ final class StarmusShortcodeLoader
             if ($template_to_load !== '' && $template_to_load !== '0') {
                 return StarmusTemplateLoaderHelper::render_template($template_to_load);
             }
-        } catch (\Throwable $throwable){
+        } catch (\Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
 
@@ -236,17 +231,17 @@ final class StarmusShortcodeLoader
 
             // Set editor data for asset loader to localize
             \Starisian\Sparxstar\Starmus\core\StarmusAssetLoader::set_editor_data(
-            [
-            'postId'          => $context['post_id'],
-            'restUrl'         => esc_url_raw(rest_url('star_uec/v1/annotations')),
-            'audioUrl'        => esc_url($context['audio_url']),
-            'waveformDataUrl' => esc_url($context['waveform_url']),
-            'annotations'     => $annotations_data,
-            'transcript'      => $transcript_data,
-            'nonce'           => wp_create_nonce('wp_rest'),
-            'mode'            => 'editor',
-            'canCommit'       => current_user_can('publish_posts'),
-            ]
+                [
+                    'postId'          => $context['post_id'],
+                    'restUrl'         => esc_url_raw(rest_url('star_uec/v1/annotations')),
+                    'audioUrl'        => esc_url($context['audio_url']),
+                    'waveformDataUrl' => esc_url($context['waveform_url']),
+                    'annotations'     => $annotations_data,
+                    'transcript'      => $transcript_data,
+                    'nonce'           => wp_create_nonce('wp_rest'),
+                    'mode'            => 'editor',
+                    'canCommit'       => current_user_can('publish_posts'),
+                ]
             );
         } catch (\Throwable $throwable) {
             StarmusLogger::log($throwable);

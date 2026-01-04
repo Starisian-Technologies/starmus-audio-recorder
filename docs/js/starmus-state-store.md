@@ -21,6 +21,15 @@ Ensures compatibility between module systems.</p>
 </dd>
 </dl>
 
+## Constants
+
+<dl>
+<dt><a href="#runtimeGlobal">runtimeGlobal</a> : <code>Window</code> | <code>Object</code></dt>
+<dd><p>Safe reference to the active global object for environments without window (e.g., SSR).
+Ensures createStore export does not throw during server-side rendering.</p>
+</dd>
+</dl>
+
 ## Functions
 
 <dl>
@@ -38,6 +47,7 @@ Ensures compatibility between module systems.</p>
 <a name="module_createStore"></a>
 
 ## createStore ⇒ <code>Object</code>
+
 ES6 module export wrapper that delegates to global StarmusStore.
 Ensures compatibility between module systems.
 
@@ -50,18 +60,29 @@ Ensures compatibility between module systems.
 <a name="StarmusStore"></a>
 
 ## StarmusStore : <code>object</code>
+
 Global StarmusStore namespace for browser environments.
 
 **Kind**: global namespace  
 <a name="StarmusStore.global.StarmusStore.createStore"></a>
 
 ### StarmusStore.global.StarmusStore.createStore : <code>function</code>
+
 Global createStore function reference.
 
 **Kind**: static property of [<code>StarmusStore</code>](#StarmusStore)  
+<a name="runtimeGlobal"></a>
+
+## runtimeGlobal : <code>Window</code> \| <code>Object</code>
+
+Safe reference to the active global object for environments without window (e.g., SSR).
+Ensures createStore export does not throw during server-side rendering.
+
+**Kind**: global constant  
 <a name="getState"></a>
 
 ## getState() ⇒ <code>Object</code>
+
 Returns the current state object.
 
 **Kind**: global function  
@@ -69,6 +90,7 @@ Returns the current state object.
 <a name="dispatch"></a>
 
 ## dispatch(action)
+
 Dispatches an action to update state.
 
 **Kind**: global function  
@@ -80,6 +102,7 @@ Dispatches an action to update state.
 <a name="subscribe"></a>
 
 ## subscribe(fn) ⇒ <code>function</code>
+
 Subscribes to state changes.
 
 **Kind**: global function  
@@ -88,8 +111,6 @@ Subscribes to state changes.
 | Param | Type | Description |
 | --- | --- | --- |
 | fn | <code>function</code> | Callback function to call on state changes |
-
-
 
 ---
 

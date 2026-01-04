@@ -7,57 +7,40 @@
  * Main bootstrapper for the Starmus Audio Recorder plugin lifecycle.
  *
  * @package   Starisian\Sparxstar\Starmus
+ *
  * @since     0.1.0
+ *
  * @version   1.2.3
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus;
 
-if ( ! defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
 use LogicException;
 use RuntimeException;
-use Throwable;
-
+use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
 // Helpers
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-
+use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
 // Config
-use Starisian\Sparxstar\Starmus\core\StarmusSettings;
-
+use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
 // Interfaces
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
+// Data Layer
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusProsodyDAL;
-
-// Data Layer
+// Components
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
-
-// Components
-use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
-use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
-use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
-use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
 use Starisian\Sparxstar\Starmus\frontend\StarmusShortcodeLoader;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler;
 use Starisian\Sparxstar\Starmus\services\StarmusFileService;
-
-use function class_alias;
-use function class_exists;
-use function current_user_can;
-use function defined;
-use function dirname;
-use function esc_html;
-use function file_exists;
-use function function_exists;
-use function is_admin;
-use function load_plugin_textdomain;
-use function plugin_basename;
-use function plugin_dir_path;
+use Throwable;
 
 /**
  * Main plugin bootstrapper and singleton entry point.
@@ -83,11 +66,11 @@ use function plugin_dir_path;
  * ```
  *
  * @package Starisian\Sparxstar\Starmus
+ *
  * @since   0.1.0
  */
 final class StarmusAudioRecorder
 {
-
     /**
      * Capability allowing users to edit uploaded audio recordings.
      *
@@ -95,6 +78,7 @@ final class StarmusAudioRecorder
      * update metadata, and manage recording lifecycle.
      *
      * @since 0.1.0
+     *
      * @var string
      */
     public const STARMUS_CAP_EDIT_AUDIO = 'starmus_edit_audio';
@@ -106,6 +90,7 @@ final class StarmusAudioRecorder
      * submit new recordings, and initiate recording sessions.
      *
      * @since 0.1.0
+     *
      * @var string
      */
     public const STARMUS_CAP_RECORD_AUDIO = 'starmus_record_audio';
@@ -128,6 +113,7 @@ final class StarmusAudioRecorder
      * Errors are deduplicated before display.
      *
      * @since 0.1.0
+     *
      * @var array<string, mixed>
      */
     private array $runtimeErrors = [];
@@ -207,8 +193,8 @@ final class StarmusAudioRecorder
         } catch (Throwable $throwable) {
             if (class_exists(StarmusLogger::class)) {
                 StarmusLogger::log(
-                $throwable,
-                ['component' => self::class, 'stage' => '__construct']
+                    $throwable,
+                    ['component' => self::class, 'stage' => '__construct']
                 );
             }
         }
@@ -267,7 +253,7 @@ final class StarmusAudioRecorder
      */
     public static function check_field_plugin_dependency(): bool
     {
-        return function_exists('acf_get_instance');
+        return \function_exists('acf_get_instance');
     }
 
     /**
@@ -315,7 +301,7 @@ final class StarmusAudioRecorder
         try {
             $default_recorder = new StarmusAudioDAL();
 
-            $override_key = defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
+            $override_key      = \defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
             $filtered_recorder = apply_filters('starmus_register_dal', $default_recorder, $override_key);
 
             if ($filtered_recorder instanceof IStarmusAudioDAL) {
@@ -418,13 +404,13 @@ final class StarmusAudioRecorder
         try {
             add_action('init', function (): void {
                 load_plugin_textdomain(
-                'starmus-audio-recorder',
-                false,
-                dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/'
+                    'starmus-audio-recorder',
+                    false,
+                    \dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/'
                 );
             });
 
-            if (defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
+            if (\defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
                 $cli_path = plugin_dir_path(STARMUS_MAIN_FILE) . 'src/cli/';
                 if (file_exists($cli_path . 'StarmusCLI.php')) {
                     require_once $cli_path . 'StarmusCLI.php';
@@ -432,7 +418,7 @@ final class StarmusAudioRecorder
             }
 
             if (is_admin()) {
-                add_action('admin_notices', $this->displayRuntimeErrorNotice(...));
+                add_action('admin_notices', [$this, 'displayRuntimeErrorNotice']);
             }
 
             $this->hooksRegistered = true;
@@ -457,10 +443,10 @@ final class StarmusAudioRecorder
     }
 
     /**
-        * Retrieve the active Prosody DAL implementation.
-        *
-        * @since 1.2.0
-        */
+     * Retrieve the active Prosody DAL implementation.
+     *
+     * @since 1.2.0
+     */
     public function get_ProsodyDAL(): ?IStarmusProsodyDAL
     {
         return $this->prosodyDAL;

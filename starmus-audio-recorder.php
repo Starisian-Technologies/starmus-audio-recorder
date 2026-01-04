@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SPARXSTAR Starmus Audio
  *
@@ -22,7 +23,7 @@
  *
  * Plugin Name:       Starmus Audio Recorder
  * Description:       Mobile-friendly audio recorder for optimized for emerging markets.
- * Version:           0.9.3
+ * Version:           0.9.2
  * Requires at least: 6.8
  * Requires PHP:      8.2
  * Text Domain:       starmus-audio-recorder
@@ -50,7 +51,7 @@ declare(strict_types=1);
 
 use Starisian\Sparxstar\SCF\Sparxstar_SCF_Runtime;
 
-if ( ! defined('ABSPATH') ) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 
@@ -60,7 +61,7 @@ if ( ! defined('ABSPATH') ) {
 register_shutdown_function(static function (): void {
     $error = error_get_last();
     // Only log actual fatal errors, not warnings/notices
-    if ( ! empty($error) && is_array($error) ) {
+    if ( ! empty($error) && is_array($error)) {
         error_log('[STARMUS FATAL] File: ' . $error['file'] . ' Line: ' . $error['line'] . ' Msg: ' . $error['message']);
     }
 });
@@ -68,47 +69,32 @@ register_shutdown_function(static function (): void {
 /* -------------------------------------------------------------------------
  * 1. CONSTANTS
  * ------------------------------------------------------------------------- */
-define('STARMUS_VERSION', '0.9.3');
+define('STARMUS_VERSION', '0.9.2');
 define('STARMUS_MAIN_FILE', __FILE__);
 define('STARMUS_PATH', plugin_dir_path(STARMUS_MAIN_FILE));
 define('STARMUS_URL', plugin_dir_url(STARMUS_MAIN_FILE));
 define('STARMUS_PLUGIN_PREFIX', 'starmus');
 define('STARMUS_PLUGIN_DIR', plugin_dir_path(STARMUS_MAIN_FILE));
 
-if ( ! defined('STARMUS_LOG_LEVEL') ) {
+if ( ! defined('STARMUS_LOG_LEVEL')) {
     define('STARMUS_LOG_LEVEL', 8);
 }
-if ( ! defined('STARMUS_TUS_ENDPOINT') ) {
+if ( ! defined('STARMUS_TUS_ENDPOINT')) {
     define('STARMUS_TUS_ENDPOINT', 'https://upload.sparxstar.com/files/');
 }
-if ( ! defined('STARMUS_R2_ENDPOINT') ) {
+if ( ! defined('STARMUS_R2_ENDPOINT')) {
     define('STARMUS_R2_ENDPOINT', 'https://cdn.sparxstar.com/');
 }
-if ( ! defined('STARMUS_TUS_WEBHOOK_SECRET') ) {
+if ( ! defined('STARMUS_TUS_WEBHOOK_SECRET')) {
     define('STARMUS_TUS_WEBHOOK_SECRET', '84d34624286938554e5e19d9fafe9f5da3562c4d1d443e02c186f8e44019406e');
 }
-if ( ! defined('STARMUS_REST_NAMESPACE') ) {
+if ( ! defined('STARMUS_REST_NAMESPACE')) {
     define('STARMUS_REST_NAMESPACE', 'starmus/v1');
 }
-if ( ! defined('STARMUS_DELETE_ON_UNINSTALL') ) {
+if ( ! defined('STARMUS_DELETE_ON_UNINSTALL')) {
     define('STARMUS_DELETE_ON_UNINSTALL', false);
 }
-define('STARMUS_PATH', plugin_dir_path(__FILE__));
-define('STARMUS_URL', plugin_dir_url(__FILE__));
-
-// Configuration / Overrides (Define in wp-config.php to override)
-if ( ! defined('STARMUS_LOG_LEVEL') ) {
-    define('STARMUS_LOG_LEVEL', 8);
-}
-if ( ! defined('STARMUS_TUS_ENDPOINT') ) {
-    define('STARMUS_TUS_ENDPOINT', 'https://upload.sparxstar.com/files/');
-}
-if ( ! defined('STARMUS_R2_ENDPOINT') ) {
-    define('STARMUS_R2_ENDPOINT', 'https://cdn8.sparxstar.com/');
-}
-if ( ! defined('TUS_WEBHOOK_SECRET') ) {
-    define('TUS_WEBHOOK_SECRET', 'CHANGE_ME');
-}
+// Remove duplicate defines - already defined above
 
 // -------------------------------------------------------------------------
 // 1. AUTOLOAD (Priority 0)
@@ -116,17 +102,17 @@ if ( ! defined('TUS_WEBHOOK_SECRET') ) {
 add_action('plugins_loaded', static function (): void {
     try {
         $autoloader = STARMUS_PATH . 'vendor/autoload.php';
-        if ( file_exists($autoloader) ) {
+        if (file_exists($autoloader)) {
             require_once $autoloader;
         } else {
             // Only alert admins, don't crash users
-            if ( is_admin() ) {
+            if (is_admin()) {
                 add_action('admin_notices', static function () {
                     echo '<div class="notice notice-error"><p>Starmus Error: vendor/autoload.php missing.</p></div>';
                 });
             }
         }
-    } catch ( \Throwable $e ) {
+    } catch (\Throwable $e) {
         error_log('Starmus Autoload Failed: ' . $e->getMessage());
     }
 }, 0);
@@ -135,33 +121,33 @@ add_action('plugins_loaded', static function (): void {
 // 2. INFRASTRUCTURE (Priority 5)
 // -------------------------------------------------------------------------
 
-function starmus_boot_plugin(): void {
+function starmus_boot_plugin(): void
+{
     error_log('Starmus Boot Started.');
     try {
 
         // 2. Load i18n
-        if ( class_exists(\Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage::class) ) {
+        if (class_exists(\Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage::class)) {
             error_log('Starmus i18n Load Started.');
             $language = new \Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage();
-
         }
 
         // 3. Boot Orchestrator
-        if ( class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class) ) {
+        if (class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
             error_log('Starmus Core Boot Started.');
             $starmus = \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_get_instance();
-            $starmus::starmus_run();
+            \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_run();
         } else {
             throw new RuntimeException('StarmusAudioRecorder class missing.');
         }
         error_log('Starmus Boot Completed.');
         // 4. Cleanup
-        if ( get_transient('starmus_flush_rewrite_rules') ) {
+        if (get_transient('starmus_flush_rewrite_rules')) {
             flush_rewrite_rules();
             delete_transient('starmus_flush_rewrite_rules');
         }
-    } catch ( \Throwable $e ) {
-        if ( class_exists('StarmusLogger') ) {
+    } catch (\Throwable $e) {
+        if (class_exists('StarmusLogger')) {
             \StarmusLogger::log($e);
         }
         error_log('Starmus Boot Error: ' . $e->getMessage());
@@ -177,33 +163,32 @@ add_action('plugins_loaded', 'starmus_boot_plugin', 10);
 
 function starmus_on_activate(): void
 {
-	error_log('Starmus Activation Started.');
-try {
-    // Delegate checks to Dependencies Class
-    starmus_load_dependencies();
-
-    if ( class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class) ) {
-        \Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
-    }
-    set_transient('starmus_flush_rewrite_rules', true, 60);
-} catch ( \Throwable $e ) {
-    error_log('Starmus Activation Error: ' . $e->getMessage());
-}
-function starmus_on_activate() {
+    error_log('Starmus Activation Started.');
     try {
-        if ( class_exists(Sparxstar_SCF_Runtime::class) ) {
+        // Delegate checks to Dependencies Class
+        if (class_exists('\Starisian\Sparxstar\Starmus\helpers\StarmusDependencies')) {
+            \Starisian\Sparxstar\Starmus\helpers\StarmusDependencies::bootstrap_scf();
+        }
+
+        if (class_exists('\Starisian\Sparxstar\Starmus\cron\StarmusCron')) {
+            \Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
+        }
+
+        if (class_exists('Sparxstar_SCF_Runtime')) {
             Sparxstar_SCF_Runtime::activate_site();
         }
-        // ... other activation logic
-    } catch ( \Throwable $e ) {
+
+        set_transient('starmus_flush_rewrite_rules', true, 60);
+    } catch (\Throwable $e) {
         error_log('Starmus Activation Error: ' . $e->getMessage());
     }
 }
 
 
-function starmus_on_deactivate(): void {
+function starmus_on_deactivate(): void
+{
     try {
-        if ( class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class) ) {
+        if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
             \Starisian\Sparxstar\Starmus\cron\StarmusCron::deactivate();
         }
         flush_rewrite_rules();
@@ -212,21 +197,21 @@ function starmus_on_deactivate(): void {
          * NOTE: We do NOT deactivate the SCF Runtime here.
          * Other plugins might still need it. We only remove our Cron/Rules.
          */
-
-    } catch ( Throwable $e ) {
+    } catch (Throwable $e) {
         error_log('Starmus deactivation error: ' . $e->getMessage());
     }
 }
 
-function starmus_on_uninstall(): void {
+function starmus_on_uninstall(): void
+{
     // Optional: Remove SCF runtime state if you want to clean up completely
-    if ( class_exists(Sparxstar_SCF_Runtime::class) ) {
+    if (class_exists(Sparxstar_SCF_Runtime::class)) {
         Sparxstar_SCF_Runtime::uninstall_site();
     }
 
-    if ( defined('STARMUS_DELETE_ON_UNINSTALL') && STARMUS_DELETE_ON_UNINSTALL ) {
+    if (defined('STARMUS_DELETE_ON_UNINSTALL') && STARMUS_DELETE_ON_UNINSTALL) {
         $file = STARMUS_PATH . 'uninstall.php';
-        if ( file_exists($file) ) {
+        if (file_exists($file)) {
             require_once $file;
         }
     }

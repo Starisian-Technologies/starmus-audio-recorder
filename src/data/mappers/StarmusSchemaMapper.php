@@ -7,33 +7,31 @@
  * Works in tandem with StarmusSanitizer to ensure LEGACY keys are also generated.
  *
  * @package Starisian\Sparxstar\Starmus\data\mappers
+ *
  * @version 1.1.1
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\data\mappers;
 
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Throwable;
 use function get_current_user_id;
-use function in_array;
-use function is_array;
-use function is_string;
 use function json_decode;
 use function json_encode;
 use function json_last_error;
 use function json_last_error_msg;
 use function sanitize_text_field;
+
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Throwable;
+
 use function wp_unslash;
 
-if ( ! defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
 class StarmusSchemaMapper
 {
-
     /**
      * List of fields that map 1:1 from Frontend to ACF (New Schema).
      */
@@ -86,13 +84,14 @@ class StarmusSchemaMapper
     'bpm',
     'musical_key',
     'isrc_code',
-    'integrated_lufs'
+    'integrated_lufs',
     ];
 
     /**
      * Maps form data to the ACF Schema structure.
      *
      * @param array<string, mixed> $data Raw or semi-sanitized form data.
+     *
      * @return array<string, mixed> Data ready for ACF saving.
      */
     public static function map_form_data(array $data): array
@@ -187,7 +186,7 @@ class StarmusSchemaMapper
      */
     public static function is_json_field(string $field_name): bool
     {
-        return in_array($field_name, [
+        return \in_array($field_name, [
         'environment_data',
         'waveform_json',
         'transcriber',
@@ -204,23 +203,23 @@ class StarmusSchemaMapper
      */
     private static function ensure_json_string(mixed $value, string $context = 'unknown'): string
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $json = json_encode($value);
             if (false === $json) {
-                StarmusLogger::error(sprintf('Mapper JSON Encode Failed (%s): ', $context) . json_last_error_msg());
+                StarmusLogger::error(\sprintf('Mapper JSON Encode Failed (%s): ', $context) . json_last_error_msg());
                 return '{}';
             }
 
             return $json;
         }
 
-        if (is_string($value)) {
+        if (\is_string($value)) {
             json_decode(wp_unslash($value));
             if (json_last_error() === JSON_ERROR_NONE) {
                 return $value;
             }
 
-            StarmusLogger::warning(sprintf('Mapper received invalid JSON string for (%s). Wrapping.', $context));
+            StarmusLogger::warning(\sprintf('Mapper received invalid JSON string for (%s). Wrapping.', $context));
             return (string) json_encode(['raw_preserved' => $value]);
         }
 
@@ -232,16 +231,15 @@ class StarmusSchemaMapper
      */
     private static function decode_if_json(mixed $value): array
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             return $value;
         }
 
-        if (is_string($value)) {
+        if (\is_string($value)) {
             $decoded = json_decode(wp_unslash($value), true);
-            return is_array($decoded) ? $decoded : [];
+            return \is_array($decoded) ? $decoded : [];
         }
 
         return [];
     }
 }
-

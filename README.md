@@ -22,7 +22,6 @@ A mobile-first audio recording and annotation plugin for WordPress, designed for
 
 **License:** See LICENSE.md
 
-
 [![CodeQL](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql) [![Copilot](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/copilot-swe-agent/copilot/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/copilot-swe-agent/copilot) [![Dependabot Updates](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates)
  [![Security Checks](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml)
 

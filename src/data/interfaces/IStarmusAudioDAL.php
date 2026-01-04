@@ -4,19 +4,17 @@
  * Contract for the Audio Data Access Layer.
  *
  * @package Starisian\Sparxstar\Starmus\data\interfaces
+ *
  * @version 1.3.0
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\data\interfaces;
 
-use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusBaseDAL;
 use WP_Error;
 use WP_Query;
-use function defined;
 
-if ( ! defined('ABSPATH') ) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -24,9 +22,8 @@ if ( ! defined('ABSPATH') ) {
  * Defines operations specific to Audio Files and Recordings.
  * Extends the Base contract for Meta/Audit/Provenance.
  */
-interface IStarmusAudioDAL extends IStarmusBaseDAL {
-
-
+interface IStarmusAudioDAL extends IStarmusBaseDAL
+{
     // --- WRITE OPERATIONS ---
     public function create_audio_post(string $title, string $cpt_slug, int $author_id): int|WP_Error;
 

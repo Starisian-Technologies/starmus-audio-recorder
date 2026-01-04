@@ -1,130 +1,116 @@
 # StarmusSchemaMapper
 
-**Namespace:** `Starisian\Sparxstar\Starmus\helpers`
+**Namespace:** `Starisian\Sparxstar\Starmus\data\mappers`
 
-**File:** `/workspaces/starmus-audio-recorder/src/helpers/StarmusSchemaMapper.php`
+**File:** `/workspaces/starmus-audio-recorder/src/data/mappers/StarmusSchemaMapper.php`
 
 ## Description
 
-Schema field mapping helper for the Unified Archival Schema migration.
-@package Starisian\Sparxstar\Starmus\helpers
+Schema Mapper for Starmus Audio System.
+Acts as a Key Translator for the NEW Schema.
+Works in tandem with StarmusSanitizer to ensure LEGACY keys are also generated.
+@package Starisian\Sparxstar\Starmus\data\mappers
+@version 1.1.1
 
 ## Methods
-
-### `map_field_name()`
-
-**Visibility:** `public`
-
-Schema field mapping helper for the Unified Archival Schema migration.
-@package Starisian\Sparxstar\Starmus\helpers
-/
-namespace Starisian\Sparxstar\Starmus\helpers;
-
-if ( ! \defined( 'ABSPATH' ) ) {
-	exit;
-}
-
-/**
-Handles field mapping between legacy and new unified archival schema.
-/
-final class StarmusSchemaMapper {
-
-	/**
-Legacy to new field mappings for audio recordings.
-/
-	private const FIELD_MAPPINGS = array(
-		// Legacy -> New Schema
-		'audio_file'             => 'original_source',
-		'recorded_by_user_id'    => 'subject_user_id',
-		'consent_timestamp'      => 'agreement_datetime',
-		'consent_ip'             => 'contributor_ip',
-		'starmus_title'          => 'dc_creator',
-		'filename'               => 'dc_creator',
-		'dc_creator'             => 'dc_creator', // Direct mapping
-		'_audio_mp3_path'        => 'mastered_mp3',
-		'_audio_wav_path'        => 'archival_wav',
-		'_starmus_archival_path' => 'archival_wav',
-		// JavaScript field mappings
-		'_starmus_env'           => 'environment_data',
-		'_starmus_calibration'   => 'transcriber',
-		// Additional new mappings
-		'user_agent'             => 'contributor_user_agent',
-		'submission_url'         => 'url',
-		'agreement_to_terms'     => 'agreement_to_terms_toggle',
-		'recording_type'         => 'recording_type', // Direct mapping
-		'language'               => 'language', // Direct mapping
-	);
-
-	/**
-JSON fields that need encoding/decoding.
-/
-	private const JSON_FIELDS = array(
-		'school_reviewed',
-		'qa_review',
-		'transcriber',
-		'translator',
-		'ai_training',
-		'ai_trained',
-		'waveform_json',
-		'parental_permission_slip',
-		'contributor_verification',
-		'transcribed',
-		'translated',
-		'environment_data',
-		'recording_metadata',
-	);
-
-	/**
-Fields that should be initialized as empty JSON if missing.
-/
-	private const REQUIRED_JSON_FIELDS = array(
-		'school_reviewed'  => '{}',
-		'qa_review'        => '{}',
-		'transcriber'      => '{}',
-		'translator'       => '{}',
-		'ai_training'      => '{}',
-		'ai_trained'       => '{}',
-		'environment_data' => '{}',
-	);
-
-	/**
-Map legacy field name to new schema field name.
-
-### `is_json_field()`
-
-**Visibility:** `public`
-
-Check if field should be JSON encoded.
-
-### `prepare_field_value()`
-
-**Visibility:** `public`
-
-Prepare field value for storage based on field type.
-
-### `get_field_value()`
-
-**Visibility:** `public`
-
-Get field value from storage, decoding JSON if needed.
 
 ### `map_form_data()`
 
 **Visibility:** `public`
 
-Map form data to new schema fields.
+Schema Mapper for Starmus Audio System.
+Acts as a Key Translator for the NEW Schema.
+Works in tandem with StarmusSanitizer to ensure LEGACY keys are also generated.
+@package Starisian\Sparxstar\Starmus\data\mappers
+@version 1.1.1
+/
 
-### `extract_user_ids()`
+declare(strict_types=1);
+namespace Starisian\Sparxstar\Starmus\data\mappers;
+
+use function get_current_user_id;
+use function json_decode;
+use function json_encode;
+use function json_last_error;
+use function json_last_error_msg;
+use function sanitize_text_field;
+
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Throwable;
+
+use function wp_unslash;
+
+if (! \defined('ABSPATH')) {
+    exit;
+}
+
+class StarmusSchemaMapper
+{
+    /**
+List of fields that map 1:1 from Frontend to ACF (New Schema).
+/
+    private const PASSTHROUGH_ALLOWLIST = [
+    // -- Group: aiwa_core_metadata --
+    'stable_uri',
+    'linked_data_uri',
+    'dc_rights_type',
+    'dc_rights',
+    'dc_rights_geo',
+    'dc_rights_royalty',
+    'data_sensitivity_level',
+    'anonymization_status',
+    'copyright_licensee',
+
+    // -- Group: session_meta --
+    'project_collection_id',
+    'accession_number',
+    'session_start_time',
+    'session_end_time',
+    'location',
+    'recording_equipment',
+    'media_condition_notes',
+    'usage_restrictions_rights',
+    'access_level',
+    'audio_quality_score_tax',
+    'recording_metadata',
+
+    // -- Group: shared_rights_credits --
+    'copyright_status',
+    'usage_constraints',
+
+    // -- Group: processing --
+    'explicit',
+    'processing_log',
+
+    // -- Group: agreement --
+    'terms_type',
+    'contributor_name',
+    'contributor_user_agent',
+    'submission_id',
+
+    // -- Group: music_engineering --
+    'sample_rate',
+    'bit_depth',
+    'tuning_hz',
+    'channel_layout',
+
+    // -- Group: music_composition --
+    'bpm',
+    'musical_key',
+    'isrc_code',
+    'integrated_lufs',
+    ];
+
+    /**
+Maps form data to the ACF Schema structure.
+@param array<string, mixed> $data Raw or semi-sanitized form data.
+@return array<string, mixed> Data ready for ACF saving.
+
+### `is_json_field()`
 
 **Visibility:** `public`
 
-Extract user ID mappings from form data.
-
-### `map_environment_data()`
-
-**Visibility:** `public`
-
-Map environment and calibration data to schema fields.
+Check if a specific field key should be treated as JSON.
 
 ---
 

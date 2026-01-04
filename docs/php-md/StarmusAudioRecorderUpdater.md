@@ -24,14 +24,14 @@ Handles checking for and providing updates for the Starmus plugin.
 @version 0.9.2
 @since       0.7.2
 /
-class StarmusAudioRecorderUpdater {
-
-	/**
+class StarmusAudioRecorderUpdater
+{
+    /**
 The URL of the update server.
 /
-	private string $update_api_url = 'https://updates.starisian.com/v1/info'; // Your update server URL
+    private string $update_api_url = '<https://updates.starisian.com/v1/info>'; // Your update server URL
 
-	/**
+    /**
 Constructor.
 @param string $plugin_file The main plugin file path.
 @param string $current_version The current version of the plugin.

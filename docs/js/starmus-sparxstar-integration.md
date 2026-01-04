@@ -4,7 +4,135 @@
 
 ---
 
+## Constants
 
+<dl>
+<dt><a href="#sparxstarIntegration">sparxstarIntegration</a> : <code>Object</code></dt>
+<dd><p>Provides integration hooks for Sparxstar and Starmus components.</p>
+</dd>
+</dl>
+
+## Functions
+
+<dl>
+<dt><a href="#attachAiwaRecorderHandlers">attachAiwaRecorderHandlers()</a> ⇒ <code>void</code></dt>
+<dd><p>Initializes ACF and AIWA recorder bridge once the DOM is ready.</p>
+</dd>
+<dt><a href="#handleAcfAjaxSuccess">handleAcfAjaxSuccess(response)</a> ⇒ <code>void</code></dt>
+<dd><p>Handles ACF AJAX post creation success.</p>
+</dd>
+<dt><a href="#handleStepOneFade">handleStepOneFade()</a> ⇒ <code>void</code></dt>
+<dd><p>Handles transition to recorder step after ACF save.</p>
+</dd>
+<dt><a href="#handleAjaxSuccess">handleAjaxSuccess(html)</a> ⇒ <code>void</code></dt>
+<dd><p>Processes recorder loader AJAX success.</p>
+</dd>
+<dt><a href="#handleRecorderComplete">handleRecorderComplete(event)</a> ⇒ <code>void</code></dt>
+<dd><p>Handles recorder completion notifications from child frames.</p>
+</dd>
+<dt><a href="#init">init()</a> ⇒ <code>Promise.&lt;Object&gt;</code></dt>
+<dd><p>Initializes integration and resolves environment data.</p>
+</dd>
+<dt><a href="#getEnvironmentData">getEnvironmentData()</a> ⇒ <code>Object</code></dt>
+<dd><p>Returns a default environment data object for compatibility.</p>
+</dd>
+<dt><a href="#reportError">reportError(msg, data)</a> ⇒ <code>void</code></dt>
+<dd><p>Reports integration errors to the console.</p>
+</dd>
+</dl>
+
+<a name="sparxstarIntegration"></a>
+
+## sparxstarIntegration : <code>Object</code>
+
+Provides integration hooks for Sparxstar and Starmus components.
+
+**Kind**: global constant  
+<a name="sparxstarIntegration.isAvailable"></a>
+
+### sparxstarIntegration.isAvailable : <code>boolean</code>
+
+Indicates whether the integration layer is available.
+
+**Kind**: static property of [<code>sparxstarIntegration</code>](#sparxstarIntegration)  
+<a name="attachAiwaRecorderHandlers"></a>
+
+## attachAiwaRecorderHandlers() ⇒ <code>void</code>
+
+Initializes ACF and AIWA recorder bridge once the DOM is ready.
+
+**Kind**: global function  
+<a name="handleAcfAjaxSuccess"></a>
+
+## handleAcfAjaxSuccess(response) ⇒ <code>void</code>
+
+Handles ACF AJAX post creation success.
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| response | <code>Object</code> | ACF AJAX response payload |
+
+<a name="handleStepOneFade"></a>
+
+## handleStepOneFade() ⇒ <code>void</code>
+
+Handles transition to recorder step after ACF save.
+
+**Kind**: global function  
+<a name="handleAjaxSuccess"></a>
+
+## handleAjaxSuccess(html) ⇒ <code>void</code>
+
+Processes recorder loader AJAX success.
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| html | <code>string</code> | Rendered recorder markup |
+
+<a name="handleRecorderComplete"></a>
+
+## handleRecorderComplete(event) ⇒ <code>void</code>
+
+Handles recorder completion notifications from child frames.
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| event | <code>Object</code> | Message event wrapper provided by jQuery |
+
+<a name="init"></a>
+
+## init() ⇒ <code>Promise.&lt;Object&gt;</code>
+
+Initializes integration and resolves environment data.
+
+**Kind**: global function  
+**Returns**: <code>Promise.&lt;Object&gt;</code> - Resolved environment payload  
+<a name="getEnvironmentData"></a>
+
+## getEnvironmentData() ⇒ <code>Object</code>
+
+Returns a default environment data object for compatibility.
+
+**Kind**: global function  
+**Returns**: <code>Object</code> - Default environment payload  
+<a name="reportError"></a>
+
+## reportError(msg, data) ⇒ <code>void</code>
+
+Reports integration errors to the console.
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| msg | <code>string</code> | Message describing the error |
+| data | <code>Object</code> | Supplemental error data |
 
 ---
 

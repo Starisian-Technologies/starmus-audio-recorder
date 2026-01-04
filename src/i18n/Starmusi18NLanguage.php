@@ -18,13 +18,12 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\i18n;
 
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use function esc_attr;
 use function esc_html;
 use function load_plugin_textdomain;
 use function plugin_basename;
 
-if( ! defined(ABSPATH)){
+if ( ! \defined(ABSPATH)) {
     exit;
 }
 
@@ -41,8 +40,8 @@ if( ! defined(ABSPATH)){
  *
  * @since 1.0.0
  */
-final class Starmusi18NLanguage {
-
+final class Starmusi18NLanguage
+{
     /**
      * WordPress text domain for translation strings
      *
@@ -65,8 +64,9 @@ final class Starmusi18NLanguage {
      *
      * @since 1.0.0
      */
-    public function __construct() {
-        add_action( 'plugins_loaded', $this->load_textdomain( ... ) );
+    public function __construct()
+    {
+        add_action('plugins_loaded', $this->load_textdomain(...));
     }
 
     /**
@@ -83,11 +83,12 @@ final class Starmusi18NLanguage {
      * - starmus-audio-recorder-fr_FR.mo (French - France)
      * - starmus-audio-recorder-es_ES.mo (Spanish - Spain)
      */
-    public function load_textdomain(): void {
+    public function load_textdomain(): void
+    {
         load_plugin_textdomain(
-        self::DOMAIN,
-        false,
-        \dirname( plugin_basename( __FILE__ ), 2 ) . '/languages'
+            self::DOMAIN,
+            false,
+            \dirname(plugin_basename(__FILE__), 2) . '/languages'
         );
     }
 
@@ -109,8 +110,9 @@ final class Starmusi18NLanguage {
      * @example With sprintf formatting:
      * echo sprintf(AiWAi18NLanguage::t('Welcome, %s!'), $username);
      */
-    public static function t( string $msg ): string {
-        return __( $msg, 'starmus-audio-recorder' );
+    public static function t(string $msg): string
+    {
+        return __($msg, 'starmus-audio-recorder');
     }
 
     /**
@@ -134,20 +136,21 @@ final class Starmusi18NLanguage {
      * console.log(aiwaL10n.welcomeMessage);
      * document.getElementById('save-btn').textContent = aiwaL10n.saveButtonText;
      */
-    public function get_js_strings(): array {
+    public function get_js_strings(): array
+    {
         return [
         // All strings pass through self::t() for consistency and single translation entry
-        'newsLabel'      => esc_html( self::t( 'News' ) ),
-        'showcaseLabel'  => esc_html( self::t( 'Showcase' ) ),
-        'hostingLabel'   => esc_html( self::t( 'Hosting' ) ),
-        'extendLabel'    => esc_html( self::t( 'Extend' ) ),
-        'learnLabel'     => esc_html( self::t( 'Learn' ) ),
-        'communityLabel' => esc_html( self::t( 'Community' ) ),
-        'aboutLabel'     => esc_html( self::t( 'About' ) ),
-        'welcomeMessage' => esc_html( self::t( 'Welcome, %s!' ) ),
+        'newsLabel'      => esc_html(self::t('News')),
+        'showcaseLabel'  => esc_html(self::t('Showcase')),
+        'hostingLabel'   => esc_html(self::t('Hosting')),
+        'extendLabel'    => esc_html(self::t('Extend')),
+        'learnLabel'     => esc_html(self::t('Learn')),
+        'communityLabel' => esc_html(self::t('Community')),
+        'aboutLabel'     => esc_html(self::t('About')),
+        'welcomeMessage' => esc_html(self::t('Welcome, %s!')),
 
         // CORRECTED: Translate first, then escape for attribute use.
-        'saveButtonText' => esc_attr( self::t( 'Save Settings' ) ),
+        'saveButtonText' => esc_attr(self::t('Save Settings')),
         ];
     }
 }

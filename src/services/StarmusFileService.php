@@ -13,7 +13,6 @@
  *
  * @version 1.0.0-HARDENED
  */
-
 namespace Starisian\Sparxstar\Starmus\services;
 
 if ( ! \defined('ABSPATH')) {
@@ -56,7 +55,6 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
  */
 final readonly class StarmusFileService
 {
-
     /**
      * Data Access Layer for consistent WordPress operations.
      *
@@ -99,10 +97,10 @@ final readonly class StarmusFileService
             // Wire the 'ensure_attachment_metadata' method to the 'add_attachment' action.
             // This activates our fix only when AMO is present.
             add_action(
-            'add_attachment',
-            $this->ensure_attachment_metadata(...),
-            20, // Priority: Run after attachment is created, before others might use it.
-            1   // We only need the first argument ($attachment_id).
+                'add_attachment',
+                [$this, 'ensure_attachment_metadata'],
+                20, // Priority: Run after attachment is created, before others might use it.
+                1   // We only need the first argument ($attachment_id).
             );
         }
     }
@@ -154,22 +152,22 @@ final readonly class StarmusFileService
             }
 
             StarmusLogger::info(
-            'Incomplete attachment detected. Generating missing metadata for offloader compatibility.',
-            ['component' => self::class, 'attachment_id' => $attachment_id]
+                'Incomplete attachment detected. Generating missing metadata for offloader compatibility.',
+                ['component' => self::class, 'attachment_id' => $attachment_id]
             );
 
             $file_path = get_attached_file($attachment_id);
 
             // Guard Clause 3: Ensure the file physically exists before proceeding.
             if ( ! $file_path || ! file_exists($file_path)) {
-                   StarmusLogger::error(
+                StarmusLogger::error(
                     'Metadata generation skipped: Attached file does not exist.',
                     [
-                     'component'     => self::class,
-                     'attachment_id' => $attachment_id,
+                        'component'     => self::class,
+                        'attachment_id' => $attachment_id,
                     ]
-                   );
-                   return;
+                );
+                return;
             }
 
             if ( ! \function_exists('wp_generate_attachment_metadata')) {
@@ -183,20 +181,20 @@ final readonly class StarmusFileService
                 // We use the DAL here to align with your existing architecture.
                 $this->dal->update_attachment_metadata($attachment_id, $file_path);
                 StarmusLogger::debug(
-                'Successfully generated and saved metadata.',
-                [
-                'component'     => self::class,
-                'attachment_id' => $attachment_id,
-                ]
+                    'Successfully generated and saved metadata.',
+                    [
+                        'component'     => self::class,
+                        'attachment_id' => $attachment_id,
+                    ]
                 );
             }
         } catch (\Throwable $throwable) {
             StarmusLogger::log(
-            $throwable,
-            [
-            'component'     => self::class,
-            'attachment_id' => $attachment_id,
-            ]
+                $throwable,
+                [
+                    'component'     => self::class,
+                    'attachment_id' => $attachment_id,
+                ]
             );
         }
     }
@@ -264,12 +262,12 @@ final readonly class StarmusFileService
         // PHP 8+ Safety: Ensure $local_path is a string before checking existence.
         if (\is_string($local_path) && file_exists($local_path)) {
             StarmusLogger::debug(
-            'Found local file for attachment.',
-            [
-            'component'     => self::class,
-            'attachment_id' => $attachment_id,
-            'path'          => $local_path,
-            ]
+                'Found local file for attachment.',
+                [
+                    'component'     => self::class,
+                    'attachment_id' => $attachment_id,
+                    'path'          => $local_path,
+                ]
             );
             return $local_path;
         }
@@ -278,22 +276,22 @@ final readonly class StarmusFileService
         $remote_url = wp_get_attachment_url($attachment_id);
         if ( ! $remote_url) {
             StarmusLogger::error(
-            'Attachment URL not found for download.',
-            [
-            'component'     => self::class,
-            'attachment_id' => $attachment_id,
-            ]
+                'Attachment URL not found for download.',
+                [
+                    'component'     => self::class,
+                    'attachment_id' => $attachment_id,
+                ]
             );
             return null;
         }
 
         StarmusLogger::info(
-        'File is offloaded. Downloading local copy.',
-        [
-        'component'     => self::class,
-        'attachment_id' => $attachment_id,
-        'remote_url'    => $remote_url,
-        ]
+            'File is offloaded. Downloading local copy.',
+            [
+                'component'     => self::class,
+                'attachment_id' => $attachment_id,
+                'remote_url'    => $remote_url,
+            ]
         );
 
         if ( ! \function_exists('download_url')) {
@@ -304,12 +302,12 @@ final readonly class StarmusFileService
 
         if (is_wp_error($temp_file)) {
             StarmusLogger::error(
-            'Failed to download offloaded file.',
-            [
-            'component'     => self::class,
-            'attachment_id' => $attachment_id,
-            'remote_url'    => $remote_url,
-            ]
+                'Failed to download offloaded file.',
+                [
+                    'component'     => self::class,
+                    'attachment_id' => $attachment_id,
+                    'remote_url'    => $remote_url,
+                ]
             );
             return null;
         }
@@ -323,7 +321,7 @@ final readonly class StarmusFileService
      * Handles file uploads for both local and offloaded storage configurations.
      * Automatically delegates to appropriate storage backend based on active plugins.
      *
-     * @param int    $attachment_id WordPress attachment post ID to replace
+     * @param int $attachment_id WordPress attachment post ID to replace
      * @param string $local_file_path Local file path to upload
      *
      * @return bool True if upload successful, false on failure
@@ -359,12 +357,12 @@ final readonly class StarmusFileService
     {
         if ( ! file_exists($local_file_path)) {
             StarmusLogger::error(
-            'Local file to be uploaded does not exist.',
-            [
-            'component'     => self::class,
-            'attachment_id' => $attachment_id,
-            'path'          => $local_file_path,
-            ]
+                'Local file to be uploaded does not exist.',
+                [
+                    'component'     => self::class,
+                    'attachment_id' => $attachment_id,
+                    'path'          => $local_file_path,
+                ]
             );
             return false;
         }
@@ -372,22 +370,22 @@ final readonly class StarmusFileService
         // Delegate to WP Offload Media if present
         if (\function_exists('as3cf_upload_attachment')) {
             StarmusLogger::debug(
-            'Delegating upload to WP Offload Media.',
-            [
-            'component'     => self::class,
-            'attachment_id' => $attachment_id,
-            ]
+                'Delegating upload to WP Offload Media.',
+                [
+                    'component'     => self::class,
+                    'attachment_id' => $attachment_id,
+                ]
             );
             $result = as3cf_upload_attachment($attachment_id, null, $local_file_path);
             if (is_wp_error($result)) {
                 StarmusLogger::error(
-                 'WP Offload Media failed to upload.',
-                 [
-                  'component'     => self::class,
-                  'attachment_id' => $attachment_id,
-                 ]
-                   );
-                   return false;
+                    'WP Offload Media failed to upload.',
+                    [
+                        'component'     => self::class,
+                        'attachment_id' => $attachment_id,
+                    ]
+                );
+                return false;
             }
 
             return true;
@@ -409,12 +407,12 @@ final readonly class StarmusFileService
         }
 
         StarmusLogger::error(
-        'Filesystem failed to move local file.',
-        [
-        'component'     => self::class,
-        'attachment_id' => $attachment_id,
-        'path'          => $local_file_path,
-        ]
+            'Filesystem failed to move local file.',
+            [
+                'component'     => self::class,
+                'attachment_id' => $attachment_id,
+                'path'          => $local_file_path,
+            ]
         );
 
         return false;

@@ -6,11 +6,10 @@
 :root {
     --bg-surface: #121212;      /* Deep Matte Black */
     --bg-panel:   #1a1a1a;      /* Control Surface */
-    --text-dim:   #444444;      /* Future/Past Text */
+    --text-dim:   #444;      /* Future/Past Text */
     --text-lit:   #E0E0E0;      /* Active Text */
     --accent:     #FFD700;      /* Gold (Feedback only) */
-    --ui-border:  #333333;
-
+    --ui-border:  #333;
     --font-stack: 'Courier Prime', 'Monaco', 'Consolas', monospace;
     --unit-spacing: 2.2;        /* Line-height equivalent */
 }
@@ -64,6 +63,7 @@
 }
 
 .tap-zone:hover { border-color: #555; background: #161616; }
+
 .tap-zone.flash, .tap-zone:active {
     background: #333;
     border-color: #888;
@@ -92,6 +92,7 @@
 #scaffold-stage {
     flex-grow: 1;
     overflow-y: auto;
+
     /* Responsive margins: min 20px, preferred 15vw, max any */
     padding: 0 clamp(20px, 15vw, 400px);
     display: flex;
@@ -134,9 +135,9 @@
 
 .prosodic-unit.silence-beat.current {
     border-color: var(--accent);
-    background: rgba(255, 215, 0, 0.1);
+    background: rgb(255 215 0 / 10%);
     transform: scale(1.1);
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 15px rgb(255 215 0 / 20%);
 }
 
 /* --- UI POLISH: KEYBOARD HINT --- */
@@ -159,6 +160,7 @@
     line-height: var(--unit-spacing);
     text-align: center; /* Generally better for prosodic chunks */
 }
+
 /* --- THE PROSODIC UNITS --- */
 .prosodic-unit {
     display: inline-block;
@@ -183,9 +185,9 @@
     opacity: 1;
     font-weight: 700;
     filter: blur(0);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgb(255 255 255 / 5%);
     transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
 }
 
 /* Special: Silence Beat (|) */
@@ -204,11 +206,12 @@
     border-radius: 8px;
     font-size: 24px;
 }
+
 .prosodic-unit.silence-beat.current {
     border-color: var(--accent);
-    background: rgba(255, 215, 0, 0.1);
+    background: rgb(255 215 0 / 10%);
     transform: scale(1.1);
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 15px rgb(255 215 0 / 20%);
 }
 
 .spacer { height: 50vh; }

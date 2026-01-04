@@ -21,7 +21,7 @@ Handles all database and data persistence operations for Starmus.
 namespace Starisian\Sparxstar\Starmus\core;
 
 if ( ! \defined( 'ABSPATH' ) ) {
-	exit;
+ exit;
 }
 
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
@@ -36,6 +36,7 @@ operations defined in the IStarmusAudioDAL. It serves as the
 primary abstraction layer between the plugin's business logic and WordPress
 core database/media functions.
 The DAL handles:
+
 - Audio recording post creation and management
 - WordPress attachment operations and metadata
 - User recording queries and pagination
@@ -51,12 +52,12 @@ to ensure graceful degradation and debugging capabilities.
 /
 final class StarmusAudioDAL implements IStarmusAudioDAL {
 
-	/*
-	------------------------------------*
+ /*
+ ------------------------------------*
 🧩 CREATION
 ------------------------------------*/
 
-	/**
+ /**
 {@inheritdoc}
 
 ### `create_transcription_post()`
@@ -157,7 +158,7 @@ Validates file existence before attempting metadata generation.
 
 {@inheritdoc}
 /
-	/**
+ /**
 Get WordPress page slug by its ID.
 Retrieves the URL slug for a WordPress page given its post ID.
 Returns empty string if the page doesn't exist.
@@ -231,7 +232,7 @@ status tracking.
 @param int $attachment_id WordPress attachment ID.
 @return void
 /
-	/**
+ /**
 Record timestamp when ID3 tags were written to an audio file.
 @param int $attachment_id WordPress attachment ID.
 
@@ -247,7 +248,7 @@ Used for legal compliance and metadata management.
 @param string $copyright_text Copyright notice or source attribution.
 @return void
 /
-	/**
+ /**
 Set copyright source information for an audio attachment.
 @param int $attachment_id WordPress attachment ID.
 @param string $copyright_text Copyright notice or source attribution.
@@ -266,7 +267,7 @@ to avoid overwriting existing assignments with null values.
 @param int|null $type_id Term ID from 'recording-type' taxonomy (optional).
 @return void
 /
-	/**
+ /**
 Assign taxonomy terms to an audio recording post.
 @param int $post_id WordPress post ID to assign terms to.
 @param int|null $language_id Term ID from 'language' taxonomy (optional).

@@ -12,11 +12,11 @@
 
 Tier = Function of:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   env.device.memory  env.device.concurrency  env.network.effectiveType  env.browser.supports.MediaRecorder  env.capabilities.speechRecognition  env.storage.quota  env.permissionState.microphone   `
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`env.device.memory  env.device.concurrency  env.network.effectiveType  env.browser.supports.MediaRecorder  env.capabilities.speechRecognition  env.storage.quota  env.permissionState.microphone`
 
 These are collected by **Sparxstar UEC**, stored in its snapshot, and passed into:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window.STARMUS_BOOTSTRAP.env   `
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`window.STARMUS_BOOTSTRAP.env`
 
 No recorder module may compute tier independently.
 
@@ -28,18 +28,17 @@ TierDevice ClassRecorder UISpeech RecWaveformTUSOffline QueueFallbackAModern/4GB
 **Test Objectives**
 -------------------
 
-1.  **UEC and Starmus agree on tier**
-    
-2.  **Recorder UI behavior matches tier contract**
-    
-3.  **Bootstrap contract is respected**
-    
-4.  **No recorder initialization on Tier C**
-    
-5.  **No Tier A behavior on weak devices**
-    
-6.  **Telemetry correctly logs reasons and bootstrap state**
-    
+1. **UEC and Starmus agree on tier**
+
+2. **Recorder UI behavior matches tier contract**
+
+3. **Bootstrap contract is respected**
+
+4. **No recorder initialization on Tier C**
+
+5. **No Tier A behavior on weak devices**
+
+6. **Telemetry correctly logs reasons and bootstrap state**
 
 **Required Devices**
 --------------------
@@ -53,16 +52,15 @@ Use the same model list you already prepared. No changes required there.
 
 Open DevTools before interacting:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window.STARMUS_BOOTSTRAP   `
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`window.STARMUS_BOOTSTRAP`
 
 Verify:
 
-*   pageType exists (recorder, rerecorder, or editor)
-    
-*   env exists
-    
-*   No other globals are read by recorder modules
-    
+* pageType exists (recorder, rerecorder, or editor)
+
+* env exists
+
+* No other globals are read by recorder modules
 
 If bootstrap missing → **FAIL AUTOMATICALLY**
 
@@ -71,27 +69,26 @@ If bootstrap missing → **FAIL AUTOMATICALLY**
 
 Expected Logs:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   [SparxstarUEC] Tier C reason: memory < 1GB  [Starmus] Consuming Tier C — revealing fallback   `
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`[SparxstarUEC] Tier C reason: memory < 1GB  [Starmus] Consuming Tier C — revealing fallback`
 
 **Disallowed Logs**:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   Initializing MediaRecorder...  Calibrating microphone...  Starting speech recognition...   `
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`Initializing MediaRecorder...  Calibrating microphone...  Starting speech recognition...`
 
 **Pass Criteria**:
 
-*   Recorder JS never loads MediaRecorder
-    
-*   Only file upload widgets visible
-    
-*   Offline queue operates without recorder engine
-    
+* Recorder JS never loads MediaRecorder
+
+* Only file upload widgets visible
+
+* Offline queue operates without recorder engine
 
 **Tier B Checklist (Updated)**
 ------------------------------
 
 Expected Logs:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   [SparxstarUEC] Tier B: network slow (2G)  [Starmus] Recorder enabled (no waveform)   `
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`[SparxstarUEC] Tier B: network slow (2G)  [Starmus] Recorder enabled (no waveform)`
 
 Must NOT display waveform or speech transcript.
 
@@ -100,57 +97,56 @@ Must NOT display waveform or speech transcript.
 
 Expected Logs:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   [SparxstarUEC] Tier A: full device capabilities  [Starmus] Waveform + Speech Rec enabled   `
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`[SparxstarUEC] Tier A: full device capabilities  [Starmus] Waveform + Speech Rec enabled`
 
 Speech recognition must match **language selected on Step 1**.
 
 **Dynamic Behavior Rules (Updated)**
 ------------------------------------
 
-*   **Tier NEVER changes mid-session**
-    
-*   Network downgrade triggers warning, _not_ tier change
-    
-*   Battery saver mode does not demote tier
-    
-*   iOS tab freeze stops recording but does not corrupt queue
-    
+* **Tier NEVER changes mid-session**
+
+* Network downgrade triggers warning, _not_ tier change
+
+* Battery saver mode does not demote tier
+
+* iOS tab freeze stops recording but does not corrupt queue
 
 **Telemetry Cross-Validation**
 ------------------------------
 
 Check:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window.STARMUS.instances.get(id).store.getState()   `
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`window.STARMUS.instances.get(id).store.getState()`
 
 Expect fields:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   tier           // 'A' | 'B' | 'C'  reason         // from UEC  bootstrapHash  // cache integrity   `
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`tier           // 'A' | 'B' | 'C'  reason         // from UEC  bootstrapHash  // cache integrity`
 
 If tier exists without a reason → **FAIL**
 
 **Test Results Template (Updated)**
 -----------------------------------
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   ## Device: [Model]  **Detected Tier**: [A/B/C]  **Expected Tier**: [A/B/C]  **Match**: [Y/N]  **Bootstrap Present**: [Y/N]  **Reason Logged**: [Y/N]  **Recorder Behavior Correct**: [Y/N]  **TUS Behavior**: [Pass/Fail]  **Offline Queue**: [Pass/Fail]  **Notes**:   `
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`## Device: [Model]  **Detected Tier**: [A/B/C]  **Expected Tier**: [A/B/C]  **Match**: [Y/N]  **Bootstrap Present**: [Y/N]  **Reason Logged**: [Y/N]  **Recorder Behavior Correct**: [Y/N]  **TUS Behavior**: [Pass/Fail]  **Offline Queue**: [Pass/Fail]  **Notes**:`
 
 **Success Criteria (Updated)**
 ------------------------------
 
 All must be checked before enabling **Permission State Sync (P1.2)**:
 
-*   Bootstrap contract present on all recorder pages
-    
-*   UEC tier matches recorder behavior on all tested devices
-    
-*   No recorder initialization on Tier C
-    
-*   No waveform on Tier B
-    
-*   Speech recognition only on Tier A
-    
-*   Offline queue persistent across reloads
-    
-*   TUS resumable on Tier A only
-    
-*   No mid-session tier switching
+* Bootstrap contract present on all recorder pages
+
+* UEC tier matches recorder behavior on all tested devices
+
+* No recorder initialization on Tier C
+
+* No waveform on Tier B
+
+* Speech recognition only on Tier A
+
+* Offline queue persistent across reloads
+
+* TUS resumable on Tier A only
+
+* No mid-session tier switching

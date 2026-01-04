@@ -3,7 +3,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined( 'ABSPATH' ) ) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -47,8 +47,8 @@ use Throwable;
  * @see https://www.getid3.org/ getID3 library documentation
  * @see StarmusLogger Logging service integration
  */
-final class StarmusId3Service {
-
+final class StarmusId3Service
+{
     /**
      * Text encoding constant for all ID3 operations.
      * Ensures consistent UTF-8 encoding across all metadata fields.
@@ -84,25 +84,26 @@ final class StarmusId3Service {
      * - Allows calling code to handle missing library scenarios
      * @see \getID3 Core getID3 library class
      */
-    private function getID3Engine(): ?\getID3 {
-        if ( ! class_exists( 'getID3' ) ) {
+    private function getID3Engine(): ?\getID3
+    {
+        if ( ! class_exists('getID3')) {
             // Check if we can manually load it from a common vendor path if composer autoload failed context
             $possible_path = WP_CONTENT_DIR . '/plugins/starmus-audio-recorder/vendor/autoload.php';
-            if ( file_exists( $possible_path ) ) {
+            if (file_exists($possible_path)) {
                 require_once $possible_path;
             }
         }
 
-        if ( ! class_exists( 'getID3' ) ) {
+        if ( ! class_exists('getID3')) {
             StarmusLogger::error(
-            'getID3 library class not found.',
-            [ 'component' => self::class ]
+                'getID3 library class not found.',
+                ['component' => self::class]
             );
             return null;
         }
 
         $getID3 = new \getID3();
-        $getID3->setOption( [ 'encoding' => self::TEXT_ENCODING ] );
+        $getID3->setOption(['encoding' => self::TEXT_ENCODING]);
         return $getID3;
     }
 
@@ -113,7 +114,7 @@ final class StarmusId3Service {
      * Overwrites existing tags and removes other tag formats for consistency.
      *
      * @param string $filepath Absolute path to the audio file
-     * @param array  $tagData Associative array of ID3 tag data
+     * @param array $tagData Associative array of ID3 tag data
      *
      * @since 1.0.0
      *
@@ -158,70 +159,71 @@ final class StarmusId3Service {
      * $success = $service->writeTags('/path/to/audio.mp3', $tags, 123);
      * ```
      */
-    public function writeTags( string $filepath, array $tagData ): bool {
-        if ( ! file_exists( $filepath ) ) {
+    public function writeTags(string $filepath, array $tagData): bool
+    {
+        if ( ! file_exists($filepath)) {
             StarmusLogger::error(
-            'File missing for tagging',
-            [
+                'File missing for tagging',
+                [
             'component' => self::class,
             'path'      => $filepath,
-            ]
+                ]
             );
             return false;
         }
 
         try {
             $engine = $this->getID3Engine();
-            if ( ! $engine instanceof \getID3 ) {
+            if ( ! $engine instanceof \getID3) {
                 return false;
             }
 
             // Ensure Writer is loaded
-            if ( ! class_exists( 'getid3_writetags' ) ) {
+            if ( ! class_exists('getid3_writetags')) {
                 StarmusLogger::error(
-                'getid3_writetags class missing.',
-                [ 'component' => self::class ]
+                    'getid3_writetags class missing.',
+                    ['component' => self::class]
                 );
                 return false;
             }
 
             $tagwriter                    = new \getid3_writetags();
             $tagwriter->filename          = $filepath;
-            $tagwriter->tagformats        = [ 'id3v2.3' ];
+            $tagwriter->tagformats        = ['id3v2.3'];
             $tagwriter->overwrite_tags    = true;
             $tagwriter->tag_encoding      = self::TEXT_ENCODING;
             $tagwriter->remove_other_tags = true;
             $tagwriter->tag_data          = $tagData;
 
-            if ( ! $tagwriter->WriteTags() ) {
+            if ( ! $tagwriter->WriteTags()) {
                 StarmusLogger::error(
-                'WriteTags Failed',
-                [
+                    'WriteTags Failed',
+                    [
                 'component' => self::class,
                 'errors'    => $tagwriter->errors,
-                ]
+                    ]
                 );
                 return false;
             }
 
-            if ( $tagwriter->warnings !== [] ) {
+            if ($tagwriter->warnings !== []) {
                 StarmusLogger::warning(
-                'WriteTags Warnings',
-                [
+                    'WriteTags Warnings',
+                    [
                 'component' => self::class,
                 'warnings'  => $tagwriter->warnings,
-                ]
+                    ]
                 );
             }
 
             return true;
-        } catch ( Throwable $throwable ) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log(
-            $throwable,
-            [
+                $throwable,
+                [
             'component' => self::class,
             'path'      => $filepath,
-            ]
+                ]
             );
             return false;
         }
@@ -230,15 +232,16 @@ final class StarmusId3Service {
     /**
      * Check if file needs bandwidth optimization for African networks
      */
-    public function needsAfricaOptimization( string $filepath ): bool {
-        $analysis = $this->analyzeFile( $filepath );
+    public function needsAfricaOptimization(string $filepath): bool
+    {
+        $analysis = $this->analyzeFile($filepath);
         $audio    = $analysis['audio'] ?? [];
 
         $bitrate  = $audio['bitrate'] ?? 0;
         $filesize = $analysis['filesize'] ?? 0;
 
         // Optimize if > 64kbps or > 2MB
-        return $bitrate > 64000 || $filesize > ( 2 * 1024 * 1024 );
+        return $bitrate > 64000 || $filesize > (2 * 1024 * 1024);
     }
 
     /**
@@ -298,14 +301,15 @@ final class StarmusId3Service {
      * @see \getID3::analyze() Core analysis method
      * @see \getid3_lib::CopyTagsToComments() Tag standardization
      */
-    public function analyzeFile( string $filepath ): array {
+    public function analyzeFile(string $filepath): array
+    {
         $engine = $this->getID3Engine();
-        if ( ! $engine instanceof \getID3 ) {
+        if ( ! $engine instanceof \getID3) {
             return [];
         }
 
-        $info = $engine->analyze( $filepath );
-        \getid3_lib::CopyTagsToComments( $info );
+        $info = $engine->analyze($filepath);
+        \getid3_lib::CopyTagsToComments($info);
         return $info;
     }
 }

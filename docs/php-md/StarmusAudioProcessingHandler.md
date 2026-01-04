@@ -27,40 +27,40 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 
 if (! defined('ABSPATH')) {
-	exit;
+ exit;
 }
 
 final readonly class StarmusAudioProcessingHandler
 {
 
-	private StarmusAudioProcessingService $audio_processing_service;
+ private StarmusAudioProcessingService $audio_processing_service;
 
-	private StarmusFileService $file_service;
+ private StarmusFileService $file_service;
 
-	private StarmusWaveformService $waveform_service;
+ private StarmusWaveformService $waveform_service;
 
-	private StarmusAudioDAL $dal;
+ private StarmusAudioDAL $dal;
 
-	public function __construct()
-	{
-		$this->dal                      = new StarmusAudioDAL();
-		$this->audio_processing_service = new StarmusAudioProcessingService($this->dal);
-		$this->file_service             = new StarmusFileService($this->dal);
-		$this->waveform_service         = new StarmusWaveformService();
-	}
+ public function __construct()
+ {
+  $this->dal                      = new StarmusAudioDAL();
+  $this->audio_processing_service = new StarmusAudioProcessingService($this->dal);
+  $this->file_service             = new StarmusFileService($this->dal);
+  $this->waveform_service         = new StarmusWaveformService();
+ }
 
-	public function star_is_tool_available(): bool
-	{
-		$path = shell_exec('command -v ffmpeg');
-		return !in_array(trim((string) $path), ['', '0'], true);
-	}
+ public function star_is_tool_available(): bool
+ {
+  $path = shell_exec('command -v ffmpeg');
+  return !in_array(trim((string) $path), ['', '0'], true);
+ }
 
-	public function process_and_archive_audio(int $audio_post_id, int $attachment_id, array $options = []): bool
-	{
-		return $this->star_process_and_archive_audio($audio_post_id, $attachment_id, $options);
-	}
+ public function process_and_archive_audio(int $audio_post_id, int $attachment_id, array $options = []): bool
+ {
+  return $this->star_process_and_archive_audio($audio_post_id, $attachment_id, $options);
+ }
 
-	/**
+ /**
 Transcode to WAV (archival) + MP3 (distribution), ID3, waveform, and metadata persistence.
 
 ---
