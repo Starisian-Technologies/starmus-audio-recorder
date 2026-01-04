@@ -215,8 +215,8 @@ function starmus_on_deactivate(): void
             Sparxstar_SCF_Runtime::sparx_scf_deactivate_scf();
         }
 
-    } caStarmusLogger::log($e);
-        tch (\Throwable $e) {
+    } catch (\Throwable $e) {
+        StarmusLogger::log($e);
         error_log('Starmus Deactivation Error: ' . $e->getMessage());
     }
 }
