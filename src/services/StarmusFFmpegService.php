@@ -3,11 +3,12 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined('ABSPATH')) {
-    exit;
-}
-
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\services\StarmusEnhancedId3Service;
+
+if (! \defined('ABSPATH')) {
+	exit;
+}
 
 /**
  * FFmpeg Audio Processing Service
@@ -19,9 +20,11 @@ final class StarmusFFmpegService
 {
     private string $ffmpeg_path;
 
-    private ?StarmusId3Service $id3_service = null;
+	private const PATHINFO_FILENAME = 'filename';
 
-    public function __construct(StarmusId3Service $id3_service, string $ffmpeg_path = 'ffmpeg')
+    private ?StarmusEnhancedId3Service $id3_service = null;
+
+    public function __construct(StarmusEnhancedId3Service $id3_service, string $ffmpeg_path = 'ffmpeg')
     {
         $this->id3_service = $id3_service;
         $this->ffmpeg_path = $ffmpeg_path;

@@ -3,11 +3,16 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined('ABSPATH')) {
-    exit;
-}
+
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\services\StarmusEnhancedId3Service;
+use Starisian\Sparxstar\Starmus\services\StarmusFFmpegService;
+
+
+if (! \defined('ABSPATH')) {
+	exit;
+}
 
 /**
  * Audio Processing Pipeline
@@ -17,14 +22,14 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
  */
 final class StarmusAudioPipeline
 {
-    private ?StarmusId3Service $id3_service = null;
+    private ?StarmusEnhancedId3Service $id3_service = null;
 
     private ?StarmusFFmpegService $ffmpeg_service = null;
 
     public function __construct()
     {
         try {
-            $this->id3_service    = new StarmusId3Service();
+            $this->id3_service    = new StarmusEnhancedId3Service();
             $this->ffmpeg_service = new StarmusFFmpegService($this->id3_service);
         } catch (\Throwable $throwable) {
             StarmusLogger::log($throwable);

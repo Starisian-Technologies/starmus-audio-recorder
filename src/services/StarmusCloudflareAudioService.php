@@ -3,11 +3,13 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined('ABSPATH')) {
-    exit;
-}
-
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\services\StarmusFileService;
+use Starisian\Sparxstar\Starmus\services\StarmusId3Service
+
+if (! \defined('ABSPATH')) {
+	exit;
+}
 
 /**
  * Cloudflare R2 Compatible Audio Processor

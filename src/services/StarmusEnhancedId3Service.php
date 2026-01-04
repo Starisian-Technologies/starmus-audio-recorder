@@ -3,6 +3,10 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
+use Starisian\Sparxstar\Starmus\services\StarmusId3Service;
+use Starisian\Sparxstar\Starmus\services\StarmusFileService;
+use STarisian\Sparxstar\Starmus\helpers\StarmusLogger;
+
 if ( ! \defined('ABSPATH')) {
     exit;
 }

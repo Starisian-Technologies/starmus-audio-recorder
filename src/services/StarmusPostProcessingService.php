@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined('ABSPATH')) {
-    exit;
-}
 
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
-use Starisian\Sparxstar\Starmus\services\StarmusId3Service;
+use Starisian\Sparxstar\Starmus\services\StarmusEnhancedId3Service;
 use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
@@ -38,6 +35,9 @@ use function wp_mkdir_p;
 use function wp_update_attachment_metadata;
 use function wp_upload_dir;
 
+if (! \defined('ABSPATH')) {
+	exit;
+}
 
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
@@ -115,7 +115,7 @@ final readonly class StarmusPostProcessingService
      *
      * @since 1.0.0
      */
-    private StarmusId3Service $id3_service;
+    private StarmusEnhancedId3Service $id3_service;
 
     /**
      * File service for offloaded attachment handling.
@@ -132,14 +132,14 @@ final readonly class StarmusPostProcessingService
      *
      * @since 1.0.0
      */
-    public function __construct()
+    public function __construct(?StarmusAudioDAL $dal = null, ?StarmusFileService $file_service = null, ?StarmusWaveformService $waveform_service = null, ?StarmusEnhancedId3Service $id3_service = null	)
     {
         try {
-            $this->dal              = new StarmusAudioDAL();
-            $this->file_service     = new StarmusFileService(); // Instantiated
-            $this->waveform_service = new StarmusWaveformService($this->dal, $this->file_service);
-            $this->id3_service      = new StarmusId3Service();
-        } catch (\Exception $exception) {
+            $this->dal              = $dal ? null : new StarmusAudioDAL();
+            $this->file_service     = $file_service ? null : new StarmusFileService(); // Instantiated
+            $this->waveform_service = $waveform_service ? null : new StarmusWaveformService($this->dal, $this->file_service);
+            $this->id3_service      = $id3_service ? null : new StarmusEnhancedId3Service();
+        } catch (\Throwable $exception) {
             error_log('StarmusPostProcessingService initialization error: ' . $exception->getMessage());
             throw new \RuntimeException('Failed to initialize StarmusPostProcessingService: ' . $exception->getMessage(), 0, $exception);
         }

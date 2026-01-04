@@ -40,6 +40,7 @@ use Starisian\Sparxstar\Starmus\services\StarmusCLI;
 use Starisian\Sparxstar\Starmus\cron\StarmusCron;
 use Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage;
 use Starisian\Sparxstar\Starmus\services\StarmusFileService;
+use Starisian\Sparxstar\Starmus\services\StarmusEnhancedId3Service;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Throwable;
@@ -442,9 +443,21 @@ final class StarmusAudioRecorder
 				$file_service = new StarmusFileService($this->DAL);
 				$file_service->register_compatibility_hooks();
 			}
+
+			if(class_exists(StarmusEnhancedId3Service::class)) {
+				$id3_service = new StarmusEnhancedId3Service();
+			}
+
+			if(class_exists(StarmusWaveformService::class)) {
+				$waveform_service = new StarmusWaveformService($this->DAL, $file_service);
+			}
+
+			if(class_exists(StarmusPostProcessingService::class)) {
+				$post_processing_service = new StarmusPostProcessingService($this->DAL, $file_service, $waveform_service, $id3_service);
+			}
 			// Cron Jobs
 			if(class_exists(StarmusCron::class)) {
-				$cron = new StarmusCron( new StarmusWaveformService($this->DAL, $file_service), new StarmusPostProcessingService($file_service));
+				$cron = new StarmusCron( $waveform_service, $post_processing_service);
 				$cron->register_hooks();
 			}
 
