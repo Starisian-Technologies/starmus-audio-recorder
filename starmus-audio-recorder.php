@@ -50,7 +50,7 @@
 
 declare(strict_types=1);
 
-use Starisian\Sparxstar\SCF\Sparxstar_SCF_Runtime;
+use Starisian\Sparxstar\install\SCF\Sparxstar_SCF_Runtime;
 
 if ( ! defined('ABSPATH')) {
     exit;
@@ -120,24 +120,21 @@ add_action('plugins_loaded', static function (): void {
     try {
         // 1. Check for Runtime Presence
         if (!class_exists(Sparxstar_SCF_Runtime::class)) {
-            // If the MU-plugin is missing, we cannot register sources.
-            // We do not fail here; we let the App Boot phase handle missing classes.
             return;
         }
 
         // 2. Register Source
-        // The Runtime will later decide whether to load this or use an active plugin.
+        // METHOD NAME UPDATED: sparx_scf_register_source -> sparx_scf_register_scf_source
         $vendor_path = STARMUS_PATH . 'vendor/secure-custom-fields/';
         $vendor_url  = STARMUS_URL . 'vendor/secure-custom-fields/';
 
-        Sparxstar_SCF_Runtime::sparx_scf_register_source(
+        Sparxstar_SCF_Runtime::sparx_scf_register_scf_source(
             'starmus-audio', 
             $vendor_path, 
             $vendor_url
         );
 
         // 3. Register JSON (Only listens if Runtime successfully loads SCF)
-        // Updated hook name: 'sparx_scf_loaded'
         add_action('sparx_scf_loaded', static function (): void {
             add_filter('acf/settings/load_json', static function (array $paths): array {
                 $paths[] = STARMUS_PATH . 'acf-json';
@@ -186,13 +183,10 @@ function starmus_on_activate(): void
 {
     try {
         if (class_exists(Sparxstar_SCF_Runtime::class)) {
-            // Consumer Enforces Requirement:
-            // "I am waking up, so I need my dependency to be physically active."
-            Sparxstar_SCF_Runtime::sparx_scf_activate_plugin();
+            // UPDATED: sparx_scf_activate_plugin -> sparx_scf_activate_scf
+            Sparxstar_SCF_Runtime::sparx_scf_activate_scf();
         }
-        
         flush_rewrite_rules();
-        
     } catch (\Throwable $e) {
         error_log('Starmus Activation Error: ' . $e->getMessage());
     }
@@ -209,7 +203,10 @@ function starmus_on_deactivate(): void
         }
         flush_rewrite_rules();
 
-        Sparxstar_SCF_Runtime::sparx_scf_deactivate_plugin();
+        if (class_exists(Sparxstar_SCF_Runtime::class)) {
+            // UPDATED: sparx_scf_deactivate_plugin -> sparx_scf_deactivate_scf
+            Sparxstar_SCF_Runtime::sparx_scf_deactivate_scf();
+        }
         
     } catch (\Throwable $e) {
         error_log('Starmus Deactivation Error: ' . $e->getMessage());
@@ -221,8 +218,10 @@ function starmus_on_deactivate(): void
  */
 function starmus_on_uninstall(): void
 {
-    // NOTE: We do NOT uninstall SCF here. 
-    // Uninstalling Starmus should not break other plugins relying on SCF.
+    if (class_exists(Sparxstar_SCF_Runtime::class)) {
+		// UPDATED: sparx_scf_uninstall_plugin -> sparx_scf_uninstall_scf
+		Sparxstar_SCF_Runtime::sparx_scf_uninstall_scf();
+	}
     
     if (defined('STARMUS_DELETE_ON_UNINSTALL') && STARMUS_DELETE_ON_UNINSTALL) {
         $file = STARMUS_PATH . 'uninstall.php';
