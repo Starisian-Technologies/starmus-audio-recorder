@@ -2,13 +2,21 @@
 
 echo "--- Setting up test pages in the TESTING environment ---"
 
-# Page 1: The Audio Recorder
+# Page 1: The Audio Recorder (using correct shortcode)
 wp-env run tests-cli -- wp post create \
   --post_type=page \
   --post_title='Test Page With Recorder' \
-  --post_content='<!-- wp:shortcode -->[starmus_audio_recorder_form]<!-- /wp:shortcode -->' \
+  --post_content='<!-- wp:shortcode -->[starmus_audio_recorder]<!-- /wp:shortcode -->' \
   --post_status=publish \
-  --post_name='test-page-with-recorder'
+  --post_name='starmus-recorder'
+
+# Page 2: Audio Editor Page
+wp-env run tests-cli -- wp post create \
+  --post_type=page \
+  --post_title='Audio Editor' \
+  --post_content='<!-- wp:shortcode -->[starmus_audio_editor]<!-- /wp:shortcode -->' \
+  --post_status=publish \
+  --post_name='audio-editor'
 
 # Page 2: My Recordings
 wp-env run tests-cli -- wp post create \

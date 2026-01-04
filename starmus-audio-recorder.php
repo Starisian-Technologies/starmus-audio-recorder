@@ -129,8 +129,8 @@ add_action('plugins_loaded', static function (): void {
         $vendor_url  = STARMUS_URL . 'vendor/secure-custom-fields/';
 
         Sparxstar_SCF_Runtime::sparx_scf_register_scf_source(
-            'starmus-audio', 
-            $vendor_path, 
+            'starmus-audio',
+            $vendor_path,
             $vendor_url
         );
 
@@ -154,7 +154,7 @@ add_action('plugins_loaded', static function (): void {
     try {
         // Ensure Autoload happened
         if (!class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
-            return; 
+            return;
         }
 
         // Boot the App
@@ -207,7 +207,7 @@ function starmus_on_deactivate(): void
             // UPDATED: sparx_scf_deactivate_plugin -> sparx_scf_deactivate_scf
             Sparxstar_SCF_Runtime::sparx_scf_deactivate_scf();
         }
-        
+
     } catch (\Throwable $e) {
         error_log('Starmus Deactivation Error: ' . $e->getMessage());
     }
@@ -218,17 +218,21 @@ function starmus_on_deactivate(): void
  */
 function starmus_on_uninstall(): void
 {
-    if (class_exists(Sparxstar_SCF_Runtime::class)) {
-		// UPDATED: sparx_scf_uninstall_plugin -> sparx_scf_uninstall_scf
-		Sparxstar_SCF_Runtime::sparx_scf_uninstall_scf();
-	}
-    
-    if (defined('STARMUS_DELETE_ON_UNINSTALL') && STARMUS_DELETE_ON_UNINSTALL) {
-        $file = STARMUS_PATH . 'uninstall.php';
-        if (file_exists($file)) {
-            require_once $file;
-        }
-    }
+	try{
+		// Optional: Remove SCF runtime state if you want to clean up completely
+		if (class_exists(Sparxstar_SCF_Runtime::class)) {
+			Sparxstar_SCF_Runtime::uninstall_site();
+		}
+
+		if (defined('STARMUS_DELETE_ON_UNINSTALL') && STARMUS_DELETE_ON_UNINSTALL) {
+			$file = STARMUS_PATH . 'uninstall.php';
+			if (file_exists($file)) {
+				require_once $file;
+			}
+		}
+	}catch (Throwable $e) {
+			error_log('Starmus uninstall error: ' . $e->getMessage());
+		}
 }
 
 register_activation_hook(__FILE__, 'starmus_on_activate');
