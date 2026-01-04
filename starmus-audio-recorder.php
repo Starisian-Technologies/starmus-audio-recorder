@@ -52,8 +52,8 @@ declare(strict_types=1);
 
 use Starisian\Sparxstar\install\SCF\Sparxstar_SCF_Runtime;
 use Starisian\Sparxstar\Starmus\StarmusAudioRecorder;
-use Starisiam\Sparxstar\Starmus\cron\StarmusCron;
-use Starisian\Sparxstar\Starmus\helper\StarmusLogger;
+use Starisian\Sparxstar\Starmus\cron\StarmusCron;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 if ( ! defined('ABSPATH')) {
     exit;
@@ -113,6 +113,7 @@ add_action('plugins_loaded', static function (): void {
         }
     } catch (\Throwable $e) {
         error_log('Starmus Autoload Failed: ' . $e->getMessage());
+        // Cannot use StarmusLogger here as autoloader might have failed
     }
 }, 0);
 
@@ -146,6 +147,7 @@ add_action('plugins_loaded', static function (): void {
         });
 
     } catch (\Throwable $e) {
+        StarmusLogger::log($e);
         error_log('Starmus Infrastructure Failed: ' . $e->getMessage());
     }
 }, 5);
@@ -165,6 +167,7 @@ add_action('plugins_loaded', static function (): void {
         $instance::starmus_run();
 
     } catch (\Throwable $e) {
+        StarmusLogger::log($e);
         error_log('Starmus App Boot Failed: ' . $e->getMessage());
         if (is_admin()) {
             add_action('admin_notices', function() {
@@ -191,6 +194,7 @@ function starmus_on_activate(): void
         }
         flush_rewrite_rules();
     } catch (\Throwable $e) {
+        StarmusLogger::log($e);
         error_log('Starmus Activation Error: ' . $e->getMessage());
     }
 }
@@ -211,7 +215,8 @@ function starmus_on_deactivate(): void
             Sparxstar_SCF_Runtime::sparx_scf_deactivate_scf();
         }
 
-    } catch (\Throwable $e) {
+    } caStarmusLogger::log($e);
+        tch (\Throwable $e) {
         error_log('Starmus Deactivation Error: ' . $e->getMessage());
     }
 }
@@ -233,6 +238,7 @@ function starmus_on_uninstall(): void
 				require_once $file;
 			}
 		}
+            StarmusLogger::log($e);
 	}catch (Throwable $e) {
 			error_log('Starmus uninstall error: ' . $e->getMessage());
 		}
