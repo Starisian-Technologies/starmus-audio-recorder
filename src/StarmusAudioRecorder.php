@@ -189,7 +189,14 @@ final class StarmusAudioRecorder
             $this->init_settings_or_throw();
 
             // 2. Initialize Data Access Layers
-            $this->init_dals();
+            $this->init_dal();
+			$this->init_prosody_dal();
+
+			// 2.5 Initialize i18N
+			$this->set_i18N();
+
+			// 2.7 Initialize CLI
+			$this->set_cli();
 
 			// 3. Initialize Views (Admin & Shortcodes)
 			$this->init_views();
@@ -303,7 +310,7 @@ final class StarmusAudioRecorder
      *
      * @since 1.2.0
      */
-    private function init_dals(): void
+    private function init_dal(): void
     {
         // 1. Recorder DAL (With Override Filter)
         try {
@@ -333,26 +340,64 @@ final class StarmusAudioRecorder
             $this->DAL = new StarmusAudioDAL(); // Fail safe
         }
 
-        // 2. Prosody DAL (New Architecture)
-        try {
-            $this->prosodyDAL = new StarmusProsodyDAL();
-        } catch (Throwable $throwable) {
-            StarmusLogger::log($throwable);
-        }
     }
+
+	private function init_prosody_dal(): void
+	{
+		try {
+			if(class_exists(StarmusProsodyDAL::class)){
+				$this->prosodyDAL = new StarmusProsodyDAL();
+				return;
+			}
+		} catch (Throwable $throwable) {
+			StarmusLogger::log($throwable);
+		}
+	}
+
+	private function set_i18N(): void
+	{
+		try{
+			if(class_exists(Starmusi18NLanguage::class)){
+				$i18n = new Starmusi18NLanguage();
+				$i18n->register_hooks();
+				return;
+			}
+		}catch(Throwable $throwable){
+			StarmusLogger::log($throwable);
+		}
+	}
+
+	private function set_cli(): void
+	{
+		try{
+			if(class_exists(StarmusCLI::class) && \defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')){
+				$cli = new StarmusCLI($this->DAL, $this->settings);
+				$cli->register_hooks();
+				return;
+			}
+		}catch(Throwable $throwable){
+			StarmusLogger::log($throwable);
+		}
+	}
 
 
 	private function init_views(): void
 	{
 		try{
+
 			// Admin
-			if (is_admin()) {
-				new StarmusAdmin($this->DAL, $this->settings);
+			if (class_exists(StarmusAdmin::class) && is_admin()) {
+				$admin = new StarmusAdmin($this->DAL, $this->settings);
+				$admin->register_hooks();
+				return;
+			}
+			// Shortcodes
+			if (class_exists(StarmusShortcodeLoader::class)) {
+				$shortcodes = new StarmusShortcodeLoader($this->DAL, $this->settings, $this->prosodyDAL);
+				$shortcodes->register_hooks();
 				return;
 			}
 
-			// Shortcodes
-			new StarmusShortcodeLoader($this->DAL, $this->settings, $this->prosodyDAL);
 		}catch(Throwable $throwable){
 			StarmusLogger::log($throwable);
 		}
@@ -378,28 +423,30 @@ final class StarmusAudioRecorder
         try {
             StarmusLogger::info('[Starmus] === init_components() STARTING ===');
 
-			// Internationalization
-			$i18n = new Starmusi18NLanguage();
-			$i18n->register_hooks();
-
-            // Services
-            $file_service = new StarmusFileService($this->DAL);
-            $file_service->register_compatibility_hooks();
-
-            // Assets
-            new StarmusAssetLoader($this->settings);
-
-            // Submission Logic
-            $submission_handler = new StarmusSubmissionHandler($this->DAL, $this->settings);
-            $tusd_hook_handler  = new StarmusTusdHookHandler($submission_handler);
-            $tusd_hook_handler->register_hooks();
-
-            // REST API
-            new StarmusRESTHandler($this->DAL, $this->settings);
-
+			// Assets
+			if(class_exists(StarmusAssetLoader::class)) {
+				new StarmusAssetLoader($this->settings);
+			}
+			// Submission Logic
+			if(class_exists(StarmusTusdHookHandler::class) && class_exists(StarmusSubmissionHandler::class)) {
+				$submission_handler = new StarmusSubmissionHandler($this->DAL, $this->settings);
+				$tusd_hook_handler  = new StarmusTusdHookHandler($submission_handler);
+				$tusd_hook_handler->register_hooks();
+			}
+			// REST API
+			if(class_exists(StarmusRESTHandler::class)) {
+				new StarmusRESTHandler($this->DAL, $this->settings);
+			}
+			// Services
+			if(class_exists(StarmusFileService::class)) {
+				$file_service = new StarmusFileService($this->DAL);
+				$file_service->register_compatibility_hooks();
+			}
 			// Cron Jobs
-			$cron = new StarmusCron( new StarmusWaveformService(), new StarmusPostProcessingService($file_service));
-			$cron->register_hooks();
+			if(class_exists(StarmusCron::class)) {
+				$cron = new StarmusCron( new StarmusWaveformService($this->DAL, $file_service), new StarmusPostProcessingService($file_service));
+				$cron->register_hooks();
+			}
 
             StarmusLogger::info('[Starmus] === init_components() COMPLETE ===');
         } catch (Throwable $throwable) {
