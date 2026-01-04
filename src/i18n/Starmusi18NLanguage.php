@@ -18,6 +18,8 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\i18n;
 
+
+use Starisian\Sparxstar\Starmus\StarmusLogger;
 use function esc_attr;
 use function esc_html;
 use function load_plugin_textdomain;

@@ -38,7 +38,7 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler;
 use Starisian\Sparxstar\Starmus\services\StarmusCLI;
 use Starisian\Sparxstar\Starmus\cron\StarmusCron;
-use Starisian\Sparxstar\Starmus\i18n\StarmusI18NLanguage;
+use Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage;
 use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
@@ -191,10 +191,13 @@ final class StarmusAudioRecorder
             // 2. Initialize Data Access Layers
             $this->init_dals();
 
-            // 3. Initialize Components
+			// 3. Initialize Views (Admin & Shortcodes)
+			$this->init_views();
+
+            // 4. Initialize Components
             $this->init_components();
 
-            // 4. Register Hooks
+            // 5. Register Hooks
             $this->register_hooks();
         } catch (\Throwable $throwable) {
                 StarmusLogger::log(
@@ -338,6 +341,23 @@ final class StarmusAudioRecorder
         }
     }
 
+
+	private function init_views(): void
+	{
+		try{
+			// Admin
+			if (is_admin()) {
+				new StarmusAdmin($this->DAL, $this->settings);
+				return;
+			}
+
+			// Shortcodes
+			new StarmusShortcodeLoader($this->DAL, $this->settings, $this->prosodyDAL);
+		}catch(Throwable $throwable){
+			StarmusLogger::log($throwable);
+		}
+	}
+
     /**
      * Instantiate components that depend on settings and environment.
      *
@@ -362,16 +382,9 @@ final class StarmusAudioRecorder
 			$i18n = new Starmusi18NLanguage();
 			$i18n->register_hooks();
 
-
-
             // Services
             $file_service = new StarmusFileService($this->DAL);
             $file_service->register_compatibility_hooks();
-
-            // Admin
-            if (is_admin()) {
-                new StarmusAdmin($this->DAL, $this->settings);
-            }
 
             // Assets
             new StarmusAssetLoader($this->settings);
@@ -384,11 +397,8 @@ final class StarmusAudioRecorder
             // REST API
             new StarmusRESTHandler($this->DAL, $this->settings);
 
-            // Shortcodes
-            new StarmusShortcodeLoader($this->DAL, $this->settings, $this->prosodyDAL);
-
 			// Cron Jobs
-			$cron = new StarmusCron(new StarmusPostProcessingService($file_service), new StarmusWaveformService());
+			$cron = new StarmusCron( new StarmusWaveformService(), new StarmusPostProcessingService($file_service));
 			$cron->register_hooks();
 
             StarmusLogger::info('[Starmus] === init_components() COMPLETE ===');
