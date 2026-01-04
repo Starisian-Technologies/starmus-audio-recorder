@@ -16,9 +16,6 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus;
 
-if ( ! \defined('ABSPATH')) {
-    exit;
-}
 
 use LogicException;
 use RuntimeException;
@@ -39,8 +36,17 @@ use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\frontend\StarmusShortcodeLoader;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler;
+use Starisian\Sparxstar\Starmus\services\StarmusCLI;
+use Starisian\Sparxstar\Starmus\cron\StarmusCron;
+use Starisian\Sparxstar\Starmus\i18n\StarmusI18NLanguage;
 use Starisian\Sparxstar\Starmus\services\StarmusFileService;
+use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
+use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Throwable;
+
+if (! \defined('ABSPATH')) {
+	exit;
+}
 
 /**
  * Main plugin bootstrapper and singleton entry point.
@@ -190,13 +196,11 @@ final class StarmusAudioRecorder
 
             // 4. Register Hooks
             $this->register_hooks();
-        } catch (Throwable $throwable) {
-            if (class_exists(StarmusLogger::class)) {
+        } catch (\Throwable $throwable) {
                 StarmusLogger::log(
                     $throwable,
                     ['component' => self::class, 'stage' => '__construct']
                 );
-            }
         }
     }
 
@@ -253,7 +257,7 @@ final class StarmusAudioRecorder
      */
     public static function check_field_plugin_dependency(): bool
     {
-        return \function_exists('acf_get_instance');
+        return function_exists('acf_get_instance');
     }
 
     /**
@@ -277,11 +281,12 @@ final class StarmusAudioRecorder
                 $this->settings = new StarmusSettings();
                 return;
             }
-        } catch (Throwable) {
+        } catch (\Throwable $throwable) {
             // Log handled below
+			StarmusLogger::log($throwable);
         }
 
-        throw new RuntimeException('StarmusSettings failed to initialize.');
+        throw new \RuntimeException('StarmusSettings failed to initialize.');
     }
 
     /**
@@ -353,6 +358,12 @@ final class StarmusAudioRecorder
         try {
             StarmusLogger::info('[Starmus] === init_components() STARTING ===');
 
+			// Internationalization
+			$i18n = new Starmusi18NLanguage();
+			$i18n->register_hooks();
+
+
+
             // Services
             $file_service = new StarmusFileService($this->DAL);
             $file_service->register_compatibility_hooks();
@@ -375,6 +386,10 @@ final class StarmusAudioRecorder
 
             // Shortcodes
             new StarmusShortcodeLoader($this->DAL, $this->settings, $this->prosodyDAL);
+
+			// Cron Jobs
+			$cron = new StarmusCron(new StarmusPostProcessingService($file_service), new StarmusWaveformService());
+			$cron->register_hooks();
 
             StarmusLogger::info('[Starmus] === init_components() COMPLETE ===');
         } catch (Throwable $throwable) {
@@ -402,13 +417,6 @@ final class StarmusAudioRecorder
         }
 
         try {
-            add_action('init', function (): void {
-                load_plugin_textdomain(
-                    'starmus-audio-recorder',
-                    false,
-                    \dirname(plugin_basename(STARMUS_MAIN_FILE)) . '/languages/'
-                );
-            });
 
             if (\defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
                 $cli_path = plugin_dir_path(STARMUS_MAIN_FILE) . 'src/cli/';
@@ -422,7 +430,7 @@ final class StarmusAudioRecorder
             }
 
             $this->hooksRegistered = true;
-        } catch (Throwable $throwable) {
+        } catch (\Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
     }

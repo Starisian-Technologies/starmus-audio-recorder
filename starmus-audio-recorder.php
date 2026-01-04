@@ -51,6 +51,9 @@
 declare(strict_types=1);
 
 use Starisian\Sparxstar\install\SCF\Sparxstar_SCF_Runtime;
+use Starisian\Sparxstar\Starmus\StarmusAudioRecorder;
+use Starisiam\Sparxstar\Starmus\cron\StarmusCron;
+use Starisian\Sparxstar\Starmus\helper\StarmusLogger;
 
 if ( ! defined('ABSPATH')) {
     exit;

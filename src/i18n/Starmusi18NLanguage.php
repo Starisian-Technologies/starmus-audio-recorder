@@ -66,8 +66,15 @@ final class Starmusi18NLanguage
      */
     public function __construct()
     {
-        add_action('plugins_loaded', $this->load_textdomain(...));
+		$this->register_hooks();
+
     }
+
+	public function register_hooks(): void
+	{
+		// Load text domain on plugins_loaded action
+		add_action('plugins_loaded', [$this, 'load_textdomain']);
+	}
 
     /**
      * Load the plugin text domain for translations
