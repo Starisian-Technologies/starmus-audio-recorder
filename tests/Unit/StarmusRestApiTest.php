@@ -19,7 +19,7 @@ final class StarmusRestApiTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ui = new StarmusAudioRecorderUI();
+        $this->ui = new StarmusAudioRecorderUI(null);
     }
 
     public function testUploadPermissionsRequireCapability(): void

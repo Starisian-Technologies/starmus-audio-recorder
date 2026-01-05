@@ -121,7 +121,7 @@ class StarmusLogger
 	/**
 	 * Minimum severity level that will be recorded.
 	 */
-	private static int $min_log_level = self::INFO;
+	private static int $min_log_level = self::DEBUG;
 
 	/**
 	 * Set the minimum log level

@@ -388,14 +388,12 @@ final class StarmusAudioRecorder
 
 			// Admin
 			if (class_exists(StarmusAdmin::class) && is_admin()) {
-				$admin = new StarmusAdmin($this->DAL, $this->settings);
-				$admin->register_hooks();
+				new StarmusAdmin($this->DAL, $this->settings);
 				return;
 			}
 			// Shortcodes
 			if (class_exists(StarmusShortcodeLoader::class)) {
-				$shortcodes = new StarmusShortcodeLoader($this->DAL, $this->settings, $this->prosodyDAL);
-				$shortcodes->register_hooks();
+				new StarmusShortcodeLoader($this->DAL, $this->settings, $this->prosodyDAL);
 				return;
 			}
 
@@ -431,8 +429,8 @@ final class StarmusAudioRecorder
 			// Submission Logic
 			if(class_exists(StarmusTusdHookHandler::class) && class_exists(StarmusSubmissionHandler::class)) {
 				$submission_handler = new StarmusSubmissionHandler($this->DAL, $this->settings);
-				$tusd_hook_handler  = new StarmusTusdHookHandler($submission_handler);
-				$tusd_hook_handler->register_hooks();
+				$tus_hook_handler  = new StarmusTusdHookHandler($submission_handler);
+				$tus_hook_handler->register_hooks();
 			}
 			// REST API
 			if(class_exists(StarmusRESTHandler::class)) {

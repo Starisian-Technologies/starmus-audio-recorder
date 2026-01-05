@@ -1,4 +1,5 @@
 <?php
+
 /**
  * WordPress Test Framework Bootstrap
  *
@@ -19,7 +20,7 @@ if (!$_tests_dir) {
 
 $file = $_tests_dir . '/includes/functions.php';
 if (!file_exists($file)) {
-	echo "Could not find " . esc_html($file);
+	echo "Could not find " . $file;
 	exit(1);
 }
 
