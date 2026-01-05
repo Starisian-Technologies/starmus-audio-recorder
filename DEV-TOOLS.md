@@ -35,7 +35,7 @@ This repository includes a complete development toolchain for code quality, test
 ### Fix All Code Issues
 
 ```bash
-./cleanup.sh                    # Fix everything (PHP + JS + CSS)
+./bin/cleanup.sh                    # Fix everything (PHP + JS + CSS)
 ```
 
 ### Generate Documentation
@@ -63,7 +63,7 @@ npm run build                   # Build CSS + JS bundles
 
 ```bash
 # 1. Fix all code issues
-./cleanup.sh
+./bin/cleanup.sh
 
 # 2. Run tests
 npm test
@@ -80,7 +80,7 @@ npm run build
 
 ```bash
 # Check what would change (dry-run)
-./cleanup.sh --dry-run
+./bin/cleanup.sh --dry-run
 composer rector:dry
 composer phpfix:dry
 ```
@@ -90,7 +90,7 @@ composer phpfix:dry
 ```bash
 # 1. Write code with proper docblocks
 # 2. Run cleanup
-./cleanup.sh
+./bin/cleanup.sh
 
 # 3. Generate docs
 npm run docs
@@ -168,7 +168,7 @@ These tools are designed to run in CI pipelines:
 
 - name: Code Quality Checks
   run: |
-    ./cleanup.sh --dry-run
+    ./bin/cleanup.sh --dry-run
     composer phpstan
     npm run lint
 
@@ -200,7 +200,7 @@ php -d memory_limit=2G vendor/bin/rector
 ### Permission Errors
 
 ```bash
-chmod +x bin/*.php bin/*.sh bin/*.js cleanup.sh
+chmod +x bin/*.php bin/*.sh bin/*.js
 ```
 
 ### Build Failures

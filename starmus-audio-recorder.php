@@ -105,6 +105,7 @@ if ( ! defined('STARMUS_DELETE_ON_UNINSTALL')) {
 $starmus_autoloader = STARMUS_PATH . 'vendor/autoload.php';
 
 if (file_exists($starmus_autoloader)) {
+	error_log('Starmus Info: Loading Composer autoloader.');
 	require_once $starmus_autoloader;
 } else {
 	// Graceful fail in Admin if Composer not run

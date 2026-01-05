@@ -8,10 +8,10 @@ Complete suite for maintaining code quality across PHP, JavaScript, CSS, and doc
 
 ```bash
 # Fix everything
-./cleanup.sh
+./bin/cleanup.sh
 
 # Preview changes (dry-run)
-./cleanup.sh --dry-run
+./bin/cleanup.sh --dry-run
 ```
 
 ### Generate Documentation
@@ -122,16 +122,16 @@ composer test
 
 ## What Each Tool Does
 
-| Tool | Purpose | Examples |
-|------|---------|----------|
-| **Rector** | Upgrades syntax, removes dead code, improves structure | `array()` → `[]`, add type hints, use null coalescing |
-| **PHP CS Fixer** | Code style, alignment, ordering | Align `=` operators, order imports, format phpdoc |
-| **PHPCBF** | WordPress standards | Nonce checks, sanitization, escaping |
-| **PHPStan** | Type safety | Find bugs before runtime |
-| **ESLint** | JS linting | Unused vars, undefined functions |
-| **Prettier** | Consistent formatting | Quotes, spacing, line length |
-| **Stylelint** | CSS standards | Property order, vendor prefixes |
-| **Markdownlint** | Doc quality | Heading hierarchy, list formatting |
+| Tool             | Purpose                                                | Examples                                              |
+| ---------------- | ------------------------------------------------------ | ----------------------------------------------------- |
+| **Rector**       | Upgrades syntax, removes dead code, improves structure | `array()` → `[]`, add type hints, use null coalescing |
+| **PHP CS Fixer** | Code style, alignment, ordering                        | Align `=` operators, order imports, format phpdoc     |
+| **PHPCBF**       | WordPress standards                                    | Nonce checks, sanitization, escaping                  |
+| **PHPStan**      | Type safety                                            | Find bugs before runtime                              |
+| **ESLint**       | JS linting                                             | Unused vars, undefined functions                      |
+| **Prettier**     | Consistent formatting                                  | Quotes, spacing, line length                          |
+| **Stylelint**    | CSS standards                                          | Property order, vendor prefixes                       |
+| **Markdownlint** | Doc quality                                            | Heading hierarchy, list formatting                    |
 
 ## Configuration Files
 
