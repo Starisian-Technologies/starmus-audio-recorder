@@ -126,7 +126,7 @@ add_action('plugins_loaded', static function (): void {
 
 		// install SCF
 		// Prevent conflicts if SCF or ACF is already active as a standard plugin
-		if (! class_exists('ACF')) {
+		if (! class_exists('ACF') && !is_plugin_active('secure-custom-fields/secure-custom-fields.php') && !is_plugin_active('advanced-custom-fields/acf.php')	) {
 
 			// 5. Finally, include the main SCF plugin file
 			if (file_exists(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php')) {
