@@ -97,6 +97,15 @@ if ( ! defined('STARMUS_REST_NAMESPACE')) {
 if ( ! defined('STARMUS_DELETE_ON_UNINSTALL')) {
     define('STARMUS_DELETE_ON_UNINSTALL', false);
 }
+// 1. Define the path to the bundled SCF directory
+// Adjust 'vendor/wpackagist-plugin/secure-custom-fields/' to match your actual path
+if (! defined('SPARXSTAR_SCF_PATH')) {
+	define('SPARXSTAR_SCF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
+}
+if (! defined('SPARXSTAR_SCF_URL')) {
+	define('SPARXSTAR_SCF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
+}
+
 
 // -------------------------------------------------------------------------
 // 2. AUTOLOAD (Priority 0)
@@ -106,16 +115,57 @@ add_action('plugins_loaded', static function (): void {
         $autoloader = STARMUS_PATH . 'vendor/autoload.php';
         if (file_exists($autoloader)) {
             require_once $autoloader;
-        } elseif (is_admin()) {
-            add_action('admin_notices', static function() {
-                echo '<div class="notice notice-error"><p>Starmus Critical: vendor/autoload.php missing. Run composer install.</p></div>';
-            });
-        }
+        } else {
+			if (is_admin()) {
+				add_action('admin_notices', static function() {
+					echo '<div class="notice notice-error"><p>Starmus Critical: vendor/autoload.php missing. Run composer install.</p></div>';
+				});
+			}
+			throw new \RuntimeException('Starmus Autoloader missing. Run composer install.');
+		}
+
+		// install SCF
+		// Prevent conflicts if SCF or ACF is already active as a standard plugin
+		if (! class_exists('ACF')) {
+
+			// 5. Finally, include the main SCF plugin file
+			if (file_exists(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php')) {
+				require_once(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php');
+			}
+
+		}
     } catch (\Throwable $e) {
         error_log('Starmus Autoload Failed: ' . $e->getMessage());
         // Cannot use StarmusLogger here as autoloader might have failed
     }
 }, 0);
+/**
+ * Register a custom load point for SCF/ACF JSON files.
+ * This effectively "installs" your Fields, CPTs, and Taxonomies.
+ */
+add_filter('acf/settings/load_json', function ($paths) {
+	// append the new path to the existing array of paths
+	$paths[] = STARMUS_PATH. 'acf-json';
+	return $paths;
+});
+/**
+ * Register a custom save point for SCF/ACF JSON files.
+ * Useful during development to write changes back to your plugin.
+ */
+add_filter('acf/settings/save_json', function ($path) {
+	if(wp_get_environment_type() !== 'development'){
+		// Set the path to your plugin's folder
+		$path = plugin_dir_path(__FILE__) . 'acf-json';
+
+		return $path;
+	}
+	return $path;
+});
+// Hide the SCF admin menu item.
+add_filter('acf/settings/show_admin', '__return_true', 100);
+
+// Hide the SCF Updates menu.
+add_filter('acf/settings/show_updates', '__return_false', 100);
 
 // -------------------------------------------------------------------------
 // 3. INFRASTRUCTURE & DEPENDENCY REGISTRATION (Priority 5)
@@ -216,7 +266,6 @@ function starmus_on_deactivate(): void
         }
 
     } catch (\Throwable $e) {
-        StarmusLogger::log($e);
         error_log('Starmus Deactivation Error: ' . $e->getMessage());
     }
 }
