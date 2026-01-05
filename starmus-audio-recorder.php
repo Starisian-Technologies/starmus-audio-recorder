@@ -107,145 +107,158 @@ if (! defined('SPARXSTAR_SCF_URL')) {
 }
 
 
+
 // -------------------------------------------------------------------------
-// 2. AUTOLOAD (Priority 0)
+// 2. AUTOLOAD & BUNDLED SCF (Priority 0)
 // -------------------------------------------------------------------------
 add_action('plugins_loaded', static function (): void {
-    try {
-        $autoloader = STARMUS_PATH . 'vendor/autoload.php';
-        if (file_exists($autoloader)) {
-			error_log('Starmus Autoloader found, loading...');
-            require_once $autoloader;
-        } else {
-			if (is_admin()) {
-				add_action('admin_notices', static function() {
+	try {
+		// A. Load Composer Autoloader
+		$autoloader = STARMUS_PATH . 'vendor/autoload.php';
+		if (file_exists($autoloader)) {
+			require_once $autoloader;
+		} else {
+			// Only show admin notice in admin area
+			if (is_admin() && !defined('DOING_AJAX')) {
+				add_action('admin_notices', static function () {
 					echo '<div class="notice notice-error"><p>Starmus Critical: vendor/autoload.php missing. Run composer install.</p></div>';
 				});
 			}
 			error_log('Starmus Autoloader missing. Run composer install.');
-			throw new \RuntimeException('Starmus Autoloader missing. Run composer install.');
+			return; // Stop execution if autoloader is missing
 		}
 
-		// install SCF
-		// Prevent conflicts if SCF or ACF is already active as a standard plugin
-		if (! class_exists('ACF') && !is_plugin_active('secure-custom-fields/secure-custom-fields.php') && !is_plugin_active('advanced-custom-fields/acf.php')	) {
+		// B. Bootstrap Bundled SCF
+		// We check for 'ACF' class because SCF uses the ACF class namespace for compatibility.
+		if (! class_exists('ACF')) {
 
-			// 5. Finally, include the main SCF plugin file
 			if (file_exists(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php')) {
-				require_once(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php');
-			}
 
+				// CRITICAL: Point SCF to the bundled URL so it can find JS/CSS
+				add_filter('acf/settings/url', function () {
+					return SPARXSTAR_SCF_URL;
+				});
+
+				// CRITICAL: Point SCF to the bundled Path so it can find PHP includes
+				add_filter('acf/settings/path', function () {
+					return SPARXSTAR_SCF_PATH;
+				});
+
+				// Hide SCF menu item (optional, keeping your setting)
+				add_filter('acf/settings/show_admin', '__return_true');
+				add_filter('acf/settings/show_updates', '__return_false');
+
+				// Load SCF
+				require_once(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php');
+			} else {
+				error_log('Starmus Error: Bundled SCF not found at ' . SPARXSTAR_SCF_PATH);
+			}
 		} else {
-			// SCF or ACF is already active, skip loading bundled SCF
-			error_log('Starmus Notice: SCF or ACF already active, skipping bundled SCF load.');
+			// SCF or ACF is already active as a standard plugin.
+			// We step aside and let the installed version run.
+			error_log('Starmus Notice: External SCF/ACF detected. Skipping bundled version.');
 		}
-    } catch (\Throwable $e) {
-        error_log('Starmus Autoload Failed: ' . $e->getMessage());
-        // Cannot use StarmusLogger here as autoloader might have failed
-    }
+	} catch (\Throwable $e) {
+		error_log('Starmus Autoload/Bootstrap Failed: ' . $e->getMessage());
+	}
 }, 0);
+
+
+// -------------------------------------------------------------------------
+// 3. JSON SYNC (CPT/Field Installation)
+// -------------------------------------------------------------------------
+
 /**
  * Register a custom load point for SCF/ACF JSON files.
- * This effectively "installs" your Fields, CPTs, and Taxonomies.
+ * This effectively "installs" your Fields, CPTs, and Taxonomies on load.
  */
 add_filter('acf/settings/load_json', function ($paths) {
-	// append the new path to the existing array of paths
-	error_log('Starmus ACF JSON load path added: ' . STARMUS_PATH. 'acf-json');
-	$paths[] = STARMUS_PATH. 'acf-json';
+	// Append the new path to the existing array of paths
+	$paths[] = STARMUS_PATH . 'acf-json';
 	return $paths;
 });
+
 /**
  * Register a custom save point for SCF/ACF JSON files.
  * Useful during development to write changes back to your plugin.
  */
 add_filter('acf/settings/save_json', function ($path) {
-	if(wp_get_environment_type() !== 'production'){
-		// Set the path to your plugin's folder
-		error_log('Starmus ACF JSON save path set: ' . STARMUS_PATH. 'acf-json');
-		$path = plugin_dir_path(__FILE__) . 'acf-json';
-
-		return $path;
+	// Only save to plugin folder in non-production environments
+	if (wp_get_environment_type() !== 'production') {
+		$path = STARMUS_PATH . 'acf-json';
 	}
 	return $path;
 });
-// Hide the SCF admin menu item.
-add_filter('acf/settings/show_admin', '__return_true', 100);
 
-// Hide the SCF Updates menu.
-add_filter('acf/settings/show_updates', '__return_false', 100);
 
 // -------------------------------------------------------------------------
 // 4. APP BOOT (Priority 10)
 // -------------------------------------------------------------------------
 add_action('plugins_loaded', static function (): void {
-    try {
-        // Ensure Autoload happened
-        if (!class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
-            return;
-        }
+	try {
+		// Ensure Autoload happened and class exists
+		if (!class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
+			return;
+		}
 
-        // Boot the App
-		error_log('Starmus Booting...');
-        \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_get_instance();
-
-    } catch (\Throwable $e) {
-        error_log('Starmus App Boot Failed: ' . $e->getMessage());
-        if (is_admin()) {
-            add_action('admin_notices', function() {
-                echo '<div class="notice notice-error"><p>Starmus Audio failed to start. Check error logs.</p></div>';
-            });
-        }
-    }
+		// Boot the App
+		\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_get_instance();
+	} catch (\Throwable $e) {
+		error_log('Starmus App Boot Failed: ' . $e->getMessage());
+		if (is_admin()) {
+			add_action('admin_notices', function () {
+				echo '<div class="notice notice-error"><p>Starmus Audio failed to start. Check error logs.</p></div>';
+			});
+		}
+	}
 }, 10);
+
 
 // -------------------------------------------------------------------------
 // 5. LIFECYCLE MANAGEMENT
 // -------------------------------------------------------------------------
 
 /**
- * ACTIVATION: Enforce Requirements.
- * Starmus requires SCF. If Starmus is activated, ensure SCF is physically active.
+ * ACTIVATION
  */
 function starmus_on_activate(): void
 {
-    try {
-        if(class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
+	try {
+		if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
 			\Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
 		}
-        flush_rewrite_rules();
-    } catch (\Throwable $e) {
-        error_log('Starmus Activation Error: ' . $e->getMessage());
-    }
+		flush_rewrite_rules();
+	} catch (\Throwable $e) {
+		error_log('Starmus Activation Error: ' . $e->getMessage());
+	}
 }
 
 /**
- * DEACTIVATION: Clean up self, leave shared infrastructure alone.
+ * DEACTIVATION
  */
 function starmus_on_deactivate(): void
 {
-    try {
-        if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
-            \Starisian\Sparxstar\Starmus\cron\StarmusCron::deactivate();
-        }
-        flush_rewrite_rules();
+	try {
+		if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
+			\Starisian\Sparxstar\Starmus\cron\StarmusCron::deactivate();
+		}
+		flush_rewrite_rules();
 
-        if (class_exists(Sparxstar_SCF_Runtime::class)) {
-            // UPDATED: sparx_scf_deactivate_plugin -> sparx_scf_deactivate_scf
-            Sparxstar_SCF_Runtime::sparx_scf_deactivate_scf();
-        }
-
-    } catch (\Throwable $e) {
-        error_log('Starmus Deactivation Error: ' . $e->getMessage());
-    }
+		// Check if runtime class exists before calling static method
+		if (class_exists(Sparxstar_SCF_Runtime::class)) {
+			Sparxstar_SCF_Runtime::sparx_scf_deactivate_scf();
+		}
+	} catch (\Throwable $e) {
+		error_log('Starmus Deactivation Error: ' . $e->getMessage());
+	}
 }
 
 /**
- * UNINSTALL: Clean up data, leave shared infrastructure alone.
+ * UNINSTALL
  */
 function starmus_on_uninstall(): void
 {
-	try{
-		// Optional: Remove SCF runtime state if you want to clean up completely
+	try {
 		if (class_exists(Sparxstar_SCF_Runtime::class)) {
 			Sparxstar_SCF_Runtime::uninstall_site();
 		}
@@ -256,10 +269,10 @@ function starmus_on_uninstall(): void
 				require_once $file;
 			}
 		}
-            StarmusLogger::log($e);
-	}catch (Throwable $e) {
-			error_log('Starmus uninstall error: ' . $e->getMessage());
-		}
+	} catch (\Throwable $e) {
+		// Use error_log here; Custom Logger classes might not be available during uninstall hooks
+		error_log('Starmus uninstall error: ' . $e->getMessage());
+	}
 }
 
 register_activation_hook(__FILE__, 'starmus_on_activate');
