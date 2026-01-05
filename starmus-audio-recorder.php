@@ -50,7 +50,6 @@
 
 declare(strict_types=1);
 
-use Starisian\Sparxstar\install\SCF\Sparxstar_SCF_Runtime;
 use Starisian\Sparxstar\Starmus\StarmusAudioRecorder;
 use Starisian\Sparxstar\Starmus\cron\StarmusCron;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
@@ -125,7 +124,7 @@ if (file_exists($starmus_autoloader)) {
 // We check !class_exists('ACF') to ensure we don't crash if the standard plugin is active.
 
 if (! class_exists('ACF')) {
-
+	error_log('Starmus Info: Booting bundled Secure Custom Fields plugin.');
 	// Define path and URL to the bundled Secure Custom Fields plugin
 	// Uses 'vendor/secure-custom-fields/' per your composer.json "installer-paths"
 	if (! defined('SPARXSTAR_SCF_PATH')) {
@@ -141,7 +140,7 @@ if (! class_exists('ACF')) {
 		require_once SPARXSTAR_SCF_PATH . 'secure-custom-fields.php';
 
 		// 3. (Optional) Hide the SCF admin menu
-		add_filter('acf/settings/show_admin', '__return_false');
+		add_filter('acf/settings/show_admin', '__return_true', 100);
 
 		// 4. (Optional) Hide Updates
 		add_filter('acf/settings/show_updates', '__return_false', 100);
@@ -156,19 +155,7 @@ if (! class_exists('ACF')) {
 // 4. JSON CONFIGURATION (Install CPTs/Fields)
 // -------------------------------------------------------------------------
 
-// Load JSON from local plugin folder
-add_filter('acf/settings/load_json', function ($paths) {
-	$paths[] = STARMUS_PATH . 'acf-json';
-	return $paths;
-});
 
-// Save JSON to local plugin folder (Dev only)
-add_filter('acf/settings/save_json', function ($path) {
-	if (wp_get_environment_type() !== 'production') {
-		$path = STARMUS_PATH . 'acf-json';
-	}
-	return $path;
-});
 
 // -------------------------------------------------------------------------
 // 5. APP BOOT (Plugins Loaded)
@@ -178,13 +165,13 @@ add_action('plugins_loaded', static function (): void {
 		if (!class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
 			return;
 		}
-
+		error_log('Starmus Info: Initializing Starmus Audio Recorder plugin.');
 		// Boot the App Instance
 		\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_get_instance();
 	} catch (\Throwable $e) {
 		error_log('Starmus App Boot Failed: ' . $e->getMessage());
 	}
-}, 10);
+}, );
 
 // -------------------------------------------------------------------------
 // 6. LIFECYCLE MANAGEMENT
@@ -214,11 +201,7 @@ function starmus_on_deactivate(): void
 		if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
 			\Starisian\Sparxstar\Starmus\cron\StarmusCron::deactivate();
 		}
-		flush_rewrite_rules();
-
-		if (class_exists(Sparxstar_SCF_Runtime::class)) {
-			Sparxstar_SCF_Runtime::sparx_scf_deactivate_scf();
-		}
+		flush_rewrite_rules()
 	} catch (\Throwable $e) {
 		error_log('Starmus Deactivation Error: ' . $e->getMessage());
 	}
@@ -230,10 +213,8 @@ function starmus_on_deactivate(): void
 function starmus_on_uninstall(): void
 {
 	try {
-		if (class_exists(Sparxstar_SCF_Runtime::class)) {
-			Sparxstar_SCF_Runtime::uninstall_site();
-		}
-		if (defined('STARMUS_DELETE_ON_UNINSTALL') && STARMUS_DELETE_ON_UNINSTALL) {
+
+		if (defined('STARMUS_DELETE_ON_UNINSTALL') && STARMUS_DELETE_ON_UNINSTALL && WP_UNINSTALL_PLUGIN) {
 			$file = STARMUS_PATH . 'uninstall.php';
 			if (file_exists($file)) {
 				require_once $file;
