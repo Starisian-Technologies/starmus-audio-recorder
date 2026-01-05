@@ -141,20 +141,32 @@ if (! class_exists('ACF')) {
 		require_once SPARXSTAR_SCF_PATH . 'secure-custom-fields.php';
 
 		// 3. (Optional) Hide the SCF admin menu
-		add_filter('acf/settings/show_admin', '__return_true', 100);
+		//add_filter('acf/settings/show_admin', '__return_true', 100);
 
 		// 4. (Optional) Hide Updates
-		add_filter('acf/settings/show_updates', '__return_false', 100);
+		//add_filter('acf/settings/show_updates', '__return_false', 100);
 
 
 	} else {
 		error_log('Starmus Error: Bundled SCF not found at ' . SPARXSTAR_SCF_PATH);
 	}
 }
-
-// -------------------------------------------------------------------------
-// 4. JSON CONFIGURATION (Install CPTs/Fields)
-// -------------------------------------------------------------------------
+if (class_exists('ACF')) {
+	error_log('Starmus Info: Secure Custom Fields plugin loaded successfully.');
+	// -------------------------------------------------------------------------
+	// 4. JSON CONFIGURATION (Install CPTs/Fields)
+	// -------------------------------------------------------------------------
+	add_filter(
+		'acf/settings/load_json',
+		function ($paths) {
+			// Append our custom path
+			$paths[] = STARMUS_PATH . 'config/acf-json';
+			return $paths;
+		}
+	);
+} else {
+	error_log('Starmus Error: Secure Custom Fields plugin failed to load.');
+}
 
 
 
