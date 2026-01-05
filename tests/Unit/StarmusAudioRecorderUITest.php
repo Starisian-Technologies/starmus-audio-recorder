@@ -15,11 +15,11 @@ use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
 
 final class StarmusAudioRecorderUITest extends TestCase
 {
-    public function testEnqueueMethodExists(): void
-    {
-        $this->assertTrue(
-            method_exists(StarmusAudioRecorderUI::class, 'enqueue_scripts'),
-            'enqueue_scripts() method does not exist'
-        );
-    }
+	public function testRenderRecorderShortcodeMethodExists(): void
+	{
+		$this->assertTrue(
+			method_exists(StarmusAudioRecorderUI::class, 'render_recorder_shortcode'),
+			'render_recorder_shortcode() method does not exist'
+		);
+	}
 }

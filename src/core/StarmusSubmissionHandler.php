@@ -52,6 +52,7 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\core;
 
+use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSubmissionHandler;
 use function array_map;
 use function base64_decode;
 use function explode;
@@ -116,7 +117,7 @@ if (! \defined('ABSPATH')) {
  * StarmusSubmissionHandler Class
  */
 
-final class StarmusSubmissionHandler
+final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
 {
 	/**
 	 * Class constructor dependencies.
