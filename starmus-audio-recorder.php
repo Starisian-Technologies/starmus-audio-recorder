@@ -168,41 +168,6 @@ add_filter('acf/settings/show_admin', '__return_true', 100);
 add_filter('acf/settings/show_updates', '__return_false', 100);
 
 // -------------------------------------------------------------------------
-// 3. INFRASTRUCTURE & DEPENDENCY REGISTRATION (Priority 5)
-// -------------------------------------------------------------------------
-add_action('plugins_loaded', static function (): void {
-    try {
-        // 1. Check for Runtime Presence
-        if (!class_exists(Sparxstar_SCF_Runtime::class)) {
-            return;
-        }
-
-        // 2. Register Source
-        // METHOD NAME UPDATED: sparx_scf_register_source -> sparx_scf_register_scf_source
-        $vendor_path = STARMUS_PATH . 'vendor/secure-custom-fields/';
-        $vendor_url  = STARMUS_URL . 'vendor/secure-custom-fields/';
-
-        Sparxstar_SCF_Runtime::sparx_scf_register_scf_source(
-            'starmus-audio',
-            $vendor_path,
-            $vendor_url
-        );
-
-        // 3. Register JSON (Only listens if Runtime successfully loads SCF)
-        add_action('sparx_scf_loaded', static function (): void {
-            add_filter('acf/settings/load_json', static function (array $paths): array {
-                $paths[] = STARMUS_PATH . 'acf-json';
-                return $paths;
-            });
-        });
-
-    } catch (\Throwable $e) {
-        StarmusLogger::log($e);
-        error_log('Starmus Infrastructure Failed: ' . $e->getMessage());
-    }
-}, 5);
-
-// -------------------------------------------------------------------------
 // 4. APP BOOT (Priority 10)
 // -------------------------------------------------------------------------
 add_action('plugins_loaded', static function (): void {
@@ -214,7 +179,6 @@ add_action('plugins_loaded', static function (): void {
 
         // Boot the App
         $instance = \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_get_instance();
-        $instance::starmus_run();
 
     } catch (\Throwable $e) {
         StarmusLogger::log($e);
