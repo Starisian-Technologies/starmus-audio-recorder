@@ -1812,7 +1812,7 @@
             "ui": 1,
             "ui_on_text": "EXPLICIT",
             "ui_off_text": "CLEAN",
-            "instructions": "Marking this as Explicit will trigger advisory tags for distributors."
+            "instructions": "Marking this as 'Explicit' will trigger advisory tags for distributors."
           }
         ]
       }
