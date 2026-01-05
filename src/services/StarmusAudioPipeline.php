@@ -10,8 +10,8 @@ use Starisian\Sparxstar\Starmus\services\StarmusEnhancedId3Service;
 use Starisian\Sparxstar\Starmus\services\StarmusFFmpegService;
 
 
-if (! \defined('ABSPATH')) {
-	exit;
+if ( ! \defined('ABSPATH')) {
+    exit;
 }
 
 /**

@@ -5,10 +5,11 @@ namespace Starisian\Sparxstar\Starmus\services;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\services\StarmusFileService;
-use Starisian\Sparxstar\Starmus\services\StarmusId3Service
+use Starisian\Sparxstar\Starmus\services\StarmusId3Service;
 
-if (! \defined('ABSPATH')) {
-	exit;
+
+if ( ! defined('ABSPATH')) {
+    exit;
 }
 
 /**
@@ -21,11 +22,11 @@ final class StarmusCloudflareAudioService
 {
     private ?StarmusFileService $file_service = null;
 
-    private ?StarmusId3Service $id3_service = null;
+    private ?StarmusEnhancedId3Service $id3_service = null;
 
     public function __construct(
         StarmusFileService $file_service,
-        StarmusId3Service $id3_service
+        StarmusEnhancedId3Service $id3_service
     ) {
         $this->file_service = $file_service;
         $this->id3_service  = $id3_service;

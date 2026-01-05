@@ -15,6 +15,20 @@ use Starisian\Sparxstar\Starmus\cron\StarmusCron;
 use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use WP_Query;
+use WP_User_Query;
+use WP_CLI;
+use WP_Post;
+use function get_post;
+use function get_posts;
+use function get_post_meta;
+use function wp_strip_all_tags;
+use function wp_get_attachment_url;
+use function wp_cache_flush;
+use function strtotime;
+use function absint;
+use function file_exists;
+use function is_readable;
+
 
 // WP_CLI guard removed: always define the class, only register commands when WP_CLI is present.
 

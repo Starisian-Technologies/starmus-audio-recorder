@@ -14,10 +14,13 @@ return RectorConfig::configure()
 	)
 
 	// Target PHP 8.2 for language features and compatibility
-	->withPhpVersion( PhpVersion::PHP_82 )
+	->withPhpVersion(PhpVersion::PHP_82)
 
 	// Enable PHP 8.2 features
-	->withPhpSets( php82: true )
+	->withPhpSets(php82: true)
+
+	// Auto-import names (add 'use' statements)
+	->withImportNames(removeUnusedImports: true)
 
 	// Use the modern "Prepared Sets"
 	->withPreparedSets(
