@@ -114,6 +114,7 @@ add_action('plugins_loaded', static function (): void {
     try {
         $autoloader = STARMUS_PATH . 'vendor/autoload.php';
         if (file_exists($autoloader)) {
+			error_log('Starmus Autoloader found, loading...');
             require_once $autoloader;
         } else {
 			if (is_admin()) {
@@ -121,6 +122,7 @@ add_action('plugins_loaded', static function (): void {
 					echo '<div class="notice notice-error"><p>Starmus Critical: vendor/autoload.php missing. Run composer install.</p></div>';
 				});
 			}
+			error_log('Starmus Autoloader missing. Run composer install.');
 			throw new \RuntimeException('Starmus Autoloader missing. Run composer install.');
 		}
 
@@ -133,6 +135,9 @@ add_action('plugins_loaded', static function (): void {
 				require_once(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php');
 			}
 
+		} else {
+			// SCF or ACF is already active, skip loading bundled SCF
+			error_log('Starmus Notice: SCF or ACF already active, skipping bundled SCF load.');
 		}
     } catch (\Throwable $e) {
         error_log('Starmus Autoload Failed: ' . $e->getMessage());
@@ -145,6 +150,7 @@ add_action('plugins_loaded', static function (): void {
  */
 add_filter('acf/settings/load_json', function ($paths) {
 	// append the new path to the existing array of paths
+	error_log('Starmus ACF JSON load path added: ' . STARMUS_PATH. 'acf-json');
 	$paths[] = STARMUS_PATH. 'acf-json';
 	return $paths;
 });
@@ -153,8 +159,9 @@ add_filter('acf/settings/load_json', function ($paths) {
  * Useful during development to write changes back to your plugin.
  */
 add_filter('acf/settings/save_json', function ($path) {
-	if(wp_get_environment_type() !== 'development'){
+	if(wp_get_environment_type() !== 'production'){
 		// Set the path to your plugin's folder
+		error_log('Starmus ACF JSON save path set: ' . STARMUS_PATH. 'acf-json');
 		$path = plugin_dir_path(__FILE__) . 'acf-json';
 
 		return $path;
@@ -178,10 +185,10 @@ add_action('plugins_loaded', static function (): void {
         }
 
         // Boot the App
-        $instance = \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_get_instance();
+		error_log('Starmus Booting...');
+        \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_get_instance();
 
     } catch (\Throwable $e) {
-        StarmusLogger::log($e);
         error_log('Starmus App Boot Failed: ' . $e->getMessage());
         if (is_admin()) {
             add_action('admin_notices', function() {
@@ -202,13 +209,11 @@ add_action('plugins_loaded', static function (): void {
 function starmus_on_activate(): void
 {
     try {
-        if (class_exists(Sparxstar_SCF_Runtime::class)) {
-            // UPDATED: sparx_scf_activate_plugin -> sparx_scf_activate_scf
-            Sparxstar_SCF_Runtime::sparx_scf_activate_scf();
-        }
+        if(class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
+			\Starisian\Sparxstar\Starmus\cron\StarmusCron::activate();
+		}
         flush_rewrite_rules();
     } catch (\Throwable $e) {
-        StarmusLogger::log($e);
         error_log('Starmus Activation Error: ' . $e->getMessage());
     }
 }
