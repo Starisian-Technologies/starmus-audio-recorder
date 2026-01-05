@@ -98,14 +98,7 @@ if ( ! defined('STARMUS_REST_NAMESPACE')) {
 if ( ! defined('STARMUS_DELETE_ON_UNINSTALL')) {
     define('STARMUS_DELETE_ON_UNINSTALL', false);
 }
-// 1. Define the path to the bundled SCF directory
-// Adjust 'vendor/wpackagist-plugin/secure-custom-fields/' to match your actual path
-if (! defined('SPARXSTAR_SCF_PATH')) {
-	define('SPARXSTAR_SCF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
-}
-if (! defined('SPARXSTAR_SCF_URL')) {
-	define('SPARXSTAR_SCF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
-}
+
 
 // -------------------------------------------------------------------------
 // 2. COMPOSER AUTOLOAD (Immediate)
@@ -144,6 +137,10 @@ if (! class_exists('ACF')) {
 
 	if (file_exists(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php')) {
 
+		// 5. Load the Plugin
+		require_once SPARXSTAR_SCF_PATH . 'secure-custom-fields.php';
+
+
 		// 1. Customize the URL setting so SCF can find its JS/CSS files
 		add_filter('acf/settings/url', function () {
 			return SPARXSTAR_SCF_URL;
@@ -160,8 +157,7 @@ if (! class_exists('ACF')) {
 		// 4. (Optional) Hide Updates
 		add_filter('acf/settings/show_updates', '__return_false', 100);
 
-		// 5. Load the Plugin
-		require_once SPARXSTAR_SCF_PATH . 'secure-custom-fields.php';
+
 	} else {
 		error_log('Starmus Error: Bundled SCF not found at ' . SPARXSTAR_SCF_PATH);
 	}
