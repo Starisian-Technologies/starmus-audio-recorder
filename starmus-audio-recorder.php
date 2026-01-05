@@ -201,7 +201,7 @@ function starmus_on_deactivate(): void
 		if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
 			\Starisian\Sparxstar\Starmus\cron\StarmusCron::deactivate();
 		}
-		flush_rewrite_rules()
+		flush_rewrite_rules();
 	} catch (\Throwable $e) {
 		error_log('Starmus Deactivation Error: ' . $e->getMessage());
 	}
