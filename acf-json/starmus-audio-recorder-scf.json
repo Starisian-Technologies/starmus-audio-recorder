@@ -121,47 +121,47 @@
     }
   },
   {
-  "key": "cpt_starmus_release",
-  "title": "Releases",
-  "active": true,
-  "post_type": "starmus-release",
-  "menu_order": 6,
-  "menu_icon": "dashicons-album",
-  "supports": [
-    "title",
-    "editor",
-    "author",
-    "thumbnail",
-    "revisions",
-    "custom-fields"
-  ],
-  "taxonomies": [
-    "language",
-    "dialect",
-    "project"
-  ],
-  "public": false,
-  "show_ui": true,
-  "show_in_rest": true,
-  "publicly_queryable": false,
-  "exclude_from_search": true,
-  "labels": {
-    "name": "Releases",
-    "singular_name": "Release",
-    "menu_name": "Releases",
-    "all_items": "All Releases",
-    "add_new": "Add Release",
-    "add_new_item": "Add New Release",
-    "edit_item": "Edit Release",
-    "new_item": "New Release",
-    "view_item": "View Release",
-    "search_items": "Search Releases",
-    "not_found": "No releases found",
-    "not_found_in_trash": "No releases found in Trash",
-    "name_admin_bar": "Release",
-    "item_name": "Release"
-  }
-},
+    "key": "cpt_starmus_release",
+    "title": "Releases",
+    "active": true,
+    "post_type": "starmus-release",
+    "menu_order": 6,
+    "menu_icon": "dashicons-album",
+    "supports": [
+      "title",
+      "editor",
+      "author",
+      "thumbnail",
+      "revisions",
+      "custom-fields"
+    ],
+    "taxonomies": [
+      "language",
+      "dialect",
+      "project"
+    ],
+    "public": false,
+    "show_ui": true,
+    "show_in_rest": true,
+    "publicly_queryable": false,
+    "exclude_from_search": true,
+    "labels": {
+      "name": "Releases",
+      "singular_name": "Release",
+      "menu_name": "Releases",
+      "all_items": "All Releases",
+      "add_new": "Add Release",
+      "add_new_item": "Add New Release",
+      "edit_item": "Edit Release",
+      "new_item": "New Release",
+      "view_item": "View Release",
+      "search_items": "Search Releases",
+      "not_found": "No releases found",
+      "not_found_in_trash": "No releases found in Trash",
+      "name_admin_bar": "Release",
+      "item_name": "Release"
+    }
+  },
   {
     "key": "tax_audio_status",
     "title": "Audio Statuses",
@@ -349,7 +349,7 @@
         },
         "instructions": "How many words should be on the screen at one time?"
       },
-       {
+      {
         "key": "field_audio_parent_script",
         "label": "Source Script",
         "name": "script_parent",
@@ -862,7 +862,7 @@
         "name": "audio_quality_score_tax",
         "type": "taxonomy",
         "taxonomy": "audio-quality-score",
-        "field_type": "select"
+        "field_type": "select",
         "return_format": "id"
       },
       {
@@ -1139,10 +1139,29 @@
     "key": "group_transcription_master",
     "title": "E. Transcription Content & Engineering",
     "fields": [
-        { "key": "tab_trans_content", "label": "Content", "type": "tab", "placement": "top" },
-        { "key": "field_trans_text", "label": "Transcription Text", "name": "transcription_text", "type": "wysiwyg", "instructions": "The full text of the audio recording.", "required": 1 },
-        { "key": "field_trans_json", "label": "Time-Indexed Data (JSON)", "name": "transcription_json", "type": "textarea", "acfe_textarea_code": 1, "instructions": "Store word-level timestamps here for player syncing." },
-         {
+      {
+        "key": "tab_trans_content",
+        "label": "Content",
+        "type": "tab",
+        "placement": "top"
+      },
+      {
+        "key": "field_trans_text",
+        "label": "Transcription Text",
+        "name": "transcription_text",
+        "type": "wysiwyg",
+        "instructions": "The full text of the audio recording.",
+        "required": 1
+      },
+      {
+        "key": "field_trans_json",
+        "label": "Time-Indexed Data (JSON)",
+        "name": "transcription_json",
+        "type": "textarea",
+        "acfe_textarea_code": 1,
+        "instructions": "Store word-level timestamps here for player syncing."
+      },
+      {
         "key": "field_content_orig_lang",
         "label": "Original Language",
         "name": "original_language",
@@ -1166,182 +1185,646 @@
         "taxonomy": "language",
         "field_type": "select"
       },
-        { "key": "tab_trans_method", "label": "Methodology", "type": "tab" },
-        { "key": "field_trans_method", "label": "Method", "name": "transcription_method", "type": "select", "choices": { "human": "Human Transcribed", "asr": "Automated (ASR)", "hybrid": "AI + Human Review" } },
-        { "key": "field_trans_engine", "label": "Engine/Model Info", "name": "transcription_engine", "type": "text", "instructions": "Example: OpenAI Whisper v3 Large" },
-        { "key": "field_trans_confidence", "label": "Confidence Score", "name": "transcription_confidence", "type": "number", "append": "%", "instructions": "Machine-generated accuracy rating." },
-         {
-          "key": "field_transcription_parent_audio",
-          "label": "Source Audio",
-          "name": "audio_recording_parent",
-          "type": "post_object",
-          "post_type": [
-            "audio-recording"
-          ],
-          "return_format": "id",
-          "bidirectional": 0
-        },
-        { "key": "tab_trans_integrity", "label": "Integrity", "type": "tab" },
-        { "key": "field_trans_hash", "label": "Text Content Hash (SHA-256)", "name": "transcription_hash", "type": "text", "readonly": 1 },
-        { "key": "field_trans_signature", "label": "Machine Signature", "name": "transcription_signature", "type": "textarea", "rows": 2, "readonly": 1 }
+      {
+        "key": "tab_trans_method",
+        "label": "Methodology",
+        "type": "tab"
+      },
+      {
+        "key": "field_trans_method",
+        "label": "Method",
+        "name": "transcription_method",
+        "type": "select",
+        "choices": {
+          "human": "Human Transcribed",
+          "asr": "Automated (ASR)",
+          "hybrid": "AI + Human Review"
+        }
+      },
+      {
+        "key": "field_trans_engine",
+        "label": "Engine/Model Info",
+        "name": "transcription_engine",
+        "type": "text",
+        "instructions": "Example: OpenAI Whisper v3 Large"
+      },
+      {
+        "key": "field_trans_confidence",
+        "label": "Confidence Score",
+        "name": "transcription_confidence",
+        "type": "number",
+        "append": "%",
+        "instructions": "Machine-generated accuracy rating."
+      },
+      {
+        "key": "field_transcription_parent_audio",
+        "label": "Source Audio",
+        "name": "audio_recording_parent",
+        "type": "post_object",
+        "post_type": [
+          "audio-recording"
+        ],
+        "return_format": "id",
+        "bidirectional": 0
+      },
+      {
+        "key": "tab_trans_integrity",
+        "label": "Integrity",
+        "type": "tab"
+      },
+      {
+        "key": "field_trans_hash",
+        "label": "Text Content Hash (SHA-256)",
+        "name": "transcription_hash",
+        "type": "text",
+        "readonly": 1
+      },
+      {
+        "key": "field_trans_signature",
+        "label": "Machine Signature",
+        "name": "transcription_signature",
+        "type": "textarea",
+        "rows": 2,
+        "readonly": 1
+      }
     ],
-    "location": [[{ "param": "post_type", "operator": "==", "value": "audio-transcription" }]]
-},
+    "location": [
+      [
+        {
+          "param": "post_type",
+          "operator": "==",
+          "value": "audio-transcription"
+        }
+      ]
+    ]
+  },
   {
     "key": "group_translation_master",
     "title": "G. Translation & Localization",
     "fields": [
-        { "key": "tab_transl_content", "label": "Translated Text", "type": "tab", "placement": "top" },
-        { "key": "field_transl_text", "label": "Translation Text", "name": "translation_text", "type": "wysiwyg", "required": 1 },
-        { "key": "field_transl_target_lang", "label": "Target Language", "name": "target_language", "type": "taxonomy", "taxonomy": "language", "field_type": "select", "add_term": 0 },
-        
-        { "key": "tab_transl_validation", "label": "Quality Control", "type": "tab" },
-        { "key": "field_transl_type", "label": "Translation Type", "name": "translation_type", "type": "select", "choices": { "literal": "Literal / Direct", "localized": "Localized / Cultural", "back_trans": "Back-Translation" } },
-        { "key": "field_transl_back_text", "label": "Back-Translation Verification", "name": "back_translation_text", "type": "textarea", "instructions": "Translate the translation back to the original language to check for drift." },
-        { "key": "field_transl_glossary", "label": "Technical Glossary Used", "name": "glossary_reference", "type": "text" },
-        {
-          "key": "field_translation_parent_transcription",
-          "label": "Source Transcription",
-          "name": "transcription_parent",
-          "type": "post_object",
-          "post_type": ["audio-transcription"],
-          "return_format": "id",
-        
-          "bidirectional": 0
-        },
-        { "key": "tab_transl_integrity", "label": "Integrity", "type": "tab" },
-        { "key": "field_transl_hash", "label": "Translation Hash", "name": "translation_hash", "type": "text", "readonly": 1 },
-        { "key": "field_transl_sig", "label": "Machine Signature", "name": "translation_signature", "type": "textarea", "rows": 2, "readonly": 1 }
+      {
+        "key": "tab_transl_content",
+        "label": "Translated Text",
+        "type": "tab",
+        "placement": "top"
+      },
+      {
+        "key": "field_transl_text",
+        "label": "Translation Text",
+        "name": "translation_text",
+        "type": "wysiwyg",
+        "required": 1
+      },
+      {
+        "key": "field_transl_target_lang",
+        "label": "Target Language",
+        "name": "target_language",
+        "type": "taxonomy",
+        "taxonomy": "language",
+        "field_type": "select",
+        "add_term": 0
+      },
+      {
+        "key": "tab_transl_validation",
+        "label": "Quality Control",
+        "type": "tab"
+      },
+      {
+        "key": "field_transl_type",
+        "label": "Translation Type",
+        "name": "translation_type",
+        "type": "select",
+        "choices": {
+          "literal": "Literal / Direct",
+          "localized": "Localized / Cultural",
+          "back_trans": "Back-Translation"
+        }
+      },
+      {
+        "key": "field_transl_back_text",
+        "label": "Back-Translation Verification",
+        "name": "back_translation_text",
+        "type": "textarea",
+        "instructions": "Translate the translation back to the original language to check for drift."
+      },
+      {
+        "key": "field_transl_glossary",
+        "label": "Technical Glossary Used",
+        "name": "glossary_reference",
+        "type": "text"
+      },
+      {
+        "key": "field_translation_parent_transcription",
+        "label": "Source Transcription",
+        "name": "transcription_parent",
+        "type": "post_object",
+        "post_type": [
+          "audio-transcription"
+        ],
+        "return_format": "id",
+        "bidirectional": 0
+      },
+      {
+        "key": "tab_transl_integrity",
+        "label": "Integrity",
+        "type": "tab"
+      },
+      {
+        "key": "field_transl_hash",
+        "label": "Translation Hash",
+        "name": "translation_hash",
+        "type": "text",
+        "readonly": 1
+      },
+      {
+        "key": "field_transl_sig",
+        "label": "Machine Signature",
+        "name": "translation_signature",
+        "type": "textarea",
+        "rows": 2,
+        "readonly": 1
+      }
     ],
-    "location": [[{ "param": "post_type", "operator": "==", "value": "audio-translation" }]]
-},
+    "location": [
+      [
+        {
+          "param": "post_type",
+          "operator": "==",
+          "value": "audio-translation"
+        }
+      ]
+    ]
+  },
   {
-  "key": "field_trans_speakers",
-  "label": "Speaker Diarization Map",
-  "name": "speaker_map",
-  "type": "repeater",
-  "instructions": "Map speaker labels from the text to actual people.",
-  "sub_fields": [
-    {
-      "key": "f_spk_label",
-      "label": "Label in Text",
-      "name": "label",
-      "type": "text",
-      "placeholder": "Speaker 1"
-    },
-    {
-      "key": "f_spk_user",
-      "label": "Actual Person",
-      "name": "user",
-      "type": "user",
-      "return_format": "id"
-    }
-  ],
-    "location": [[{ "param": "post_type", "operator": "==", "value": "audio-transcription" }]]
+    "key": "field_trans_speakers",
+    "label": "Speaker Diarization Map",
+    "name": "speaker_map",
+    "type": "repeater",
+    "instructions": "Map speaker labels from the text to actual people.",
+    "sub_fields": [
+      {
+        "key": "f_spk_label",
+        "label": "Label in Text",
+        "name": "label",
+        "type": "text",
+        "placeholder": "Speaker 1"
+      },
+      {
+        "key": "f_spk_user",
+        "label": "Actual Person",
+        "name": "user",
+        "type": "user",
+        "return_format": "id"
+      }
+    ],
+    "location": [
+      [
+        {
+          "param": "post_type",
+          "operator": "==",
+          "value": "audio-transcription"
+        }
+      ]
+    ]
   },
   {
     "key": "group_music_engineering",
     "title": "C2. Music Engineering & Fidelity",
     "fields": [
-        { "key": "field_mus_sample_rate", "label": "Sample Rate", "name": "sample_rate", "type": "select", "choices": { "44100": "44.1 kHz", "48000": "48 kHz", "88200": "88.2 kHz", "96000": "96 kHz", "192000": "192 kHz" }, "ui": 1 },
-        { "key": "field_mus_bit_depth", "label": "Bit Depth", "name": "bit_depth", "type": "select", "choices": { "16": "16-bit", "24": "24-bit", "32": "32-bit Float" }, "ui": 1 },
-        { "key": "field_mus_tuning", "label": "Tuning Frequency", "name": "tuning_hz", "type": "text", "default_value": "440Hz", "instructions": "Standard is 440Hz." },
-        { "key": "field_mus_channels", "label": "Channel Layout", "name": "channel_layout", "type": "select", "choices": { "mono": "Mono", "stereo": "Stereo", "atmos": "Dolby Atmos (7.1.4)", "surround": "5.1 Surround" } }
+      {
+        "key": "field_mus_sample_rate",
+        "label": "Sample Rate",
+        "name": "sample_rate",
+        "type": "select",
+        "choices": {
+          "44100": "44.1 kHz",
+          "48000": "48 kHz",
+          "88200": "88.2 kHz",
+          "96000": "96 kHz",
+          "192000": "192 kHz"
+        },
+        "ui": 1
+      },
+      {
+        "key": "field_mus_bit_depth",
+        "label": "Bit Depth",
+        "name": "bit_depth",
+        "type": "select",
+        "choices": {
+          "16": "16-bit",
+          "24": "24-bit",
+          "32": "32-bit Float"
+        },
+        "ui": 1
+      },
+      {
+        "key": "field_mus_tuning",
+        "label": "Tuning Frequency",
+        "name": "tuning_hz",
+        "type": "text",
+        "default_value": "440Hz",
+        "instructions": "Standard is 440Hz."
+      },
+      {
+        "key": "field_mus_channels",
+        "label": "Channel Layout",
+        "name": "channel_layout",
+        "type": "select",
+        "choices": {
+          "mono": "Mono",
+          "stereo": "Stereo",
+          "atmos": "Dolby Atmos (7.1.4)",
+          "surround": "5.1 Surround"
+        }
+      }
     ],
-    "location": [[{"param": "post_type", "operator": "==", "value": "audio-recording"}]]
-},
+    "location": [
+      [
+        {
+          "param": "post_type",
+          "operator": "==",
+          "value": "audio-recording"
+        }
+      ]
+    ]
+  },
   {
     "key": "group_music_composition",
     "title": "H2. Composition & Arrangement",
     "fields": [
-        { "key": "field_mus_bpm", "label": "Tempo (BPM)", "name": "bpm", "type": "number", "instructions": "Beats Per Minute." },
-        { "key": "field_mus_key", "label": "Musical Key", "name": "musical_key", "type": "select", "choices": { "Cmaj": "C Major", "Amin": "A Minor", "Gmaj": "G Major", "Dmin": "D Minor" }, "allow_null": 1, "ui": 1 },
-        { "key": "field_mus_isrc", "label": "ISRC Code", "name": "isrc_code", "type": "text", "instructions": "International Standard Recording Code (e.g., US-S1Z-24-00001)." },
-        { "key": "field_mus_instrumentation", "label": "Instrumentation List", "name": "instrumentation", "type": "repeater", "layout": "table", "sub_fields": [
-            { "key": "f_mus_inst", "label": "Instrument", "name": "instrument", "type": "text" },
-            { "key": "f_mus_perf", "label": "Performer", "name": "performer", "type": "user", "return_format": "id" }
-        ]}
+      {
+        "key": "field_mus_bpm",
+        "label": "Tempo (BPM)",
+        "name": "bpm",
+        "type": "number",
+        "instructions": "Beats Per Minute."
+      },
+      {
+        "key": "field_mus_key",
+        "label": "Musical Key",
+        "name": "musical_key",
+        "type": "select",
+        "choices": {
+          "Cmaj": "C Major",
+          "Amin": "A Minor",
+          "Gmaj": "G Major",
+          "Dmin": "D Minor"
+        },
+        "allow_null": 1,
+        "ui": 1
+      },
+      {
+        "key": "field_mus_isrc",
+        "label": "ISRC Code",
+        "name": "isrc_code",
+        "type": "text",
+        "instructions": "International Standard Recording Code (e.g. US-S1Z-24-00001)."
+      },
+      {
+        "key": "field_mus_instrumentation",
+        "label": "Instrumentation List",
+        "name": "instrumentation",
+        "type": "repeater",
+        "layout": "table",
+        "sub_fields": [
+          {
+            "key": "f_mus_inst",
+            "label": "Instrument",
+            "name": "instrument",
+            "type": "text"
+          },
+          {
+            "key": "f_mus_perf",
+            "label": "Performer",
+            "name": "performer",
+            "type": "user",
+            "return_format": "id"
+          }
+        ]
+      }
     ],
-    "location": [[{"param": "post_type", "operator": "==", "value": "audio-recording"}]]
-},
+    "location": [
+      [
+        {
+          "param": "post_type",
+          "operator": "==",
+          "value": "audio-recording"
+        }
+      ]
+    ]
+  },
   {
     "key": "group_music_stems",
     "title": "J2. Multi-track & Stem Assets",
     "fields": [
-        { "key": "field_mus_stems_uri", "label": "Stem Bundle URI", "name": "stems_cloud_uri", "type": "text", "instructions": "Direct link to the ZIP containing individual tracks.", "readonly": 1 },
-        { "key": "field_mus_project_uri", "label": "DAW Project Link", "name": "daw_project_uri", "type": "text", "instructions": "Link to ProTools/Ableton session file." },
-        { "key": "field_mus_lufs", "label": "Loudness (LUFS)", "name": "integrated_lufs", "type": "text", "placeholder": "-14.0" }
+      {
+        "key": "field_mus_stems_uri",
+        "label": "Stem Bundle URI",
+        "name": "stems_cloud_uri",
+        "type": "text",
+        "instructions": "Direct link to the ZIP containing individual tracks.",
+        "readonly": 1
+      },
+      {
+        "key": "field_mus_project_uri",
+        "label": "DAW Project Link",
+        "name": "daw_project_uri",
+        "type": "text",
+        "instructions": "Link to ProTools/Ableton session file."
+      },
+      {
+        "key": "field_mus_lufs",
+        "label": "Loudness (LUFS)",
+        "name": "integrated_lufs",
+        "type": "text",
+        "placeholder": "-14.0"
+      }
     ],
-    "location": [[{"param": "post_type", "operator": "==", "value": "audio-recording"}]]
-},
-{
+    "location": [
+      [
+        {
+          "param": "post_type",
+          "operator": "==",
+          "value": "audio-recording"
+        }
+      ]
+    ]
+  },
+  {
     "key": "group_music_rights_splits",
     "title": "H3. Ownership & Royalty Splits",
     "fields": [
-        { "key": "tab_publishing", "label": "Publishing (Composition)", "type": "tab", "placement": "top" },
-        { "key": "field_mus_pub_splits", "label": "Songwriter Splits", "name": "publishing_splits", "type": "repeater", "layout": "block", "instructions": "Ownership of the lyrics and melody.", "sub_fields": [
-            { "key": "f_pub_name", "label": "Contributor Name", "name": "name", "type": "text", "wrapper": { "width": "40" } },
-            {
-                "key": "f_pub_role",
-                "label": "Role",
-                "name": "role",
-                "wrapper": { "width": "30" },
-                "type": "select",
-                "choices": {
-                    "composer": "Composer (Music)",
-                    "lyricist": "Lyricist (Lyrics)",
-                    "comp_lyr": "Composer-Lyricist (Both)",
-                    "arranger": "Arranger",
-                    "translator": "Translator (Lyric Adaptation)"
-                }
+      {
+        "key": "tab_publishing",
+        "label": "Publishing (Composition)",
+        "type": "tab",
+        "placement": "top"
+      },
+      {
+        "key": "field_mus_pub_splits",
+        "label": "Songwriter Splits",
+        "name": "publishing_splits",
+        "type": "repeater",
+        "layout": "block",
+        "instructions": "Ownership of the lyrics and melody.",
+        "sub_fields": [
+          {
+            "key": "f_pub_name",
+            "label": "Contributor Name",
+            "name": "name",
+            "type": "text",
+            "wrapper": {
+              "width": "40"
+            }
+          },
+          {
+            "key": "f_pub_role",
+            "label": "Role",
+            "name": "role",
+            "wrapper": {
+              "width": "30"
             },
-            { "key": "f_pub_share", "label": "Share %", "name": "share_percentage", "type": "number", "append": "%", "wrapper": { "width": "15" } },
-            { "key": "f_pub_ipi", "label": "IPI / CAE #", "name": "ipi_number", "type": "text", "instructions": "Unique ID from BMI/ASCAP.", "wrapper": { "width": "15" } }
+            "type": "select",
+            "choices": {
+              "composer": "Composer (Music)",
+              "lyricist": "Lyricist (Lyrics)",
+              "comp_lyr": "Composer-Lyricist (Both)",
+              "arranger": "Arranger",
+              "translator": "Translator (Lyric Adaptation)"
+            }
+          },
+          {
+            "key": "f_pub_share",
+            "label": "Share %",
+            "name": "share_percentage",
+            "type": "number",
+            "append": "%",
+            "wrapper": {
+              "width": "15"
+            }
+          },
+          {
+            "key": "f_pub_ipi",
+            "label": "IPI / CAE #",
+            "name": "ipi_number",
+            "type": "text",
+            "instructions": "Unique ID from BMI/ASCAP.",
+            "wrapper": {
+              "width": "15"
+            }
+          }
         ]
       },
-        { "key": "tab_master", "label": "Master (Recording)", "type": "tab" },
-        { "key": "field_mus_master_splits", "label": "Master Splits", "name": "master_splits", "type": "repeater", "layout": "block", "instructions": "Ownership of the specific audio recording asset.", "sub_fields": [
-            { "key": "f_mst_name", "label": "Contributor Name", "name": "name", "type": "text", "wrapper": { "width": "40" } },
-            { "key": "f_mst_role", "label": "Role", "name": "role", "type": "select", "choices": { "artist": "Main Artist", "producer": "Producer", "engineer": "Engineer", "session_mus": "Session Musician" }, "wrapper": { "width": "30" } },
-            { "key": "f_mst_share", "label": "Share %", "name": "share_percentage", "type": "number", "append": "%", "wrapper": { "width": "15" } },
-            { "key": "f_mst_pro", "label": "PRO", "name": "pro_org", "type": "select", "choices": { "ascap": "ASCAP", "bmi": "BMI", "sesac": "SESAC", "prs": "PRS", "other": "Other" }, "wrapper": { "width": "15" } }
-        ]}
+      {
+        "key": "tab_master",
+        "label": "Master (Recording)",
+        "type": "tab"
+      },
+      {
+        "key": "field_mus_master_splits",
+        "label": "Master Splits",
+        "name": "master_splits",
+        "type": "repeater",
+        "layout": "block",
+        "instructions": "Ownership of the specific audio recording asset.",
+        "sub_fields": [
+          {
+            "key": "f_mst_name",
+            "label": "Contributor Name",
+            "name": "name",
+            "type": "text",
+            "wrapper": {
+              "width": "40"
+            }
+          },
+          {
+            "key": "f_mst_role",
+            "label": "Role",
+            "name": "role",
+            "type": "select",
+            "choices": {
+              "artist": "Main Artist",
+              "producer": "Producer",
+              "engineer": "Engineer",
+              "session_mus": "Session Musician"
+            },
+            "wrapper": {
+              "width": "30"
+            }
+          },
+          {
+            "key": "f_mst_share",
+            "label": "Share %",
+            "name": "share_percentage",
+            "type": "number",
+            "append": "%",
+            "wrapper": {
+              "width": "15"
+            }
+          },
+          {
+            "key": "f_mst_pro",
+            "label": "PRO",
+            "name": "pro_org",
+            "type": "select",
+            "choices": {
+              "ascap": "ASCAP",
+              "bmi": "BMI",
+              "sesac": "SESAC",
+              "prs": "PRS",
+              "other": "Other"
+            },
+            "wrapper": {
+              "width": "15"
+            }
+          }
+        ]
+      }
     ],
-    "location": [[{"param": "post_type", "operator": "==", "value": "audio-recording"}]]
-},
-{
+    "location": [
+      [
+        {
+          "param": "post_type",
+          "operator": "==",
+          "value": "audio-recording"
+        }
+      ]
+    ]
+  },
+  {
     "key": "group_release_product_meta",
     "title": "R1. Release & Catalog Identity",
     "fields": [
-        { "key": "field_rel_upc", "label": "UPC/EAN", "name": "upc_code", "type": "text", "instructions": "The Universal Product Code for the whole album." },
-        { "key": "field_rel_cat_no", "label": "Catalog Number", "name": "catalog_number", "type": "text", "instructions": "Internal label ID (e.g., STAR-001)." },
-        { "key": "field_rel_type", "label": "Release Type", "name": "release_type", "type": "select", "choices": { "album": "Studio Album", "ep": "EP", "single": "Single", "compilation": "Compilation" } },
-        { "key": "field_rel_date", "label": "Street Date", "name": "release_date", "type": "date_picker", "display_format": "m/d/Y" },
-        { "key": "field_rel_label", "label": "Record Label / Imprint", "name": "label_name", "type": "text" }
+      {
+        "key": "field_rel_upc",
+        "label": "UPC/EAN",
+        "name": "upc_code",
+        "type": "text",
+        "instructions": "The Universal Product Code for the whole album."
+      },
+      {
+        "key": "field_rel_cat_no",
+        "label": "Catalog Number",
+        "name": "catalog_number",
+        "type": "text",
+        "instructions": "Internal label ID (e.g. STAR-001)."
+      },
+      {
+        "key": "field_rel_type",
+        "label": "Release Type",
+        "name": "release_type",
+        "type": "select",
+        "choices": {
+          "album": "Studio Album",
+          "ep": "EP",
+          "single": "Single",
+          "compilation": "Compilation"
+        }
+      },
+      {
+        "key": "field_rel_date",
+        "label": "Street Date",
+        "name": "release_date",
+        "type": "date_picker",
+        "display_format": "m/d/Y"
+      },
+      {
+        "key": "field_rel_label",
+        "label": "Record Label / Imprint",
+        "name": "label_name",
+        "type": "text"
+      }
     ],
-    "location": [[{"param": "post_type", "operator": "==", "value": "starmus-release"}]]
-},
-{
+    "location": [
+      [
+        {
+          "param": "post_type",
+          "operator": "==",
+          "value": "starmus-release"
+        }
+      ]
+    ]
+  },
+  {
     "key": "group_release_tracklist",
     "title": "R2. Tracklist Configuration",
     "fields": [
-        { "key": "field_rel_tracks", "label": "Tracks", "name": "tracklist", "type": "repeater", "layout": "row", "button_label": "Add Track", "sub_fields": [
-            { "key": "f_track_no", "label": "No.", "name": "track_number", "type": "number", "wrapper": { "width": "10" } },
-            { "key": "f_track_rec", "label": "Recording Link", "name": "recording", "type": "post_object", "post_type": ["audio-recording"], "required": 1, "return_format": "id", "wrapper": { "width": "50" } },
-            { "key": "f_track_side", "label": "Media Side", "name": "side", "type": "select", "choices": { "A": "Side A", "B": "Side B", "D1": "Disc 1" }, "wrapper": { "width": "20" } },
-            { "key": "f_track_isrc", "label": "ISRC Override", "name": "isrc_override", "type": "text", "instructions": "Leave blank to use Recording ISRC.", "wrapper": { "width": "20" } },
-            {
-                "key": "field_mus_explicit",
-                "label": "Explicit Content",
-                "name": "is_explicit",
-                "type": "true_false",
-                "ui": 1,
-                "ui_on_text": "EXPLICIT",
-                "ui_off_text": "CLEAN",
-                "instructions": "Marking this as 'Explicit' will trigger advisory tags for distributors."
+      {
+        "key": "field_rel_tracks",
+        "label": "Tracks",
+        "name": "tracklist",
+        "type": "repeater",
+        "layout": "row",
+        "button_label": "Add Track",
+        "sub_fields": [
+          {
+            "key": "f_track_no",
+            "label": "No.",
+            "name": "track_number",
+            "type": "number",
+            "wrapper": {
+              "width": "10"
             }
-        ]}
+          },
+          {
+            "key": "f_track_rec",
+            "label": "Recording Link",
+            "name": "recording",
+            "type": "post_object",
+            "post_type": [
+              "audio-recording"
+            ],
+            "required": 1,
+            "return_format": "id",
+            "wrapper": {
+              "width": "50"
+            }
+          },
+          {
+            "key": "f_track_side",
+            "label": "Media Side",
+            "name": "side",
+            "type": "select",
+            "choices": {
+              "A": "Side A",
+              "B": "Side B",
+              "D1": "Disc 1"
+            },
+            "wrapper": {
+              "width": "20"
+            }
+          },
+          {
+            "key": "f_track_isrc",
+            "label": "ISRC Override",
+            "name": "isrc_override",
+            "type": "text",
+            "instructions": "Leave blank to use Recording ISRC.",
+            "wrapper": {
+              "width": "20"
+            }
+          },
+          {
+            "key": "field_mus_explicit",
+            "label": "Explicit Content",
+            "name": "is_explicit",
+            "type": "true_false",
+            "ui": 1,
+            "ui_on_text": "EXPLICIT",
+            "ui_off_text": "CLEAN",
+            "instructions": "Marking this as Explicit will trigger advisory tags for distributors."
+          }
+        ]
+      }
     ],
-    "location": [[{"param": "post_type", "operator": "==", "value": "starmus-release"}]]
-}
+    "location": [
+      [
+        {
+          "param": "post_type",
+          "operator": "==",
+          "value": "starmus-release"
+        }
+      ]
+    ]
+  }
 ]
