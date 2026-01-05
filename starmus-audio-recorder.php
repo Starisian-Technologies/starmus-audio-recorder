@@ -58,7 +58,7 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 if ( ! defined('ABSPATH')) {
     exit;
 }
-exit;
+
 
 // -------------------------------------------------------------------------
 // 0. FATAL ERROR CATCHER (The "Safety Net")
