@@ -107,116 +107,102 @@ if (! defined('SPARXSTAR_SCF_URL')) {
 	define('SPARXSTAR_SCF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
 }
 
-
-
 // -------------------------------------------------------------------------
-// 2. AUTOLOAD & BUNDLED SCF (Priority 0)
+// 2. COMPOSER AUTOLOAD (Immediate)
 // -------------------------------------------------------------------------
-add_action('plugins_loaded', static function (): void {
-	try {
-		// A. Load Composer Autoloader
-		$autoloader = STARMUS_PATH . 'vendor/autoload.php';
-		if (file_exists($autoloader)) {
-			require_once $autoloader;
-		} else {
-			// Only show admin notice in admin area
-			if (is_admin() && !defined('DOING_AJAX')) {
-				add_action('admin_notices', static function () {
-					echo '<div class="notice notice-error"><p>Starmus Critical: vendor/autoload.php missing. Run composer install.</p></div>';
-				});
-			}
-			error_log('Starmus Autoloader missing. Run composer install.');
-			return; // Stop execution if autoloader is missing
-		}
+$starmus_autoloader = STARMUS_PATH . 'vendor/autoload.php';
 
-		// B. Bootstrap Bundled SCF
-		// We check for 'ACF' class because SCF uses the ACF class namespace for compatibility.
-		if (! class_exists('ACF')) {
-
-			if (file_exists(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php')) {
-
-				// CRITICAL: Point SCF to the bundled URL so it can find JS/CSS
-				add_filter('acf/settings/url', function () {
-					return SPARXSTAR_SCF_URL;
-				});
-
-				// CRITICAL: Point SCF to the bundled Path so it can find PHP includes
-				add_filter('acf/settings/path', function () {
-					return SPARXSTAR_SCF_PATH;
-				});
-
-				// Hide SCF menu item (optional, keeping your setting)
-				add_filter('acf/settings/show_admin', '__return_true');
-				add_filter('acf/settings/show_updates', '__return_false');
-
-				// Load SCF
-				require_once(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php');
-			} else {
-				error_log('Starmus Error: Bundled SCF not found at ' . SPARXSTAR_SCF_PATH);
-			}
-		} else {
-			// SCF or ACF is already active as a standard plugin.
-			// We step aside and let the installed version run.
-			error_log('Starmus Notice: External SCF/ACF detected. Skipping bundled version.');
-		}
-	} catch (\Throwable $e) {
-		error_log('Starmus Autoload/Bootstrap Failed: ' . $e->getMessage());
+if (file_exists($starmus_autoloader)) {
+	require_once $starmus_autoloader;
+} else {
+	// Graceful fail in Admin if Composer not run
+	if (is_admin() && !defined('DOING_AJAX')) {
+		add_action('admin_notices', static function () {
+			echo '<div class="notice notice-error"><p>Starmus Critical: vendor/autoload.php missing. Run composer install.</p></div>';
+		});
 	}
-}, 0);
-
+	// Stop execution to prevent fatals further down
+	return;
+}
 
 // -------------------------------------------------------------------------
-// 3. JSON SYNC (CPT/Field Installation)
+// 3. SECURE CUSTOM FIELDS BOOTSTRAP (Immediate)
+// -------------------------------------------------------------------------
+// Based on official SCF Composer documentation.
+// We check !class_exists('ACF') to ensure we don't crash if the standard plugin is active.
+
+if (! class_exists('ACF')) {
+
+	// Define path and URL to the bundled Secure Custom Fields plugin
+	// Uses 'vendor/secure-custom-fields/' per your composer.json "installer-paths"
+	if (! defined('SPARXSTAR_SCF_PATH')) {
+		define('SPARXSTAR_SCF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
+	}
+	if (! defined('SPARXSTAR_SCF_URL')) {
+		define('SPARXSTAR_SCF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
+	}
+
+	if (file_exists(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php')) {
+
+		// 1. Customize the URL setting so SCF can find its JS/CSS files
+		add_filter('acf/settings/url', function () {
+			return SPARXSTAR_SCF_URL;
+		});
+
+		// 2. Customize the Path setting so SCF can find its PHP files
+		add_filter('acf/settings/path', function () {
+			return SPARXSTAR_SCF_PATH;
+		});
+
+		// 3. (Optional) Hide the SCF admin menu
+		add_filter('acf/settings/show_admin', '__return_false');
+
+		// 4. (Optional) Hide Updates
+		add_filter('acf/settings/show_updates', '__return_false', 100);
+
+		// 5. Load the Plugin
+		require_once SPARXSTAR_SCF_PATH . 'secure-custom-fields.php';
+	} else {
+		error_log('Starmus Error: Bundled SCF not found at ' . SPARXSTAR_SCF_PATH);
+	}
+}
+
+// -------------------------------------------------------------------------
+// 4. JSON CONFIGURATION (Install CPTs/Fields)
 // -------------------------------------------------------------------------
 
-/**
- * Register a custom load point for SCF/ACF JSON files.
- * This effectively "installs" your Fields, CPTs, and Taxonomies on load.
- */
+// Load JSON from local plugin folder
 add_filter('acf/settings/load_json', function ($paths) {
-	// Append the new path to the existing array of paths
 	$paths[] = STARMUS_PATH . 'acf-json';
 	return $paths;
 });
 
-/**
- * Register a custom save point for SCF/ACF JSON files.
- * Useful during development to write changes back to your plugin.
- */
+// Save JSON to local plugin folder (Dev only)
 add_filter('acf/settings/save_json', function ($path) {
-	// Only save to plugin folder in non-production environments
 	if (wp_get_environment_type() !== 'production') {
 		$path = STARMUS_PATH . 'acf-json';
 	}
 	return $path;
 });
 
-
 // -------------------------------------------------------------------------
-// 4. APP BOOT (Priority 10)
+// 5. APP BOOT (Plugins Loaded)
 // -------------------------------------------------------------------------
 add_action('plugins_loaded', static function (): void {
 	try {
-		// Ensure Autoload happened and class exists
 		if (!class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
 			return;
 		}
 
-		// Boot the App
+		// Boot the App Instance
 		\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_get_instance();
 	} catch (\Throwable $e) {
 		error_log('Starmus App Boot Failed: ' . $e->getMessage());
-		if (is_admin()) {
-			add_action('admin_notices', function () {
-				echo '<div class="notice notice-error"><p>Starmus Audio failed to start. Check error logs.</p></div>';
-			});
-		}
 	}
 }, 10);
 
-
 // -------------------------------------------------------------------------
-// 5. LIFECYCLE MANAGEMENT
+// 6. LIFECYCLE MANAGEMENT
 // -------------------------------------------------------------------------
 
 /**
@@ -245,7 +231,6 @@ function starmus_on_deactivate(): void
 		}
 		flush_rewrite_rules();
 
-		// Check if runtime class exists before calling static method
 		if (class_exists(Sparxstar_SCF_Runtime::class)) {
 			Sparxstar_SCF_Runtime::sparx_scf_deactivate_scf();
 		}
@@ -263,7 +248,6 @@ function starmus_on_uninstall(): void
 		if (class_exists(Sparxstar_SCF_Runtime::class)) {
 			Sparxstar_SCF_Runtime::uninstall_site();
 		}
-
 		if (defined('STARMUS_DELETE_ON_UNINSTALL') && STARMUS_DELETE_ON_UNINSTALL) {
 			$file = STARMUS_PATH . 'uninstall.php';
 			if (file_exists($file)) {
@@ -271,7 +255,6 @@ function starmus_on_uninstall(): void
 			}
 		}
 	} catch (\Throwable $e) {
-		// Use error_log here; Custom Logger classes might not be available during uninstall hooks
 		error_log('Starmus uninstall error: ' . $e->getMessage());
 	}
 }
