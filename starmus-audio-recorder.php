@@ -140,17 +140,6 @@ if (! class_exists('ACF')) {
 		// 5. Load the Plugin
 		require_once SPARXSTAR_SCF_PATH . 'secure-custom-fields.php';
 
-
-		// 1. Customize the URL setting so SCF can find its JS/CSS files
-		add_filter('acf/settings/url', function () {
-			return SPARXSTAR_SCF_URL;
-		});
-
-		// 2. Customize the Path setting so SCF can find its PHP files
-		add_filter('acf/settings/path', function () {
-			return SPARXSTAR_SCF_PATH;
-		});
-
 		// 3. (Optional) Hide the SCF admin menu
 		add_filter('acf/settings/show_admin', '__return_false');
 
