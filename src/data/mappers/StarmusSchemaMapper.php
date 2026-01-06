@@ -59,7 +59,7 @@ class StarmusSchemaMapper
         'location'                  => 'starmus_session_location',
         'recording_equipment'       => 'starmus_recording_equipment',
         'media_condition_notes'     => 'starmus_media_condition',
-        'usage_restrictions_rights' => 'starmus_rights_use',
+        'usage_restrictions_rights' => 'starmus_usage_restrictions_rights',
         'access_level'              => 'starmus_access_level',
         'recording_metadata'        => 'starmus_processing_log',
 
