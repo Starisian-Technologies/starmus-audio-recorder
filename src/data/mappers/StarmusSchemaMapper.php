@@ -175,7 +175,7 @@ class StarmusSchemaMapper
 
             // Agreement Logic
             if (!empty($data['agreement'])) {
-                $mapped['starmus_agreement_datetime'] = date('Y-m-d H:i:s');
+                $mapped['starmus_agreement_datetime'] = gmdate('Y-m-d H:i:s');
             }
 
             // JSON Blobs (Safe Handling)
