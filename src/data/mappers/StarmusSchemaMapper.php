@@ -93,6 +93,14 @@ class StarmusSchemaMapper
         'musical_key'               => 'starmus_musical_key',
         'isrc_code'                 => 'starmus_isrc_code',
         'integrated_lufs'           => 'starmus_integrated_lufs',
+
+        // -- Transcription & Translation --
+        'transcription'             => 'starmus_transcription_text',
+        'transcription_json'        => 'starmus_transcription_json',
+        'translation'               => 'starmus_translation_text',
+        'translation_language'      => 'starmus_translation_language',
+        'original_language'         => 'starmus_original_language',
+        'back_translation_text'     => 'starmus_back_translation_text',
     ];
 
     /**
