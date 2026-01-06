@@ -233,42 +233,29 @@ class StarmusSchemaMapper
      */
     private static function get_contributor_id_for_user(int $user_id): ?int
     {
-        if ($user_id === 0) return null;
+        if ($user_id === 0) {
+            return null;
+        }
 
         $args = [
-            'post_type'  => 'sparx_contributor',
-            'meta_query' => [
+            'post_type'       => 'sparx_contributor',
+            'meta_query'      => [
                 [
                     'key'   => 'sparxstar_wp_user',
-                    'value' => $user_id
-                ]
+                    'value' => $user_id,
+                ],
             ],
-            'posts_per_page' => 1,
-            'fields' => 'ids'
+            'posts_per_page'  => 1,
+            'fields'          => 'ids',
         ];
-        
+
         $posts = get_posts($args);
         if (!empty($posts)) {
             return $posts[0];
         }
 
-        // Fallback: Create Contributor if missing
-        $user_info = get_userdata($user_id);
-        if (!$user_info) return null;
-
-        $new_contributor_id = wp_insert_post([
-            'post_type'   => 'sparx_contributor',
-            'post_title'  => $user_info->display_name,
-            'post_status' => 'publish',
-        ]);
-
-        if (!is_wp_error($new_contributor_id)) {
-            update_field('sparxstar_wp_user', $user_id, $new_contributor_id);
-            update_field('sparxstar_legal_name', $user_info->display_name, $new_contributor_id);
-            update_field('sparxstar_email', $user_info->user_email, $new_contributor_id);
-            return $new_contributor_id;
-        }
-
+        // No existing contributor found for this user; mapper remains read-only.
+        // Creation of contributor posts must be handled by a dedicated service.
         return null;
     }
 
