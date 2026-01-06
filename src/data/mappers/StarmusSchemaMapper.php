@@ -159,7 +159,6 @@ class StarmusSchemaMapper
             // JSON Blobs (Safe Handling)
             if (!empty($data['_starmus_env'])) {
                 $mapped['starmus_environment_data'] = self::ensure_json_string($data['_starmus_env'], 'env');
-                
                 // Extract Fingerprint
                 $env_arr = self::decode_if_json($data['_starmus_env']);
                 if (isset($env_arr['fingerprint'])) {
