@@ -273,6 +273,8 @@ class StarmusSchemaMapper
         }
 
         if (is_string($value)) {
+            // Validation-only decode: we intentionally ignore the decoded value and
+            // return the original string on success to preserve exact formatting.
             json_decode(wp_unslash($value));
             if (json_last_error() === JSON_ERROR_NONE) {
                 return $value;
