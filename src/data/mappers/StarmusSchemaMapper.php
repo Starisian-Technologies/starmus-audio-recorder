@@ -176,8 +176,11 @@ class StarmusSchemaMapper
             }
 
             if (!empty($data['_starmus_calibration'])) {
-                // Mapped to new Transcriber Meta key
-                $mapped['starmus_transcriber_metadata'] = self::ensure_json_string($data['_starmus_calibration'], 'transcriber');
+                // Wrap legacy calibration/transcriber value into JSON object under "transcriber" key
+                $transcriber_meta = [
+                    'transcriber' => $data['_starmus_calibration'],
+                ];
+                $mapped['starmus_transcriber_metadata'] = self::ensure_json_string($transcriber_meta, 'transcriber');
             }
 
             if (!empty($data['parental_permission_slip'])) {
