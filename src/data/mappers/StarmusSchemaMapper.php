@@ -183,11 +183,14 @@ class StarmusSchemaMapper
             }
 
             if (!empty($data['parental_permission_slip'])) {
-                // Wrap legacy URL in JSON
-                $mapped['starmus_parental_permission_slip'] = json_encode([
-                    'file_url' => $data['parental_permission_slip'],
-                    'type'     => 'legacy_frontend_upload'
-                ]);
+                // Wrap legacy URL in JSON using safe JSON encoder
+                $mapped['starmus_parental_permission_slip'] = self::ensure_json_string(
+                    [
+                        'file_url' => $data['parental_permission_slip'],
+                        'type'     => 'legacy_frontend_upload',
+                    ],
+                    'parental_permission_slip'
+                );
             }
 
             // Taxonomies
