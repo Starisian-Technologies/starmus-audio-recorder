@@ -38,8 +38,27 @@ if ( ! \defined('ABSPATH')) {
 class StarmusSchemaMapper
 {
     /**
-     * MAPPING DEFINITION: 'Old_Frontend_Key' => 'New_Starmus_Key'
-     * This replaces the old PASSTHROUGH_ALLOWLIST with a translation layer.
+     * FIELD MAP: 'legacy_frontend_or_acf_key' => 'new_starmus_schema_key'
+     *
+     * This replaces the old PASSTHROUGH_ALLOWLIST with an explicit translation layer.
+     *
+     * Mapping direction:
+     *  - Array key   = existing/legacy field name used by the recorder/editor UI or ACF.
+     *  - Array value = new canonical field name in the Starmus schema.
+     *
+     * Naming conventions for new schema keys:
+     *  - All new schema keys MUST be prefixed with "starmus_" to avoid collisions with
+     *    core, plugin, or third-party meta fields.
+     *  - Use snake_case descriptive suffixes that mirror the domain term
+     *    (e.g. "starmus_session_start_time", "starmus_rights_type").
+     *
+     * Which fields belong in FIELD_MAP:
+     *  - Only simple 1:1 remaps where the value can be copied directly from the legacy
+     *    key to the new schema key (optionally after basic sanitization).
+     *  - Fields that require denormalisation, aggregation, branching logic, post or
+     *    taxonomy creation, consent workflows, or any other complex transformation
+     *    MUST NOT be added here and should instead be handled in the dedicated
+     *    migration / mapping methods elsewhere in this class.
      */
     private const FIELD_MAP = [
         // -- Core --
