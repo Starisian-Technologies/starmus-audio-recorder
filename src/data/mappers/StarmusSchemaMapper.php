@@ -156,6 +156,18 @@ class StarmusSchemaMapper
                 $mapped['starmus_copyright_licensor']   = $contributor_post_id;
                 $mapped['starmus_authorized_signatory'] = $contributor_post_id;
                 $mapped['starmus_subject_contributor']  = $contributor_post_id;
+            } else {
+                // Ensure required relationship keys are always present and log a warning
+                $mapped['starmus_copyright_licensor']   = null;
+                $mapped['starmus_authorized_signatory'] = null;
+                $mapped['starmus_subject_contributor']  = null;
+
+                error_log(
+                    sprintf(
+                        'StarmusSchemaMapper: No contributor post found for user ID %d; relationship fields set to null.',
+                        (int) $user_id
+                    )
+                );
             }
 
             // Dates
