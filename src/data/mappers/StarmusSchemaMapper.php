@@ -246,9 +246,21 @@ class StarmusSchemaMapper
             ],
             'posts_per_page'  => 1,
             'fields'          => 'ids',
+            'post_status'     => 'any',
         ];
 
         $posts = get_posts($args);
+
+        if (is_wp_error($posts)) {
+            StarmusLogger::error(
+                sprintf(
+                    'Failed to load sparx_contributor for user_id %d: %s',
+                    $user_id,
+                    $posts->get_error_message()
+                )
+            );
+            return null;
+        }
         if (!empty($posts)) {
             return $posts[0];
         }
