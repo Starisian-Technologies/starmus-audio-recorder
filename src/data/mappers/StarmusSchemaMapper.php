@@ -17,7 +17,6 @@ use function get_current_user_id;
 use function get_posts;
 use function is_wp_error;
 use function wp_insert_post;
-use function update_field;
 use function json_decode;
 use function json_encode;
 use function json_last_error;
