@@ -79,6 +79,9 @@ class StarmusSchemaMapper
         'submission_id'             => 'starmus_submission_id',
         'contributor_user_agent'    => 'starmus_agree_ua',
         'ip_address'                => 'starmus_agree_ip',
+        'contributor_signature'     => 'starmus_contributor_signature',
+        'agreement_datetime'        => 'starmus_agreement_datetime',
+        'contributor_geolocation'   => 'starmus_agree_geo',
 
         // -- Music --
         'sample_rate'               => 'starmus_sample_rate',
