@@ -1,5 +1,4 @@
 <?php
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 use function class_exists;
@@ -12,7 +11,7 @@ use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
@@ -40,18 +39,18 @@ class StarmusProsodyPlayer
     {
 
         // Hooks
-        add_action('init', [$this, 'register_shortcodes']);
-        add_action('init', [$this, 'init_dal']);
-        add_action('wp_enqueue_scripts', [$this, 'register_assets']);
+        add_action('init', $this->register_shortcodes(...));
+        add_action('init', $this->init_dal(...));
+        add_action('wp_enqueue_scripts', $this->register_assets(...));
 
         // AJAX Endpoints (Authenticated & Public if needed, usually Auth only for this)
-        add_action('wp_ajax_starmus_save_pace', [$this, 'handle_ajax_save']);
+        add_action('wp_ajax_starmus_save_pace', $this->handle_ajax_save(...));
     }
 
     public function register_shortcodes(): void
     {
         // Register the shortcode
-        add_shortcode('prosody_reader', [$this, 'render_shortcode']);
+        add_shortcode('prosody_reader', $this->render_shortcode(...));
     }
 
     public function init_dal(): void
@@ -60,7 +59,7 @@ class StarmusProsodyPlayer
             return;
         }
 
-        if ( ! class_exists(StarmusProsodyDAL::class)) {
+        if (! class_exists(StarmusProsodyDAL::class)) {
             throw new \Exception('StarmusProsodyDAL class not found');
         }
 
@@ -78,19 +77,19 @@ class StarmusProsodyPlayer
     {
         // Enqueue the CSS (assuming you saved the CSS from previous chat to a file)
         wp_register_style(
-        'starmus-prosody-css',
-        STARMUS_URL . 'src/css/starmus-prosody-engine.css',
-        [],
-        STARMUS_VERSION
+            'starmus-prosody-css',
+            STARMUS_URL . 'src/css/starmus-prosody-engine.css',
+            [],
+            STARMUS_VERSION
         );
 
         // Enqueue the JS (assuming you saved the JS Class to a file)
         wp_register_script(
-        'starmus-prosody-js',
-        STARMUS_URL . 'src/js/prosody/starmus-prosody-engine.js',
-        [],
-        STARMUS_VERSION,
-        ['strategy' => 'defer'] // WP 6.3+ feature
+            'starmus-prosody-js',
+            STARMUS_URL . 'src/js/prosody/starmus-prosody-engine.js',
+            [],
+            STARMUS_VERSION,
+            ['strategy' => 'defer'] // WP 6.3+ feature
         );
     }
 
@@ -106,17 +105,17 @@ class StarmusProsodyPlayer
     {
         try {
             $args = shortcode_atts(
-            [
+                [
             'id' => get_the_ID(),
             ],
-            $atts
+                $atts
             );
 
             $post_id = (int) $args['id'];
             $data    = $this->dal->get_script_payload($post_id);
 
             if ($data === []) {
-                   return '<div class="prosody-error">Error: Script data not found.</div>';
+                return '<div class="prosody-error">Error: Script data not found.</div>';
             }
 
             // Load Assets
@@ -125,9 +124,9 @@ class StarmusProsodyPlayer
 
             // Pass Data to JS via Inline Script (Modern approach)
             wp_add_inline_script(
-            'starmus-prosody-js',
-            'const StarmusData = ' . json_encode($data) . ';',
-            'before'
+                'starmus-prosody-js',
+                'const StarmusData = ' . json_encode($data) . ';',
+                'before'
             );
 
             // Render The HTML Shell
@@ -189,11 +188,11 @@ class StarmusProsodyPlayer
             $pace    = (int) $_POST['pace_ms'];
             $nonce   = $_POST['nonce'];
 
-            if ( ! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
+            if (! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
                 wp_send_json_error('Security check failed');
             }
 
-            if ( ! current_user_can('edit_post', $post_id)) {
+            if (! current_user_can('edit_post', $post_id)) {
                 wp_send_json_error('Permission denied');
             }
 

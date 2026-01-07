@@ -3,7 +3,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -97,7 +97,7 @@ final class StarPrefixSlugService
     public function star_boot(): void
     {
         // Hook into slug generation (save/update)
-        add_filter('wp_unique_post_slug', [$this, 'star_prefix_slug'], 10, 2);
+        add_filter('wp_unique_post_slug', $this->star_prefix_slug(...), 10, 2);
     }
 
     /**

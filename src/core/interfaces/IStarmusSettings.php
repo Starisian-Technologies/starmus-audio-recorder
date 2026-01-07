@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\core\interfaces;
 
 /**
@@ -14,6 +13,7 @@ interface IStarmusSettings
      *
      * @param string $key The setting key to retrieve.
      * @param mixed $default Default value to return if setting doesn't exist.
+     *
      * @return mixed The setting value or default.
      */
     public function get(string $key, mixed $default = null): mixed;

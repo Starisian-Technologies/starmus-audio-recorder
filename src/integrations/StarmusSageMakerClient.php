@@ -5,7 +5,7 @@ namespace Starisian\Sparxstar\Starmus\integrations;
 
 use Starisian\Sparxstar\Starmus\includes\StarmusSageMakerJobRepository;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -74,7 +74,7 @@ final readonly class StarmusSageMakerClient
     {
         $job = $this->repository->find($job_id);
 
-        if ( ! $job) {
+        if (! $job) {
             return false;
         }
 
@@ -86,7 +86,7 @@ final readonly class StarmusSageMakerClient
         $this->repository->save($job_id, $job);
 
         // Schedule WP Cron event if not already scheduled
-        if ( ! wp_next_scheduled('aiwa_orch_process_transcription_job', [$job_id])) {
+        if (! wp_next_scheduled('aiwa_orch_process_transcription_job', [$job_id])) {
             wp_schedule_single_event(time() + 5, 'aiwa_orch_process_transcription_job', [$job_id]);
         }
 
@@ -104,12 +104,12 @@ final readonly class StarmusSageMakerClient
     {
         $job = $this->repository->find($job_id);
 
-        if ( ! $job) {
+        if (! $job) {
             return false;
         }
 
         // Attempt to delete associated file if present
-        if ( ! empty($job['file']) && file_exists($job['file'])) {
+        if (! empty($job['file']) && file_exists($job['file'])) {
             @unlink($job['file']);
         }
 

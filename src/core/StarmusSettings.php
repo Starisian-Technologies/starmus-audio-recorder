@@ -14,37 +14,33 @@ declare(strict_types=1);
  *
  * @since 0.3.1
  */
-
 namespace Starisian\Sparxstar\Starmus\core;
 
-use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSettings;
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
+use function absint;
 use function apply_filters;
 use function array_filter;
 use function array_map;
-use function absint;
 use function delete_option;
 use function esc_url_raw;
 use function explode;
-use function file_exists;
 use function get_option;
 use function implode;
-use function is_array;
 use function max;
 use function min;
 use function pathinfo;
 use function preg_replace;
 use function sanitize_key;
 use function sanitize_text_field;
-use function str_contains;
-use function str_starts_with;
+
+use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSettings;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+
 use function strtolower;
 use function trailingslashit;
 use function update_option;
 
-
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -139,7 +135,7 @@ final class StarmusSettings implements IStarmusSettings
             $this->default_obj_cache = $this->get_defaults();
             $this->obj_cache         = $this->all(); // This will now fetch from options
             $this->register_hooks();
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             // Initialize with defaults on error
             $this->default_obj_cache = [];
@@ -158,7 +154,7 @@ final class StarmusSettings implements IStarmusSettings
         try {
             add_filter('wp_check_filetype_and_ext', $this->filter_filetype_and_ext(...), 10, 5);
             add_filter('upload_mimes', $this->filter_upload_mimes(...));
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
     }
@@ -179,7 +175,7 @@ final class StarmusSettings implements IStarmusSettings
         try {
             $settings = $this->all();
             return $settings[$key] ?? $default;
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             return $default;
         }
@@ -200,9 +196,9 @@ final class StarmusSettings implements IStarmusSettings
             if ($this->obj_cache === null) {
                 $saved = get_option(self::STARMUS_OPTION_KEY, []);
 
-                \Starisian\Sparxstar\Starmus\helpers\StarmusLogger::info(
-                 'get_option result',
-                 ['component' => self::class]
+                StarmusLogger::info(
+                    'get_option result',
+                    ['component' => self::class]
                 );
 
                 $merged          = wp_parse_args($saved, $this->get_defaults());
@@ -210,7 +206,7 @@ final class StarmusSettings implements IStarmusSettings
             }
 
             return $this->obj_cache;
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             return $this->get_defaults();
         }
@@ -231,7 +227,7 @@ final class StarmusSettings implements IStarmusSettings
     public function set(string $key, $value): bool
     {
         try {
-            if ( ! $this->is_valid_key($key)) {
+            if (! $this->is_valid_key($key)) {
                 return false;
             }
 
@@ -244,7 +240,7 @@ final class StarmusSettings implements IStarmusSettings
             }
 
             return $updated;
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             return false;
         }
@@ -281,7 +277,7 @@ final class StarmusSettings implements IStarmusSettings
             }
 
             return $updated;
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             return false;
         }
@@ -321,7 +317,7 @@ final class StarmusSettings implements IStarmusSettings
             }
 
             return $this->default_obj_cache;
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             // Return hardcoded minimal defaults on error
             return [
@@ -364,7 +360,7 @@ final class StarmusSettings implements IStarmusSettings
             }
 
             $this->clear_cache(); // Clear internal cache to ensure new default is used immediately
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
     }
@@ -407,45 +403,45 @@ final class StarmusSettings implements IStarmusSettings
     {
         switch ($key) {
             case 'cpt_slug':
-          return sanitize_key((string) $value);
+                return sanitize_key((string) $value);
             case 'file_size_limit':
                 $v = (int) $value;
-          return max(1, $v);
+                return max(1, $v);
             case 'recording_time_limit':
                 $v = (int) $value;
-          return max(1, min($v, 3600));
+                return max(1, min($v, 3600));
             case 'collect_ip_ua':
-          return (int) ! empty($value);
+                return (int) ! empty($value);
             case 'edit_page_id':
             case 'recorder_page_id':
             case 'my_recordings_page_id':
-          return absint($value);
+                return absint($value);
             case 'allowed_file_types':
                 $list = \is_array($value) ? $value : explode(',', (string) $value);
-                $list = array_map(static fn($s) => trim(strtolower((string) $s)), $list);
-                $list = array_filter($list, static fn($s): bool => $s !== '');
-                $list = array_map(static fn($s) => preg_replace('/[^a-z0-9\.\-+\/]/', '', $s), $list);
+                $list = array_map(static fn ($s) => trim(strtolower((string) $s)), $list);
+                $list = array_filter($list, static fn ($s): bool => $s !== '');
+                $list = array_map(static fn ($s) => preg_replace('/[^a-z0-9\.\-+\/]/', '', $s), $list);
                 $list = array_unique($list);
-          return implode(',', $list);
+                return implode(',', $list);
             case 'allowed_languages':
                 $list = \is_array($value) ? $value : explode(',', (string) $value);
-                $list = array_map(static fn($s) => trim(strtolower((string) $s)), $list);
-                $list = array_filter($list, static fn($s): bool => $s !== '');
-                $list = array_map(static fn($s) => preg_replace('/[^a-z0-9\-]/', '', $s), $list);
+                $list = array_map(static fn ($s) => trim(strtolower((string) $s)), $list);
+                $list = array_filter($list, static fn ($s): bool => $s !== '');
+                $list = array_map(static fn ($s) => preg_replace('/[^a-z0-9\-]/', '', $s), $list);
                 $list = array_unique($list);
-          return implode(',', $list);
+                return implode(',', $list);
             case 'speech_recognition_lang':
                 $sanitized = preg_replace('/[^a-zA-Z0-9\-]/', '', (string) $value);
-          return empty($sanitized) ? 'en-US' : $sanitized;
+                return empty($sanitized) ? 'en-US' : $sanitized;
             case 'tus_endpoint':
                 $url = esc_url_raw((string) $value);
-          return empty($url) ? 'https://contribute.sparxstar.com/files/' : trailingslashit($url);
+                return empty($url) ? 'https://contribute.sparxstar.com/files/' : trailingslashit($url);
             case 'consent_message':
-          return wp_kses_post((string) $value);
+                return wp_kses_post((string) $value);
             case 'data_policy_url':
-          return esc_url_raw((string) $value);
+                return esc_url_raw((string) $value);
             default:
-          return sanitize_text_field(\is_scalar($value) ? (string) $value : '');
+                return sanitize_text_field(\is_scalar($value) ? (string) $value : '');
         }
     }
 
@@ -472,7 +468,7 @@ final class StarmusSettings implements IStarmusSettings
         try {
             $this->clear_cache();
             return delete_option(self::STARMUS_OPTION_KEY);
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             return false;
         }
@@ -482,10 +478,8 @@ final class StarmusSettings implements IStarmusSettings
      * Legacy wrapper (deprecated).
      *
      * @param mixed $default
-     *
-     * @return mixed
      */
-    public function starmus_get_option(string $key, $default = '')
+    public function starmus_get_option(string $key, $default = ''): mixed
     {
         return $this->get($key, $default);
     }
@@ -516,7 +510,7 @@ final class StarmusSettings implements IStarmusSettings
             }
 
             return \is_array($types) ? $types : [];
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             return \is_array($types) ? $types : [];
         }
@@ -537,7 +531,7 @@ final class StarmusSettings implements IStarmusSettings
             }
 
             return $mimes;
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             return $mimes;
         }

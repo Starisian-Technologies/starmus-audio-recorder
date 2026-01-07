@@ -3,7 +3,12 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined('ABSPATH')) {
+use Throwable;
+use	Exception;
+use function defined;
+
+
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -95,7 +100,7 @@ final class StarmusAfricaBandwidthService
      */
     public function estimateDataUsage(string $file_path): array
     {
-        if ( ! file_exists($file_path)) {
+        if (! file_exists($file_path)) {
             return [];
         }
 

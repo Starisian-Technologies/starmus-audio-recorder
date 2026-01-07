@@ -1,18 +1,22 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined('ABSPATH')) {
-    exit;
-}
-
-use getId3;
-use getid3_lib;
-use getid3_writetags;
+use getID3;
+use getID3_lib;
+use getID3_writetags;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
+use function file_exists;
+use function defined;
+use function class_exists;
+
+
+if (! \defined('ABSPATH')) {
+	exit;
+}
+
 
 /**
  * getID3 Library Wrapper for Audio Metadata Management
@@ -66,7 +70,7 @@ class StarmusId3Service
      * Handles automatic library detection, fallback loading from vendor paths,
      * and proper engine configuration with UTF-8 encoding.
      *
-     * @return \getID3|null Configured getID3 instance or null if library unavailable
+     * @return getID3|null Configured getID3 instance or null if library unavailable
      *
      * @since 1.0.0
      *
@@ -85,9 +89,9 @@ class StarmusId3Service
      * - Allows calling code to handle missing library scenarios
      * @see \getID3 Core getID3 library class
      */
-    private function getID3Engine(): ?\getID3
+    private function getID3Engine(): ?getID3
     {
-        if ( ! class_exists('getID3')) {
+        if (! class_exists('getID3')) {
             // Check if we can manually load it from a common vendor path if composer autoload failed context
             $possible_path = WP_CONTENT_DIR . '/plugins/starmus-audio-recorder/vendor/autoload.php';
             if (file_exists($possible_path)) {
@@ -95,15 +99,15 @@ class StarmusId3Service
             }
         }
 
-        if ( ! class_exists('getID3')) {
+        if (! class_exists('getID3')) {
             StarmusLogger::error(
-            'getID3 library class not found.',
-            ['component' => self::class]
+                'getID3 library class not found.',
+                ['component' => self::class]
             );
             return null;
         }
 
-        $getID3 = new \getID3();
+        $getID3 = new getID3();
         $getID3->setOption(['encoding' => self::TEXT_ENCODING]);
         return $getID3;
     }
@@ -145,7 +149,7 @@ class StarmusId3Service
      * - Logs detailed error information
      * - Collects and logs warnings separately
      *
-     * @throws \Throwable Caught and logged, returns false
+     * @throws Throwable Caught and logged, returns false
      *
      * @return bool True if tags written successfully, false on failure
      *
@@ -162,10 +166,10 @@ class StarmusId3Service
      */
     public function writeTags(string $filepath, array $tagData): bool
     {
-        if ( ! file_exists($filepath)) {
+        if (! file_exists($filepath)) {
             StarmusLogger::error(
-            'File missing for tagging',
-            [
+                'File missing for tagging',
+                [
             'component' => self::class,
             'path'      => $filepath,
             ]
@@ -175,20 +179,20 @@ class StarmusId3Service
 
         try {
             $engine = $this->getID3Engine();
-            if ( ! $engine instanceof \getID3) {
+            if (! $engine instanceof getID3) {
                 return false;
             }
 
             // Ensure Writer is loaded
-            if ( ! class_exists('getid3_writetags')) {
+            if (! class_exists('getid3_writetags')) {
                 StarmusLogger::error(
-                'getid3_writetags class missing.',
-                ['component' => self::class]
+                    'getid3_writetags class missing.',
+                    ['component' => self::class]
                 );
                 return false;
             }
 
-            $tagwriter                    = new \getid3_writetags();
+            $tagwriter                    = new getid3_writetags();
             $tagwriter->filename          = $filepath;
             $tagwriter->tagformats        = ['id3v2.3'];
             $tagwriter->overwrite_tags    = true;
@@ -196,10 +200,10 @@ class StarmusId3Service
             $tagwriter->remove_other_tags = true;
             $tagwriter->tag_data          = $tagData;
 
-            if ( ! $tagwriter->WriteTags()) {
+            if (! $tagwriter->WriteTags()) {
                 StarmusLogger::error(
-                'WriteTags Failed',
-                [
+                    'WriteTags Failed',
+                    [
                 'component' => self::class,
                 'errors'    => $tagwriter->errors,
                 ]
@@ -209,8 +213,8 @@ class StarmusId3Service
 
             if ($tagwriter->warnings !== []) {
                 StarmusLogger::warning(
-                'WriteTags Warnings',
-                [
+                    'WriteTags Warnings',
+                    [
                 'component' => self::class,
                 'warnings'  => $tagwriter->warnings,
                 ]
@@ -220,8 +224,8 @@ class StarmusId3Service
             return true;
         } catch (Throwable $throwable) {
             StarmusLogger::log(
-            $throwable,
-            [
+                $throwable,
+                [
             'component' => self::class,
             'path'      => $filepath,
             ]
@@ -238,7 +242,7 @@ class StarmusId3Service
         $analysis = $this->analyzeFile($filepath);
         $audio    = $analysis['audio'] ?? [];
 
-        $bitrate  = $audio['bitrate'] ?? 0;
+        $bitrate  = $audio['bitrate']     ?? 0;
         $filesize = $analysis['filesize'] ?? 0;
 
         // Optimize if > 64kbps or > 2MB
@@ -305,12 +309,12 @@ class StarmusId3Service
     public function analyzeFile(string $filepath): array
     {
         $engine = $this->getID3Engine();
-        if ( ! $engine instanceof \getID3) {
+        if (! $engine instanceof getID3) {
             return [];
         }
 
         $info = $engine->analyze($filepath);
-        \getid3_lib::CopyTagsToComments($info);
+        getid3_lib::CopyTagsToComments($info);
         return $info;
     }
 }

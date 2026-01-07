@@ -12,8 +12,8 @@ namespace Starmus\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
-use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSettings;
-use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 
 final class StarmusRestApiTest extends TestCase
@@ -23,8 +23,10 @@ final class StarmusRestApiTest extends TestCase
 	protected function setUp(): void
 	{
 		$dal = $this->createMock(IStarmusAudioDAL::class);
-		$settings = $this->createMock(IStarmusSettings::class);
-		$submission_handler = $this->createMock(IStarmusSubmissionHandler::class);
+		$settings = $this->createMock(StarmusSettings::class);
+		$submission_handler = $this->createMock(StarmusSubmissionHandler::class);
+
+        $this->handler = new StarmusRESTHandler($dal, $settings, $submission_handler);
 	}
 
 	public function testUploadPermissionsRequireCapability(): void

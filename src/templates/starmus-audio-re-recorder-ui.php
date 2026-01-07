@@ -5,7 +5,7 @@
  *
  * @version 1.0.2-DATA-SAFE
  */
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -45,13 +45,13 @@ $data_policy_url ??= '';
 			<input type="hidden" name="action" value="starmus_update_audio">
 
 			<!-- METADATA PERSISTENCE -->
-			<input type="hidden" name="dc_creator" value="<?php echo esc_attr($existing_title); ?>">
+			<input type="hidden" name="starmus_dc_creator" value="<?php echo esc_attr($existing_title); ?>">
 			<input type="hidden" name="audio_file_type" value="audio/webm">
 
 			<!-- INJECTED BY JS (Protected by Safe Sync) -->
 			<input type="hidden" name="_starmus_env" value="">
 			<input type="hidden" name="_starmus_calibration" value="">
-			<input type="hidden" name="recording_metadata" value="">
+			<input type="hidden" name="starmus_recording_metadata" value="">
 
 			<!-- INJECTED FROM PHP (If Available) -->
 

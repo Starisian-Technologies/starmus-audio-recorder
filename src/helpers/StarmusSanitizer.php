@@ -14,6 +14,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\helpers;
 
+use Throwable;
 use function array_map;
 use function array_merge;
 use function explode;
@@ -31,7 +32,7 @@ use function str_starts_with;
 use function trim;
 use function wp_unslash;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -104,45 +105,45 @@ class StarmusSanitizer
 
         // --- LEGACY MAPPING (PRESERVED) ---
 
-        if ( ! empty($mapped_data['dc_creator'])) {
+        if (! empty($mapped_data['dc_creator'])) {
             $meta['_starmus_title'] = sanitize_text_field($mapped_data['dc_creator']);
         }
 
-        if ( ! empty($form_data['description'])) {
+        if (! empty($form_data['description'])) {
             $meta['_starmus_description'] = sanitize_textarea_field($form_data['description']);
         }
 
-        if ( ! empty($mapped_data['language'])) {
+        if (! empty($mapped_data['language'])) {
             $meta['_starmus_language'] = sanitize_text_field((string) $mapped_data['language']);
         }
 
-        if ( ! empty($form_data['dialect'])) {
+        if (! empty($form_data['dialect'])) {
             $meta['_starmus_dialect'] = sanitize_text_field((string) $form_data['dialect']);
         }
 
-        if ( ! empty($form_data['project_id'])) {
+        if (! empty($form_data['project_id'])) {
             $meta['_starmus_project_id'] = sanitize_text_field($form_data['project_id']);
         }
 
-        if ( ! empty($form_data['interview_type'])) {
+        if (! empty($form_data['interview_type'])) {
             $meta['_starmus_interview_type'] = sanitize_text_field($form_data['interview_type']);
         }
 
         // Content classification
-        if ( ! empty($form_data['story_type'])) {
+        if (! empty($form_data['story_type'])) {
             $meta['_story_type'] = sanitize_text_field($form_data['story_type']);
         }
 
-        if ( ! empty($form_data['rating'])) {
+        if (! empty($form_data['rating'])) {
             $meta['_content_rating'] = sanitize_text_field($form_data['rating']);
         }
 
         // Location context
-        if ( ! empty($form_data['geolocation'])) {
+        if (! empty($form_data['geolocation'])) {
             $meta['_geolocation'] = sanitize_text_field($form_data['geolocation']);
         }
 
-        if ( ! empty($form_data['countries_lived']) && \is_array($form_data['countries_lived'])) {
+        if (! empty($form_data['countries_lived']) && \is_array($form_data['countries_lived'])) {
             $meta['_countries_lived'] = array_map(sanitize_text_field(...), $form_data['countries_lived']);
         }
 
@@ -176,7 +177,7 @@ class StarmusSanitizer
         ];
 
         foreach ($headers as $header) {
-            if ( ! empty($_SERVER[ $header ])) {
+            if (! empty($_SERVER[ $header ])) {
                 $ip = wp_unslash($_SERVER[ $header ]);
                 break;
             }
@@ -220,7 +221,7 @@ class StarmusSanitizer
             $post = get_post($post_id);
 
             // Note: Adjusted check to match 'audio-script' or 'starmus-script' depending on your CPT name
-            if ( ! $post || ! \in_array($post->post_type, ['starmus-script', 'audio-script'], true)) {
+            if (! $post || ! \in_array($post->post_type, ['starmus-script', 'audio-script'], true)) {
                 return [];
             }
 
@@ -243,7 +244,7 @@ class StarmusSanitizer
             );
 
             return $raw_data;
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             return [];
         }
@@ -267,7 +268,7 @@ class StarmusSanitizer
 
     private static function sanitize_complex(mixed $value): string
     {
-        if ( ! \is_string($value)) {
+        if (! \is_string($value)) {
             return (string) json_encode($value);
         }
 

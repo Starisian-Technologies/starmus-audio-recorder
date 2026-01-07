@@ -1,10 +1,10 @@
 <?php
-
 namespace Starisian\Sparxstar\Starmus\core;
 
+use Throwable;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -81,7 +81,7 @@ class StarmusAudioRecorderUpdater
                 'tested'      => $update_data->tested, // e.g., "6.4.1"
                 ];
             }
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::error('[Starmus Audio Recorder Updater] ERROR in check_for_updates: ' . $throwable->getMessage());
             StarmusLogger::log($throwable);
         }

@@ -16,13 +16,18 @@
 
 namespace Starisian\Sparxstar\Starmus\services;
 
-if (! \defined('ABSPATH')) {
-	exit;
-}
+use Throwable;
+use Exception;
 
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+
+if (! \defined('ABSPATH')) {
+	exit;
+}
+
+
 
 /**
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
@@ -100,7 +105,7 @@ final readonly class StarmusFileService
 			// This activates our fix only when AMO is present.
 			add_action(
 				'add_attachment',
-				[$this, 'ensure_attachment_metadata'],
+				$this->ensure_attachment_metadata(...),
 				20, // Priority: Run after attachment is created, before others might use it.
 				1   // We only need the first argument ($attachment_id).
 			);
@@ -190,7 +195,7 @@ final readonly class StarmusFileService
 					]
 				);
 			}
-		} catch (\Throwable $throwable) {
+		} catch (Throwable $throwable) {
 			StarmusLogger::log(
 				$throwable,
 				[
@@ -234,7 +239,7 @@ final readonly class StarmusFileService
 	 * - 120-second download timeout for large files
 	 * - Automatically handles WordPress file URL filtering
 	 *
-	 * @throws \Exception Implicitly via download_url() on network failures
+	 * @throws Exception Implicitly via download_url() on network failures
 	 *
 	 * @return string|null Local file path if available, null on failure
 	 *

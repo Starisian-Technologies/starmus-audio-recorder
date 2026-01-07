@@ -19,7 +19,7 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -58,7 +58,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
             // 1. Validate Post Type (Legacy Requirement)
             // Uses inherited get_post_info from StarmusBaseDAL
             $post_info = $this->get_post_info($post_id);
-            if ( ! $post_info || 'starmus-script' !== $post_info['type']) {
+            if (! $post_info || 'starmus-script' !== $post_info['type']) {
                 return [];
             }
 
@@ -69,9 +69,9 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
             // 3. Calculate Pace
             // If sanitizer returned empty (failure), fallback safely
             $calib  = $data['calibrated_pace_ms'] ?? 0;
-            $mode   = $data['performance_mode'] ?? 'conversational';
-            $energy = $data['energy_level'] ?? 'neutral';
-            $dens   = $data['visual_density'] ?? 28;
+            $mode   = $data['performance_mode']   ?? 'conversational';
+            $energy = $data['energy_level']       ?? 'neutral';
+            $dens   = $data['visual_density']     ?? 28;
 
             $start_pace = $this->resolve_pace($calib, $mode, $energy);
 
@@ -128,7 +128,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
         }
 
         // B: Calculate Heuristic (Legacy Math)
-        $base = self::BASE_SPEEDS[$mode] ?? self::BASE_SPEEDS['default'];
+        $base = self::BASE_SPEEDS[$mode]        ?? self::BASE_SPEEDS['default'];
         $mod  = self::ENERGY_MODIFIERS[$energy] ?? 1.0;
 
         return (int) round($base * $mod);

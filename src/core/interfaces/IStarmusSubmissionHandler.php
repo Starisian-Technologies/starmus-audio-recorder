@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\core\interfaces;
 
 use WP_Error;
@@ -15,16 +14,14 @@ interface IStarmusSubmissionHandler
     /**
      * Handle multipart chunk upload via REST.
      *
-     * @param WP_REST_Request $request
-     * @return array|WP_Error
+     *
      */
     public function handle_upload_chunk_rest_multipart(WP_REST_Request $request): array|WP_Error;
 
     /**
      * Handle base64 chunk upload via REST.
      *
-     * @param WP_REST_Request $request
-     * @return array|WP_Error
+     *
      */
     public function handle_upload_chunk_rest_base64(WP_REST_Request $request): array|WP_Error;
 }

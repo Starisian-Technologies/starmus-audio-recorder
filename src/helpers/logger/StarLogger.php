@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\helpers\logger;
 
 /**
@@ -24,7 +23,6 @@ use function error_log;
 use Exception;
 
 use function implode;
-use function is_admin;
 
 use Psr\Log\AbstractLogger;
 use RuntimeException;
@@ -112,13 +110,13 @@ class StarLogger extends AbstractLogger
 
             // 4. Format and send to error_log
             $formatted = \sprintf(
-            'Starmus-%s [%s]: %s%s',
-            strtoupper($level_str),
-            $caller,
-            $processed_message,
-            $context_str
+                'Starmus-%s [%s]: %s%s',
+                strtoupper($level_str),
+                $caller,
+                $processed_message,
+                $context_str
             );
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             // In case of logging failure, fallback to error_log
             error_log('StarLogger log() failed: ' . $exception->getMessage());
 
@@ -142,21 +140,21 @@ class StarLogger extends AbstractLogger
 
             if ($message instanceof Throwable) {
                 return \sprintf(
-                'EXCEPTION [%s]: %s in %s:%d',
-                $message::class,
-                $message->getMessage(),
-                $message->getFile(),
-                $message->getLine()
+                    'EXCEPTION [%s]: %s in %s:%d',
+                    $message::class,
+                    $message->getMessage(),
+                    $message->getFile(),
+                    $message->getLine()
                 );
             }
 
             if ($message instanceof Exception) {
                 return \sprintf(
-                'EXCEPTION [%s]: %s in %s:%d',
-                $message::class,
-                $message->getMessage(),
-                $message->getFile(),
-                $message->getLine()
+                    'EXCEPTION [%s]: %s in %s:%d',
+                    $message::class,
+                    $message->getMessage(),
+                    $message->getFile(),
+                    $message->getLine()
                 );
             }
 
@@ -164,9 +162,9 @@ class StarLogger extends AbstractLogger
                 $errors = [];
                 foreach ($message->get_error_codes() as $code) {
                     $errors[] = \sprintf(
-                    'WP_Error [%s]: %s',
-                    $code,
-                    implode('; ', $message->get_error_messages($code))
+                        'WP_Error [%s]: %s',
+                        $code,
+                        implode('; ', $message->get_error_messages($code))
                     );
                 }
 
@@ -175,18 +173,18 @@ class StarLogger extends AbstractLogger
 
             if ($message instanceof RuntimeException) {
                 return \sprintf(
-                'RUNTIME EXCEPTION [%s]: %s in %s:%d',
-                $message::class,
-                $message->getMessage(),
-                $message->getFile(),
-                $message->getLine()
+                    'RUNTIME EXCEPTION [%s]: %s in %s:%d',
+                    $message::class,
+                    $message->getMessage(),
+                    $message->getFile(),
+                    $message->getLine()
                 );
             }
 
             if (\is_array($message) || \is_object($message)) {
                 return (string) wp_json_encode($message);
             }
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             // In case of message processing failure, fallback to error_log
             error_log('StarLogger process_message() failed: ' . $exception->getMessage());
 
@@ -212,7 +210,7 @@ class StarLogger extends AbstractLogger
                     return \sprintf('%s::%s', $class, $method);
                 }
             }
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             // In case of caller detection failure, fallback to error_log
             error_log('StarLogger get_caller() failed: ' . $exception->getMessage());
         }

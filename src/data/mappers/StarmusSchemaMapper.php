@@ -14,6 +14,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\data\mappers;
 
+use WP_Query;
 use function get_current_user_id;
 use function get_posts;
 use function get_userdata;
@@ -43,7 +44,7 @@ use Throwable;
 
 use function wp_unslash;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -51,9 +52,9 @@ class StarmusSchemaMapper
 {
     /**
      * MAPPING DEFINITION: 'Old_Frontend_Key' => 'New_Starmus_Key'
-     * 
+     *
      * Direct 1:1 mappings. Replaces the old PASSTHROUGH_ALLOWLIST.
-     * Note: Dates, Users, and JSON blobs are handled specifically in map_form_data(), 
+     * Note: Dates, Users, and JSON blobs are handled specifically in map_form_data(),
      * but are listed here for completeness.
      */
     private const FIELD_MAP = [
@@ -83,7 +84,7 @@ class StarmusSchemaMapper
         'usage_restrictions_rights' => 'starmus_rights_use',
         'access_level'              => 'starmus_access_level',
         'audio_quality_score_tax'   => 'starmus_audio_quality_score',
-        
+
         // -- Technical Data (Distinct Fields) --
         'recording_metadata'        => 'starmus_recording_metadata', // Technical Session JSON
         'processing_log'            => 'starmus_processing_log',     // Audit Trail JSON
@@ -121,7 +122,7 @@ class StarmusSchemaMapper
         'bit_depth'                 => 'starmus_bit_depth',
         'tuning_hz'                 => 'starmus_tuning_hz',
         'channel_layout'            => 'starmus_channel_layout',
-        
+
         // -- Music Composition --
         'bpm'                       => 'starmus_bpm',
         'musical_key'               => 'starmus_musical_key',
@@ -153,7 +154,7 @@ class StarmusSchemaMapper
      *
      * Translates legacy frontend field keys (e.g. 'location') into the new
      * Starmus database schema keys (e.g. 'starmus_session_location').
-     * 
+     *
      * @param array<string, mixed> $data Raw or semi-sanitized form data.
      * @return array<string, mixed> Data ready for ACF saving.
      */
@@ -163,101 +164,43 @@ class StarmusSchemaMapper
 
         try {
             $user_id = get_current_user_id();
-            
-            // 1. PROCESS DIRECT MAPPINGS (Simple Renames)
-            foreach (self::FIELD_MAP as $old_key => $new_key) {
-                // If the frontend sent the OLD name, map it
-                if (isset($data[$old_key])) {
-                    $mapped[$new_key] = $data[$old_key];
-                }
-                // If the frontend sent the NEW name (already refactored), keep it
-                elseif (isset($data[$new_key])) {
-                    $mapped[$new_key] = $data[$new_key];
+
+            // 1. PROCESS PASSTHROUGH FIELDS
+            foreach (self::PASSTHROUGH_ALLOWLIST as $key) {
+                if (isset($data[$key])) {
+                    $mapped[$key] = $data[$key];
                 }
             }
 
             // 2. PROCESS COMPLEX LOGIC & RELATIONSHIPS
 
-            // DC Creator (Fallback Logic)
-            $mapped['starmus_dc_creator'] = empty($data['dc_creator'])
-                ? $data['contributor_name'] ?? 'Unknown Creator'
-                : sanitize_text_field($data['dc_creator']);
+            // DC Creator (Used by Sanitizer to generate _starmus_title)
+            $mapped['dc_creator'] = empty($data['dc_creator'])
+            ? $mapped['contributor_name'] ?? 'Unknown Creator'
+            : (sanitize_text_field($data['dc_creator']));
 
-            // --- User ID to Contributor Post ID Conversions ---
-            // Takes specific User ID from form, finds Post Object, assigns to new Key.
+            // User Links
+            $mapped['copyright_licensor'] = $user_id;
+            $mapped['authorized_user_id'] = $user_id;
 
-            // A. Copyright Licensor
-            if (!empty($data['copyright_licensor'])) {
-                $licensor_id = self::get_contributor_id_for_user((int)$data['copyright_licensor']);
-                if ($licensor_id) {
-                    $mapped['starmus_copyright_licensor'] = $licensor_id;
-                }
+            // Dates
+            $mapped['dc_date_created'] = empty($data['date_created'])
+            ? date('Ymd')
+            : $data['date_created'];
+
+            $mapped['session_date'] = empty($data['session_date'])
+            ? date('Ymd')
+            : $data['session_date'];
+
+            // Geolocation (Used by Sanitizer to generate _starmus_geolocation)
+            if ( ! empty($data['geolocation'])) {
+                $mapped['gps_coordinates'] = $data['geolocation'];
             }
 
-            // B. Authorized Signatory
-            if (!empty($data['authorized_user_id'])) {
-                $signatory_id = self::get_contributor_id_for_user((int)$data['authorized_user_id']);
-                if ($signatory_id) {
-                    $mapped['starmus_authorized_signatory'] = $signatory_id;
-                }
-            }
+            // JSON Blobs (Safely handled)
+            if ( ! empty($data['_starmus_env'])) {
+                $mapped['environment_data'] = self::ensure_json_string($data['_starmus_env'], 'environment_data');
 
-            // C. Subject / Main Contributor
-            $subject_uid = $data['subject_user_id'] ?? $data['contributor_id'] ?? null;
-            if (!empty($subject_uid)) {
-                $subject_id = self::get_contributor_id_for_user((int)$subject_uid);
-                if ($subject_id) {
-                    $mapped['starmus_subject_contributor'] = $subject_id;
-                }
-            }
-
-            // D. Interviewers / Recorders (Array of IDs)
-            if (!empty($data['interviewers_recorders'])) {
-                $raw_ids = is_array($data['interviewers_recorders']) 
-                    ? $data['interviewers_recorders'] 
-                    : explode(',', (string)$data['interviewers_recorders']);
-                
-                $mapped_ids = [];
-                foreach ($raw_ids as $uid) {
-                    $cid = self::get_contributor_id_for_user((int)trim((string)$uid));
-                    if ($cid) {
-                        $mapped_ids[] = $cid;
-                    }
-                }
-                if (!empty($mapped_ids)) {
-                    $mapped['starmus_interviewers_recorders'] = $mapped_ids;
-                }
-            }
-
-            // --- DATES (Store as UTC, Sanitize to Ymd for ACF) ---
-            
-            $created_ts = !empty($data['date_created']) ? strtotime($data['date_created']) : false;
-            $mapped['starmus_date_created'] = ($created_ts !== false) 
-                ? gmdate('Ymd', $created_ts) 
-                : gmdate('Ymd');
-
-            $session_ts = !empty($data['session_date']) ? strtotime($data['session_date']) : false;
-            $mapped['starmus_session_date'] = ($session_ts !== false) 
-                ? gmdate('Ymd', $session_ts) 
-                : gmdate('Ymd');
-
-            // Geolocation
-            if (!empty($data['geolocation'])) {
-                $mapped['starmus_session_gps'] = $data['geolocation'];
-                $mapped['starmus_agree_geo']   = $data['geolocation'];
-            }
-
-            // Agreement Logic (Store as UTC DateTime)
-            if (!empty($data['agreement'])) {
-                $mapped['starmus_agreement_datetime'] = gmdate('Y-m-d H:i:s');
-            }
-
-            // --- JSON BLOBS (Complex Transformations) ---
-
-            // Environment Data (Array -> JSON)
-            if (!empty($data['_starmus_env'])) {
-                $mapped['starmus_environment_data'] = self::ensure_json_string($data['_starmus_env'], 'env');
-                
                 // Extract Fingerprint
                 $env_arr = self::decode_if_json($data['_starmus_env']);
                 if (isset($env_arr['fingerprint'])) {
@@ -265,111 +208,33 @@ class StarmusSchemaMapper
                 }
             }
 
-            // Waveform (String -> JSON)
-            if (!empty($data['waveform_json'])) {
-                $mapped['starmus_waveform_json'] = self::ensure_json_string($data['waveform_json'], 'waveform');
+            if ( ! empty($data['waveform_json'])) {
+                $mapped['waveform_json'] = self::ensure_json_string($data['waveform_json'], 'waveform_json');
             }
 
-            // Recording Metadata (Array -> JSON)
-            if (!empty($data['recording_metadata'])) {
-                $mapped['starmus_recording_metadata'] = self::ensure_json_string(
-                    $data['recording_metadata'], 
-                    'recording_metadata'
-                );
+            if ( ! empty($data['_starmus_calibration'])) {
+                $mapped['transcriber'] = self::ensure_json_string($data['_starmus_calibration'], 'transcriber');
             }
 
-            // Processing Log (Array/String -> JSON)
-            if (!empty($data['processing_log'])) {
-                $mapped['starmus_processing_log'] = self::ensure_json_string(
-                    $data['processing_log'], 
-                    'processing_log'
-                );
+            // Agreement Logic
+            if ( ! empty($data['agreement'])) {
+                $mapped['agreement_to_terms_toggle'] = 1;
+                $mapped['agreement_datetime']        = date('Y-m-d H:i:s');
             }
 
-            // Transcriber Metadata (String -> JSON Object)
-            if (!empty($data['_starmus_calibration'])) {
-                $transcriber_meta = [
-                    'transcriber' => $data['_starmus_calibration']
-                ];
-                $mapped['starmus_transcriber_metadata'] = self::ensure_json_string($transcriber_meta, 'transcriber');
-            } elseif (!empty($data['transcriber'])) {
-                $mapped['starmus_transcriber_metadata'] = self::ensure_json_string(
-                    ['transcriber' => $data['transcriber']], 
-                    'transcriber'
-                );
+            // IP Address
+            if ( ! empty($data['ip_address'])) {
+                $mapped['submission_ip']  = $data['ip_address'];
+                $mapped['contributor_ip'] = $data['ip_address'];
             }
 
-            // Transcribed Date (Date String -> JSON Object)
-            if (!empty($data['transcribed'])) {
-                $mapped['starmus_transcribed_metadata'] = self::ensure_json_string(
-                    ['date' => $data['transcribed']], 
-                    'transcribed_meta'
-                );
+            // Taxonomies (Used by Sanitizer to generate _starmus_language/dialect)
+            if ( ! empty($data['language'])) {
+                $mapped['language'] = (int) $data['language'];
             }
 
-            // Translator Metadata (String -> JSON Object)
-            if (!empty($data['translator'])) {
-                $mapped['starmus_translator_metadata'] = self::ensure_json_string(
-                    ['name' => $data['translator']], 
-                    'translator_meta'
-                );
-            }
-
-            // Translated Date (Date String -> JSON Object)
-            if (!empty($data['translated'])) {
-                $mapped['starmus_translated_metadata'] = self::ensure_json_string(
-                    ['date' => $data['translated']], 
-                    'translated_meta'
-                );
-            }
-
-            // AI Training (Boolean/Int -> JSON Object)
-            if (isset($data['ai_training'])) {
-                $mapped['starmus_ai_training'] = self::ensure_json_string(
-                    ['status' => (bool)$data['ai_training']], 
-                    'ai_training'
-                );
-            }
-
-            // AI Trained Date (Date String -> JSON Object)
-            if (!empty($data['ai_trained'])) {
-                $mapped['starmus_ai_trained'] = self::ensure_json_string(
-                    ['date' => $data['ai_trained']], 
-                    'ai_trained'
-                );
-            }
-
-            // Parental Permission (String URL -> JSON Object)
-            if (!empty($data['parental_permission_slip'])) {
-                $mapped['starmus_parental_permission_slip'] = json_encode([
-                    'file_url' => $data['parental_permission_slip'],
-                    'type'     => 'legacy_frontend_upload'
-                ]);
-            }
-
-            // --- REPEATERS (Array -> JSON String) ---
-
-            if (!empty($data['revision_history'])) {
-                $mapped['starmus_revision_history_json'] = self::ensure_json_string(
-                    $data['revision_history'], 
-                    'revision_history'
-                );
-            }
-
-            if (!empty($data['asset_audit_log'])) {
-                $mapped['starmus_asset_audit_log'] = self::ensure_json_string(
-                    $data['asset_audit_log'], 
-                    'asset_audit_log'
-                );
-            }
-
-            // --- TAXONOMIES ---
-            if (!empty($data['language'])) {
-                $mapped['starmus_tax_language'] = (int) $data['language'];
-            }
-
-            if (!empty($data['dialect'])) {
-                $mapped['starmus_tax_dialect'] = (int) $data['dialect'];
+            if ( ! empty($data['dialect'])) {
+                $mapped['dialect'] = (int) $data['dialect'];
             }
 
         } catch (Throwable $throwable) {
@@ -381,49 +246,6 @@ class StarmusSchemaMapper
     }
 
     /**
-     * Legacy Helper: Extracts User IDs from submission data.
-     * Restored to prevent fatal errors in StarmusSubmissionHandler.
-     *
-     * @param array $data Raw form data.
-     * @return int[] Unique list of User IDs found in the form.
-     */
-    public static function extract_user_ids(array $data): array
-    {
-        $user_ids = [];
-        $keys = ['copyright_licensor', 'authorized_user_id', 'subject_user_id', 'contributor_id'];
-
-        foreach ($keys as $key) {
-            if (!empty($data[$key])) {
-                if (is_array($data[$key])) {
-                    foreach ($data[$key] as $id) {
-                        if (is_numeric($id)) $user_ids[] = (int)$id;
-                    }
-                } elseif (is_numeric($data[$key])) {
-                    $user_ids[] = (int)$data[$key];
-                }
-            }
-        }
-        
-        // Handle 'interviewers_recorders' which might be comma-separated or array
-        if (!empty($data['interviewers_recorders'])) {
-             $interviewers = $data['interviewers_recorders'];
-             if (is_string($interviewers)) {
-                 $ids = explode(',', $interviewers);
-                 foreach ($ids as $id) {
-                     $id = trim($id);
-                     if (is_numeric($id)) $user_ids[] = (int)$id;
-                 }
-             } elseif (is_array($interviewers)) {
-                 foreach ($interviewers as $id) {
-                     if (is_numeric($id)) $user_ids[] = (int)$id;
-                 }
-             }
-        }
-
-        return array_unique($user_ids);
-    }
-
-    /**
      * Check if a specific field key should be treated as JSON.
      * UPDATED: Checks against NEW Starmus keys AND Legacy keys for backward compatibility.
      *
@@ -432,45 +254,47 @@ class StarmusSchemaMapper
      */
     public static function is_json_field(string $field_name): bool
     {
-        $new_keys = [
-            'starmus_environment_data',
-            'starmus_waveform_json',
-            'starmus_transcriber_metadata',
-            'starmus_transcribed_metadata',
-            'starmus_translator_metadata',
-            'starmus_translated_metadata',
-            'starmus_ai_training',
-            'starmus_ai_trained',
-            'starmus_school_reviewed',
-            'starmus_parental_permission_slip',
-            'starmus_contributor_verification',
-            'starmus_transcription_json',
-            'starmus_processing_log',
-            'starmus_recording_metadata',
-            'starmus_asset_audit_log',
-            'starmus_revision_history_json'
-        ];
-
-        // Ensure legacy keys work too if called by old code
-        $legacy_keys = [
-            'environment_data',
-            'waveform_json',
-            'transcriber',
-            'school_reviewed',
-            'parental_permission_slip',
-            'contributor_verification',
-            'transcription_json',
-            'recording_metadata',
-            'processing_log'
-        ];
-
-        return in_array($field_name, array_merge($new_keys, $legacy_keys), true);
+        return \in_array($field_name, [
+        'environment_data',
+        'waveform_json',
+        'transcriber',
+        'school_reviewed',
+        'parental_permission_slip',
+        'contributor_verification',
+        'transcription_json',
+        'recording_metadata',
+        ], true);
     }
 
     /**
-     * Helper: Find the SparxStar Contributor Post for a given User ID.
-     * 
-     * @note This is a Read-Only lookup. It does NOT create new posts to adhere to SRP.
-     * If a contributor is missing, it must be created by a dedicated service before mapping.
+     * Helper: Enforce JSON String with Error Logging.
+     */
+    private static function ensure_json_string(mixed $value, string $context = 'unknown'): string
+    {
+        if (\is_array($value)) {
+            $json = json_encode($value);
+            if (false === $json) {
+                StarmusLogger::error(\sprintf('Mapper JSON Encode Failed (%s): ', $context) . json_last_error_msg());
+                return '{}';
+            }
+
+            return $json;
+        }
+
+        if (\is_string($value)) {
+            json_decode(wp_unslash($value));
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return $value;
+            }
+
+            StarmusLogger::warning(\sprintf('Mapper received invalid JSON string for (%s). Wrapping.', $context));
+            return (string) json_encode(['raw_preserved' => $value]);
+        }
+
+        return '{}';
+    }
+
+    /**
+     * Helper: Decode to Array safely.
      */
     private static function get_contributor_id_for_user(int $user_id): ?int

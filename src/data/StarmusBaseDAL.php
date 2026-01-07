@@ -19,7 +19,7 @@ use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusBaseDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -45,7 +45,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
                 $success = (false !== $result);
             }
 
-            if ( ! $success) {
+            if (! $success) {
                 // EMERGENCY DATA DUMP
                 // If WP/ACF says "False", we log the data so it isn't lost.
                 $this->log_write_failure($post_id, $key, $value);
@@ -80,7 +80,6 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 
             // 2. Native Fallback (Source of Truth for raw DB values)
             return get_post_meta($post_id, $key, $single);
-
         } catch (Throwable $throwable) {
             // 3. Fail Safe: Log the error and return null to prevent WSOD
             StarmusLogger::log($throwable);
@@ -132,20 +131,29 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
             'signature'            => '',
             ];
 
-            if (\function_exists('add_row')) {
-                $result = add_row('revision_history', $row, $post_id);
-                if ( ! $result) {
-                    $this->log_write_failure($post_id, 'revision_history', $row);
-                    return false;
-                }
+            // New Schema: starmus_revision_history_json (JSON String)
+            $existing_json = $this->get_post_meta($post_id, 'starmus_revision_history_json');
 
-                return true;
+            // Normalize input
+            if (\is_array($existing_json)) {
+                $history = $existing_json;
+            } else {
+                $history = json_decode((string) $existing_json, true);
+                if (! \is_array($history)) {
+                    $history = [];
+                }
             }
 
-            // Fallback logic
-            $history   = (array) $this->get_post_meta($post_id, 'revision_history');
             $history[] = $row;
-            return $this->save_post_meta($post_id, 'revision_history', $history);
+
+            // Encode and Save
+            $json_string = json_encode($history);
+            if (false === $json_string) {
+                // Handle encode error?
+                return false;
+            }
+
+            return $this->save_post_meta($post_id, 'starmus_revision_history_json', $json_string);
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             return false;
@@ -163,26 +171,26 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
             'action' => $action,
             ];
 
-            // 1. Try ACF
-            if (\function_exists('add_row')) {
-                $result = add_row('asset_audit_log', $row, $post_id);
+            // New Schema: starmus_asset_audit_log (JSON String)
+            $existing_json = $this->get_post_meta($post_id, 'starmus_asset_audit_log');
 
-                if ($result) {
-                    return true; // <--- CRITICAL FIX: Stop here on success
+            if (\is_array($existing_json)) {
+                $log = $existing_json;
+            } else {
+                $log = json_decode((string) $existing_json, true);
+                if (! \is_array($log)) {
+                    $log = [];
                 }
-
-                // Only log failure if we aren't going to try the fallback?
-                // Or log it and try fallback? Let's try fallback.
-                $this->log_write_failure($post_id, 'asset_audit_log (ACF)', $row);
             }
 
-            // 2. Fallback Logic (Native)
-            // Only runs if ACF is missing or add_row failed
-            $log   = (array) $this->get_post_meta($post_id, 'asset_audit_log');
             $log[] = $row;
 
-            return $this->save_post_meta($post_id, 'asset_audit_log', $log);
+            $json_string = json_encode($log);
+            if (false === $json_string) {
+                return false;
+            }
 
+            return $this->save_post_meta($post_id, 'starmus_asset_audit_log', $json_string);
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             return false;
@@ -201,7 +209,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
             \sprintf('DATA LOSS PREVENTION: Write failed for Post %d, Key: %s. Reason: %s', $post_id, $key, $error_msg),
             [
         'failed_payload' => $safe_value, // The data is now safe in the log
-            ]
+        ]
         );
     }
 }

@@ -9,10 +9,11 @@
  *
  * @since 0.7.4
  */
-
 namespace Starisian\Sparxstar\Starmus\helpers;
 
-if ( ! \defined('ABSPATH')) {
+use Throwable;
+
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -29,7 +30,7 @@ class StarmusTemplateLoaderHelper
      */
     public static function secure_render_template(string $template, array $args = [], string $user_group = 'admin'): string
     {
-        if ( ! is_user_logged_in()) {
+        if (! is_user_logged_in()) {
             return '<p>' . esc_html__('You must be logged in to record audio.', 'starmus-audio-recorder') . '</p>';
         }
 
@@ -87,7 +88,7 @@ class StarmusTemplateLoaderHelper
 
             $template_path = self::locate_template($template);
 
-            if ( ! $template_path) {
+            if (! $template_path) {
                 error_log('[StarmusTemplateLoader] Template not found: ' . $template);
                 error_log('[StarmusTemplateLoader] STARMUS_PATH: ' . (\defined('STARMUS_PATH') ? STARMUS_PATH : 'NOT DEFINED'));
                 return '<div class="notice notice-error"><p>Template not found: ' . esc_html($template) . '</p></div>';
@@ -106,7 +107,7 @@ class StarmusTemplateLoaderHelper
             error_log('[StarmusTemplateLoader] Template rendered successfully');
 
             return $output;
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             error_log($throwable->getMessage());
             return '<div class="notice notice-error"><p>' . esc_html__('Template loading failed: ', 'starmus-audio-recorder') . esc_html($throwable->getMessage()) . '</p></div>';
         }

@@ -11,7 +11,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\data\interfaces;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 

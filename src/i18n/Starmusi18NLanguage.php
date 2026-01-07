@@ -16,17 +16,14 @@
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\i18n;
 
-
-use Starisian\Sparxstar\Starmus\StarmusLogger;
 use function esc_attr;
 use function esc_html;
 use function load_plugin_textdomain;
 use function plugin_basename;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -75,7 +72,7 @@ final class Starmusi18NLanguage
     public function register_hooks(): void
     {
         // Load text domain on plugins_loaded action
-        add_action('plugins_loaded', [$this, 'load_textdomain']);
+        add_action('plugins_loaded', $this->load_textdomain(...));
     }
 
     /**
@@ -95,9 +92,9 @@ final class Starmusi18NLanguage
     public function load_textdomain(): void
     {
         load_plugin_textdomain(
-        self::DOMAIN,
-        false,
-        \dirname(plugin_basename(__FILE__), 2) . '/languages'
+            self::DOMAIN,
+            false,
+            \dirname(plugin_basename(__FILE__), 2) . '/languages'
         );
     }
 

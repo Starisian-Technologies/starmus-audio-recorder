@@ -5,8 +5,10 @@ namespace Starisian\Sparxstar\Starmus\services;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\services\StarmusEnhancedId3Service;
+use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -19,8 +21,6 @@ if ( ! \defined('ABSPATH')) {
 final class StarmusFFmpegService
 {
     private string $ffmpeg_path;
-
-    private const PATHINFO_FILENAME = 'filename';
 
     private ?StarmusEnhancedId3Service $id3_service = null;
 
@@ -175,10 +175,10 @@ final class StarmusFFmpegService
     {
         $analysis = $this->id3_service->analyzeFile($source);
 
-        if ( ! empty($analysis['comments'])) {
+        if (! empty($analysis['comments'])) {
             $tags = [];
             foreach ($analysis['comments'] as $key => $values) {
-                if ( ! empty($values[0])) {
+                if (! empty($values[0])) {
                     $tags[ $key ] = $values;
                 }
             }

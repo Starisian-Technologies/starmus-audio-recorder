@@ -13,7 +13,7 @@
  * @version 0.9.2
  */
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -24,13 +24,13 @@ $allowed_types_arr = array_values(array_filter(array_map('trim', explode(',', (s
 $is_admin          = current_user_can('manage_options');
 $languages         = get_terms(
     [
-        'taxonomy'   => 'language',
+        'taxonomy'   => 'starmus_tax_language',
         'hide_empty' => false,
     ]
 );
 $recording_types = get_terms(
     [
-        'taxonomy'   => 'recording-type',
+        'taxonomy'   => 'starmus_story_type',
         'hide_empty' => false,
     ]
 );
@@ -72,7 +72,7 @@ $data_policy_url ??= '';
 				<input
 					type="text"
 					id="starmus_title_<?php echo esc_attr($instance_id); ?>"
-					name="dc_creator"
+					name="starmus_dc_creator"
 					maxlength="200"
 					required>
 			</div>
@@ -84,10 +84,10 @@ $data_policy_url ??= '';
 				</label>
 				<select
 					id="starmus_language_<?php echo esc_attr($instance_id); ?>"
-					name="language"
+					name="starmus_tax_language"
 					required>
 					<option value=""><?php esc_html_e('Select Language', 'starmus-audio-recorder'); ?></option>
-					<?php if ( ! empty($languages) && is_array($languages)) { ?>
+					<?php if (! empty($languages) && is_array($languages)) { ?>
             <?php foreach ($languages as $lang) { ?>
 							<option value="<?php echo esc_attr($lang->term_id); ?>">
                 <?php echo esc_html($lang->name); ?>
@@ -104,10 +104,10 @@ $data_policy_url ??= '';
 				</label>
 				<select
 					id="starmus_recording_type_<?php echo esc_attr($instance_id); ?>"
-					name="recording_type"
+					name="starmus_story_type"
 					required>
 					<option value=""><?php esc_html_e('Select Type', 'starmus-audio-recorder'); ?></option>
-					<?php if ( ! empty($recording_types) && is_array($recording_types)) { ?>
+					<?php if (! empty($recording_types) && is_array($recording_types)) { ?>
             <?php foreach ($recording_types as $type) { ?>
 							<option value="<?php echo esc_attr($type->term_id); ?>">
                 <?php echo esc_html($type->name); ?>
@@ -133,7 +133,7 @@ $data_policy_url ??= '';
 						required>
 					<label for="starmus_consent_<?php echo esc_attr($instance_id); ?>">
 						<?php echo wp_kses_post($consent_message); ?>
-						<?php if ( ! empty($data_policy_url)) { ?>
+						<?php if (! empty($data_policy_url)) { ?>
 							<a
 								href="<?php echo esc_url($data_policy_url); ?>"
 								target="_blank"
@@ -147,21 +147,21 @@ $data_policy_url ??= '';
 			<!-- These must be present and named exactly for the JS to inject final telemetry and calibration data -->
 			<input type="hidden" name="_starmus_calibration" value="">
 			<input type="hidden" name="_starmus_env" value="">
-			<input type="hidden" name="recording_metadata" value="">
-			<input type="hidden" name="waveform_json" value="">
+			<input type="hidden" name="starmus_recording_metadata" value="">
+			<input type="hidden" name="starmus_waveform_json" value="">
 
 			<!-- NEW SCHEMA FIELDS - Properly mapped -->
-			<input type="hidden" name="project_collection_id" value="">
-			<input type="hidden" name="accession_number" value="">
-			<input type="hidden" name="session_date" value="">
-			<input type="hidden" name="session_start_time" value="">
-			<input type="hidden" name="location" value="">
-			<input type="hidden" name="gps_coordinates" value="">
-			<input type="hidden" name="recording_equipment" value="">
-			<input type="hidden" name="media_condition_notes" value="">
+			<input type="hidden" name="starmus_project_collection_id" value="">
+			<input type="hidden" name="starmus_accession_number" value="">
+			<input type="hidden" name="starmus_session_date" value="">
+			<input type="hidden" name="starmus_session_start_time" value="">
+			<input type="hidden" name="starmus_session_location" value="">
+			<input type="hidden" name="starmus_session_gps" value="">
+			<input type="hidden" name="starmus_recording_equipment" value="">
+			<input type="hidden" name="starmus_media_condition" value="">
 			<input type="hidden" name="related_consent_agreement" value="">
 			<input type="hidden" name="usage_restrictions_rights" value="">
-			<input type="hidden" name="access_level" value="">
+			<input type="hidden" name="starmus_access_level" value="">
 			<input type="hidden" name="contributor_user_agent" value="">
 			<input type="hidden" name="url" value="">
 
