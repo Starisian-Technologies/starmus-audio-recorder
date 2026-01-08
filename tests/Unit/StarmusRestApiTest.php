@@ -23,10 +23,10 @@ final class StarmusRestApiTest extends TestCase
 	protected function setUp(): void
 	{
 		$dal = $this->createMock(IStarmusAudioDAL::class);
-		$settings = $this->createMock(StarmusSettings::class);
-		$submission_handler = $this->createMock(StarmusSubmissionHandler::class);
+		$settings = new StarmusSettings();
+		$submission_handler = new StarmusSubmissionHandler($dal, $settings);
 
-        $this->handler = new StarmusRESTHandler($dal, $settings, $submission_handler);
+		$this->handler = new StarmusRESTHandler($dal, $settings, $submission_handler);
 	}
 
 	public function testUploadPermissionsRequireCapability(): void

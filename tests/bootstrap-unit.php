@@ -268,4 +268,3 @@ if (!function_exists('wp_json_encode')) {
 if (!defined('STARMUS_REST_NAMESPACE')) {
 	define('STARMUS_REST_NAMESPACE', 'starmus/v1');
 }
-
