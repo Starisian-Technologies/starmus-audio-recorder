@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace Starmus\Tests\Integration;
 
+use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
+
 class RestApiTest extends \WP_UnitTestCase
 {
 
@@ -26,7 +28,7 @@ class RestApiTest extends \WP_UnitTestCase
 		]);
 		wp_set_current_user($this->user_id);
 
-		$this->ui = new \Starmus\frontend\StarmusAudioRecorderUI();
+		$this->ui = new StarmusAudioRecorderUI(null);
 	}
 
 	public function test_rest_namespace_follows_star_convention()

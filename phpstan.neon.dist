@@ -14,7 +14,7 @@ parameters:
 
   # Configure WordPress-specific settings
   bootstrapFiles:
-    - wordpress-mocks.php
+    - tests/wordpress-mocks.php
 
   # Consolidated and cleaned-up exclusion paths
   excludePaths:
@@ -36,26 +36,26 @@ parameters:
     - '#Function get_field not found#'
     - '#Undefined variable: \$wpdb#'
     - '#Access to an undefined property#'
-    
+
     # Core PHP functions that PHPStan doesn't recognize
     - '#Undefined function .*(defined|function_exists|class_exists|file_exists|dirname|intval|array_unique|max|ceil|rawurlencode|usort|array_slice)#'
-    
+
     # Standard exception types
     - '#Undefined type .*(Throwable|RuntimeException|LogicException)#'
-    
+
     # Plugin constants defined elsewhere
     - '#Constant STARMUS_URL not found#'
     - '#Constant STARMUS_PATH not found#'
     - '#Undefined constant.*STARMUS_DAL_OVERRIDE_KEY#'
-    
+
     # Missing service classes (to be implemented)
     - '#Use of unknown class.*StarmusStatsDataService#'
     - '#has unknown class.*StarmusStatsDataService#'
     - '#invalid type.*StarmusStatsDataService#'
-    
+
     # WordPress-specific patterns
     - '#Method.*has parameter.*with generic class WP_REST_Request but does not specify its types#'
-    
+
     # Allow African runtime monitoring patterns
     - '#error_log.*STARMUS PHP.*is not allowed#'
     - '#Call to function set_error_handler.*not found#'
