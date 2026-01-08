@@ -167,7 +167,7 @@ if ( ! class_exists('ACF')) {
         error_log('Starmus Error: Bundled SCF not found at ' . SPARXSTAR_SCF_PATH);
     }
 }
-if (STARMUS_PATH . '/acf-json')) {
+if (directory_exists(STARMUS_PATH . '/acf-json')) {
     error_log('Starmus Info: Secure Custom Fields plugin loaded successfully.');
     // -------------------------------------------------------------------------
     // 4. JSON CONFIGURATION (Install CPTs/Fields)
@@ -180,7 +180,7 @@ if (STARMUS_PATH . '/acf-json')) {
 				$paths[] = STARMUS_PATH . '/acf-json';
 				return $paths;
 			});
-		}
+		
         error_log('Starmus Info: ACF JSON configuration path added: ' . STARMUS_PATH . '/acf-json');
     } catch (\Throwable $e) {
         error_log('Starmus Error: Failed to add ACF JSON configuration path: ' . $e->getMessage());
