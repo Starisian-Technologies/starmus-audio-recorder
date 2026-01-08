@@ -289,6 +289,7 @@ final class StarmusAudioRecorder
         try {
             if (class_exists(StarmusSettings::class)) {
                 $this->settings = new StarmusSettings();
+				StarmusLogger::info('Starmus Info: StarmusSettings initialized successfully.');
                 return;
             }
         } catch (Throwable $throwable) {
@@ -319,7 +320,7 @@ final class StarmusAudioRecorder
             $override_key      = \defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
             $filtered_recorder = apply_filters('starmus_register_dal', $default_recorder, $override_key);
 
-            if ($filtered_recorder instanceof IStarmusAudioDAL) {
+            if ($filtered_recorder instanceof StarmusAudioDAL) {
                 // Handshake Validation
                 if ($filtered_recorder !== $default_recorder) {
                     $expected = (string) ($override_key ?? '');
@@ -335,6 +336,7 @@ final class StarmusAudioRecorder
             } else {
                 $this->DAL = $default_recorder;
             }
+			StarmusLogger::info('Starmus Info: StarmusAudioDAL initialized successfully.');
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             $this->DAL = new StarmusAudioDAL(); // Fail safe
@@ -346,6 +348,7 @@ final class StarmusAudioRecorder
         try {
             if (class_exists(StarmusProsodyDAL::class)) {
                 $this->prosodyDAL = new StarmusProsodyDAL();
+				StarmusLogger::info('Starmus Info: StarmusProsodyDAL initialized successfully.');
                 return;
             }
         } catch (Throwable $throwable) {
@@ -359,6 +362,7 @@ final class StarmusAudioRecorder
             if (class_exists(Starmusi18NLanguage::class)) {
                 $i18n = new Starmusi18NLanguage();
                 $i18n->register_hooks();
+				StarmusLogger::info('Starmus Info: Starmusi18NLanguage initialized successfully.');
                 return;
             }
         } catch (Throwable $throwable) {
@@ -372,6 +376,7 @@ final class StarmusAudioRecorder
             if (class_exists(StarmusCLI::class) && \defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
                 $cli = new StarmusCLI($this->DAL, $this->settings);
                 $cli->register_hooks();
+				StarmusLogger::info('Starmus Info: StarmusCLI initialized successfully.');
                 return;
             }
         } catch (Throwable $throwable) {
@@ -386,12 +391,14 @@ final class StarmusAudioRecorder
             // Admin
             if (class_exists(StarmusAdmin::class) && is_admin()) {
                 new StarmusAdmin($this->DAL, $this->settings);
+				StarmusLogger::info('Starmus Info: StarmusAdmin initialized successfully.');
                 return;
             }
 
             // Shortcodes
             if (class_exists(StarmusShortcodeLoader::class)) {
                 new StarmusShortcodeLoader($this->DAL, $this->settings, $this->prosodyDAL);
+				StarmusLogger::info('Starmus Info: StarmusShortcodeLoader initialized successfully.');
                 return;
             }
         } catch (Throwable $throwable) {

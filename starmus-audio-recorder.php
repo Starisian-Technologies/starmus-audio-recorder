@@ -50,24 +50,6 @@
 
 declare(strict_types=1);
 
-use Throwable;
-use ACF;
-use function register_shutdown_function;
-use function register_activation_hook;
-use function register_deactivation_hook;
-use function register_uninstall_hook;
-use function add_action;
-use function file_exists;
-use function class_exists;
-use function error_log;
-use function defined;
-use function define;
-use function is_admin;
-use function plugin_dir_path;
-use function plugin_dir_url;
-use function flush_rewrite_rules;
-use function in_array;
-use function add_filter;
 
 if ( ! defined('ABSPATH')) {
     exit;
@@ -205,7 +187,7 @@ add_action('plugins_loaded', static function (): void {
         }
         error_log('Starmus Info: Initializing Starmus Audio Recorder plugin.');
         // Boot the App Instance
-        \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_get_instance();
+        \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_run();
     } catch (\Throwable $e) {
         error_log('Starmus App Boot Failed: ' . $e->getMessage());
     }
