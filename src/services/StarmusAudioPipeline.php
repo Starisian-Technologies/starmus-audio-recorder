@@ -9,7 +9,7 @@ use Starisian\Sparxstar\Starmus\services\StarmusEnhancedId3Service;
 use Starisian\Sparxstar\Starmus\services\StarmusFFmpegService;
 
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -61,7 +61,7 @@ final class StarmusAudioPipeline
             $upload_dir = wp_upload_dir();
             $output_dir = $upload_dir['path'] . '/starmus_processed';
 
-            if (! is_dir($output_dir)) {
+            if ( ! is_dir($output_dir)) {
                 wp_mkdir_p($output_dir);
             }
 
@@ -103,18 +103,18 @@ final class StarmusAudioPipeline
      */
     private function extractKeyMetadata(array $analysis): array
     {
-        $audio    = $analysis['audio']    ?? [];
+        $audio    = $analysis['audio'] ?? [];
         $comments = $analysis['comments'] ?? [];
 
         return [
-        'format'       => $analysis['fileformat']    ?? 'unknown',
+        'format'       => $analysis['fileformat'] ?? 'unknown',
         'duration'     => $audio['playtime_seconds'] ?? 0,
-        'bitrate'      => $audio['bitrate']          ?? 0,
-        'sample_rate'  => $audio['sample_rate']      ?? 0,
-        'channels'     => $audio['channels']         ?? 0,
-        'file_size'    => $analysis['filesize']      ?? 0,
-        'title'        => $comments['title'][0]      ?? '',
-        'artist'       => $comments['artist'][0]     ?? '',
+        'bitrate'      => $audio['bitrate'] ?? 0,
+        'sample_rate'  => $audio['sample_rate'] ?? 0,
+        'channels'     => $audio['channels'] ?? 0,
+        'file_size'    => $analysis['filesize'] ?? 0,
+        'title'        => $comments['title'][0] ?? '',
+        'artist'       => $comments['artist'][0] ?? '',
         'quality_tier' => $this->assessQuality($audio),
         ];
     }
@@ -147,15 +147,15 @@ final class StarmusAudioPipeline
     {
         $parts = [];
 
-        if (! empty($form_data['description'])) {
+        if ( ! empty($form_data['description'])) {
             $parts[] = $form_data['description'];
         }
 
-        if (! empty($form_data['location'])) {
+        if ( ! empty($form_data['location'])) {
             $parts[] = 'Recorded in: ' . $form_data['location'];
         }
 
-        if (! empty($form_data['recording_type'])) {
+        if ( ! empty($form_data['recording_type'])) {
             $parts[] = 'Type: ' . $form_data['recording_type'];
         }
 
@@ -167,7 +167,7 @@ final class StarmusAudioPipeline
      */
     private function assessQuality(array $audio): string
     {
-        $bitrate     = $audio['bitrate']     ?? 0;
+        $bitrate     = $audio['bitrate'] ?? 0;
         $sample_rate = $audio['sample_rate'] ?? 0;
 
         if ($bitrate >= 256000 && $sample_rate >= 44100) {

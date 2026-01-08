@@ -22,15 +22,14 @@ final class StarmusShortcodeLoader
 {
     /**
 Settings service instance.
-@var StarmusSettings
 /
     private ?StarmusSettings $settings = null;
 
     /**
 Data Access Layer instance.
-@var StarmusAudioDAL
 /
-    private ?StarmusAudioDAL $dal = null;
+    private ?IStarmusAudioDAL $dal = null;
+
     /**
 Prosody player instance.
 /
@@ -39,7 +38,7 @@ Prosody player instance.
     /**
 @param IStarmusAudioDAL|null $dal The data access layer.
 @param StarmusSettings|null $settings The settings instance.
-@param StarmusProsodyDAL|null $prosodyDal The prosody DAL instance.
+@param IStarmusProsodyDAL|null $prosody_dal The prosody DAL instance.
 
 ### `register_shortcodes()`
 

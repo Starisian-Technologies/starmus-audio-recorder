@@ -77,7 +77,7 @@ namespace Starisian\Sparxstar\Starmus\api;
 
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -232,7 +232,7 @@ final class StarmusRESTHandler
         'methods'             => 'POST', // or WP_REST_Server::CREATABLE
         'callback'            => $this->submission_handler->handle_upload_chunk_rest_multipart(...),
         'permission_callback' => $this->upload_permissions_check(...),
-        ]
+            ]
         );
 
         // 2. Fallback Handler (Direct POST)
@@ -243,7 +243,7 @@ final class StarmusRESTHandler
         'methods'             => 'POST',
         'callback'            => $this->handle_fallback_upload(...),
         'permission_callback' => $this->upload_permissions_check(...),
-        ]
+            ]
         );
 
         // 3. Legacy Base64
@@ -254,7 +254,7 @@ final class StarmusRESTHandler
         'methods'             => 'POST',
         'callback'            => $this->submission_handler->handle_upload_chunk_rest_base64(...),
         'permission_callback' => $this->upload_permissions_check(...),
-        ]
+            ]
         );
 
         // 4. Status Check
@@ -270,7 +270,7 @@ final class StarmusRESTHandler
          'validate_callback' => 'is_numeric',
         ],
         ],
-        ]
+            ]
         );
     }
 
@@ -375,12 +375,12 @@ final class StarmusRESTHandler
                 [
             'component' => self::class,
             'file_keys' => array_keys($files),
-            ]
+                ]
             );
 
             // Defensive file-key handling
             $file = $files['audio_file'] ?? ($files['file'] ?? null);
-            if (! $file || ! \is_array($file) || empty($file['tmp_name'])) {
+            if ( ! $file || ! \is_array($file) || empty($file['tmp_name'])) {
                 return new WP_REST_Response(
                     [ // Explicit Response object for errors
                      'code'    => 'server_error',
@@ -400,7 +400,7 @@ final class StarmusRESTHandler
                   'code'    => $result->get_error_code(),
                   'message' => $result->get_error_message(),
                   'data'    => ['status' => 500],
-                 ],
+                    ],
                     500
                 );
             }
@@ -412,14 +412,14 @@ final class StarmusRESTHandler
             do_action(
                 'starmus_submission_complete',
                 $submission_data['attachment_id'] ?? 0,
-                $submission_data['post_id']       ?? 0
+                $submission_data['post_id'] ?? 0
             );
 
             return new WP_REST_Response(
                 [
             'success' => true,
             'data'    => $submission_data,
-            ],
+                ],
                 200
             );
         } catch (Throwable $throwable) {
@@ -429,7 +429,7 @@ final class StarmusRESTHandler
             'code'    => 'server_error',
             'message' => __('Upload failed. Please try again later.', 'starmus-audio-recorder'),
             'data'    => ['status' => 500],
-            ],
+                ],
                 500
             );
         }
@@ -533,12 +533,12 @@ final class StarmusRESTHandler
 
         try {
             $post_info = $this->dal->get_post_info($post_id);
-            if (! $post_info) {
+            if ( ! $post_info) {
                 return new WP_REST_Response(
                     [
                   'code'    => 'not_found',
                   'message' => 'Submission not found',
-                 ],
+                    ],
                     404
                 );
             }
@@ -548,7 +548,7 @@ final class StarmusRESTHandler
                     [
                 'code'    => 'invalid_type',
                 'message' => 'Not an audio recording',
-                ],
+                    ],
                     403
                 );
             }
@@ -561,7 +561,7 @@ final class StarmusRESTHandler
             'status' => $post_info['status'],
             'type'   => $post_info['type'],
             ],
-            ],
+                ],
                 200
             );
         } catch (Throwable $throwable) {
@@ -570,7 +570,7 @@ final class StarmusRESTHandler
                 [
             'code'    => 'server_error',
             'message' => 'Could not fetch status',
-            ],
+                ],
                 500
             );
         }

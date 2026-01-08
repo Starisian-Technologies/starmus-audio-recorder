@@ -20,7 +20,10 @@ Front-end presentation layer for the Starmus recorder experience.
 /
 namespace Starisian\Sparxstar\Starmus\frontend;
 
-if (! \defined('ABSPATH')) {
+use Throwable;
+use Exception;
+
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

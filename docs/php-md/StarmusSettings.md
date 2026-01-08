@@ -28,9 +28,31 @@ Optimized and secure settings management for the Starmus plugin.
 /
 namespace Starisian\Sparxstar\Starmus\core;
 
+use Throwable;
+use function absint;
+use function apply_filters;
+use function array_filter;
+use function array_map;
+use function delete_option;
+use function esc_url_raw;
+use function explode;
+use function get_option;
+use function implode;
+use function max;
+use function min;
+use function pathinfo;
+use function preg_replace;
+use function sanitize_key;
+use function sanitize_text_field;
+
+use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
-if (! \defined('ABSPATH')) {
+use function strtolower;
+use function trailingslashit;
+use function update_option;
+
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -44,7 +66,7 @@ Integrates with WordPress options API for persistent storage.
 @since 0.3.1
 @author Starisian Technologies (Max Barrett) <support@starisian.com>
 /
-final class StarmusSettings
+final class StarmusSettings implements IStarmusSettings
 {
     /**
 Whitelisted MIME types for audio/video file uploads.
@@ -53,24 +75,24 @@ Maps file extensions to their corresponding MIME types.
 @var array<string, string>
 /
     private const ALLOWED_MIMES = [
-        'mp3'  => 'audio/mpeg',
-        'wav'  => 'audio/wav',
-        'ogg'  => 'audio/ogg',
-        'oga'  => 'audio/ogg',
-        'opus' => 'audio/ogg; codecs=opus',
-        'weba' => 'audio/webm',
-        'aac'  => 'audio/aac',
-        'm4a'  => 'audio/mp4',
-        'flac' => 'audio/flac',
-        'mp4'  => 'video/mp4',
-        'm4v'  => 'video/x-m4v',
-        'mov'  => 'video/quicktime',
-        'webm' => 'video/webm',
-        'ogv'  => 'video/ogg',
-        'avi'  => 'video/x-msvideo',
-        'wmv'  => 'video/x-ms-wmv',
-        '3gp'  => 'video/3gpp',
-        '3g2'  => 'video/3gpp2',
+    'mp3'  => 'audio/mpeg',
+    'wav'  => 'audio/wav',
+    'ogg'  => 'audio/ogg',
+    'oga'  => 'audio/ogg',
+    'opus' => 'audio/ogg; codecs=opus',
+    'weba' => 'audio/webm',
+    'aac'  => 'audio/aac',
+    'm4a'  => 'audio/mp4',
+    'flac' => 'audio/flac',
+    'mp4'  => 'video/mp4',
+    'm4v'  => 'video/x-m4v',
+    'mov'  => 'video/quicktime',
+    'webm' => 'video/webm',
+    'ogv'  => 'video/ogg',
+    'avi'  => 'video/x-msvideo',
+    'wmv'  => 'video/x-ms-wmv',
+    '3gp'  => 'video/3gpp',
+    '3g2'  => 'video/3gpp2',
     ];
 
     /**
@@ -190,7 +212,6 @@ REVERTED: Now deletes option.
 
 Legacy wrapper (deprecated).
 @param mixed $default
-@return mixed
 
 ### `filter_filetype_and_ext()`
 

@@ -60,8 +60,8 @@ use function trim;
 use function uniqid;
 use function wp_json_encode;
 
-if (! \defined('ABSPATH')) {
-	exit;
+if ( ! \defined('ABSPATH')) {
+    exit;
 }
 
 // FIX: Removed 'readonly' for PHP < 8.2 compatibility
@@ -213,11 +213,11 @@ final class StarmusWaveformService
         'component'     => self::class,
         'attachment_id' => $attachment_id,
         'post_id'       => $explicit_parent_id,
-        ]
+            ]
         );
 
         // 1. Tool Check
-        if (! $this->is_tool_available()) {
+        if ( ! $this->is_tool_available()) {
             StarmusLogger::warning(
                 'audiowaveform binary missing. Skipping.',
                 ['component' => self::class, 'attachment_id' => $attachment_id]
@@ -241,26 +241,26 @@ final class StarmusWaveformService
 
         // 3. Skip if exists
         $existing = get_post_meta($recording_id, 'waveform_json', true);
-        if (! empty($existing)) {
+        if ( ! empty($existing)) {
             return true;
         }
 
         // 4. Get File Path (FIXED SYNTAX)
         $file_path = $this->files->get_local_copy($attachment_id);
 
-        if (! $file_path || ! file_exists($file_path)) {
+        if ( ! $file_path || ! file_exists($file_path)) {
             // Fallback to standard WP path
             $file_path = get_attached_file($attachment_id);
         }
 
-        if (! $file_path || ! file_exists($file_path)) {
+        if ( ! $file_path || ! file_exists($file_path)) {
             StarmusLogger::info('Audio file not found: ' . $attachment_id);
             return false;
         }
 
         // 5. Generate
         $data = $this->extract_waveform_from_file($file_path);
-        if (! $data || empty($data['data'])) {
+        if ( ! $data || empty($data['data'])) {
             StarmusLogger::error('Waveform extraction returned empty data: ' . $attachment_id);
             return false;
         }
@@ -284,7 +284,7 @@ final class StarmusWaveformService
             'component'     => self::class,
             'attachment_id' => $attachment_id,
             'post_id'       => $recording_id,
-            ]
+                ]
             );
             return true;
         } catch (Throwable $throwable) {

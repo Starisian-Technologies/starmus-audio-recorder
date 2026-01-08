@@ -5,7 +5,7 @@ namespace Starisian\Sparxstar\Starmus\frontend;
 
 use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -48,7 +48,7 @@ final class StarmusShortcodeLoader
     {
         try {
             $this->settings = $settings ?? new StarmusSettings();
-            $this->dal      = $dal      ?? new StarmusAudioDAL();
+            $this->dal      = $dal ?? new StarmusAudioDAL();
             // Ensure prosody engine is set up
             $this->set_prosody_engine($prosody_dal);
             $this->register_hooks();
@@ -112,7 +112,7 @@ final class StarmusShortcodeLoader
      */
     public function render_my_recordings_shortcode(array $atts = []): string
     {
-        if (! is_user_logged_in()) {
+        if ( ! is_user_logged_in()) {
             return '<p>' . esc_html__('You must be logged in to view your recordings.', 'starmus-audio-recorder') . '</p>';
         }
 
@@ -128,7 +128,7 @@ final class StarmusShortcodeLoader
                 [
             'query'         => $query,
             'edit_page_url' => $this->dal->get_edit_page_url_admin($cpt_slug),
-            ]
+                ]
             );
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -142,7 +142,7 @@ final class StarmusShortcodeLoader
     public function render_submission_detail_shortcode(): string
     {
         try {
-            if (! is_singular('audio-recording')) {
+            if ( ! is_singular('audio-recording')) {
                 return '<p><em>[starmus_recording_detail] can only be used on a single audio recording page.</em></p>';
             }
 
@@ -172,7 +172,7 @@ final class StarmusShortcodeLoader
     public function render_submission_detail_via_filter(string $content): string
     {
         try {
-            if (! is_singular('audio-recording') || ! in_the_loop() || ! is_main_query()) {
+            if ( ! is_singular('audio-recording') || ! in_the_loop() || ! is_main_query()) {
                 return $content;
             }
 
@@ -221,7 +221,7 @@ final class StarmusShortcodeLoader
 
             // Parse annotations
             $annotations_data = [];
-            if (! empty($context['annotations_json']) && \is_string($context['annotations_json'])) {
+            if ( ! empty($context['annotations_json']) && \is_string($context['annotations_json'])) {
                 $decoded = json_decode($context['annotations_json'], true);
                 if (\is_array($decoded)) {
                     $annotations_data = $decoded;
@@ -240,7 +240,7 @@ final class StarmusShortcodeLoader
             'nonce'           => wp_create_nonce('wp_rest'),
             'mode'            => 'editor',
             'canCommit'       => current_user_can('publish_posts'),
-            ]
+                ]
             );
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);

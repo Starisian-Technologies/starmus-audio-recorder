@@ -13,7 +13,6 @@ Provides comprehensive audio processing pipeline for recorded submissions.
 Integrates FFmpeg transcoding, loudness normalization, ID3 tagging, and
 waveform generation for optimal mobile/web delivery.
 Key Features:
-
 - **EBU R128 Loudness Normalization**: Professional broadcast standards
 - **Network-Adaptive Processing**: Quality profiles for 2G/3G/4G networks
 - **Dual-Format Output**: MP3 for delivery, WAV for archival
@@ -21,7 +20,6 @@ Key Features:
 - **Waveform Generation**: Visual audio analysis data
 - **Offload-Aware File Handling**: CloudFlare R2/S3 compatibility
 Processing Pipeline:
-
 1. **File Acquisition**: Local copy retrieval (handles offloaded files)
 2. **Loudness Analysis**: Two-pass EBU R128 measurement and normalization
 3. **Network Profiling**: Adaptive frequency filtering based on connection
@@ -31,7 +29,6 @@ Processing Pipeline:
 7. **Waveform Generation**: JSON visualization data
 8. **Post Metadata Update**: Processing results and file references
 Technical Requirements:
-
 - FFmpeg binary available in system PATH or configured location
 - Write permissions to WordPress uploads directory
 - Sufficient disk space for temporary processing files
@@ -66,7 +63,6 @@ Provides comprehensive audio processing pipeline for recorded submissions.
 Integrates FFmpeg transcoding, loudness normalization, ID3 tagging, and
 waveform generation for optimal mobile/web delivery.
 Key Features:
-
 - **EBU R128 Loudness Normalization**: Professional broadcast standards
 - **Network-Adaptive Processing**: Quality profiles for 2G/3G/4G networks
 - **Dual-Format Output**: MP3 for delivery, WAV for archival
@@ -74,7 +70,6 @@ Key Features:
 - **Waveform Generation**: Visual audio analysis data
 - **Offload-Aware File Handling**: CloudFlare R2/S3 compatibility
 Processing Pipeline:
-
 1. **File Acquisition**: Local copy retrieval (handles offloaded files)
 2. **Loudness Analysis**: Two-pass EBU R128 measurement and normalization
 3. **Network Profiling**: Adaptive frequency filtering based on connection
@@ -84,7 +79,6 @@ Processing Pipeline:
 7. **Waveform Generation**: JSON visualization data
 8. **Post Metadata Update**: Processing results and file references
 Technical Requirements:
-
 - FFmpeg binary available in system PATH or configured location
 - Write permissions to WordPress uploads directory
 - Sufficient disk space for temporary processing files
@@ -108,31 +102,39 @@ WordPress Integration:
 /
 final readonly class StarmusPostProcessingService
 {
- /**
+    public const STATE_PROCESSING  = 'processing';
+
+    public const STATE_WAVEFORM    = 'waveform';
+
+    public const STATE_COMPLETED   = 'completed';
+
+    public const STATE_ERR_UNKNOWN = 'error_unknown';
+
+    /**
 Data Access Layer for WordPress operations.
 @since 1.0.0
 /
- private StarmusAudioDAL $dal;
+    private IStarmusAudioDAL $dal;
 
- /**
+    /**
 Waveform generation service for visualization data.
 @since 1.0.0
 /
- private StarmusWaveformService $waveform_service;
+    private StarmusWaveformService $waveform_service;
 
- /**
+    /**
 ID3 metadata service for audio tagging.
 @since 1.0.0
 /
- private StarmusId3Service $id3_service;
+    private StarmusEnhancedId3Service $id3_service;
 
- /**
+    /**
 File service for offloaded attachment handling.
 @since 2.0.0
 /
- private StarmusFileService $file_service;
+    private StarmusFileService $file_service;
 
- /**
+    /**
 Initializes post-processing service with integrated dependencies.
 Creates all required service instances and establishes dependency
 injection for file service to ensure offload-aware operations.
@@ -150,13 +152,11 @@ delivery-ready formats with metadata, normalization, and visualization.
 @param array $params Processing configuration options
 @since 1.0.0
 Parameter Options ($params):
-
 - **network_type**: string ['2g', '3g', '4g'] - Quality profile selection
 - **samplerate**: int [22050, 44100, 48000] - Target sample rate
 - **bitrate**: string ['128k', '192k', '256k'] - MP3 encoding bitrate
 - **session_uuid**: string - Session tracking identifier
 Processing Workflow:
-
 1. **File Retrieval**: Download local copy (CloudFlare R2/S3 support)
 2. **Environment Setup**: Output directory creation, FFmpeg validation
 3. **Loudness Analysis**: EBU R128 two-pass measurement
@@ -168,7 +168,6 @@ Processing Workflow:
 9. **Metadata Updates**: Post meta field population
 10. **Cleanup**: Temporary file removal
 EBU R128 Normalization:
-
 - Target loudness: -23 LUFS (broadcast standard)
 - Peak limiting: -2 dBFS (headroom preservation)
 - Loudness range: 7 LU (dynamic range control)
@@ -188,7 +187,7 @@ WordPress Integration:
 - Stores complete `processing_log` for debugging
 - Maintains parent-child attachment relationships
 - Preserves original file if processing fails
-@throws \RuntimeException If FFmpeg not found or file access fails
+@throws RuntimeException If FFmpeg not found or file access fails
 @return bool True if processing completed successfully
 @see get_local_copy() File retrieval handling
 @see build_tag_payload() ID3 metadata construction

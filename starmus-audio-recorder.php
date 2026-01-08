@@ -50,6 +50,25 @@
 
 declare(strict_types=1);
 
+use Throwable;
+use ACF;
+use function register_shutdown_function;
+use function register_activation_hook;
+use function register_deactivation_hook;
+use function register_uninstall_hook;
+use function add_action;
+use function file_exists;
+use function class_exists;
+use function error_log;
+use function defined;
+use function define;
+use function is_admin;
+use function plugin_dir_path;
+use function plugin_dir_url;
+use function flush_rewrite_rules;
+use function in_array;
+use function add_filter;
+use function include_json;
 
 if ( ! defined('ABSPATH')) {
     exit;
@@ -148,21 +167,23 @@ if ( ! class_exists('ACF')) {
         error_log('Starmus Error: Bundled SCF not found at ' . SPARXSTAR_SCF_PATH);
     }
 }
-if (class_exists('ACF')) {
+if (class_exists(\ACF::class) && directory_exists(STARMUS_PATH . '/acf-json')) {
     error_log('Starmus Info: Secure Custom Fields plugin loaded successfully.');
     // -------------------------------------------------------------------------
     // 4. JSON CONFIGURATION (Install CPTs/Fields)
     // -------------------------------------------------------------------------
     try{
-        ACF::include_json(STARMUS_PATH . '/acf-json');
-        add_filter(
-        'acf/settings/load_json',
-        function ($paths) {
-            // Append our custom path
-            $paths[] = STARMUS_PATH . 'config/acf-json';
-            return $paths;
-        }
-        );
+		if( method_exists(\ACF::class, 'include_json')) {
+			error_log('Starmus Info: Including ACF JSON configuration from: ' . STARMUS_PATH . '/acf-json');
+			\ACF::include_json($acfPath);
+			add_filter(
+			'acf/settings/load_json',
+			function ($paths) {
+				// Append our custom path
+				$paths[] = STARMUS_PATH . '/acf-json';
+				return $paths;
+			});
+		}
         error_log('Starmus Info: ACF JSON configuration path added: ' . STARMUS_PATH . '/acf-json');
     } catch (\Throwable $e) {
         error_log('Starmus Error: Failed to add ACF JSON configuration path: ' . $e->getMessage());

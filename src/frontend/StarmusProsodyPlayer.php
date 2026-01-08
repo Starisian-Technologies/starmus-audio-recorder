@@ -11,7 +11,7 @@ use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
@@ -59,7 +59,7 @@ class StarmusProsodyPlayer
             return;
         }
 
-        if (! class_exists(StarmusProsodyDAL::class)) {
+        if ( ! class_exists(StarmusProsodyDAL::class)) {
             throw new \Exception('StarmusProsodyDAL class not found');
         }
 
@@ -107,7 +107,7 @@ class StarmusProsodyPlayer
             $args = shortcode_atts(
                 [
             'id' => get_the_ID(),
-            ],
+                ],
                 $atts
             );
 
@@ -188,11 +188,11 @@ class StarmusProsodyPlayer
             $pace    = (int) $_POST['pace_ms'];
             $nonce   = $_POST['nonce'];
 
-            if (! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
+            if ( ! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
                 wp_send_json_error('Security check failed');
             }
 
-            if (! current_user_can('edit_post', $post_id)) {
+            if ( ! current_user_can('edit_post', $post_id)) {
                 wp_send_json_error('Permission denied');
             }
 

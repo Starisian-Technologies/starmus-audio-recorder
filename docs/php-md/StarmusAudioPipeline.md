@@ -22,16 +22,16 @@ Integrates with your existing StarmusSubmissionHandler.
 /
 final class StarmusAudioPipeline
 {
-    private ?StarmusId3Service $id3_service = null;
+    private ?StarmusEnhancedId3Service $id3_service = null;
 
     private ?StarmusFFmpegService $ffmpeg_service = null;
 
     public function __construct()
     {
         try {
-            $this->id3_service    = new StarmusId3Service();
+            $this->id3_service    = new StarmusEnhancedId3Service();
             $this->ffmpeg_service = new StarmusFFmpegService($this->id3_service);
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
     }

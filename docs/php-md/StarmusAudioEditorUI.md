@@ -28,6 +28,8 @@ modern PHP 8.2+ syntax as per project requirements.
 /
 namespace Starisian\Sparxstar\Starmus\frontend;
 
+use Starisian\Sparxstar\Starmus\services\StarmusFileService;
+use Exception;
 use function file_exists;
 use function is_numeric;
 use function realpath;
@@ -45,7 +47,7 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

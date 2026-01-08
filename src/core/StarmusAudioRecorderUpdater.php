@@ -4,7 +4,7 @@ namespace Starisian\Sparxstar\Starmus\core;
 use Throwable;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

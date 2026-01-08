@@ -33,7 +33,6 @@ Enhanced with SPARXSTAR environment detection for optimal performance.</p>
 <a name="module_initCore"></a>
 
 ## initCore ⇒ <code>Object</code>
-
 Initializes the core Starmus functionality for a specific instance.
 Sets up event handlers, submission logic, and browser tier detection.
 
@@ -48,23 +47,21 @@ Sets up event handlers, submission logic, and browser tier detection.
 <a name="subscribe"></a>
 
 ## subscribe : <code>function</code>
-
 Hook subscription function from StarmusHooks or fallback no-op.
 
 **Kind**: global constant  
 <a name="detectTier"></a>
 
 ## detectTier() ⇒ <code>string</code>
-
 Detects browser capabilities and assigns appropriate tier classification.
 Enhanced with SPARXSTAR environment detection for optimal performance.
 
 **Kind**: global function  
 **Returns**: <code>string</code> - Browser tier classification:
+  - 'A': Full support (MediaRecorder + AudioContext + getUserMedia + good network/device)
+  - 'B': Limited support (basic capabilities but network/device constraints)
+  - 'C': Minimal support (no MediaRecorder, getUserMedia, or very poor conditions)  
 
-- 'A': Full support (MediaRecorder + AudioContext + getUserMedia + good network/device)
-- 'B': Limited support (basic capabilities but network/device constraints)
-- 'C': Minimal support (no MediaRecorder, getUserMedia, or very poor conditions)  
 
 ---
 

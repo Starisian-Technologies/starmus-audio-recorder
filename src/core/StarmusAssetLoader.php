@@ -33,7 +33,7 @@ use Throwable;
 use function trim;
 use function wp_create_nonce;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

@@ -18,13 +18,14 @@ Registers and renders WordPress Dashboard widgets for Starmus transcription Work
 Registers and renders WordPress Dashboard widgets for Starmus transcription Workflow.
 @package Starisian\Sparxstar\Starmus\admin\widgets
 /
+
 namespace Starisian\Sparxstar\Starmus\admin\widgets;
 
-if (! \defined('ABSPATH')) {
+use Throwable;
+
+if ( ! \defined('ABSPATH')) {
     exit;
 }
-
-use Throwable;
 
 /**
 Dashboard Widgets for AIWA Workflow

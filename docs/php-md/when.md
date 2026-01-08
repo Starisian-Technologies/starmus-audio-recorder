@@ -26,17 +26,19 @@ Handles waveform generation, post-processing, and temp cleanup via WP-Cron.
 @package   Starisian\Sparxstar\Starmus\cron
 @version 0.9.2
 /
+
 namespace Starisian\Sparxstar\Starmus\cron;
 
-if (! \defined('ABSPATH')) {
-    exit;
-}
-
+use Throwable;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 
 use function trailingslashit;
+
+if ( ! \defined('ABSPATH')) {
+    exit;
+}
 
 /**
 StarmusCron

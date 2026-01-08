@@ -44,28 +44,24 @@
 <a name="sparxstarIntegration"></a>
 
 ## sparxstarIntegration : <code>Object</code>
-
 Provides integration hooks for Sparxstar and Starmus components.
 
 **Kind**: global constant  
 <a name="sparxstarIntegration.isAvailable"></a>
 
 ### sparxstarIntegration.isAvailable : <code>boolean</code>
-
 Indicates whether the integration layer is available.
 
 **Kind**: static property of [<code>sparxstarIntegration</code>](#sparxstarIntegration)  
 <a name="attachAiwaRecorderHandlers"></a>
 
 ## attachAiwaRecorderHandlers() ⇒ <code>void</code>
-
 Initializes ACF and AIWA recorder bridge once the DOM is ready.
 
 **Kind**: global function  
 <a name="handleAcfAjaxSuccess"></a>
 
 ## handleAcfAjaxSuccess(response) ⇒ <code>void</code>
-
 Handles ACF AJAX post creation success.
 
 **Kind**: global function  
@@ -77,14 +73,12 @@ Handles ACF AJAX post creation success.
 <a name="handleStepOneFade"></a>
 
 ## handleStepOneFade() ⇒ <code>void</code>
-
 Handles transition to recorder step after ACF save.
 
 **Kind**: global function  
 <a name="handleAjaxSuccess"></a>
 
 ## handleAjaxSuccess(html) ⇒ <code>void</code>
-
 Processes recorder loader AJAX success.
 
 **Kind**: global function  
@@ -96,7 +90,6 @@ Processes recorder loader AJAX success.
 <a name="handleRecorderComplete"></a>
 
 ## handleRecorderComplete(event) ⇒ <code>void</code>
-
 Handles recorder completion notifications from child frames.
 
 **Kind**: global function  
@@ -108,7 +101,6 @@ Handles recorder completion notifications from child frames.
 <a name="init"></a>
 
 ## init() ⇒ <code>Promise.&lt;Object&gt;</code>
-
 Initializes integration and resolves environment data.
 
 **Kind**: global function  
@@ -116,7 +108,6 @@ Initializes integration and resolves environment data.
 <a name="getEnvironmentData"></a>
 
 ## getEnvironmentData() ⇒ <code>Object</code>
-
 Returns a default environment data object for compatibility.
 
 **Kind**: global function  
@@ -124,7 +115,6 @@ Returns a default environment data object for compatibility.
 <a name="reportError"></a>
 
 ## reportError(msg, data) ⇒ <code>void</code>
-
 Reports integration errors to the console.
 
 **Kind**: global function  
@@ -133,6 +123,8 @@ Reports integration errors to the console.
 | --- | --- | --- |
 | msg | <code>string</code> | Message describing the error |
 | data | <code>Object</code> | Supplemental error data |
+
+
 
 ---
 

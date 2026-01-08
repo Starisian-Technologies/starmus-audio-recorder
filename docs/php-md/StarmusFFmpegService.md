@@ -24,9 +24,9 @@ final class StarmusFFmpegService
 {
     private string $ffmpeg_path;
 
-    private ?StarmusId3Service $id3_service = null;
+    private ?StarmusEnhancedId3Service $id3_service = null;
 
-    public function __construct(StarmusId3Service $id3_service, string $ffmpeg_path = 'ffmpeg')
+    public function __construct(StarmusEnhancedId3Service $id3_service, string $ffmpeg_path = 'ffmpeg')
     {
         $this->id3_service = $id3_service;
         $this->ffmpeg_path = $ffmpeg_path;

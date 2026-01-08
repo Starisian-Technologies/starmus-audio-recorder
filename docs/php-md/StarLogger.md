@@ -34,11 +34,9 @@ use function error_log;
 use Exception;
 
 use function implode;
-use function is_admin;
 
 use Psr\Log\AbstractLogger;
 use RuntimeException;
-use Starisian\Sparxstar\Starmus\helpers\StarmusUIHelper;
 
 use function str_contains;
 use function str_replace;
@@ -72,14 +70,14 @@ Lower number = higher priority
 @var array<string, int>
 /
     private const LEVEL_PRIORITY = [
-        'emergency' => 0,
-        'alert'     => 1,
-        'critical'  => 2,
-        'error'     => 3,
-        'warning'   => 4,
-        'notice'    => 5,
-        'info'      => 6,
-        'debug'     => 7,
+    'emergency' => 0,
+    'alert'     => 1,
+    'critical'  => 2,
+    'error'     => 3,
+    'warning'   => 4,
+    'notice'    => 5,
+    'info'      => 6,
+    'debug'     => 7,
     ];
 
     /**

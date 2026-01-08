@@ -33,8 +33,15 @@ namespace Starisian\Sparxstar\Starmus\data;
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusBaseDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
+use function current_time;
+use function update_field;
+use function update_post_meta;
+use function get_field;
+use function get_post_meta;
+use function get_post;
 
-if (! \defined('ABSPATH')) {
+
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -80,6 +87,14 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
 **Visibility:** `protected`
 
 Helper: Dumps failed data to logs to prevent total data loss.
+
+### `get_user_contributor_id()`
+
+**Visibility:** `public`
+
+Get the contributor post ID for a given user ID.
+@param int $user_id The user ID to look up.
+@return int|null The contributor post ID or null if not found.
 
 ---
 

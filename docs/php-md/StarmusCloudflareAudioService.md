@@ -24,11 +24,11 @@ final class StarmusCloudflareAudioService
 {
     private ?StarmusFileService $file_service = null;
 
-    private ?StarmusId3Service $id3_service = null;
+    private ?StarmusEnhancedId3Service $id3_service = null;
 
     public function __construct(
         StarmusFileService $file_service,
-        StarmusId3Service $id3_service
+        StarmusEnhancedId3Service $id3_service
     ) {
         $this->file_service = $file_service;
         $this->id3_service  = $id3_service;

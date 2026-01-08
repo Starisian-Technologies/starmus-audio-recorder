@@ -18,8 +18,15 @@ namespace Starisian\Sparxstar\Starmus\data;
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusBaseDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
+use function current_time;
+use function update_field;
+use function update_post_meta;
+use function get_field;
+use function get_post_meta;
+use function get_post;
 
-if (! \defined('ABSPATH')) {
+
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -45,7 +52,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
                 $success = (false !== $result);
             }
 
-            if (! $success) {
+            if ( ! $success) {
                 // EMERGENCY DATA DUMP
                 // If WP/ACF says "False", we log the data so it isn't lost.
                 $this->log_write_failure($post_id, $key, $value);
@@ -139,7 +146,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
                 $history = $existing_json;
             } else {
                 $history = json_decode((string) $existing_json, true);
-                if (! \is_array($history)) {
+                if ( ! \is_array($history)) {
                     $history = [];
                 }
             }
@@ -178,7 +185,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
                 $log = $existing_json;
             } else {
                 $log = json_decode((string) $existing_json, true);
-                if (! \is_array($log)) {
+                if ( ! \is_array($log)) {
                     $log = [];
                 }
             }
@@ -209,7 +216,33 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
             \sprintf('DATA LOSS PREVENTION: Write failed for Post %d, Key: %s. Reason: %s', $post_id, $key, $error_msg),
             [
         'failed_payload' => $safe_value, // The data is now safe in the log
-        ]
+            ]
         );
+    }
+    /**
+     * Get the contributor post ID for a given user ID.
+     *
+     * @param int $user_id The user ID to look up.
+     * @return int|null The contributor post ID or null if not found.
+     *
+     * */
+    public static function get_user_contributor_id(int $user_id): ?int
+    {
+        try{
+            $query = new WP_Query([
+            'post_type'      => 'starmus_contributor',
+            'meta_key'       => 'starmus_user_id',
+            'meta_value'     => $user_id,
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+            ]);
+            if ($query->have_posts()) {
+                   return (int) $query->posts[0];
+            }
+        }	catch (Throwable $throwable) {
+            StarmusLogger::log($throwable);
+        }
+
+        return null;
     }
 }

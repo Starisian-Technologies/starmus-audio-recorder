@@ -28,6 +28,7 @@ Preserves legacy key mapping for strict backward compatibility.
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\helpers;
 
+use Throwable;
 use function array_map;
 use function array_merge;
 use function explode;
@@ -45,7 +46,7 @@ use function str_starts_with;
 use function trim;
 use function wp_unslash;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

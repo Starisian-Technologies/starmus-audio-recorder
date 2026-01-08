@@ -13,7 +13,6 @@ Bridges HTTP REST requests to internal submission services, providing
 secure upload endpoints for audio recordings with multiple fallback strategies.
 Integrates with WordPress REST API authentication and permission systems.
 Key Features:
-
 - **Multi-Strategy Upload**: TUS chunked, fallback direct, legacy base64
 - **WordPress Integration**: Native REST API, permissions, nonces
 - **Error Handling**: Comprehensive error responses and logging
@@ -30,12 +29,10 @@ Authentication & Permissions:
 - Supports logged-in users and API authentication
 - Automatic nonce validation via WordPress REST API
 Upload Strategy Hierarchy:
-
 1. **Primary**: TUS resumable uploads (handle_upload_chunk_rest_multipart)
 2. **Fallback**: Direct HTTP POST uploads (handle_fallback_upload)
 3. **Legacy**: Base64 encoded uploads (handle_upload_chunk_rest_base64)
 Error Response Format:
-
 ```json
 {
   "code": "error_type",
@@ -43,9 +40,7 @@ Error Response Format:
   "data": { "status": 400 }
 }
 ```
-
 Success Response Format:
-
 ```json
 {
   "success": true,
@@ -56,9 +51,7 @@ Success Response Format:
   }
 }
 ```
-
 WordPress Integration:
-
 - Hooks into `rest_api_init` for route registration
 - Uses WordPress permission callbacks
 - Integrates with WP_REST_Request and WP_REST_Response
@@ -84,7 +77,6 @@ Bridges HTTP REST requests to internal submission services, providing
 secure upload endpoints for audio recordings with multiple fallback strategies.
 Integrates with WordPress REST API authentication and permission systems.
 Key Features:
-
 - **Multi-Strategy Upload**: TUS chunked, fallback direct, legacy base64
 - **WordPress Integration**: Native REST API, permissions, nonces
 - **Error Handling**: Comprehensive error responses and logging
@@ -101,12 +93,10 @@ Authentication & Permissions:
 - Supports logged-in users and API authentication
 - Automatic nonce validation via WordPress REST API
 Upload Strategy Hierarchy:
-
 1. **Primary**: TUS resumable uploads (handle_upload_chunk_rest_multipart)
 2. **Fallback**: Direct HTTP POST uploads (handle_fallback_upload)
 3. **Legacy**: Base64 encoded uploads (handle_upload_chunk_rest_base64)
 Error Response Format:
-
 ```json
 {
   "code": "error_type",
@@ -114,9 +104,7 @@ Error Response Format:
   "data": { "status": 400 }
 }
 ```
-
 Success Response Format:
-
 ```json
 {
   "success": true,
@@ -127,9 +115,7 @@ Success Response Format:
   }
 }
 ```
-
 WordPress Integration:
-
 - Hooks into `rest_api_init` for route registration
 - Uses WordPress permission callbacks
 - Integrates with WP_REST_Request and WP_REST_Response
@@ -144,23 +130,25 @@ WordPress Integration:
 /
 namespace Starisian\Sparxstar\Starmus\api;
 
-if (! \defined('ABSPATH')) {
+use Throwable;
+
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
 use function __;
+use function add_action;
 use function current_user_can;
+use function do_action;
 use function is_wp_error;
 use function register_rest_route;
 
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
-use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
-use WP_REST_Server;
 
 /**
 WordPress REST API handler for audio submissions.
@@ -185,7 +173,7 @@ Provides abstraction for WordPress database operations,
 post management, and metadata handling.
 @since 1.0.0
 /
-    private StarmusAudioDAL $dal;
+    private IStarmusAudioDAL $dal;
 
     /**
 Plugin settings and configuration management.
@@ -196,15 +184,10 @@ user-customizable settings for audio processing.
     private StarmusSettings $settings;
 
     /**
-Initializes REST handler with dependency injection and route registration.
-Sets up the REST API handler with required services and automatically
-registers WordPress REST API routes via the rest_api_init hook.
-@param StarmusAudioDAL $dal Data access layer instance
 @param StarmusSettings $settings Plugin settings and configuration
 @param StarmusSubmissionHandler|null $submission_handler Optional submission handler (auto-created if null)
 @since 1.0.0
 Dependency Injection:
-
 - **Required**: DAL and Settings instances
 - **Optional**: Submission handler (auto-instantiated with DAL/Settings)
 - Enables testability and service composition
@@ -228,7 +211,6 @@ various client capabilities and network conditions. Each route includes
 proper permission callbacks and parameter validation.
 @since 1.0.0
 Registered Routes:
-
 1. **Primary Upload**: `/upload-chunk` (POST)
    - TUS resumable multipart uploads
    - Optimal for large files and unreliable networks
@@ -246,7 +228,6 @@ Registered Routes:
    - Supports progress tracking and error reporting
    - Handler: StarmusRESTHandler::handle_status
 Permission Strategy:
-
 - All routes require `upload_files` WordPress capability
 - Integrates with WordPress user authentication system
 - Supports both logged-in users and API authentication
@@ -259,6 +240,13 @@ Route Parameters:
 @see register_rest_route() WordPress REST route registration
 @see current_user_can() WordPress capability checking
 
+### `upload_permissions_check()`
+
+**Visibility:** `public`
+
+Check if the current user has permission to upload files.
+@return bool True if the user has permission, false otherwise.
+
 ### `handle_fallback_upload()`
 
 **Visibility:** `public`
@@ -270,13 +258,11 @@ and triggers WordPress actions on successful completion.
 @param WP_REST_Request $request WordPress REST API request object
 @since 1.0.0
 Request Requirements:
-
 - **Method**: POST with multipart/form-data
 - **File Field**: 'audio_file' or 'file' in $_FILES
 - **Permissions**: Current user must have 'upload_files' capability
 - **File Validation**: Valid temporary upload path required
 Processing Flow:
-
 1. **Request Logging**: Debug logging of incoming file parameters
 2. **File Extraction**: Flexible field name handling (audio_file/file)
 3. **Validation**: File existence and format verification
@@ -284,14 +270,12 @@ Processing Flow:
 5. **Error Handling**: Convert WP_Error to REST response format
 6. **Success Actions**: Trigger completion hooks and return data
 File Parameter Handling:
-
 - Primary field name: 'audio_file'
 - Fallback field name: 'file'
 - Validates tmp_name existence and array structure
 - Defensive programming against malformed uploads
 Response Formats:
 **Success Response** (200):
-
 ```json
 {
   "success": true,
@@ -302,9 +286,7 @@ Response Formats:
   }
 }
 ```
-
 **Error Response** (400/500):
-
 ```json
 {
   "code": "server_error",
@@ -312,9 +294,7 @@ Response Formats:
   "data": { "status": 500 }
 }
 ```
-
 WordPress Integration:
-
 - Triggers `starmus_submission_complete` action on success
 - Passes attachment_id and post_id to action hooks
 - Integrates with WordPress error handling (WP_Error)
@@ -328,7 +308,7 @@ Error Conditions:
 - Missing or invalid file upload data (400)
 - Submission handler processing failure (500)
 - Unexpected exceptions during processing (500)
-@throws \Throwable Caught and converted to HTTP 500 response
+@throws Throwable Caught and converted to HTTP 500 response
 @return WP_REST_Response REST response object or null on critical failure
 @see StarmusSubmissionHandler::handle_fallback_upload_rest() Core processing
 @see StarmusLogger::debug() Request logging
@@ -344,12 +324,10 @@ to ensure only audio recording submissions are accessible via this endpoint.
 @param WP_REST_Request $request WordPress REST API request with post ID
 @since 1.0.0
 URL Pattern: `/wp-json/star/v1/status/{id}`
-
 - **Method**: GET
 - **Parameter**: `id` (numeric post ID)
 - **Validation**: Automatic numeric validation via route args
 Request Processing:
-
 1. **ID Extraction**: Extract post ID from URL parameter
 2. **Database Query**: Fetch post information via DAL
 3. **Existence Check**: Verify post exists in database
@@ -357,7 +335,6 @@ Request Processing:
 5. **Response Assembly**: Return status information or error
 Response Formats:
 **Success Response** (200):
-
 ```json
 {
   "success": true,
@@ -368,37 +345,29 @@ Response Formats:
   }
 }
 ```
-
 **Error Responses**:
 *Post Not Found* (404):
-
 ```json
 {
   "code": "not_found",
   "message": "Submission not found"
 }
 ```
-
 *Invalid Post Type* (403):
-
 ```json
 {
   "code": "invalid_type",
   "message": "Not an audio recording"
 }
 ```
-
 *Server Error* (500):
-
 ```json
 {
   "code": "server_error",
   "message": "Could not fetch status"
 }
 ```
-
 Status Information:
-
 - **ID**: WordPress post ID (integer)
 - **Status**: WordPress post status (draft, pending, publish, etc.)
 - **Type**: Custom post type slug for verification
@@ -417,7 +386,7 @@ Performance Considerations:
 - Minimal data transfer (status info only)
 - Efficient post type checking
 - No file system operations
-@throws \Throwable Caught and converted to HTTP 500 response
+@throws Throwable Caught and converted to HTTP 500 response
 @return WP_REST_Response REST response with status data or error
 @see IStarmusAudioDAL::get_post_info() Data retrieval
 @see StarmusSubmissionHandler::get_cpt_slug() Post type validation
@@ -426,4 +395,4 @@ Performance Considerations:
 
 ---
 
-*Generated by Starisian Documentation Generator*
+_Generated by Starisian Documentation Generator_

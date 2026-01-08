@@ -11,7 +11,7 @@ This class handles all internationalization functionality for the Starmus Audio 
 including text domain loading, translation management, and JavaScript localization strings.
 @package   Starisian\Sparxstar\Starmus\i18n
 @version 0.9.2
-@author    Starisian Technologies <Max Barrett - <support@starisian.com>>
+@author    Starisian Technologies <Max Barrett - support@starisian.com>
 @copyright 2025 Starisian Technologies
 @license   proprietary
 
@@ -26,7 +26,7 @@ This class handles all internationalization functionality for the Starmus Audio 
 including text domain loading, translation management, and JavaScript localization strings.
 @package   Starisian\Sparxstar\Starmus\i18n
 @version 0.9.2
-@author    Starisian Technologies <Max Barrett - <support@starisian.com>>
+@author    Starisian Technologies <Max Barrett - support@starisian.com>
 @copyright 2025 Starisian Technologies
 @license   proprietary
 /
@@ -39,14 +39,13 @@ use function esc_html;
 use function load_plugin_textdomain;
 use function plugin_basename;
 
-if (! \defined(ABSPATH)) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
 /**
 Internationalization and localization manager for AiWA Orchestrator
 Provides centralized translation functionality including:
-
 - WordPress text domain loading
 - Static translation helper methods
 - JavaScript localization string preparation
@@ -83,7 +82,6 @@ This method is automatically called via the 'plugins_loaded' WordPress hook.
 Translation files should be named in the format: {domain}-{locale}.mo
 @since 1.0.0
 @example Translation file examples:
-
 - starmus-audio-recorder-en_US.mo (English - United States)
 - starmus-audio-recorder-fr_FR.mo (French - France)
 - starmus-audio-recorder-es_ES.mo (Spanish - Spain)

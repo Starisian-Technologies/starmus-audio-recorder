@@ -8,7 +8,6 @@
 
 Unified, build-process-aware, and ES-Module-aware asset loader for the Starmus Audio System.
 This class is the sole authority for enqueuing all Starmus client-side assets.
-
 - In production (WP_DEBUG is false), it loads a single, minified, bundled file for performance.
 - In development (WP_DEBUG is true), it loads the 'starmus-integrator.js' as a native
   ES Module (`type="module"`), allowing the browser to handle the dependency tree for
@@ -24,7 +23,6 @@ This class is the sole authority for enqueuing all Starmus client-side assets.
 
 Unified, build-process-aware, and ES-Module-aware asset loader for the Starmus Audio System.
 This class is the sole authority for enqueuing all Starmus client-side assets.
-
 - In production (WP_DEBUG is false), it loads a single, minified, bundled file for performance.
 - In development (WP_DEBUG is true), it loads the 'starmus-integrator.js' as a native
   ES Module (`type="module"`), allowing the browser to handle the dependency tree for
@@ -48,8 +46,9 @@ use function str_replace;
 use Throwable;
 
 use function trim;
+use function wp_create_nonce;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

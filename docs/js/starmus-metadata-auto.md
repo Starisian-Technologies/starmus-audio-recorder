@@ -37,9 +37,7 @@
 <a name="module_initAutoMetadata"></a>
 
 ## initAutoMetadata ⇒ <code>function</code>
-
 State mapping:
-
 - `state.calibration` → `_starmus_calibration` (when calibration.complete is true)
 - `state.env` → `_starmus_env` (UEC browser/device data)
 - `state.calibration` data → `_starmus_calibration`
@@ -59,22 +57,17 @@ firing on a non-existent form.
 | [options] | <code>Object</code> | Configuration options (currently unused) |
 
 **Example**  
-
 ```js
 // Basic initialization
 const unsubscribe = initAutoMetadata(store, document.querySelector('form'));
 ```
-
 **Example**  
-
 ```js
 // With cleanup
 const cleanup = initAutoMetadata(store, formElement);
 // Later: cleanup() to stop synchronization
 ```
-
 **Example**  
-
 ```js
 // State structure expected:
 const state = {
@@ -88,11 +81,9 @@ const state = {
   }
 };
 ```
-
 <a name="module_initAutoMetadata..sync"></a>
 
 ### initAutoMetadata~sync() ⇒ <code>void</code>
-
 Synchronizes current store state to form fields.
 Called initially and whenever store state changes.
 
@@ -100,9 +91,7 @@ Called initially and whenever store state changes.
 <a name="updateField"></a>
 
 ## updateField(form, name, value) ⇒ <code>void</code>
-
 Safety features:
-
 - Creates hidden input if it doesn't exist
 - Converts objects to JSON strings automatically
 - Protects existing PHP-injected values from being overwritten by empty JS values
@@ -121,25 +110,21 @@ non-empty AND different from current value.
 | value | <code>\*</code> | Value to set (objects are JSON.stringify'd) |
 
 **Example**  
-
 ```js
 // Update calibration data
 updateField(form, '_starmus_calibration', { gain: 0.8, level: 'good' });
 ```
-
 **Example**  
-
 ```js
 // Create new transcript field
 updateField(form, 'session_date', '2024-01-01');
 ```
-
 **Example**  
-
 ```js
 // Protected update - won't overwrite existing PHP value with empty string
 updateField(form, 'existing_field', ''); // Skipped if field has value
 ```
+
 
 ---
 

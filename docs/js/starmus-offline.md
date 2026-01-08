@@ -59,7 +59,6 @@ Uses conservative defaults for safety in low-bandwidth markets.</p>
 <a name="module_getOfflineQueue"></a>
 
 ## getOfflineQueue ⇒ [<code>Promise.&lt;OfflineQueue&gt;</code>](#new_OfflineQueue_new)
-
 Gets the initialized offline queue instance.
 Initializes database connection and network listeners on first access.
 
@@ -67,7 +66,6 @@ Initializes database connection and network listeners on first access.
 <a name="module_queueSubmission"></a>
 
 ## queueSubmission ⇒ <code>Promise.&lt;string&gt;</code>
-
 Queues an audio submission for offline processing.
 Convenience function that gets queue instance and adds submission.
 
@@ -82,7 +80,6 @@ Convenience function that gets queue instance and adds submission.
 | metadata | <code>Object</code> | Additional metadata (transcript, calibration, env) |
 
 **Example**  
-
 ```js
 const submissionId = await queueSubmission(
   'rec-123',
@@ -92,18 +89,15 @@ const submissionId = await queueSubmission(
   { transcript: 'Hello world', tier: 'A' }
 );
 ```
-
 <a name="module_getPendingCount"></a>
 
 ## getPendingCount ⇒ <code>Promise.&lt;number&gt;</code>
-
 Gets the count of pending submissions in the offline queue.
 
 **Returns**: <code>Promise.&lt;number&gt;</code> - Number of pending submissions  
 <a name="module_initOffline"></a>
 
 ## initOffline ⇒ [<code>Promise.&lt;OfflineQueue&gt;</code>](#new_OfflineQueue_new)
-
 Initializes the offline queue system.
 Alias for getOfflineQueue for backward compatibility.
 
@@ -111,28 +105,24 @@ Alias for getOfflineQueue for backward compatibility.
 <a name="exp_module_initOffline--module.exports"></a>
 
 ### module.exports ⏏
-
 Default export of the offline queue instance.
 
 **Kind**: Exported member  
 <a name="initOffline"></a>
 
 ## initOffline : <code>function</code>
-
 Global initOffline function reference.
 
 **Kind**: global variable  
 <a name="StarmusOfflineQueue"></a>
 
 ## StarmusOfflineQueue : <code>function</code>
-
 Global offline queue getter function.
 
 **Kind**: global variable  
 <a name="CONFIG"></a>
 
 ## CONFIG : <code>Object</code>
-
 Configuration object for offline queue behavior.
 Defines database settings, retry policies, and size limits.
 
@@ -152,14 +142,12 @@ Defines database settings, retry policies, and size limits.
 <a name="offlineQueue"></a>
 
 ## offlineQueue : [<code>OfflineQueue</code>](#new_OfflineQueue_new)
-
 Global offline queue instance.
 
 **Kind**: global constant  
 <a name="getMaxBlobSize"></a>
 
 ## getMaxBlobSize(metadata) ⇒ <code>number</code>
-
 Resolves the maximum allowed blob size based on environment tier metadata.
 Uses conservative defaults for safety in low-bandwidth markets.
 
@@ -171,6 +159,8 @@ Uses conservative defaults for safety in low-bandwidth markets.
 | metadata | <code>Object</code> | Submission metadata containing environment details |
 | [metadata.env] | <code>Object</code> | Environment object with tier classification |
 | [metadata.tier] | <code>string</code> | Explicit tier override |
+
+
 
 ---
 

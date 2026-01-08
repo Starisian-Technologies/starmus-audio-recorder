@@ -35,7 +35,7 @@ final class StarmusR2DirectService
             $this->bucket      = \defined('STARMUS_R2_BUCKET') ? STARMUS_R2_BUCKET : 'starmus-audio';
 
             $this->r2_client = new S3Client(
-                [
+            [
             'version'     => 'latest',
             'region'      => 'auto',
             'endpoint'    => 'https://' . (\defined('STARMUS_R2_ACCOUNT_ID') ? STARMUS_R2_ACCOUNT_ID : '') . '.r2.cloudflarestorage.com',

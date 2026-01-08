@@ -61,21 +61,18 @@ Can be enabled for development debugging by uncommenting the console.log.</p>
 <a name="CommandBus"></a>
 
 ## CommandBus : <code>object</code>
-
 Global CommandBus reference for legacy compatibility.
 
 **Kind**: global variable  
 <a name="StarmusHooks"></a>
 
 ## StarmusHooks : <code>object</code>
-
 Global StarmusHooks reference for module integration.
 
 **Kind**: global variable  
 <a name="StarmusRegistry"></a>
 
 ## StarmusRegistry : <code>object</code>
-
 Initialize global StarmusRegistry if it doesn't exist.
 Registry stores event handlers organized by command name.
 
@@ -83,7 +80,6 @@ Registry stores event handlers organized by command name.
 <a name="globalScope"></a>
 
 ## globalScope : <code>object</code>
-
 Global scope detection for cross-environment compatibility.
 Uses window in browser environments, globalThis in Node.js/workers.
 
@@ -91,7 +87,6 @@ Uses window in browser environments, globalThis in Node.js/workers.
 <a name="registry"></a>
 
 ## registry : <code>object</code>
-
 Event handler registry object.
 Maps command names to arrays of handler functions.
 
@@ -99,7 +94,6 @@ Maps command names to arrays of handler functions.
 <a name="Bus"></a>
 
 ## Bus : <code>object</code>
-
 Event Bus object containing all bus functionality.
 Provides subscribe, dispatch, and debugLog methods.
 
@@ -115,7 +109,6 @@ Provides subscribe, dispatch, and debugLog methods.
 <a name="subscribe"></a>
 
 ## subscribe(command, handler) ⇒ <code>function</code>
-
 Subscribes a handler function to a specific command.
 When the command is dispatched, the handler will be called with payload and meta data.
 
@@ -130,18 +123,15 @@ When the command is dispatched, the handler will be called with payload and meta
 | handler.meta | <code>object</code> | Metadata from dispatch (instanceId, etc.) |
 
 **Example**  
-
 ```js
 const unsubscribe = subscribe('submit', (payload, meta) => {
   console.log('Received submit command:', payload);
 });
 // Later: unsubscribe();
 ```
-
 <a name="dispatch"></a>
 
 ## dispatch(command, [payload], [meta]) ⇒ <code>void</code>
-
 Dispatches a command to all registered handlers.
 Calls all handler functions subscribed to the specified command with provided data.
 
@@ -154,16 +144,13 @@ Calls all handler functions subscribed to the specified command with provided da
 | [meta] | <code>object</code> | <code>{}</code> | Metadata to send to handlers (instanceId, source, etc.) |
 
 **Example**  
-
 ```js
 dispatch('submit', { formFields: {...} }, { instanceId: 'rec-123' });
 dispatch('reset', {}, { instanceId: 'rec-123' });
 ```
-
 <a name="debugLog"></a>
 
 ## debugLog(...args) ⇒ <code>void</code>
-
 Debug logging utility (currently disabled).
 Can be enabled for development debugging by uncommenting the console.log.
 
@@ -172,6 +159,8 @@ Can be enabled for development debugging by uncommenting the console.log.
 | Param | Type | Description |
 | --- | --- | --- |
 | ...args | <code>\*</code> | Arguments to log to console |
+
+
 
 ---
 

@@ -10,7 +10,7 @@ namespace Starisian\Sparxstar\Starmus\frontend;
 use Throwable;
 use Exception;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -89,7 +89,7 @@ class StarmusAudioRecorderUI
                 [
             'post_id'        => 0,
             'target_post_id' => 0,
-            ],
+                ],
                 $atts,
                 'starmus_audio_re_recorder'
             );
@@ -119,10 +119,10 @@ class StarmusAudioRecorderUI
 
             // Get existing taxonomies
             $language_terms = wp_get_object_terms($post_id, 'starmus_tax_language');
-            $language_id    = (! is_wp_error($language_terms) && ! empty($language_terms)) ? $language_terms[0]->term_id : 0;
+            $language_id    = ( ! is_wp_error($language_terms) && ! empty($language_terms)) ? $language_terms[0]->term_id : 0;
 
             $type_terms = wp_get_object_terms($post_id, 'starmus_story_type');
-            $type_id    = (! is_wp_error($type_terms) && ! empty($type_terms)) ? $type_terms[0]->term_id : 0;
+            $type_id    = ( ! is_wp_error($type_terms) && ! empty($type_terms)) ? $type_terms[0]->term_id : 0;
 
             $template_args = [
             'form_id'           => 'rerecord',
@@ -165,9 +165,9 @@ class StarmusAudioRecorderUI
                 [
             'taxonomy'   => $taxonomy,
             'hide_empty' => false,
-            ]
+                ]
             );
-            if (! is_wp_error($terms)) {
+            if ( ! is_wp_error($terms)) {
                 set_transient($cache_key, $terms, 12 * HOUR_IN_SECONDS);
             } else {
                 StarmusLogger::log(new Exception($terms->get_error_message()));

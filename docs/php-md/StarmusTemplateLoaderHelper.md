@@ -24,7 +24,9 @@ Template Loaders Helper class
 /
 namespace Starisian\Sparxstar\Starmus\helpers;
 
-if (! \defined(ABSPATH)) {
+use Throwable;
+
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

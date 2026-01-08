@@ -22,7 +22,7 @@ Handles the Shortcode [prosody_reader], Assets, and AJAX Listener.
 
 **Visibility:** `public`
 
-1. The Shortcode Output
+2. The Shortcode Output
 Usage: [prosody_reader] (uses current post) OR [prosody_reader id="123"]
 @param array $atts Shortcode attributes
 @return string HTML Output
@@ -31,7 +31,7 @@ Usage: [prosody_reader] (uses current post) OR [prosody_reader id="123"]
 
 **Visibility:** `public`
 
-1. AJAX Handler
+3. AJAX Handler
 Only updates the specific 'calibrated_pace_ms' field.
 
 ---

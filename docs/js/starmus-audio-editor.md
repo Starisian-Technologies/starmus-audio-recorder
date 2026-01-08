@@ -35,27 +35,22 @@ Requires STARMUS_EDITOR_DATA to be present in the global scope.</p>
 <a name="module_starmus-audio-editor"></a>
 
 ## starmus-audio-editor
-
 ES6 module export for build tools.
 Re-exports the UMD module's init function for compatibility with
 modern bundlers like Rollup and Webpack.
 
 **Example**  
-
 ```js
 import StarmusAudioEditor from './starmus-audio-editor.js';
 StarmusAudioEditor.init();
 ```
-
 <a name="init"></a>
 
 ## init() ⇒ <code>void</code>
-
 Initializes the Peaks.js audio editor with annotation capabilities.
 Requires STARMUS_EDITOR_DATA to be present in the global scope.
 
 Features:
-
 - Waveform visualization with overview and zoom views
 - Audio playback controls (play/pause, seek, skip)
 - Annotation regions with editable labels and time boundaries
@@ -72,7 +67,6 @@ Features:
 - <code>Error</code> When Peaks.js is not available
 
 **Example**  
-
 ```js
 // Initialize the audio editor
 window.STARMUS_EDITOR_DATA = {
@@ -84,6 +78,7 @@ window.STARMUS_EDITOR_DATA = {
 };
 StarmusAudioEditor.init();
 ```
+
 
 ---
 

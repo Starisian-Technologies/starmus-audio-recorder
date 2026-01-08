@@ -23,14 +23,9 @@
 @license Starisian Technolgoies Proprietary License
 /
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit();
 }
-
-use function error_log;
-use function is_admin;
-
-use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
 
 /**
 PSR-3 compliant logging system for Starmus Audio Recorder
@@ -42,10 +37,9 @@ StarmusLogger::error('An error occurred', ['error_code' =>
 Log Levels:
      - EMERGENCY
     - ALERT
-
-- CRITICAL
-- ERROR
-- WARNING
+   - CRITICAL
+  - ERROR
+ - WARNING
 - NOTICE
 - INFO
 - DEBUG
@@ -116,7 +110,7 @@ Shared logger handler instance used to dispatch PSR-3 calls.
     /**
 Minimum severity level that will be recorded.
 /
-    private static int $min_log_level = self::INFO;
+    private static int $min_log_level = self::DEBUG;
 
     /**
 Set the minimum log level

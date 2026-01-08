@@ -5,7 +5,7 @@
  *
  * @version 1.0.2-DATA-SAFE
  */
-if (! defined('ABSPATH')) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 

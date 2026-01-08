@@ -14,21 +14,16 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\data\mappers;
 
-use WP_Query;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
+use Throwable;
 use function get_current_user_id;
-use function get_posts;
-use function get_userdata;
-use function is_wp_error;
-use function wp_insert_post;
-use function update_field;
 use function json_decode;
 use function json_encode;
 use function json_last_error;
 use function json_last_error_msg;
 use function sanitize_text_field;
 use function date;
-use function gmdate;
-use function strtotime;
 use function sprintf;
 use function in_array;
 use function is_array;
@@ -38,18 +33,55 @@ use function explode;
 use function trim;
 use function array_unique;
 use function array_merge;
-
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Throwable;
-
 use function wp_unslash;
+use function wp_strip_all_tags;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
 class StarmusSchemaMapper
 {
+    /**
+     * JSON Error Constant for Comparison
+     */
+    private const JSON_ERROR_NONE = 0;
+    /**
+     * FIELDS TO PASSTHROUGH WITHOUT MODIFICATION
+     *
+     * These fields are directly copied from input to output.
+     * Complex logic fields (dates, users, JSON blobs) are handled separately.
+     *
+     * @var array<int, string>
+     */
+    private const PASSTHROUGH_ALLOWLIST = [
+    // Core Fields
+    'contributor_name',
+    'dc_description',
+    'dc_title',
+    'dc_subject',
+    'dc_language',
+    'dc_format',
+    'dc_identifier',
+    'date_created',
+    'session_date',
+    'geolocation',
+    'parental_permission_slip',
+
+    // Legacy Fields (for backward compatibility)
+    'starmus_global_uuid',
+    'starmus_stable_uri',
+    'starmus_linked_data_uri',
+    'starmus_rights_type',
+    'starmus_rights_use',
+    'starmus_rights_geo',
+    'starmus_rights_royalty',
+    'starmus_data_sensitivity',
+    'starmus_anon_status',
+    'starmus_consent_scope',
+    'starmus_copyright_licensee',
+    ];
+
     /**
      * MAPPING DEFINITION: 'Old_Frontend_Key' => 'New_Starmus_Key'
      *
@@ -185,11 +217,11 @@ class StarmusSchemaMapper
 
             // Dates
             $mapped['dc_date_created'] = empty($data['date_created'])
-            ? date('Ymd')
+            ? gmdate('Ymd')
             : $data['date_created'];
 
             $mapped['session_date'] = empty($data['session_date'])
-            ? date('Ymd')
+            ? gmdate('Ymd')
             : $data['session_date'];
 
             // Geolocation (Used by Sanitizer to generate _starmus_geolocation)
@@ -254,7 +286,7 @@ class StarmusSchemaMapper
      */
     public static function is_json_field(string $field_name): bool
     {
-        return \in_array($field_name, [
+        return in_array($field_name, [
         'environment_data',
         'waveform_json',
         'transcriber',
@@ -298,3 +330,22 @@ class StarmusSchemaMapper
      * Helper: Decode to Array safely.
      */
     private static function get_contributor_id_for_user(int $user_id): ?int
+    {
+        return StarmusAudioDAL::get_user_contributor_id($user_id);
+    }
+
+    /**
+     * Helper: Decode JSON if applicable.
+     */
+    private static function decode_if_json(mixed $value): mixed
+    {
+        if (\is_string($value)) {
+            $decoded = json_decode(wp_unslash($value), true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return $decoded;
+            }
+        }
+
+        return $value;
+    }
+}

@@ -65,9 +65,7 @@ Handles invalid numbers gracefully by returning default format.</p>
 <a name="module_initInstance"></a>
 
 ## initInstance ⇒ <code>function</code>
-
 Setup process:
-
 1. Determines instance ID from parameter or store state
 2. Finds form container or uses document as root
 3. Queries for all required DOM elements using data attributes
@@ -90,20 +88,18 @@ Setup process:
 | [forcedInstanceId] | <code>string</code> | Optional forced instance ID override |
 
 **Example**  
-
 ```js
 const unsubscribe = initInstance(store, null, 'rec-123');
 // Later: unsubscribe() to clean up
 ```
 
 * [initInstance](#module_initInstance) ⇒ <code>function</code>
-  * [~el](#module_initInstance..el) : <code>Object</code>
-  * [~fileInput](#module_initInstance..fileInput)
+    * [~el](#module_initInstance..el) : <code>Object</code>
+    * [~fileInput](#module_initInstance..fileInput)
 
 <a name="module_initInstance..el"></a>
 
 ### initInstance~el : <code>Object</code>
-
 DOM element references object.
 Contains all interactive elements found within the instance root.
 
@@ -111,7 +107,6 @@ Contains all interactive elements found within the instance root.
 <a name="module_initInstance..fileInput"></a>
 
 ### initInstance~fileInput
-
 File input handler for Tier C browser fallback.
 Handles audio file uploads when MediaRecorder is not supported.
 
@@ -119,7 +114,6 @@ Handles audio file uploads when MediaRecorder is not supported.
 <a name="currentAudio"></a>
 
 ## currentAudio : <code>Audio</code> \| <code>null</code>
-
 Currently playing audio instance for playback controls.
 Used to manage audio playback state and prevent multiple simultaneous playback.
 
@@ -127,7 +121,6 @@ Used to manage audio playback state and prevent multiple simultaneous playback.
 <a name="formatTime"></a>
 
 ## formatTime(seconds) ⇒ <code>string</code>
-
 Formats seconds into MM'm SS's format for timer display.
 Handles invalid numbers gracefully by returning default format.
 
@@ -139,24 +132,20 @@ Handles invalid numbers gracefully by returning default format.
 | seconds | <code>number</code> | Time in seconds to format |
 
 **Example**  
-
 ```js
 formatTime(150) // Returns "02m 30s"
 formatTime(65)  // Returns "01m 05s"
 formatTime(NaN) // Returns "00m 00s"
 ```
-
 <a name="safeBind"></a>
 
 ## safeBind(element, eventName, handler) ⇒ <code>void</code>
-
 Safety features:
-
-* Checks for null elements
-* Prevents duplicate event bindings
-* Calls preventDefault() on cancelable events
-* Stops event propagation
-* Respects element disabled state
+- Checks for null elements
+- Prevents duplicate event bindings
+- Calls preventDefault() on cancelable events
+- Stops event propagation
+- Respects element disabled state
 
 **Kind**: global function  
 
@@ -169,9 +158,7 @@ Safety features:
 <a name="render"></a>
 
 ## render(state, elements) ⇒ <code>void</code>
-
 Rendering sections:
-
 1. Tier C fallback - Shows file upload for unsupported browsers
 2. Audio meters - Updates volume and duration visual indicators
 3. Step visibility - Controls step 1/2 container display
@@ -213,6 +200,8 @@ Rendering sections:
 | elements.resetBtn | <code>HTMLElement</code> | Reset/discard button |
 | elements.submitBtn | <code>HTMLElement</code> | Submit recording button |
 | elements.reviewControls | <code>HTMLElement</code> | Review controls container |
+
+
 
 ---
 

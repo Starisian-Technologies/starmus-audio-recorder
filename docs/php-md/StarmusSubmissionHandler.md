@@ -36,7 +36,6 @@ Supports both chunked TUS uploads and traditional fallback uploads.
 @version   6.9.3-GOLDEN-MASTER
 @since     1.0.0
 Features:
-
 - TUS resumable upload processing via temporary file handling
 - Traditional fallback upload support for Tier C browsers
 - MIME type validation with security-conscious detection
@@ -45,7 +44,6 @@ Features:
 - Post-processing service integration with cron fallback
 - Temporary file cleanup and path traversal protection
 Upload Flow:
-
 1. File validation (MIME type, size, extension)
 2. Secure file movement to WordPress uploads directory
 3. WordPress attachment creation via DAL
@@ -61,7 +59,10 @@ Upload Flow:
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_map;
+use function base64_decode;
+use function explode;
 use function file_exists;
+use function file_put_contents;
 use function filemtime;
 use function filesize;
 use function get_current_user_id;
@@ -73,15 +74,18 @@ use function is_dir;
 use function is_wp_error;
 use function json_decode;
 use function mime_content_type;
+use function mkdir;
 use function pathinfo;
 use function rmdir;
+use function sanitize_file_name;
 use function sanitize_key;
 use function sanitize_text_field;
 
-use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSubmissionHandler;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\mappers\StarmusSchemaMapper;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
-use Starisian\Sparxstar\Starmus\helpers\StarmusSchemaMapper;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 
 use function str_contains;
@@ -111,7 +115,7 @@ use function wp_unique_filename;
 use function wp_unslash;
 use function wp_upload_dir;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -119,7 +123,7 @@ if (! \defined('ABSPATH')) {
 StarmusSubmissionHandler Class
 /
 
-final class StarmusSubmissionHandler
+final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
 {
     /**
 Class constructor dependencies.
@@ -142,22 +146,34 @@ MIME type allowlist for uploads.
 @since 1.0.0
 /
     private array $default_allowed_mimes = [
-        'audio/webm',
-        'audio/ogg',
-        'audio/mpeg',
-        'audio/wav',
-        'audio/x-wav',
-        'audio/mp4',
+    'audio/webm',
+    'audio/ogg',
+    'audio/mpeg',
+    'audio/wav',
+    'audio/x-wav',
+    'audio/mp4',
     ];
 
     /**
 Initializes the submission handler with required dependencies.
 Sets up WordPress action hooks for temporary file cleanup and logs
 successful construction. Throws exceptions on setup failures.
-@param StarmusAudioDAL $dal Data Access Layer implementation
+@param IStarmusAudioDAL $dal Data Access Layer implementation
 @param StarmusSettings $settings Plugin configuration service
 @throws Throwable If construction fails or hooks cannot be registered
 @since 1.0.0
+
+### `handle_upload_chunk_rest_multipart()`
+
+**Visibility:** `public`
+
+Handles multipart chunk uploads via REST API.
+
+### `handle_upload_chunk_rest_base64()`
+
+**Visibility:** `public`
+
+Handles base64 encoded uploads via REST API (Legacy).
 
 ### `process_completed_file()`
 
@@ -170,9 +186,8 @@ finalization method with proper error handling.
 @param string $file_path Absolute path to the uploaded file on disk
 @param array $form_data Sanitized form submission data with metadata
 @since 1.0.0
-@see_finalize_from_local_disk() Internal finalization implementation
+@see _finalize_from_local_disk() Internal finalization implementation
 Success Response:
-
 ```php
 [
   'success' => true,
@@ -181,7 +196,6 @@ Success Response:
   'url' => 'https://site.com/uploads/recording.wav'
 ]
 ```
-
 @throws WP_Error 400 If file is missing or invalid
 @throws WP_Error 413 If file exceeds size limits
 @throws WP_Error 415 If MIME type not allowed
@@ -197,21 +211,21 @@ This hook is fired for backward compatibility.
 /
             do_action('starmus_after_audio_saved', (int) $cpt_post_id, $form_data);
             return [
-                'success'       => true,
-                'attachment_id' => (int) $attachment_id,
-                'post_id'       => (int) $cpt_post_id,
-                'url'           => wp_get_attachment_url((int) $attachment_id),
+            'success'       => true,
+            'attachment_id' => (int) $attachment_id,
+            'post_id'       => (int) $cpt_post_id,
+            'url'           => wp_get_attachment_url((int) $attachment_id),
             ];
         } catch (Throwable $throwable) {
             StarmusLogger::log(
                 $throwable,
                 [
-                    'component'     => self::class,
-                    'method'        => __METHOD__,
-                    'attachment_id' => (int) $attachment_id,
-                    'post_id'       => (int) $cpt_post_id,
-                    'file_path'     => $file_path,
-                    'filename'      => $filename,
+            'component'     => self::class,
+            'method'        => __METHOD__,
+            'attachment_id' => (int) $attachment_id,
+            'post_id'       => (int) $cpt_post_id,
+            'file_path'     => $file_path,
+            'filename'      => $filename,
                 ]
             );
             return $this->err('server_error', 'File finalization failed.', 500);
@@ -226,16 +240,13 @@ enhanced MIME detection for iOS/Safari, and comprehensive validation.
 @param WP_REST_Request $request REST API request with file and form data
 @since 1.0.0
 Rate Limiting:
-
 - Checks user-based rate limits before processing
 - Returns 429 status for excessive requests
 MIME Detection (iOS/Safari Fix):
-
 1. Check uploaded file type from browser
 2. Use mime_content_type() if browser type is empty
 3. Fallback to wp_check_filetype() for extension-based detection
 Supported File Keys (Priority Order):
-
 - audio_file (preferred)
 - file (generic)
 - upload (fallback)
@@ -262,7 +273,6 @@ functions with DAL abstraction for consistency.
 @param string $file_key Detected file field key from files array
 @since 1.0.0
 Required WordPress Functions:
-
 - media_handle_sideload() for attachment creation
 - Includes image.php, file.php, media.php if not loaded
 Post Creation Logic:
@@ -291,7 +301,6 @@ information. Updates ACF fields and taxonomies with proper sanitization.
 @param array $form_data Complete sanitized form submission data
 @since 1.0.0
 Metadata Types Processed:
-
 1. **Environment Data**: Browser, device, network information
 2. **Calibration Data**: Microphone settings and audio levels
 3. **Runtime Metadata**: Processing configuration and environment data
@@ -300,7 +309,6 @@ Metadata Types Processed:
 6. **Taxonomies**: Language and recording type classifications
 7. **Linked Objects**: Connections to other custom post types
 JSON Field Processing:
-
 - _starmus_env: Environment/UEC data with device fingerprinting
 - _starmus_calibration: Microphone calibration and gain settings
 - waveform_json: Audio visualization data for editors

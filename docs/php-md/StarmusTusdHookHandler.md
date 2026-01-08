@@ -12,10 +12,9 @@ when file uploads are completed. Processes upload metadata and moves
 files to their final destinations while maintaining security boundaries.
 @package Starisian\Sparxstar\Starmus\includes
 @since 1.0.0
-@see <https://tus.io/protocols/resumable-upload.html> TUS Protocol Specification
+@see https://tus.io/protocols/resumable-upload.html TUS Protocol Specification
 @see StarmusSubmissionHandler For file processing implementation
 Security Features:
-
 - Webhook secret validation via x-starmus-secret header
 - Path traversal protection for temporary file cleanup
 - Input sanitization and validation
@@ -36,10 +35,9 @@ when file uploads are completed. Processes upload metadata and moves
 files to their final destinations while maintaining security boundaries.
 @package Starisian\Sparxstar\Starmus\includes
 @since 1.0.0
-@see <https://tus.io/protocols/resumable-upload.html> TUS Protocol Specification
+@see https://tus.io/protocols/resumable-upload.html TUS Protocol Specification
 @see StarmusSubmissionHandler For file processing implementation
 Security Features:
-
 - Webhook secret validation via x-starmus-secret header
 - Path traversal protection for temporary file cleanup
 - Input sanitization and validation
@@ -89,7 +87,6 @@ Route: POST /wp-json/starmus/v1/hook
 @see handle_tusd_hook() Main webhook callback handler
 @see permissions_check() Authorization validation
 Required Parameters:
-
 - Type: Event type string (e.g., 'post-finish')
 - Event: Event data object with upload information
 
@@ -105,7 +102,6 @@ and routes different event types to their appropriate handlers.
 @since 1.0.0
 @see handle_post_finish() Handler for upload completion events
 Expected JSON Payload:
-
 ```json
 {
   "Type": "post-finish",
@@ -117,9 +113,7 @@ Expected JSON Payload:
   }
 }
 ```
-
 Supported Event Types:
-
 - post-finish: Upload completion with file processing
 - default: Generic event acknowledgment
 Error Responses:
@@ -139,7 +133,6 @@ Uses timing-safe comparison to prevent timing attacks.
 @return true|WP_Error True if authorized, WP_Error if unauthorized
 @since 1.0.0
 Required Configuration:
-
 - STARMUS_TUS_WEBHOOK_SECRET constant must be defined
 - TUS daemon must be started with: -hooks-http-forward-headers x-starmus-secret
 - Client must send header: x-starmus-secret: {shared_secret}
@@ -154,13 +147,10 @@ Error Responses:
 @see hash_equals() Timing-safe string comparison
 @example
 Configuration in wp-config.php:
-
 ```php
 define('STARMUS_TUS_WEBHOOK_SECRET', 'your-random-secret-key');
 ```
-
 TUS daemon startup:
-
 ```bash
 tusd -hooks-http-forward-headers x-starmus-secret
 ```
@@ -177,10 +167,9 @@ when file uploads are completed. Processes upload metadata and moves
 files to their final destinations while maintaining security boundaries.
 @package Starisian\Sparxstar\Starmus\includes
 @since 1.0.0
-@see <https://tus.io/protocols/resumable-upload.html> TUS Protocol Specification
+@see https://tus.io/protocols/resumable-upload.html TUS Protocol Specification
 @see StarmusSubmissionHandler For file processing implementation
 Security Features:
-
 - Webhook secret validation via x-starmus-secret header
 - Path traversal protection for temporary file cleanup
 - Input sanitization and validation

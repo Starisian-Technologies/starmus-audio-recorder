@@ -62,20 +62,17 @@ Provides a convenient way to initialize transcript controller.</p>
 <a name="module_{function}"></a>
 
 ## {function}
-
 ES6 module exports for modern build systems.
 
 <a name="exp_module_{function}--module.exports"></a>
 
 ### module.exports ⏏
-
 Default export object for ES6 import statements.
 
 **Kind**: Exported member  
 <a name="StarmusTranscript"></a>
 
 ## StarmusTranscript
-
 StarmusTranscript class for synchronized transcript display.
 Manages word-level highlighting, click-to-seek, and auto-scrolling
 synchronized with audio playback through Peaks.js integration.
@@ -83,38 +80,38 @@ synchronized with audio playback through Peaks.js integration.
 **Kind**: global class  
 
 * [StarmusTranscript](#StarmusTranscript)
-  * [new StarmusTranscript(peaksInstance, containerId, transcriptData)](#new_StarmusTranscript_new)
-  * [.peaks](#StarmusTranscript+peaks) : <code>Object</code>
-  * [.container](#StarmusTranscript+container) : <code>HTMLElement</code> \| <code>null</code>
-  * [.data](#StarmusTranscript+data) : <code>Array.&lt;Object&gt;</code>
-  * [.activeTokenIndex](#StarmusTranscript+activeTokenIndex) : <code>number</code>
-  * [.isUserScrolling](#StarmusTranscript+isUserScrolling) : <code>boolean</code>
-  * [.scrollTimeout](#StarmusTranscript+scrollTimeout) : <code>number</code> \| <code>null</code>
-  * [.boundOnTimeUpdate](#StarmusTranscript+boundOnTimeUpdate) : <code>function</code> \| <code>null</code>
-  * [.boundOnSeeked](#StarmusTranscript+boundOnSeeked) : <code>function</code> \| <code>null</code>
-  * [.boundOnClick](#StarmusTranscript+boundOnClick) : <code>function</code> \| <code>null</code>
-  * [.boundOnScroll](#StarmusTranscript+boundOnScroll) : <code>function</code> \| <code>null</code>
-  * [.init()](#StarmusTranscript+init) ⇒ <code>void</code>
-  * [.render()](#StarmusTranscript+render) ⇒ <code>void</code>
-  * [.bindEvents()](#StarmusTranscript+bindEvents) ⇒ <code>void</code>
-  * [.boundOnClick()](#StarmusTranscript+boundOnClick)
-  * [.boundOnScroll()](#StarmusTranscript+boundOnScroll)
-  * [.boundOnTimeUpdate()](#StarmusTranscript+boundOnTimeUpdate)
-  * [.boundOnSeeked()](#StarmusTranscript+boundOnSeeked)
-  * [.findTokenIndex(time)](#StarmusTranscript+findTokenIndex) ⇒ <code>number</code>
-  * [.syncHighlight(currentTime)](#StarmusTranscript+syncHighlight) ⇒ <code>void</code>
-  * [.updateDOM(newIndex)](#StarmusTranscript+updateDOM) ⇒ <code>void</code>
-  * [.clearHighlight()](#StarmusTranscript+clearHighlight) ⇒ <code>void</code>
-  * [.scrollToWord(el)](#StarmusTranscript+scrollToWord) ⇒ <code>void</code>
-  * [.updateData(newData)](#StarmusTranscript+updateData) ⇒ <code>void</code>
-  * [.unbindEvents()](#StarmusTranscript+unbindEvents) ⇒ <code>void</code>
-  * [.destroy()](#StarmusTranscript+destroy) ⇒ <code>void</code>
+    * [new StarmusTranscript(peaksInstance, containerId, transcriptData)](#new_StarmusTranscript_new)
+    * [.peaks](#StarmusTranscript+peaks) : <code>Object</code>
+    * [.container](#StarmusTranscript+container) : <code>HTMLElement</code> \| <code>null</code>
+    * [.data](#StarmusTranscript+data) : <code>Array.&lt;Object&gt;</code>
+    * [.activeTokenIndex](#StarmusTranscript+activeTokenIndex) : <code>number</code>
+    * [.isUserScrolling](#StarmusTranscript+isUserScrolling) : <code>boolean</code>
+    * [.scrollTimeout](#StarmusTranscript+scrollTimeout) : <code>number</code> \| <code>null</code>
+    * [.boundOnTimeUpdate](#StarmusTranscript+boundOnTimeUpdate) : <code>function</code> \| <code>null</code>
+    * [.boundOnSeeked](#StarmusTranscript+boundOnSeeked) : <code>function</code> \| <code>null</code>
+    * [.boundOnClick](#StarmusTranscript+boundOnClick) : <code>function</code> \| <code>null</code>
+    * [.boundOnScroll](#StarmusTranscript+boundOnScroll) : <code>function</code> \| <code>null</code>
+    * [.init()](#StarmusTranscript+init) ⇒ <code>void</code>
+    * [.render()](#StarmusTranscript+render) ⇒ <code>void</code>
+    * [.bindEvents()](#StarmusTranscript+bindEvents) ⇒ <code>void</code>
+    * [.boundOnClick()](#StarmusTranscript+boundOnClick)
+    * [.boundOnScroll()](#StarmusTranscript+boundOnScroll)
+    * [.boundOnTimeUpdate()](#StarmusTranscript+boundOnTimeUpdate)
+    * [.boundOnSeeked()](#StarmusTranscript+boundOnSeeked)
+    * [.findTokenIndex(time)](#StarmusTranscript+findTokenIndex) ⇒ <code>number</code>
+    * [.syncHighlight(currentTime)](#StarmusTranscript+syncHighlight) ⇒ <code>void</code>
+    * [.updateDOM(newIndex)](#StarmusTranscript+updateDOM) ⇒ <code>void</code>
+    * [.clearHighlight()](#StarmusTranscript+clearHighlight) ⇒ <code>void</code>
+    * [.scrollToWord(el)](#StarmusTranscript+scrollToWord) ⇒ <code>void</code>
+    * [.updateData(newData)](#StarmusTranscript+updateData) ⇒ <code>void</code>
+    * [.unbindEvents()](#StarmusTranscript+unbindEvents) ⇒ <code>void</code>
+    * [.destroy()](#StarmusTranscript+destroy) ⇒ <code>void</code>
 
 <a name="new_StarmusTranscript_new"></a>
 
 ### new StarmusTranscript(peaksInstance, containerId, transcriptData)
-
 Creates a StarmusTranscript instance.
+
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -131,7 +128,6 @@ Creates a StarmusTranscript instance.
 | [transcriptData[].confidence] | <code>number</code> | Confidence score (0.0-1.0) |
 
 **Example**  
-
 ```js
 const transcript = new StarmusTranscript(
   peaksInstance,
@@ -139,81 +135,69 @@ const transcript = new StarmusTranscript(
   [{ text: 'Hello', start: 0.0, end: 0.5, confidence: 0.95 }]
 );
 ```
-
 <a name="StarmusTranscript+peaks"></a>
 
 ### starmusTranscript.peaks : <code>Object</code>
-
 Peaks.js instance for audio control.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+container"></a>
 
 ### starmusTranscript.container : <code>HTMLElement</code> \| <code>null</code>
-
 DOM container element for transcript display.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+data"></a>
 
 ### starmusTranscript.data : <code>Array.&lt;Object&gt;</code>
-
 Array of word timing data objects.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+activeTokenIndex"></a>
 
 ### starmusTranscript.activeTokenIndex : <code>number</code>
-
 Index of currently highlighted word.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+isUserScrolling"></a>
 
 ### starmusTranscript.isUserScrolling : <code>boolean</code>
-
 Flag indicating user is manually scrolling.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+scrollTimeout"></a>
 
 ### starmusTranscript.scrollTimeout : <code>number</code> \| <code>null</code>
-
 Timeout ID for scroll detection reset.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+boundOnTimeUpdate"></a>
 
 ### starmusTranscript.boundOnTimeUpdate : <code>function</code> \| <code>null</code>
-
 Bound timeupdate event handler reference.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+boundOnSeeked"></a>
 
 ### starmusTranscript.boundOnSeeked : <code>function</code> \| <code>null</code>
-
 Bound seeked event handler reference.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+boundOnClick"></a>
 
 ### starmusTranscript.boundOnClick : <code>function</code> \| <code>null</code>
-
 Bound click event handler reference.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+boundOnScroll"></a>
 
 ### starmusTranscript.boundOnScroll : <code>function</code> \| <code>null</code>
-
 Bound scroll event handler reference.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+init"></a>
 
 ### starmusTranscript.init() ⇒ <code>void</code>
-
 Initializes the transcript controller.
 Sets up DOM rendering and event binding if container exists.
 
@@ -221,7 +205,6 @@ Sets up DOM rendering and event binding if container exists.
 <a name="StarmusTranscript+render"></a>
 
 ### starmusTranscript.render() ⇒ <code>void</code>
-
 Renders transcript words into DOM container.
 Creates word spans with timing data attributes and confidence indicators.
 Uses DocumentFragment for efficient bulk DOM updates.
@@ -230,19 +213,16 @@ Uses DocumentFragment for efficient bulk DOM updates.
 <a name="StarmusTranscript+bindEvents"></a>
 
 ### starmusTranscript.bindEvents() ⇒ <code>void</code>
-
 Event handlers:
-
-* Click: Seeks audio to clicked word's start time
-* Scroll: Detects user scrolling to pause auto-scroll
-* Timeupdate: Syncs highlight with audio playback position
-* Seeked: Updates highlight when audio position changes
+- Click: Seeks audio to clicked word's start time
+- Scroll: Detects user scrolling to pause auto-scroll
+- Timeupdate: Syncs highlight with audio playback position
+- Seeked: Updates highlight when audio position changes
 
 **Kind**: instance method of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+boundOnClick"></a>
 
 ### starmusTranscript.boundOnClick()
-
 Click-to-seek handler for word elements.
 Extracts start time and seeks audio player to that position.
 
@@ -250,7 +230,6 @@ Extracts start time and seeks audio player to that position.
 <a name="StarmusTranscript+boundOnScroll"></a>
 
 ### starmusTranscript.boundOnScroll()
-
 Scroll detection handler.
 Sets user scrolling flag and resets it after timeout.
 
@@ -258,21 +237,18 @@ Sets user scrolling flag and resets it after timeout.
 <a name="StarmusTranscript+boundOnTimeUpdate"></a>
 
 ### starmusTranscript.boundOnTimeUpdate()
-
 Timeupdate handler for continuous playback sync.
 
 **Kind**: instance method of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+boundOnSeeked"></a>
 
 ### starmusTranscript.boundOnSeeked()
-
 Seeked handler for position change sync.
 
 **Kind**: instance method of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+findTokenIndex"></a>
 
 ### starmusTranscript.findTokenIndex(time) ⇒ <code>number</code>
-
 Uses binary search algorithm for O(log n) performance.
 Checks if time falls within token's start-end range.
 
@@ -286,7 +262,6 @@ Checks if time falls within token's start-end range.
 <a name="StarmusTranscript+syncHighlight"></a>
 
 ### starmusTranscript.syncHighlight(currentTime) ⇒ <code>void</code>
-
 Synchronizes word highlighting with current audio time.
 Updates active token index and triggers DOM updates if changed.
 
@@ -299,7 +274,6 @@ Updates active token index and triggers DOM updates if changed.
 <a name="StarmusTranscript+updateDOM"></a>
 
 ### starmusTranscript.updateDOM(newIndex) ⇒ <code>void</code>
-
 Updates DOM to highlight new active word.
 Removes previous highlight and adds new one with optional auto-scroll.
 
@@ -312,7 +286,6 @@ Removes previous highlight and adds new one with optional auto-scroll.
 <a name="StarmusTranscript+clearHighlight"></a>
 
 ### starmusTranscript.clearHighlight() ⇒ <code>void</code>
-
 Clears all word highlighting.
 Removes active class and resets active token index.
 
@@ -320,7 +293,6 @@ Removes active class and resets active token index.
 <a name="StarmusTranscript+scrollToWord"></a>
 
 ### starmusTranscript.scrollToWord(el) ⇒ <code>void</code>
-
 Scrolls container to show specified word element.
 Uses smooth scrolling with center alignment when available.
 
@@ -333,7 +305,6 @@ Uses smooth scrolling with center alignment when available.
 <a name="StarmusTranscript+updateData"></a>
 
 ### starmusTranscript.updateData(newData) ⇒ <code>void</code>
-
 Updates transcript data and re-initializes display.
 Replaces current data, re-renders DOM, and rebinds events.
 
@@ -350,7 +321,6 @@ Replaces current data, re-renders DOM, and rebinds events.
 <a name="StarmusTranscript+unbindEvents"></a>
 
 ### starmusTranscript.unbindEvents() ⇒ <code>void</code>
-
 Unbinds all event handlers to prevent memory leaks.
 Removes listeners from container and media elements.
 
@@ -358,7 +328,6 @@ Removes listeners from container and media elements.
 <a name="StarmusTranscript+destroy"></a>
 
 ### starmusTranscript.destroy() ⇒ <code>void</code>
-
 Destroys the transcript instance and cleans up all resources.
 Unbinds events, clears timeouts, empties container, and resets state.
 Call this method when transcript is no longer needed.
@@ -367,44 +336,43 @@ Call this method when transcript is no longer needed.
 <a name="StarmusTranscript"></a>
 
 ## StarmusTranscript : <code>function</code>
-
 Global StarmusTranscript class reference.
 
 **Kind**: global variable  
 
 * [StarmusTranscript](#StarmusTranscript) : <code>function</code>
-  * [new StarmusTranscript(peaksInstance, containerId, transcriptData)](#new_StarmusTranscript_new)
-  * [.peaks](#StarmusTranscript+peaks) : <code>Object</code>
-  * [.container](#StarmusTranscript+container) : <code>HTMLElement</code> \| <code>null</code>
-  * [.data](#StarmusTranscript+data) : <code>Array.&lt;Object&gt;</code>
-  * [.activeTokenIndex](#StarmusTranscript+activeTokenIndex) : <code>number</code>
-  * [.isUserScrolling](#StarmusTranscript+isUserScrolling) : <code>boolean</code>
-  * [.scrollTimeout](#StarmusTranscript+scrollTimeout) : <code>number</code> \| <code>null</code>
-  * [.boundOnTimeUpdate](#StarmusTranscript+boundOnTimeUpdate) : <code>function</code> \| <code>null</code>
-  * [.boundOnSeeked](#StarmusTranscript+boundOnSeeked) : <code>function</code> \| <code>null</code>
-  * [.boundOnClick](#StarmusTranscript+boundOnClick) : <code>function</code> \| <code>null</code>
-  * [.boundOnScroll](#StarmusTranscript+boundOnScroll) : <code>function</code> \| <code>null</code>
-  * [.init()](#StarmusTranscript+init) ⇒ <code>void</code>
-  * [.render()](#StarmusTranscript+render) ⇒ <code>void</code>
-  * [.bindEvents()](#StarmusTranscript+bindEvents) ⇒ <code>void</code>
-  * [.boundOnClick()](#StarmusTranscript+boundOnClick)
-  * [.boundOnScroll()](#StarmusTranscript+boundOnScroll)
-  * [.boundOnTimeUpdate()](#StarmusTranscript+boundOnTimeUpdate)
-  * [.boundOnSeeked()](#StarmusTranscript+boundOnSeeked)
-  * [.findTokenIndex(time)](#StarmusTranscript+findTokenIndex) ⇒ <code>number</code>
-  * [.syncHighlight(currentTime)](#StarmusTranscript+syncHighlight) ⇒ <code>void</code>
-  * [.updateDOM(newIndex)](#StarmusTranscript+updateDOM) ⇒ <code>void</code>
-  * [.clearHighlight()](#StarmusTranscript+clearHighlight) ⇒ <code>void</code>
-  * [.scrollToWord(el)](#StarmusTranscript+scrollToWord) ⇒ <code>void</code>
-  * [.updateData(newData)](#StarmusTranscript+updateData) ⇒ <code>void</code>
-  * [.unbindEvents()](#StarmusTranscript+unbindEvents) ⇒ <code>void</code>
-  * [.destroy()](#StarmusTranscript+destroy) ⇒ <code>void</code>
+    * [new StarmusTranscript(peaksInstance, containerId, transcriptData)](#new_StarmusTranscript_new)
+    * [.peaks](#StarmusTranscript+peaks) : <code>Object</code>
+    * [.container](#StarmusTranscript+container) : <code>HTMLElement</code> \| <code>null</code>
+    * [.data](#StarmusTranscript+data) : <code>Array.&lt;Object&gt;</code>
+    * [.activeTokenIndex](#StarmusTranscript+activeTokenIndex) : <code>number</code>
+    * [.isUserScrolling](#StarmusTranscript+isUserScrolling) : <code>boolean</code>
+    * [.scrollTimeout](#StarmusTranscript+scrollTimeout) : <code>number</code> \| <code>null</code>
+    * [.boundOnTimeUpdate](#StarmusTranscript+boundOnTimeUpdate) : <code>function</code> \| <code>null</code>
+    * [.boundOnSeeked](#StarmusTranscript+boundOnSeeked) : <code>function</code> \| <code>null</code>
+    * [.boundOnClick](#StarmusTranscript+boundOnClick) : <code>function</code> \| <code>null</code>
+    * [.boundOnScroll](#StarmusTranscript+boundOnScroll) : <code>function</code> \| <code>null</code>
+    * [.init()](#StarmusTranscript+init) ⇒ <code>void</code>
+    * [.render()](#StarmusTranscript+render) ⇒ <code>void</code>
+    * [.bindEvents()](#StarmusTranscript+bindEvents) ⇒ <code>void</code>
+    * [.boundOnClick()](#StarmusTranscript+boundOnClick)
+    * [.boundOnScroll()](#StarmusTranscript+boundOnScroll)
+    * [.boundOnTimeUpdate()](#StarmusTranscript+boundOnTimeUpdate)
+    * [.boundOnSeeked()](#StarmusTranscript+boundOnSeeked)
+    * [.findTokenIndex(time)](#StarmusTranscript+findTokenIndex) ⇒ <code>number</code>
+    * [.syncHighlight(currentTime)](#StarmusTranscript+syncHighlight) ⇒ <code>void</code>
+    * [.updateDOM(newIndex)](#StarmusTranscript+updateDOM) ⇒ <code>void</code>
+    * [.clearHighlight()](#StarmusTranscript+clearHighlight) ⇒ <code>void</code>
+    * [.scrollToWord(el)](#StarmusTranscript+scrollToWord) ⇒ <code>void</code>
+    * [.updateData(newData)](#StarmusTranscript+updateData) ⇒ <code>void</code>
+    * [.unbindEvents()](#StarmusTranscript+unbindEvents) ⇒ <code>void</code>
+    * [.destroy()](#StarmusTranscript+destroy) ⇒ <code>void</code>
 
 <a name="new_StarmusTranscript_new"></a>
 
 ### new StarmusTranscript(peaksInstance, containerId, transcriptData)
-
 Creates a StarmusTranscript instance.
+
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -421,7 +389,6 @@ Creates a StarmusTranscript instance.
 | [transcriptData[].confidence] | <code>number</code> | Confidence score (0.0-1.0) |
 
 **Example**  
-
 ```js
 const transcript = new StarmusTranscript(
   peaksInstance,
@@ -429,81 +396,69 @@ const transcript = new StarmusTranscript(
   [{ text: 'Hello', start: 0.0, end: 0.5, confidence: 0.95 }]
 );
 ```
-
 <a name="StarmusTranscript+peaks"></a>
 
 ### starmusTranscript.peaks : <code>Object</code>
-
 Peaks.js instance for audio control.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+container"></a>
 
 ### starmusTranscript.container : <code>HTMLElement</code> \| <code>null</code>
-
 DOM container element for transcript display.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+data"></a>
 
 ### starmusTranscript.data : <code>Array.&lt;Object&gt;</code>
-
 Array of word timing data objects.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+activeTokenIndex"></a>
 
 ### starmusTranscript.activeTokenIndex : <code>number</code>
-
 Index of currently highlighted word.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+isUserScrolling"></a>
 
 ### starmusTranscript.isUserScrolling : <code>boolean</code>
-
 Flag indicating user is manually scrolling.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+scrollTimeout"></a>
 
 ### starmusTranscript.scrollTimeout : <code>number</code> \| <code>null</code>
-
 Timeout ID for scroll detection reset.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+boundOnTimeUpdate"></a>
 
 ### starmusTranscript.boundOnTimeUpdate : <code>function</code> \| <code>null</code>
-
 Bound timeupdate event handler reference.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+boundOnSeeked"></a>
 
 ### starmusTranscript.boundOnSeeked : <code>function</code> \| <code>null</code>
-
 Bound seeked event handler reference.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+boundOnClick"></a>
 
 ### starmusTranscript.boundOnClick : <code>function</code> \| <code>null</code>
-
 Bound click event handler reference.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+boundOnScroll"></a>
 
 ### starmusTranscript.boundOnScroll : <code>function</code> \| <code>null</code>
-
 Bound scroll event handler reference.
 
 **Kind**: instance property of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+init"></a>
 
 ### starmusTranscript.init() ⇒ <code>void</code>
-
 Initializes the transcript controller.
 Sets up DOM rendering and event binding if container exists.
 
@@ -511,7 +466,6 @@ Sets up DOM rendering and event binding if container exists.
 <a name="StarmusTranscript+render"></a>
 
 ### starmusTranscript.render() ⇒ <code>void</code>
-
 Renders transcript words into DOM container.
 Creates word spans with timing data attributes and confidence indicators.
 Uses DocumentFragment for efficient bulk DOM updates.
@@ -520,19 +474,16 @@ Uses DocumentFragment for efficient bulk DOM updates.
 <a name="StarmusTranscript+bindEvents"></a>
 
 ### starmusTranscript.bindEvents() ⇒ <code>void</code>
-
 Event handlers:
-
-* Click: Seeks audio to clicked word's start time
-* Scroll: Detects user scrolling to pause auto-scroll
-* Timeupdate: Syncs highlight with audio playback position
-* Seeked: Updates highlight when audio position changes
+- Click: Seeks audio to clicked word's start time
+- Scroll: Detects user scrolling to pause auto-scroll
+- Timeupdate: Syncs highlight with audio playback position
+- Seeked: Updates highlight when audio position changes
 
 **Kind**: instance method of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+boundOnClick"></a>
 
 ### starmusTranscript.boundOnClick()
-
 Click-to-seek handler for word elements.
 Extracts start time and seeks audio player to that position.
 
@@ -540,7 +491,6 @@ Extracts start time and seeks audio player to that position.
 <a name="StarmusTranscript+boundOnScroll"></a>
 
 ### starmusTranscript.boundOnScroll()
-
 Scroll detection handler.
 Sets user scrolling flag and resets it after timeout.
 
@@ -548,21 +498,18 @@ Sets user scrolling flag and resets it after timeout.
 <a name="StarmusTranscript+boundOnTimeUpdate"></a>
 
 ### starmusTranscript.boundOnTimeUpdate()
-
 Timeupdate handler for continuous playback sync.
 
 **Kind**: instance method of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+boundOnSeeked"></a>
 
 ### starmusTranscript.boundOnSeeked()
-
 Seeked handler for position change sync.
 
 **Kind**: instance method of [<code>StarmusTranscript</code>](#StarmusTranscript)  
 <a name="StarmusTranscript+findTokenIndex"></a>
 
 ### starmusTranscript.findTokenIndex(time) ⇒ <code>number</code>
-
 Uses binary search algorithm for O(log n) performance.
 Checks if time falls within token's start-end range.
 
@@ -576,7 +523,6 @@ Checks if time falls within token's start-end range.
 <a name="StarmusTranscript+syncHighlight"></a>
 
 ### starmusTranscript.syncHighlight(currentTime) ⇒ <code>void</code>
-
 Synchronizes word highlighting with current audio time.
 Updates active token index and triggers DOM updates if changed.
 
@@ -589,7 +535,6 @@ Updates active token index and triggers DOM updates if changed.
 <a name="StarmusTranscript+updateDOM"></a>
 
 ### starmusTranscript.updateDOM(newIndex) ⇒ <code>void</code>
-
 Updates DOM to highlight new active word.
 Removes previous highlight and adds new one with optional auto-scroll.
 
@@ -602,7 +547,6 @@ Removes previous highlight and adds new one with optional auto-scroll.
 <a name="StarmusTranscript+clearHighlight"></a>
 
 ### starmusTranscript.clearHighlight() ⇒ <code>void</code>
-
 Clears all word highlighting.
 Removes active class and resets active token index.
 
@@ -610,7 +554,6 @@ Removes active class and resets active token index.
 <a name="StarmusTranscript+scrollToWord"></a>
 
 ### starmusTranscript.scrollToWord(el) ⇒ <code>void</code>
-
 Scrolls container to show specified word element.
 Uses smooth scrolling with center alignment when available.
 
@@ -623,7 +566,6 @@ Uses smooth scrolling with center alignment when available.
 <a name="StarmusTranscript+updateData"></a>
 
 ### starmusTranscript.updateData(newData) ⇒ <code>void</code>
-
 Updates transcript data and re-initializes display.
 Replaces current data, re-renders DOM, and rebinds events.
 
@@ -640,7 +582,6 @@ Replaces current data, re-renders DOM, and rebinds events.
 <a name="StarmusTranscript+unbindEvents"></a>
 
 ### starmusTranscript.unbindEvents() ⇒ <code>void</code>
-
 Unbinds all event handlers to prevent memory leaks.
 Removes listeners from container and media elements.
 
@@ -648,7 +589,6 @@ Removes listeners from container and media elements.
 <a name="StarmusTranscript+destroy"></a>
 
 ### starmusTranscript.destroy() ⇒ <code>void</code>
-
 Destroys the transcript instance and cleans up all resources.
 Unbinds events, clears timeouts, empties container, and resets state.
 Call this method when transcript is no longer needed.
@@ -657,7 +597,6 @@ Call this method when transcript is no longer needed.
 <a name="StarmusTranscriptController"></a>
 
 ## StarmusTranscriptController : <code>object</code>
-
 Global transcript controller object with class and factory function.
 
 **Kind**: global namespace  
@@ -671,7 +610,6 @@ Global transcript controller object with class and factory function.
 <a name="BUS"></a>
 
 ## BUS : <code>object</code>
-
 Global command bus reference with fallback.
 Used for dispatching transcript events and debugging.
 
@@ -679,14 +617,12 @@ Used for dispatching transcript events and debugging.
 <a name="debugLog"></a>
 
 ## debugLog : <code>function</code>
-
 Debug logging function with fallback no-op.
 
 **Kind**: global constant  
 <a name="init"></a>
 
 ## init(peaksInstance, containerId, transcriptData) ⇒ [<code>StarmusTranscript</code>](#StarmusTranscript)
-
 Factory function to create a new StarmusTranscript instance.
 Provides a convenient way to initialize transcript controller.
 
@@ -700,10 +636,10 @@ Provides a convenient way to initialize transcript controller.
 | transcriptData | <code>Array.&lt;Object&gt;</code> | Array of word timing objects |
 
 **Example**  
-
 ```js
 const transcript = init(peaks, 'transcript-div', wordData);
 ```
+
 
 ---
 

@@ -68,7 +68,7 @@ Sets global window.StarmusAudioContext reference.</p>
 <dd><p>Wakes up AudioContext if suspended due to browser autoplay policies.
 Must be called after user interaction to enable audio processing.</p>
 </dd>
-<dt><a href="#doCalibration">doCalibration(stream, onUpdate)</a> ⇒ <code>Promise.&lt;Object&gt;</code> | <code>boolean</code> | <code>number</code> | <code>number</code></dt>
+<dt><a href="#_doCalibration">_doCalibration(stream, onUpdate)</a> ⇒ <code>Promise.&lt;Object&gt;</code> | <code>boolean</code> | <code>number</code> | <code>number</code></dt>
 <dd><p>Calibration phases:</p>
 <ul>
 <li>Phase 1 (0-5s): Measure background noise</li>
@@ -81,9 +81,7 @@ Must be called after user interaction to enable audio processing.</p>
 <a name="module_initRecorder"></a>
 
 ## initRecorder ⇒ <code>void</code>
-
 Registers handlers for these commands:
-
 - 'setup-mic': Request microphone access and perform calibration
 - 'start-recording': Begin audio recording with speech recognition
 - 'stop-mic': Stop recording and save audio blob
@@ -91,6 +89,7 @@ Registers handlers for these commands:
 - 'resume-mic': Resume paused recording
 
 All commands are filtered by instanceId to support multiple recorder instances.
+
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -101,14 +100,12 @@ All commands are filtered by instanceId to support multiple recorder instances.
 <a name="module_{function}"></a>
 
 ## {function}
-
 Explicit export for build system compatibility.
 Exports initRecorder function for use in other modules.
 
 <a name="LanguageSignalAnalyzer"></a>
 
 ## LanguageSignalAnalyzer
-
 Language Signal Analyzer - Geographic Policy Enforcement
 Detects colonial language violations based on user location.
 Runs silently on cloned stream without affecting audio recording.
@@ -117,7 +114,6 @@ Runs silently on cloned stream without affecting audio recording.
 <a name="sharedAudioContext"></a>
 
 ## sharedAudioContext : <code>AudioContext</code> \| <code>null</code>
-
 Shared AudioContext instance for all recorder instances.
 Reused to avoid multiple context creation and ensure proper resource management.
 
@@ -125,7 +121,6 @@ Reused to avoid multiple context creation and ensure proper resource management.
 <a name="recorderRegistry"></a>
 
 ## recorderRegistry : <code>Map.&lt;string, Object&gt;</code>
-
 Registry of active recorder instances mapped by instanceId.
 Stores MediaRecorder, animation frame ID, and speech recognition objects.
 
@@ -141,7 +136,6 @@ Stores MediaRecorder, animation frame ID, and speech recognition objects.
 <a name="SpeechRecognition"></a>
 
 ## SpeechRecognition : <code>function</code> \| <code>undefined</code>
-
 Speech Recognition API with webkit fallback.
 Used by LanguageSignalAnalyzer for policy enforcement.
 
@@ -149,7 +143,6 @@ Used by LanguageSignalAnalyzer for policy enforcement.
 <a name="getContext"></a>
 
 ## getContext() ⇒ <code>AudioContext</code>
-
 Gets or creates shared AudioContext with optimal settings.
 Creates new context if none exists or previous was closed.
 Sets global window.StarmusAudioContext reference.
@@ -163,18 +156,15 @@ Sets global window.StarmusAudioContext reference.
 <a name="wakeAudio"></a>
 
 ## wakeAudio() ⇒ <code>Promise.&lt;AudioContext&gt;</code>
-
 Wakes up AudioContext if suspended due to browser autoplay policies.
 Must be called after user interaction to enable audio processing.
 
 **Kind**: global function  
 **Returns**: <code>Promise.&lt;AudioContext&gt;</code> - Promise resolving to active AudioContext  
-<a name="doCalibration"></a>
+<a name="_doCalibration"></a>
 
-## doCalibration(stream, onUpdate) ⇒ <code>Promise.&lt;Object&gt;</code> \| <code>boolean</code> \| <code>number</code> \| <code>number</code>
-
+## \_doCalibration(stream, onUpdate) ⇒ <code>Promise.&lt;Object&gt;</code> \| <code>boolean</code> \| <code>number</code> \| <code>number</code>
 Calibration phases:
-
 - Phase 1 (0-5s): Measure background noise
 - Phase 2 (5-10s): Detect speech levels
 - Phase 3 (10-15s): Optimize settings
@@ -189,6 +179,8 @@ Calibration phases:
 | onUpdate.message | <code>string</code> | Current calibration phase message |
 | onUpdate.volumePercent | <code>number</code> | Volume level (0-100) |
 | onUpdate.isComplete | <code>boolean</code> | Whether calibration finished |
+
+
 
 ---
 
