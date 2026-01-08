@@ -17,21 +17,20 @@ declare(strict_types=1);
  */
 namespace Starisian\Sparxstar\Starmus\core;
 
+
+
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Throwable;
+use function trim;
+use function wp_create_nonce;
+use function str_replace;
 use function array_filter;
 use function array_map;
 use function array_values;
 use function defined;
 use function explode;
 use function is_admin;
-
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-
-use function str_replace;
-
-use Throwable;
-
-use function trim;
-use function wp_create_nonce;
 
 if ( ! \defined('ABSPATH')) {
     exit;

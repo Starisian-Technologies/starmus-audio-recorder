@@ -95,7 +95,11 @@ if ( ! defined('STARMUS_DELETE_ON_UNINSTALL')) {
     define('STARMUS_DELETE_ON_UNINSTALL', false);
 }
 
-
+add_action('init', function () {
+	if (headers_sent($file, $line)) {
+		error_log("HEADERS SENT from $file:$line");
+	}
+});
 // -------------------------------------------------------------------------
 // 2. COMPOSER AUTOLOAD (Immediate)
 // -------------------------------------------------------------------------
