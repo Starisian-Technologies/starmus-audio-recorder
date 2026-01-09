@@ -32,6 +32,10 @@ if ( ! \defined('ABSPATH')) {
 
 abstract class StarmusBaseDAL implements IStarmusBaseDAL
 {
+	public function __construct(): void
+	{
+		// do nothing.
+	}
     // --- META OPERATIONS ---
 
     /**
