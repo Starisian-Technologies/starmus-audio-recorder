@@ -6,7 +6,7 @@
  * @version 1.0.2-DATA-SAFE
  */
 if (! defined('ABSPATH')) {
-	exit;
+    exit;
 }
 
 /** @var int $post_id */
@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
 $instance_id = 'starmus_form_' . sanitize_key('rerecord_' . wp_generate_uuid4());
 
 $allowed_file_types ??= 'webm';
-$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
+$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
 $is_admin          = current_user_can('manage_options');
 $consent_message ??= __('By submitting this recording, you agree to our', 'starmus-audio-recorder');
 $data_policy_url ??= '';
@@ -48,17 +48,17 @@ $data_policy_url ??= '';
 			<input type="hidden" name="starmus_dc_creator" value="<?php echo esc_attr($existing_title); ?>">
 			<input type="hidden" name="audio_file_type" value="audio/webm">
 
-			<?php if (! empty($existing_language)) : ?>
+			<?php if (! empty($existing_language)) { ?>
 				<input type="hidden" name="starmus_tax_language" value="<?php echo esc_attr((string) $existing_language); ?>">
-			<?php endif; ?>
+			<?php } ?>
 
-			<?php if (! empty($existing_type)) : ?>
+			<?php if (! empty($existing_type)) { ?>
 				<input type="hidden" name="starmus_story_type" value="<?php echo esc_attr((string) $existing_type); ?>">
-			<?php endif; ?>
+			<?php } ?>
 
-			<?php if (! empty($existing_dialect)) : ?>
+			<?php if (! empty($existing_dialect)) { ?>
 				<input type="hidden" name="starmus_tax_dialect" value="<?php echo esc_attr((string) $existing_dialect); ?>">
-			<?php endif; ?>
+			<?php } ?>
 
 			<!-- INJECTED BY JS (Protected by Safe Sync) -->
 			<input type="hidden" name="_starmus_env" value="">

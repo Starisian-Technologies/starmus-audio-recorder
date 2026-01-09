@@ -3,7 +3,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -42,15 +42,15 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
         $audio = $analysis['audio'] ?? [];
 
         return [
-        'format'       => $analysis['fileformat'] ?? 'unknown',
-        'codec'        => $audio['dataformat'] ?? 'unknown',
-        'bitrate'      => $audio['bitrate'] ?? 0,
-        'sample_rate'  => $audio['sample_rate'] ?? 0,
-        'channels'     => $audio['channels'] ?? 0,
+        'format'       => $analysis['fileformat']    ?? 'unknown',
+        'codec'        => $audio['dataformat']       ?? 'unknown',
+        'bitrate'      => $audio['bitrate']          ?? 0,
+        'sample_rate'  => $audio['sample_rate']      ?? 0,
+        'channels'     => $audio['channels']         ?? 0,
         'duration'     => $audio['playtime_seconds'] ?? 0,
-        'bitrate_mode' => $audio['bitrate_mode'] ?? 'unknown',
-        'lossless'     => $audio['lossless'] ?? false,
-        'file_size'    => $analysis['filesize'] ?? 0,
+        'bitrate_mode' => $audio['bitrate_mode']     ?? 'unknown',
+        'lossless'     => $audio['lossless']         ?? false,
+        'file_size'    => $analysis['filesize']      ?? 0,
         ];
     }
 
@@ -78,8 +78,8 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
      */
     private function assessAudioQuality(array $analysis): array
     {
-        $audio       = $analysis['audio'] ?? [];
-        $bitrate     = $audio['bitrate'] ?? 0;
+        $audio       = $analysis['audio']    ?? [];
+        $bitrate     = $audio['bitrate']     ?? 0;
         $sample_rate = $audio['sample_rate'] ?? 0;
 
         return [
@@ -136,7 +136,7 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
         $results = [];
 
         foreach ($file_paths as $path) {
-            if ( ! file_exists($path)) {
+            if (! file_exists($path)) {
                 continue;
             }
 
@@ -185,11 +185,11 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
     {
         $parts = [];
 
-        if ( ! empty($form_data['description'])) {
+        if (! empty($form_data['description'])) {
             $parts[] = $form_data['description'];
         }
 
-        if ( ! empty($form_data['location'])) {
+        if (! empty($form_data['location'])) {
             $parts[] = 'Location: ' . $form_data['location'];
         }
 

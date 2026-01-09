@@ -9,14 +9,8 @@
  *
  * @version 0.9.2
  */
-
 namespace Starisian\Sparxstar\Starmus\cli;
 
-use WP_CLI_Command;
-use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
-use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
-use Starisian\Sparxstar\Starmus\core\StarmusSettings;
-use function WP_CLI\Utils\make_progress_bar;
 use function absint;
 use function file_exists;
 use function get_post;
@@ -24,7 +18,10 @@ use function get_post_meta;
 use function get_posts;
 use function is_readable;
 
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
 use Starisian\Sparxstar\Starmus\cron\StarmusCron;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 
@@ -33,13 +30,17 @@ use function wp_cache_flush;
 
 use WP_CLI;
 
+use function WP_CLI\Utils\make_progress_bar;
+
+use WP_CLI_Command;
+
 use function wp_get_attachment_url;
 
 use WP_Query;
 
 use function wp_strip_all_tags;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -139,8 +140,8 @@ class StarmusCLI extends WP_CLI_Command
 
         // Cleanup is handled by StarmusSubmissionHandler, not UI
         $handler = new StarmusSubmissionHandler(
-        new StarmusAudioDAL(),
-        new StarmusSettings()
+            new StarmusAudioDAL(),
+            new StarmusSettings()
         );
         if (method_exists($handler, 'cleanup_stale_temp_files')) {
             $handler->cleanup_stale_temp_files();
@@ -169,14 +170,14 @@ class StarmusCLI extends WP_CLI_Command
     public function export($args, array $assoc_args): void
     {
         $query = new WP_Query(
-        [
+            [
         'post_type'      => 'audio-recording',
         'post_status'    => 'any',
         'posts_per_page' => -1,
         ]
         );
 
-        if ( ! $query->have_posts()) {
+        if (! $query->have_posts()) {
             WP_CLI::error('No recordings found to export.');
         }
 
@@ -200,7 +201,7 @@ class StarmusCLI extends WP_CLI_Command
         if ('json' === $format) {
             WP_CLI::line(json_encode($items, JSON_PRETTY_PRINT));
         } else {
-         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- CLI context requires direct stdout access
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- CLI context requires direct stdout access
             $output = fopen('php://stdout', 'w');
             if ($output) {
                 fputcsv($output, $headers);
@@ -208,7 +209,7 @@ class StarmusCLI extends WP_CLI_Command
                     fputcsv($output, $item);
                 }
 
-             // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- CLI context requires direct stdout access
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- CLI context requires direct stdout access
                 fclose($output);
             }
         }
@@ -235,7 +236,7 @@ class StarmusCLI extends WP_CLI_Command
         }
 
         $csv_file = $args[0];
-        if ( ! file_exists($csv_file) || ! is_readable($csv_file)) {
+        if (! file_exists($csv_file) || ! is_readable($csv_file)) {
             WP_CLI::error('CSV file not found or is not readable at: ' . $csv_file);
         }
 
@@ -248,9 +249,9 @@ class StarmusCLI extends WP_CLI_Command
     private function generate_waveforms(array $assoc_args): void
     {
         // PRE-FLIGHT CHECK: Verify the tool is available before doing anything else.
-        if ( ! $this->waveform_service->is_tool_available()) {
+        if (! $this->waveform_service->is_tool_available()) {
             WP_CLI::error(
-            "The 'audiowaveform' command-line tool is not installed or not in the server's PATH. " .
+                "The 'audiowaveform' command-line tool is not installed or not in the server's PATH. " .
             'Please install it to generate waveforms. See: https://github.com/bbc/audiowaveform'
             );
             return; // Exit immediately.
@@ -264,7 +265,7 @@ class StarmusCLI extends WP_CLI_Command
         'paged'          => 1,
         ];
 
-        if ( ! empty($assoc_args['post_ids'])) {
+        if (! empty($assoc_args['post_ids'])) {
             $query_args['post__in']       = array_map(absint(...), explode(',', (string) $assoc_args['post_ids']));
             $query_args['posts_per_page'] = \count($query_args['post__in']);
         }
@@ -273,7 +274,7 @@ class StarmusCLI extends WP_CLI_Command
         $count_query = new WP_Query($query_args);
         $total_posts = $count_query->found_posts;
 
-        if ( ! $total_posts) {
+        if (! $total_posts) {
             WP_CLI::success('No recordings found to process.');
             return;
         }
@@ -286,16 +287,16 @@ class StarmusCLI extends WP_CLI_Command
 
         do {
             $query = new WP_Query($query_args);
-            if ( ! $query->have_posts()) {
+            if (! $query->have_posts()) {
                 break;
             }
 
             foreach ($query->posts as $post_id) {
                 $attachment_id = get_post_meta($post_id, '_audio_attachment_id', true);
 
-                if ( ! $attachment_id) {
+                if (! $attachment_id) {
                     ++$skipped;
-                } elseif ( ! $regenerate && $this->waveform_service->has_waveform_data($attachment_id)) {
+                } elseif (! $regenerate && $this->waveform_service->has_waveform_data($attachment_id)) {
                     ++$skipped;
                 } elseif ($this->waveform_service->generate_waveform_data($attachment_id, $regenerate)) {
                     ++$processed;
@@ -378,7 +379,7 @@ class StarmusCLI extends WP_CLI_Command
         }
 
         $attachment = get_post($id);
-        if ( ! $attachment || $attachment->post_type !== 'attachment') {
+        if (! $attachment || $attachment->post_type !== 'attachment') {
             WP_CLI::error(\sprintf('Attachment %d not found.', $id));
             return;
         }
@@ -497,7 +498,7 @@ class StarmusCLI extends WP_CLI_Command
         WP_CLI::log(\sprintf('Batch regenerating waveforms for audio attachments (limit: %d, offset: %d)...', $limit, $offset));
 
         $attachments = get_posts(
-        [
+            [
         'post_type'      => 'attachment',
         'post_mime_type' => 'audio',
         'posts_per_page' => $limit,
@@ -550,7 +551,7 @@ class StarmusCLI extends WP_CLI_Command
         }
 
         $attachment = get_post($id);
-        if ( ! $attachment || $attachment->post_type !== 'attachment') {
+        if (! $attachment || $attachment->post_type !== 'attachment') {
             WP_CLI::error(\sprintf('Attachment %d not found.', $id));
             return;
         }

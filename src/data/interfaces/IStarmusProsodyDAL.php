@@ -11,9 +11,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\data\interfaces;
 
-use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusBaseDAL;
-
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 

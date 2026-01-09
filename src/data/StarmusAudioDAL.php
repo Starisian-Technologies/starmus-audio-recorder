@@ -12,15 +12,12 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\data;
 
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
-use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusBaseDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 use WP_Error;
 use WP_Query;
-use function defined;
 
-
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -159,7 +156,7 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
     public function create_attachment_from_sideload(array $file_data): int|WP_Error
     {
         try {
-            if ( ! \function_exists('media_handle_sideload')) {
+            if (! \function_exists('media_handle_sideload')) {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
                 require_once ABSPATH . 'wp-admin/includes/image.php';
                 require_once ABSPATH . 'wp-admin/includes/media.php';
@@ -203,12 +200,12 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
     public function update_attachment_metadata(int $attachment_id, string $file_path): bool
     {
         try {
-            if ( ! file_exists($file_path)) {
+            if (! file_exists($file_path)) {
                 return false;
             }
 
             // Required for wp_generate_attachment_metadata
-            if ( ! \function_exists('wp_generate_attachment_metadata')) {
+            if (! \function_exists('wp_generate_attachment_metadata')) {
                 require_once ABSPATH . 'wp-admin/includes/image.php';
             }
 

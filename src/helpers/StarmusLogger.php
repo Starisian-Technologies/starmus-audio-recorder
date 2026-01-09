@@ -1,11 +1,12 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\helpers;
 
-use Exception;
 use function error_log;
+
+use Exception;
+
 use function is_admin;
 
 use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
@@ -19,7 +20,7 @@ use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
  * @license Starisian Technolgoies Proprietary License
  */
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit();
 }
 
@@ -143,7 +144,7 @@ class StarmusLogger
     private static function get_handler(): StarLogger
     {
         try {
-            if ( ! self::$handler instanceof StarLogger) {
+            if (! self::$handler instanceof StarLogger) {
                 self::$handler = new StarLogger(self::$min_log_level);
             }
         } catch (Exception $exception) {

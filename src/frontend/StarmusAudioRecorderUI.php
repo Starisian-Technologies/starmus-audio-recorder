@@ -3,7 +3,7 @@
 /**
  * Front-end presentation layer for the Starmus recorder experience.
  *
- * @package   Starmus
+ * @package   Starisian\Sparxstar\Starmus\frontend
  */
 
 namespace Starisian\Sparxstar\Starmus\frontend;
@@ -96,44 +96,38 @@ class StarmusAudioRecorderUI
 				'starmus_audio_re_recorder'
 			);
 
-			// Get post_id from shortcode attribute or URL parameter
+			// Get IDs from shortcode attribute or URL parameter
 			$post_id = absint($atts['post_id']);
 			if ($post_id <= 0 && isset($_GET['recording_id'])) {
-				$post_id = absint($_GET['recording_id']); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$post_id = absint($_GET['recording_id']); // phpcs:ignore
 			}
 
-			// Validate post exists and is an audio-recording
-                        // NOTE: If script_id is present but post_id is 0, we are creating a NEW from SCRIPT.
-                        // However, starmus_audio_re_recorder implies updating.
-                        // The user said: "based on if there is already an audio... clicking the button... pass the id of the script"
-                        // If post_id is 0, check for existing recording for this script by current user.
+			$script_id = absint($atts['script_id']);
+			if ($script_id <= 0 && isset($_GET['script_id'])) {
+				$script_id = absint($_GET['script_id']); // phpcs:ignore
+			}
 
-                        if ($post_id <= 0 && $script_id > 0 && is_user_logged_in()) {
-                             // Attempt to find existing recording by Title match (as per logic)
-                             // Or better, via starmus_script_source meta if we had it.
-                             // For now, we will rely on strict title match or just let it fail to "No recording specified"
-                             // BUT user requirement implies we might want to record NEW if none exists.
-                             // However, this is the RE-RECORDER.
-                             // IF no recording exists, we should probably fall back to the main recorder?
-                             // OR, maybe this shortcode handles both?
-                             // For now, strict adherence: RE-recorder needs an ID.
+			// Script-based lookup logic
+			if ($post_id <= 0 && $script_id > 0 && is_user_logged_in()) {
+				$script_post = get_post($script_id);
+				if ($script_post) {
+					$existing_query = new \WP_Query(
+						[
+							'post_type'      => 'audio-recording',
+							'author'         => get_current_user_id(),
+							'title'          => $script_post->post_title,
+							'posts_per_page' => 1,
+							'fields'         => 'ids',
+						]
+					);
+					if ($existing_query->have_posts()) {
+						$post_id = $existing_query->posts[0];
+					}
+				}
+			}
 
-                             // Let's try to find an ID.
-                             $script_post = get_post($script_id);
-                             if ($script_post) {
-                                 $existing_query = new \WP_Query([
-                                     'post_type' => 'audio-recording',
-                                     'author'    => get_current_user_id(),
-                                     'title'     => $script_post->post_title, // Use title match as proxy
-                                     'posts_per_page' => 1,
-                                     'fields'    => 'ids'
-                                 ]);
-                                 if ($existing_query->have_posts()) {
-                                     $post_id = $existing_query->posts[0];
-                                 }
-                             }
-                        }
-
+			// Only error out if we still lack a valid context
+			if ($post_id <= 0 && $script_id <= 0) {
 				return '<p>' . esc_html__('No recording specified.', 'starmus-audio-recorder') . '</p>';
 			}
 
@@ -141,50 +135,46 @@ class StarmusAudioRecorderUI
 				? $this->settings->get('cpt_slug', 'audio-recording')
 				: 'audio-recording';
 
-			if (get_post_type($post_id) !== $cpt_slug) {
+			// Validate Recording ID if present
+			if ($post_id > 0 && get_post_type($post_id) !== $cpt_slug) {
 				return '<p>' . esc_html__('Invalid recording ID.', 'starmus-audio-recorder') . '</p>';
 			}
 
-			// Get existing post data to pre-fill the form
-			$post           = get_post($post_id);
-			$existing_title = $post ? $post->post_title : '';
+			// Initialize Template Variables
+			$existing_title = '';
+			$language_id    = 0;
+			$type_id        = 0;
+			$dialect_id     = 0;
+			$formatted_script_id = $script_id;
 
-			// Get existing taxonomies
-			$language_terms = wp_get_object_terms($post_id, 'starmus_tax_language');
-			$language_id    = (! is_wp_error($language_terms) && ! empty($language_terms)) ? $language_terms[0]->term_id : 0;
+			// 1. Load from Existing Recording
+			if ($post_id > 0) {
+				$post           = get_post($post_id);
+				$existing_title = $post ? $post->post_title : '';
 
-			$type_terms = wp_get_object_terms($post_id, 'starmus_story_type');
-			$type_id    = (! is_wp_error($type_terms) && ! empty($type_terms)) ? $type_terms[0]->term_id : 0;
+				$language_terms = wp_get_object_terms($post_id, 'starmus_tax_language');
+				$language_id    = (! is_wp_error($language_terms) && ! empty($language_terms)) ? $language_terms[0]->term_id : 0;
 
-			// NEW: Script Context Override
-                        // 1. Check Shortcode Attribute
-                        $script_id = absint($atts['script_id']);
+				$type_terms = wp_get_object_terms($post_id, 'starmus_story_type');
+				$type_id    = (! is_wp_error($type_terms) && ! empty($type_terms)) ? $type_terms[0]->term_id : 0;
+			}
 
-                        // 2. Check URL Parameter (Override if attribute is empty)
-                        if ($script_id <= 0 && isset($_GET['script_id'])) {
-                            $script_id = absint($_GET['script_id']);
-                        }
-
-
+			// 2. Override/Supplement from Script Context
 			if ($script_id > 0 && get_post_type($script_id) === 'starmus-script') {
 				$script_post = get_post($script_id);
 				if ($script_post) {
-					// 1. Populate Title from Script
-					$existing_title = $script_post->post_title;
+					$existing_title = $script_post->post_title; // Script title wins for new/re-record
 
-					// 2. Populate Language from Script
 					$script_langs = wp_get_object_terms($script_id, 'starmus_tax_language');
 					if (! is_wp_error($script_langs) && ! empty($script_langs)) {
 						$language_id = $script_langs[0]->term_id;
 					}
 
-					// 3. Populate Dialect from Script (Assuming starmus_tax_dialect)
 					$script_dialects = wp_get_object_terms($script_id, 'starmus_tax_dialect');
 					if (! is_wp_error($script_dialects) && ! empty($script_dialects)) {
 						$dialect_id = $script_dialects[0]->term_id;
 					}
 
-					// 4. Populate Recording Type -> oral_submission
 					$type_term = get_term_by('slug', 'oral_submission', 'starmus_story_type');
 					if ($type_term && ! is_wp_error($type_term)) {
 						$type_id = $type_term->term_id;
@@ -195,11 +185,12 @@ class StarmusAudioRecorderUI
 			$template_args = [
 				'form_id'           => 'rerecord',
 				'post_id'           => $post_id,
-				'artifact_id'       => $post_id, // Link to original recording
+				'artifact_id'       => $post_id,
 				'existing_title'    => $existing_title,
 				'existing_language' => $language_id,
 				'existing_type'     => $type_id,
-				'existing_dialect'  => $dialect_id, // NEW passed var
+				'existing_dialect'  => $dialect_id,
+				'script_id'         => $formatted_script_id, // Pass script ID to template
 				'consent_message'   => $this->settings instanceof StarmusSettings
 					? $this->settings->get('consent_message', 'I consent to the terms and conditions.')
 					: 'I consent to the terms and conditions.',

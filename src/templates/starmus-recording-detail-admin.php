@@ -10,7 +10,7 @@
  */
 
 if (! defined('ABSPATH')) {
-	exit;
+    exit;
 }
 
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
@@ -19,155 +19,155 @@ use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 // === 1. INITIALIZATION & DATA RESOLUTION ===
 
 try {
-	$post_id = get_the_ID();
+    $post_id = get_the_ID();
 
-	if (! $post_id && isset($args['post_id'])) {
-		$post_id = intval($args['post_id']);
-	}
+    if (! $post_id && isset($args['post_id'])) {
+        $post_id = intval($args['post_id']);
+    }
 
-	if (! $post_id) {
-		throw new \Exception('No post ID found.');
-	}
+    if (! $post_id) {
+        throw new \Exception('No post ID found.');
+    }
 
-	$settings = new StarmusSettings();
+    $settings = new StarmusSettings();
 
-	// Safe Service Instantiation
-	$file_service = class_exists(\Starisian\Sparxstar\Starmus\services\StarmusFileService::class)
-		? new StarmusFileService()
-		: null;
+    // Safe Service Instantiation
+    $file_service = class_exists(\Starisian\Sparxstar\Starmus\services\StarmusFileService::class)
+    ? new StarmusFileService()
+    : null;
 
-	// --- 1. Audio Assets (New Schema) ---
-	// ACF fields return URLs when return_format is 'url', but we need attachment IDs
-	$mastered_mp3_field    = get_field('mastered_mp3', $post_id);
-	$archival_wav_field    = get_field('archival_wav', $post_id);
-	$original_source_field = get_field('original_source', $post_id);
+    // --- 1. Audio Assets (New Schema) ---
+    // ACF fields return URLs when return_format is 'url', but we need attachment IDs
+    $mastered_mp3_field    = get_field('mastered_mp3', $post_id);
+    $archival_wav_field    = get_field('archival_wav', $post_id);
+    $original_source_field = get_field('original_source', $post_id);
 
-	// If ACF returns URLs, we need to get attachment IDs from URLs
-	if (is_string($mastered_mp3_field) && ($mastered_mp3_field !== '' && $mastered_mp3_field !== '0')) {
-		$mastered_mp3_id = attachment_url_to_postid($mastered_mp3_field);
-	} else {
-		$mastered_mp3_id = (int) $mastered_mp3_field;
-	}
+    // If ACF returns URLs, we need to get attachment IDs from URLs
+    if (is_string($mastered_mp3_field) && ($mastered_mp3_field !== '' && $mastered_mp3_field !== '0')) {
+        $mastered_mp3_id = attachment_url_to_postid($mastered_mp3_field);
+    } else {
+        $mastered_mp3_id = (int) $mastered_mp3_field;
+    }
 
-	if (is_string($archival_wav_field) && ($archival_wav_field !== '' && $archival_wav_field !== '0')) {
-		$archival_wav_id = attachment_url_to_postid($archival_wav_field);
-	} else {
-		$archival_wav_id = (int) $archival_wav_field;
-	}
+    if (is_string($archival_wav_field) && ($archival_wav_field !== '' && $archival_wav_field !== '0')) {
+        $archival_wav_id = attachment_url_to_postid($archival_wav_field);
+    } else {
+        $archival_wav_id = (int) $archival_wav_field;
+    }
 
-	if (is_string($original_source_field) && ($original_source_field !== '' && $original_source_field !== '0')) {
-		$original_id = attachment_url_to_postid($original_source_field);
-	} else {
-		$original_id = (int) $original_source_field;
-	}
+    if (is_string($original_source_field) && ($original_source_field !== '' && $original_source_field !== '0')) {
+        $original_id = attachment_url_to_postid($original_source_field);
+    } else {
+        $original_id = (int) $original_source_field;
+    }
 
-	// Fallback to legacy fields if new schema fields are empty
-	if ($original_id === 0) {
-		$original_id = (int) get_post_meta($post_id, '_audio_attachment_id', true);
-	}
-	if ($mastered_mp3_id === 0) {
-		$mastered_mp3_id = (int) get_post_meta($post_id, '_audio_mp3_attachment_id', true);
-	}
-	if ($archival_wav_id === 0) {
-		$archival_wav_id = (int) get_post_meta($post_id, '_audio_wav_attachment_id', true);
-	}
+    // Fallback to legacy fields if new schema fields are empty
+    if ($original_id === 0) {
+        $original_id = (int) get_post_meta($post_id, '_audio_attachment_id', true);
+    }
+    if ($mastered_mp3_id === 0) {
+        $mastered_mp3_id = (int) get_post_meta($post_id, '_audio_mp3_attachment_id', true);
+    }
+    if ($archival_wav_id === 0) {
+        $archival_wav_id = (int) get_post_meta($post_id, '_audio_wav_attachment_id', true);
+    }
 
-	$get_url = function (int $att_id) use ($file_service) {
-		if ($att_id <= 0) {
-			return '';
-		}
-		try {
-			if ($file_service instanceof \Starisian\Sparxstar\Starmus\services\StarmusFileService) {
-				return $file_service->star_get_public_url($att_id);
-			}
-		} catch (\Throwable) {
-		}
-		return wp_get_attachment_url($att_id) ?: '';
-	};
+    $get_url = function (int $att_id) use ($file_service) {
+        if ($att_id <= 0) {
+            return '';
+        }
+        try {
+            if ($file_service instanceof \Starisian\Sparxstar\Starmus\services\StarmusFileService) {
+                return $file_service->star_get_public_url($att_id);
+            }
+        } catch (\Throwable) {
+        }
+        return wp_get_attachment_url($att_id) ?: '';
+    };
 
-	$mp3_url      = $get_url($mastered_mp3_id);
-	$wav_url      = $get_url($archival_wav_id);
-	$original_url = $get_url($original_id); // Assuming _audio_attachment_id is covered by audio_files_originals
-	$playback_url = $mp3_url ?: $original_url;
+    $mp3_url      = $get_url($mastered_mp3_id);
+    $wav_url      = $get_url($archival_wav_id);
+    $original_url = $get_url($original_id); // Assuming _audio_attachment_id is covered by audio_files_originals
+    $playback_url = $mp3_url ?: $original_url;
 
-	// --- 2. Telemetry & Logs ---
-	$processing_log = get_post_meta($post_id, 'starmus_processing_log', true);
-	$runtime_raw    = get_post_meta($post_id, 'runtime_metadata', true);
+    // --- 2. Telemetry & Logs ---
+    $processing_log = get_post_meta($post_id, 'starmus_processing_log', true);
+    $runtime_raw    = get_post_meta($post_id, 'runtime_metadata', true);
 
-	// --- 3. Robust Data Parsing (New Schema) ---
-	$env_json_raw = get_field('environment_data', $post_id);
-	$env_data     = empty($env_json_raw) ? [] : json_decode($env_json_raw, true);
+    // --- 3. Robust Data Parsing (New Schema) ---
+    $env_json_raw = get_field('environment_data', $post_id);
+    $env_data     = empty($env_json_raw) ? [] : json_decode($env_json_raw, true);
 
-	// FIX: Parse IDs correctly from the flat structure we built in JS
-	$visitor_id = $env_data['identifiers']['visitorId'] ?? 'N/A';
-	$session_id = $env_data['identifiers']['sessionId'] ?? 'N/A';
+    // FIX: Parse IDs correctly from the flat structure we built in JS
+    $visitor_id = $env_data['identifiers']['visitorId'] ?? 'N/A';
+    $session_id = $env_data['identifiers']['sessionId'] ?? 'N/A';
 
-	$fingerprint_display = sprintf('Session: %s | Visitor: %s', $session_id, $visitor_id);
+    $fingerprint_display = sprintf('Session: %s | Visitor: %s', $session_id, $visitor_id);
 
-	$submission_ip_display = get_field('contributor_ip', $post_id) ?: ($env_data['identifiers']['ipAddress'] ?? 'Unknown');
+    $submission_ip_display = get_field('contributor_ip', $post_id) ?: ($env_data['identifiers']['ipAddress'] ?? 'Unknown');
 
-	// FIX: Mic Profile Location (New Schema)
-	// The JSON shows {"gain":1,"speechLevel":100} inside transcriber field
-	$mic_data_raw        = get_field('transcriber', $post_id);
-	$mic_data            = json_decode($mic_data_raw, true);
-	$mic_profile_display = isset($mic_data['gain']) ? 'Gain: ' . $mic_data['gain'] : 'N/A';
+    // FIX: Mic Profile Location (New Schema)
+    // The JSON shows {"gain":1,"speechLevel":100} inside transcriber field
+    $mic_data_raw        = get_field('transcriber', $post_id);
+    $mic_data            = json_decode($mic_data_raw, true);
+    $mic_profile_display = isset($mic_data['gain']) ? 'Gain: ' . $mic_data['gain'] : 'N/A';
 
-	// CRITICAL FIX: Parse Browser/OS from User Agent string if structured data missing
-	$ua_string = $env_data['device']['userAgent'] ?? '';
+    // CRITICAL FIX: Parse Browser/OS from User Agent string if structured data missing
+    $ua_string = $env_data['device']['userAgent'] ?? '';
 
-	// Simple parser for display
-	if ($ua_string) {
-		$browser = 'Unknown';
-		if (str_contains((string) $ua_string, 'Chrome')) {
-			$browser = 'Chrome';
-		} elseif (str_contains((string) $ua_string, 'Firefox')) {
-			$browser = 'Firefox';
-		} elseif (str_contains((string) $ua_string, 'Safari')) {
-			$browser = 'Safari';
-		}
+    // Simple parser for display
+    if ($ua_string) {
+        $browser = 'Unknown';
+        if (str_contains((string) $ua_string, 'Chrome')) {
+            $browser = 'Chrome';
+        } elseif (str_contains((string) $ua_string, 'Firefox')) {
+            $browser = 'Firefox';
+        } elseif (str_contains((string) $ua_string, 'Safari')) {
+            $browser = 'Safari';
+        }
 
-		$os = 'Unknown';
-		if (str_contains((string) $ua_string, 'Android')) {
-			$os = 'Android';
-		} elseif (str_contains((string) $ua_string, 'Windows')) {
-			$os = 'Windows';
-		} elseif (str_contains((string) $ua_string, 'Mac')) {
-			$os = 'MacOS';
-		} elseif (str_contains((string) $ua_string, 'Linux')) {
-			$os = 'Linux';
-		} elseif (str_contains((string) $ua_string, 'CrOS')) {
-			$os = 'ChromeOS';
-		}
+        $os = 'Unknown';
+        if (str_contains((string) $ua_string, 'Android')) {
+            $os = 'Android';
+        } elseif (str_contains((string) $ua_string, 'Windows')) {
+            $os = 'Windows';
+        } elseif (str_contains((string) $ua_string, 'Mac')) {
+            $os = 'MacOS';
+        } elseif (str_contains((string) $ua_string, 'Linux')) {
+            $os = 'Linux';
+        } elseif (str_contains((string) $ua_string, 'CrOS')) {
+            $os = 'ChromeOS';
+        }
 
-		$user_agent_display = sprintf('%s on %s', $browser, $os);
-	} else {
-		$user_agent_display = 'N/A';
-	}
+        $user_agent_display = sprintf('%s on %s', $browser, $os);
+    } else {
+        $user_agent_display = 'N/A';
+    }
 
-	// Parse Transcript
-	$transcript_raw  = get_field('first_pass_transcription', $post_id);
-	$transcript_text = '';
-	if (! empty($transcript_raw)) {
-		$decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
-		$transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
-	}
+    // Parse Transcript
+    $transcript_raw  = get_field('first_pass_transcription', $post_id);
+    $transcript_text = '';
+    if (! empty($transcript_raw)) {
+        $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
+        $transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
+    }
 
-	// --- 4. Standard Metadata (New Schema) ---
-	$accession_number = get_field('starmus_accession_number', $post_id);
-	$location_data    = get_field('starmus_session_location', $post_id);
-	$project_id       = get_field('starmus_project_collection_id', $post_id);
+    // --- 4. Standard Metadata (New Schema) ---
+    $accession_number = get_field('starmus_accession_number', $post_id);
+    $location_data    = get_field('starmus_session_location', $post_id);
+    $project_id       = get_field('starmus_project_collection_id', $post_id);
 
-	$languages = get_the_terms($post_id, 'starmus_tax_language');
-	$rec_types = get_the_terms($post_id, 'recording_type');
+    $languages = get_the_terms($post_id, 'starmus_tax_language');
+    $rec_types = get_the_terms($post_id, 'recording_type');
 
-	// --- 5. URLs ---
-	$edit_page_slug     = $settings->get('edit_page_id', '');
-	$recorder_page_slug = $settings->get('recorder_page_id', '');
-	$edit_page_url      = $edit_page_slug ? get_permalink(get_page_by_path($edit_page_slug)) : '';
-	$recorder_page_url  = $recorder_page_slug ? get_permalink(get_page_by_path($recorder_page_slug)) : '';
+    // --- 5. URLs ---
+    $edit_page_slug     = $settings->get('edit_page_id', '');
+    $recorder_page_slug = $settings->get('recorder_page_id', '');
+    $edit_page_url      = $edit_page_slug ? get_permalink(get_page_by_path($edit_page_slug)) : '';
+    $recorder_page_url  = $recorder_page_slug ? get_permalink(get_page_by_path($recorder_page_slug)) : '';
 } catch (\Throwable $throwable) {
-	echo '<div class="starmus-alert starmus-alert--error"><p>Error: ' . esc_html($throwable->getMessage()) . '</p></div>';
-	return;
+    echo '<div class="starmus-alert starmus-alert--error"><p>Error: ' . esc_html($throwable->getMessage()) . '</p></div>';
+    return;
 }
 ?>
 
@@ -200,7 +200,7 @@ try {
 			<figure class="starmus-player-wrap" style="margin-bottom: 20px;">
 				<audio controls preload="metadata" style="width: 100%;" class="starmus-audio-full">
 					<source src="<?php echo esc_url($playback_url); ?>" type="<?php echo str_contains($playback_url, '.mp3') ? 'audio/mpeg' : 'audio/webm'; ?>">
-					<?php esc_html_e('Browser does not support audio.', 'starmus-audio-recorder'); ?>
+        <?php esc_html_e('Browser does not support audio.', 'starmus-audio-recorder'); ?>
 				</audio>
 			</figure>
 		<?php } else { ?>
@@ -251,20 +251,20 @@ try {
 
 	<!-- Waveform -->
 	<?php
-	if (! empty($waveform_data)) {
-		$width   = 800;
-		$height  = 100;
-		$count   = count($waveform_data);
-		$step    = max(1, floor($count / 800));
-		$points  = [];
-		$max_val = max(array_map(abs(...), $waveform_data)) ?: 1;
-		for ($i = 0; $i < $count; $i += $step) {
-			$val      = (float) $waveform_data[$i];
-			$x        = ($i / $count) * $width;
-			$y        = $height - (($val / $max_val) * $height);
-			$points[] = sprintf('%s,%s', $x, $y);
-		}
-	?>
+    if (! empty($waveform_data)) {
+        $width   = 800;
+        $height  = 100;
+        $count   = count($waveform_data);
+        $step    = max(1, floor($count / 800));
+        $points  = [];
+        $max_val = max(array_map(abs(...), $waveform_data)) ?: 1;
+        for ($i = 0; $i < $count; $i += $step) {
+            $val      = (float) $waveform_data[$i];
+            $x        = ($i / $count) * $width;
+            $y        = $height - (($val / $max_val) * $height);
+            $points[] = sprintf('%s,%s', $x, $y);
+        }
+        ?>
 		<section class="starmus-detail__section sparxstar-glass-card">
 			<h2><?php esc_html_e('Waveform Data', 'starmus-audio-recorder'); ?></h2>
 			<figure class="starmus-waveform-container" style="background:#f0f0f1; border:1px solid #ddd; padding:10px; border-radius: 8px;">
@@ -273,7 +273,7 @@ try {
 				</svg>
 			</figure>
 		</section>
-	<?php } ?>
+    <?php } ?>
 
 	<div class="starmus-grid-layout">
 
@@ -285,7 +285,7 @@ try {
 				<h2><?php esc_html_e('Transcription', 'starmus-audio-recorder'); ?></h2>
 				<?php if ($transcript_text) { ?>
 					<div class="starmus-transcript-box" style="background:#f9f9f9; padding:15px; border:1px solid #eee; border-radius:4px; max-height:200px; overflow-y:auto;">
-						<?php echo wp_kses_post(nl2br($transcript_text)); ?>
+        <?php echo wp_kses_post(nl2br($transcript_text)); ?>
 					</div>
 				<?php } else { ?>
 					<p class="description">No transcription data available.</p>

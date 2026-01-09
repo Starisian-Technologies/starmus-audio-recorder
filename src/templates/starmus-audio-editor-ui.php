@@ -9,21 +9,21 @@
  */
 
 if (! defined('ABSPATH')) {
-	exit;
+    exit;
 }
 
 // Data is prepared by StarmusAudioEditorUI and passed in $context
-$current_post_id = $context['post_id'] ?? 0;
+$current_post_id = $context['post_id']   ?? 0;
 $audio_url       = $context['audio_url'] ?? '';
 $editor_data     = [
-	'postId'        => $current_post_id,
-	'audioUrl'      => $audio_url,
-	'restUrl'       => esc_url_raw(rest_url('star_uec/v1/annotations')),
-	'nonce'         => wp_create_nonce('wp_rest'),
-	'annotations'   => isset($context['annotations_json']) ? json_decode($context['annotations_json'], true) : [],
-	'transcript'    => $context['transcript_data'] ?? [],
-	'waveform_data' => isset($context['starmus_waveform_json']) ? json_decode($context['starmus_waveform_json'], true) : null,
-	'canCommit'     => current_user_can('edit_post', $current_post_id),
+    'postId'        => $current_post_id,
+    'audioUrl'      => $audio_url,
+    'restUrl'       => esc_url_raw(rest_url('star_uec/v1/annotations')),
+    'nonce'         => wp_create_nonce('wp_rest'),
+    'annotations'   => isset($context['annotations_json']) ? json_decode($context['annotations_json'], true) : [],
+    'transcript'    => $context['transcript_data'] ?? [],
+    'waveform_data' => isset($context['starmus_waveform_json']) ? json_decode($context['starmus_waveform_json'], true) : null,
+    'canCommit'     => current_user_can('edit_post', $current_post_id),
 ];
 ?>
 
@@ -44,13 +44,13 @@ $editor_data     = [
 			<?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?>
 			<span class="starmus-editor__id-badge">
 				<?php
-				if ($current_post_id) {
-					/* translators: %d: Recording ID */
-					printf(esc_html__('ID: %d', 'starmus-audio-recorder'), (int) $current_post_id);
-				} else {
-					esc_html_e('No Recording', 'starmus-audio-recorder');
-				}
-				?>
+                if ($current_post_id) {
+                    /* translators: %d: Recording ID */
+                    printf(esc_html__('ID: %d', 'starmus-audio-recorder'), (int) $current_post_id);
+                } else {
+                    esc_html_e('No Recording', 'starmus-audio-recorder');
+                }
+?>
 			</span>
 		</h1>
 		<div class="starmus-editor__time">
@@ -61,7 +61,7 @@ $editor_data     = [
 	<?php if (empty($audio_url)) { ?>
 		<div class="starmus-alert starmus-alert--error">
 			<p><strong><?php esc_html_e('Error:', 'starmus-audio-recorder'); ?></strong>
-				<?php esc_html_e('Audio file missing for this recording.', 'starmus-audio-recorder'); ?></p>
+        <?php esc_html_e('Audio file missing for this recording.', 'starmus-audio-recorder'); ?></p>
 		</div>
 	<?php } else { ?>
 		<div class="starmus-editor__layout">

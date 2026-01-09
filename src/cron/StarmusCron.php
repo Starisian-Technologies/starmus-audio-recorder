@@ -11,27 +11,27 @@
  *
  * @version 0.9.2
  */
-
 namespace Starisian\Sparxstar\Starmus\cron;
 
-use Throwable;
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
-use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
-use Starisian\Sparxstar\Starmus\services\StarmusAudioPipeline;
-use function time;
-use function trailingslashit;
-use function wp_mkdir_p;
-use function wp_get_upload_dir;
-use function wp_delete_file;
-use function wp_schedule_event;
-use function wp_unschedule_event;
-use function wp_next_scheduled;
 use function add_action;
 use function add_filter;
 
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\services\StarmusAudioPipeline;
+use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
+use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
+use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+use function time;
+use function trailingslashit;
+use function wp_delete_file;
+use function wp_get_upload_dir;
+use function wp_mkdir_p;
+use function wp_next_scheduled;
+use function wp_schedule_event;
+use function wp_unschedule_event;
+
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -69,13 +69,13 @@ final readonly class StarmusCron
      * @param StarmusPostProcessingService|null $post_service Post-processing dependency
      */
     public function __construct(
-    ?StarmusWaveformService $waveform_service = null,
-    ?StarmusPostProcessingService $post_service = null,
-    ?StarmusAudioPipeline $audio_pipeline = null,
+        ?StarmusWaveformService $waveform_service = null,
+        ?StarmusPostProcessingService $post_service = null,
+        ?StarmusAudioPipeline $audio_pipeline = null,
     ) {
         $this->waveform = $waveform_service ?: new StarmusWaveformService();
         $this->post     = $post_service ?: new StarmusPostProcessingService();
-        $this->pipeline  = $audio_pipeline ?: new StarmusAudioPipeline();
+        $this->pipeline = $audio_pipeline ?: new StarmusAudioPipeline();
     }
 
     /** Registers WP hooks for both the processor and cleanup jobs. */
@@ -95,11 +95,11 @@ final readonly class StarmusCron
             return;
         }
 
-        if ( ! wp_next_scheduled(self::PROCESS_AUDIO_HOOK, [$attachment_id])) {
+        if (! wp_next_scheduled(self::PROCESS_AUDIO_HOOK, [$attachment_id])) {
             wp_schedule_single_event(time() + 60, self::PROCESS_AUDIO_HOOK, [$attachment_id]);
             StarmusLogger::info(
-            'Scheduled audio processing',
-            [
+                'Scheduled audio processing',
+                [
             'component'     => self::class,
             'attachment_id' => $attachment_id,
             ]
@@ -119,8 +119,8 @@ final readonly class StarmusCron
         }
 
         StarmusLogger::info(
-        'Starting background pipeline',
-        [
+            'Starting background pipeline',
+            [
         'component'     => self::class,
         'attachment_id' => $attachment_id,
         ]
@@ -140,8 +140,8 @@ final readonly class StarmusCron
 
             if ($parent_id <= 0) {
                 StarmusLogger::warning(
-                'No parent post linked to attachment',
-                [
+                    'No parent post linked to attachment',
+                    [
                 'component'     => self::class,
                 'attachment_id' => $attachment_id,
                 ]
@@ -154,8 +154,8 @@ final readonly class StarmusCron
                 update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_COMPLETED);
                 do_action('starmus_audio_pipeline_complete', $attachment_id);
                 StarmusLogger::info(
-                'Background processing complete',
-                [
+                    'Background processing complete',
+                    [
                 'component'     => self::class,
                 'attachment_id' => $attachment_id,
                 'post_id'       => $parent_id,
@@ -168,8 +168,8 @@ final readonly class StarmusCron
         } catch (Throwable $throwable) {
             update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN);
             StarmusLogger::log(
-            $throwable,
-            [
+                $throwable,
+                [
             'component'     => self::class,
             'attachment_id' => $attachment_id,
             'post_id'       => $parent_id ?? 0,
@@ -184,7 +184,7 @@ final readonly class StarmusCron
     public function cleanup_stale_temp_files(): void
     {
         $dir = $this->get_temp_dir();
-        if ( ! $dir || ! is_dir($dir)) {
+        if (! $dir || ! is_dir($dir)) {
             return;
         }
 
@@ -201,8 +201,8 @@ final readonly class StarmusCron
         }
 
         StarmusLogger::debug(
-        'Temp cleanup executed',
-        [
+            'Temp cleanup executed',
+            [
         'component' => self::class,
         'path'      => $dir,
         'cutoff'    => $cutoff,
@@ -213,7 +213,7 @@ final readonly class StarmusCron
     /** Schedule recurring cleanup on plugin activation. */
     public static function starmus_activate(): void
     {
-        if ( ! wp_next_scheduled(self::CLEANUP_TEMP_FILES_HOOK)) {
+        if (! wp_next_scheduled(self::CLEANUP_TEMP_FILES_HOOK)) {
             wp_schedule_event(time() + 5 * MINUTE_IN_SECONDS, 'hourly', self::CLEANUP_TEMP_FILES_HOOK);
         }
     }
@@ -252,18 +252,18 @@ final readonly class StarmusCron
         $upload_dir       = wp_get_upload_dir();
         $default_temp_dir = trailingslashit($upload_dir['basedir']) . 'starmus-temp/';
 
-        if ( ! wp_mkdir_p($default_temp_dir)) {
+        if (! wp_mkdir_p($default_temp_dir)) {
             return '';
         }
 
         // Harden directory
         $htaccess_path = $default_temp_dir . '.htaccess';
-        if ( ! file_exists($htaccess_path)) {
+        if (! file_exists($htaccess_path)) {
             @file_put_contents($htaccess_path, "Deny from all\n");
         }
 
         $index_path = $default_temp_dir . 'index.html';
-        if ( ! file_exists($index_path)) {
+        if (! file_exists($index_path)) {
             @file_put_contents($index_path, '');
         }
 

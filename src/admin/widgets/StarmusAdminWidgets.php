@@ -5,12 +5,11 @@
  *
  * @package Starisian\Sparxstar\Starmus\admin\widgets
  */
-
 namespace Starisian\Sparxstar\Starmus\admin\widgets;
 
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -28,8 +27,8 @@ class StarmusAdminWidgets
             $this->register_hooks();
         } catch (Throwable $throwable) {
             error_log(
-            'StarmusAdminWidgets::__construct() failed: ' . $throwable->getMessage(),
-            [
+                'StarmusAdminWidgets::__construct() failed: ' . $throwable->getMessage(),
+                [
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
             ]
@@ -46,8 +45,8 @@ class StarmusAdminWidgets
             add_action('wp_dashboard_setup', $this->register_widgets(...));
         } catch (Throwable $throwable) {
             error_log(
-            'StarmusAdminWidgets::register_hooks() failed: ' . $throwable->getMessage(),
-            [
+                'StarmusAdminWidgets::register_hooks() failed: ' . $throwable->getMessage(),
+                [
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
             ]
@@ -63,14 +62,14 @@ class StarmusAdminWidgets
         try {
 
             wp_add_dashboard_widget(
-            'aiwa_jobs_widget',
-            __('AIWA: Transcription Jobs', 'starmus-audio-recorder'),
-            $this->render_jobs_widget(...)
+                'aiwa_jobs_widget',
+                __('AIWA: Transcription Jobs', 'starmus-audio-recorder'),
+                $this->render_jobs_widget(...)
             );
         } catch (Throwable $throwable) {
             error_log(
-            'StarmusAdminWidgets::register_widgets() failed: ' . $throwable->getMessage(),
-            [
+                'StarmusAdminWidgets::register_widgets() failed: ' . $throwable->getMessage(),
+                [
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
             ]
@@ -113,25 +112,25 @@ class StarmusAdminWidgets
 
             // Sort jobs by created_at desc and show 5 most recent
             usort(
-            $jobs,
-            function (array $a, array $b): int {
-                $ta = isset($a['created_at']) ? (int) $a['created_at'] : 0;
-                $tb = isset($b['created_at']) ? (int) $b['created_at'] : 0;
-                return $tb <=> $ta;
-            }
+                $jobs,
+                function (array $a, array $b): int {
+                    $ta = isset($a['created_at']) ? (int) $a['created_at'] : 0;
+                    $tb = isset($b['created_at']) ? (int) $b['created_at'] : 0;
+                    return $tb <=> $ta;
+                }
             );
 
             $recent = \array_slice($jobs, 0, 5, true);
 
             echo '<table class="widefat"><thead><tr><th>' . esc_html__('Job ID', 'starmus-audio-recorder') . '</th><th>' . esc_html__('Status', 'starmus-audio-recorder') . '</th><th>' . esc_html__('Attempts', 'starmus-audio-recorder') . '</th><th>' . esc_html__('Created', 'starmus-audio-recorder') . '</th></tr></thead><tbody>';
             foreach ($recent as $id => $job) {
-                   $created = isset($job['created_at']) ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $job['created_at']) : '';
-                   echo '<tr>';
-                   echo '<td>' . esc_html($id) . '</td>';
-                   echo '<td>' . esc_html($job['status'] ?? '') . '</td>';
-                   echo '<td>' . esc_html((string) \intval($job['attempts'] ?? 0)) . '</td>';
-                   echo '<td>' . esc_html($created) . '</td>';
-                   echo '</tr>';
+                $created = isset($job['created_at']) ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $job['created_at']) : '';
+                echo '<tr>';
+                echo '<td>' . esc_html($id) . '</td>';
+                echo '<td>' . esc_html($job['status'] ?? '') . '</td>';
+                echo '<td>' . esc_html((string) \intval($job['attempts'] ?? 0)) . '</td>';
+                echo '<td>' . esc_html($created) . '</td>';
+                echo '</tr>';
             }
 
             echo '</tbody></table>';
@@ -142,8 +141,8 @@ class StarmusAdminWidgets
             $this->enqueue_jobs_widget_script();
         } catch (Throwable $throwable) {
             error_log(
-            'StarmusAdminWidgets::render_jobs_widget() failed: ' . $throwable->getMessage(),
-            [
+                'StarmusAdminWidgets::render_jobs_widget() failed: ' . $throwable->getMessage(),
+                [
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
             ]
@@ -205,8 +204,8 @@ class StarmusAdminWidgets
             echo $script;
         } catch (Throwable $throwable) {
             error_log(
-            'StarmusAdminWidgets::enqueue_jobs_widget_script() failed: ' . $throwable->getMessage(),
-            [
+                'StarmusAdminWidgets::enqueue_jobs_widget_script() failed: ' . $throwable->getMessage(),
+                [
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
             ]

@@ -16,7 +16,6 @@ declare(strict_types=1);
  */
 namespace Starisian\Sparxstar\Starmus\core;
 
-use Throwable;
 use function absint;
 use function apply_filters;
 use function array_filter;
@@ -37,10 +36,13 @@ use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 use function strtolower;
+
+use Throwable;
+
 use function trailingslashit;
 use function update_option;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -227,7 +229,7 @@ final class StarmusSettings implements IStarmusSettings
     public function set(string $key, $value): bool
     {
         try {
-            if ( ! $this->is_valid_key($key)) {
+            if (! $this->is_valid_key($key)) {
                 return false;
             }
 

@@ -1,14 +1,13 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\admin;
 
 use Starisian\Sparxstar\Starmus\admin\interfaces\IStarmusAdminInterface;
 use Starisian\Sparxstar\Starmus\includes\StarmusSageMakerJobRepository;
 use Starisian\Sparxstar\Starmus\integrations\StarmusSageMakerClient;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -41,7 +40,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 
     public function render(): void
     {
-        if ( ! current_user_can('manage_options')) {
+        if (! current_user_can('manage_options')) {
             wp_die(esc_html__('Insufficient permissions', 'starmus-audio-recorder'));
         }
 
@@ -66,7 +65,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
     private function render_detail_view(string $job_id): void
     {
         $job = $this->repository->find($job_id);
-        if ( ! $job) {
+        if (! $job) {
             echo '<p>' . esc_html__('Job not found.', 'starmus-audio-recorder') . '</p>';
             echo '<p><a href="' . esc_url(menu_page_url('starmus-sagemaker-jobs', false)) . '">' . esc_html__('Back to list', 'starmus-audio-recorder') . '</a></p>';
             return;
@@ -130,11 +129,11 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
                 echo '<td>' . esc_html($created) . '</td>';
 
                 $view_url = add_query_arg(
-                [
+                    [
                 'page'   => 'starmus-sagemaker-jobs',
                 'job_id' => $id,
                 ],
-                admin_url('admin.php')
+                    admin_url('admin.php')
                 );
                 $delete_url = wp_nonce_url(admin_url('admin-post.php?action=starmus_delete_job&job_id=' . rawurlencode((string) $id)), 'starmus_delete_job_' . $id);
                 echo '<td><a href="' . esc_url($view_url) . '">' . esc_html__('View', 'starmus-audio-recorder') . '</a> | <a href="' . esc_url($delete_url) . '">' . esc_html__('Delete', 'starmus-audio-recorder') . '</a></td>';
@@ -148,7 +147,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
         if ($total_pages > 1) {
             echo '<div class="tablenav"><div class="tablenav-pages">';
             echo paginate_links(
-            [
+                [
             'base'      => add_query_arg('paged', '%#%'),
             'format'    => '',
             'prev_text' => __('&laquo;', 'starmus-audio-recorder'),
@@ -169,7 +168,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
      */
     public function handle_delete_job(): void
     {
-        if ( ! current_user_can('manage_options')) {
+        if (! current_user_can('manage_options')) {
             wp_die(esc_html__('Insufficient permissions', 'starmus-audio-recorder'));
         }
 
@@ -188,7 +187,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
      */
     public function ajax_get_jobs(): void
     {
-        if ( ! current_user_can('manage_options')) {
+        if (! current_user_can('manage_options')) {
             wp_send_json_error('insufficient_permissions', 403);
         }
 
@@ -198,7 +197,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
         $recent = $this->repository->get_recent_jobs(10);
 
         wp_send_json_success(
-        [
+            [
         'counts' => $counts,
         'recent' => $recent,
         ]
@@ -210,7 +209,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
      */
     public function ajax_retry_job(): void
     {
-        if ( ! current_user_can('manage_options')) {
+        if (! current_user_can('manage_options')) {
             wp_send_json_error('insufficient_permissions', 403);
         }
 
@@ -235,7 +234,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
      */
     public function ajax_delete_job(): void
     {
-        if ( ! current_user_can('manage_options')) {
+        if (! current_user_can('manage_options')) {
             wp_send_json_error('insufficient_permissions', 403);
         }
 

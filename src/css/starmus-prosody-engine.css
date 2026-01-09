@@ -13,7 +13,7 @@
   --bg-panel: #1a1a1a;
   --text-dim: #444;
   --text-lit: #e0e0e0;
-  --accent: #ffd700;
+  --accent: #246bf8;
   --ui-border: #333;
 
   /* Font Families (Localization-aware) */
@@ -37,7 +37,7 @@
     --bg-panel: #fff;
     --text-dim: #888;
     --text-lit: #222;
-    --accent: #e65100;
+    --accent: #246bf8;
     --ui-border: #ccc;
   }
 }
@@ -49,7 +49,7 @@
   --bg-panel: #fff;
   --text-dim: #888;
   --text-lit: #222;
-  --accent: #e65100;
+  --accent: #246bf8;
   --ui-border: #ccc;
 }
 
@@ -60,20 +60,10 @@
   --bg-panel: #1a1a1a;
   --text-dim: #444;
   --text-lit: #e0e0e0;
-  --accent: #ffd700;
+  --accent: #f759ff;
   --ui-border: #333;
 }
 
-/* Base Styles */
-html,
-body {
-  margin: 0;
-  padding: 0;
-  font-size: var(--text-base);
-  font-family: var(--font-stack);
-  background: var(--bg-surface);
-  color: var(--text-dim);
-}
 
 /* =========================================
    CONTAINER SHELL

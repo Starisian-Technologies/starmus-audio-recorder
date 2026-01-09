@@ -4,12 +4,8 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\services\StarmusEnhancedId3Service;
-use Starisian\Sparxstar\Starmus\services\StarmusFileService;
-use Throwable;
 
-
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -42,13 +38,13 @@ final class StarmusCloudflareAudioService
 
         // 1. Get local copy (downloads from R2 if needed)
         $local_path = $this->file_service->get_local_copy($attachment_id);
-        if ( ! $local_path) {
+        if (! $local_path) {
             return ['error' => 'Cannot access file'];
         }
 
         try {
             // 2. Check if optimization needed
-            if ( ! $this->id3_service->needsAfricaOptimization($local_path)) {
+            if (! $this->id3_service->needsAfricaOptimization($local_path)) {
                 return ['message' => 'No optimization needed'];
             }
 
@@ -139,10 +135,10 @@ final class StarmusCloudflareAudioService
     {
         $analysis = $this->id3_service->analyzeFile($source);
 
-        if ( ! empty($analysis['comments'])) {
+        if (! empty($analysis['comments'])) {
             $tags = [];
             foreach ($analysis['comments'] as $key => $values) {
-                if ( ! empty($values[0])) {
+                if (! empty($values[0])) {
                     $tags[ $key ] = $values;
                 }
             }
@@ -159,7 +155,7 @@ final class StarmusCloudflareAudioService
      */
     private function uploadToWordPress(string $temp_path, int $parent_id, string $quality): ?int
     {
-        if ( ! \function_exists('media_handle_sideload')) {
+        if (! \function_exists('media_handle_sideload')) {
             require_once ABSPATH . 'wp-admin/includes/image.php';
             require_once ABSPATH . 'wp-admin/includes/file.php';
             require_once ABSPATH . 'wp-admin/includes/media.php';
@@ -203,7 +199,7 @@ final class StarmusCloudflareAudioService
     public function getAfricaDataEstimate(int $attachment_id): array
     {
         $local_path = $this->file_service->get_local_copy($attachment_id);
-        if ( ! $local_path) {
+        if (! $local_path) {
             return [];
         }
 

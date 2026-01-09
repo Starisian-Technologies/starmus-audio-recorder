@@ -13,15 +13,11 @@ interface IStarmusSubmissionHandler
 {
     /**
      * Handle multipart chunk upload via REST.
-     *
-     *
      */
     public function handle_upload_chunk_rest_multipart(WP_REST_Request $request): array|WP_Error;
 
     /**
      * Handle base64 chunk upload via REST.
-     *
-     *
      */
     public function handle_upload_chunk_rest_base64(WP_REST_Request $request): array|WP_Error;
 }
