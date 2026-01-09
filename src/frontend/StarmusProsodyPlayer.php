@@ -56,12 +56,12 @@ class StarmusProsodyPlayer
     public function init_dal(): void
     {
         if ($this->dal instanceof StarmusProsodyDAL) {
+			StarmusLogger::info('StarmusProsodyDAL loaded');
             return;
         }
 
         if ( ! class_exists(StarmusProsodyDAL::class)) {
 			StarmusLogger::error('StarmusProsodyDAL class not found');
-            throw new \Exception('StarmusProsodyDAL class not found');
         }
 
         try {
