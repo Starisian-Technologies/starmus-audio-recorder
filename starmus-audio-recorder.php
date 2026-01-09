@@ -109,6 +109,7 @@ if (file_exists($starmus_autoloader)) {
     error_log('Starmus Info: Loading Composer autoloader.');
     require_once $starmus_autoloader;
 } else {
+	error_log('Starmus Critical: Composer autoloader not found. Please run "composer install" in the plugin directory.');
     // Graceful fail in Admin if Composer not run
     if (is_admin() && ! defined('DOING_AJAX')) {
         add_action('admin_notices', static function () {
@@ -125,7 +126,7 @@ if (file_exists($starmus_autoloader)) {
 // Based on official SCF Composer documentation.
 // We check !class_exists('ACF') to ensure we don't crash if the standard plugin is active.
 
-if(! class_exists('ACF'))  {
+if(! class_exists('ACF') && !defined('SPARXSTAR_SCF_LOADED'))  {
 	  error_log('Starmus Info: Booting bundled Secure Custom Fields plugin.');
     // Define path and URL to the bundled Secure Custom Fields plugin
 	if(! is_dir(STARMUS_PATH . 'vendor/secure-custom-fields/')) {
@@ -144,6 +145,7 @@ if(! class_exists('ACF'))  {
 
         // 5. Load the Plugin
         require_once SPARXSTAR_SCF_PATH . 'secure-custom-fields.php';
+		define('SPARXSTAR_SCF_LOADED', true);
 
         // 3. (Optional) Hide the SCF admin menu
         //add_filter('acf/settings/show_admin', '__return_true', 100);
@@ -156,7 +158,7 @@ if(! class_exists('ACF'))  {
         error_log('Starmus Error: Bundled SCF not found at ' . SPARXSTAR_SCF_PATH);
     }
 }
-if (file_exists(STARMUS_PATH . 'acf-json') && is_dir(STARMUS_PATH . 'acf-json')) {
+if (class_exists('ACF') && file_exists(STARMUS_PATH . 'acf-json') && is_dir(STARMUS_PATH . 'acf-json')) {
     error_log('Starmus Info: Secure Custom Fields plugin loaded successfully.');
     // -------------------------------------------------------------------------
     // 4. JSON CONFIGURATION (Install CPTs/Fields)
