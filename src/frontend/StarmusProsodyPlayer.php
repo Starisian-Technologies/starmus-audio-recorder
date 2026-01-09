@@ -126,7 +126,7 @@ class StarmusProsodyPlayer
             // Pass Data to JS via Inline Script (Modern approach)
             wp_add_inline_script(
                 'starmus-prosody-js',
-                'const StarmusData = ' . json_encode($data) . ';',
+                'const StarmusProsodyData = ' . json_encode($data) . ';',
                 'before'
             );
 
