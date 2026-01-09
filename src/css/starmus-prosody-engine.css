@@ -1,11 +1,12 @@
+
 /* =========================================
    STARMUS PROSODY ENGINE
    Theme: Cognitive Regulator (Dark/Light)
-   Mobile First + Localization + Progressive
+   Mobile First + Localization + Monospace Engine
    ========================================= */
 
 /* =========================================
-   THEME VARIABLES — DEFAULT (DARK)
+   GLOBAL VARIABLES
    ========================================= */
 :root {
   --color-scheme: dark;
@@ -13,23 +14,24 @@
   --bg-panel: #1a1a1a;
   --text-dim: #444;
   --text-lit: #e0e0e0;
-  --accent: #246bf8;
+  --accent: #ffd700;
   --ui-border: #333;
 
-  /* Font Families (Localization-aware) */
-  --font-stack: 'Noto Sans', sans-serif;
-  --font-jp: 'Noto Sans JP', sans-serif;
-  --font-ar: 'Noto Naskh Arabic', serif;
-  --font-am: 'Noto Sans Ethiopic', sans-serif;
-  --font-zh: 'Noto Sans SC', sans-serif;
+  /* Font Families */
+  --font-stack: "Noto Sans", sans-serif;
+  --font-mono: "Noto Sans Mono", monospace;
+  --font-jp: "Noto Sans JP", sans-serif;
+  --font-ar: "Noto Naskh Arabic", serif;
+  --font-am: "Noto Sans Ethiopic", sans-serif;
+  --font-zh: "Noto Sans SC", sans-serif;
 
   /* UI Variables */
-  --unit-spacing: 1.8;
-  --tap-zone-size: 200px;
+  --unit-spacing: 2.2;
+  --tap-zone-size: 220px;
   --text-base: clamp(1rem, 2.5vw, 1.25rem);
 }
 
-/* Light Theme: Auto via prefers-color-scheme */
+/* Light Mode (auto or manual) */
 @media (prefers-color-scheme: light) {
   :root {
     --color-scheme: light;
@@ -41,8 +43,6 @@
     --ui-border: #ccc;
   }
 }
-
-/* Manual Light Theme Toggle */
 .light-mode {
   --color-scheme: light;
   --bg-surface: #fafafa;
@@ -52,22 +52,29 @@
   --accent: #246bf8;
   --ui-border: #ccc;
 }
-
-/* Manual Dark Theme Toggle */
 .dark-mode {
   --color-scheme: dark;
   --bg-surface: #121212;
   --bg-panel: #1a1a1a;
   --text-dim: #444;
   --text-lit: #e0e0e0;
-  --accent: #f759ff;
+  --accent: #ffd700;
   --ui-border: #333;
 }
 
-
 /* =========================================
-   CONTAINER SHELL
+   LAYER 0: HTML + BODY + TEXT BASE
    ========================================= */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-base);
+  font-family: var(--font-stack);
+  background: var(--bg-surface);
+  color: var(--text-dim);
+}
+
+/* --- CONTAINER SHELL --- */
 #cognitive-regulator {
   background-color: var(--bg-surface);
   color: var(--text-dim);
@@ -158,7 +165,7 @@
 }
 
 #calibration-layer::after {
-  content: 'OR PRESS [SPACE]';
+  content: "OR PRESS [SPACE]";
   position: absolute;
   bottom: 40px;
   font-size: 10px;
@@ -167,7 +174,7 @@
 }
 
 /* =========================================
-   LAYER 2: STAGE (Text Flow)
+   LAYER 2: THE STAGE (Text Flow)
    ========================================= */
 #scaffold-stage {
   flex-grow: 1;
@@ -180,11 +187,9 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-
 #scaffold-stage::-webkit-scrollbar {
   display: none;
 }
-
 #scaffold-stage.hidden {
   opacity: 0;
   pointer-events: none;
@@ -197,18 +202,18 @@
   font-size: 32px;
   line-height: var(--unit-spacing);
   text-align: center;
+  font-family: var(--font-mono); /* ✅ Noto Mono for precision */
 }
 
+/* --- PROSODIC UNITS --- */
 .prosodic-unit {
   display: inline-block;
   padding: 2px 8px;
   margin: 4px 2px;
   border-radius: 4px;
-  transition:
-    color 0.3s ease,
-    opacity 0.3s ease,
-    transform 0.3s ease;
+  transition: color 0.3s, opacity 0.3s, transform 0.3s;
   cursor: crosshair;
+  font-family: var(--font-mono); /* ✅ Monospace inside rhythm engine */
 }
 
 .prosodic-unit.future,
@@ -266,11 +271,8 @@
   align-items: center;
   gap: 30px;
   z-index: 100;
-  transition:
-    opacity 0.8s ease,
-    transform 0.8s ease;
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
-
 .control-deck.hidden {
   opacity: 0;
   transform: translateY(20px);
@@ -291,11 +293,9 @@
   border-radius: 4px;
   transition: background 0.2s;
 }
-
 .neutral-btn:hover {
   background: #444;
 }
-
 .neutral-btn.active {
   background: #e0e0e0;
   color: #111;
@@ -321,7 +321,6 @@
   appearance: none;
   outline: none;
 }
-
 #pace-regulator::-webkit-slider-thumb {
   appearance: none;
   width: 20px;
@@ -329,11 +328,8 @@
   background: #bbb;
   border-radius: 50%;
   cursor: pointer;
-  transition:
-    background 0.2s,
-    transform 0.2s;
+  transition: background 0.2s, transform 0.2s;
 }
-
 #pace-regulator::-webkit-slider-thumb:hover {
   background: #fff;
   transform: scale(1.2);
@@ -347,38 +343,31 @@
   font-family: var(--font-stack);
   font-size: 12px;
 }
-
 .secondary-text-btn:hover {
   color: #888;
 }
 
 /* =========================================
-   LOCALIZED FONT RULES
+   LOCALIZATION FONT RULES
    ========================================= */
-[lang='ja'] {
+[lang="ja"] {
   font-family: var(--font-jp);
 }
-
-[lang='ar'],
-.localized-text.ar {
+[lang="ar"], .localized-text.ar {
   font-family: var(--font-ar);
   direction: rtl;
 }
-
-[lang='am'],
-.localized-text.am {
+[lang="am"], .localized-text.am {
   font-family: var(--font-am);
 }
-
-[lang='zh'],
-.localized-text.zh {
+[lang="zh"], .localized-text.zh {
   font-family: var(--font-zh);
 }
 
 /* =========================================
-   RESPONSIVE — MOBILE FIRST ADJUSTMENTS
+   RESPONSIVE: Mobile-First
    ========================================= */
-@media (width <= 600px) {
+@media (max-width: 600px) {
   :root {
     --tap-zone-size: 180px;
     --unit-spacing: 1.6;
@@ -409,18 +398,16 @@
 }
 
 /* =========================================
-   PROGRESSIVE ENHANCEMENT
+   PROGRESSIVE ENHANCEMENTS
    ========================================= */
 @supports (backdrop-filter: blur(8px)) {
   .tap-zone.flash {
     backdrop-filter: blur(8px);
   }
-
   .prosodic-unit.current {
     backdrop-filter: blur(2px);
   }
 }
-
 @supports (display: grid) {
   .control-deck {
     display: grid;
@@ -428,7 +415,7 @@
     gap: 20px;
   }
 
-  @media (width <= 600px) {
+  @media (max-width: 600px) {
     .control-deck {
       grid-template-columns: 1fr;
     }
