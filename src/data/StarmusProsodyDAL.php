@@ -48,6 +48,11 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
     'low'     => 1.2,  // Slower (Higher ms/line)
     ];
 
+	public function __construct(): void
+	{
+		// do nothing.
+	}
+
     // --- PROSODY SPECIFIC OPERATIONS ---
 
     /**
