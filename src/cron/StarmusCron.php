@@ -18,8 +18,18 @@ use Throwable;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
-
+use Starisian\Sparxstar\Starmus\services\StarmusAudioPipeline;
+use function time;
 use function trailingslashit;
+use function wp_mkdir_p;
+use function wp_get_upload_dir;
+use function wp_delete_file;
+use function wp_schedule_event;
+use function wp_unschedule_event;
+use function wp_next_scheduled;
+use function add_action;
+use function add_filter;
+
 
 if ( ! \defined('ABSPATH')) {
     exit;
@@ -43,12 +53,14 @@ final readonly class StarmusCron
     /**
      * Waveform service instance.
      */
-    private StarmusWaveformService $waveform;
+    private ?StarmusWaveformService $waveform;
 
     /**
      * Post-processing service instance.
      */
-    private StarmusPostProcessingService $post;
+    private ?StarmusPostProcessingService $post;
+
+    private ?StarmusAudioPipeline $pipeline;
 
     /**
      * Builds the cron coordinator with optional injected services.
@@ -58,10 +70,12 @@ final readonly class StarmusCron
      */
     public function __construct(
     ?StarmusWaveformService $waveform_service = null,
-    ?StarmusPostProcessingService $post_service = null
+    ?StarmusPostProcessingService $post_service = null,
+    ?StarmusAudioPipeline $audio_pipeline = null,
     ) {
         $this->waveform = $waveform_service ?: new StarmusWaveformService();
         $this->post     = $post_service ?: new StarmusPostProcessingService();
+        $this->pipeline  = $audio_pipeline ?: new StarmusAudioPipeline();
     }
 
     /** Registers WP hooks for both the processor and cleanup jobs. */
@@ -134,7 +148,7 @@ final readonly class StarmusCron
                 );
             }
 
-            $success = $this->post->process_and_archive_audio($parent_id, $attachment_id);
+            $success = $this->pipeline->starmus_process_audio_pipeline($parent_id, $attachment_id);
 
             if ($success) {
                 update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_COMPLETED);
@@ -197,7 +211,7 @@ final readonly class StarmusCron
     }
 
     /** Schedule recurring cleanup on plugin activation. */
-    public static function activate(): void
+    public static function starmus_activate(): void
     {
         if ( ! wp_next_scheduled(self::CLEANUP_TEMP_FILES_HOOK)) {
             wp_schedule_event(time() + 5 * MINUTE_IN_SECONDS, 'hourly', self::CLEANUP_TEMP_FILES_HOOK);
@@ -205,7 +219,7 @@ final readonly class StarmusCron
     }
 
     /** Unschedule cleanup on deactivation. */
-    public static function deactivate(): void
+    public static function starmus_deactivate(): void
     {
         $timestamp = wp_next_scheduled(self::CLEANUP_TEMP_FILES_HOOK);
         if ($timestamp) {
@@ -255,4 +269,5 @@ final readonly class StarmusCron
 
         return $default_temp_dir;
     }
+
 }

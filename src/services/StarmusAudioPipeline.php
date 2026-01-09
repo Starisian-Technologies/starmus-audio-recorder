@@ -54,6 +54,9 @@ final class StarmusAudioPipeline
             $results['original_analysis'] = $this->extractKeyMetadata($analysis);
 
             // 2. Write Starmus metadata to original file
+            if($form_data === null) {
+                $form_data = [];
+            }
             $starmus_tags                = $this->generateStarmusTags($form_data, $post_id);
             $results['metadata_written'] = $this->id3_service->writeTags($file_path, $starmus_tags);
 
@@ -180,32 +183,32 @@ final class StarmusAudioPipeline
 
         return 'low';
     }
-}
 
-/**
- * Integration hook for StarmusSubmissionHandler
- *
- * Add this to your save_all_metadata method:
- */
-function starmus_process_audio_with_pipeline(int $post_id, int $attachment_id, array $form_data): void
-{
-    try {
-        $file_path = get_attached_file($attachment_id);
 
-        if ($file_path && file_exists($file_path)) {
-            $pipeline = new StarmusAudioPipeline();
-            $results  = $pipeline->processUploadedAudio($file_path, $form_data, $post_id);
+    /**
+     * Integration hook for StarmusSubmissionHandler
+     *
+     * Add this to your save_all_metadata method:
+     */
+    public function starmus_process_audio_pipeline(int $post_id, int $attachment_id, array $form_data = null): void
+    {
+        try {
+            $file_path = get_attached_file($attachment_id);
 
-            // Store results in post meta
-            update_post_meta($post_id, '_starmus_audio_analysis', $results['original_analysis']);
-            update_post_meta($post_id, '_starmus_web_versions', $results['web_versions']);
-            update_post_meta($post_id, '_starmus_waveform_data', $results['waveform_data']);
+            if ($file_path && file_exists($file_path)) {
+                $results  = $this->processUploadedAudio($file_path, $form_data, $post_id);
 
-            if ($results['preview_file']) {
-                update_post_meta($post_id, '_starmus_preview_file', $results['preview_file']);
+                // Store results in post meta
+                update_post_meta($post_id, '_starmus_audio_analysis', $results['original_analysis']);
+                update_post_meta($post_id, '_starmus_web_versions', $results['web_versions']);
+                update_post_meta($post_id, '_starmus_waveform_data', $results['waveform_data']);
+
+                if ($results['preview_file']) {
+                    update_post_meta($post_id, '_starmus_preview_file', $results['preview_file']);
+                }
             }
+        } catch (\Throwable $throwable) {
+            StarmusLogger::log($throwable);
         }
-    } catch (Throwable $throwable) {
-        StarmusLogger::log($throwable);
     }
 }

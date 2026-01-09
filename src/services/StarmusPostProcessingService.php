@@ -108,7 +108,7 @@ final readonly class StarmusPostProcessingService
      *
      * @since 1.0.0
      */
-    private IStarmusAudioDAL $dal;
+    private StarmusAudioDAL $dal;
 
     /**
      * Waveform generation service for visualization data.
@@ -545,5 +545,11 @@ final readonly class StarmusPostProcessingService
         }
 
         return $tag_data;
+    }
+
+    public function process_and_archive_audio(int $parent_id, int $attachment_id): void
+    {
+        // Implementation goes here
+
     }
 }
