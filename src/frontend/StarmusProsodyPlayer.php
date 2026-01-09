@@ -28,7 +28,7 @@ class StarmusProsodyPlayer
 
     public function __construct(?IStarmusProsodyDAL $prosody_dal = null)
     {
-        $this->dal = $prosody_dal;
+        $this->dal = $prosody_dal ?: StarmusProsodyDAL : new StarmusProsodyDAL();
         $this->register_hooks();
     }
 
@@ -60,6 +60,7 @@ class StarmusProsodyPlayer
         }
 
         if ( ! class_exists(StarmusProsodyDAL::class)) {
+			StarmusLogger::error('StarmusProsodyDAL class not found');
             throw new \Exception('StarmusProsodyDAL class not found');
         }
 
