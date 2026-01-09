@@ -134,14 +134,18 @@ class StarmusProsodyPlayer
 				$json_payload = '{}';
 			}
 
-			wp_add_inline_script(
-				'starmus-prosody-js',
-				"console.log('Starmus Prosody Payload Injected'); window.StarmusProsodyData = {$json_payload};",
-				'before'
-			);
+			// Removed wp_add_inline_script in favor of direct injection below to guarantee order
 
 			// Render The HTML Shell
 			ob_start();
+
+			// Direct Injection: Ensures availability before footer scripts run
+			if ($json_payload) {
+				echo '<script id="starmus-prosody-data">';
+				echo 'window.StarmusProsodyData = ' . $json_payload . ';';
+				echo 'console.log("Starmus Prosody: Data Injected Directly");';
+				echo '</script>';
+			}
 ?>
 			<div id="cognitive-regulator">
 				<!-- CALIBRATION LAYER -->
