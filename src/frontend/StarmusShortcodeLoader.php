@@ -32,7 +32,7 @@ final class StarmusShortcodeLoader
     /**
      * Data Access Layer instance.
      */
-    private ?IStarmusAudioDAL $dal = null;
+    private ?StarmusAudioDAL $dal = null;
 
     /**
      * Prosody player instance.
@@ -40,11 +40,11 @@ final class StarmusShortcodeLoader
     private ?StarmusProsodyPlayer $prosody = null;
 
     /**
-     * @param IStarmusAudioDAL|null $dal The data access layer.
+     * @param StarmusAudioDAL|null $dal The data access layer.
      * @param StarmusSettings|null $settings The settings instance.
-     * @param IStarmusProsodyDAL|null $prosody_dal The prosody DAL instance.
+     * @param StarmusProsodyDAL|null $prosody_dal The prosody DAL instance.
      */
-    public function __construct(?IStarmusAudioDAL $dal = null, ?StarmusSettings $settings = null, ?IStarmusProsodyDAL $prosody_dal = null)
+    public function __construct(?StarmusAudioDAL $dal = null, ?StarmusSettings $settings = null, ?StarmusProsodyDAL $prosody_dal = null)
     {
         try {
             $this->settings = $settings ?? new StarmusSettings();
@@ -81,7 +81,7 @@ final class StarmusShortcodeLoader
         }
     }
 
-    private function set_prosody_engine(?IStarmusProsodyDAL $prosody_dal = null): void
+    private function set_prosody_engine(?StarmusProsodyDAL $prosody_dal = null): void
     {
         if ($this->prosody instanceof StarmusProsodyPlayer) {
             return;

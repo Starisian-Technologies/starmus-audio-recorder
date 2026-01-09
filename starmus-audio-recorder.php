@@ -49,11 +49,12 @@
  */
 
 declare(strict_types=1);
+
 use Twig\Error\RuntimeError;
 
 
-if ( ! defined('ABSPATH')) {
-    exit;
+if (! defined('ABSPATH')) {
+	exit;
 }
 
 
@@ -61,10 +62,10 @@ if ( ! defined('ABSPATH')) {
 // 0. FATAL ERROR CATCHER (The "Safety Net")
 // -------------------------------------------------------------------------
 register_shutdown_function(static function (): void {
-    $error = error_get_last();
-    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
-        error_log('[STARMUS FATAL] ' . $error['message'] . ' in ' . $error['file'] . ':' . $error['line']);
-    }
+	$error = error_get_last();
+	if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+		error_log('[STARMUS FATAL] ' . $error['message'] . ' in ' . $error['file'] . ':' . $error['line']);
+	}
 });
 
 /* -------------------------------------------------------------------------
@@ -77,29 +78,29 @@ define('STARMUS_URL', plugin_dir_url(STARMUS_MAIN_FILE));
 define('STARMUS_PLUGIN_PREFIX', 'starmus');
 define('STARMUS_PLUGIN_DIR', plugin_dir_path(STARMUS_MAIN_FILE));
 
-if ( ! defined('STARMUS_LOG_LEVEL')) {
-    define('STARMUS_LOG_LEVEL', 8);
+if (! defined('STARMUS_LOG_LEVEL')) {
+	define('STARMUS_LOG_LEVEL', 8);
 }
-if ( ! defined('STARMUS_TUS_ENDPOINT')) {
-    define('STARMUS_TUS_ENDPOINT', 'https://upload.sparxstar.com/files/');
+if (! defined('STARMUS_TUS_ENDPOINT')) {
+	define('STARMUS_TUS_ENDPOINT', 'https://upload.sparxstar.com/files/');
 }
-if ( ! defined('STARMUS_R2_ENDPOINT')) {
-    define('STARMUS_R2_ENDPOINT', 'https://cdn.sparxstar.com/');
+if (! defined('STARMUS_R2_ENDPOINT')) {
+	define('STARMUS_R2_ENDPOINT', 'https://cdn.sparxstar.com/');
 }
-if ( ! defined('STARMUS_TUS_WEBHOOK_SECRET')) {
-    define('STARMUS_TUS_WEBHOOK_SECRET', '84d34624286938554e5e19d9fafe9f5da3562c4d1d443e02c186f8e44019406e');
+if (! defined('STARMUS_TUS_WEBHOOK_SECRET')) {
+	define('STARMUS_TUS_WEBHOOK_SECRET', '84d34624286938554e5e19d9fafe9f5da3562c4d1d443e02c186f8e44019406e');
 }
-if ( ! defined('STARMUS_REST_NAMESPACE')) {
-    define('STARMUS_REST_NAMESPACE', 'starmus/v1');
+if (! defined('STARMUS_REST_NAMESPACE')) {
+	define('STARMUS_REST_NAMESPACE', 'starmus/v1');
 }
-if ( ! defined('STARMUS_DELETE_ON_UNINSTALL')) {
-    define('STARMUS_DELETE_ON_UNINSTALL', false);
+if (! defined('STARMUS_DELETE_ON_UNINSTALL')) {
+	define('STARMUS_DELETE_ON_UNINSTALL', false);
 }
 
 add_action('init', function () {
-    if (headers_sent($file, $line)) {
-        error_log("HEADERS SENT from $file:$line");
-    }
+	if (headers_sent($file, $line)) {
+		error_log("HEADERS SENT from $file:$line");
+	}
 });
 // -------------------------------------------------------------------------
 // 2. COMPOSER AUTOLOAD (Immediate)
@@ -107,18 +108,18 @@ add_action('init', function () {
 $starmus_autoloader = STARMUS_PATH . 'vendor/autoload.php';
 
 if (file_exists($starmus_autoloader)) {
-    error_log('Starmus Info: Loading Composer autoloader.');
-    require_once $starmus_autoloader;
+	error_log('Starmus Info: Loading Composer autoloader.');
+	require_once $starmus_autoloader;
 } else {
-    error_log('Starmus Critical: Composer autoloader not found. Please run "composer install" in the plugin directory.');
-    // Graceful fail in Admin if Composer not run
-    if (is_admin() && ! defined('DOING_AJAX')) {
-        add_action('admin_notices', static function () {
-            echo '<div class="notice notice-error"><p>Starmus Critical: vendor/autoload.php missing. Run composer install.</p></div>';
-        });
-    }
-    // Stop execution to prevent fatals further down
-    return;
+	error_log('Starmus Critical: Composer autoloader not found. Please run "composer install" in the plugin directory.');
+	// Graceful fail in Admin if Composer not run
+	if (is_admin() && ! defined('DOING_AJAX')) {
+		add_action('admin_notices', static function () {
+			echo '<div class="notice notice-error"><p>Starmus Critical: vendor/autoload.php missing. Run composer install.</p></div>';
+		});
+	}
+	// Stop execution to prevent fatals further down
+	return;
 }
 
 // -------------------------------------------------------------------------
@@ -127,59 +128,59 @@ if (file_exists($starmus_autoloader)) {
 // Based on official SCF Composer documentation.
 // We check !class_exists('ACF') to ensure we don't crash if the standard plugin is active.
 
-if( ! class_exists('ACF') && ! defined('SPARXSTAR_SCF_LOADED'))  {
-    error_log('Starmus Info: Booting bundled Secure Custom Fields plugin.');
-    // Define path and URL to the bundled Secure Custom Fields plugin
-    if( ! is_dir(STARMUS_PATH . 'vendor/secure-custom-fields/')) {
-        error_log('Starmus Error: Bundled SCF directory not found at ' . STARMUS_PATH . 'vendor/secure-custom-fields/');
-        return;
-    }
-    // Uses 'vendor/secure-custom-fields/' per your composer.json "installer-paths"
-    if ( ! defined('SPARXSTAR_SCF_PATH')) {
-        define('SPARXSTAR_SCF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
-    }
-    if ( ! defined('SPARXSTAR_SCF_URL')) {
-        define('SPARXSTAR_SCF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
-    }
+if (! class_exists('ACF') && ! defined('SPARXSTAR_SCF_LOADED')) {
+	error_log('Starmus Info: Booting bundled Secure Custom Fields plugin.');
+	// Define path and URL to the bundled Secure Custom Fields plugin
+	if (! is_dir(STARMUS_PATH . 'vendor/secure-custom-fields/')) {
+		error_log('Starmus Error: Bundled SCF directory not found at ' . STARMUS_PATH . 'vendor/secure-custom-fields/');
+		return;
+	}
+	// Uses 'vendor/secure-custom-fields/' per your composer.json "installer-paths"
+	if (! defined('SPARXSTAR_SCF_PATH')) {
+		define('SPARXSTAR_SCF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
+	}
+	if (! defined('SPARXSTAR_SCF_URL')) {
+		define('SPARXSTAR_SCF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
+	}
 
-    if (file_exists(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php')) {
+	if (file_exists(SPARXSTAR_SCF_PATH . 'secure-custom-fields.php')) {
 
-        // 5. Load the Plugin
-        require_once SPARXSTAR_SCF_PATH . 'secure-custom-fields.php';
-        define('SPARXSTAR_SCF_LOADED', true);
+		// 5. Load the Plugin
+		require_once SPARXSTAR_SCF_PATH . 'secure-custom-fields.php';
+		define('SPARXSTAR_SCF_LOADED', true);
 
-        // 3. (Optional) Hide the SCF admin menu
-        //add_filter('acf/settings/show_admin', '__return_true', 100);
+		// 3. (Optional) Hide the SCF admin menu
+		//add_filter('acf/settings/show_admin', '__return_true', 100);
 
-        // 4. (Optional) Hide Updates
-        //add_filter('acf/settings/show_updates', '__return_false', 100);
+		// 4. (Optional) Hide Updates
+		//add_filter('acf/settings/show_updates', '__return_false', 100);
 
 
-    } else {
-        error_log('Starmus Error: Bundled SCF not found at ' . SPARXSTAR_SCF_PATH);
-    }
+	} else {
+		error_log('Starmus Error: Bundled SCF not found at ' . SPARXSTAR_SCF_PATH);
+	}
 }
 if (class_exists('ACF') && file_exists(STARMUS_PATH . 'acf-json') && is_dir(STARMUS_PATH . 'acf-json')) {
-    error_log('Starmus Info: Secure Custom Fields plugin loaded successfully.');
-    // -------------------------------------------------------------------------
-    // 4. JSON CONFIGURATION (Install CPTs/Fields)
-    // -------------------------------------------------------------------------
-    try{
-        add_filter(
-        'acf/settings/load_json',
-        function ($paths) {
-            // Append our custom path
-            $paths[] = STARMUS_PATH . 'acf-json';
-            return $paths;
-        });
+	error_log('Starmus Info: Secure Custom Fields plugin loaded successfully.');
+	// -------------------------------------------------------------------------
+	// 4. JSON CONFIGURATION (Install CPTs/Fields)
+	// -------------------------------------------------------------------------
+	try {
+		add_filter(
+			'acf/settings/load_json',
+			function ($paths) {
+				// Append our custom path
+				$paths[] = STARMUS_PATH . 'acf-json';
+				return $paths;
+			}
+		);
 
-        error_log('Starmus Info: ACF JSON configuration path added: ' . STARMUS_PATH . 'acf-json');
-    } catch (\Throwable $e) {
-        error_log('Starmus Error: Failed to add ACF JSON configuration path: ' . $e->getMessage());
-    }
-
+		error_log('Starmus Info: ACF JSON configuration path added: ' . STARMUS_PATH . 'acf-json');
+	} catch (\Throwable $e) {
+		error_log('Starmus Error: Failed to add ACF JSON configuration path: ' . $e->getMessage());
+	}
 } else {
-    error_log('Starmus Error: Secure Custom Fields plugin failed to load.');
+	error_log('Starmus Error: Secure Custom Fields plugin failed to load.');
 }
 
 
@@ -188,18 +189,18 @@ if (class_exists('ACF') && file_exists(STARMUS_PATH . 'acf-json') && is_dir(STAR
 // 5. APP BOOT (Plugins Loaded)
 // -------------------------------------------------------------------------
 add_action('plugins_loaded', static function (): void {
-    try {
-        if ( ! class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
-            error_log('Starmus Critical: StarmusAudioRecorder class not found. Plugin cannot initialize.');
-            throw new \RuntimeError('StarmusAudioRecorder class not found.');
-        }
-        error_log('Starmus Info: Initializing Starmus Audio Recorder plugin.');
-        // Boot the App Instance
-        \Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_run();
-    } catch (\Throwable $e) {
-        error_log('Starmus App Boot Failed: ' . $e->getMessage());
-    }
-}, );
+	try {
+		if (! class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
+			error_log('Starmus Critical: StarmusAudioRecorder class not found. Plugin cannot initialize.');
+			throw new \RuntimeError('StarmusAudioRecorder class not found.');
+		}
+		error_log('Starmus Info: Initializing Starmus Audio Recorder plugin.');
+		// Boot the App Instance
+		\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::starmus_run();
+	} catch (\Throwable $e) {
+		error_log('Starmus App Boot Failed: ' . $e->getMessage());
+	}
+},);
 
 // -------------------------------------------------------------------------
 // 6. LIFECYCLE MANAGEMENT
@@ -210,17 +211,17 @@ add_action('plugins_loaded', static function (): void {
  */
 function starmus_on_activate(): void
 {
-    try {
-        if (class_exists(\Starisian\Sparxstar\Starmus\core\StarmusPostTypeLoader::class)) {
-            \Starisian\Sparxstar\Starmus\core\StarmusPostTypeLoader::starmus_getInstance();
-        }
-        if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
-            \Starisian\Sparxstar\Starmus\cron\StarmusCron::starmus_activate();
-        }
-        flush_rewrite_rules();
-    } catch (\Throwable $e) {
-        error_log('Starmus Activation Error: ' . $e->getMessage());
-    }
+	try {
+		if (class_exists(\Starisian\Sparxstar\Starmus\core\StarmusPostTypeLoader::class)) {
+			\Starisian\Sparxstar\Starmus\core\StarmusPostTypeLoader::sparxStarmusGetInstance();
+		}
+		if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
+			\Starisian\Sparxstar\Starmus\cron\StarmusCron::starmus_activate();
+		}
+		flush_rewrite_rules();
+	} catch (\Throwable $e) {
+		error_log('Starmus Activation Error: ' . $e->getMessage());
+	}
 }
 
 /**
@@ -228,14 +229,14 @@ function starmus_on_activate(): void
  */
 function starmus_on_deactivate(): void
 {
-    try {
-        if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
-            \Starisian\Sparxstar\Starmus\cron\StarmusCron::starmus_deactivate();
-        }
-        flush_rewrite_rules();
-    } catch (\Throwable $e) {
-        error_log('Starmus Deactivation Error: ' . $e->getMessage());
-    }
+	try {
+		if (class_exists(\Starisian\Sparxstar\Starmus\cron\StarmusCron::class)) {
+			\Starisian\Sparxstar\Starmus\cron\StarmusCron::starmus_deactivate();
+		}
+		flush_rewrite_rules();
+	} catch (\Throwable $e) {
+		error_log('Starmus Deactivation Error: ' . $e->getMessage());
+	}
 }
 
 /**
@@ -243,17 +244,17 @@ function starmus_on_deactivate(): void
  */
 function starmus_on_uninstall(): void
 {
-    try {
+	try {
 
-        if (defined('STARMUS_DELETE_ON_UNINSTALL') && STARMUS_DELETE_ON_UNINSTALL && WP_UNINSTALL_PLUGIN) {
-            $file = STARMUS_PATH . 'uninstall.php';
-            if (file_exists($file)) {
-                require_once $file;
-            }
-        }
-    } catch (\Throwable $e) {
-        error_log('Starmus uninstall error: ' . $e->getMessage());
-    }
+		if (defined('STARMUS_DELETE_ON_UNINSTALL') && STARMUS_DELETE_ON_UNINSTALL && WP_UNINSTALL_PLUGIN) {
+			$file = STARMUS_PATH . 'uninstall.php';
+			if (file_exists($file)) {
+				require_once $file;
+			}
+		}
+	} catch (\Throwable $e) {
+		error_log('Starmus uninstall error: ' . $e->getMessage());
+	}
 }
 
 register_activation_hook(__FILE__, 'starmus_on_activate');
