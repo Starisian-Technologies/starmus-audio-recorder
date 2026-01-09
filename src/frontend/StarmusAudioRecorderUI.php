@@ -103,7 +103,37 @@ class StarmusAudioRecorderUI
 			}
 
 			// Validate post exists and is an audio-recording
-			if ($post_id <= 0) {
+                        // NOTE: If script_id is present but post_id is 0, we are creating a NEW from SCRIPT.
+                        // However, starmus_audio_re_recorder implies updating.
+                        // The user said: "based on if there is already an audio... clicking the button... pass the id of the script"
+                        // If post_id is 0, check for existing recording for this script by current user.
+
+                        if ($post_id <= 0 && $script_id > 0 && is_user_logged_in()) {
+                             // Attempt to find existing recording by Title match (as per logic)
+                             // Or better, via starmus_script_source meta if we had it.
+                             // For now, we will rely on strict title match or just let it fail to "No recording specified"
+                             // BUT user requirement implies we might want to record NEW if none exists.
+                             // However, this is the RE-RECORDER.
+                             // IF no recording exists, we should probably fall back to the main recorder?
+                             // OR, maybe this shortcode handles both?
+                             // For now, strict adherence: RE-recorder needs an ID.
+
+                             // Let's try to find an ID.
+                             $script_post = get_post($script_id);
+                             if ($script_post) {
+                                 $existing_query = new \WP_Query([
+                                     'post_type' => 'audio-recording',
+                                     'author'    => get_current_user_id(),
+                                     'title'     => $script_post->post_title, // Use title match as proxy
+                                     'posts_per_page' => 1,
+                                     'fields'    => 'ids'
+                                 ]);
+                                 if ($existing_query->have_posts()) {
+                                     $post_id = $existing_query->posts[0];
+                                 }
+                             }
+                        }
+
 				return '<p>' . esc_html__('No recording specified.', 'starmus-audio-recorder') . '</p>';
 			}
 
@@ -127,8 +157,14 @@ class StarmusAudioRecorderUI
 			$type_id    = (! is_wp_error($type_terms) && ! empty($type_terms)) ? $type_terms[0]->term_id : 0;
 
 			// NEW: Script Context Override
-			$script_id = absint($atts['script_id']);
-			$dialect_id = 0; // Default
+                        // 1. Check Shortcode Attribute
+                        $script_id = absint($atts['script_id']);
+
+                        // 2. Check URL Parameter (Override if attribute is empty)
+                        if ($script_id <= 0 && isset($_GET['script_id'])) {
+                            $script_id = absint($_GET['script_id']);
+                        }
+
 
 			if ($script_id > 0 && get_post_type($script_id) === 'starmus-script') {
 				$script_post = get_post($script_id);

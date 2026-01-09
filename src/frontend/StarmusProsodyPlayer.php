@@ -52,6 +52,7 @@ class StarmusProsodyPlayer
 	{
 		// Register the shortcode
 		add_shortcode('prosody_reader', $this->render_shortcode(...));
+		add_shortcode('starmus_script_card', $this->render_script_card(...));
 	}
 
 	public function init_dal(): void
@@ -103,7 +104,7 @@ class StarmusProsodyPlayer
 	 *
 	 * @return string HTML Output
 	 */
-	public function render_shortcode(array $atts): string
+	public function render_shortcode(array $atts = []): string
 	{
 		try {
 			$args = shortcode_atts(
@@ -113,7 +114,18 @@ class StarmusProsodyPlayer
 				$atts
 			);
 
+			// Logic: 1. ID from Attr, 2. Script ID from GET, 3. Current Post
 			$post_id = (int) $args['id'];
+			if (isset($_GET['script_id']) && absint($_GET['script_id']) > 0) {
+				// If the shortcode was called with default ID (card usage or page context), override it.
+				// But if user explicitly passed id="123" in shortcode, that should win?
+				// Actually, if we are on a generic "Recorder" page, the shortcode might be plain [prosody_reader].
+				// So checking if 'id' matches get_the_ID() is a good heuristic that it's "default".
+				if ($post_id === get_the_ID()) {
+					$post_id = absint($_GET['script_id']);
+				}
+			}
+
 			$data    = $this->dal->get_script_payload($post_id);
 
 			if ($data === []) {
@@ -150,12 +162,12 @@ class StarmusProsodyPlayer
 			<div id="cognitive-regulator">
 				<!-- CALIBRATION LAYER -->
 				<div id="calibration-layer">
-					<div class="tap-zone" id="btn-tap">
-						<div class="tap-icon">👆</div>
+					<button type="button" class="tap-zone" id="btn-tap" aria-label="Tap to set rhythm">
+						<div class="tap-icon" aria-hidden="true">👆</div>
 						<div class="tap-label">TAP RHYTHM</div>
 						<div class="tap-sub">Spacebar or Click to set pace</div>
-					</div>
-					<div class="tap-feedback" id="tap-feedback">...</div>
+					</button>
+					<div class="tap-feedback" id="tap-feedback" role="status" aria-live="polite">...</div>
 				</div>
 
 				<!-- THE STAGE -->
@@ -166,24 +178,192 @@ class StarmusProsodyPlayer
 
 				<!-- CONTROLS -->
 				<div class="control-deck hidden" id="main-controls">
-					<button id="btn-engage" class="neutral-btn">
-						<span class="icon">▶</span> <span class="label">ENGAGE FLOW</span>
-					</button>
-
-					<div class="fader-group">
-						<span class="fader-label">Anxiety</span>
-						<input type="range" id="pace-regulator" min="1000" max="6000" step="50">
-						<span class="fader-label">Fatigue</span>
+					<div class="btn-group">
+						<button id="btn-engage" class="neutral-btn">
+							<span class="icon" aria-hidden="true">▶</span> <span class="label">TEST FLOW</span>
+						</button>
+						<button id="btn-top" class="neutral-btn" title="Return to Top" style="margin-left: 8px;" aria-label="Return to Top">
+							<span class="icon" aria-hidden="true">⬆</span>
+						</button>
 					</div>
 
-					<button id="btn-recal" class="secondary-text-btn" title="Reset Rhythm">[ Re-Tap ]</button>
+					<div class="fader-group">
+						<span class="fader-label" id="lbl-anxiety">Anxiety</span>
+						<input type="range" id="pace-regulator" min="1000" max="6000" step="50" aria-labelledby="lbl-anxiety lbl-fatigue">
+						<span class="fader-label" id="lbl-fatigue">Fatigue</span>
+					</div>
+
+					<button id="btn-recal" class="secondary-text-btn" title="Reset Rhythm" aria-label="Reset Rhythm">[ Re-Tap ]</button>
 				</div>
 			</div>
-<?php
+		<?php
 			return ob_get_clean();
 		} catch (Throwable $throwable) {
 			StarmusLogger::log($throwable);
 			return ''; // Always return a string even on error
+		}
+	}
+
+	/**
+	 * Renders a preview card for a Script.
+	 * Shows excerpt, audio player (if valid recording exists), and proper CTA.
+	 *
+	 * @param array $atts
+	 * @return string
+	 */
+	public function render_script_card(array $atts = []): string
+	{
+		try {
+			$args = shortcode_atts(['id' => 0], $atts, 'starmus_script_card');
+			$script_id = (int) $args['id'];
+
+			if ($script_id <= 0) {
+				return '';
+			}
+
+			$post = get_post($script_id);
+			if (! $post || $post->post_type !== 'starmus-script') {
+				return '';
+			}
+
+			// 1. Get Excerpt
+			$excerpt = has_excerpt($post) ? $post->post_excerpt : wp_trim_words($post->post_content, 20);
+
+			// 2. Check for Related Audio (Current User)
+			$audio_url = '';
+			$rec_id = 0;
+
+			if (is_user_logged_in()) {
+				$q = new \WP_Query([
+					'post_type'      => 'audio-recording',
+					'author'         => get_current_user_id(),
+					'title'          => $post->post_title, // Matching by title as established
+					'posts_per_page' => 1,
+					'post_status'    => 'publish'
+				]);
+
+				if ($q->have_posts()) {
+					$rec_id = $q->posts[0];
+					// Get audio file URL. Assuming secure field or attachment.
+					// For Starmus, audio is usually an attachment or a specific field.
+					// Let's assume standard attachment for now or custom field.
+					// Checking existing code patterns... usually it's an attachment.
+					$audio_id = get_post_meta($rec_id, 'starmus_audio_file_id', true);
+					// Or native attachment if post_mime_type is audio.
+					// Let's check get_attached_media.
+					$media = get_attached_media('audio', $rec_id);
+					if (! empty($media)) {
+						$audio_url = wp_get_attachment_url(reset($media)->ID);
+					}
+				}
+			}
+
+			// 3. Build Card URL
+			// Assumes page with slug 'star-prosody-recorder' exists
+			$recorder_url = site_url('/star-prosody-recorder');
+			$action_url = add_query_arg('script_id', $script_id, $recorder_url);
+
+			// 4. Determine State
+			$has_audio = ! empty($audio_url);
+			$action_label = $has_audio ? __('Re-Record Script', 'starmus') : __('Record Script', 'starmus');
+			$status_class = $has_audio ? 'starmus-status-complete' : 'starmus-status-pending';
+
+			ob_start();
+		?>
+			<div class="starmus-script-card <?php echo esc_attr($status_class); ?>">
+				<div class="starmus-card-header">
+					<h3 class="starmus-card-title"><?php echo esc_html($post->post_title); ?></h3>
+					<?php if ($has_audio): ?>
+						<span class="starmus-badge success">Recorded</span>
+					<?php endif; ?>
+				</div>
+
+				<div class="starmus-card-body">
+					<div class="starmus-script-excerpt">
+						<?php echo wp_kses_post($excerpt); ?>
+					</div>
+
+					<?php if ($has_audio): ?>
+						<div class="starmus-audio-preview">
+							<audio controls src="<?php echo esc_url($audio_url); ?>" class="starmus-simple-player"></audio>
+						</div>
+					<?php endif; ?>
+				</div>
+
+				<div class="starmus-card-footer">
+					<a href="<?php echo esc_url($action_url); ?>" class="starmus-btn starmus-btn--primary">
+						<?php echo esc_html($action_label); ?>
+					</a>
+				</div>
+			</div>
+			<style>
+				/* Minimal Card Styles */
+				.starmus-script-card {
+					background: #fff;
+					border: 1px solid #e2e8f0;
+					border-radius: 8px;
+					padding: 1.5rem;
+					margin-bottom: 1.5rem;
+					box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+				}
+
+				.starmus-card-header {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					margin-bottom: 1rem;
+				}
+
+				.starmus-card-title {
+					margin: 0;
+					font-size: 1.25rem;
+				}
+
+				.starmus-script-excerpt {
+					color: #4a5568;
+					margin-bottom: 1.5rem;
+					font-style: italic;
+					border-left: 3px solid #cbd5e0;
+					padding-left: 1rem;
+				}
+
+				.starmus-audio-preview {
+					margin-bottom: 1rem;
+				}
+
+				.starmus-simple-player {
+					width: 100%;
+				}
+
+				.starmus-btn {
+					display: inline-block;
+					padding: 0.5rem 1rem;
+					background: #3182ce;
+					color: white;
+					text-decoration: none;
+					border-radius: 4px;
+					font-weight: 500;
+				}
+
+				.starmus-btn:hover {
+					background: #2b6cb0;
+				}
+
+				.starmus-badge {
+					background: #c6f6d5;
+					color: #22543d;
+					padding: 0.25rem 0.5rem;
+					border-radius: 99px;
+					font-size: 0.75rem;
+					font-weight: 600;
+					text-transform: uppercase;
+				}
+			</style>
+<?php
+			return ob_get_clean();
+		} catch (Throwable $t) {
+			StarmusLogger::log($t);
+			return '<div class="starmus-error">Card Error</div>';
 		}
 	}
 

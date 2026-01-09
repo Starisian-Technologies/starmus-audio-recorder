@@ -22,52 +22,52 @@ import sparxstarIntegration from './starmus-sparxstar-integration.js';
  * Circuit breaker for upload failures
  */
 class UploadCircuitBreaker {
-	constructor() {
-		this.failures = 0;
-		this.threshold = 3; // Open after 3 failures
-		this.timeout = 60000; // 1 minute timeout
-		this.state = 'closed'; // closed, open, half-open
-		this.openedAt = null;
-	}
+  constructor() {
+    this.failures = 0;
+    this.threshold = 3; // Open after 3 failures
+    this.timeout = 60000; // 1 minute timeout
+    this.state = 'closed'; // closed, open, half-open
+    this.openedAt = null;
+  }
 
-	async execute(operation, context = '') {
-		if (this.state === 'open') {
-			const timeSinceOpen = Date.now() - this.openedAt;
-			if (timeSinceOpen < this.timeout) {
-				throw new Error(
-					`Upload circuit breaker open - too many failures${context ? ` [${context}]` : ''}`
-				);
-			} else {
-				this.state = 'half-open';
-				console.log(
-					`[Circuit Breaker] Attempting half-open state${context ? ` [${context}]` : ''}`
-				);
-			}
-		}
+  async execute(operation, context = '') {
+    if (this.state === 'open') {
+      const timeSinceOpen = Date.now() - this.openedAt;
+      if (timeSinceOpen < this.timeout) {
+        throw new Error(
+          `Upload circuit breaker open - too many failures${context ? ` [${context}]` : ''}`
+        );
+      } else {
+        this.state = 'half-open';
+        console.log(
+          `[Circuit Breaker] Attempting half-open state${context ? ` [${context}]` : ''}`
+        );
+      }
+    }
 
-		try {
-			const result = await operation();
+    try {
+      const result = await operation();
 
-			// Success - reset breaker
-			if (this.state === 'half-open') {
-				this.state = 'closed';
-				this.failures = 0;
-				console.log('[Circuit Breaker] Reset to closed state');
-			}
+      // Success - reset breaker
+      if (this.state === 'half-open') {
+        this.state = 'closed';
+        this.failures = 0;
+        console.log('[Circuit Breaker] Reset to closed state');
+      }
 
-			return result;
-		} catch (error) {
-			this.failures++;
+      return result;
+    } catch (error) {
+      this.failures++;
 
-			if (this.failures >= this.threshold) {
-				this.state = 'open';
-				this.openedAt = Date.now();
-				console.error(`[Circuit Breaker] Opened after ${this.failures} failures`);
-			}
+      if (this.failures >= this.threshold) {
+        this.state = 'open';
+        this.openedAt = Date.now();
+        console.error(`[Circuit Breaker] Opened after ${this.failures} failures`);
+      }
 
-			throw error;
-		}
-	}
+      throw error;
+    }
+  }
 }
 
 const uploadCircuitBreaker = new UploadCircuitBreaker();
@@ -88,18 +88,18 @@ const uploadCircuitBreaker = new UploadCircuitBreaker();
  */
 // 1. Config
 function getDefaultConfig() {
-	// Get optimized settings from SPARXSTAR if available
-	const envData = sparxstarIntegration.getEnvironmentData();
-	const settings = envData?.recordingSettings || {};
+  // Get optimized settings from SPARXSTAR if available
+  const envData = sparxstarIntegration.getEnvironmentData();
+  const settings = envData?.recordingSettings || {};
 
-	return {
-		chunkSize: settings.uploadChunkSize || 512 * 1024, // Tier-optimized chunk size
-		retryDelays: [0, 5000, 10000, 30000, 60000, 120000, 300000],
-		removeFingerprintOnSuccess: true,
-		maxChunkRetries: 10,
-		endpoint: '/files/',
-		webhookSecret: '',
-	};
+  return {
+    chunkSize: settings.uploadChunkSize || 512 * 1024, // Tier-optimized chunk size
+    retryDelays: [0, 5000, 10000, 30000, 60000, 120000, 300000],
+    removeFingerprintOnSuccess: true,
+    maxChunkRetries: 10,
+    endpoint: '/files/',
+    webhookSecret: '',
+  };
 }
 
 /**
@@ -113,24 +113,24 @@ function getDefaultConfig() {
  * console.log(config.chunkSize); // 524288 (512KB)
  */
 function getConfig() {
-	// Get tier-optimized defaults
-	const defaultConfig = getDefaultConfig();
+  // Get tier-optimized defaults
+  const defaultConfig = getDefaultConfig();
 
-	// Merge with global config
-	const globalCfg = window.starmusTus || window.starmusConfig || {};
-	const config = { ...defaultConfig, ...globalCfg };
+  // Merge with global config
+  const globalCfg = window.starmusTus || window.starmusConfig || {};
+  const config = { ...defaultConfig, ...globalCfg };
 
-	// Log optimization info
-	const envData = sparxstarIntegration.getEnvironmentData();
-	if (envData?.tier) {
-		console.log('[TUS] Using tier-optimized config:', {
-			tier: envData.tier,
-			chunkSize: config.chunkSize,
-			network: envData.network?.type,
-		});
-	}
+  // Log optimization info
+  const envData = sparxstarIntegration.getEnvironmentData();
+  if (envData?.tier) {
+    console.log('[TUS] Using tier-optimized config:', {
+      tier: envData.tier,
+      chunkSize: config.chunkSize,
+      network: envData.network?.type,
+    });
+  }
 
-	return config;
+  return config;
 }
 
 /**
@@ -142,10 +142,10 @@ function getConfig() {
  * @returns {Object} Normalized form fields object
  */
 function normalizeFormFields(fields) {
-	if (fields && typeof fields === 'object') {
-		return fields;
-	}
-	return {};
+  if (fields && typeof fields === 'object') {
+    return fields;
+  }
+  return {};
 }
 
 /**
@@ -162,11 +162,11 @@ function normalizeFormFields(fields) {
  * sanitizeMetadata('text\nwith\ttabs') // 'text with tabs'
  */
 function sanitizeMetadata(value) {
-	if (typeof value === 'object') {
-		return JSON.stringify(value);
-	}
-	const v = (typeof value === 'string' ? value : String(value)).replace(/[\r\n\t]/g, ' ');
-	return v; // TUS handles base64 encoding internally usually, but we keep it raw string here
+  if (typeof value === 'object') {
+    return JSON.stringify(value);
+  }
+  const v = (typeof value === 'string' ? value : String(value)).replace(/[\r\n\t]/g, ' ');
+  return v; // TUS handles base64 encoding internally usually, but we keep it raw string here
 }
 
 /**
@@ -204,130 +204,130 @@ function sanitizeMetadata(value) {
  */
 // 2. Direct Upload (Fallback)
 export async function uploadDirect(
-	blob,
-	fileName,
-	formFields = {},
-	metadata = {},
-	_instanceId = '',
-	onProgress
+  blob,
+  fileName,
+  formFields = {},
+  metadata = {},
+  _instanceId = '',
+  onProgress
 ) {
-	const cfg = getConfig();
-	const nonce = cfg.nonce || window.starmusConfig?.nonce || '';
+  const cfg = getConfig();
+  const nonce = cfg.nonce || window.starmusConfig?.nonce || '';
 
-	// Fallback endpoint (WordPress REST API)
-	const endpoint = '/wp-json/star-starmus-audio-recorder/v1/upload-fallback';
+  // Fallback endpoint (WordPress REST API)
+  const endpoint = '/wp-json/star-starmus-audio-recorder/v1/upload-fallback';
 
-	const fields = normalizeFormFields(formFields);
+  const fields = normalizeFormFields(formFields);
 
-	// Get current environment data for error reporting
-	const envData = sparxstarIntegration.getEnvironmentData();
+  // Get current environment data for error reporting
+  const envData = sparxstarIntegration.getEnvironmentData();
 
-	return new Promise((resolve, reject) => {
-		const fd = new FormData();
+  return new Promise((resolve, reject) => {
+    const fd = new FormData();
 
-		if (!(blob instanceof Blob)) {
-			const error = new Error('INVALID_BLOB_TYPE');
-			// Report error to SPARXSTAR
-			if (sparxstarIntegration.isAvailable) {
-				sparxstarIntegration.reportError('upload_invalid_blob', {
-					error: error.message,
-					fileSize: blob?.size || 0,
-					tier: envData?.tier,
-				});
-			}
-			return reject(error);
-		}
+    if (!(blob instanceof Blob)) {
+      const error = new Error('INVALID_BLOB_TYPE');
+      // Report error to SPARXSTAR
+      if (sparxstarIntegration.isAvailable) {
+        sparxstarIntegration.reportError('upload_invalid_blob', {
+          error: error.message,
+          fileSize: blob?.size || 0,
+          tier: envData?.tier,
+        });
+      }
+      return reject(error);
+    }
 
-		// Filter out fields we will add manually or via specific keys
-		const SKIP = ['_starmus_env', '_starmus_calibration'];
-		Object.entries(fields).forEach(([k, v]) => {
-			if (!SKIP.includes(k)) {
-				fd.append(k, v);
-			}
-		});
+    // Filter out fields we will add manually or via specific keys
+    const SKIP = ['_starmus_env', '_starmus_calibration'];
+    Object.entries(fields).forEach(([k, v]) => {
+      if (!SKIP.includes(k)) {
+        fd.append(k, v);
+      }
+    });
 
-		fd.append('audio_file', blob, fileName);
+    fd.append('audio_file', blob, fileName);
 
-		// Map metadata to form fields expected by the WP Controller
-		if (metadata?.calibration) {
-			fd.append('_starmus_calibration', JSON.stringify(metadata.calibration));
-		}
-		if (metadata?.env) {
-			fd.append('_starmus_env', JSON.stringify(metadata.env));
-		}
-		if (metadata?.tier) {
-			fd.append('tier', metadata.tier);
-		}
+    // Map metadata to form fields expected by the WP Controller
+    if (metadata?.calibration) {
+      fd.append('_starmus_calibration', JSON.stringify(metadata.calibration));
+    }
+    if (metadata?.env) {
+      fd.append('_starmus_env', JSON.stringify(metadata.env));
+    }
+    if (metadata?.tier) {
+      fd.append('tier', metadata.tier);
+    }
 
-		const xhr = new XMLHttpRequest();
-		xhr.open('POST', endpoint, true);
-		if (nonce) {
-			xhr.setRequestHeader('X-WP-Nonce', nonce);
-		}
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', endpoint, true);
+    if (nonce) {
+      xhr.setRequestHeader('X-WP-Nonce', nonce);
+    }
 
-		if (xhr.upload && typeof onProgress === 'function') {
-			xhr.upload.onprogress = (e) => {
-				if (e.lengthComputable) {
-					onProgress(e.loaded, e.total);
-				}
-			};
-		}
+    if (xhr.upload && typeof onProgress === 'function') {
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          onProgress(e.loaded, e.total);
+        }
+      };
+    }
 
-		xhr.onload = () => {
-			if (xhr.status >= 200 && xhr.status < 300) {
-				try {
-					const result = JSON.parse(xhr.responseText);
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const result = JSON.parse(xhr.responseText);
 
-					// Report successful upload to SPARXSTAR
-					if (sparxstarIntegration.isAvailable) {
-						sparxstarIntegration.reportError('upload_direct_success', {
-							fileSize: blob.size,
-							duration: Date.now() - startTime,
-							tier: envData?.tier,
-							network: envData?.network?.type,
-						});
-					}
+          // Report successful upload to SPARXSTAR
+          if (sparxstarIntegration.isAvailable) {
+            sparxstarIntegration.reportError('upload_direct_success', {
+              fileSize: blob.size,
+              duration: Date.now() - startTime,
+              tier: envData?.tier,
+              network: envData?.network?.type,
+            });
+          }
 
-					resolve(result);
-				} catch (e) {
-					reject(new Error('Invalid JSON response'));
-				}
-			} else {
-				const error = new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`);
+          resolve(result);
+        } catch (e) {
+          reject(new Error('Invalid JSON response'));
+        }
+      } else {
+        const error = new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`);
 
-				// Report error to SPARXSTAR
-				if (sparxstarIntegration.isAvailable) {
-					sparxstarIntegration.reportError('upload_direct_failed', {
-						error: error.message,
-						status: xhr.status,
-						fileSize: blob.size,
-						tier: envData?.tier,
-					});
-				}
+        // Report error to SPARXSTAR
+        if (sparxstarIntegration.isAvailable) {
+          sparxstarIntegration.reportError('upload_direct_failed', {
+            error: error.message,
+            status: xhr.status,
+            fileSize: blob.size,
+            tier: envData?.tier,
+          });
+        }
 
-				reject(error);
-			}
-		};
+        reject(error);
+      }
+    };
 
-		xhr.onerror = () => {
-			const error = new Error('Network error on direct upload');
+    xhr.onerror = () => {
+      const error = new Error('Network error on direct upload');
 
-			// Report network error to SPARXSTAR
-			if (sparxstarIntegration.isAvailable) {
-				sparxstarIntegration.reportError('upload_network_error', {
-					error: error.message,
-					fileSize: blob.size,
-					tier: envData?.tier,
-					network: envData?.network?.type,
-				});
-			}
+      // Report network error to SPARXSTAR
+      if (sparxstarIntegration.isAvailable) {
+        sparxstarIntegration.reportError('upload_network_error', {
+          error: error.message,
+          fileSize: blob.size,
+          tier: envData?.tier,
+          network: envData?.network?.type,
+        });
+      }
 
-			reject(error);
-		};
+      reject(error);
+    };
 
-		const startTime = Date.now();
-		xhr.send(fd);
-	});
+    const startTime = Date.now();
+    xhr.send(fd);
+  });
 }
 
 /**
@@ -371,31 +371,31 @@ export async function uploadDirect(
  */
 // 3. Priority Wrapper
 export async function uploadWithPriority(arg1) {
-	let blob, fileName, formFields, metadata, instanceId, onProgress;
+  let blob, fileName, formFields, metadata, instanceId, onProgress;
 
-	if (arg1 && arg1.blob) {
-		({ blob, fileName, formFields, metadata, instanceId, onProgress } = arg1);
-	} else {
-		[blob, fileName, formFields, metadata, instanceId, onProgress] = arguments;
-	}
+  if (arg1 && arg1.blob) {
+    ({ blob, fileName, formFields, metadata, instanceId, onProgress } = arg1);
+  } else {
+    [blob, fileName, formFields, metadata, instanceId, onProgress] = arguments;
+  }
 
-	if (!blob) {
-		throw new Error('No blob provided');
-	}
+  if (!blob) {
+    throw new Error('No blob provided');
+  }
 
-	// Use circuit breaker for all uploads
-	return uploadCircuitBreaker.execute(async () => {
-		// Try TUS first
-		try {
-			if (isTusAvailable(blob.size)) {
-				return await uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress);
-			}
-			throw new Error('TUS_UNAVAILABLE');
-		} catch (e) {
-			console.warn('[Uploader] TUS failed, using Direct Fallback.', e.message);
-			return await uploadDirect(blob, fileName, formFields, metadata, instanceId, onProgress);
-		}
-	}, 'upload');
+  // Use circuit breaker for all uploads
+  return uploadCircuitBreaker.execute(async () => {
+    // Try TUS first
+    try {
+      if (isTusAvailable(blob.size)) {
+        return await uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress);
+      }
+      throw new Error('TUS_UNAVAILABLE');
+    } catch (e) {
+      console.warn('[Uploader] TUS failed, using Direct Fallback.', e.message);
+      return await uploadDirect(blob, fileName, formFields, metadata, instanceId, onProgress);
+    }
+  }, 'upload');
 }
 
 /**
@@ -414,9 +414,9 @@ export async function uploadWithPriority(arg1) {
  */
 // 4. Helpers
 export function isTusAvailable(blobSize = 0) {
-	const cfg = getConfig();
-	// Ensure library exists, endpoint is defined, and file has size
-	return !!(window.tus && window.tus.Upload && cfg.endpoint && blobSize > 0);
+  const cfg = getConfig();
+  // Ensure library exists, endpoint is defined, and file has size
+  return !!(window.tus && window.tus.Upload && cfg.endpoint && blobSize > 0);
 }
 
 /**
@@ -462,156 +462,156 @@ export function isTusAvailable(blobSize = 0) {
  * );
  */
 export async function uploadWithTus(blob, fileName, formFields, metadata, instanceId, onProgress) {
-	const cfg = getConfig();
-	const envData = sparxstarIntegration.getEnvironmentData();
-	const startTime = Date.now();
+  const cfg = getConfig();
+  const envData = sparxstarIntegration.getEnvironmentData();
+  const startTime = Date.now();
 
-	return new Promise((resolve, reject) => {
-		/**
+  return new Promise((resolve, reject) => {
+    /**
      * TUS metadata object with flattened values.
      * All values must be strings for TUS protocol compatibility.
      */
-		// 1. Prepare Metadata for PHP Hook
-		// The PHP hook looks at $event_data['Upload']['MetaData']
-		const tusMetadata = {
-			filename: fileName,
-			filetype: blob.type || 'application/octet-stream',
-			name: fileName,
-		};
+    // 1. Prepare Metadata for PHP Hook
+    // The PHP hook looks at $event_data['Upload']['MetaData']
+    const tusMetadata = {
+      filename: fileName,
+      filetype: blob.type || 'application/octet-stream',
+      name: fileName,
+    };
 
-		// Merge standard form fields (post_id, nonce, etc)
-		const fields = normalizeFormFields(formFields);
-		Object.entries(fields).forEach(([key, val]) => {
-			tusMetadata[key] = String(val);
-		});
+    // Merge standard form fields (post_id, nonce, etc)
+    const fields = normalizeFormFields(formFields);
+    Object.entries(fields).forEach(([key, val]) => {
+      tusMetadata[key] = String(val);
+    });
 
-		// Merge complex metadata objects (mapped to specific keys for PHP)
-		if (metadata?.calibration) {
-			tusMetadata['_starmus_calibration'] = sanitizeMetadata(metadata.calibration);
-		}
-		if (metadata?.env) {
-			tusMetadata['_starmus_env'] = sanitizeMetadata(metadata.env);
-		}
-		if (metadata?.tier) {
-			tusMetadata['tier'] = sanitizeMetadata(metadata.tier);
-		}
+    // Merge complex metadata objects (mapped to specific keys for PHP)
+    if (metadata?.calibration) {
+      tusMetadata['_starmus_calibration'] = sanitizeMetadata(metadata.calibration);
+    }
+    if (metadata?.env) {
+      tusMetadata['_starmus_env'] = sanitizeMetadata(metadata.env);
+    }
+    if (metadata?.tier) {
+      tusMetadata['tier'] = sanitizeMetadata(metadata.tier);
+    }
 
-		/**
+    /**
      * TUS Upload instance with complete configuration.
      */
-		// 2. Configure TUS Upload
+    // 2. Configure TUS Upload
 
-		// CRITICAL: Secure webhook headers - never allow empty secrets
-		const webhookSecret = cfg.webhookSecret;
-		if (!webhookSecret || webhookSecret.trim() === '') {
-			const error = new Error('TUS webhook secret not configured - upload blocked for security');
-			console.error('[TUS Security] CRITICAL:', error.message);
+    // CRITICAL: Secure webhook headers - never allow empty secrets
+    const webhookSecret = cfg.webhookSecret;
+    if (!webhookSecret || webhookSecret.trim() === '') {
+      const error = new Error('TUS webhook secret not configured - upload blocked for security');
+      console.error('[TUS Security] CRITICAL:', error.message);
 
-			// Report security issue to SPARXSTAR
-			if (sparxstarIntegration.isAvailable) {
-				sparxstarIntegration.reportError('tus_security_no_secret', {
-					error: error.message,
-					endpoint: cfg.endpoint,
-					timestamp: Date.now(),
-				});
-			}
+      // Report security issue to SPARXSTAR
+      if (sparxstarIntegration.isAvailable) {
+        sparxstarIntegration.reportError('tus_security_no_secret', {
+          error: error.message,
+          endpoint: cfg.endpoint,
+          timestamp: Date.now(),
+        });
+      }
 
-			throw error;
-		}
+      throw error;
+    }
 
-		// Generate secure headers with timestamp and signature
-		const timestamp = Date.now().toString();
-		const payload = `${fileName}-${timestamp}-${blob.size}`;
+    // Generate secure headers with timestamp and signature
+    const timestamp = Date.now().toString();
+    const payload = `${fileName}-${timestamp}-${blob.size}`;
 
-		const upload = new tus.Upload(blob, {
-			endpoint: cfg.endpoint,
-			retryDelays: cfg.retryDelays,
-			chunkSize: cfg.chunkSize,
-			parallelUploads: 1,
-			metadata: tusMetadata,
-			removeFingerprintOnSuccess: cfg.removeFingerprintOnSuccess,
+    const upload = new tus.Upload(blob, {
+      endpoint: cfg.endpoint,
+      retryDelays: cfg.retryDelays,
+      chunkSize: cfg.chunkSize,
+      parallelUploads: 1,
+      metadata: tusMetadata,
+      removeFingerprintOnSuccess: cfg.removeFingerprintOnSuccess,
 
-			headers: {
-				'x-starmus-secret': webhookSecret,
-				'x-starmus-timestamp': timestamp,
-				'x-starmus-payload-hash': btoa(payload), // Simple payload verification
-				'x-starmus-tier': envData?.tier || 'C',
-				'x-starmus-network': envData?.network?.type || 'unknown',
-			},
+      headers: {
+        'x-starmus-secret': webhookSecret,
+        'x-starmus-timestamp': timestamp,
+        'x-starmus-payload-hash': btoa(payload), // Simple payload verification
+        'x-starmus-tier': envData?.tier || 'C',
+        'x-starmus-network': envData?.network?.type || 'unknown',
+      },
 
-			/**
+      /**
        * Error handler for upload failures.
        * @param {Error} error - TUS upload error
        */
-			onError: (error) => {
-				console.error('[StarmusTus] Upload Error:', error);
+      onError: (error) => {
+        console.error('[StarmusTus] Upload Error:', error);
 
-				// Report TUS error to SPARXSTAR
-				if (sparxstarIntegration.isAvailable) {
-					sparxstarIntegration.reportError('upload_tus_failed', {
-						error: error.message,
-						fileSize: blob.size,
-						tier: envData?.tier,
-						network: envData?.network?.type,
-						chunkSize: cfg.chunkSize,
-					});
-				}
+        // Report TUS error to SPARXSTAR
+        if (sparxstarIntegration.isAvailable) {
+          sparxstarIntegration.reportError('upload_tus_failed', {
+            error: error.message,
+            fileSize: blob.size,
+            tier: envData?.tier,
+            network: envData?.network?.type,
+            chunkSize: cfg.chunkSize,
+          });
+        }
 
-				reject(error);
-			},
+        reject(error);
+      },
 
-			/**
+      /**
        * Progress handler for upload tracking.
        * @param {number} bytesUploaded - Bytes uploaded so far
        * @param {number} bytesTotal - Total bytes to upload
        */
-			onProgress: (bytesUploaded, bytesTotal) => {
-				if (typeof onProgress === 'function') {
-					onProgress(bytesUploaded, bytesTotal);
-				}
-			},
+      onProgress: (bytesUploaded, bytesTotal) => {
+        if (typeof onProgress === 'function') {
+          onProgress(bytesUploaded, bytesTotal);
+        }
+      },
 
-			/**
+      /**
        * Success handler when upload transfer completes.
        * Note: PHP post-finish hook runs asynchronously.
        */
-			onSuccess: () => {
-				// Report successful TUS upload to SPARXSTAR
-				if (sparxstarIntegration.isAvailable) {
-					sparxstarIntegration.reportError('upload_tus_success', {
-						fileSize: blob.size,
-						duration: Date.now() - startTime,
-						tier: envData?.tier,
-						network: envData?.network?.type,
-						chunkSize: cfg.chunkSize,
-					});
-				}
+      onSuccess: () => {
+        // Report successful TUS upload to SPARXSTAR
+        if (sparxstarIntegration.isAvailable) {
+          sparxstarIntegration.reportError('upload_tus_success', {
+            fileSize: blob.size,
+            duration: Date.now() - startTime,
+            tier: envData?.tier,
+            network: envData?.network?.type,
+            chunkSize: cfg.chunkSize,
+          });
+        }
 
-				// Note: The `post-finish` hook in PHP is async.
-				// We won't get the Attachment ID back here immediately from tusd.
-				// We resolve indicating the transfer is complete.
-				resolve({
-					success: true,
-					tus_url: upload.url,
-					message: 'Upload transfer complete. Processing in background.',
-				});
-			},
-		});
+        // Note: The `post-finish` hook in PHP is async.
+        // We won't get the Attachment ID back here immediately from tusd.
+        // We resolve indicating the transfer is complete.
+        resolve({
+          success: true,
+          tus_url: upload.url,
+          message: 'Upload transfer complete. Processing in background.',
+        });
+      },
+    });
 
-		/**
+    /**
      * Start upload with resume capability.
      * Checks for previous incomplete uploads and resumes if found.
      */
-		// 3. Start Upload
-		// Check for previous uploads to resume
-		upload.findPreviousUploads().then(function (previousUploads) {
-			// If previous uploads found, pick the first one to resume
-			if (previousUploads.length) {
-				upload.resumeFromPreviousUpload(previousUploads[0]);
-			}
-			upload.start();
-		});
-	});
+    // 3. Start Upload
+    // Check for previous uploads to resume
+    upload.findPreviousUploads().then(function (previousUploads) {
+      // If previous uploads found, pick the first one to resume
+      if (previousUploads.length) {
+        upload.resumeFromPreviousUpload(previousUploads[0]);
+      }
+      upload.start();
+    });
+  });
 }
 
 /**
@@ -631,9 +631,9 @@ export async function uploadWithTus(blob, fileName, formFields, metadata, instan
  * console.log(`Estimated: ${estimate} seconds`);
  */
 export function estimateUploadTime(fileSize, networkInfo) {
-	const downlink = networkInfo?.downlink || 0.5;
-	const bytesPerSec = (downlink * 1000000) / 8;
-	return Math.ceil((fileSize / bytesPerSec) * 1.5);
+  const downlink = networkInfo?.downlink || 0.5;
+  const bytesPerSec = (downlink * 1000000) / 8;
+  return Math.ceil((fileSize / bytesPerSec) * 1.5);
 }
 
 /**
@@ -651,7 +651,7 @@ export function estimateUploadTime(fileSize, networkInfo) {
  * formatUploadEstimate(NaN) // '...'
  */
 export function formatUploadEstimate(s) {
-	return !isFinite(s) ? '...' : s < 60 ? `~${s}s` : `~${Math.ceil(s / 60)}m`;
+  return !isFinite(s) ? '...' : s < 60 ? `~${s}s` : `~${Math.ceil(s / 60)}m`;
 }
 
 /**
@@ -668,12 +668,12 @@ export function formatUploadEstimate(s) {
  * @property {function} formatUploadEstimate - Time format utility
  */
 const StarmusTus = {
-	uploadWithTus,
-	uploadDirect,
-	uploadWithPriority,
-	isTusAvailable,
-	estimateUploadTime,
-	formatUploadEstimate,
+  uploadWithTus,
+  uploadDirect,
+  uploadWithPriority,
+  isTusAvailable,
+  estimateUploadTime,
+  formatUploadEstimate,
 };
 
 /**
@@ -682,7 +682,7 @@ const StarmusTus = {
  * @global
  */
 if (typeof window !== 'undefined') {
-	window.StarmusTus = StarmusTus;
+  window.StarmusTus = StarmusTus;
 }
 
 /**

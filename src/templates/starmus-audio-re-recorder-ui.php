@@ -74,35 +74,58 @@ $data_policy_url ??= '';
 
 		<!-- Step 2: Recorder -->
 		<div id="starmus_step2_<?php echo esc_attr($instance_id); ?>" class="starmus-step" style="display:none;" data-starmus-step="2">
-			<h2><?php esc_html_e('Record Replacement', 'starmus-audio-recorder'); ?></h2>
+			<h2 tabindex="-1"><?php esc_html_e('Record Replacement', 'starmus-audio-recorder'); ?></h2>
 
 			<div class="starmus-setup-container" data-starmus-setup-container>
 				<button type="button" class="starmus-btn starmus-btn--primary" data-starmus-action="setup-mic">
-					<span class="dashicons dashicons-microphone"></span> Setup Mic
+					<span class="dashicons dashicons-microphone" aria-hidden="true"></span> <?php esc_html_e('Setup Mic', 'starmus-audio-recorder'); ?>
 				</button>
 			</div>
 
 			<div class="starmus-recorder-container" data-starmus-recorder-container>
 				<div class="starmus-visualizer-stage">
-					<div class="starmus-timer" data-starmus-timer><span class="starmus-timer-elapsed">00m 00s</span></div>
+					<div class="starmus-timer-wrapper">
+						<span class="starmus-timer-label"><?php esc_html_e('Time:', 'starmus-audio-recorder'); ?></span>
+						<div class="starmus-timer" data-starmus-timer>
+							<span class="starmus-timer-elapsed">00m 00s</span>
+						</div>
+					</div>
 					<div class="starmus-duration-progress-wrapper">
-						<div class="starmus-duration-progress" data-starmus-duration-progress></div>
+						<span class="starmus-progress-label" id="starmus_progress_lbl_<?php echo esc_attr($instance_id); ?>">
+							<?php esc_html_e('Length:', 'starmus-audio-recorder'); ?>
+						</span>
+						<div class="starmus-duration-progress"
+							data-starmus-duration-progress
+							role="progressbar"
+							aria-valuemin="0"
+							aria-valuemax="100"
+							aria-valuenow="0"
+							aria-labelledby="starmus_progress_lbl_<?php echo esc_attr($instance_id); ?>"></div>
 					</div>
 					<div class="starmus-meter-wrap">
+						<span class="starmus-meter-label"><?php esc_html_e('Volume:', 'starmus-audio-recorder'); ?></span>
 						<div class="starmus-meter-bar" data-starmus-volume-meter></div>
 					</div>
 				</div>
 
 				<div class="starmus-recorder-controls">
-					<button type="button" class="starmus-btn starmus-btn--record" data-starmus-action="record">Record</button>
-					<button type="button" class="starmus-btn starmus-btn--stop" data-starmus-action="stop" style="display:none;">Stop</button>
+					<button type="button" class="starmus-btn starmus-btn--record" data-starmus-action="record">
+						<span class="dashicons dashicons-microphone" aria-hidden="true"></span> <?php esc_html_e('Record', 'starmus-audio-recorder'); ?>
+					</button>
+					<button type="button" class="starmus-btn starmus-btn--stop" data-starmus-action="stop" style="display:none;">
+						<span class="dashicons dashicons-media-default" aria-hidden="true"></span> <?php esc_html_e('Stop', 'starmus-audio-recorder'); ?>
+					</button>
 					<div class="starmus-review-controls" style="display:none;">
-						<button type="button" class="starmus-btn starmus-btn--secondary" data-starmus-action="play">Play</button>
-						<button type="button" class="starmus-btn starmus-btn--outline" data-starmus-action="reset">Retake</button>
+						<button type="button" class="starmus-btn starmus-btn--secondary" data-starmus-action="play">
+							<span class="dashicons dashicons-controls-play" aria-hidden="true"></span> <?php esc_html_e('Play', 'starmus-audio-recorder'); ?>
+						</button>
+						<button type="button" class="starmus-btn starmus-btn--outline" data-starmus-action="reset">
+							<span class="dashicons dashicons-undo" aria-hidden="true"></span> <?php esc_html_e('Retake', 'starmus-audio-recorder'); ?>
+						</button>
 					</div>
 				</div>
 
-				<div data-starmus-transcript style="display:none;"></div>
+				<div data-starmus-transcript style="display:none;" role="log" aria-live="polite"></div>
 			</div>
 
 			<button type="submit" class="starmus-btn starmus-btn--primary starmus-btn--full" data-starmus-action="submit" disabled>

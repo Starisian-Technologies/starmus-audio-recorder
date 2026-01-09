@@ -1788,6 +1788,90 @@
 				"mime_types": "mp3"
 			},
 			{
+				"key": "field_696170b31b348",
+				"label": "MP3 Audio Clip",
+				"name": "starmus-audio_clip_mp3",
+				"aria-label": "",
+				"type": "file",
+				"instructions": "",
+				"required": 0,
+				"conditional_logic": 0,
+				"wrapper": {
+					"width": "",
+					"class": "",
+					"id": ""
+				},
+				"return_format": "url",
+				"library": "all",
+				"min_size": "",
+				"max_size": ".25",
+				"mime_types": "mp3",
+				"allow_in_bindings": 1
+			},
+			{
+				"key": "field_696172dd1b34b",
+				"label": "WebA Audio Clip",
+				"name": "starmus_audio_clip_weba",
+				"aria-label": "",
+				"type": "file",
+				"instructions": "",
+				"required": 0,
+				"conditional_logic": 0,
+				"wrapper": {
+					"width": "",
+					"class": "",
+					"id": ""
+				},
+				"return_format": "url",
+				"library": "all",
+				"min_size": "",
+				"max_size": ".25",
+				"mime_types": "weba",
+				"allow_in_bindings": 1
+			},
+			{
+				"key": "field_696172991b34a",
+				"label": "MP3 Optimized Audio",
+				"name": "starmus_audio_opt_mp3",
+				"aria-label": "",
+				"type": "file",
+				"instructions": "",
+				"required": 0,
+				"conditional_logic": 0,
+				"wrapper": {
+					"width": "",
+					"class": "",
+					"id": ""
+				},
+				"return_format": "url",
+				"library": "all",
+				"min_size": "",
+				"max_size": "",
+				"mime_types": "mp3",
+				"allow_in_bindings": 1
+			},
+			{
+				"key": "field_696171131b349",
+				"label": "WebA Optimized Audio",
+				"name": "starmus_audio_opt_weba",
+				"aria-label": "",
+				"type": "file",
+				"instructions": "",
+				"required": 0,
+				"conditional_logic": 0,
+				"wrapper": {
+					"width": "",
+					"class": "",
+					"id": ""
+				},
+				"return_format": "url",
+				"library": "all",
+				"min_size": "",
+				"max_size": "",
+				"mime_types": "weba",
+				"allow_in_bindings": 1
+			},
+			{
 				"key": "starmus_cloud_object_uri",
 				"label": "Cloud Storage Link",
 				"name": "starmus_cloud_object_uri",
@@ -1891,7 +1975,7 @@
 		"hide_on_screen": "",
 		"active": true,
 		"description": "",
-		"show_in_rest": false,
+		"show_in_rest": 1,
 		"display_title": ""
 	},
 	{
@@ -2242,7 +2326,7 @@
 		"hide_on_screen": "",
 		"active": true,
 		"description": "",
-		"show_in_rest": false,
+		"show_in_rest": 1,
 		"display_title": ""
 	},
 	{
@@ -2776,7 +2860,7 @@
 	},
 	{
 		"key": "group_sparxstar_identity",
-		"title": "SparxStar Identity",
+		"title": "SPARXSTAR Identity",
 		"fields": [
 			{
 				"key": "sparxstar_legal_name",
@@ -2892,7 +2976,7 @@
 		"hide_on_screen": "",
 		"active": true,
 		"description": "",
-		"show_in_rest": false,
+		"show_in_rest": 0,
 		"display_title": ""
 	},
 	{

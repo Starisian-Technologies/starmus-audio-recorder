@@ -12,22 +12,21 @@ A mobile-first audio recording and annotation plugin for WordPress, designed for
 
 **Tags:** WordPress, Audio, Web Audio API, recorder, offline, tus, resumable
 
-**Requires at least:** 6.4
+**Requires at least:** 6.8
 
-**Tested up to:** 6.5
+**Tested up to:** 6.9
 
 **Requires PHP:** 8.2
 
 **Stable tag:** v0.5.0
 
-**License:** See LICENSE.md
+**License:** Starisian Technologies Proprietary License (STPD) See LICENSE.md
+
+**Copyright:** Copyright (c) 2025-2026 Starisian Technologies. All rights reserved.
 
 [![CodeQL](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql) [![Copilot](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/copilot-swe-agent/copilot/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/copilot-swe-agent/copilot) [![Dependabot Updates](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates)
- [![Security Checks](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml)
 
-[![Proof HTML, Lint JS & CSS](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml)
-
-[![Release Code Quality Final Review](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml)
+[![Security Checks](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml) [![Proof HTML, Lint JS & CSS](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml) [![Release Code Quality Final Review](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml)
 
 The Starmus Audio Recorder is a comprehensive WordPress solution for capturing, managing, and annotating user-submitted audio. Its standout feature is a resilient, offline-first submission system, ensuring recordings are never lost, even on unstable networks.
 
@@ -132,7 +131,7 @@ This plugin relies on the following excellent open-source libraries, which shoul
 
 The Starmus Audio Recorder is a lightweight, front-end WordPress plugin that allows users to record audio directly in the browser using the MediaRecorder API.
 
-- **`starmus_before_recorder_render` (Action)**  
+- **`starmus_before_recorder_render` (Action)**
   Fires before recorder form displays.
   _Example: Redirect if profile is incomplete._
 
@@ -147,8 +146,8 @@ The Starmus Audio Recorder is a lightweight, front-end WordPress plugin that all
 });
 ```
 
-- **`starmus_after_audio_upload` (Action)**  
-  Fires after recording + metadata saved.  
+- **`starmus_after_audio_upload` (Action)**
+  Fires after recording + metadata saved.
   _Example: Send an email to the admin._
 
 ```php
@@ -162,8 +161,8 @@ add_action('starmus_after_audio_upload', function($audio_post_id, $attachment_id
 }, 10, 3);
 ```
 
-- **`starmus_audio_upload_success_response` (Filter)**  
-  Modify JSON response.  
+- **`starmus_audio_upload_success_response` (Filter)**
+  Modify JSON response.
   _Example: add conditional redirect._
 
 ```php
@@ -209,7 +208,7 @@ By accessing this repo, you accept:
 - LICENSE.md — legal terms, jurisdiction
 - TERMS.md — ethics, allowed use
 
-**Not allowed:** surveillance, coercion, military use.  
+**Not allowed:** surveillance, coercion, military use.
  **Encouraged:** oral history, education, culture, community voice.
 
 ---
@@ -244,9 +243,9 @@ If you're working in **underserved communities** or preserving oral traditions, 
 
 ## **🌍 Contact**
 
-**Starisian Technologies**  
- 815 E Street, Suite 12083  
- San Diego, CA 92101  
+**Starisian Technologies**
+ 815 E Street, Suite 12083
+ San Diego, CA 92101
  **Email:** <support@starisian.com>
 
 ---

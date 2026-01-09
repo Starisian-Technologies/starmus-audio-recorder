@@ -14,7 +14,6 @@ export default {
     'keyframes-name-pattern': null,
     'custom-property-pattern': null,
     'no-descending-specificity': null,
-    indentation: 'tab',
   },
   cache: true,
   fix: true,

@@ -50,6 +50,7 @@ class RhythmEngine {
   init() {
     this.renderChunks(this.config.source);
     this.bindEvents();
+    this.bindRecorderIntegration();
 
     this.els.slider.value = this.paceMs;
 
@@ -418,6 +419,45 @@ class RhythmEngine {
       }
     });
     this.els.tapFeedback.style.cursor = 'pointer';
+  }
+
+  bindRecorderIntegration() {
+    // Poll for the store in case of load order race conditions
+    const checkStore = setInterval(() => {
+      if (window.StarmusStore && window.StarmusStore.subscribe) {
+        clearInterval(checkStore);
+        console.log('Starmus Prosody: Connected to Recorder Store');
+
+        let lastStatus = window.StarmusStore.getState().status;
+
+        window.StarmusStore.subscribe((state) => {
+          const status = state.status;
+
+          // RECORDER STARTED -> PLAY
+          if (status === 'recording' && lastStatus !== 'recording') {
+            console.log('Starmus Prosody: Recorder Start detected -> Playing');
+
+            // If in calibration mode, force transition to main stage
+            if (this.els.calibration && this.els.calibration.style.display !== 'none') {
+              this.transitionToStage(this.paceMs || 3000);
+            }
+
+            // Small delay to ensure UI transition and sync
+            setTimeout(() => this.play(), 200);
+          }
+
+          // RECORDER STOPPED -> STOP
+          if (lastStatus === 'recording' && status !== 'recording' && status !== 'paused') {
+            this.stop();
+          }
+
+          lastStatus = status;
+        });
+      }
+    }, 500);
+
+    // Stop checking after 10 seconds
+    setTimeout(() => clearInterval(checkStore), 10000);
   }
 }
 

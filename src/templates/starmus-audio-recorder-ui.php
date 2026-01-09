@@ -13,26 +13,26 @@
  * @version 0.9.2
  */
 
-if ( ! defined('ABSPATH')) {
-    exit;
+if (! defined('ABSPATH')) {
+	exit;
 }
 
 $form_id ??= 'default';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 $allowed_file_types ??= 'webm';
-$allowed_types_arr = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+$allowed_types_arr = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
 $is_admin          = current_user_can('manage_options');
 $languages         = get_terms(
-    [
-        'taxonomy'   => 'starmus_tax_language',
-        'hide_empty' => false,
-    ]
+	[
+		'taxonomy'   => 'starmus_tax_language',
+		'hide_empty' => false,
+	]
 );
 $recording_types = get_terms(
-    [
-        'taxonomy'   => 'starmus_story_type',
-        'hide_empty' => false,
-    ]
+	[
+		'taxonomy'   => 'starmus_story_type',
+		'hide_empty' => false,
+	]
 );
 $consent_message ??= __('By submitting this recording, you agree to our', 'starmus-audio-recorder');
 $data_policy_url ??= '';
@@ -67,30 +67,32 @@ $data_policy_url ??= '';
 			<div class="starmus-field-group">
 				<label for="starmus_title_<?php echo esc_attr($instance_id); ?>">
 					<?php esc_html_e('Title', 'starmus-audio-recorder'); ?>
-					<span class="starmus-required">*</span>
+					<span class="starmus-required" aria-hidden="true">*</span>
 				</label>
 				<input
 					type="text"
 					id="starmus_title_<?php echo esc_attr($instance_id); ?>"
 					name="starmus_dc_creator"
 					maxlength="200"
+					aria-required="true"
 					required>
 			</div>
 
 			<div class="starmus-field-group">
 				<label for="starmus_language_<?php echo esc_attr($instance_id); ?>">
 					<?php esc_html_e('Language', 'starmus-audio-recorder'); ?>
-					<span class="starmus-required">*</span>
+					<span class="starmus-required" aria-hidden="true">*</span>
 				</label>
 				<select
 					id="starmus_language_<?php echo esc_attr($instance_id); ?>"
 					name="starmus_tax_language"
+					aria-required="true"
 					required>
 					<option value=""><?php esc_html_e('Select Language', 'starmus-audio-recorder'); ?></option>
-					<?php if ( ! empty($languages) && is_array($languages)) { ?>
-            <?php foreach ($languages as $lang) { ?>
+					<?php if (! empty($languages) && is_array($languages)) { ?>
+						<?php foreach ($languages as $lang) { ?>
 							<option value="<?php echo esc_attr($lang->term_id); ?>">
-                <?php echo esc_html($lang->name); ?>
+								<?php echo esc_html($lang->name); ?>
 							</option>
 						<?php } ?>
 					<?php } ?>
@@ -100,17 +102,18 @@ $data_policy_url ??= '';
 			<div class="starmus-field-group">
 				<label for="starmus_recording_type_<?php echo esc_attr($instance_id); ?>">
 					<?php esc_html_e('Recording Type', 'starmus-audio-recorder'); ?>
-					<span class="starmus-required">*</span>
+					<span class="starmus-required" aria-hidden="true">*</span>
 				</label>
 				<select
 					id="starmus_recording_type_<?php echo esc_attr($instance_id); ?>"
 					name="starmus_story_type"
+					aria-required="true"
 					required>
 					<option value=""><?php esc_html_e('Select Type', 'starmus-audio-recorder'); ?></option>
-					<?php if ( ! empty($recording_types) && is_array($recording_types)) { ?>
-            <?php foreach ($recording_types as $type) { ?>
+					<?php if (! empty($recording_types) && is_array($recording_types)) { ?>
+						<?php foreach ($recording_types as $type) { ?>
 							<option value="<?php echo esc_attr($type->term_id); ?>">
-                <?php echo esc_html($type->name); ?>
+								<?php echo esc_html($type->name); ?>
 							</option>
 						<?php } ?>
 					<?php } ?>
@@ -133,7 +136,7 @@ $data_policy_url ??= '';
 						required>
 					<label for="starmus_consent_<?php echo esc_attr($instance_id); ?>">
 						<?php echo wp_kses_post($consent_message); ?>
-						<?php if ( ! empty($data_policy_url)) { ?>
+						<?php if (! empty($data_policy_url)) { ?>
 							<a
 								href="<?php echo esc_url($data_policy_url); ?>"
 								target="_blank"
@@ -195,7 +198,7 @@ $data_policy_url ??= '';
 					id="starmus_setup_mic_btn_<?php echo esc_attr($instance_id); ?>"
 					class="starmus-btn starmus-btn--primary starmus-btn--large"
 					data-starmus-action="setup-mic">
-					<span class="dashicons dashicons-microphone"></span> <?php esc_html_e('Setup Microphone', 'starmus-audio-recorder'); ?>
+					<span class="dashicons dashicons-microphone" aria-hidden="true"></span> <?php esc_html_e('Setup Microphone', 'starmus-audio-recorder'); ?>
 				</button>
 				<p class="starmus-setup-instruction">
 					<?php esc_html_e('Click the button above to test your microphone and adjust audio levels.', 'starmus-audio-recorder'); ?>
@@ -219,7 +222,7 @@ $data_policy_url ??= '';
 					id="starmus_fallback_input_<?php echo esc_attr($instance_id); ?>"
 					name="audio_file"
 					accept="audio/*"
-					style="display:none;">
+					class="starmus-visually-hidden">
 			</div>
 
 			<!-- TIER A/B RECORDER UI -->
@@ -267,7 +270,7 @@ $data_policy_url ??= '';
 						id="starmus_record_btn_<?php echo esc_attr($instance_id); ?>"
 						class="starmus-btn starmus-btn--record starmus-btn--large"
 						data-starmus-action="record">
-						<span class="dashicons dashicons-microphone"></span> <?php esc_html_e('Start Recording', 'starmus-audio-recorder'); ?>
+						<span class="dashicons dashicons-microphone" aria-hidden="true"></span> <?php esc_html_e('Start Recording', 'starmus-audio-recorder'); ?>
 					</button>
 
 					<!-- 2. RECORDING STATE -->
@@ -277,7 +280,7 @@ $data_policy_url ??= '';
 						class="starmus-btn starmus-btn--pause starmus-btn--large"
 						data-starmus-action="pause"
 						style="display:none;">
-						<span class="dashicons dashicons-controls-pause"></span> <?php esc_html_e('Pause', 'starmus-audio-recorder'); ?>
+						<span class="dashicons dashicons-controls-pause" aria-hidden="true"></span> <?php esc_html_e('Pause', 'starmus-audio-recorder'); ?>
 					</button>
 
 					<button
@@ -286,7 +289,7 @@ $data_policy_url ??= '';
 						class="starmus-btn starmus-btn--stop starmus-btn--large"
 						data-starmus-action="stop"
 						style="display:none;">
-						<span class="dashicons dashicons-media-default"></span> <?php esc_html_e('Stop', 'starmus-audio-recorder'); ?>
+						<span class="dashicons dashicons-media-default" aria-hidden="true"></span> <?php esc_html_e('Stop', 'starmus-audio-recorder'); ?>
 					</button>
 
 					<!-- 2b. PAUSED STATE -->
@@ -296,7 +299,7 @@ $data_policy_url ??= '';
 						class="starmus-btn starmus-btn--resume starmus-btn--large"
 						data-starmus-action="resume"
 						style="display:none;">
-						<span class="dashicons dashicons-controls-play"></span> <?php esc_html_e('Resume Recording', 'starmus-audio-recorder'); ?>
+						<span class="dashicons dashicons-controls-play" aria-hidden="true"></span> <?php esc_html_e('Resume Recording', 'starmus-audio-recorder'); ?>
 					</button>
 
 					<!-- 3. REVIEW STATE -->
@@ -365,14 +368,14 @@ $data_policy_url ??= '';
 						class="starmus-btn starmus-btn--link"
 						aria-controls="starmus_manual_upload_wrap_<?php echo esc_attr($instance_id); ?>"
 						aria-expanded="false">
-        <?php esc_html_e('Switch to File Upload', 'starmus-audio-recorder'); ?>
+						<?php esc_html_e('Switch to File Upload', 'starmus-audio-recorder'); ?>
 					</button>
 				</div>
 				<div
 					id="starmus_manual_upload_wrap_<?php echo esc_attr($instance_id); ?>"
 					style="display:none;margin-top:12px;">
 					<label for="starmus_manual_upload_input_<?php echo esc_attr($instance_id); ?>">
-        <?php esc_html_e('Select audio file to upload:', 'starmus-audio-recorder'); ?>
+						<?php esc_html_e('Select audio file to upload:', 'starmus-audio-recorder'); ?>
 					</label>
 					<input
 						type="file"

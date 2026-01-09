@@ -22,7 +22,7 @@ const globalScope = typeof window !== 'undefined' ? window : globalThis;
  * @namespace StarmusRegistry
  */
 if (!globalScope.StarmusRegistry) {
-	globalScope.StarmusRegistry = {};
+  globalScope.StarmusRegistry = {};
 }
 
 /**
@@ -35,14 +35,14 @@ const registry = globalScope.StarmusRegistry;
 /**
  * Subscribes a handler function to a specific command.
  * When the command is dispatched, the handler will be called with payload and meta data.
- * 
+ *
  * @function
  * @param {string} command - The command name to listen for
  * @param {function} handler - The function to call when command is dispatched
  * @param {object} handler.payload - Data payload from dispatch
  * @param {object} handler.meta - Metadata from dispatch (instanceId, etc.)
  * @returns {function} Unsubscribe function to remove this handler
- * 
+ *
  * @example
  * const unsubscribe = subscribe('submit', (payload, meta) => {
  *   console.log('Received submit command:', payload);
@@ -50,55 +50,63 @@ const registry = globalScope.StarmusRegistry;
  * // Later: unsubscribe();
  */
 function subscribe(command, handler) {
-	if (!registry[command]) {
-		registry[command] = [];
-	}
-	registry[command].push(handler);
-	console.log(`[Bus] Listener added for: ${command}`);
+  if (!registry[command]) {
+    registry[command] = [];
+  }
+  registry[command].push(handler);
+  console.log(`[Bus] Listener added for: ${command}`);
 
-	return () => {
-		const idx = registry[command].indexOf(handler);
-		if (idx > -1) {registry[command].splice(idx, 1);}
-	};
+  return () => {
+    const idx = registry[command].indexOf(handler);
+    if (idx > -1) {
+      registry[command].splice(idx, 1);
+    }
+  };
 }
 
 /**
  * Dispatches a command to all registered handlers.
  * Calls all handler functions subscribed to the specified command with provided data.
- * 
+ *
  * @function
  * @param {string} command - The command name to dispatch
  * @param {object} [payload={}] - Data to send to handlers
  * @param {object} [meta={}] - Metadata to send to handlers (instanceId, source, etc.)
  * @returns {void}
- * 
+ *
  * @example
  * dispatch('submit', { formFields: {...} }, { instanceId: 'rec-123' });
  * dispatch('reset', {}, { instanceId: 'rec-123' });
  */
 function dispatch(command, payload = {}, meta = {}) {
-	const handlers = registry[command];
-	if (!handlers || !handlers.length) {
-		console.warn(`[Bus] ⚠️ Dispatched '${command}' but nobody is listening.`);
-		return;
-	}
-  
-	console.log(`[Bus] Dispatching '${command}' to ${handlers.length} listeners`, meta);
-  
-	handlers.forEach(fn => {
-		try { fn(payload, meta); } catch(e) { console.error(e); }
-	});
+  const handlers = registry[command];
+  if (!handlers || !handlers.length) {
+    console.warn(`[Bus] ⚠️ Dispatched '${command}' but nobody is listening.`);
+    return;
+  }
+
+  console.log(`[Bus] Dispatching '${command}' to ${handlers.length} listeners`, meta);
+
+  handlers.forEach((fn) => {
+    try {
+      fn(payload, meta);
+    } catch (e) {
+      console.error(e);
+    }
+  });
 }
 
 /**
  * Debug logging utility (currently disabled).
  * Can be enabled for development debugging by uncommenting the console.log.
- * 
+ *
  * @function
  * @param {...*} args - Arguments to log to console
  * @returns {void}
  */
-function debugLog(..._args) { /* console.log(...args); */ }
+function debugLog(..._args) {
+  /* console.log(...args); */
+}
 
 /**
  * Event Bus object containing all bus functionality.
@@ -119,7 +127,7 @@ globalScope.CommandBus = Bus;
 
 /**
  * Global StarmusHooks reference for module integration.
- * @global  
+ * @global
  * @type {object}
  */
 globalScope.StarmusHooks = Bus;

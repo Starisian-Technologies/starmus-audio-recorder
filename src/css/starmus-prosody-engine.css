@@ -1,316 +1,446 @@
 /* =========================================
    STARMUS PROSODY ENGINE
-   Theme: Cognitive Regulator (Neutral/Dark)
+   Theme: Cognitive Regulator (Dark/Light)
+   Mobile First + Localization + Progressive
    ========================================= */
 
+/* =========================================
+   THEME VARIABLES — DEFAULT (DARK)
+   ========================================= */
 :root {
-    --bg-surface: #121212;      /* Deep Matte Black */
-    --bg-panel:   #1a1a1a;      /* Control Surface */
-    --text-dim:   #444;      /* Future/Past Text */
-    --text-lit:   #E0E0E0;      /* Active Text */
-    --accent:     #FFD700;      /* Gold (Feedback only) */
-    --ui-border:  #333;
-    --font-stack: 'Courier Prime', 'Monaco', 'Consolas', monospace;
-    --unit-spacing: 2.2;        /* Line-height equivalent */
+  --color-scheme: dark;
+  --bg-surface: #121212;
+  --bg-panel: #1a1a1a;
+  --text-dim: #444;
+  --text-lit: #e0e0e0;
+  --accent: #ffd700;
+  --ui-border: #333;
+
+  /* Font Families (Localization-aware) */
+  --font-stack: 'Noto Sans', sans-serif;
+  --font-jp: 'Noto Sans JP', sans-serif;
+  --font-ar: 'Noto Naskh Arabic', serif;
+  --font-am: 'Noto Sans Ethiopic', sans-serif;
+  --font-zh: 'Noto Sans SC', sans-serif;
+
+  /* UI Variables */
+  --unit-spacing: 1.8;
+  --tap-zone-size: 200px;
+  --text-base: clamp(1rem, 2.5vw, 1.25rem);
 }
 
-/* --- CONTAINER SHELL --- */
-#cognitive-regulator {
-    background-color: var(--bg-surface);
-    color: var(--text-dim);
-    font-family: var(--font-stack);
-    height: 100vh;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-    user-select: none; /* Prevents text selection during rapid interaction */
+/* Light Theme: Auto via prefers-color-scheme */
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-scheme: light;
+    --bg-surface: #fafafa;
+    --bg-panel: #fff;
+    --text-dim: #888;
+    --text-lit: #222;
+    --accent: #e65100;
+    --ui-border: #ccc;
+  }
+}
+
+/* Manual Light Theme Toggle */
+.light-mode {
+  --color-scheme: light;
+  --bg-surface: #fafafa;
+  --bg-panel: #fff;
+  --text-dim: #888;
+  --text-lit: #222;
+  --accent: #e65100;
+  --ui-border: #ccc;
+}
+
+/* Manual Dark Theme Toggle */
+.dark-mode {
+  --color-scheme: dark;
+  --bg-surface: #121212;
+  --bg-panel: #1a1a1a;
+  --text-dim: #444;
+  --text-lit: #e0e0e0;
+  --accent: #ffd700;
+  --ui-border: #333;
+}
+
+/* Base Styles */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-base);
+  font-family: var(--font-stack);
+  background: var(--bg-surface);
+  color: var(--text-dim);
 }
 
 /* =========================================
-   LAYER 1: CALIBRATION (The Overlay)
+   CONTAINER SHELL
+   ========================================= */
+#cognitive-regulator {
+  background-color: var(--bg-surface);
+  color: var(--text-dim);
+  font-family: var(--font-stack);
+  height: 60vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* =========================================
+   LAYER 1: CALIBRATION (Overlay)
    ========================================= */
 #calibration-layer {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: var(--bg-surface);
-    z-index: 200;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.5s ease;
+  position: absolute;
+  inset: 0;
+  background: var(--bg-surface);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s ease;
 }
 
 #calibration-layer.fade-out {
-    opacity: 0;
-    pointer-events: none;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .tap-zone {
-    width: 220px;
-    height: 220px;
-    border: 2px solid var(--ui-border);
-    border-radius: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.1s ease;
+  width: var(--tap-zone-size);
+  height: var(--tap-zone-size);
+  border: 2px solid var(--ui-border);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.1s ease;
 }
 
-.tap-zone:hover { border-color: #555; background: #161616; }
-
-.tap-zone.flash, .tap-zone:active {
-    background: #333;
-    border-color: #888;
-    transform: scale(0.96);
+.tap-zone:hover {
+  border-color: #555;
+  background: #161616;
 }
 
-.tap-icon { font-size: 48px; margin-bottom: 12px; filter: grayscale(1); }
-.tap-label { font-size: 14px; letter-spacing: 3px; color: var(--text-lit); font-weight: 700; }
-.tap-sub { font-size: 11px; color: #666; margin-top: 8px; text-transform: uppercase; }
+.tap-zone.flash,
+.tap-zone:active {
+  background: #333;
+  border-color: #888;
+  transform: scale(0.96);
+}
+
+.tap-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  filter: grayscale(1);
+}
+
+.tap-label {
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--text-lit);
+  font-weight: 700;
+}
+
+.tap-sub {
+  font-size: 11px;
+  color: #666;
+  margin-top: 8px;
+  text-transform: uppercase;
+}
 
 .tap-feedback {
-    margin-top: 2rem;
-    color: var(--accent);
-    font-family: sans-serif;
-    font-size: 13px;
-    letter-spacing: 1px;
-    min-height: 20px;
-    opacity: 0;
-    transition: opacity 0.3s;
+  margin-top: 2rem;
+  color: var(--accent);
+  font-family: sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  min-height: 20px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+#calibration-layer::after {
+  content: 'OR PRESS [SPACE]';
+  position: absolute;
+  bottom: 40px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #444;
 }
 
 /* =========================================
-   LAYER 2: THE STAGE (Text Flow)
+   LAYER 2: STAGE (Text Flow)
    ========================================= */
-
 #scaffold-stage {
-    flex-grow: 1;
-    overflow-y: auto;
-
-    /* Responsive margins: min 20px, preferred 15vw, max any */
-    padding: 0 clamp(20px, 15vw, 400px);
-    display: flex;
-    flex-direction: column;
-    scroll-behavior: smooth;
-    position: relative; /* CRITICAL for JS offsetTop math */
-
-    /* Hide scrollbar for cleaner look */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-#scaffold-stage::-webkit-scrollbar { display: none; }
-
-/* --- UPDATED: TEXT FLOW --- */
-#text-flow {
-    position: relative;
-    padding-top: 45vh; /* Adjust slightly for center-weight */
-    padding-bottom: 50vh;
-    font-size: 32px; /* Slightly larger for readability */
-    line-height: var(--unit-spacing);
-    text-align: center; /* Generally better for prosodic chunks */
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0 clamp(20px, 15vw, 400px);
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+  position: relative;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-/* --- MERGED: SILENCE BEAT --- */
-.prosodic-unit.silence-beat {
-    color: var(--accent);
-    font-weight: bold;
-    min-width: 60px;
-    height: 40px;
-    border: 1px dashed var(--ui-border);
-    margin: 0 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    vertical-align: middle;
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    font-size: 24px;
+#scaffold-stage::-webkit-scrollbar {
+  display: none;
 }
 
-.prosodic-unit.silence-beat.current {
-    border-color: var(--accent);
-    background: rgb(255 215 0 / 10%);
-    transform: scale(1.1);
-    box-shadow: 0 0 15px rgb(255 215 0 / 20%);
+#scaffold-stage.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
-
-/* --- UI POLISH: KEYBOARD HINT --- */
-#calibration-layer::after {
-    content: "OR PRESS [SPACE]";
-    position: absolute;
-    bottom: 40px;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: #444;
-}
-
-#scaffold-stage.hidden { opacity: 0; pointer-events: none; }
 
 #text-flow {
-    position: relative;
-    padding-top: 45vh; /* Adjust slightly for center-weight */
-    padding-bottom: 50vh;
-    font-size: 32px; /* Slightly larger for readability */
-    line-height: var(--unit-spacing);
-    text-align: center; /* Generally better for prosodic chunks */
+  position: relative;
+  padding-top: 45vh;
+  padding-bottom: 50vh;
+  font-size: 32px;
+  line-height: var(--unit-spacing);
+  text-align: center;
 }
 
-/* --- THE PROSODIC UNITS --- */
 .prosodic-unit {
-    display: inline-block;
-    padding: 2px 8px;
-    margin: 4px 2px;
-    border-radius: 4px;
-    transition: color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
-    cursor: crosshair; /* Indicates precise targeting */
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 4px 2px;
+  border-radius: 4px;
+  transition:
+    color 0.3s ease,
+    opacity 0.3s ease,
+    transform 0.3s ease;
+  cursor: crosshair;
 }
 
-/* State: Future / Past */
 .prosodic-unit.future,
 .prosodic-unit.past {
-    color: var(--text-dim);
-    opacity: 0.3;
-    filter: blur(0.4px); /* Slight blur reduces cognitive load */
+  color: var(--text-dim);
+  opacity: 0.3;
+  filter: blur(0.4px);
 }
 
-/* State: Current (The Nudge) */
 .prosodic-unit.current {
-    color: var(--text-lit);
-    opacity: 1;
-    font-weight: 700;
-    filter: blur(0);
-    background: rgb(255 255 255 / 5%);
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
+  color: var(--text-lit);
+  opacity: 1;
+  font-weight: 700;
+  filter: blur(0);
+  background: rgb(255 255 255 / 5%);
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
 }
 
-/* Special: Silence Beat (|) */
 .prosodic-unit.silence-beat {
-    color: var(--accent);
-    font-weight: bold;
-    min-width: 60px;
-    height: 40px;
-    border: 1px dashed var(--ui-border);
-    margin: 0 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    vertical-align: middle;
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    font-size: 24px;
+  color: var(--accent);
+  font-weight: bold;
+  min-width: 60px;
+  height: 40px;
+  border: 1px dashed var(--ui-border);
+  margin: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-size: 24px;
 }
 
 .prosodic-unit.silence-beat.current {
-    border-color: var(--accent);
-    background: rgb(255 215 0 / 10%);
-    transform: scale(1.1);
-    box-shadow: 0 0 15px rgb(255 215 0 / 20%);
+  border-color: var(--accent);
+  background: rgb(255 215 0 / 10%);
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgb(255 215 0 / 20%);
 }
 
-.spacer { height: 50vh; }
-
-#calibration-layer::after {
-    content: "OR PRESS [SPACE]";
-    position: absolute;
-    bottom: 40px;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: #444;
+.spacer {
+  height: 50vh;
 }
 
 /* =========================================
    LAYER 3: CONTROLS (The Deck)
    ========================================= */
 .control-deck {
-    background: var(--bg-panel);
-    border-top: 1px solid var(--ui-border);
-    padding: 20px 40px;
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    z-index: 100;
-    transition: opacity 0.8s ease, transform 0.8s ease;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--ui-border);
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  z-index: 100;
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
 }
 
 .control-deck.hidden {
-    opacity: 0;
-    transform: translateY(20px);
-    pointer-events: none;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
 }
 
-/* Engage Button */
 .neutral-btn {
-    background: #333;
-    color: #fff;
-    border: none;
-    padding: 12px 24px;
-    font-family: var(--font-stack);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    min-width: 180px;
-    border-radius: 4px;
-    transition: background 0.2s;
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  font-family: var(--font-stack);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  min-width: 180px;
+  border-radius: 4px;
+  transition: background 0.2s;
 }
 
-.neutral-btn:hover { background: #444; }
-.neutral-btn.active { background: #e0e0e0; color: #111; }
+.neutral-btn:hover {
+  background: #444;
+}
 
-/* Fader Group */
+.neutral-btn.active {
+  background: #e0e0e0;
+  color: #111;
+}
+
 .fader-group {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    color: #666;
-    font-size: 10px;
-    text-transform: uppercase;
-    font-weight: bold;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: #666;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 
-/* Range Slider Styling */
 #pace-regulator {
-    flex-grow: 1;
-    accent-color: #888;
-    height: 4px;
-    background: #333;
-    border-radius: 2px;
-    appearance: none;
-    outline: none;
+  flex-grow: 1;
+  accent-color: #888;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  appearance: none;
+  outline: none;
 }
 
 #pace-regulator::-webkit-slider-thumb {
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: #bbb;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #bbb;
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.2s;
 }
 
 #pace-regulator::-webkit-slider-thumb:hover {
-    background: #fff;
-    transform: scale(1.2);
+  background: #fff;
+  transform: scale(1.2);
 }
 
-/* Text Buttons */
 .secondary-text-btn {
-    background: none;
-    border: none;
-    color: #444;
-    cursor: pointer;
-    font-family: var(--font-stack);
-    font-size: 12px;
+  background: none;
+  border: none;
+  color: #444;
+  cursor: pointer;
+  font-family: var(--font-stack);
+  font-size: 12px;
 }
-.secondary-text-btn:hover { color: #888; }
 
+.secondary-text-btn:hover {
+  color: #888;
+}
 
+/* =========================================
+   LOCALIZED FONT RULES
+   ========================================= */
+[lang='ja'] {
+  font-family: var(--font-jp);
+}
+
+[lang='ar'],
+.localized-text.ar {
+  font-family: var(--font-ar);
+  direction: rtl;
+}
+
+[lang='am'],
+.localized-text.am {
+  font-family: var(--font-am);
+}
+
+[lang='zh'],
+.localized-text.zh {
+  font-family: var(--font-zh);
+}
+
+/* =========================================
+   RESPONSIVE — MOBILE FIRST ADJUSTMENTS
+   ========================================= */
+@media (width <= 600px) {
+  :root {
+    --tap-zone-size: 180px;
+    --unit-spacing: 1.6;
+  }
+
+  #text-flow {
+    font-size: 24px;
+    padding-top: 35vh;
+    padding-bottom: 40vh;
+  }
+
+  .prosodic-unit.silence-beat {
+    font-size: 18px;
+    min-width: 48px;
+    height: 36px;
+  }
+
+  .control-deck {
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .neutral-btn {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+/* =========================================
+   PROGRESSIVE ENHANCEMENT
+   ========================================= */
+@supports (backdrop-filter: blur(8px)) {
+  .tap-zone.flash {
+    backdrop-filter: blur(8px);
+  }
+
+  .prosodic-unit.current {
+    backdrop-filter: blur(2px);
+  }
+}
+
+@supports (display: grid) {
+  .control-deck {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+  }
+
+  @media (width <= 600px) {
+    .control-deck {
+      grid-template-columns: 1fr;
+    }
+  }
+}
