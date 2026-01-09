@@ -1,13 +1,13 @@
 class RhythmEngine {
 	constructor() {
-		const StarmusData = window.StarmusProsodyData;
+		const StarmusProsodyData = window.StarmusProsodyData;
 
 		// DEFENSIVE: 1. Check for data payload
-		if (typeof StarmusData === 'undefined') {
+		if (typeof StarmusProsodyData === 'undefined') {
 			console.error('Starmus Prosody: Data payload missing.');
 			return;
 		}
-		this.config = StarmusData;
+		this.config = StarmusProsodyData;
 
 		// DEFENSIVE: 2. Check for required DOM elements
 		this.els = {
