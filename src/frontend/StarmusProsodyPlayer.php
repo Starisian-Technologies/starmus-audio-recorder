@@ -91,7 +91,7 @@ class StarmusProsodyPlayer
 			STARMUS_URL . 'src/js/prosody/starmus-prosody-engine.js',
 			[],
 			STARMUS_VERSION,
-			['strategy' => 'defer'] // WP 6.3+ feature
+			true // Load in footer
 		);
 	}
 
@@ -125,9 +125,14 @@ class StarmusProsodyPlayer
 			wp_enqueue_script('starmus-prosody-js');
 
 			// Pass Data to JS via Inline Script (Modern approach)
+			$json_data = json_encode($data);
+			if ($json_data === false) {
+				StarmusLogger::error('JSON Encode failed for Prosody Data: ' . json_last_error_msg());
+			}
+
 			wp_add_inline_script(
 				'starmus-prosody-js',
-				'window.StarmusProsodyData = ' . json_encode($data) . ';',
+				'console.log("Starmus Prosody Inline Script Executing..."); window.StarmusProsodyData = ' . ($json_data ?: '{}') . ';',
 				'before'
 			);
 
