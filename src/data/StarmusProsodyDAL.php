@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\data;
 
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusProsodyDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusBaseDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
 use Throwable;
