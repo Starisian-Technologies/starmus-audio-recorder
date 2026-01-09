@@ -125,14 +125,14 @@ class StarmusProsodyPlayer
 			wp_enqueue_script('starmus-prosody-js');
 
 			// Pass Data to JS via Inline Script (Modern approach)
-			$json_data = json_encode($data);
-			if ($json_data === false) {
+			$payload = wp_json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+			if ($payload === false) {
 				StarmusLogger::error('JSON Encode failed for Prosody Data: ' . json_last_error_msg());
 			}
 
 			wp_add_inline_script(
 				'starmus-prosody-js',
-				'console.log("Starmus Prosody Inline Script Executing..."); window.StarmusProsodyData = ' . ($json_data ?: '{}') . ';',
+				'window.StarmusData = window.StarmusData || {}; window.StarmusData.prosody = ' . $payload . ';',
 				'before'
 			);
 
