@@ -55,7 +55,7 @@ class StarmusProsodyPlayer
 
     public function init_dal(): void
     {
-        if ($this->dal instanceof IStarmusProsodyDAL) {
+        if ($this->dal instanceof StarmusProsodyDAL) {
             return;
         }
 
