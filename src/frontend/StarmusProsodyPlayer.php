@@ -24,11 +24,11 @@ if ( ! \defined('ABSPATH')) {
  */
 class StarmusProsodyPlayer
 {
-    private ?IStarmusProsodyDAL $dal = null;
+    private ?StarmusProsodyDAL $dal = null;
 
-    public function __construct(?IStarmusProsodyDAL $prosody_dal = null)
+    public function __construct(?StarmusProsodyDAL $prosody_dal = null)
     {
-        $this->dal = $prosody_dal ?: StarmusProsodyDAL : new StarmusProsodyDAL();
+        $this->dal = $prosody_dal ? StarmusProsodyDAL : new StarmusProsodyDAL();
         $this->register_hooks();
     }
 
