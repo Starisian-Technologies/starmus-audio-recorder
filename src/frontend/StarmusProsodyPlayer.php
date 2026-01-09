@@ -132,7 +132,7 @@ class StarmusProsodyPlayer
 
 			wp_add_inline_script(
 				'starmus-prosody-js',
-				'window.StarmusData = window.StarmusData || {}; window.StarmusData.prosody = ' . $payload . ';',
+				'window.StarmusProsodyData = window.StarmusProsodyData || {}; window.StarmusProsodyData.prosody = ' . $payload . ';',
 				'before'
 			);
 
