@@ -3,6 +3,12 @@
 /**
  * Starmus Re-Recorder UI Template
  *
+ * NOTE: DESIGN INTENT
+ * This template operates in "update mode" but intentionally mimics the standard
+ * recorder UI to reduce user friction. Users do not need to know they are
+ * "replacing" a file; they just need to provide a new one.
+ * The explicit "Re-Record" context is hidden by design.
+ *
  * @version 1.0.2-DATA-SAFE
  */
 if ( ! defined('ABSPATH')) {
@@ -15,7 +21,7 @@ if ( ! defined('ABSPATH')) {
 $instance_id = 'starmus_form_' . sanitize_key('rerecord_' . wp_generate_uuid4());
 
 $allowed_file_types ??= 'webm';
-$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
 $is_admin          = current_user_can('manage_options');
 $consent_message ??= __('By submitting this recording, you agree to our', 'starmus-audio-recorder');
 $data_policy_url ??= '';
@@ -33,11 +39,10 @@ $data_policy_url ??= '';
 		data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
 
 		<div id="starmus_step1_<?php echo esc_attr($instance_id); ?>" class="starmus-step" data-starmus-step="1">
-			<h2><?php esc_html_e('Re-Record Audio', 'starmus-audio-recorder'); ?></h2>
+			<h2><?php esc_html_e('Initial Setup', 'starmus-audio-recorder'); ?></h2>
 
 			<div class="starmus-notice">
-				<p><?php esc_html_e('You are replacing audio for:', 'starmus-audio-recorder'); ?> <strong><?php echo esc_html($existing_title); ?></strong></p>
-				<p style="font-size:0.8em; opacity:0.8">ID: <?php echo intval($post_id); ?></p>
+				<p><?php esc_html_e('Please confirm consent to begin.', 'starmus-audio-recorder'); ?></p>
 			</div>
 
 			<!-- UPDATE LOGIC -->
@@ -66,6 +71,29 @@ $data_policy_url ??= '';
 			<input type="hidden" name="starmus_recording_metadata" value="">
 
 			<!-- INJECTED FROM PHP (If Available) -->
+
+			<fieldset class="starmus-consent-fieldset">
+				<legend class="starmus-fieldset-legend">
+					<?php esc_html_e('Consent Agreement', 'starmus-audio-recorder'); ?>
+				</legend>
+				<div class="starmus-consent-field">
+					<input
+						type="checkbox"
+						id="starmus_consent_<?php echo esc_attr($instance_id); ?>"
+						name="agreement_to_terms_toggle"
+						value="1"
+						required>
+					<label for="starmus_consent_<?php echo esc_attr($instance_id); ?>">
+						<?php echo wp_kses_post($consent_message); ?>
+						<?php if ( ! empty($data_policy_url)) { ?>
+							<a
+								href="<?php echo esc_url($data_policy_url); ?>"
+								target="_blank"
+								rel="noopener noreferrer"><?php esc_html_e('Privacy Policy', 'starmus-audio-recorder'); ?></a>
+						<?php } ?>
+					</label>
+				</div>
+			</fieldset>
 
 			<button type="button" class="starmus-btn starmus-btn--primary" data-starmus-action="next">
 				<?php esc_html_e('Proceed to Recorder', 'starmus-audio-recorder'); ?>
