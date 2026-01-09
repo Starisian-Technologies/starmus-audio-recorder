@@ -12,10 +12,13 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\data;
 
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusBaseDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 use WP_Error;
 use WP_Query;
+use function defined;
+
 
 if ( ! \defined('ABSPATH')) {
     exit;
