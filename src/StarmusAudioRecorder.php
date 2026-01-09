@@ -17,8 +17,7 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus;
 
-use LogicException;
-use RuntimeException;
+
 use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
 // Helpers
 use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
@@ -45,6 +44,16 @@ use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Throwable;
+use LogicException;
+use RuntimeException;
+use function defined;
+use function class_exists;
+use function file_exists;
+use function is_admin;
+use function apply_filters;
+use function add_action;
+
+
 
 if (! \defined('ABSPATH')) {
 	exit;
@@ -399,7 +408,7 @@ final class StarmusAudioRecorder
 
 			// Shortcodes
 			if (class_exists(StarmusShortcodeLoader::class)) {
-				new StarmusShortcodeLoader($this->dal, $this->settings, $this->prosodyDAL);
+				new StarmusShortcodeLoader($this->dal, $this->settings, $this->prosody_dal);
 				StarmusLogger::info('Starmus Info: StarmusShortcodeLoader initialized successfully.');
 				return;
 			}
@@ -507,7 +516,7 @@ final class StarmusAudioRecorder
 		try {
 
 			if (\defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
-				$cli_path = plugin_dir_path(STARMUS_MAIN_FILE) . 'src/cli/';
+				$cli_path = STARMUS_PATH . 'src/cli/';
 				if (file_exists($cli_path . 'StarmusCLI.php')) {
 					require_once $cli_path . 'StarmusCLI.php';
 				}
@@ -545,7 +554,7 @@ final class StarmusAudioRecorder
 	 */
 	public function get_ProsodyDAL(): ?IStarmusProsodyDAL
 	{
-		return $this->prosodyDAL;
+		return $this->prosody_dal;
 	}
 
 	/**
