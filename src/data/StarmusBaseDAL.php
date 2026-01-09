@@ -27,7 +27,7 @@ use Throwable;
 use function update_field;
 use function update_post_meta;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -57,7 +57,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
                 $success = (false !== $result);
             }
 
-            if (! $success) {
+            if ( ! $success) {
                 // EMERGENCY DATA DUMP
                 // If WP/ACF says "False", we log the data so it isn't lost.
                 $this->log_write_failure($post_id, $key, $value);
@@ -151,7 +151,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
                 $history = $existing_json;
             } else {
                 $history = json_decode((string) $existing_json, true);
-                if (! \is_array($history)) {
+                if ( ! \is_array($history)) {
                     $history = [];
                 }
             }
@@ -190,7 +190,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
                 $log = $existing_json;
             } else {
                 $log = json_decode((string) $existing_json, true);
-                if (! \is_array($log)) {
+                if ( ! \is_array($log)) {
                     $log = [];
                 }
             }

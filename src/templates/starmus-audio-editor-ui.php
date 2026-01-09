@@ -8,12 +8,12 @@
  * @version 1.1.0-ROBUST-TEMPLATE
  */
 
-if (! defined('ABSPATH')) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 
 // Data is prepared by StarmusAudioEditorUI and passed in $context
-$current_post_id = $context['post_id']   ?? 0;
+$current_post_id = $context['post_id'] ?? 0;
 $audio_url       = $context['audio_url'] ?? '';
 $editor_data     = [
     'postId'        => $current_post_id,
@@ -44,13 +44,13 @@ $editor_data     = [
 			<?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?>
 			<span class="starmus-editor__id-badge">
 				<?php
-                if ($current_post_id) {
-                    /* translators: %d: Recording ID */
-                    printf(esc_html__('ID: %d', 'starmus-audio-recorder'), (int) $current_post_id);
-                } else {
-                    esc_html_e('No Recording', 'starmus-audio-recorder');
-                }
-?>
+    if ($current_post_id) {
+        /* translators: %d: Recording ID */
+        printf(esc_html__('ID: %d', 'starmus-audio-recorder'), (int) $current_post_id);
+    } else {
+        esc_html_e('No Recording', 'starmus-audio-recorder');
+    }
+    ?>
 			</span>
 		</h1>
 		<div class="starmus-editor__time">

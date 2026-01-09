@@ -9,7 +9,7 @@ namespace Starisian\Sparxstar\Starmus\admin\widgets;
 
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -31,7 +31,7 @@ class StarmusAdminWidgets
                 [
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
-            ]
+                ]
             );
         }
     }
@@ -49,7 +49,7 @@ class StarmusAdminWidgets
                 [
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
-            ]
+                ]
             );
         }
     }
@@ -72,7 +72,7 @@ class StarmusAdminWidgets
                 [
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
-            ]
+                ]
             );
         }
     }
@@ -145,7 +145,7 @@ class StarmusAdminWidgets
                 [
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
-            ]
+                ]
             );
             echo '<p>' . esc_html__('Unable to load job data.', 'starmus-audio-recorder') . '</p>';
         }
@@ -208,7 +208,7 @@ class StarmusAdminWidgets
                 [
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
-            ]
+                ]
             );
         }
     }

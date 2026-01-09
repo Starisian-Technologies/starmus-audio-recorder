@@ -14,7 +14,7 @@ namespace Starisian\Sparxstar\Starmus\data\interfaces;
 use WP_Error;
 use WP_Query;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

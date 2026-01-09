@@ -3,7 +3,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -33,12 +33,12 @@ final class StarmusAudioFormatService
             return ['error' => 'Could not analyze file'];
         }
 
-        $audio  = $analysis['audio']      ?? [];
+        $audio  = $analysis['audio'] ?? [];
         $format = $analysis['fileformat'] ?? '';
 
         return [
         'current_format'        => $format,
-        'current_bitrate'       => $audio['bitrate']     ?? 0,
+        'current_bitrate'       => $audio['bitrate'] ?? 0,
         'current_size'          => $analysis['filesize'] ?? 0,
         'recommendations'       => $this->getWebOptimizationRecommendations($analysis),
         'browser_support'       => $this->getBrowserSupport($format),
@@ -51,8 +51,8 @@ final class StarmusAudioFormatService
      */
     private function getWebOptimizationRecommendations(array $analysis): array
     {
-        $audio    = $analysis['audio']         ?? [];
-        $bitrate  = $audio['bitrate']          ?? 0;
+        $audio    = $analysis['audio'] ?? [];
+        $bitrate  = $audio['bitrate'] ?? 0;
         $duration = $audio['playtime_seconds'] ?? 0;
 
         $recommendations = [];
@@ -142,10 +142,10 @@ final class StarmusAudioFormatService
      */
     private function getMobileConsiderations(array $analysis): array
     {
-        $audio    = $analysis['audio']         ?? [];
-        $filesize = $analysis['filesize']      ?? 0;
+        $audio    = $analysis['audio'] ?? [];
+        $filesize = $analysis['filesize'] ?? 0;
         $duration = $audio['playtime_seconds'] ?? 0;
-        $bitrate  = $audio['bitrate']          ?? 0;
+        $bitrate  = $audio['bitrate'] ?? 0;
 
         return [
         'data_usage'          => $this->estimateDataUsage($filesize, $duration),

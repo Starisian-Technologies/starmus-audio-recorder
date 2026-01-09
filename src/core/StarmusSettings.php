@@ -42,7 +42,7 @@ use Throwable;
 use function trailingslashit;
 use function update_option;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -229,7 +229,7 @@ final class StarmusSettings implements IStarmusSettings
     public function set(string $key, $value): bool
     {
         try {
-            if (! $this->is_valid_key($key)) {
+            if ( ! $this->is_valid_key($key)) {
                 return false;
             }
 

@@ -29,7 +29,7 @@ use Throwable;
 
 use function wp_unslash;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -219,12 +219,12 @@ class StarmusSchemaMapper
             : $data['session_date'];
 
             // Geolocation (Used by Sanitizer to generate _starmus_geolocation)
-            if (! empty($data['geolocation'])) {
+            if ( ! empty($data['geolocation'])) {
                 $mapped['gps_coordinates'] = $data['geolocation'];
             }
 
             // JSON Blobs (Safely handled)
-            if (! empty($data['_starmus_env'])) {
+            if ( ! empty($data['_starmus_env'])) {
                 $mapped['environment_data'] = self::ensure_json_string($data['_starmus_env'], 'environment_data');
 
                 // Extract Fingerprint
@@ -234,32 +234,32 @@ class StarmusSchemaMapper
                 }
             }
 
-            if (! empty($data['waveform_json'])) {
+            if ( ! empty($data['waveform_json'])) {
                 $mapped['waveform_json'] = self::ensure_json_string($data['waveform_json'], 'waveform_json');
             }
 
-            if (! empty($data['_starmus_calibration'])) {
+            if ( ! empty($data['_starmus_calibration'])) {
                 $mapped['transcriber'] = self::ensure_json_string($data['_starmus_calibration'], 'transcriber');
             }
 
             // Agreement Logic
-            if (! empty($data['agreement'])) {
+            if ( ! empty($data['agreement'])) {
                 $mapped['agreement_to_terms_toggle'] = 1;
                 $mapped['agreement_datetime']        = date('Y-m-d H:i:s');
             }
 
             // IP Address
-            if (! empty($data['ip_address'])) {
+            if ( ! empty($data['ip_address'])) {
                 $mapped['submission_ip']  = $data['ip_address'];
                 $mapped['contributor_ip'] = $data['ip_address'];
             }
 
             // Taxonomies (Used by Sanitizer to generate _starmus_language/dialect)
-            if (! empty($data['language'])) {
+            if ( ! empty($data['language'])) {
                 $mapped['language'] = (int) $data['language'];
             }
 
-            if (! empty($data['dialect'])) {
+            if ( ! empty($data['dialect'])) {
                 $mapped['dialect'] = (int) $data['dialect'];
             }
 

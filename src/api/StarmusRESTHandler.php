@@ -77,7 +77,7 @@ namespace Starisian\Sparxstar\Starmus\api;
 
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -379,7 +379,7 @@ final class StarmusRESTHandler
 
             // Defensive file-key handling
             $file = $files['audio_file'] ?? ($files['file'] ?? null);
-            if (! $file || ! \is_array($file) || empty($file['tmp_name'])) {
+            if ( ! $file || ! \is_array($file) || empty($file['tmp_name'])) {
                 return new WP_REST_Response(
                     [ // Explicit Response object for errors
                      'code'    => 'server_error',
@@ -411,7 +411,7 @@ final class StarmusRESTHandler
             do_action(
                 'starmus_submission_complete',
                 $submission_data['attachment_id'] ?? 0,
-                $submission_data['post_id']       ?? 0
+                $submission_data['post_id'] ?? 0
             );
 
             return new WP_REST_Response(
@@ -532,7 +532,7 @@ final class StarmusRESTHandler
 
         try {
             $post_info = $this->dal->get_post_info($post_id);
-            if (! $post_info) {
+            if ( ! $post_info) {
                 return new WP_REST_Response(
                     [
                   'code'    => 'not_found',

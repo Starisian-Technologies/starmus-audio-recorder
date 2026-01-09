@@ -9,7 +9,7 @@ use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
@@ -59,7 +59,7 @@ class StarmusProsodyPlayer
             return;
         }
 
-        if (! class_exists(StarmusProsodyDAL::class)) {
+        if ( ! class_exists(StarmusProsodyDAL::class)) {
             StarmusLogger::error('StarmusProsodyDAL class not found');
         }
 
@@ -107,7 +107,7 @@ class StarmusProsodyPlayer
             $args = shortcode_atts(
                 [
             'id' => get_the_ID(),
-            ],
+                ],
                 $atts
             );
 
@@ -220,7 +220,7 @@ class StarmusProsodyPlayer
             }
 
             $post = get_post($script_id);
-            if (! $post || $post->post_type !== 'starmus-script') {
+            if ( ! $post || $post->post_type !== 'starmus-script') {
                 return '';
             }
 
@@ -250,7 +250,7 @@ class StarmusProsodyPlayer
                     // Or native attachment if post_mime_type is audio.
                     // Let's check get_attached_media.
                     $media = get_attached_media('audio', $rec_id);
-                    if (! empty($media)) {
+                    if ( ! empty($media)) {
                         $audio_url = wp_get_attachment_url(reset($media)->ID);
                     }
                 }
@@ -381,11 +381,11 @@ class StarmusProsodyPlayer
             $pace    = (int) $_POST['pace_ms'];
             $nonce   = $_POST['nonce'];
 
-            if (! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
+            if ( ! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
                 wp_send_json_error('Security check failed');
             }
 
-            if (! current_user_can('edit_post', $post_id)) {
+            if ( ! current_user_can('edit_post', $post_id)) {
                 wp_send_json_error('Permission denied');
             }
 

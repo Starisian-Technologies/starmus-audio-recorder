@@ -1,12 +1,13 @@
 <?php
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\services;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -64,7 +65,7 @@ final class StarmusAudioPipeline
             $upload_dir = wp_upload_dir();
             $output_dir = $upload_dir['path'] . '/starmus_processed';
 
-            if (! is_dir($output_dir)) {
+            if ( ! is_dir($output_dir)) {
                 wp_mkdir_p($output_dir);
             }
 
@@ -100,7 +101,7 @@ final class StarmusAudioPipeline
 
             // Replacing Step 3 entirely with R2 Service Integration
             $r2_results = $this->r2_service->processAfricaAudio($file_path, $post_id);
-            if (! empty($r2_results) && ! isset($r2_results['message'])) {
+            if ( ! empty($r2_results) && ! isset($r2_results['message'])) {
                 $results['web_versions'] = $r2_results;
             } else {
                 // Fallback or non-applicable file workflow (keep existing behavior but cleanup)
@@ -115,16 +116,16 @@ final class StarmusAudioPipeline
             // 5. Preview clip generation delegated to Cron Pipeline (StarmusAfricaBandwidthService)
 
             StarmusLogger::info(
-                'Processing completed',
-                [
+            'Processing completed',
+            [
             'component' => self::class,
             'post_id'   => $post_id,
             ]
             );
         } catch (Throwable $throwable) {
             StarmusLogger::log(
-                $throwable,
-                [
+            $throwable,
+            [
             'component' => self::class,
             'post_id'   => $post_id,
             'file_path' => $file_path,
@@ -140,18 +141,18 @@ final class StarmusAudioPipeline
      */
     private function extractKeyMetadata(array $analysis): array
     {
-        $audio    = $analysis['audio']    ?? [];
+        $audio    = $analysis['audio'] ?? [];
         $comments = $analysis['comments'] ?? [];
 
         return [
-        'format'       => $analysis['fileformat']    ?? 'unknown',
+        'format'       => $analysis['fileformat'] ?? 'unknown',
         'duration'     => $audio['playtime_seconds'] ?? 0,
-        'bitrate'      => $audio['bitrate']          ?? 0,
-        'sample_rate'  => $audio['sample_rate']      ?? 0,
-        'channels'     => $audio['channels']         ?? 0,
-        'file_size'    => $analysis['filesize']      ?? 0,
-        'title'        => $comments['title'][0]      ?? '',
-        'artist'       => $comments['artist'][0]     ?? '',
+        'bitrate'      => $audio['bitrate'] ?? 0,
+        'sample_rate'  => $audio['sample_rate'] ?? 0,
+        'channels'     => $audio['channels'] ?? 0,
+        'file_size'    => $analysis['filesize'] ?? 0,
+        'title'        => $comments['title'][0] ?? '',
+        'artist'       => $comments['artist'][0] ?? '',
         'quality_tier' => $this->assessQuality($audio),
         ];
     }
@@ -184,15 +185,15 @@ final class StarmusAudioPipeline
     {
         $parts = [];
 
-        if (! empty($form_data['description'])) {
+        if ( ! empty($form_data['description'])) {
             $parts[] = $form_data['description'];
         }
 
-        if (! empty($form_data['location'])) {
+        if ( ! empty($form_data['location'])) {
             $parts[] = 'Recorded in: ' . $form_data['location'];
         }
 
-        if (! empty($form_data['recording_type'])) {
+        if ( ! empty($form_data['recording_type'])) {
             $parts[] = 'Type: ' . $form_data['recording_type'];
         }
 
@@ -204,7 +205,7 @@ final class StarmusAudioPipeline
      */
     private function assessQuality(array $audio): string
     {
-        $bitrate     = $audio['bitrate']     ?? 0;
+        $bitrate     = $audio['bitrate'] ?? 0;
         $sample_rate = $audio['sample_rate'] ?? 0;
 
         if ($bitrate >= 256000 && $sample_rate >= 44100) {
@@ -223,13 +224,13 @@ final class StarmusAudioPipeline
      *
      * Add this to your save_all_metadata method:
      */
-    public function starmus_process_audio_pipeline(int $post_id, int $attachment_id, array $form_data = null): void
+    public function starmus_process_audio_pipeline(int $post_id, int $attachment_id, ?array $form_data = null): bool
     {
         try {
             $file_path = get_attached_file($attachment_id);
 
             if ($file_path && file_exists($file_path)) {
-                $results = $this->processUploadedAudio($file_path, $form_data, $post_id);
+                $results = $this->processUploadedAudio($file_path, $form_data ?? [], $post_id);
 
                 // Store results in post meta
                 update_post_meta($post_id, '_starmus_audio_analysis', $results['original_analysis']);
@@ -239,9 +240,15 @@ final class StarmusAudioPipeline
                 if ($results['preview_file']) {
                     update_post_meta($post_id, '_starmus_preview_file', $results['preview_file']);
                 }
+
+                return true;
             }
+
+            return false;
         } catch (\Throwable $throwable) {
             StarmusLogger::log($throwable);
+
+            return false;
         }
     }
 }

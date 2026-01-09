@@ -11,7 +11,7 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -119,7 +119,7 @@ class StarmusTusdHookHandler
          ],
         ],
         ],
-        ]
+            ]
         );
     }
 
@@ -181,7 +181,7 @@ class StarmusTusdHookHandler
                     [
                 'component'  => self::class,
                 'event_type' => $event_type,
-                ]
+                    ]
                 );
             }
 
@@ -321,13 +321,13 @@ class StarmusTusdHookHandler
             $normalized_info_path = wp_normalize_path($info_path);
 
             if (file_exists($normalized_info_path) && str_starts_with($normalized_info_path, $basedir)) {
-                if (! unlink($normalized_info_path)) {
+                if ( ! unlink($normalized_info_path)) {
                     StarmusLogger::warning(
                         'Failed to delete temp info file',
                         [
                     'component' => self::class,
                     'path'      => $normalized_info_path,
-                    ]
+                        ]
                     );
                 }
             } elseif (file_exists($normalized_info_path)) {
@@ -336,7 +336,7 @@ class StarmusTusdHookHandler
                     [
                 'component' => self::class,
                 'path'      => $normalized_info_path,
-                ]
+                    ]
                 );
             }
         } catch (Throwable $throwable) {
@@ -406,7 +406,7 @@ class StarmusTusdHookHandler
                 return new WP_Error('unauthorized', 'Missing secret header.', ['status' => 403]);
             }
 
-            if (! hash_equals($expected_secret, $provided_secret)) {
+            if ( ! hash_equals($expected_secret, $provided_secret)) {
                 return new WP_Error('unauthorized', 'Invalid secret.', ['status' => 403]);
             }
         } catch (Throwable $throwable) {

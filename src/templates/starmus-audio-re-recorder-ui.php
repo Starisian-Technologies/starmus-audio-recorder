@@ -5,7 +5,7 @@
  *
  * @version 1.0.2-DATA-SAFE
  */
-if (! defined('ABSPATH')) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 
@@ -48,15 +48,15 @@ $data_policy_url ??= '';
 			<input type="hidden" name="starmus_dc_creator" value="<?php echo esc_attr($existing_title); ?>">
 			<input type="hidden" name="audio_file_type" value="audio/webm">
 
-			<?php if (! empty($existing_language)) { ?>
+			<?php if ( ! empty($existing_language)) { ?>
 				<input type="hidden" name="starmus_tax_language" value="<?php echo esc_attr((string) $existing_language); ?>">
 			<?php } ?>
 
-			<?php if (! empty($existing_type)) { ?>
+			<?php if ( ! empty($existing_type)) { ?>
 				<input type="hidden" name="starmus_story_type" value="<?php echo esc_attr((string) $existing_type); ?>">
 			<?php } ?>
 
-			<?php if (! empty($existing_dialect)) { ?>
+			<?php if ( ! empty($existing_dialect)) { ?>
 				<input type="hidden" name="starmus_tax_dialect" value="<?php echo esc_attr((string) $existing_dialect); ?>">
 			<?php } ?>
 

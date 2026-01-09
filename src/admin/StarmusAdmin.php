@@ -14,7 +14,7 @@ namespace Starisian\Sparxstar\Starmus\admin;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     return;
 }
 
@@ -158,7 +158,7 @@ class StarmusAdmin
     public function render_settings_page(): void
     {
         try {
-            if (! current_user_can('manage_options')) {
+            if ( ! current_user_can('manage_options')) {
                 wp_die(__('You do not have sufficient permissions.', 'starmus-audio-recorder'));
             }
             ?>
@@ -240,7 +240,7 @@ class StarmusAdmin
 
             // Allowed file types
             $file_types = sanitize_text_field($input['allowed_file_types'] ?? '');
-            if (! empty($file_types)) {
+            if ( ! empty($file_types)) {
                 $types                           = array_map(trim(...), explode(',', $file_types));
                 $types                           = array_filter($types, $this->is_valid_file_extension(...));
                 $sanitized['allowed_file_types'] = implode(',', $types);
@@ -250,7 +250,7 @@ class StarmusAdmin
 
             // Allowed languages
             $allowed_langs = sanitize_text_field($input['allowed_languages'] ?? '');
-            if (! empty($allowed_langs)) {
+            if ( ! empty($allowed_langs)) {
                 $langs = array_map(trim(...), explode(',', $allowed_langs));
                 $langs = array_filter(
                     $langs,
@@ -290,7 +290,7 @@ class StarmusAdmin
                 $slug_input = sanitize_text_field($input[$key] ?? '');
                 $page_id    = 0;
 
-                if (! empty($slug_input)) {
+                if ( ! empty($slug_input)) {
                     $page_id = $this->dal->get_page_id_by_slug($slug_input);
                     if ($page_id <= 0) {
                         add_settings_error(
@@ -458,7 +458,7 @@ class StarmusAdmin
                         [
                 'id'   => $id,
                 'type' => $this->field_types[$id] ?? 'text',
-                ],
+                        ],
                         $field
                     )
                 );
@@ -544,7 +544,7 @@ class StarmusAdmin
                     'selected'          => esc_attr($value),
                     'show_option_none'  => esc_html__('— Select a Page —', 'starmus-audio-recorder'),
                     'option_none_value' => '0',
-                    ]
+                        ]
                     );
                     break;
 
@@ -572,7 +572,7 @@ class StarmusAdmin
                     break;
             }
 
-            if (! empty($args['description'])) {
+            if ( ! empty($args['description'])) {
                 printf(
                     '<p class="description">%s</p>',
                     wp_kses($args['description'], ['strong' => []])

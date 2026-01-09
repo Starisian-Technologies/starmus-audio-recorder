@@ -6,7 +6,8 @@
   "require": {
     "php": "^8.2",
     "james-heinrich/getid3": "^1.9",
-    "wpackagist-plugin/secure-custom-fields": "^6.8"
+    "wpackagist-plugin/secure-custom-fields": "^6.8",
+    "aws/aws-sdk-php": "^3.369"
   },
   "autoload": {
     "psr-4": {
