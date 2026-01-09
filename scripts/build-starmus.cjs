@@ -11,14 +11,22 @@ if (files.length === 0) {
 
 console.log('🔨 Generating file hashes...');
 
-files.forEach(file => {
+const hashes = [];
+
+files.forEach((file) => {
   if (fs.existsSync(file)) {
     const content = fs.readFileSync(file);
     const hash = crypto.createHash('md5').update(content).digest('hex').substring(0, 8);
-    console.log(`✅ ${path.basename(file)}: ${hash}`);
+    const output = `${path.basename(file)}: ${hash}`;
+    console.log(`✅ ${output}`);
+    hashes.push(output);
   } else {
     console.log(`❌ File not found: ${file}`);
   }
 });
+
+const hashFilePath = path.join(process.cwd(), 'assets', 'build-hash.txt');
+fs.writeFileSync(hashFilePath, hashes.join('\n'));
+console.log(`💾 Hashes saved to ${hashFilePath}`);
 
 console.log('🎉 Hash generation complete!');

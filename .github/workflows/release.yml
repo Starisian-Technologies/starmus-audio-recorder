@@ -4,7 +4,7 @@ name: Release Code Quality Final Review
 
 on:
   push:
-    tags: ["v*"]
+    tags: ['v*']
 
 permissions:
   contents: write
@@ -62,7 +62,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
+          php-version: '8.3'
           tools: composer:v2
           coverage: none
       - name: Install PHP dependencies (no-dev)
@@ -75,8 +75,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
-          cache: "pnpm"
+          node-version: '18'
+          cache: 'pnpm'
 
       - name: Install JS dependencies
         run: pnpm install --frozen-lockfile
@@ -93,7 +93,7 @@ jobs:
       # Step 9: Build the distributable plugin ZIP file.
       - name: Ensure .distignore exists
         run: test -f .distignore || { echo ".distignore is missing"; exit 1; }
-      
+
       - name: Verify production files are ready
         run: |
           echo "🔍 Verifying production-ready files..."
@@ -103,24 +103,24 @@ jobs:
           test -f assets/css/starmus-audio-recorder-styles.min.css || { echo "❌ Missing bundled CSS"; exit 1; }
           test -f vendor/autoload.php || { echo "❌ Missing Composer autoloader"; exit 1; }
           echo "✅ All production files verified"
-          
+
       - name: Build plugin ZIP
         run: |
           SLUG="starmus-audio-recorder"
           VERSION=${{ env.VERSION }}
           echo "🏗️ Building release ZIP with version $VERSION"
-          
+
           # Verify version was applied to files
           echo "📋 Verifying version numbers in key files:"
-          grep -n "Version:" starmus-audio-recorder.php || echo "⚠️ Plugin header version not found"
-          grep -n "STARMUS_VERSION" starmus-audio-recorder.php || echo "⚠️ Version constant not found"
-          grep -n "\"version\"" package.json || echo "⚠️ Package version not found"
-          
+          grep -n "Version:" starmus-audio-recorder.php || { echo "❌ Plugin header version not found"; exit 1; }
+          grep -n "STARMUS_VERSION" starmus-audio-recorder.php || { echo "❌ Version constant not found"; exit 1; }
+          grep -n "\"version\"" package.json || { echo "❌ Package version not found"; exit 1; }
+
           rm -rf build
           mkdir -p build
           rsync -a --exclude-from=.distignore ./ build/${SLUG}/
           (cd build && zip -r "../${SLUG}-${VERSION}.zip" "${SLUG}")
-          
+
           echo "📦 Release ZIP created: ${SLUG}-${VERSION}.zip"
 
       # NEW STEP: Ensure vendor exists and is packaged

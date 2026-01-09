@@ -1,11 +1,11 @@
-# Security Checks Workflow  
+# Security Checks Workflow
 # Purpose: Monitor production dependencies for security issues
 # Note: Vendor/dev-only issues are logged but don't fail the build
 name: Security Checks
 
 on:
   schedule:
-    - cron: "0 0 * * 0" # every Sunday at midnight UTC
+    - cron: '0 0 * * 0' # every Sunday at midnight UTC
   workflow_dispatch: # allow manual runs
 
 permissions:
@@ -32,10 +32,7 @@ jobs:
       - name: Composer security audit (production only)
         run: |
           echo "🔍 Checking production PHP dependencies for security issues..."
-          composer audit --no-dev --format=table || {
-            echo "ℹ️  Composer found security advisories (may include vendor-only issues)"
-            echo "✅ Production dependencies security check completed"
-          }
+          composer audit --no-dev --format=table
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -52,7 +49,4 @@ jobs:
       - name: pnpm security audit (production only)
         run: |
           echo "🔍 Checking production Node.js dependencies for security issues..."
-          pnpm audit --audit-level=moderate --prod || {
-            echo "ℹ️  pnpm found security advisories (may include transitive dependencies)"  
-            echo "✅ Production dependencies security check completed"
-          }
+          pnpm audit --audit-level=moderate --prod

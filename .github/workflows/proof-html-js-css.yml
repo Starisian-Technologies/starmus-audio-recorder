@@ -37,8 +37,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
-          cache: "pnpm"
+          node-version: '18'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -54,7 +54,8 @@ jobs:
       - name: Proof HTML files
         uses: anishathalye/proof-html@v2
         with:
-          directory: "./src/templates"
+          # Changed from src/templates (which are PHP) to docs (HTML) to avoid false positives/failures.
+          directory: './docs'
 
   ################################################################
   # JOB 2: AUTO-FIXER (The "Helper Bot")
@@ -82,8 +83,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
-          cache: "pnpm"
+          node-version: '18'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -108,9 +109,9 @@ jobs:
       - name: Commit and push fixes (PR only)
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: auto-fix JS/CSS lint issues"
+          commit_message: 'chore: auto-fix JS/CSS lint issues'
           branch: ${{ github.head_ref }}
-          file_pattern: "src/js/**/*.js src/css/**/*.css"
+          file_pattern: 'src/js/**/*.js src/css/**/*.css'
         if: github.event_name == 'pull_request' && steps.check-changes.outputs.changed == 'true'
 
       - name: Upload fixes as artifact (protected branch)

@@ -20,7 +20,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
+          php-version: '8.3'
 
       - name: Cache Composer packages
         uses: actions/cache@v4
@@ -63,9 +63,9 @@ jobs:
       - name: Run static analysis
         run: |
           echo "📊 Checking for remaining linting issues..."
-          pnpm run lint:js || echo "⚠️ JS manual fixes needed"
-          pnpm run lint:css || echo "⚠️ CSS manual fixes needed"
-          composer run analyze || echo "⚠️ PHPStan manual fixes needed"
+          pnpm run lint:js
+          pnpm run lint:css
+          composer run analyze
           echo "✅ Static analysis complete"
 
       - name: Check for auto-fixable changes
@@ -83,7 +83,7 @@ jobs:
       - name: Commit fixes (PR only)
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "style: auto-fix linting issues"
+          commit_message: 'style: auto-fix linting issues'
           branch: ${{ github.head_ref }}
         if: github.event_name == 'pull_request' && steps.check-changes.outputs.changed == 'true'
 
