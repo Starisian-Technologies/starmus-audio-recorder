@@ -1,4 +1,5 @@
 <?php
+
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 use function class_exists;
@@ -9,7 +10,7 @@ use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
@@ -59,7 +60,7 @@ class StarmusProsodyPlayer
             return;
         }
 
-        if ( ! class_exists(StarmusProsodyDAL::class)) {
+        if (! class_exists(StarmusProsodyDAL::class)) {
             StarmusLogger::error('StarmusProsodyDAL class not found');
         }
 
@@ -106,7 +107,7 @@ class StarmusProsodyPlayer
         try {
             $args = shortcode_atts(
                 [
-            'id' => get_the_ID(),
+                    'id' => get_the_ID(),
                 ],
                 $atts
             );
@@ -126,7 +127,7 @@ class StarmusProsodyPlayer
             $data = $this->dal->get_script_payload($post_id);
 
             if ($data === []) {
-                return '<div class="prosody-error">Error: Script data not found.</div>';
+                return '<div class="prosody-error">' . esc_html__('Error: Script data not found.', 'starmus-audio-recorder') . '</div>';
             }
 
             // Load Assets
@@ -155,45 +156,45 @@ class StarmusProsodyPlayer
                 echo 'console.log("Starmus Prosody: Data Injected Directly");';
                 echo '</script>';
             }
-            ?>
-			<div id="cognitive-regulator">
-				<!-- CALIBRATION LAYER -->
-				<div id="calibration-layer">
-					<button type="button" class="tap-zone" id="btn-tap" aria-label="Tap to set rhythm">
-						<div class="tap-icon" aria-hidden="true">👆</div>
-						<div class="tap-label">TAP RHYTHM</div>
-						<div class="tap-sub">Spacebar or Click to set pace</div>
-					</button>
-					<div class="tap-feedback" id="tap-feedback" role="status" aria-live="polite">...</div>
-				</div>
+?>
+            <div id="cognitive-regulator">
+                <!-- CALIBRATION LAYER -->
+                <div id="calibration-layer">
+                    <button type="button" class="tap-zone" id="btn-tap" aria-label="<?php echo esc_attr__('Tap to set rhythm', 'starmus-audio-recorder'); ?>">
+                        <div class="tap-icon" aria-hidden="true">👆</div>
+                        <div class="tap-label"><?php esc_html_e('TAP RHYTHM', 'starmus-audio-recorder'); ?></div>
+                        <div class="tap-sub"><?php esc_html_e('Spacebar or Click to set pace', 'starmus-audio-recorder'); ?></div>
+                    </button>
+                    <div class="tap-feedback" id="tap-feedback" role="status" aria-live="polite">...</div>
+                </div>
 
-				<!-- THE STAGE -->
-				<div id="scaffold-stage" class="hidden">
-					<div id="text-flow"></div>
-					<div class="spacer"></div>
-				</div>
+                <!-- THE STAGE -->
+                <div id="scaffold-stage" class="hidden">
+                    <div id="text-flow"></div>
+                    <div class="spacer"></div>
+                </div>
 
-				<!-- CONTROLS -->
-				<div class="control-deck hidden" id="main-controls">
-					<div class="btn-group">
-						<button id="btn-engage" class="neutral-btn">
-							<span class="icon" aria-hidden="true">▶</span> <span class="label">TEST FLOW</span>
-						</button>
-						<button id="btn-top" class="neutral-btn" title="Return to Top" style="margin-left: 8px;" aria-label="Return to Top">
-							<span class="icon" aria-hidden="true">⬆</span>
-						</button>
-					</div>
+                <!-- CONTROLS -->
+                <div class="control-deck hidden" id="main-controls">
+                    <div class="btn-group">
+                        <button id="btn-engage" class="neutral-btn">
+                            <span class="icon" aria-hidden="true">▶</span> <span class="label"><?php esc_html_e('TEST FLOW', 'starmus-audio-recorder'); ?></span>
+                        </button>
+                        <button id="btn-top" class="neutral-btn" title="<?php echo esc_attr__('Return to Top', 'starmus-audio-recorder'); ?>" style="margin-left: 8px;" aria-label="<?php echo esc_attr__('Return to Top', 'starmus-audio-recorder'); ?>">
+                            <span class="icon" aria-hidden="true">⬆</span>
+                        </button>
+                    </div>
 
-					<div class="fader-group">
-						<span class="fader-label" id="lbl-anxiety">Anxiety</span>
-						<input type="range" id="pace-regulator" min="1000" max="6000" step="50" aria-labelledby="lbl-anxiety lbl-fatigue">
-						<span class="fader-label" id="lbl-fatigue">Fatigue</span>
-					</div>
+                    <div class="fader-group">
+                        <span class="fader-label" id="lbl-anxiety"><?php esc_html_e('Anxiety', 'starmus-audio-recorder'); ?></span>
+                        <input type="range" id="pace-regulator" min="1000" max="6000" step="50" aria-labelledby="lbl-anxiety lbl-fatigue">
+                        <span class="fader-label" id="lbl-fatigue"><?php esc_html_e('Fatigue', 'starmus-audio-recorder'); ?></span>
+                    </div>
 
-					<button id="btn-recal" class="secondary-text-btn" title="Reset Rhythm" aria-label="Reset Rhythm">[ Re-Tap ]</button>
-				</div>
-			</div>
-            <?php
+                    <button id="btn-recal" class="secondary-text-btn" title="<?php echo esc_attr__('Reset Rhythm', 'starmus-audio-recorder'); ?>" aria-label="<?php echo esc_attr__('Reset Rhythm', 'starmus-audio-recorder'); ?>"><?php esc_html_e('[ Re-Tap ]', 'starmus-audio-recorder'); ?></button>
+                </div>
+            </div>
+        <?php
             return ob_get_clean();
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -220,7 +221,7 @@ class StarmusProsodyPlayer
             }
 
             $post = get_post($script_id);
-            if ( ! $post || $post->post_type !== 'starmus-script') {
+            if (! $post || $post->post_type !== 'starmus-script') {
                 return '';
             }
 
@@ -233,11 +234,11 @@ class StarmusProsodyPlayer
 
             if (is_user_logged_in()) {
                 $q = new \WP_Query([
-                'post_type'      => 'audio-recording',
-                'author'         => get_current_user_id(),
-                'title'          => $post->post_title, // Matching by title as established
-                'posts_per_page' => 1,
-                'post_status'    => 'publish',
+                    'post_type'      => 'audio-recording',
+                    'author'         => get_current_user_id(),
+                    'title'          => $post->post_title, // Matching by title as established
+                    'posts_per_page' => 1,
+                    'post_status'    => 'publish',
                 ]);
 
                 if ($q->have_posts()) {
@@ -250,7 +251,7 @@ class StarmusProsodyPlayer
                     // Or native attachment if post_mime_type is audio.
                     // Let's check get_attached_media.
                     $media = get_attached_media('audio', $rec_id);
-                    if ( ! empty($media)) {
+                    if (! empty($media)) {
                         $audio_url = wp_get_attachment_url(reset($media)->ID);
                     }
                 }
@@ -263,105 +264,105 @@ class StarmusProsodyPlayer
 
             // 4. Determine State
             $has_audio    = ! empty($audio_url);
-            $action_label = $has_audio ? __('Re-Record Script', 'starmus') : __('Record Script', 'starmus');
+            $action_label = $has_audio ? __('Re-Record Script', 'starmus-audio-recorder') : __('Record Script', 'starmus-audio-recorder');
             $status_class = $has_audio ? 'starmus-status-complete' : 'starmus-status-pending';
 
             ob_start();
-            ?>
-			<div class="starmus-script-card <?php echo esc_attr($status_class); ?>">
-				<div class="starmus-card-header">
-					<h3 class="starmus-card-title"><?php echo esc_html($post->post_title); ?></h3>
-            <?php if ($has_audio) { ?>
-						<span class="starmus-badge success">Recorded</span>
-					<?php } ?>
-				</div>
+        ?>
+            <div class="starmus-script-card <?php echo esc_attr($status_class); ?>">
+                <div class="starmus-card-header">
+                    <h3 class="starmus-card-title"><?php echo esc_html($post->post_title); ?></h3>
+                    <?php if ($has_audio) { ?>
+                        <span class="starmus-badge success"><?php esc_html_e('Recorded', 'starmus-audio-recorder'); ?></span>
+                    <?php } ?>
+                </div>
 
-				<div class="starmus-card-body">
-					<div class="starmus-script-excerpt">
-            <?php echo wp_kses_post($excerpt); ?>
-					</div>
+                <div class="starmus-card-body">
+                    <div class="starmus-script-excerpt">
+                        <?php echo wp_kses_post($excerpt); ?>
+                    </div>
 
-            <?php if ($has_audio) { ?>
-						<div class="starmus-audio-preview">
-							<audio controls src="<?php echo esc_url($audio_url); ?>" class="starmus-simple-player"></audio>
-						</div>
-					<?php } ?>
-				</div>
+                    <?php if ($has_audio) { ?>
+                        <div class="starmus-audio-preview">
+                            <audio controls src="<?php echo esc_url($audio_url); ?>" class="starmus-simple-player"></audio>
+                        </div>
+                    <?php } ?>
+                </div>
 
-				<div class="starmus-card-footer">
-					<a href="<?php echo esc_url($action_url); ?>" class="starmus-btn starmus-btn--primary">
-            <?php echo esc_html($action_label); ?>
-					</a>
-				</div>
-			</div>
-			<style>
-				/* Minimal Card Styles */
-				.starmus-script-card {
-					background: #fff;
-					border: 1px solid #e2e8f0;
-					border-radius: 8px;
-					padding: 1.5rem;
-					margin-bottom: 1.5rem;
-					box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-				}
+                <div class="starmus-card-footer">
+                    <a href="<?php echo esc_url($action_url); ?>" class="starmus-btn starmus-btn--primary">
+                        <?php echo esc_html($action_label); ?>
+                    </a>
+                </div>
+            </div>
+            <style>
+                /* Minimal Card Styles */
+                .starmus-script-card {
+                    background: #fff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    padding: 1.5rem;
+                    margin-bottom: 1.5rem;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                }
 
-				.starmus-card-header {
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-					margin-bottom: 1rem;
-				}
+                .starmus-card-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1rem;
+                }
 
-				.starmus-card-title {
-					margin: 0;
-					font-size: 1.25rem;
-				}
+                .starmus-card-title {
+                    margin: 0;
+                    font-size: 1.25rem;
+                }
 
-				.starmus-script-excerpt {
-					color: #4a5568;
-					margin-bottom: 1.5rem;
-					font-style: italic;
-					border-left: 3px solid #cbd5e0;
-					padding-left: 1rem;
-				}
+                .starmus-script-excerpt {
+                    color: #4a5568;
+                    margin-bottom: 1.5rem;
+                    font-style: italic;
+                    border-left: 3px solid #cbd5e0;
+                    padding-left: 1rem;
+                }
 
-				.starmus-audio-preview {
-					margin-bottom: 1rem;
-				}
+                .starmus-audio-preview {
+                    margin-bottom: 1rem;
+                }
 
-				.starmus-simple-player {
-					width: 100%;
-				}
+                .starmus-simple-player {
+                    width: 100%;
+                }
 
-				.starmus-btn {
-					display: inline-block;
-					padding: 0.5rem 1rem;
-					background: #3182ce;
-					color: white;
-					text-decoration: none;
-					border-radius: 4px;
-					font-weight: 500;
-				}
+                .starmus-btn {
+                    display: inline-block;
+                    padding: 0.5rem 1rem;
+                    background: #3182ce;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 4px;
+                    font-weight: 500;
+                }
 
-				.starmus-btn:hover {
-					background: #2b6cb0;
-				}
+                .starmus-btn:hover {
+                    background: #2b6cb0;
+                }
 
-				.starmus-badge {
-					background: #c6f6d5;
-					color: #22543d;
-					padding: 0.25rem 0.5rem;
-					border-radius: 99px;
-					font-size: 0.75rem;
-					font-weight: 600;
-					text-transform: uppercase;
-				}
-			</style>
-            <?php
+                .starmus-badge {
+                    background: #c6f6d5;
+                    color: #22543d;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 99px;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                }
+            </style>
+<?php
             return ob_get_clean();
         } catch (Throwable $t) {
             StarmusLogger::log($t);
-            return '<div class="starmus-error">Card Error</div>';
+            return '<div class="starmus-error">' . esc_html__('Card Error', 'starmus-audio-recorder') . '</div>';
         }
     }
 
@@ -374,25 +375,25 @@ class StarmusProsodyPlayer
         try {
             // Ensure it's a POST request
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                wp_send_json_error('Invalid request method');
+                wp_send_json_error(__('Invalid request method', 'starmus-audio-recorder'));
             }
             // 1. Verify Request
             $post_id = (int) $_POST['post_id'];
             $pace    = (int) $_POST['pace_ms'];
             $nonce   = $_POST['nonce'];
 
-            if ( ! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
-                wp_send_json_error('Security check failed');
+            if (! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
+                wp_send_json_error(__('Security check failed', 'starmus-audio-recorder'));
             }
 
-            if ( ! current_user_can('edit_post', $post_id)) {
-                wp_send_json_error('Permission denied');
+            if (! current_user_can('edit_post', $post_id)) {
+                wp_send_json_error(__('Permission denied', 'starmus-audio-recorder'));
             }
 
             // 2. Perform Save via DAL
             $success = $this->dal->save_calibrated_pace($post_id, $pace);
         } catch (\Throwable $throwable) {
-            wp_send_json_error('An error occurred: ' . $throwable->getMessage());
+            wp_send_json_error(__('An error occurred: ', 'starmus-audio-recorder') . $throwable->getMessage());
             StarmusLogger::log($throwable);
         }
 
@@ -400,7 +401,7 @@ class StarmusProsodyPlayer
             wp_send_json_success(['new_pace' => $pace]);
         } else {
             StarmusLogger::log('Starmus update failed for $post_id=' . $post_id);
-            wp_send_json_error('Update failed');
+            wp_send_json_error(__('Update failed', 'starmus-audio-recorder'));
         }
     }
 }

@@ -4,58 +4,61 @@
          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
 
   <description>
-    Auto-fix ruleset for Starmus Audio Recorder. Focuses on fixable issues (whitespace, formatting, docblocks).
+    Auto-fix ruleset for Starmus Audio Recorder.
+    Fixes whitespace, formatting, and docblocks only.
   </description>
 
-  <!-- Scan all plugin PHP files -->
+  <!-- Scan plugin PHP files -->
   <file>starmus-audio-recorder.php</file>
   <file>uninstall.php</file>
   <file>src/</file>
 
-  <!-- Exclude vendor and build assets -->
+  <!-- Exclusions -->
   <exclude-pattern>vendor/*</exclude-pattern>
   <exclude-pattern>node_modules/*</exclude-pattern>
   <exclude-pattern>tests/*</exclude-pattern>
-  <exclude-pattern>wp-admin/*</exclude-pattern>
-  <exclude-pattern>wp-content/*</exclude-pattern>
-  <exclude-pattern>wordpress-installer/*</exclude-pattern>
+  <exclude-pattern>build/*</exclude-pattern>
 
+  <!-- Runtime -->
   <arg value="p"/>
   <arg name="basepath" value="./"/>
   <arg name="colors"/>
   <arg name="extensions" value="php"/>
   <arg name="parallel" value="8"/>
+  <arg name="cache" value="true"/>
+  <arg name="cache-file" value=".phpcs.cache"/>
 
-  <!-- Installed standards -->
-  <config name="installed_paths" value="../../wp-coding-standards/wpcs,../../automattic/vipwpcs,../../phpcompatibility/php-compatibility,../../phpcompatibility/phpcompatibility-paragonie,../../phpcompatibility/phpcompatibility-wp,../../phpcsstandards/phpcsextra,../../phpcsstandards/phpcsutils,../../sirbrillig/phpcs-variable-analysis"/>
+  <!-- Project baselines -->
+  <config name="testVersion" value="8.2-8.4"/>
+  <config name="minimum_supported_wp_version" value="6.8"/>
+  <config name="tabWidth" value="4"/>
 
-  <!-- Target PHP version -->
-  <config name="testVersion" value="8.2-"/>
-
-  <!-- Core standards -->
+  <!-- WordPress formatting standards -->
   <rule ref="WordPress-Core"/>
   <rule ref="WordPress-Extra"/>
   <rule ref="WordPress-Docs"/>
 
-  <!-- VIP: only apply formatting-type sniffs, disable JS scanning -->
+  <!-- VIP formatting layer only (no JS, no restricted function enforcement) -->
   <rule ref="WordPressVIPMinimum">
     <exclude name="WordPressVIPMinimum.JS"/>
     <exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions"/>
     <exclude name="WordPressVIPMinimum.Constants.RestrictedConstants"/>
   </rule>
 
-  <!-- Naming convention fixes -->
+  <!-- Global naming -->
   <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
     <properties>
       <property name="prefixes" type="array">
         <element value="sparxstar"/>
-        <element value="star"/>
         <element value="starmus"/>
+        <element value="aiwa"/>
+        <element value="aiwacs"/>
+        <element value="starisian"/>
       </property>
     </properties>
   </rule>
 
-  <!-- Text domain formatting -->
+  <!-- Text domain -->
   <rule ref="WordPress.WP.I18n">
     <properties>
       <property name="text_domain" type="array">

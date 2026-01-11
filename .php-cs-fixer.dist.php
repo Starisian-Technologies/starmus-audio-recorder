@@ -21,8 +21,8 @@ return (new PhpCsFixer\Config())
         'no_trailing_whitespace' => true,
         'no_extra_blank_lines' => ['tokens' => ['extra', 'throw', 'use']],
         'align_multiline_comment' => true,
-        'binary_operator_spaces' => ['default' => 'align_single_space_minimal'],
-        'blank_line_after_namespace' => true,
+       'binary_operator_spaces' => ['default' => 'single_space'],
+       'blank_line_after_namespace' => true,
         'blank_line_after_opening_tag' => true,
         'concat_space' => ['spacing' => 'one'],
         'declare_strict_types' => false, // WordPress compat

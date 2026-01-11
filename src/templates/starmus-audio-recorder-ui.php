@@ -13,8 +13,8 @@
  * @version 0.9.2
  */
 
-if (! defined('ABSPATH')) {
-	exit;
+if ( ! defined('ABSPATH')) {
+    exit;
 }
 
 $form_id ??= 'default';
@@ -116,10 +116,10 @@ $data_policy_url ??= '';
 					aria-required="true"
 					required>
 					<option value=""><?php esc_html_e('Select Language', 'starmus-audio-recorder'); ?></option>
-					<?php if (! empty($languages) && is_array($languages)) { ?>
-						<?php foreach ($languages as $lang) { ?>
+					<?php if ( ! empty($languages) && is_array($languages)) { ?>
+            <?php foreach ($languages as $lang) { ?>
 							<option value="<?php echo esc_attr($lang->term_id); ?>">
-								<?php echo esc_html($lang->name); ?>
+                <?php echo esc_html($lang->name); ?>
 							</option>
 						<?php } ?>
 					<?php } ?>
@@ -137,10 +137,10 @@ $data_policy_url ??= '';
 					aria-required="true"
 					required>
 					<option value=""><?php esc_html_e('Select Type', 'starmus-audio-recorder'); ?></option>
-					<?php if (! empty($recording_types) && is_array($recording_types)) { ?>
-						<?php foreach ($recording_types as $type) { ?>
+					<?php if ( ! empty($recording_types) && is_array($recording_types)) { ?>
+            <?php foreach ($recording_types as $type) { ?>
 							<option value="<?php echo esc_attr($type->term_id); ?>">
-								<?php echo esc_html($type->name); ?>
+                <?php echo esc_html($type->name); ?>
 							</option>
 						<?php } ?>
 					<?php } ?>
@@ -163,7 +163,7 @@ $data_policy_url ??= '';
 						required>
 					<label for="starmus_consent_<?php echo esc_attr($instance_id); ?>">
 						<?php echo wp_kses_post($consent_message); ?>
-						<?php if (! empty($data_policy_url)) { ?>
+						<?php if ( ! empty($data_policy_url)) { ?>
 							<a
 								href="<?php echo esc_url($data_policy_url); ?>"
 								target="_blank"
@@ -395,14 +395,14 @@ $data_policy_url ??= '';
 						class="starmus-btn starmus-btn--link"
 						aria-controls="starmus_manual_upload_wrap_<?php echo esc_attr($instance_id); ?>"
 						aria-expanded="false">
-						<?php esc_html_e('Switch to File Upload', 'starmus-audio-recorder'); ?>
+        <?php esc_html_e('Switch to File Upload', 'starmus-audio-recorder'); ?>
 					</button>
 				</div>
 				<div
 					id="starmus_manual_upload_wrap_<?php echo esc_attr($instance_id); ?>"
 					style="display:none;margin-top:12px;">
 					<label for="starmus_manual_upload_input_<?php echo esc_attr($instance_id); ?>">
-						<?php esc_html_e('Select audio file to upload:', 'starmus-audio-recorder'); ?>
+        <?php esc_html_e('Select audio file to upload:', 'starmus-audio-recorder'); ?>
 					</label>
 					<input
 						type="file"
