@@ -176,7 +176,7 @@ try {
 
     // --- 6. Taxonomies ---
     $languages = get_the_terms($post_id, 'language');
-    $rec_types = get_the_terms($post_id, 'recording_type');
+    $rec_types = get_the_terms($post_id, 'starmus_story_type');
 
     // --- 7. Action URLs ---
     $edit_page_slug     = $settings->get('edit_page_id', '');

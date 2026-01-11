@@ -7,9 +7,9 @@
  */
 
 (function (global) {
-  'use strict';
+	'use strict';
 
-  /**
+	/**
    * Default initial state object for new store instances.
    * Defines complete application state schema with all required properties.
    *
@@ -53,55 +53,55 @@
    * @property {number} submission.progress - Upload progress (0.0 to 1.0)
    * @property {boolean} submission.isQueued - Whether submission is queued for offline
    */
-  const DEFAULT_INITIAL_STATE = {
-    instanceId: null,
-    tier: null,
-    status: 'uninitialized',
-    step: 1,
-    error: null,
-    // Schema-compliant Environment Object
-    env: {
-      device: {},
-      browser: {},
-      network: {},
-      identifiers: {},
-      errors: [],
-    },
-    source: {
-      kind: null,
-      blob: null,
-      file: null,
-      fileName: '',
-      transcript: '',
-      interimTranscript: '',
-      // ADDED: Container for technical specs
-      metadata: {
-        duration: 0,
-        mimeType: '',
-        fileSize: 0,
-      },
-    },
-    calibration: {
-      phase: null,
-      message: '',
-      volumePercent: 0,
-      complete: false,
-      gain: 1.0,
-      speechLevel: 0,
-    },
-    recorder: {
-      duration: 0,
-      amplitude: 0,
-      isPlaying: false,
-      isPaused: false,
-    },
-    submission: {
-      progress: 0,
-      isQueued: false,
-    },
-  };
+	const DEFAULT_INITIAL_STATE = {
+		instanceId: null,
+		tier: null,
+		status: 'uninitialized',
+		step: 1,
+		error: null,
+		// Schema-compliant Environment Object
+		env: {
+			device: {},
+			browser: {},
+			network: {},
+			identifiers: {},
+			errors: [],
+		},
+		source: {
+			kind: null,
+			blob: null,
+			file: null,
+			fileName: '',
+			transcript: '',
+			interimTranscript: '',
+			// ADDED: Container for technical specs
+			metadata: {
+				duration: 0,
+				mimeType: '',
+				fileSize: 0,
+			},
+		},
+		calibration: {
+			phase: null,
+			message: '',
+			volumePercent: 0,
+			complete: false,
+			gain: 1.0,
+			speechLevel: 0,
+		},
+		recorder: {
+			duration: 0,
+			amplitude: 0,
+			isPlaying: false,
+			isPaused: false,
+		},
+		submission: {
+			progress: 0,
+			isQueued: false,
+		},
+	};
 
-  /**
+	/**
    * Creates a shallow clone of an object.
    * Only copies enumerable own properties, not nested objects.
    *
@@ -109,17 +109,17 @@
    * @param {Object} obj - Object to clone
    * @returns {Object} Shallow copy of the input object
    */
-  function shallowClone(obj) {
-    const out = {};
-    for (const k in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, k)) {
-        out[k] = obj[k];
-      }
-    }
-    return out;
-  }
+	function shallowClone(obj) {
+		const out = {};
+		for (const k in obj) {
+			if (Object.prototype.hasOwnProperty.call(obj, k)) {
+				out[k] = obj[k];
+			}
+		}
+		return out;
+	}
 
-  /**
+	/**
    * Merges two objects, with properties from b overriding properties from a.
    * Creates a new object without mutating the inputs.
    *
@@ -128,17 +128,17 @@
    * @param {Object} b - Object whose properties will override base
    * @returns {Object} New merged object
    */
-  function merge(a, b) {
-    const out = shallowClone(a);
-    for (const k in b) {
-      if (Object.prototype.hasOwnProperty.call(b, k)) {
-        out[k] = b[k];
-      }
-    }
-    return out;
-  }
+	function merge(a, b) {
+		const out = shallowClone(a);
+		for (const k in b) {
+			if (Object.prototype.hasOwnProperty.call(b, k)) {
+				out[k] = b[k];
+			}
+		}
+		return out;
+	}
 
-  /**
+	/**
    * Redux-style reducer function that handles state transitions.
    * Processes actions and returns new state without mutating the original.
    *
@@ -174,161 +174,161 @@
    * - 'starmus/submit-queued' - Queue submission for offline
    * - 'starmus/reset' - Reset state while preserving instance data
    */
-  function reducer(state, action) {
-    if (!action || !action.type) {
-      return state;
-    }
+	function reducer(state, action) {
+		if (!action || !action.type) {
+			return state;
+		}
 
-    if (!state.instanceId && action.payload && action.payload.instanceId) {
-      state = merge(state, { instanceId: action.payload.instanceId });
-    }
+		if (!state.instanceId && action.payload && action.payload.instanceId) {
+			state = merge(state, { instanceId: action.payload.instanceId });
+		}
 
-    switch (action.type) {
-      case 'starmus/init':
-        return merge(state, merge(action.payload || {}, { status: 'idle', error: null }));
+		switch (action.type) {
+		case 'starmus/init':
+			return merge(state, merge(action.payload || {}, { status: 'idle', error: null }));
 
-      case 'starmus/env-update': {
-        const newEnv = merge(state.env, action.payload || {});
-        if (!newEnv.errors) {
-          newEnv.errors = state.env.errors || [];
-        }
-        return merge(state, { env: newEnv });
-      }
+		case 'starmus/env-update': {
+			const newEnv = merge(state.env, action.payload || {});
+			if (!newEnv.errors) {
+				newEnv.errors = state.env.errors || [];
+			}
+			return merge(state, { env: newEnv });
+		}
 
-      case 'starmus/error': {
-        const errObj = action.error || action.payload;
-        const currentErrors = state.env && state.env.errors ? state.env.errors.slice() : [];
-        currentErrors.push({
-          code: errObj.code || 'RUNTIME_ERROR',
-          message: errObj.message || 'Unknown',
-          timestamp: Date.now(),
-          severity: errObj.retryable === false ? 'hard' : 'soft',
-        });
-        return merge(state, { error: errObj, env: merge(state.env, { errors: currentErrors }) });
-      }
+		case 'starmus/error': {
+			const errObj = action.error || action.payload;
+			const currentErrors = state.env && state.env.errors ? state.env.errors.slice() : [];
+			currentErrors.push({
+				code: errObj.code || 'RUNTIME_ERROR',
+				message: errObj.message || 'Unknown',
+				timestamp: Date.now(),
+				severity: errObj.retryable === false ? 'hard' : 'soft',
+			});
+			return merge(state, { error: errObj, env: merge(state.env, { errors: currentErrors }) });
+		}
 
-      case 'starmus/tier-ready':
-        return merge(state, { tier: action.payload.tier || state.tier });
+		case 'starmus/tier-ready':
+			return merge(state, { tier: action.payload.tier || state.tier });
 
-      case 'starmus/ui/step-continue':
-        return merge(state, { step: 2, status: 'idle', error: null });
+		case 'starmus/ui/step-continue':
+			return merge(state, { step: 2, status: 'idle', error: null });
 
-      case 'starmus/calibration-start':
-        return merge(state, { status: 'calibrating' });
+		case 'starmus/calibration-start':
+			return merge(state, { status: 'calibrating' });
 
-      case 'starmus/calibration-update':
-        return merge(state, {
-          calibration: merge(state.calibration, {
-            message: action.message,
-            volumePercent: action.volumePercent,
-          }),
-        });
+		case 'starmus/calibration-update':
+			return merge(state, {
+				calibration: merge(state.calibration, {
+					message: action.message,
+					volumePercent: action.volumePercent,
+				}),
+			});
 
-      case 'starmus/calibration-complete':
-        return merge(state, {
-          status: 'ready',
-          calibration: merge(
-            state.calibration,
-            merge(action.payload.calibration || {}, { complete: true })
-          ),
-        });
+		case 'starmus/calibration-complete':
+			return merge(state, {
+				status: 'ready',
+				calibration: merge(
+					state.calibration,
+					merge(action.payload.calibration || {}, { complete: true })
+				),
+			});
 
-      case 'starmus/mic-start':
-        return merge(state, {
-          status: 'recording',
-          error: null,
-          recorder: merge(state.recorder, { duration: 0, isPaused: false }),
-        });
+		case 'starmus/mic-start':
+			return merge(state, {
+				status: 'recording',
+				error: null,
+				recorder: merge(state.recorder, { duration: 0, isPaused: false }),
+			});
 
-      case 'starmus/mic-pause':
-        return merge(state, {
-          status: 'paused',
-          recorder: merge(state.recorder, { isPaused: true }),
-        });
+		case 'starmus/mic-pause':
+			return merge(state, {
+				status: 'paused',
+				recorder: merge(state.recorder, { isPaused: true }),
+			});
 
-      case 'starmus/mic-resume':
-        return merge(state, {
-          status: 'recording',
-          recorder: merge(state.recorder, { isPaused: false }),
-        });
+		case 'starmus/mic-resume':
+			return merge(state, {
+				status: 'recording',
+				recorder: merge(state.recorder, { isPaused: false }),
+			});
 
-      case 'starmus/mic-stop':
-        return merge(state, { status: 'ready_to_submit' });
+		case 'starmus/mic-stop':
+			return merge(state, { status: 'ready_to_submit' });
 
-      case 'starmus/recorder-tick':
-        return merge(state, {
-          recorder: merge(state.recorder, {
-            duration: action.duration,
-            amplitude: action.amplitude,
-          }),
-        });
+		case 'starmus/recorder-tick':
+			return merge(state, {
+				recorder: merge(state.recorder, {
+					duration: action.duration,
+					amplitude: action.amplitude,
+				}),
+			});
 
-      // CRITICAL UPDATE: Capture metadata when blob is ready
-      case 'starmus/recording-available':
-        return merge(state, {
-          status: 'ready_to_submit',
-          source: merge(state.source, {
-            kind: 'blob',
-            blob: action.payload.blob,
-            fileName: action.payload.fileName,
-            metadata: {
-              duration: state.recorder.duration || 0,
-              mimeType: action.payload.blob.type || 'audio/webm',
-              fileSize: action.payload.blob.size || 0,
-            },
-          }),
-        });
+			// CRITICAL UPDATE: Capture metadata when blob is ready
+		case 'starmus/recording-available':
+			return merge(state, {
+				status: 'ready_to_submit',
+				source: merge(state.source, {
+					kind: 'blob',
+					blob: action.payload.blob,
+					fileName: action.payload.fileName,
+					metadata: {
+						duration: state.recorder.duration || 0,
+						mimeType: action.payload.blob.type || 'audio/webm',
+						fileSize: action.payload.blob.size || 0,
+					},
+				}),
+			});
 
-      case 'starmus/transcript-update':
-        return merge(state, { source: merge(state.source, { transcript: action.transcript }) });
+		case 'starmus/transcript-update':
+			return merge(state, { source: merge(state.source, { transcript: action.transcript }) });
 
-      case 'starmus/transcript-interim':
-        return merge(state, { source: merge(state.source, { interimTranscript: action.interim }) });
+		case 'starmus/transcript-interim':
+			return merge(state, { source: merge(state.source, { interimTranscript: action.interim }) });
 
-      case 'starmus/file-attached':
-        return merge(state, {
-          status: 'ready_to_submit',
-          source: {
-            kind: 'file',
-            file: action.file,
-            fileName: action.file.name,
-            metadata: {
-              duration: 0, // Cannot know duration of uploaded file easily
-              mimeType: action.file.type,
-              fileSize: action.file.size,
-            },
-          },
-        });
+		case 'starmus/file-attached':
+			return merge(state, {
+				status: 'ready_to_submit',
+				source: {
+					kind: 'file',
+					file: action.file,
+					fileName: action.file.name,
+					metadata: {
+						duration: 0, // Cannot know duration of uploaded file easily
+						mimeType: action.file.type,
+						fileSize: action.file.size,
+					},
+				},
+			});
 
-      case 'starmus/submit-start':
-        return merge(state, { status: 'submitting', error: null });
+		case 'starmus/submit-start':
+			return merge(state, { status: 'submitting', error: null });
 
-      case 'starmus/submit-progress':
-        return merge(state, { submission: merge(state.submission, { progress: action.progress }) });
+		case 'starmus/submit-progress':
+			return merge(state, { submission: merge(state.submission, { progress: action.progress }) });
 
-      case 'starmus/submit-complete':
-        return merge(state, { status: 'complete', submission: { progress: 1, isQueued: false } });
+		case 'starmus/submit-complete':
+			return merge(state, { status: 'complete', submission: { progress: 1, isQueued: false } });
 
-      case 'starmus/submit-queued':
-        return merge(state, {
-          status: 'complete',
-          submission: { progress: 0, isQueued: true },
-        });
+		case 'starmus/submit-queued':
+			return merge(state, {
+				status: 'complete',
+				submission: { progress: 0, isQueued: true },
+			});
 
-      case 'starmus/reset':
-        return merge(shallowClone(DEFAULT_INITIAL_STATE), {
-          instanceId: state.instanceId,
-          env: state.env,
-          tier: state.tier,
-          status: 'idle',
-        });
+		case 'starmus/reset':
+			return merge(shallowClone(DEFAULT_INITIAL_STATE), {
+				instanceId: state.instanceId,
+				env: state.env,
+				tier: state.tier,
+				status: 'idle',
+			});
 
-      default:
-        return state;
-    }
-  }
+		default:
+			return state;
+		}
+	}
 
-  /**
+	/**
    * Creates a new Redux-style store instance.
    * Provides getState, dispatch, and subscribe methods for state management.
    *
@@ -345,63 +345,63 @@
    * store.dispatch({ type: 'starmus/init', payload: { tier: 'A' } });
    * const currentState = store.getState();
    */
-  function createStore(initial) {
-    let state = merge(DEFAULT_INITIAL_STATE, initial || {});
-    const listeners = [];
-    return {
-      /**
+	function createStore(initial) {
+		let state = merge(DEFAULT_INITIAL_STATE, initial || {});
+		const listeners = [];
+		return {
+			/**
        * Returns the current state object.
        * @returns {Object} Current application state
        */
-      getState: function () {
-        return state;
-      },
+			getState: function () {
+				return state;
+			},
 
-      /**
+			/**
        * Dispatches an action to update state.
        * @param {Object} action - Action object with type and optional payload
        */
-      dispatch: function (action) {
-        state = reducer(state, action);
-        for (let i = 0; i < listeners.length; i++) {
-          listeners[i](state);
-        }
-      },
+			dispatch: function (action) {
+				state = reducer(state, action);
+				for (let i = 0; i < listeners.length; i++) {
+					listeners[i](state);
+				}
+			},
 
-      /**
+			/**
        * Subscribes to state changes.
        * @param {function} fn - Callback function to call on state changes
        * @returns {function} Unsubscribe function
        */
-      subscribe: function (fn) {
-        listeners.push(fn);
-        return function () {
-          listeners.splice(listeners.indexOf(fn), 1);
-        };
-      },
-    };
-  }
+			subscribe: function (fn) {
+				listeners.push(fn);
+				return function () {
+					listeners.splice(listeners.indexOf(fn), 1);
+				};
+			},
+		};
+	}
 
-  /**
+	/**
    * Global StarmusStore namespace for browser environments.
    * @global
    * @namespace StarmusStore
    */
-  global.StarmusStore = global.StarmusStore || {};
+	global.StarmusStore = global.StarmusStore || {};
 
-  /**
+	/**
    * Global createStore function reference.
    * @memberof StarmusStore
    * @type {function}
    */
-  global.StarmusStore.createStore = createStore;
+	global.StarmusStore.createStore = createStore;
 
-  /**
+	/**
    * CommonJS module export for Node.js environments.
    */
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { createStore: createStore };
-  }
+	if (typeof module !== 'undefined' && module.exports) {
+		module.exports = { createStore: createStore };
+	}
 })(typeof window !== 'undefined' ? window : globalThis);
 
 /**
@@ -421,5 +421,5 @@ const runtimeGlobal = typeof window !== 'undefined' ? window : globalThis;
  * @returns {Object} Store instance with state management methods
  */
 export function createStore(initial) {
-  return runtimeGlobal.StarmusStore.createStore(initial);
+	return runtimeGlobal.StarmusStore.createStore(initial);
 }

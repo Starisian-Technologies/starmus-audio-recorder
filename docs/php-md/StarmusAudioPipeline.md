@@ -26,11 +26,14 @@ final class StarmusAudioPipeline
 
     private ?StarmusFFmpegService $ffmpeg_service = null;
 
+    private ?StarmusR2DirectService $r2_service = null;
+
     public function __construct()
     {
         try {
             $this->id3_service    = new StarmusEnhancedId3Service();
             $this->ffmpeg_service = new StarmusFFmpegService($this->id3_service);
+            $this->r2_service     = new StarmusR2DirectService($this->id3_service);
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
@@ -38,6 +41,13 @@ final class StarmusAudioPipeline
 
     /**
 Process uploaded audio file - call this from your submission handler
+
+### `starmus_process_audio_pipeline()`
+
+**Visibility:** `public`
+
+Integration hook for StarmusSubmissionHandler
+Add this to your save_all_metadata method:
 
 ---
 

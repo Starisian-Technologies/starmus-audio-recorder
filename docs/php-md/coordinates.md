@@ -9,7 +9,11 @@
 STARISIAN TECHNOLOGIES CONFIDENTIAL
 © 2023–2026 Starisian Technologies. All Rights Reserved.
 Main bootstrapper for the Starmus Audio Recorder plugin lifecycle.
+@file	  StarmusAudioRecorder.php
 @package   Starisian\Sparxstar\Starmus
+@author 	  Starisian Technologies (Max Barrett) <support@starisian.com>
+@license   Starisian Technologies Proprietary License (STPD). See LICENSE.md.
+@copyright Copyright (c) 2023-2026 Starisian Technologies. All rights reserved.
 @since     0.1.0
 @version   1.2.3
 
@@ -66,6 +70,12 @@ access while preserving the singleton DAL contract.
 
 Retrieve the active Prosody DAL implementation.
 @since 1.2.0
+
+### `getSettings()`
+
+**Visibility:** `public`
+
+Compile audio description from form data.
 
 ### `displayRuntimeErrorNotice()`
 

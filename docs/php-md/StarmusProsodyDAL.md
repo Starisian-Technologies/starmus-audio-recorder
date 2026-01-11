@@ -61,6 +61,11 @@ Kept identical to legacy for backward compatibility.
     'low'     => 1.2,  // Slower (Higher ms/line)
     ];
 
+    public function __construct()
+    {
+        // do nothing.
+    }
+
     // --- PROSODY SPECIFIC OPERATIONS ---
 
     /**

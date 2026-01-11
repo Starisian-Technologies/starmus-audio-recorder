@@ -27,6 +27,15 @@ Usage: [prosody_reader] (uses current post) OR [prosody_reader id="123"]
 @param array $atts Shortcode attributes
 @return string HTML Output
 
+### `render_script_card()`
+
+**Visibility:** `public`
+
+Renders a preview card for a Script.
+Shows excerpt, audio player (if valid recording exists), and proper CTA.
+@param array $atts
+@return string
+
 ### `handle_ajax_save()`
 
 **Visibility:** `public`

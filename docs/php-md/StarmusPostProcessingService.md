@@ -102,11 +102,11 @@ WordPress Integration:
 /
 final readonly class StarmusPostProcessingService
 {
-    public const STATE_PROCESSING  = 'processing';
+    public const STATE_PROCESSING = 'processing';
 
-    public const STATE_WAVEFORM    = 'waveform';
+    public const STATE_WAVEFORM = 'waveform';
 
-    public const STATE_COMPLETED   = 'completed';
+    public const STATE_COMPLETED = 'completed';
 
     public const STATE_ERR_UNKNOWN = 'error_unknown';
 
@@ -114,7 +114,7 @@ final readonly class StarmusPostProcessingService
 Data Access Layer for WordPress operations.
 @since 1.0.0
 /
-    private IStarmusAudioDAL $dal;
+    private StarmusAudioDAL $dal;
 
     /**
 Waveform generation service for visualization data.

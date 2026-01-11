@@ -30,16 +30,17 @@ so it can be recovered manually.
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\data;
 
+use function current_time;
+use function get_field;
+use function get_post;
+use function get_post_meta;
+
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusBaseDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
-use function current_time;
+
 use function update_field;
 use function update_post_meta;
-use function get_field;
-use function get_post_meta;
-use function get_post;
-
 
 if ( ! \defined('ABSPATH')) {
     exit;
@@ -47,6 +48,10 @@ if ( ! \defined('ABSPATH')) {
 
 abstract class StarmusBaseDAL implements IStarmusBaseDAL
 {
+    public function __construct()
+    {
+        // do nothing.
+    }
     // --- META OPERATIONS ---
 
     /**

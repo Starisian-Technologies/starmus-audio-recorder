@@ -7,7 +7,7 @@
 ## Description
 
 Front-end presentation layer for the Starmus recorder experience.
-@package   Starmus
+@package   Starisian\Sparxstar\Starmus\frontend
 
 ## Methods
 
@@ -16,8 +16,9 @@ Front-end presentation layer for the Starmus recorder experience.
 **Visibility:** `public`
 
 Front-end presentation layer for the Starmus recorder experience.
-@package   Starmus
+@package   Starisian\Sparxstar\Starmus\frontend
 /
+
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 use Throwable;

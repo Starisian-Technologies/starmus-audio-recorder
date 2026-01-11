@@ -30,27 +30,19 @@ Ensures 1:1 data mapping for all unique fields.
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\data\mappers;
 
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
-use Throwable;
+use function date;
 use function get_current_user_id;
 use function json_decode;
 use function json_encode;
 use function json_last_error;
 use function json_last_error_msg;
 use function sanitize_text_field;
-use function date;
-use function sprintf;
-use function in_array;
-use function is_array;
-use function is_string;
-use function is_numeric;
-use function explode;
-use function trim;
-use function array_unique;
-use function array_merge;
+
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Throwable;
+
 use function wp_unslash;
-use function wp_strip_all_tags;
 
 if ( ! \defined('ABSPATH')) {
     exit;
@@ -104,17 +96,17 @@ but are listed here for completeness.
 /
     private const FIELD_MAP = [
         // -- Core Archival --
-        'global_uuid'               => 'starmus_global_uuid',
-        'stable_uri'                => 'starmus_stable_uri',
-        'linked_data_uri'           => 'starmus_linked_data_uri',
-        'dc_rights_type'            => 'starmus_rights_type',
-        'dc_rights'                 => 'starmus_rights_use',
-        'dc_rights_geo'             => 'starmus_rights_geo',
-        'dc_rights_royalty'         => 'starmus_rights_royalty',
-        'data_sensitivity_level'    => 'starmus_data_sensitivity',
-        'anonymization_status'      => 'starmus_anon_status',
-        'consent_scope'             => 'starmus_consent_scope',
-        'copyright_licensee'        => 'starmus_copyright_licensee',
+        'global_uuid'            => 'starmus_global_uuid',
+        'stable_uri'             => 'starmus_stable_uri',
+        'linked_data_uri'        => 'starmus_linked_data_uri',
+        'dc_rights_type'         => 'starmus_rights_type',
+        'dc_rights'              => 'starmus_rights_use',
+        'dc_rights_geo'          => 'starmus_rights_geo',
+        'dc_rights_royalty'      => 'starmus_rights_royalty',
+        'data_sensitivity_level' => 'starmus_data_sensitivity',
+        'anonymization_status'   => 'starmus_anon_status',
+        'consent_scope'          => 'starmus_consent_scope',
+        'copyright_licensee'     => 'starmus_copyright_licensee',
 
         // -- Session Metadata --
         'project_collection_id'     => 'starmus_project_collection_id',
@@ -131,67 +123,67 @@ but are listed here for completeness.
         'audio_quality_score_tax'   => 'starmus_audio_quality_score',
 
         // -- Technical Data (Distinct Fields) --
-        'recording_metadata'        => 'starmus_recording_metadata', // Technical Session JSON
-        'processing_log'            => 'starmus_processing_log',     // Audit Trail JSON
+        'recording_metadata' => 'starmus_recording_metadata', // Technical Session JSON
+        'processing_log'     => 'starmus_processing_log',     // Audit Trail JSON
 
         // -- Rights & Credits --
-        'copyright_status'          => 'starmus_copyright_status',
-        'usage_constraints'         => 'starmus_usage_constraints',
+        'copyright_status'  => 'starmus_copyright_status',
+        'usage_constraints' => 'starmus_usage_constraints',
 
         // -- Processing Status --
-        'explicit'                  => 'starmus_is_explicit',
-        'is_music'                  => 'starmus_is_music',
-        'school_reviewed'           => 'starmus_school_reviewed',
-        'contributor_verification'  => 'starmus_contributor_verification',
-        'qa_review'                 => 'starmus_qa_review',
-        'waveform_json'             => 'starmus_waveform_json',
-        'original_source'           => 'starmus_original_source',
-        'archival_wav'              => 'starmus_archival_wav',
-        'mastered_mp3'              => 'starmus_mastered_mp3',
-        'cloud_object_uri'          => 'starmus_cloud_object_uri',
-        'device_fingerprint'        => 'starmus_device_fingerprint',
-        'environment_data'          => 'starmus_environment_data',
+        'explicit'                 => 'starmus_is_explicit',
+        'is_music'                 => 'starmus_is_music',
+        'school_reviewed'          => 'starmus_school_reviewed',
+        'contributor_verification' => 'starmus_contributor_verification',
+        'qa_review'                => 'starmus_qa_review',
+        'waveform_json'            => 'starmus_waveform_json',
+        'original_source'          => 'starmus_original_source',
+        'archival_wav'             => 'starmus_archival_wav',
+        'mastered_mp3'             => 'starmus_mastered_mp3',
+        'cloud_object_uri'         => 'starmus_cloud_object_uri',
+        'device_fingerprint'       => 'starmus_device_fingerprint',
+        'environment_data'         => 'starmus_environment_data',
 
         // -- Agreement --
-        'terms_type'                => 'starmus_terms_type',
-        'submission_id'             => 'starmus_submission_id',
-        'contributor_signature'     => 'starmus_contributor_signature',
-        'contributor_user_agent'    => 'starmus_agree_ua',
-        'ip_address'                => 'starmus_agree_ip',
-        'submission_ip'             => 'starmus_agree_ip', // Legacy alias
-        'contributor_ip'            => 'starmus_agree_ip', // Legacy alias
-        'contributor_geolocation'   => 'starmus_agree_geo',
+        'terms_type'              => 'starmus_terms_type',
+        'submission_id'           => 'starmus_submission_id',
+        'contributor_signature'   => 'starmus_contributor_signature',
+        'contributor_user_agent'  => 'starmus_agree_ua',
+        'ip_address'              => 'starmus_agree_ip',
+        'submission_ip'           => 'starmus_agree_ip', // Legacy alias
+        'contributor_ip'          => 'starmus_agree_ip', // Legacy alias
+        'contributor_geolocation' => 'starmus_agree_geo',
 
         // -- Music Engineering --
-        'sample_rate'               => 'starmus_sample_rate',
-        'bit_depth'                 => 'starmus_bit_depth',
-        'tuning_hz'                 => 'starmus_tuning_hz',
-        'channel_layout'            => 'starmus_channel_layout',
+        'sample_rate'    => 'starmus_sample_rate',
+        'bit_depth'      => 'starmus_bit_depth',
+        'tuning_hz'      => 'starmus_tuning_hz',
+        'channel_layout' => 'starmus_channel_layout',
 
         // -- Music Composition --
-        'bpm'                       => 'starmus_bpm',
-        'musical_key'               => 'starmus_musical_key',
-        'isrc_code'                 => 'starmus_isrc_code',
-        'integrated_lufs'           => 'starmus_integrated_lufs',
-        'stems_cloud_uri'           => 'starmus_stems_cloud_uri',
-        'daw_project_uri'           => 'starmus_daw_project_uri',
+        'bpm'             => 'starmus_bpm',
+        'musical_key'     => 'starmus_musical_key',
+        'isrc_code'       => 'starmus_isrc_code',
+        'integrated_lufs' => 'starmus_integrated_lufs',
+        'stems_cloud_uri' => 'starmus_stems_cloud_uri',
+        'daw_project_uri' => 'starmus_daw_project_uri',
 
         // -- Release --
-        'upc_code'                  => 'starmus_upc_code',
-        'catalog_number'            => 'starmus_catalog_number',
-        'label_name'                => 'starmus_label_name',
+        'upc_code'       => 'starmus_upc_code',
+        'catalog_number' => 'starmus_catalog_number',
+        'label_name'     => 'starmus_label_name',
 
         // -- Transcription & Translation --
-        'transcription'             => 'starmus_transcription_text', // The visual text
-        'transcription_json'        => 'starmus_transcription_json', // The timestamps
-        'translation'               => 'starmus_translation_text',
-        'translation_language'      => 'starmus_translation_language',
-        'original_language'         => 'starmus_original_language',
-        'back_translation_text'     => 'starmus_back_translation_text',
-        'transcription_hash'        => 'starmus_transcription_hash',
-        'translation_hash'          => 'starmus_translation_hash',
-        'audio_recording_parent'    => 'starmus_linked_audio', // The link to parent
-        'transcription_parent'      => 'starmus_transcription_parent', // Link for translation
+        'transcription'          => 'starmus_transcription_text', // The visual text
+        'transcription_json'     => 'starmus_transcription_json', // The timestamps
+        'translation'            => 'starmus_translation_text',
+        'translation_language'   => 'starmus_translation_language',
+        'original_language'      => 'starmus_original_language',
+        'back_translation_text'  => 'starmus_back_translation_text',
+        'transcription_hash'     => 'starmus_transcription_hash',
+        'translation_hash'       => 'starmus_translation_hash',
+        'audio_recording_parent' => 'starmus_linked_audio', // The link to parent
+        'transcription_parent'   => 'starmus_transcription_parent', // Link for translation
     ];
 
     /**

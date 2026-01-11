@@ -20,13 +20,22 @@ Minimal FFmpeg wrapper focused on extreme bandwidth conservation.
 /
 final class StarmusAfricaBandwidthService
 {
-    public function __contruct(): void
+    private string $ffmpeg_path;
+
+    public function __construct(?IStarmusAudioDAL $dal = null)
     {
-        // do nothing.
+        $dal               = $dal ?: new StarmusAudioDAL();
+        $this->ffmpeg_path = $dal->get_ffmpeg_path() ?: 'ffmpeg';
     }
 
     /**
 Generate ultra-low bandwidth versions for African networks
+
+### `generatePreviewClip()`
+
+**Visibility:** `public`
+
+Generate a short preview clip (Pipeline 2 requirement)
 
 ### `estimateDataUsage()`
 

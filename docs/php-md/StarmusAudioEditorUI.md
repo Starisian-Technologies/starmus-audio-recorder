@@ -28,14 +28,15 @@ modern PHP 8.2+ syntax as per project requirements.
 /
 namespace Starisian\Sparxstar\Starmus\frontend;
 
-use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 use Exception;
+
 use function file_exists;
 use function is_numeric;
 use function realpath;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
+use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 
 use function str_replace;
 

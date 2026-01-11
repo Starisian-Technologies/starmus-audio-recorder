@@ -6,9 +6,10 @@
 
 ## Description
 
-Direct Cloudflare R2 Audio Service
-Minimal SDK-based R2 control for Africa bandwidth optimization.
-Bypasses WordPress plugins for direct storage management.
+Direct S3-Compatible (R2/AWS) Audio Service
+Minimal SDK-based S3/R2 control for bandwidth optimization versions.
+Bypasses WordPress plugins for direct storage management of optimized assets.
+Supports both Cloudflare R2 (primary) and AWS S3 (backup/alternative).
 
 ## Methods
 
@@ -16,15 +17,18 @@ Bypasses WordPress plugins for direct storage management.
 
 **Visibility:** `public`
 
-Direct Cloudflare R2 Audio Service
-Minimal SDK-based R2 control for Africa bandwidth optimization.
-Bypasses WordPress plugins for direct storage management.
+Direct S3-Compatible (R2/AWS) Audio Service
+Minimal SDK-based S3/R2 control for bandwidth optimization versions.
+Bypasses WordPress plugins for direct storage management of optimized assets.
+Supports both Cloudflare R2 (primary) and AWS S3 (backup/alternative).
 /
 final class StarmusR2DirectService
 {
-    private S3Client $r2_client;
+    private S3Client $storage_client;
 
     private string $bucket;
+
+    private string $public_endpoint;
 
     private ?StarmusId3Service $id3_service = null;
 
@@ -32,27 +36,61 @@ final class StarmusR2DirectService
     {
         try {
             $this->id3_service = $id3_service;
-            $this->bucket      = \defined('STARMUS_R2_BUCKET') ? STARMUS_R2_BUCKET : 'starmus-audio';
 
-            $this->r2_client = new S3Client(
-            [
-            'version'     => 'latest',
-            'region'      => 'auto',
-            'endpoint'    => 'https://' . (\defined('STARMUS_R2_ACCOUNT_ID') ? STARMUS_R2_ACCOUNT_ID : '') . '.r2.cloudflarestorage.com',
-            'credentials' => [
-            'key'    => \defined('STARMUS_R2_ACCESS_KEY') ? STARMUS_R2_ACCESS_KEY : '',
-            'secret' => \defined('STARMUS_R2_SECRET_KEY') ? STARMUS_R2_SECRET_KEY : '',
-            ],
-            'use_path_style_endpoint' => true,
-            ]
-            );
+            // Detect Provider: Defaults to R2, checks for S3 override
+            $provider = \defined('STARMUS_STORAGE_PROVIDER') ? STARMUS_STORAGE_PROVIDER : 'r2'; // 'r2' or 'aws'
+
+            if ($provider === 'aws') {
+                $this->configureAws();
+            } else {
+                $this->configureR2();
+            }
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
     }
 
+    private function configureR2(): void
+    {
+        $this->bucket = \defined('STARMUS_R2_BUCKET') ? STARMUS_R2_BUCKET : 'starmus-audio';
+        $account_id   = \defined('STARMUS_R2_ACCOUNT_ID') ? STARMUS_R2_ACCOUNT_ID : '';
+
+        $this->public_endpoint = \defined('STARMUS_R2_ENDPOINT') ? STARMUS_R2_ENDPOINT : '';
+
+        $this->storage_client = new S3Client([
+        'version'     => 'latest',
+        'region'      => 'auto',
+        'endpoint'    => "https://{$account_id}.r2.cloudflarestorage.com",
+        'credentials' => [
+        'key'    => \defined('STARMUS_R2_ACCESS_KEY') ? STARMUS_R2_ACCESS_KEY : '',
+        'secret' => \defined('STARMUS_R2_SECRET_KEY') ? STARMUS_R2_SECRET_KEY : '',
+        ],
+        'use_path_style_endpoint' => true,
+        ]);
+    }
+
+    private function configureAws(): void
+    {
+        $this->bucket = \defined('STARMUS_S3_BUCKET') ? STARMUS_S3_BUCKET : '';
+        $region       = \defined('STARMUS_S3_REGION') ? STARMUS_S3_REGION : 'us-east-1';
+
+        // AWS Public Endpoint construction or Custom Domain
+        $this->public_endpoint = \defined('STARMUS_S3_ENDPOINT')
+        ? STARMUS_S3_ENDPOINT
+        : "https://{$this->bucket}.s3.{$region}.amazonaws.com/";
+
+        $this->storage_client = new S3Client([
+        'version'     => 'latest',
+        'region'      => $region,
+        'credentials' => [
+        'key'    => \defined('STARMUS_S3_ACCESS_KEY') ? STARMUS_S3_ACCESS_KEY : '',
+        'secret' => \defined('STARMUS_S3_SECRET_KEY') ? STARMUS_S3_SECRET_KEY : '',
+        ],
+        ]);
+    }
+
     /**
-Process audio for African networks with direct R2 control
+Process audio for African networks with direct Storage control
 
 ### `getAfricaEstimates()`
 

@@ -158,7 +158,7 @@ try {
     $project_id       = get_field('starmus_project_collection_id', $post_id);
 
     $languages = get_the_terms($post_id, 'starmus_tax_language');
-    $rec_types = get_the_terms($post_id, 'recording_type');
+    $rec_types = get_the_terms($post_id, 'starmus_story_type');
 
     // --- 5. URLs ---
     $edit_page_slug     = $settings->get('edit_page_id', '');
@@ -186,8 +186,8 @@ try {
 			<?php if ( ! empty($languages) && ! is_wp_error($languages)) { ?>
 				<span class="starmus-badge"><?php echo esc_html($languages[0]->name); ?></span>
 			<?php } ?>
-			<?php if ( ! empty($rec_types) && ! is_wp_error($recording_types)) { ?>
-				<span class="starmus-badge"><?php echo esc_html($recording_types[0]->name); ?></span>
+			<?php if ( ! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
+				<span class="starmus-badge"><?php echo esc_html($rec_types[0]->name); ?></span>
 			<?php } ?>
 		</div>
 	</header>

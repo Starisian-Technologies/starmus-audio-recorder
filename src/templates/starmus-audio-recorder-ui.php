@@ -39,7 +39,26 @@ $data_policy_url ??= '';
 
 ?>
 
-<div class="starmus-recorder-form sparxstar-glass-card">
+<div id="starmus-app" class="starmus-recorder-form sparxstar-glass-card">
+	<script>
+	(function(){
+	  try {
+		const open1 = indexedDB.open('starmus_recordings', 1);
+		open1.onupgradeneeded = () => {
+			if (!open1.result.objectStoreNames.contains('recordings')) {
+				open1.result.createObjectStore('recordings', { keyPath: 'id', autoIncrement:true });
+			}
+		};
+
+		const open2 = indexedDB.open('starmus_queue', 1);
+		open2.onupgradeneeded = () => {
+			if (!open2.result.objectStoreNames.contains('queue')) {
+				open2.result.createObjectStore('queue', { keyPath: 'id', autoIncrement:true });
+			}
+		};
+	  } catch(e) { console.error('Starmus IDB Setup Error:', e); }
+	})();
+	</script>
 	<form
 		id="<?php echo esc_attr($instance_id); ?>"
 		class="starmus-audio-form"
@@ -72,7 +91,7 @@ $data_policy_url ??= '';
 				<input
 					type="text"
 					id="starmus_title_<?php echo esc_attr($instance_id); ?>"
-					name="starmus_dc_creator"
+					name="dc_creator"
 					maxlength="200"
 					aria-required="true"
 					required>
@@ -85,7 +104,7 @@ $data_policy_url ??= '';
 				</label>
 				<select
 					id="starmus_language_<?php echo esc_attr($instance_id); ?>"
-					name="starmus_tax_language"
+					name="language"
 					aria-required="true"
 					required>
 					<option value=""><?php esc_html_e('Select Language', 'starmus-audio-recorder'); ?></option>
@@ -106,7 +125,7 @@ $data_policy_url ??= '';
 				</label>
 				<select
 					id="starmus_recording_type_<?php echo esc_attr($instance_id); ?>"
-					name="starmus_story_type"
+					name="recording_type"
 					aria-required="true"
 					required>
 					<option value=""><?php esc_html_e('Select Type', 'starmus-audio-recorder'); ?></option>

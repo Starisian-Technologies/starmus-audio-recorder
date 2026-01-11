@@ -25,11 +25,6 @@ This is the final, consolidated class containing all commands and best practices
 
 namespace Starisian\Sparxstar\Starmus\cli;
 
-use WP_CLI_Command;
-use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
-use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
-use Starisian\Sparxstar\Starmus\core\StarmusSettings;
-use function WP_CLI\Utils\make_progress_bar;
 use function absint;
 use function file_exists;
 use function get_post;
@@ -37,14 +32,23 @@ use function get_post_meta;
 use function get_posts;
 use function is_readable;
 
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\core\StarmusSubmissionHandler;
 use Starisian\Sparxstar\Starmus\cron\StarmusCron;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
+use Starisian\Sparxstar\Starmus\services\StarmusAudioPipeline;
+use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 
 use function strtotime;
 use function wp_cache_flush;
 
 use WP_CLI;
+
+use function WP_CLI\Utils\make_progress_bar;
+
+use WP_CLI_Command;
 
 use function wp_get_attachment_url;
 
@@ -68,9 +72,15 @@ Waveform service instance.
 /
     private ?StarmusWaveformService $waveform_service = null;
 
+    /**
+Pipeline service instance.
+/
+    private ?StarmusAudioPipeline $pipeline = null;
+
     public function __construct()
     {
         $this->waveform_service = new StarmusWaveformService();
+        $this->pipeline         = new StarmusAudioPipeline();
     }
 
     /**
@@ -83,6 +93,26 @@ Manages audio recording waveforms.
     # Delete waveform data for attachment ID 789.
     $ wp starmus waveform delete --attachment_ids=789
 @param mixed $args
+
+### `process()`
+
+**Visibility:** `public`
+
+Manages processing pipeline for recordings.
+## OPTIONS
+<action>
+: The action to perform.
+---
+options:
+  - run
+---
+[--attachment_id=<id>]
+: The attachment ID to process.
+## EXAMPLES
+    # Run the pipeline for a specific recording
+    $ wp starmus process run --attachment_id=123
+@param mixed $args
+@param mixed $assoc_args
 
 ### `cache()`
 

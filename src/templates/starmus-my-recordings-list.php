@@ -14,8 +14,8 @@ use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 
 // Initialize Service safely
 $file_service = class_exists(\Starisian\Sparxstar\Starmus\services\StarmusFileService::class)
-    ? new StarmusFileService()
-    : null;
+	? new StarmusFileService()
+	: null;
 
 if ($query->have_posts()) { ?>
 
@@ -64,7 +64,7 @@ if ($query->have_posts()) { ?>
         }
 
         // === 4. METADATA & DURATION FALLBACK ===
-        $recording_type = get_the_terms($current_post_id, 'recording_type');
+        $recording_type = get_the_terms($current_post_id, 'starmus_story_type');
         $language       = get_the_terms($current_post_id, 'language');
 
         // Duration Logic
@@ -139,10 +139,10 @@ if ($query->have_posts()) { ?>
 
 					<div class="starmus-card__actions">
 						<a href="<?php echo esc_url(get_permalink($current_post_id)); ?>" class="starmus-btn starmus-btn--outline" aria-label="
-        <?php
-                                                                                                                                            /* translators: %s: Recording title/name */
-                                                                                                                                            echo esc_attr(sprintf(__('View details for %s', 'starmus-audio-recorder'), $post_title));
-        ?>
+         <?php
+            /* translators: %s: Recording title/name */
+            echo esc_attr(sprintf(__('View details for %s', 'starmus-audio-recorder'), $post_title));
+            ?>
 																																					">
         <?php esc_html_e('View Details', 'starmus-audio-recorder'); ?>
 						</a>
@@ -155,8 +155,8 @@ if ($query->have_posts()) { ?>
             ?>
 							<a href="<?php echo esc_url($secure_edit_link); ?>" class="starmus-btn starmus-btn--primary" aria-label="
             <?php
-                                                                                                                                        /* translators: %s: Recording title/name */
-                                                                                                                                        echo esc_attr(sprintf(__('Edit audio for %s', 'starmus-audio-recorder'), $post_title));
+            /* translators: %s: Recording title/name */
+            echo esc_attr(sprintf(__('Edit audio for %s', 'starmus-audio-recorder'), $post_title));
             ?>
 																																		">
             <?php esc_html_e('Edit Audio', 'starmus-audio-recorder'); ?>
@@ -176,7 +176,7 @@ if ($query->have_posts()) { ?>
     $current_page = max(1, get_query_var('paged'), get_query_var('page'));
 
     $pagination_links = paginate_links(
-        [
+    [
     'base'      => str_replace('999999999', '%#%', esc_url(get_pagenum_link(999999999))),
     'format'    => '?paged=%#%',
     'current'   => $current_page,
@@ -184,7 +184,7 @@ if ($query->have_posts()) { ?>
     'prev_text' => '<span aria-hidden="true">&laquo;</span> <span class="screen-reader-text">' . __('Previous page', 'starmus-audio-recorder') . '</span>',
     'next_text' => '<span class="screen-reader-text">' . __('Next page', 'starmus-audio-recorder') . '</span> <span aria-hidden="true">&raquo;</span>',
     'type'      => 'array', // Return array for accessible list rendering
-        ]
+    ]
     );
 
     if ($pagination_links) {

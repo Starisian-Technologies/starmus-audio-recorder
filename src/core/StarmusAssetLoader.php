@@ -176,17 +176,24 @@ final class StarmusAssetLoader
             // Localize Scripts
             wp_localize_script(self::HANDLE_PROD_BUNDLE, 'starmusConfig', $config);
 
+            // Resolve optional recording ID from context (e.g. Consent Handoff)
+            $recording_id = filter_input(INPUT_GET, 'starmus_recording_id', FILTER_SANITIZE_NUMBER_INT);
+            if (!$recording_id && isset(self::$editor_data['post_id'])) {
+                $recording_id = self::$editor_data['post_id'];
+            }
+
             wp_localize_script(
                 self::HANDLE_PROD_BUNDLE,
                 'STARMUS_BOOTSTRAP',
                 [
-                    'version'   => $this->resolve_version(),
-                    'config'    => $config,
-                    'env'       => \defined('WP_ENV') ? WP_ENV : 'production',
-                    'postId'    => get_the_ID() ?: 0,
-                    'restUrl'   => esc_url_raw(rest_url()),
-                    'homeUrl'   => esc_url_raw(home_url('/')),
-                    'sparxstar' => [
+                    'version'     => $this->resolve_version(),
+                    'config'      => $config,
+                    'env'         => \defined('WP_ENV') ? WP_ENV : 'production',
+                    'postId'      => get_the_ID() ?: 0,
+                    'recordingId' => $recording_id ? (int) $recording_id : 0, // Injected for workflow handoff
+                    'restUrl'     => esc_url_raw(rest_url()),
+                    'homeUrl'     => esc_url_raw(home_url('/')),
+                    'sparxstar'   => [
                         'available'       => wp_script_is('sparxstar-user-environment-check-app', 'registered'),
                         'error_reporting' => wp_script_is('sparxstar-error-reporter', 'registered'),
                         'timeout'         => 2000,

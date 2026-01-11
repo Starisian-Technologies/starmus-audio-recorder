@@ -28,7 +28,6 @@ Optimized and secure settings management for the Starmus plugin.
 /
 namespace Starisian\Sparxstar\Starmus\core;
 
-use Throwable;
 use function absint;
 use function apply_filters;
 use function array_filter;
@@ -49,6 +48,9 @@ use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
 use function strtolower;
+
+use Throwable;
+
 use function trailingslashit;
 use function update_option;
 

@@ -26,15 +26,25 @@ Handles waveform generation, post-processing, and temp cleanup via WP-Cron.
 @package   Starisian\Sparxstar\Starmus\cron
 @version 0.9.2
 /
-
 namespace Starisian\Sparxstar\Starmus\cron;
 
-use Throwable;
+use function add_action;
+use function add_filter;
+
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\services\StarmusAudioPipeline;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
+use Throwable;
 
+use function time;
 use function trailingslashit;
+use function wp_delete_file;
+use function wp_get_upload_dir;
+use function wp_mkdir_p;
+use function wp_next_scheduled;
+use function wp_schedule_event;
+use function wp_unschedule_event;
 
 if ( ! \defined('ABSPATH')) {
     exit;
@@ -57,12 +67,14 @@ final readonly class StarmusCron
     /**
 Waveform service instance.
 /
-    private StarmusWaveformService $waveform;
+    private ?StarmusWaveformService $waveform;
 
     /**
 Post-processing service instance.
 /
-    private StarmusPostProcessingService $post;
+    private ?StarmusPostProcessingService $post;
+
+    private ?StarmusAudioPipeline $pipeline;
 
     /**
 Builds the cron coordinator with optional injected services.
@@ -94,13 +106,13 @@ Executes the full pipeline asynchronously.
 
 Remove stale temp upload files (>24h old).
 
-### `activate()`
+### `starmus_activate()`
 
 **Visibility:** `public`
 
 Schedule recurring cleanup on plugin activation.
 
-### `deactivate()`
+### `starmus_deactivate()`
 
 **Visibility:** `public`
 

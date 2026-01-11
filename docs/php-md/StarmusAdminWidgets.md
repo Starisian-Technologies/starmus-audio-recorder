@@ -18,7 +18,6 @@ Registers and renders WordPress Dashboard widgets for Starmus transcription Work
 Registers and renders WordPress Dashboard widgets for Starmus transcription Workflow.
 @package Starisian\Sparxstar\Starmus\admin\widgets
 /
-
 namespace Starisian\Sparxstar\Starmus\admin\widgets;
 
 use Throwable;

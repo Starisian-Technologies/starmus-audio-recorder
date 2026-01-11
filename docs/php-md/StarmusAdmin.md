@@ -22,7 +22,6 @@ Starmus Admin Handler - Refactored for Security & Performance
 @version 0.9.2
 @since 0.3.1
 /
-
 namespace Starisian\Sparxstar\Starmus\admin;
 
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
