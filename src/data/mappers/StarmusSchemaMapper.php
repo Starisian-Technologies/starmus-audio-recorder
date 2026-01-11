@@ -271,8 +271,11 @@ class StarmusSchemaMapper
 			// Fix for "Recording Types not working" - Map frontend key to taxonomy key
 			if (! empty($data['recording_type'])) {
 				$mapped['starmus_story_type'] = (int) $data['recording_type'];
+				// Also map to ACF field for robust saving via update_field
+				$mapped['starmus_assigned_story_type'] = (int) $data['recording_type'];
 			} elseif (! empty($data['starmus_story_type'])) {
 				$mapped['starmus_story_type'] = (int) $data['starmus_story_type'];
+				$mapped['starmus_assigned_story_type'] = (int) $data['starmus_story_type'];
 			}
 		} catch (Throwable $throwable) {
 			StarmusLogger::error('Mapper Critical Failure: ' . $throwable->getMessage());

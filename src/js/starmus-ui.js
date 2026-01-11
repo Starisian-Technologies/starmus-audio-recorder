@@ -364,7 +364,8 @@ function initInstance(store, incomingElements, forcedInstanceId) {
 
       if (!isValid) {
         valid = false;
-        input.style.borderColor = '#d63638'; // WordPress error red
+        // Revert to 'red' to ensure visibility if CSS overrides exist
+        input.style.borderColor = 'red';
       } else {
         input.style.borderColor = '';
       }
@@ -377,8 +378,16 @@ function initInstance(store, incomingElements, forcedInstanceId) {
       if (el.messageBox) {
         el.messageBox.textContent = 'Please fill in all required fields.';
         el.messageBox.style.display = 'block';
+        el.messageBox.style.color = '#d63638'; // Ensure text is error-colored
+        el.messageBox.style.border = '1px solid #d63638';
+        el.messageBox.style.padding = '10px';
+        el.messageBox.style.marginBottom = '15px';
+
         // Ensure user sees the error
         el.messageBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        // Fallback if message box missing from DOM
+        alert('Please fill in all required fields.');
       }
     }
   });
