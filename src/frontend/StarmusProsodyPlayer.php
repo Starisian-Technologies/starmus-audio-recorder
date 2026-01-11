@@ -10,7 +10,7 @@ use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
@@ -60,7 +60,7 @@ class StarmusProsodyPlayer
             return;
         }
 
-        if (! class_exists(StarmusProsodyDAL::class)) {
+        if ( ! class_exists(StarmusProsodyDAL::class)) {
             StarmusLogger::error('StarmusProsodyDAL class not found');
         }
 
@@ -156,7 +156,7 @@ class StarmusProsodyPlayer
                 echo 'console.log("Starmus Prosody: Data Injected Directly");';
                 echo '</script>';
             }
-?>
+            ?>
             <div id="cognitive-regulator">
                 <!-- CALIBRATION LAYER -->
                 <div id="calibration-layer">
@@ -194,7 +194,7 @@ class StarmusProsodyPlayer
                     <button id="btn-recal" class="secondary-text-btn" title="<?php echo esc_attr__('Reset Rhythm', 'starmus-audio-recorder'); ?>" aria-label="<?php echo esc_attr__('Reset Rhythm', 'starmus-audio-recorder'); ?>"><?php esc_html_e('[ Re-Tap ]', 'starmus-audio-recorder'); ?></button>
                 </div>
             </div>
-        <?php
+            <?php
             return ob_get_clean();
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -221,7 +221,7 @@ class StarmusProsodyPlayer
             }
 
             $post = get_post($script_id);
-            if (! $post || $post->post_type !== 'starmus-script') {
+            if ( ! $post || $post->post_type !== 'starmus-script') {
                 return '';
             }
 
@@ -251,7 +251,7 @@ class StarmusProsodyPlayer
                     // Or native attachment if post_mime_type is audio.
                     // Let's check get_attached_media.
                     $media = get_attached_media('audio', $rec_id);
-                    if (! empty($media)) {
+                    if ( ! empty($media)) {
                         $audio_url = wp_get_attachment_url(reset($media)->ID);
                     }
                 }
@@ -268,7 +268,7 @@ class StarmusProsodyPlayer
             $status_class = $has_audio ? 'starmus-status-complete' : 'starmus-status-pending';
 
             ob_start();
-        ?>
+            ?>
             <div class="starmus-script-card <?php echo esc_attr($status_class); ?>">
                 <div class="starmus-card-header">
                     <h3 class="starmus-card-title"><?php echo esc_html($post->post_title); ?></h3>
@@ -358,7 +358,7 @@ class StarmusProsodyPlayer
                     text-transform: uppercase;
                 }
             </style>
-<?php
+            <?php
             return ob_get_clean();
         } catch (Throwable $t) {
             StarmusLogger::log($t);
@@ -382,11 +382,11 @@ class StarmusProsodyPlayer
             $pace    = (int) $_POST['pace_ms'];
             $nonce   = $_POST['nonce'];
 
-            if (! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
+            if ( ! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
                 wp_send_json_error(__('Security check failed', 'starmus-audio-recorder'));
             }
 
-            if (! current_user_can('edit_post', $post_id)) {
+            if ( ! current_user_can('edit_post', $post_id)) {
                 wp_send_json_error(__('Permission denied', 'starmus-audio-recorder'));
             }
 

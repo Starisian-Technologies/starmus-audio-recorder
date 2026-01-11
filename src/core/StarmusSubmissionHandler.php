@@ -151,12 +151,12 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
      * @since 1.0.0
      */
     private array $default_allowed_mimes = [
-    'audio/webm',
-    'audio/ogg',
-    'audio/mpeg',
-    'audio/wav',
-    'audio/x-wav',
-    'audio/mp4',
+        'audio/webm',
+        'audio/ogg',
+        'audio/mpeg',
+        'audio/wav',
+        'audio/x-wav',
+        'audio/mp4',
     ];
 
     /**
@@ -173,30 +173,30 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
      * @since 1.0.0
      */
     public function __construct(
-    private readonly IStarmusAudioDAL $dal,
-    private readonly StarmusSettings $settings
+        private readonly IStarmusAudioDAL $dal,
+        private readonly StarmusSettings $settings
     ) {
         try {
             // PHP Runtime Error Trap
             set_error_handler(
-            function ($severity, string $message, $file, $line): false {
-                error_log(\sprintf('[STARMUS PHP] %s in %s:%s', $message, $file, $line));
-                return false; // Continue normal error handling
-            }
+                function ($severity, string $message, $file, $line): false {
+                    error_log(\sprintf('[STARMUS PHP] %s in %s:%s', $message, $file, $line));
+                    return false; // Continue normal error handling
+                }
             );
 
             add_action('starmus_cleanup_temp_files', $this->cleanup_stale_temp_files(...));
             StarmusLogger::info(
-            'Constructed successfully',
-            ['component' => self::class]
+                'Constructed successfully',
+                ['component' => self::class]
             );
         } catch (Throwable $throwable) {
             StarmusLogger::log(
-            $throwable,
-            [
-            'component' => self::class,
-            'method'    => __METHOD__,
-            ]
+                $throwable,
+                [
+                    'component' => self::class,
+                    'method'    => __METHOD__,
+                ]
             );
             throw $throwable;
         }
@@ -414,9 +414,9 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
                 $mapped_data = StarmusSchemaMapper::map_form_data($form_data);
                 $title       = $mapped_data['dc_creator'] ?? pathinfo($filename, PATHINFO_FILENAME);
                 $cpt_post_id = $this->dal->create_audio_post(
-                $title,
-                $this->get_cpt_slug(),
-                $user_id
+                    $title,
+                    $this->get_cpt_slug(),
+                    $user_id
                 );
                 if (is_wp_error($cpt_post_id)) {
                     $this->dal->delete_attachment((int) $attachment_id);
@@ -434,22 +434,22 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
              */
             do_action('starmus_after_audio_saved', (int) $cpt_post_id, $form_data);
             return [
-            'success'       => true,
-            'attachment_id' => (int) $attachment_id,
-            'post_id'       => (int) $cpt_post_id,
-            'url'           => wp_get_attachment_url((int) $attachment_id),
+                'success'       => true,
+                'attachment_id' => (int) $attachment_id,
+                'post_id'       => (int) $cpt_post_id,
+                'url'           => wp_get_attachment_url((int) $attachment_id),
             ];
         } catch (Throwable $throwable) {
             StarmusLogger::log(
-            $throwable,
-            [
-            'component'     => self::class,
-            'method'        => __METHOD__,
-            'attachment_id' => (int) $attachment_id,
-            'post_id'       => (int) $cpt_post_id,
-            'file_path'     => $file_path,
-            'filename'      => $filename,
-            ]
+                $throwable,
+                [
+                    'component'     => self::class,
+                    'method'        => __METHOD__,
+                    'attachment_id' => (int) $attachment_id,
+                    'post_id'       => (int) $cpt_post_id,
+                    'file_path'     => $file_path,
+                    'filename'      => $filename,
+                ]
             );
             return $this->err('server_error', 'File finalization failed.', 500);
         }
@@ -546,18 +546,18 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             error_log('[STARMUS PHP] Fallback upload success');
 
             return [
-            'success' => true,
-            'data'    => $result['data'],
+                'success' => true,
+                'data'    => $result['data'],
             ];
         } catch (Throwable $throwable) {
             StarmusLogger::log(
-            $throwable,
-            [
-            'component' => self::class,
-            'method'    => __METHOD__,
-            'file_key'  => $file_key,
-            'mime'      => $mime,
-            ]
+                $throwable,
+                [
+                    'component' => self::class,
+                    'method'    => __METHOD__,
+                    'file_key'  => $file_key,
+                    'mime'      => $mime,
+                ]
             );
             return $this->err('server_error', 'Fallback upload exception.', 500);
         }
@@ -639,24 +639,24 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             $this->save_all_metadata((int) $cpt_post_id, (int) $attachment_id, $form_data);
 
             return [
-            'success' => true,
-            'data'    => [
-            'attachment_id' => (int) $attachment_id,
-            'post_id'       => (int) $cpt_post_id,
-            'url'           => wp_get_attachment_url((int) $attachment_id),
-            'redirect_url'  => esc_url($this->get_redirect_url()),
-            ],
+                'success' => true,
+                'data'    => [
+                    'attachment_id' => (int) $attachment_id,
+                    'post_id'       => (int) $cpt_post_id,
+                    'url'           => wp_get_attachment_url((int) $attachment_id),
+                    'redirect_url'  => esc_url($this->get_redirect_url()),
+                ],
             ];
         } catch (Throwable $throwable) {
             StarmusLogger::log(
-            $throwable,
-            [
-            'component'     => self::class,
-            'method'        => __METHOD__,
-            'attachment_id' => (int) $attachment_id,
-            'post_id'       => (int) $cpt_post_id,
-            'file_key'      => $file_key,
-            ]
+                $throwable,
+                [
+                    'component'     => self::class,
+                    'method'        => __METHOD__,
+                    'attachment_id' => (int) $attachment_id,
+                    'post_id'       => (int) $cpt_post_id,
+                    'file_key'      => $file_key,
+                ]
             );
             return $this->err('server_error', 'Fallback processing failed.', 500);
         }
@@ -768,22 +768,22 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
 
             // Session metadata (Group B) - includes new fields
             $session_fields = [
-            'project_collection_id',
-            'accession_number',
-            'location',
-            'session_date',
-            'session_start_time',
-            'gps_coordinates',
-            'recording_equipment',
-            'audio_files_originals',
-            'media_condition_notes',
-            'agreement_to_terms_toggle',
-            'related_consent_agreement',
-            'usage_restrictions_rights',
-            'access_level',
-            'first_pass_transcription',
-            'audio_quality_score_tax',
-            'starmus_assigned_story_type',
+                'project_collection_id',
+                'accession_number',
+                'location',
+                'session_date',
+                'session_start_time',
+                'gps_coordinates',
+                'recording_equipment',
+                'audio_files_originals',
+                'media_condition_notes',
+                'agreement_to_terms_toggle',
+                'related_consent_agreement',
+                'usage_restrictions_rights',
+                'access_level',
+                'first_pass_transcription',
+                'audio_quality_score_tax',
+                'starmus_assigned_story_type',
             ];
             foreach ($session_fields as $field) {
                 if (isset($mapped_data[$field])) {
@@ -837,8 +837,8 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
                 wp_set_post_terms($audio_post_id, [(int) $mapped_data['starmus_tax_language']], 'starmus_tax_language');
             }
 
-            if ( ! empty($mapped_data['starmus_story_type'])) {
-                wp_set_post_terms($audio_post_id, [(int) $mapped_data['starmus_story_type']], 'starmus_story_type');
+            if ( ! empty($mapped_data['recording-type'])) {
+                wp_set_post_terms($audio_post_id, [(int) $mapped_data['recording-type']], 'recording-type');
             }
 
             // --- START: Links Starmus Audio to Other CPTs ---
@@ -885,21 +885,21 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             }
 
             $processing_params = [
-            'bitrate'      => '192k',
-            'samplerate'   => 44100,
-            'network_type' => '4g',
-            'session_uuid' => $session_uuid,
+                'bitrate'      => '192k',
+                'samplerate'   => 44100,
+                'network_type' => '4g',
+                'session_uuid' => $session_uuid,
             ];
             $this->trigger_post_processing($audio_post_id, $attachment_id, $processing_params);
         } catch (Throwable $throwable) {
             StarmusLogger::log(
-            $throwable,
-            [
-            'component'     => self::class,
-            'method'        => __METHOD__,
-            'post_id'       => $audio_post_id,
-            'attachment_id' => $attachment_id,
-            ]
+                $throwable,
+                [
+                    'component'     => self::class,
+                    'method'        => __METHOD__,
+                    'post_id'       => $audio_post_id,
+                    'attachment_id' => $attachment_id,
+                ]
             );
         }
     }
@@ -939,23 +939,23 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
 
             if ( ! $result && ! wp_next_scheduled('starmus_cron_process_pending_audio', [$post_id, $attachment_id])) {
                 StarmusLogger::log(
-                 '[STARMUS PHP] Scheduling cron job for post processing retry',
-                 [
-                  'component'     => self::class,
-                  'post_id'       => $post_id,
-                  'attachment_id' => $attachment_id,
-                 ]
+                    '[STARMUS PHP] Scheduling cron job for post processing retry',
+                    [
+                        'component'     => self::class,
+                        'post_id'       => $post_id,
+                        'attachment_id' => $attachment_id,
+                    ]
                 );
                 wp_schedule_single_event(time() + 60, 'starmus_cron_process_pending_audio', [$post_id, $attachment_id]);
             }
         } catch (Throwable $throwable) {
             error_log('[STARMUS PHP] Post processing trigger failed: ' . $throwable->getMessage());
             StarmusLogger::log(
-            $throwable,
-            [
-            'post_id'       => $post_id,
-            'attachment_id' => $attachment_id,
-            ]
+                $throwable,
+                [
+                    'post_id'       => $post_id,
+                    'attachment_id' => $attachment_id,
+                ]
             );
         }
     }
@@ -1219,8 +1219,8 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
     private function err(string $code, string $message, int $status = 400): WP_Error
     {
         StarmusLogger::info(
-        \sprintf('%s: %s', $code, $message),
-        ['component' => self::class]
+            \sprintf('%s: %s', $code, $message),
+            ['component' => self::class]
         );
         return new WP_Error($code, $message, ['status' => $status]);
     }

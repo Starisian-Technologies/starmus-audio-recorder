@@ -63,6 +63,7 @@ final class StarmusShortcodeLoader
             $this->dal      = $dal ?? new StarmusAudioDAL();
             $this->consent_handler = new StarmusConsentHandler();
             $this->consent_ui = new StarmusConsentUI($this->consent_handler, $this->settings);
+            $this->consent_ui->register_hooks();
 
             // Ensure prosody engine is set up
             $this->set_prosody_engine($prosody_dal);

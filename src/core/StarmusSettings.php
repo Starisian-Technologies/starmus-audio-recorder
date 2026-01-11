@@ -14,6 +14,7 @@ declare(strict_types=1);
  *
  * @since 0.3.1
  */
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function absint;
@@ -72,24 +73,24 @@ final class StarmusSettings implements IStarmusSettings
      * @var array<string, string>
      */
     private const ALLOWED_MIMES = [
-    'mp3'  => 'audio/mpeg',
-    'wav'  => 'audio/wav',
-    'ogg'  => 'audio/ogg',
-    'oga'  => 'audio/ogg',
-    'opus' => 'audio/ogg; codecs=opus',
-    'weba' => 'audio/webm',
-    'aac'  => 'audio/aac',
-    'm4a'  => 'audio/mp4',
-    'flac' => 'audio/flac',
-    'mp4'  => 'video/mp4',
-    'm4v'  => 'video/x-m4v',
-    'mov'  => 'video/quicktime',
-    'webm' => 'video/webm',
-    'ogv'  => 'video/ogg',
-    'avi'  => 'video/x-msvideo',
-    'wmv'  => 'video/x-ms-wmv',
-    '3gp'  => 'video/3gpp',
-    '3g2'  => 'video/3gpp2',
+        'mp3'  => 'audio/mpeg',
+        'wav'  => 'audio/wav',
+        'ogg'  => 'audio/ogg',
+        'oga'  => 'audio/ogg',
+        'opus' => 'audio/ogg; codecs=opus',
+        'weba' => 'audio/webm',
+        'aac'  => 'audio/aac',
+        'm4a'  => 'audio/mp4',
+        'flac' => 'audio/flac',
+        'mp4'  => 'video/mp4',
+        'm4v'  => 'video/x-m4v',
+        'mov'  => 'video/quicktime',
+        'webm' => 'video/webm',
+        'ogv'  => 'video/ogg',
+        'avi'  => 'video/x-msvideo',
+        'wmv'  => 'video/x-ms-wmv',
+        '3gp'  => 'video/3gpp',
+        '3g2'  => 'video/3gpp2',
     ];
 
     /**
@@ -300,20 +301,21 @@ final class StarmusSettings implements IStarmusSettings
         try {
             if ($this->default_obj_cache === null) {
                 $this->default_obj_cache = [
-                 'cpt_slug'                => 'audio-recording',
-                 'file_size_limit'         => 10,
-                 'recording_time_limit'    => 300,
-                 'allowed_file_types'      => '',
-                 'allowed_languages'       => '',
-                 'speech_recognition_lang' => 'en-US',
-                 'tus_endpoint'            => 'https://contribute.sparxstar.com/files/',
-                 'consent_message'         => 'I consent to having this audio recording stored and used.', // FIXED SYNTAX
-                 'collect_ip_ua'           => 0,
-                 'delete_on_uninstall'     => 0,
-                 'data_policy_url'         => '',
-                 'edit_page_id'            => 0,
-                 'recorder_page_id'        => 0,
-                 'my_recordings_page_id'   => 0,
+                    'cpt_slug'                => 'audio-recording',
+                    'file_size_limit'         => 10,
+                    'recording_time_limit'    => 300,
+                    'allowed_file_types'      => '',
+                    'allowed_languages'       => '',
+                    'speech_recognition_lang' => 'en-US',
+                    'tus_endpoint'            => 'https://contribute.sparxstar.com/files/',
+                    'consent_message'         => 'I consent to having this audio recording stored and used.', // FIXED SYNTAX
+                    'collect_ip_ua'           => 0,
+                    'delete_on_uninstall'     => 0,
+                    'data_policy_url'         => '',
+                    'edit_page_id'            => 0,
+                    'recorder_page_id'        => 0,
+                    'my_recordings_page_id'   => 0,
+                    'prosody_page_id'         => 0,
                 ];
                 $this->default_obj_cache = apply_filters('starmus_default_settings', $this->default_obj_cache);
             }
@@ -323,20 +325,20 @@ final class StarmusSettings implements IStarmusSettings
             StarmusLogger::log($throwable);
             // Return hardcoded minimal defaults on error
             return [
-            'cpt_slug'                => 'audio-recording',
-            'file_size_limit'         => 10,
-            'recording_time_limit'    => 300,
-            'allowed_file_types'      => '',
-            'allowed_languages'       => '',
-            'speech_recognition_lang' => 'en-US',
-            'tus_endpoint'            => 'https://contribute.sparxstar.com/files/',
-            'consent_message'         => 'I consent to having this audio recording stored and used.',
-            'collect_ip_ua'           => 0,
-            'delete_on_uninstall'     => 0,
-            'data_policy_url'         => '',
-            'edit_page_id'            => 0,
-            'recorder_page_id'        => 0,
-            'my_recordings_page_id'   => 0,
+                'cpt_slug'                => 'audio-recording',
+                'file_size_limit'         => 10,
+                'recording_time_limit'    => 300,
+                'allowed_file_types'      => '',
+                'allowed_languages'       => '',
+                'speech_recognition_lang' => 'en-US',
+                'tus_endpoint'            => 'https://contribute.sparxstar.com/files/',
+                'consent_message'         => 'I consent to having this audio recording stored and used.',
+                'collect_ip_ua'           => 0,
+                'delete_on_uninstall'     => 0,
+                'data_policy_url'         => '',
+                'edit_page_id'            => 0,
+                'recorder_page_id'        => 0,
+                'my_recordings_page_id'   => 0,
             ];
         }
     }
@@ -417,19 +419,23 @@ final class StarmusSettings implements IStarmusSettings
             case 'edit_page_id':
             case 'recorder_page_id':
             case 'my_recordings_page_id':
+            case 'prosody_page_id':
+                if (\is_array($value)) {
+                    return array_map('absint', $value);
+                }
                 return absint($value);
             case 'allowed_file_types':
                 $list = \is_array($value) ? $value : explode(',', (string) $value);
-                $list = array_map(static fn ($s) => trim(strtolower((string) $s)), $list);
-                $list = array_filter($list, static fn ($s): bool => $s !== '');
-                $list = array_map(static fn ($s) => preg_replace('/[^a-z0-9\.\-+\/]/', '', $s), $list);
+                $list = array_map(static fn($s) => trim(strtolower((string) $s)), $list);
+                $list = array_filter($list, static fn($s): bool => $s !== '');
+                $list = array_map(static fn($s) => preg_replace('/[^a-z0-9\.\-+\/]/', '', $s), $list);
                 $list = array_unique($list);
                 return implode(',', $list);
             case 'allowed_languages':
                 $list = \is_array($value) ? $value : explode(',', (string) $value);
-                $list = array_map(static fn ($s) => trim(strtolower((string) $s)), $list);
-                $list = array_filter($list, static fn ($s): bool => $s !== '');
-                $list = array_map(static fn ($s) => preg_replace('/[^a-z0-9\-]/', '', $s), $list);
+                $list = array_map(static fn($s) => trim(strtolower((string) $s)), $list);
+                $list = array_filter($list, static fn($s): bool => $s !== '');
+                $list = array_map(static fn($s) => preg_replace('/[^a-z0-9\-]/', '', $s), $list);
                 $list = array_unique($list);
                 return implode(',', $list);
             case 'speech_recognition_lang':
@@ -505,9 +511,9 @@ final class StarmusSettings implements IStarmusSettings
 
             if (isset($whitelist[$ext])) {
                 return [
-                 'ext'             => $ext,
-                 'type'            => $whitelist[$ext],
-                 'proper_filename' => $filename,
+                    'ext'             => $ext,
+                    'type'            => $whitelist[$ext],
+                    'proper_filename' => $filename,
                 ];
             }
 
