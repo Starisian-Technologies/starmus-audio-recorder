@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\services;
 
 use function date;
@@ -38,7 +39,7 @@ use WP_Post;
 use function wp_update_attachment_metadata;
 use function wp_upload_dir;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -227,14 +228,14 @@ final readonly class StarmusPostProcessingService
             StarmusLogger::info(
                 'Post-processing started',
                 [
-            'post_id'       => $post_id,
-            'attachment_id' => $attachment_id,
-            'params'        => array_keys($params),
+                    'post_id'       => $post_id,
+                    'attachment_id' => $attachment_id,
+                    'params'        => array_keys($params),
                 ]
             );
             // 1. CRITICAL: GET LOCAL COPY (Handles Cloudflare offload)
             $source_path = $this->file_service->get_local_copy($attachment_id);
-            if ( ! $source_path || ! file_exists($source_path)) {
+            if (! $source_path || ! file_exists($source_path)) {
                 throw new RuntimeException('Source file could not be retrieved locally for attachment ID: ' . $attachment_id);
             }
 
@@ -246,7 +247,7 @@ final readonly class StarmusPostProcessingService
             // 2. Prepare Output
             $uploads    = wp_upload_dir();
             $output_dir = trailingslashit($uploads['basedir']) . 'starmus_processed';
-            if ( ! is_dir($output_dir)) {
+            if (! is_dir($output_dir)) {
                 wp_mkdir_p($output_dir);
             }
 
@@ -323,7 +324,7 @@ final readonly class StarmusPostProcessingService
 
             // 8. ID3 Tagging (Full Payload Restored)
             $post = get_post($post_id);
-            if ( ! $post) {
+            if (! $post) {
                 throw new RuntimeException('Post not found for ID: ' . $post_id);
             }
 
@@ -345,19 +346,19 @@ final readonly class StarmusPostProcessingService
 
             // 11. Compile Technical Metadata from FFmpeg Analysis
             $technical_metadata = [
-            'processing' => [
-            'ffmpeg_version'    => trim(shell_exec($ffmpeg_path . ' -version 2>&1 | head -1')),
-            'loudness_analysis' => $loudness_data,
-            'network_profile'   => $network_type,
-            'sample_rate'       => $sample_rate,
-            'bitrate'           => $bitrate,
-            'processing_date'   => gmdate('c'), // UTC ISO 8601
-            ],
-            'files' => [
-            'mp3_size'    => file_exists($mp3_path) ? filesize($mp3_path) : 0,
-            'wav_size'    => file_exists($wav_path) ? filesize($wav_path) : 0,
-            'source_size' => file_exists($source_path) ? filesize($source_path) : 0,
-            ],
+                'processing' => [
+                    'ffmpeg_version'    => trim(shell_exec($ffmpeg_path . ' -version 2>&1 | head -1')),
+                    'loudness_analysis' => $loudness_data,
+                    'network_profile'   => $network_type,
+                    'sample_rate'       => $sample_rate,
+                    'bitrate'           => $bitrate,
+                    'processing_date'   => gmdate('c'), // UTC ISO 8601
+                ],
+                'files' => [
+                    'mp3_size'    => file_exists($mp3_path) ? filesize($mp3_path) : 0,
+                    'wav_size'    => file_exists($wav_path) ? filesize($wav_path) : 0,
+                    'source_size' => file_exists($source_path) ? filesize($source_path) : 0,
+                ],
             ];
 
             // Merge with existing recording_metadata from JavaScript if present
@@ -369,11 +370,11 @@ final readonly class StarmusPostProcessingService
 
             // 12. Update Post Meta (New Schema)
             // Note: ACF fields are configured to return URLs, but we store attachment IDs
-            update_field('mastered_mp3', $mp3_id, $post_id);
-            update_field('archival_wav', $wav_id, $post_id);
-            update_field('recording_metadata', json_encode($technical_metadata), $post_id);
-            update_post_meta($post_id, 'processing_log', implode("\n", $log));
-            error_log('[STARMUS POST-PROCESSING] Updated ACF fields - mastered_mp3: ' . $mp3_id . ', archival_wav: ' . $wav_id);
+            update_field('starmus_mastered_mp3', $mp3_id, $post_id);
+            update_field('starmus_archival_wav', $wav_id, $post_id);
+            update_field('starmus_recording_metadata', json_encode($technical_metadata), $post_id);
+            update_post_meta($post_id, 'starmus_processing_log', implode("\n", $log));
+            error_log('[STARMUS POST-PROCESSING] Updated ACF fields - starmus_mastered_mp3: ' . $mp3_id . ', starmus_archival_wav: ' . $wav_id);
 
             // Also update legacy meta fields for compatibility
             update_post_meta($post_id, '_audio_mp3_attachment_id', $mp3_id);
@@ -384,9 +385,9 @@ final readonly class StarmusPostProcessingService
             StarmusLogger::error(
                 $throwable,
                 [
-            'component'     => self::class,
-            'post_id'       => $post_id,
-            'attachment_id' => $attachment_id,
+                    'component'     => self::class,
+                    'post_id'       => $post_id,
+                    'attachment_id' => $attachment_id,
                 ]
             );
             update_post_meta(
@@ -445,17 +446,17 @@ final readonly class StarmusPostProcessingService
      */
     private function import_to_media_library(string $filepath, int $parent_post_id, string $mime_type): int
     {
-        if ( ! file_exists($filepath)) {
+        if (! file_exists($filepath)) {
             error_log('[STARMUS POST-PROCESSING] File does not exist: ' . $filepath);
             return 0;
         }
 
         $filename   = basename($filepath);
         $attachment = [
-        'post_mime_type' => $mime_type,
-        'post_title'     => $filename,
-        'post_status'    => 'inherit',
-        'post_parent'    => $parent_post_id,
+            'post_mime_type' => $mime_type,
+            'post_title'     => $filename,
+            'post_status'    => 'inherit',
+            'post_parent'    => $parent_post_id,
         ];
 
         error_log('[STARMUS POST-PROCESSING] Creating attachment for: ' . $filepath);
@@ -534,13 +535,13 @@ final readonly class StarmusPostProcessingService
         $year        = $recorded_at !== '' && $recorded_at !== '0' ? substr($recorded_at, 0, 4) : date('Y');
 
         $tag_data = [
-        'title'             => [sanitize_text_field($post->post_title)],
-        'artist'            => [sanitize_text_field($author_name)],
-        'album'             => [$site_name . ' Archives'],
-        'year'              => [$year],
-        'comment'           => ['Recorded via Starmus | Post ID: ' . $post_id],
-        'copyright_message' => ['© ' . date('Y') . ' ' . $site_name . '. All rights reserved.'],
-        'publisher'         => [$site_name],
+            'title'             => [sanitize_text_field($post->post_title)],
+            'artist'            => [sanitize_text_field($author_name)],
+            'album'             => [$site_name . ' Archives'],
+            'year'              => [$year],
+            'comment'           => ['Recorded via Starmus | Post ID: ' . $post_id],
+            'copyright_message' => ['© ' . date('Y') . ' ' . $site_name . '. All rights reserved.'],
+            'publisher'         => [$site_name],
         ];
 
         $language_term = get_the_terms($post_id, 'language');

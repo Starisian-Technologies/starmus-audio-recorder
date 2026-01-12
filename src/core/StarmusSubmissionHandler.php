@@ -724,11 +724,11 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
                 $decoded_env = json_decode(wp_unslash($env_json), true);
                 if ($decoded_env) {
                     // Store complete environment data in environment_data (Group C)
-                    $this->update_acf_field('environment_data', json_encode($decoded_env), $audio_post_id);
+                    $this->update_acf_field('starmus_environment_data', json_encode($decoded_env), $audio_post_id);
 
                     // Extract device fingerprint if available
                     if (isset($decoded_env['fingerprint'])) {
-                        $this->update_acf_field('device_fingerprint', $decoded_env['fingerprint'], $audio_post_id);
+                        $this->update_acf_field('starmus_device_fingerprint', $decoded_env['fingerprint'], $audio_post_id);
                     }
                 }
             }
@@ -739,20 +739,20 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
                 $decoded_cal = json_decode(wp_unslash($cal_json), true);
                 if ($decoded_cal) {
                     // Store calibration data (gain, speechLevel) in transcriber field (Group C)
-                    $this->update_acf_field('transcriber', json_encode($decoded_cal), $audio_post_id);
+                    $this->update_acf_field('starmus_transcriber_metadata', json_encode($decoded_cal), $audio_post_id);
                 }
             }
 
             // Handle waveform JSON from JavaScript
             if (! empty($form_data['waveform_json'])) {
                 $wf_value = \is_string($form_data['waveform_json']) ? $form_data['waveform_json'] : json_encode($form_data['waveform_json']);
-                $this->update_acf_field('waveform_json', $wf_value, $audio_post_id);
+                $this->update_acf_field('starmus_waveform_json', $wf_value, $audio_post_id);
             }
 
             // Handle recording metadata from JavaScript
             if (! empty($form_data['recording_metadata'])) {
                 $metadata_value = \is_string($form_data['recording_metadata']) ? $form_data['recording_metadata'] : json_encode($form_data['recording_metadata']);
-                $this->update_acf_field('recording_metadata', $metadata_value, $audio_post_id);
+                $this->update_acf_field('starmus_recording_metadata', $metadata_value, $audio_post_id);
             }
 
             // New schema: User mappings (Groups A, B, D)
@@ -772,21 +772,21 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
 
             // Session metadata (Group B) - includes new fields
             $session_fields = [
-                'project_collection_id',
-                'accession_number',
-                'location',
+                'starmus_project_collection_id',
+                'starmus_accession_number',
+                'starmus_session_location',
                 'session_date',
-                'session_start_time',
-                'gps_coordinates',
-                'recording_equipment',
-                'audio_files_originals',
-                'media_condition_notes',
+                'starmus_session_start_time',
+                'starmus_session_gps',
+                'starmus_recording_equipment',
+                'starmus_audio_files_originals',
+                'starmus_media_condition',
                 'agreement_to_terms_toggle',
                 'related_consent_agreement',
-                'usage_restrictions_rights',
-                'access_level',
+                'starmus_rights_use',
+                'starmus_access_level',
                 'first_pass_transcription',
-                'audio_quality_score_tax',
+                'starmus_audio_quality_score',
                 'starmus_assigned_story_type',
             ];
             foreach ($session_fields as $field) {
@@ -814,17 +814,17 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
 
             // File attachments (Group C)
             if ($attachment_id !== 0) {
-                $this->update_acf_field('original_source', $attachment_id, $audio_post_id);
+                $this->update_acf_field('starmus_original_source', $attachment_id, $audio_post_id);
                 // Also update audio_files_originals for backward compatibility
-                $this->update_acf_field('audio_files_originals', [$attachment_id], $audio_post_id);
+                $this->update_acf_field('starmus_audio_files_originals', [$attachment_id], $audio_post_id);
             }
 
-            if (isset($mapped_data['mastered_mp3'])) {
-                $this->update_acf_field('mastered_mp3', $mapped_data['mastered_mp3'], $audio_post_id);
+            if (isset($mapped_data['starmus_mastered_mp3'])) {
+                $this->update_acf_field('starmus_mastered_mp3', $mapped_data['starmus_mastered_mp3'], $audio_post_id);
             }
 
-            if (isset($mapped_data['archival_wav'])) {
-                $this->update_acf_field('archival_wav', $mapped_data['archival_wav'], $audio_post_id);
+            if (isset($mapped_data['starmus_archival_wav'])) {
+                $this->update_acf_field('starmus_archival_wav', $mapped_data['starmus_archival_wav'], $audio_post_id);
             }
 
             // Additional Group D fields

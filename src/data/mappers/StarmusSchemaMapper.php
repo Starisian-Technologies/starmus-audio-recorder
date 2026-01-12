@@ -30,7 +30,7 @@ use Throwable;
 
 use function wp_unslash;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -199,6 +199,13 @@ class StarmusSchemaMapper
                 }
             }
 
+            // 1b. PROCESS MAPPED FIELDS
+            foreach (self::FIELD_MAP as $old_key => $new_key) {
+                if (isset($data[$old_key])) {
+                    $mapped[$new_key] = $data[$old_key];
+                }
+            }
+
             // 2. PROCESS COMPLEX LOGIC & RELATIONSHIPS
 
             // DC Creator (Used by Sanitizer to generate _starmus_title)
@@ -220,12 +227,12 @@ class StarmusSchemaMapper
                 : $data['session_date'];
 
             // Geolocation (Used by Sanitizer to generate _starmus_geolocation)
-            if ( ! empty($data['geolocation'])) {
+            if (! empty($data['geolocation'])) {
                 $mapped['gps_coordinates'] = $data['geolocation'];
             }
 
             // JSON Blobs (Safely handled)
-            if ( ! empty($data['_starmus_env'])) {
+            if (! empty($data['_starmus_env'])) {
                 $mapped['environment_data'] = self::ensure_json_string($data['_starmus_env'], 'environment_data');
 
                 // Extract Fingerprint
@@ -235,43 +242,43 @@ class StarmusSchemaMapper
                 }
             }
 
-            if ( ! empty($data['waveform_json'])) {
+            if (! empty($data['waveform_json'])) {
                 $mapped['waveform_json'] = self::ensure_json_string($data['waveform_json'], 'waveform_json');
             }
 
-            if ( ! empty($data['_starmus_calibration'])) {
+            if (! empty($data['_starmus_calibration'])) {
                 $mapped['transcriber'] = self::ensure_json_string($data['_starmus_calibration'], 'transcriber');
             }
 
             // Agreement Logic
-            if ( ! empty($data['agreement'])) {
+            if (! empty($data['agreement'])) {
                 $mapped['agreement_to_terms_toggle'] = 1;
                 $mapped['agreement_datetime']        = date('Y-m-d H:i:s');
             }
 
             // IP Address
-            if ( ! empty($data['ip_address'])) {
+            if (! empty($data['ip_address'])) {
                 $mapped['submission_ip']  = $data['ip_address'];
                 $mapped['contributor_ip'] = $data['ip_address'];
             }
 
             // Taxonomies - Mapped to correct internal keys for SubmissionHandler
-            if ( ! empty($data['language'])) {
+            if (! empty($data['language'])) {
                 $mapped['starmus_tax_language'] = (int) $data['language'];
-            } elseif ( ! empty($data['starmus_tax_language'])) {
+            } elseif (! empty($data['starmus_tax_language'])) {
                 $mapped['starmus_tax_language'] = (int) $data['starmus_tax_language'];
             }
 
-            if ( ! empty($data['dialect'])) {
+            if (! empty($data['dialect'])) {
                 $mapped['starmus_tax_dialect'] = (int) $data['dialect'];
-            } elseif ( ! empty($data['starmus_tax_dialect'])) {
+            } elseif (! empty($data['starmus_tax_dialect'])) {
                 $mapped['starmus_tax_dialect'] = (int) $data['starmus_tax_dialect'];
             }
 
             // Fix for "Recording Types not working" - Map frontend key to taxonomy key
-            if ( ! empty($data['recording_type'])) {
+            if (! empty($data['recording_type'])) {
                 $mapped['recording-type'] = (int) $data['recording_type'];
-            } elseif ( ! empty($data['starmus_story_type'])) {
+            } elseif (! empty($data['starmus_story_type'])) {
                 $mapped['recording-type'] = (int) $data['starmus_story_type'];
             }
         } catch (Throwable $throwable) {
@@ -280,6 +287,19 @@ class StarmusSchemaMapper
         }
 
         return $mapped;
+    }
+
+    /**
+     * Extracts user IDs for submission processing.
+     *
+     * @param array $data Raw form data
+     * @return array Key-value pair of field names and user IDs
+     */
+    public static function extract_user_ids(array $data): array
+    {
+        // Prevent crashes by returning empty array if no user logic needed yet
+        // This restores the missing method called by StarmusSubmissionHandler
+        return [];
     }
 
     /**
