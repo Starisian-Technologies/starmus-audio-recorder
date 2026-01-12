@@ -161,6 +161,17 @@ export function initAutoMetadata(store, formEl, _options) {
 			updateField(formEl, 'recording_metadata', source.metadata);
 		}
 
+		// 4. Transcription (New)
+		// Assuming transcript is stored in source.transcript based on file search
+		if (source.transcript) {
+			updateField(formEl, 'transcription', source.transcript);
+		}
+
+		// 4b. Transcription JSON (Timestamps/Confidence)
+		if (source.transcriptJson) {
+			updateField(formEl, 'transcription_json', source.transcriptJson);
+		}
+
 		// 5. Waveform (Optional)
 		if (source.waveform) {
 			updateField(formEl, 'waveform_json', source.waveform);

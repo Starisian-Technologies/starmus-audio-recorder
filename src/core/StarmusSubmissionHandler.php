@@ -746,12 +746,18 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             // Handle waveform JSON from JavaScript
             if (! empty($form_data['waveform_json'])) {
                 $wf_value = \is_string($form_data['waveform_json']) ? $form_data['waveform_json'] : json_encode($form_data['waveform_json']);
+                error_log('[STARMUS PHP] Saving starmus_waveform_json. Size: ' . strlen($wf_value));
                 $this->update_acf_field('starmus_waveform_json', $wf_value, $audio_post_id);
+            } else {
+                error_log('[STARMUS PHP] waveform_json is empty in form_data.');
             }
 
             // Handle first-pass transcription from JavaScript
             if (! empty($form_data['transcription'])) {
+                error_log('[STARMUS PHP] Saving starmus_transcription_text. Keys: ' . substr($form_data['transcription'], 0, 50));
                 $this->update_acf_field('starmus_transcription_text', sanitize_textarea_field($form_data['transcription']), $audio_post_id);
+            } else {
+                error_log('[STARMUS PHP] transcription is empty in form_data.');
             }
 
             if (! empty($form_data['transcription_json'])) {
@@ -775,17 +781,20 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             $timestamp  = gmdate('Y-m-d H:i:s'); // UTC timestamp
             $user_ip    = StarmusSanitizer::get_user_ip();
             $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-            $this->update_acf_field('agreement_datetime', $timestamp, $audio_post_id);
-            $this->update_acf_field('contributor_ip', $user_ip, $audio_post_id);
-            $this->update_acf_field('contributor_user_agent', sanitize_text_field($user_agent), $audio_post_id);
-            $this->update_acf_field('submission_ip', $user_ip, $audio_post_id);
+
+            // Use correct Starmus keys (verified against ACF JSON)
+            $this->update_acf_field('starmus_agreement_datetime', $timestamp, $audio_post_id);
+            $this->update_acf_field('starmus_contributor_ip', $user_ip, $audio_post_id);
+            $this->update_acf_field('starmus_contributor_user_agent', sanitize_text_field($user_agent), $audio_post_id);
+            // IP stored in starmus_contributor_ip, distinct field for redundancy if needed
+            // $this->update_acf_field('starmus_agree_ip', $user_ip, $audio_post_id);
 
             // Session metadata (Group B) - includes new fields
             $session_fields = [
                 'starmus_project_collection_id',
                 'starmus_accession_number',
                 'starmus_session_location',
-                'session_date',
+                'starmus_session_date', // Fixed key
                 'starmus_session_start_time',
                 'starmus_session_gps',
                 'starmus_recording_equipment',
@@ -795,18 +804,14 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
                 'related_consent_agreement',
                 'starmus_rights_use',
                 'starmus_access_level',
-                'first_pass_transcription',
+                // 'first_pass_transcription', // REMOVED: Handled explicitly via starmus_transcription_text
                 'starmus_audio_quality_score',
                 'starmus_assigned_story_type',
             ];
             foreach ($session_fields as $field) {
                 if (isset($mapped_data[$field])) {
-                    if ($field === 'first_pass_transcription') {
-                        // Handle first pass transcription as readonly field
-                        $this->update_acf_field($field, $mapped_data[$field], $audio_post_id);
-                    } else {
-                        $this->update_acf_field($field, sanitize_text_field((string) $mapped_data[$field]), $audio_post_id);
-                    }
+                    // specific handling for array/json fields if needed, but currently mapped logic handles string conversions
+                    $this->update_acf_field($field, sanitize_text_field((string) $mapped_data[$field]), $audio_post_id);
                 }
             }
 
