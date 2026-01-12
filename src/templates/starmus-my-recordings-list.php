@@ -138,7 +138,7 @@ if ($query->have_posts()) { ?>
                     <?php } ?>
 
                     <div class="starmus-card__actions">
-                        <a href="<?php echo esc_url(get_permalink($current_post_id)); ?>" class="starmus-btn starmus-btn--outline" aria-label="
+                        <a href="<?php echo esc_url(add_query_arg(['view' => 'detail', 'recording_id' => $current_post_id])); ?>" class="starmus-btn starmus-btn--outline" aria-label="
                 <?php
                 /* translators: %s: Recording title/name */
                 echo esc_attr(sprintf(__('View details for %s', 'starmus-audio-recorder'), $post_title));

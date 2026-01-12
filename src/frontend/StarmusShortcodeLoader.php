@@ -168,11 +168,17 @@ final class StarmusShortcodeLoader
             $cpt_slug       = $this->settings->get('cpt_slug', 'audio-recording');
             $query          = $this->dal->get_user_recordings(get_current_user_id(), $cpt_slug, $posts_per_page, $paged);
 
+            // Resolve Base URL for links
+            $page_ids = $this->settings->get('my_recordings_page_id');
+            $page_id  = \is_array($page_ids) ? (int) reset($page_ids) : (int) $page_ids;
+            $base_url = $page_id > 0 ? get_permalink($page_id) : get_permalink();
+
             return StarmusTemplateLoaderHelper::render_template(
                 'parts/starmus-my-recordings-list.php',
                 [
                     'query'         => $query,
                     'edit_page_url' => $this->dal->get_edit_page_url_admin($cpt_slug),
+                    'base_url'      => $base_url,
                 ]
             );
         } catch (Throwable $throwable) {
