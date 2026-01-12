@@ -215,7 +215,7 @@ export async function uploadDirect(
 	const nonce = cfg.nonce || window.starmusConfig?.nonce || '';
 
 	// Fallback endpoint (WordPress REST API)
-	const endpoint = '/wp-json/star-starmus-audio-recorder/v1/upload-fallback';
+	const endpoint = cfg.endpoints?.directUpload || '/wp-json/star-starmus-audio-recorder/v1/upload-fallback';
 
 	const fields = normalizeFormFields(formFields);
 
