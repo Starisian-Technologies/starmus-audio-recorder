@@ -1051,7 +1051,17 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
      */
     private function get_redirect_url(): string
     {
-        return home_url('/my-submissions');
+        // Try getting the Page ID first (Most reliable)
+        $page_ids = $this->settings->get('my_recordings_page_id');
+        $page_id  = \is_array($page_ids) ? reset($page_ids) : $page_ids;
+
+        if ($page_id) {
+            return get_permalink((int) $page_id);
+        }
+
+        // Fallback to Slug Setting
+        $slug = (string) $this->settings->get('my_recordings_page_slug', 'my-recordings');
+        return home_url('/' . $slug);
     }
 
     /**

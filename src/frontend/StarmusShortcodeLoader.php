@@ -154,8 +154,16 @@ final class StarmusShortcodeLoader
                         ? 'starmus-recording-detail-admin.php'
                         : 'starmus-recording-detail-user.php';
 
-                    // Pass post_id explicitly to robust templates
-                    $output = StarmusTemplateLoaderHelper::render_template($template, ['post_id' => $recording_id]);
+                    // Contextual Links
+                    $recorder_page_id = $this->settings->get('recorder_page_id');
+                    $recorder_url     = $recorder_page_id ? get_permalink((int) $recorder_page_id) : '';
+
+                    // Pass variables explicitly to robust templates
+                    $output = StarmusTemplateLoaderHelper::render_template($template, [
+                        'post_id'           => $recording_id,
+                        'recorder_page_url' => $recorder_url,
+                        // Add edit_page_url if needed, currently not strictly required by prompt unless "re-recorder" implies it
+                    ]);
                     wp_reset_postdata();
                     return $output;
                 }
