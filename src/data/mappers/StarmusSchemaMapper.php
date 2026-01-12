@@ -243,7 +243,15 @@ class StarmusSchemaMapper
             }
 
             if (! empty($data['waveform_json'])) {
-                $mapped['waveform_json'] = self::ensure_json_string($data['waveform_json'], 'waveform_json');
+                $mapped['starmus_waveform_json'] = self::ensure_json_string($data['waveform_json'], 'waveform_json');
+            }
+
+            if (! empty($data['transcription'])) {
+                $mapped['starmus_transcription_text'] = sanitize_textarea_field($data['transcription']);
+            }
+
+            if (! empty($data['transcription_json'])) {
+                $mapped['starmus_transcription_json'] = self::ensure_json_string($data['transcription_json'], 'transcription_json');
             }
 
             if (! empty($data['_starmus_calibration'])) {

@@ -749,6 +749,16 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
                 $this->update_acf_field('starmus_waveform_json', $wf_value, $audio_post_id);
             }
 
+            // Handle first-pass transcription from JavaScript
+            if (! empty($form_data['transcription'])) {
+                $this->update_acf_field('starmus_transcription_text', sanitize_textarea_field($form_data['transcription']), $audio_post_id);
+            }
+
+            if (! empty($form_data['transcription_json'])) {
+                $trans_json = \is_string($form_data['transcription_json']) ? $form_data['transcription_json'] : json_encode($form_data['transcription_json']);
+                $this->update_acf_field('starmus_transcription_json', $trans_json, $audio_post_id);
+            }
+
             // Handle recording metadata from JavaScript
             if (! empty($form_data['recording_metadata'])) {
                 $metadata_value = \is_string($form_data['recording_metadata']) ? $form_data['recording_metadata'] : json_encode($form_data['recording_metadata']);
