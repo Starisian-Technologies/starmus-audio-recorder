@@ -137,10 +137,11 @@ final class StarmusShortcodeLoader
         try {
             // === Detail View Handler ===
             // Since audio-recording is hidden from frontend queries, we handle display here.
-            $view         = filter_input(INPUT_GET, 'view', FILTER_SANITIZE_SPECIAL_CHARS);
-            $recording_id = filter_input(INPUT_GET, 'recording_id', FILTER_SANITIZE_NUMBER_INT);
+            // Use $_GET directly as filter_input has reliability issues in some WP environments
+            $view         = isset($_GET['view']) ? sanitize_key($_GET['view']) : '';
+            $recording_id = isset($_GET['recording_id']) ? absint($_GET['recording_id']) : 0;
 
-            if ($view === 'detail' && $recording_id) {
+            if ($view === 'detail' && $recording_id > 0) {
                 // Security: Ensure user owns this recording or can edit others
                 $post = get_post($recording_id);
                 if ($post && (get_current_user_id() === (int) $post->post_author || current_user_can('edit_others_posts'))) {
@@ -153,7 +154,8 @@ final class StarmusShortcodeLoader
                         ? 'starmus-recording-detail-admin.php'
                         : 'starmus-recording-detail-user.php';
 
-                    $output = StarmusTemplateLoaderHelper::render_template($template);
+                    // Pass post_id explicitly to robust templates
+                    $output = StarmusTemplateLoaderHelper::render_template($template, ['post_id' => $recording_id]);
                     wp_reset_postdata();
                     return $output;
                 }

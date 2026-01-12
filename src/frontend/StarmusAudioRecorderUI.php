@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /**
  * Front-end presentation layer for the Starmus recorder experience.
@@ -14,7 +15,7 @@ use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -159,10 +160,10 @@ class StarmusAudioRecorderUI
                 $existing_title = $post ? $post->post_title : '';
 
                 $language_terms = wp_get_object_terms($post_id, 'starmus_tax_language');
-                $language_id    = ( ! is_wp_error($language_terms) && ! empty($language_terms)) ? $language_terms[0]->term_id : 0;
+                $language_id    = (! is_wp_error($language_terms) && ! empty($language_terms)) ? $language_terms[0]->term_id : 0;
 
                 $type_terms = wp_get_object_terms($post_id, 'recording-type');
-                $type_id    = ( ! is_wp_error($type_terms) && ! empty($type_terms)) ? $type_terms[0]->term_id : 0;
+                $type_id    = (! is_wp_error($type_terms) && ! empty($type_terms)) ? $type_terms[0]->term_id : 0;
             }
 
             // 2. Override/Supplement from Script Context
@@ -172,12 +173,12 @@ class StarmusAudioRecorderUI
                     $existing_title = $script_post->post_title; // Script title wins for new/re-record
 
                     $script_langs = wp_get_object_terms($script_id, 'starmus_tax_language');
-                    if ( ! is_wp_error($script_langs) && ! empty($script_langs)) {
+                    if (! is_wp_error($script_langs) && ! empty($script_langs)) {
                         $language_id = $script_langs[0]->term_id;
                     }
 
                     $script_dialects = wp_get_object_terms($script_id, 'starmus_tax_dialect');
-                    if ( ! is_wp_error($script_dialects) && ! empty($script_dialects)) {
+                    if (! is_wp_error($script_dialects) && ! empty($script_dialects)) {
                         $dialect_id = $script_dialects[0]->term_id;
                     }
 
@@ -233,7 +234,7 @@ class StarmusAudioRecorderUI
                     'hide_empty' => false,
                 ]
             );
-            if ( ! is_wp_error($terms)) {
+            if (! is_wp_error($terms)) {
                 set_transient($cache_key, $terms, 12 * HOUR_IN_SECONDS);
             } else {
                 StarmusLogger::log(new Exception($terms->get_error_message()));
@@ -251,5 +252,37 @@ class StarmusAudioRecorderUI
     {
         delete_transient('starmus_languages_list');
         delete_transient('starmus_recording_types_list');
+    }
+
+    /**
+     * Add conditional redirect URL to the upload success response.
+     *
+     * @param array<string, mixed> $response  The upload response from the handler.
+     * @param int                  $post_id   The ID of the newly created/updated recording post.
+     * @param array<string, mixed> $form_data The raw form data submitted.
+     *
+     * @return array<string, mixed> Modified response with optional redirect_url.
+     */
+    public function add_conditional_redirect(array $response, int $post_id, array $form_data): array
+    {
+        if (! $this->settings instanceof StarmusSettings) {
+            return $response;
+        }
+
+        $page_setting = $this->settings->get('my_recordings_page_id');
+        $page_id      = 0;
+
+        if (\is_array($page_setting) && ! empty($page_setting)) {
+            // If multiple are set, use the first one
+            $page_id = (int) reset($page_setting);
+        } elseif (is_numeric($page_setting)) {
+            $page_id = (int) $page_setting;
+        }
+
+        if ($page_id > 0) {
+            $response['redirect_url'] = get_permalink($page_id);
+        }
+
+        return $response;
     }
 }
