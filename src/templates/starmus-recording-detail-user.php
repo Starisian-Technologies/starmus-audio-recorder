@@ -99,7 +99,7 @@ try {
     $playback_url = $mp3_url ?: $original_url;
 
     // --- 2. Additional Metadata (Using Admin Logic for Robustness) ---
-    $transcript_raw  = get_field('first_pass_transcription', $post_id);
+    $transcript_raw  = get_field('starmus_transcription_text', $post_id);
     $transcript_text = '';
     if ( ! empty($transcript_raw)) {
         $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
@@ -122,11 +122,11 @@ try {
     }
 
     // --- 4. Fetch Metadata (New Schema) ---
-    $accession_number = get_field('accession_number', $post_id);
-    $location_data    = get_field('location', $post_id);
+    $accession_number = get_field('starmus_accession_number', $post_id);
+    $location_data    = get_field('starmus_session_location', $post_id);
 
     // --- 5. User-Appropriate Environment Data (New Schema) ---
-    $env_json_raw = get_field('environment_data', $post_id);
+    $env_json_raw = get_field('starmus_environment_data', $post_id);
     $env_data     = is_string($env_json_raw) ? json_decode($env_json_raw, true) : [];
 
     // Parse Browser/OS from User Agent (user-friendly display)
@@ -160,7 +160,7 @@ try {
     }
 
     // Parse Mic Profile (useful for users to understand quality)
-    $mic_data_raw        = get_field('transcriber', $post_id);
+    $mic_data_raw        = get_field('starmus_transcriber_metadata', $post_id);
     $mic_data            = json_decode($mic_data_raw, true);
     $mic_profile_display = 'Standard';
     if (isset($mic_data['gain'])) {
@@ -175,7 +175,7 @@ try {
     }
 
     // --- 6. Taxonomies ---
-    $languages = get_the_terms($post_id, 'language');
+    $languages = get_the_terms($post_id, 'starmus_tax_language');
     $rec_types = get_the_terms($post_id, 'recording-type');
 
     // --- 7. Action URLs ---

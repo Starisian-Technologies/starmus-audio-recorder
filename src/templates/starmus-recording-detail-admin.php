@@ -95,20 +95,22 @@ try {
     $runtime_raw    = get_post_meta($post_id, 'runtime_metadata', true);
 
     // --- 3. Robust Data Parsing (New Schema) ---
-    $env_json_raw = get_field('environment_data', $post_id);
+    $env_json_raw = get_field('starmus_environment_data', $post_id);
     $env_data     = empty($env_json_raw) ? [] : json_decode($env_json_raw, true);
 
     // FIX: Parse IDs correctly from the flat structure we built in JS
     $visitor_id = $env_data['identifiers']['visitorId'] ?? 'N/A';
     $session_id = $env_data['identifiers']['sessionId'] ?? 'N/A';
+    // FIX: Fingerprint is now at root of env data
+    $fingerprint_val = $env_data['fingerprint'] ?? $env_data['identifiers']['visitorId'] ?? 'N/A';
 
-    $fingerprint_display = sprintf('Session: %s | Visitor: %s', $session_id, $visitor_id);
+    $fingerprint_display = sprintf('Session: %s | Fingerprint: %s', $session_id, $fingerprint_val);
 
     $submission_ip_display = get_field('contributor_ip', $post_id) ?: ($env_data['identifiers']['ipAddress'] ?? 'Unknown');
 
     // FIX: Mic Profile Location (New Schema)
     // The JSON shows {"gain":1,"speechLevel":100} inside transcriber field
-    $mic_data_raw        = get_field('transcriber', $post_id);
+    $mic_data_raw        = get_field('starmus_transcriber_metadata', $post_id);
     $mic_data            = json_decode($mic_data_raw, true);
     $mic_profile_display = isset($mic_data['gain']) ? 'Gain: ' . $mic_data['gain'] : 'N/A';
 
@@ -145,12 +147,16 @@ try {
     }
 
     // Parse Transcript
-    $transcript_raw  = get_field('first_pass_transcription', $post_id);
+    $transcript_raw  = get_field('starmus_transcription_text', $post_id);
     $transcript_text = '';
     if ( ! empty($transcript_raw)) {
         $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
         $transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
     }
+
+    // Parse Waveform
+    $waveform_json_raw = get_field('starmus_waveform_json', $post_id);
+    $waveform_data     = ! empty($waveform_json_raw) ? json_decode($waveform_json_raw, true) : [];
 
     // --- 4. Standard Metadata (New Schema) ---
     $accession_number = get_field('starmus_accession_number', $post_id);
