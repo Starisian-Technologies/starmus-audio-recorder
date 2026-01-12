@@ -175,6 +175,9 @@ window.addEventListener('sparxstar:environment-ready', (e) => {
 
 		// 6. Init Error Array (Required by Schema)
 		errors: [],
+
+		// 7. Fingerprint (Explicitly required for Schema)
+		fingerprint: raw.fingerprint || idents.fingerprint || idents.visitorId || 'unknown',
 	};
 
 	console.log('[StarmusIntegrator] ✅ Normalized Env:', normalizedEnv);
