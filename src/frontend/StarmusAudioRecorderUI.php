@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 /**
  * Front-end presentation layer for the Starmus recorder experience.
  *
@@ -10,14 +10,13 @@ namespace Starisian\Sparxstar\Starmus\frontend;
 
 use Throwable;
 use Exception;
-
-if ( ! \defined('ABSPATH')) {
-    exit;
-}
-
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
+
+if (! \defined('ABSPATH')) {
+    exit;
+}
 
 /**
  * Renders the user interface for the audio recorder and recordings list.
@@ -38,6 +37,8 @@ class StarmusAudioRecorderUI
 
     /**
      * Register shortcodes and taxonomy cache hooks.
+     *
+     * @return void
      */
     private function register_hooks(): void
     {
