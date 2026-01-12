@@ -82,7 +82,7 @@ if ($query->have_posts()) { ?>
                         $duration_formatted = gmdate('i:s', intval($att_meta['length']));
                     }
                 }
-            ?>
+                ?>
 
                 <article class="starmus-card sparxstar-glass-card" aria-labelledby="card-title-<?php echo intval($current_post_id); ?>">
                     <div class="starmus-card__header">
@@ -100,14 +100,14 @@ if ($query->have_posts()) { ?>
                                 </time>
                             </span>
 
-                            <?php if (! empty($recording_type) && ! is_wp_error($recording_type)) { ?>
+                            <?php if ( ! empty($recording_type) && ! is_wp_error($recording_type)) { ?>
                                 <span class="starmus-card__type">
                                     <span class="screen-reader-text"><?php esc_html_e('Type:', 'starmus-audio-recorder'); ?></span>
                                     <?php echo esc_html($recording_type[0]->name); ?>
                                 </span>
                             <?php } ?>
 
-                            <?php if (! empty($language) && ! is_wp_error($language)) { ?>
+                            <?php if ( ! empty($language) && ! is_wp_error($language)) { ?>
                                 <span class="starmus-card__language">
                                     <span class="screen-reader-text"><?php esc_html_e('Language:', 'starmus-audio-recorder'); ?></span>
                                     <?php echo esc_html($language[0]->name); ?>
@@ -147,7 +147,7 @@ if ($query->have_posts()) { ?>
                             <?php esc_html_e('View Details', 'starmus-audio-recorder'); ?>
                         </a>
 
-                        <?php if (! empty($edit_page_url) && current_user_can('edit_post', $current_post_id)) { ?>
+                        <?php if ( ! empty($edit_page_url) && current_user_can('edit_post', $current_post_id)) { ?>
                             <?php
                             // Use 'recording_id' for consistency with Editor/Recorder templates
                             $edit_link        = add_query_arg('recording_id', $current_post_id, $edit_page_url);
@@ -188,7 +188,7 @@ if ($query->have_posts()) { ?>
     );
 
     if ($pagination_links) {
-    ?>
+        ?>
         <nav class="starmus-pagination" aria-label="<?php esc_attr_e('Recording list pagination', 'starmus-audio-recorder'); ?>">
             <ul class="starmus-pagination__list">
                 <?php foreach ($pagination_links as $link) { ?>
@@ -198,7 +198,7 @@ if ($query->have_posts()) { ?>
                 <?php } ?>
             </ul>
         </nav>
-    <?php
+        <?php
     }
     ?>
 

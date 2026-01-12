@@ -12,65 +12,66 @@
    1. VARIABLES & THEME MAPPING (WITH LEGACY FALLBACKS)
    ======================================================================== */
 :root {
-  /* High-compatibility Hex Fallbacks (Safe for legacy browsers) */
-  --starmus-primary-hex: #f759ff;
-  --starmus-accent-hex: #246bf8;
-  --starmus-text-hex: #111827;
-  --starmus-danger-hex: #b91c1c;
-  --starmus-success-hex: #16a34a;
-  --starmus-warning-hex: #ea580c;
+    /* High-compatibility Hex Fallbacks (Safe for legacy browsers) */
+    --starmus-primary-hex: #f759ff;
+    --starmus-accent-hex: #246bf8;
+    --starmus-text-hex: #111827;
+    --starmus-danger-hex: #b91c1c;
+    --starmus-success-hex: #16a34a;
+    --starmus-warning-hex: #ea580c;
 
-  /* Theme Mapping */
-  --starmus-primary: var(--wp--preset--color--accent-3, var(--starmus-primary-hex));
-  --starmus-text: var(--wp--preset--color--contrast, var(--starmus-text-hex));
-  --starmus-theme-glass-base: var(--starmus-primary);
-  --starmus-theme-glass-border: var(--wp--preset--color--accent-3, var(--starmus-accent-hex));
+    /* Theme Mapping */
+    --starmus-primary: var(--wp--preset--color--accent-3, var(--starmus-primary-hex));
+    --starmus-text: var(--wp--preset--color--contrast, var(--starmus-text-hex));
+    --starmus-theme-glass-base: var(--starmus-primary);
+    --starmus-theme-glass-border: var(--wp--preset--color--accent-3, var(--starmus-accent-hex));
 
-  /* Default Structural Variables */
-  --starmus-primary-soft: var(--starmus-primary);
-  --starmus-primary-strong: #d449db;
-  --starmus-glass-bg: rgb(255 255 255 / 90%);
-  --starmus-glass-inner-bg: rgb(255 255 255 / 40%);
-  --starmus-glass-border-color: var(
-    --starmus-theme-glass-border,
-    var(--starmus-accent-hex),
-    transparent 80%
-  );
-  --starmus-glass-border-highlight-color: var(
-    --wp--preset--color--accent-2,
-    var(--starmus-primary-hex),
-    transparent 90%
-  );
-  --starmus-glass-blur: 0;
-  --starmus-glass-shadow: 0 10px 30px rgb(0 0 0 / 10%);
-  --starmus-danger: var(--starmus-danger-hex);
-  --starmus-success: var(--starmus-success-hex);
-  --starmus-warning: var(--starmus-warning-hex);
+    /* Default Structural Variables */
+    --starmus-primary-soft: var(--starmus-primary);
+    --starmus-primary-strong: #d449db;
+    --starmus-glass-bg: rgb(255 255 255 / 90%);
+    --starmus-glass-inner-bg: rgb(255 255 255 / 40%);
+    --starmus-glass-border-color: var(
+        --starmus-theme-glass-border,
+        var(--starmus-accent-hex),
+        transparent 80%
+    );
+    --starmus-glass-border-highlight-color: var(
+        --wp--preset--color--accent-2,
+        var(--starmus-primary-hex),
+        transparent 90%
+    );
+    --starmus-glass-blur: 0;
+    --starmus-glass-shadow: 0 10px 30px rgb(0 0 0 / 10%);
+    --starmus-danger: var(--starmus-danger-hex);
+    --starmus-success: var(--starmus-success-hex);
+    --starmus-warning: var(--starmus-warning-hex);
 }
 
 /* Modern Enhancement: color-mix support */
 @supports (color: color-mix(in srgb, black, white)) {
-  :root {
-    --starmus-primary-soft: color-mix(in srgb, var(--starmus-primary) 80%, transparent 20%);
-    --starmus-primary-strong: color-mix(in srgb, var(--starmus-primary) 100%, black 10%);
-    --starmus-text-muted: color-mix(in srgb, var(--starmus-text) 60%, transparent 40%);
-    --starmus-glass-bg: color-mix(in srgb, var(--starmus-theme-glass-base) 8%, transparent 15%);
-    --starmus-glass-inner-bg: color-mix(
-      in srgb,
-      var(--starmus-theme-glass-base) 40%,
-      transparent 60%
-    );
-    --starmus-glass-shadow: 0 10px 30px color-mix(in srgb, var(--starmus-text) 12%, transparent 88%);
-    --starmus-danger: color-mix(in srgb, #b91c1c 85%, var(--starmus-text) 15%);
-    --starmus-success: color-mix(in srgb, #16a34a 85%, var(--starmus-text) 15%);
-    --starmus-warning: color-mix(in srgb, #ea580c 85%, var(--starmus-text) 15%);
-  }
+    :root {
+        --starmus-primary-soft: color-mix(in srgb, var(--starmus-primary) 80%, transparent 20%);
+        --starmus-primary-strong: color-mix(in srgb, var(--starmus-primary) 100%, black 10%);
+        --starmus-text-muted: color-mix(in srgb, var(--starmus-text) 60%, transparent 40%);
+        --starmus-glass-bg: color-mix(in srgb, var(--starmus-theme-glass-base) 8%, transparent 15%);
+        --starmus-glass-inner-bg: color-mix(
+            in srgb,
+            var(--starmus-theme-glass-base) 40%,
+            transparent 60%
+        );
+        --starmus-glass-shadow: 0 10px 30px
+            color-mix(in srgb, var(--starmus-text) 12%, transparent 88%);
+        --starmus-danger: color-mix(in srgb, #b91c1c 85%, var(--starmus-text) 15%);
+        --starmus-success: color-mix(in srgb, #16a34a 85%, var(--starmus-text) 15%);
+        --starmus-warning: color-mix(in srgb, #ea580c 85%, var(--starmus-text) 15%);
+    }
 }
 
 @media (width >= 768px) {
-  :root {
-    --starmus-glass-blur: 12px;
-  }
+    :root {
+        --starmus-glass-blur: 12px;
+    }
 }
 
 /* ========================================================================
@@ -79,24 +80,24 @@
 
 .starmus-recorder-form .entry-content,
 .starmus-user-detail .entry-content {
-  margin: 0 !important;
+    margin: 0 !important;
 }
 
 .starmus-grid-layout {
-  display: grid;
-  grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: 1fr;
 }
 
 @supports (gap: 20px) {
-  .starmus-grid-layout {
-    gap: 20px;
-  }
+    .starmus-grid-layout {
+        gap: 20px;
+    }
 }
 
 @media (width >= 1024px) {
-  .starmus-grid-layout {
-    grid-template-columns: 2fr 1fr;
-  }
+    .starmus-grid-layout {
+        grid-template-columns: 2fr 1fr;
+    }
 }
 
 /* ========================================================================
@@ -112,41 +113,41 @@
 .starmus-player-card,
 .starmus-info-card,
 .starmus-actions-card {
-  background: var(--starmus-glass-bg);
-  border: 1px solid var(--starmus-glass-border-color);
-  border-top: 1px solid var(--starmus-glass-border-highlight-color);
-  border-left: 1px solid var(--starmus-glass-border-highlight-color);
-  border-radius: 16px;
-  box-shadow: var(--starmus-glass-shadow);
-  padding: 1.5rem;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-  margin-bottom: 1.5rem;
+    background: var(--starmus-glass-bg);
+    border: 1px solid var(--starmus-glass-border-color);
+    border-top: 1px solid var(--starmus-glass-border-highlight-color);
+    border-left: 1px solid var(--starmus-glass-border-highlight-color);
+    border-radius: 16px;
+    box-shadow: var(--starmus-glass-shadow);
+    padding: 1.5rem;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+    margin-bottom: 1.5rem;
 }
 
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  @media (width >= 768px) {
-    .sparxstar-glass-card,
-    .starmus-glass,
-    .starmus-recorder-form,
-    .starmus-editor__wave-inner,
-    .starmus-editor__transcript,
-    .starmus-editor__list,
-    .starmus-player-card,
-    .starmus-info-card,
-    .starmus-actions-card {
-      backdrop-filter: blur(var(--starmus-glass-blur));
+    @media (width >= 768px) {
+        .sparxstar-glass-card,
+        .starmus-glass,
+        .starmus-recorder-form,
+        .starmus-editor__wave-inner,
+        .starmus-editor__transcript,
+        .starmus-editor__list,
+        .starmus-player-card,
+        .starmus-info-card,
+        .starmus-actions-card {
+            backdrop-filter: blur(var(--starmus-glass-blur));
+        }
     }
-  }
 }
 
 @supports (filter: drop-shadow(0 0 1px black)) {
-  .starmus-card.sparxstar-glass-card:hover {
-    transform: translateY(-4px);
-    filter: drop-shadow(0 12px 30px rgb(0 0 0 / 15%));
-  }
+    .starmus-card.sparxstar-glass-card:hover {
+        transform: translateY(-4px);
+        filter: drop-shadow(0 12px 30px rgb(0 0 0 / 15%));
+    }
 }
 
 /* ========================================================================
@@ -154,72 +155,72 @@
    ======================================================================== */
 
 .starmus-field-group {
-  margin-bottom: 1.25rem;
+    margin-bottom: 1.25rem;
 }
 
 .starmus-recorder-form label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: var(--starmus-text);
-  font-size: 0.9375rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--starmus-text);
+    font-size: 0.9375rem;
 }
 
-.starmus-recorder-form input[type='text'],
+.starmus-recorder-form input[type="text"],
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--starmus-glass-border-color);
-  border-radius: 8px;
-  background-color: #fff;
-  font-size: 1rem;
-  line-height: 1.5;
-  box-sizing: border-box;
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--starmus-glass-border-color);
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 1rem;
+    line-height: 1.5;
+    box-sizing: border-box;
 }
 
 .starmus-recorder-form input:focus,
 .starmus-recorder-form select:focus,
 .starmus-recorder-form textarea:focus {
-  outline: none;
-  border-color: var(--starmus-primary-strong);
+    outline: none;
+    border-color: var(--starmus-primary-strong);
 }
 
 @supports (box-shadow: 0 0 0 1px red) {
-  .starmus-recorder-form input:focus,
-  .starmus-recorder-form select:focus,
-  .starmus-recorder-form textarea:focus {
-    box-shadow: 0 0 0 3px var(--starmus-primary-soft);
-  }
+    .starmus-recorder-form input:focus,
+    .starmus-recorder-form select:focus,
+    .starmus-recorder-form textarea:focus {
+        box-shadow: 0 0 0 3px var(--starmus-primary-soft);
+    }
 }
 
 .starmus-consent-fieldset {
-  border: 1px solid var(--starmus-glass-border-color);
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1.5rem 0;
+    border: 1px solid var(--starmus-glass-border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1.5rem 0;
 }
 
 .starmus-consent-field {
-  display: flex;
-  align-items: center; /* This keeps them perfectly centered vertically */
-  gap: 8px;
+    display: flex;
+    align-items: center; /* This keeps them perfectly centered vertically */
+    gap: 8px;
 }
 
 /* Notices & Messages (Restored) */
 .starmus-notice,
 .starmus-rerecord-info {
-  padding: 1rem 1.25rem;
-  margin: 0 0 1.5rem;
-  background: rgb(247 89 255 / 10%);
-  border: 1px solid var(--starmus-primary-strong);
-  border-radius: 8px;
-  color: var(--starmus-text);
-  font-size: 0.9375rem;
+    padding: 1rem 1.25rem;
+    margin: 0 0 1.5rem;
+    background: rgb(247 89 255 / 10%);
+    border: 1px solid var(--starmus-primary-strong);
+    border-radius: 8px;
+    color: var(--starmus-text);
+    font-size: 0.9375rem;
 }
 
 .starmus-notice strong {
-  color: var(--starmus-primary-strong);
+    color: var(--starmus-primary-strong);
 }
 
 /* ========================================================================
@@ -228,36 +229,36 @@
 
 .starmus-btn,
 .button.starmus-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  border: none;
-  line-height: 1.2;
-  font-size: 0.9375rem;
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
-  touch-action: manipulation;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    line-height: 1.2;
+    font-size: 0.9375rem;
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+    touch-action: manipulation;
 }
 
 .starmus-btn--full {
-  width: 100%;
+    width: 100%;
 }
 
 /* Primary Action Attribute Bindings */
 .starmus-btn--primary,
-button[data-starmus-action='record'],
-button[data-starmus-action='submit'],
-button[data-starmus-action='continue'],
-button[data-starmus-action='setup-mic'] {
-  background-color: var(--starmus-primary);
-  color: #fff;
+button[data-starmus-action="record"],
+button[data-starmus-action="submit"],
+button[data-starmus-action="continue"],
+button[data-starmus-action="setup-mic"] {
+    background-color: var(--starmus-primary);
+    color: #fff;
 }
 
 /* Secondary / Outline Bindings */
@@ -265,42 +266,42 @@ button[data-starmus-action='setup-mic'] {
 .starmus-btn--outline,
 .starmus-btn--resume,
 .starmus-btn--pause {
-  background: transparent;
-  border: 2px solid var(--starmus-primary);
-  color: var(--starmus-primary);
+    background: transparent;
+    border: 2px solid var(--starmus-primary);
+    color: var(--starmus-primary);
 }
 
 .starmus-btn--stop,
 .starmus-btn--record.is-recording {
-  background-color: var(--starmus-danger);
-  color: #fff;
+    background-color: var(--starmus-danger);
+    color: #fff;
 }
 
 .starmus-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* Busy State (Base + Spinner) */
-.starmus-btn[aria-busy='true'] {
-  color: transparent !important;
-  position: relative;
-  pointer-events: none;
+.starmus-btn[aria-busy="true"] {
+    color: transparent !important;
+    position: relative;
+    pointer-events: none;
 }
 
-.starmus-btn[aria-busy='true']::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 18px;
-  height: 18px;
-  margin-left: -9px;
-  margin-top: -9px;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  border-left-color: transparent;
-  animation: starmus-spin 1s linear infinite;
+.starmus-btn[aria-busy="true"]::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    margin-left: -9px;
+    margin-top: -9px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-left-color: transparent;
+    animation: starmus-spin 1s linear infinite;
 }
 
 /* ========================================================================
@@ -308,84 +309,84 @@ button[data-starmus-action='setup-mic'] {
    ======================================================================== */
 
 .starmus-visualizer-stage {
-  background: var(--starmus-glass-inner-bg);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--starmus-glass-border-color);
+    background: var(--starmus-glass-inner-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--starmus-glass-border-color);
 }
 
 .starmus-timer {
-  font-size: 2rem;
-  font-weight: 700;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-  margin-bottom: 1rem;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 1rem;
 }
 
 .starmus-timer--recording {
-  color: var(--starmus-danger);
-  animation: starmus-pulse 1.5s infinite;
+    color: var(--starmus-danger);
+    animation: starmus-pulse 1.5s infinite;
 }
 
 .starmus-meter-bar {
-  height: 12px;
-  background: rgb(0 0 0 / 10%);
-  border-radius: 6px;
-  overflow: hidden;
-  width: 100%;
+    height: 12px;
+    background: rgb(0 0 0 / 10%);
+    border-radius: 6px;
+    overflow: hidden;
+    width: 100%;
 }
 
 .starmus-meter-bar::after {
-  content: '';
-  display: block;
-  height: 100%;
-  width: var(--starmus-audio-level, 0%);
-  background: linear-gradient(
-    90deg,
-    var(--starmus-success) 0%,
-    var(--starmus-success) 33%,
-    var(--starmus-warning) 66%,
-    var(--starmus-danger) 100%
-  );
-  transition: width 0.05s linear;
+    content: "";
+    display: block;
+    height: 100%;
+    width: var(--starmus-audio-level, 0%);
+    background: linear-gradient(
+        90deg,
+        var(--starmus-success) 0%,
+        var(--starmus-success) 33%,
+        var(--starmus-warning) 66%,
+        var(--starmus-danger) 100%
+    );
+    transition: width 0.05s linear;
 }
 
 /* Duration Progress UI */
 .starmus-duration-progress-wrapper {
-  width: 100%;
-  margin: 12px 0;
+    width: 100%;
+    margin: 12px 0;
 }
 
 .starmus-progress-label {
-  font-size: 0.75rem;
-  color: var(--starmus-text);
-  font-weight: 600;
-  margin-bottom: 6px;
-  display: block;
-  text-transform: uppercase;
+    font-size: 0.75rem;
+    color: var(--starmus-text);
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+    text-transform: uppercase;
 }
 
 .starmus-duration-progress[data-starmus-duration-progress]::after {
-  content: '';
-  display: block;
-  height: 100%;
-  width: var(--starmus-recording-progress, 0%);
-  background-color: var(--starmus-primary);
-  border-radius: 4px;
-  transition: width 0.2s ease;
+    content: "";
+    display: block;
+    height: 100%;
+    width: var(--starmus-recording-progress, 0%);
+    background-color: var(--starmus-primary);
+    border-radius: 4px;
+    transition: width 0.2s ease;
 }
 
-.starmus-duration-progress[data-level='safe']::after {
-  background-color: var(--starmus-success);
+.starmus-duration-progress[data-level="safe"]::after {
+    background-color: var(--starmus-success);
 }
 
-.starmus-duration-progress[data-level='warning']::after {
-  background-color: var(--starmus-warning);
+.starmus-duration-progress[data-level="warning"]::after {
+    background-color: var(--starmus-warning);
 }
 
-.starmus-duration-progress[data-level='danger']::after {
-  background-color: var(--starmus-danger);
+.starmus-duration-progress[data-level="danger"]::after {
+    background-color: var(--starmus-danger);
 }
 
 /* ========================================================================
@@ -393,107 +394,107 @@ button[data-starmus-action='setup-mic'] {
    ======================================================================== */
 
 .starmus-recordings-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
 }
 
 .starmus-card__header {
-  border-bottom: 1px solid var(--starmus-glass-border-color);
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
-  text-transform: capitalize;
+    border-bottom: 1px solid var(--starmus-glass-border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    text-transform: capitalize;
 }
 
 .starmus-card__title {
-  font-size: 1.25rem;
-  margin: 0 0 0.5rem;
-  text-transform: capitalize;
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem;
+    text-transform: capitalize;
 }
 
 .starmus-card__title a {
-  text-decoration: none;
-  color: var(--starmus-text);
+    text-decoration: none;
+    color: var(--starmus-text);
 }
 
 .starmus-card__title a:hover {
-  color: var(--starmus-primary-strong);
+    color: var(--starmus-primary-strong);
 }
 
 .starmus-card__meta {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .starmus-card__type,
 .starmus-card__language,
 .starmus-tag {
-  font-size: 0.75rem;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background: var(--starmus-glass-inner-bg);
-  color: var(--starmus-text);
-  font-weight: 600;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: var(--starmus-glass-inner-bg);
+    color: var(--starmus-text);
+    font-weight: 600;
 }
 
 .starmus-card__audio {
-  margin: 1rem 0;
+    margin: 1rem 0;
 }
 
 .starmus-audio-player,
 .starmus-audio-full {
-  width: 100%;
-  height: 40px;
+    width: 100%;
+    height: 40px;
 }
 
 .starmus-card__actions {
-  margin-top: auto;
-  padding-top: 1rem;
-  border-top: 1px solid var(--starmus-glass-border-color);
-  display: flex;
-  gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--starmus-glass-border-color);
+    display: flex;
+    gap: 0.5rem;
 }
 
 .starmus-card__actions .starmus-btn {
-  flex: 1;
-  font-size: 0.875rem;
+    flex: 1;
+    font-size: 0.875rem;
 }
 
 /* Pagination (Restored) */
 .starmus-pagination {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: center;
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
 }
 
 .starmus-pagination__list {
-  display: flex;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  gap: 0.5rem;
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 0.5rem;
 }
 
 .starmus-pagination__item .page-numbers {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  height: 40px;
-  padding: 0 10px;
-  border-radius: 8px;
-  background: var(--starmus-glass-inner-bg);
-  border: 1px solid var(--starmus-glass-border-color);
-  color: var(--starmus-text);
-  text-decoration: none;
-  font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 10px;
+    border-radius: 8px;
+    background: var(--starmus-glass-inner-bg);
+    border: 1px solid var(--starmus-glass-border-color);
+    color: var(--starmus-text);
+    text-decoration: none;
+    font-weight: 600;
 }
 
 .starmus-pagination__item .page-numbers.current,
 .starmus-pagination__item .page-numbers:hover {
-  background: var(--starmus-primary);
-  color: #fff;
+    background: var(--starmus-primary);
+    color: #fff;
 }
 
 /* ========================================================================
@@ -501,83 +502,84 @@ button[data-starmus-action='setup-mic'] {
    ======================================================================== */
 .starmus-admin-detail,
 .starmus-user-detail {
-  max-width: 1100px;
-  margin: 0 auto;
-  /* Performance Enhancement */
-  content-visibility: auto;
-  contain-intrinsic-size: 0 500px;
+    max-width: 1100px;
+    margin: 0 auto;
+
+    /* Performance Enhancement */
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
 }
 
 .starmus-detail__header h1 {
-  font-size: 2rem;
-  margin: 0 0 1rem;
-  color: var(--starmus-primary);
+    font-size: 2rem;
+    margin: 0 0 1rem;
+    color: var(--starmus-primary);
 }
 
 .starmus-detail__meta-badges,
 .starmus-meta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
-  margin: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin: 1rem;
 }
 
 .starmus-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  background: var(--starmus-glass-inner-bg);
-  border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: var(--starmus-glass-inner-bg);
+    border-radius: 8px;
 }
 
 .starmus-layout-split,
 .starmus-admin-detail__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
 }
 
 @media (width >= 1024px) {
-  .starmus-layout-split,
-  .starmus-admin-detail__grid {
-    grid-template-columns: 2fr 1fr;
-  }
+    .starmus-layout-split,
+    .starmus-admin-detail__grid {
+        grid-template-columns: 2fr 1fr;
+    }
 }
 
 .starmus-info-table {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 .starmus-info-table th,
 .starmus-info-table td {
-  padding: 10px;
-  border-bottom: 1px solid var(--starmus-glass-border-color);
-  text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid var(--starmus-glass-border-color);
+    text-align: left;
 }
 
 .starmus-info-table th {
-  font-weight: 600;
-  width: 35%;
+    font-weight: 600;
+    width: 35%;
 }
 
 .starmus-dl-list {
-  display: grid;
-  gap: 1rem;
+    display: grid;
+    gap: 1rem;
 }
 
 .starmus-dl-item {
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--starmus-glass-border-color);
-  padding-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--starmus-glass-border-color);
+    padding-bottom: 0.5rem;
 }
 
 .starmus-btn-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 /* ========================================================================
@@ -585,71 +587,71 @@ button[data-starmus-action='setup-mic'] {
    ======================================================================== */
 
 .starmus-editor {
-  max-width: 1400px;
-  margin: 0 auto;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 .starmus-editor__head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--starmus-glass-border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--starmus-glass-border-color);
 }
 
 @supports (position: sticky) {
-  .starmus-editor__head {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: inherit;
-  }
+    .starmus-editor__head {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: inherit;
+    }
 }
 
 .starmus-editor__controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0;
-  flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    flex-wrap: wrap;
 }
 
 .starmus-editor__spacer {
-  flex: 1;
+    flex: 1;
 }
 
 .starmus-editor__id-badge {
-  font-size: 0.5em;
-  background: #eee;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-left: 10px;
+    font-size: 0.5em;
+    background: #eee;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 10px;
 }
 
 .starmus-empty-state {
-  padding: 20px;
-  text-align: center;
-  color: #888;
-  font-style: italic;
+    padding: 20px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
 }
 
 .starmus-btn-group {
-  display: flex;
-  gap: 2px;
+    display: flex;
+    gap: 2px;
 }
 
 .starmus-transcript-box {
-  color: #000 !important;
+    color: #000 !important;
 }
 
 .starmus-word:hover {
-  background: rgb(0 0 0 / 5%);
+    background: rgb(0 0 0 / 5%);
 }
 
 .starmus-word.is-active {
-  background: var(--starmus-primary);
-  color: #fff;
+    background: var(--starmus-primary);
+    color: #fff;
 }
 
 /* ========================================================================
@@ -658,48 +660,48 @@ button[data-starmus-action='setup-mic'] {
 
 .starmus-visually-hidden,
 .screen-reader-text {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  /* stylelint-disable-next-line property-no-deprecated */
-  clip: rect(0, 0, 0, 0);
-  clip-path: inset(50%);
-  border: 0;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    /* stylelint-disable-next-line property-no-deprecated */
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    border: 0;
 }
 
 @keyframes starmus-spin {
-  100% {
-    transform: rotate(360deg);
-  }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes starmus-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
+    0%,
+    100% {
+        opacity: 1;
+    }
 
-  50% {
-    opacity: 0.6;
-  }
+    50% {
+        opacity: 0.6;
+    }
 }
 
 @media (width <= 768px) {
-  .starmus-recorder-form.starmus-immersive {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    margin: 0;
-    border-radius: 0;
-    overflow-y: auto;
-    background: var(--starmus-theme-glass-base);
-  }
+    .starmus-recorder-form.starmus-immersive {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        margin: 0;
+        border-radius: 0;
+        overflow-y: auto;
+        background: var(--starmus-theme-glass-base);
+    }
 }
 
 select option {
-  color: #000 !important;
-  background: #fff !important;
+    color: #000 !important;
+    background: #fff !important;
 }

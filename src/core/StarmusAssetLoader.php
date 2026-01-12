@@ -34,7 +34,7 @@ use Throwable;
 use function trim;
 use function wp_create_nonce;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -105,6 +105,7 @@ final class StarmusAssetLoader
 
         $this->enqueue_production_assets();
         $this->enqueue_styles();
+        $this->enqueue_app_mode_assets();
     }
 
     public function enqueue_re_recorder_assets(): void
@@ -123,6 +124,30 @@ final class StarmusAssetLoader
     public static function set_editor_data(array $editor_data): void
     {
         self::$editor_data = $editor_data;
+    }
+
+    /**
+     * Enqueues App Mode (Fullscreen) assets globally.
+     */
+    private function enqueue_app_mode_assets(): void
+    {
+        $url     = \defined('STARMUS_URL') ? STARMUS_URL : '';
+        $version = $this->resolve_version();
+
+        wp_enqueue_style(
+            'sparxstar-app-mode-css',
+            $url . 'src/css/sparxstar-starmus-app-mode.css',
+            [],
+            $version
+        );
+
+        wp_enqueue_script(
+            'sparxstar-app-mode-js',
+            $url . 'src/js/app-mode/sparxstar-starmus-app-mode.js',
+            [],
+            $version,
+            true
+        );
     }
 
     /**
@@ -179,7 +204,7 @@ final class StarmusAssetLoader
 
             // Resolve optional recording ID from context (e.g. Consent Handoff)
             $recording_id = filter_input(INPUT_GET, 'starmus_recording_id', FILTER_SANITIZE_NUMBER_INT);
-            if (! $recording_id && isset(self::$editor_data['post_id'])) {
+            if ( ! $recording_id && isset(self::$editor_data['post_id'])) {
                 $recording_id = self::$editor_data['post_id'];
             }
 

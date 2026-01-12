@@ -56,8 +56,10 @@ Upload Flow:
 @see StarmusSettings Plugin configuration management
 @see StarmusPostProcessingService Audio processing service
 /
+
 namespace Starisian\Sparxstar\Starmus\core;
 
+use function apply_filters;
 use function array_map;
 use function base64_decode;
 use function explode;
@@ -146,12 +148,12 @@ MIME type allowlist for uploads.
 @since 1.0.0
 /
     private array $default_allowed_mimes = [
-    'audio/webm',
-    'audio/ogg',
-    'audio/mpeg',
-    'audio/wav',
-    'audio/x-wav',
-    'audio/mp4',
+        'audio/webm',
+        'audio/ogg',
+        'audio/mpeg',
+        'audio/wav',
+        'audio/x-wav',
+        'audio/mp4',
     ];
 
     /**
@@ -210,22 +212,25 @@ Success Response:
 This hook is fired for backward compatibility.
 /
             do_action('starmus_after_audio_saved', (int) $cpt_post_id, $form_data);
-            return [
-            'success'       => true,
-            'attachment_id' => (int) $attachment_id,
-            'post_id'       => (int) $cpt_post_id,
-            'url'           => wp_get_attachment_url((int) $attachment_id),
+
+            $response = [
+                'success'       => true,
+                'attachment_id' => (int) $attachment_id,
+                'post_id'       => (int) $cpt_post_id,
+                'url'           => wp_get_attachment_url((int) $attachment_id),
             ];
+
+            return apply_filters('starmus_audio_upload_success_response', $response, (int) $cpt_post_id, $form_data);
         } catch (Throwable $throwable) {
             StarmusLogger::log(
                 $throwable,
                 [
-            'component'     => self::class,
-            'method'        => __METHOD__,
-            'attachment_id' => (int) $attachment_id,
-            'post_id'       => (int) $cpt_post_id,
-            'file_path'     => $file_path,
-            'filename'      => $filename,
+                    'component'     => self::class,
+                    'method'        => __METHOD__,
+                    'attachment_id' => (int) $attachment_id,
+                    'post_id'       => (int) $cpt_post_id,
+                    'file_path'     => $file_path,
+                    'filename'      => $filename,
                 ]
             );
             return $this->err('server_error', 'File finalization failed.', 500);

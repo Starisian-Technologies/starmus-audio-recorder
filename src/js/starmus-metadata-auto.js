@@ -5,7 +5,7 @@
  *              Protects PHP-injected values from being wiped by empty JS state.
  */
 
-'use strict';
+"use strict";
 
 /**
  * Updates or creates a hidden form field with safety guards to protect PHP-injected values.
@@ -41,34 +41,34 @@
  * updateField(form, 'existing_field', ''); // Skipped if field has value
  */
 function updateField(form, name, value) {
-	let input = form.querySelector(`input[name="${name}"]`);
+    let input = form.querySelector(`input[name="${name}"]`);
 
-	// 1. Create input if it doesn't exist
-	if (!input) {
-		input = document.createElement('input');
-		input.type = 'hidden';
-		input.name = name;
-		form.appendChild(input);
-	}
+    // 1. Create input if it doesn't exist
+    if (!input) {
+        input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        form.appendChild(input);
+    }
 
-	// 2. Prepare the string value for the form
-	const stringValue = typeof value === 'object' ? JSON.stringify(value) : value || '';
+    // 2. Prepare the string value for the form
+    const stringValue = typeof value === "object" ? JSON.stringify(value) : value || "";
 
-	// 3. SAFETY GUARD:
-	// If the input already has a value (injected by PHP), do NOT overwrite it
-	// with an empty/default JS value.
-	if (
-		input.value &&
-    input.value.trim() !== '' &&
-    (stringValue === '' || stringValue === '{}' || stringValue === '[]')
-	) {
-		return;
-	}
+    // 3. SAFETY GUARD:
+    // If the input already has a value (injected by PHP), do NOT overwrite it
+    // with an empty/default JS value.
+    if (
+        input.value &&
+        input.value.trim() !== "" &&
+        (stringValue === "" || stringValue === "{}" || stringValue === "[]")
+    ) {
+        return;
+    }
 
-	// 4. Update only if changed
-	if (input.value !== stringValue) {
-		input.value = stringValue;
-	}
+    // 4. Update only if changed
+    if (input.value !== stringValue) {
+        input.value = stringValue;
+    }
 }
 
 /**
@@ -124,61 +124,61 @@ function updateField(form, name, value) {
  * };
  */
 export function initAutoMetadata(store, formEl, _options) {
-	if (!store || !formEl) {
-		console.warn('[StarmusMetadata] Store or Form missing.');
-		return;
-	}
+    if (!store || !formEl) {
+        console.warn("[StarmusMetadata] Store or Form missing.");
+        return;
+    }
 
-	/**
-   * Synchronizes current store state to form fields.
-   * Called initially and whenever store state changes.
-   *
-   * @function sync
-   * @inner
-   * @returns {void}
-   */
-	function sync() {
-		const state = store.getState();
-		const env = state.env || {};
-		const cal = state.calibration || {};
-		const source = state.source || {};
+    /**
+     * Synchronizes current store state to form fields.
+     * Called initially and whenever store state changes.
+     *
+     * @function sync
+     * @inner
+     * @returns {void}
+     */
+    function sync() {
+        const state = store.getState();
+        const env = state.env || {};
+        const cal = state.calibration || {};
+        const source = state.source || {};
 
-		// 1. Calibration Data
-		const calData = cal.complete
-			? {
-				gain: cal.gain,
-				speechLevel: cal.speechLevel,
-				message: cal.message,
-			}
-			: {};
-		updateField(formEl, '_starmus_calibration', calData);
+        // 1. Calibration Data
+        const calData = cal.complete
+            ? {
+                gain: cal.gain,
+                speechLevel: cal.speechLevel,
+                message: cal.message,
+            }
+            : {};
+        updateField(formEl, "_starmus_calibration", calData);
 
-		// 2. UEC / Environment Data
-		updateField(formEl, '_starmus_env', env);
+        // 2. UEC / Environment Data
+        updateField(formEl, "_starmus_env", env);
 
-		// 3. Technical Metadata (New)
-		if (source.metadata) {
-			updateField(formEl, 'recording_metadata', source.metadata);
-		}
+        // 3. Technical Metadata (New)
+        if (source.metadata) {
+            updateField(formEl, "recording_metadata", source.metadata);
+        }
 
-		// 4. Transcription (New)
-		// Assuming transcript is stored in source.transcript based on file search
-		if (source.transcript) {
-			updateField(formEl, 'transcription', source.transcript);
-		}
+        // 4. Transcription (New)
+        // Assuming transcript is stored in source.transcript based on file search
+        if (source.transcript) {
+            updateField(formEl, "transcription", source.transcript);
+        }
 
-		// 4b. Transcription JSON (Timestamps/Confidence)
-		if (source.transcriptJson) {
-			updateField(formEl, 'transcription_json', source.transcriptJson);
-		}
+        // 4b. Transcription JSON (Timestamps/Confidence)
+        if (source.transcriptJson) {
+            updateField(formEl, "transcription_json", source.transcriptJson);
+        }
 
-		// 5. Waveform (Optional)
-		if (source.waveform) {
-			updateField(formEl, 'waveform_json', source.waveform);
-		}
-	}
+        // 5. Waveform (Optional)
+        if (source.waveform) {
+            updateField(formEl, "waveform_json", source.waveform);
+        }
+    }
 
-	// Initial sync + Subscribe
-	sync();
-	return store.subscribe(sync);
+    // Initial sync + Subscribe
+    sync();
+    return store.subscribe(sync);
 }

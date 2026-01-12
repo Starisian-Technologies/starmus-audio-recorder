@@ -191,7 +191,10 @@ class StarmusProsodyPlayer
                         <span class="fader-label" id="lbl-fatigue"><?php esc_html_e('Fatigue', 'starmus-audio-recorder'); ?></span>
                     </div>
 
-                    <button id="btn-recal" class="secondary-text-btn" title="<?php echo esc_attr__('Reset Rhythm', 'starmus-audio-recorder'); ?>" aria-label="<?php echo esc_attr__('Reset Rhythm', 'starmus-audio-recorder'); ?>"><?php esc_html_e('[ Re-Tap ]', 'starmus-audio-recorder'); ?></button>
+                    <button id="btn-recal" class="secondary-text-btn" title="<?php echo esc_attr__('Reset Rhythm', 'starmus-audio-recorder'); ?>" aria-label="<?php echo esc_attr__('Reset Rhythm', 'starmus-audio-recorder'); ?>">
+                        <span class="dashicons dashicons-update"></span>
+                        <span class="re-tap-label"><?php esc_html_e('Re-Tap', 'starmus-audio-recorder'); ?></span>
+                    </button>
                 </div>
             </div>
             <?php

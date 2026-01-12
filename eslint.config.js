@@ -59,7 +59,7 @@ export default [
       'no-var': 'error',
       eqeqeq: ['error', 'always'],
       curly: ['error', 'all'],
-      indent: ['error', 'tab'],
+      indent: ['error', 4],
       'no-mixed-spaces-and-tabs': 'error',
     },
   },

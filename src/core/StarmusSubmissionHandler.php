@@ -110,7 +110,7 @@ use function wp_unique_filename;
 use function wp_unslash;
 use function wp_upload_dir;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -234,7 +234,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             }
 
             $temp_dir = $this->get_temp_dir();
-            if (! file_exists($temp_dir)) {
+            if ( ! file_exists($temp_dir)) {
                 mkdir($temp_dir, 0o755, true);
             }
 
@@ -380,12 +380,12 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             global $wp_filesystem;
             if (empty($wp_filesystem)) {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
-                if (! WP_Filesystem()) {
+                if ( ! WP_Filesystem()) {
                     return $this->err('fs_init_failed', 'Could not initialize filesystem.', 500);
                 }
             }
 
-            if (! $wp_filesystem->move($file_path, $destination, true)) {
+            if ( ! $wp_filesystem->move($file_path, $destination, true)) {
                 unlink($file_path);
                 return $this->err('move_failed', 'Failed to move upload.', 500);
             }
@@ -516,12 +516,12 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             $files_data = $request->get_file_params() ?? [];
 
             $file_key = $this->detect_file_key($files_data);
-            if (! $file_key) {
+            if ( ! $file_key) {
                 return $this->err('missing_file', 'No audio file provided.', 400);
             }
 
             $file = $files_data[$file_key];
-            if (! isset($file['error']) || (int) $file['error'] !== 0 || empty($file['tmp_name'])) {
+            if ( ! isset($file['error']) || (int) $file['error'] !== 0 || empty($file['tmp_name'])) {
                 return $this->err('upload_error', 'Upload failed on client.', 400);
             }
 
@@ -611,7 +611,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
         $cpt_post_id   = 0;
 
         try {
-            if (! \function_exists('media_handle_sideload')) {
+            if ( ! \function_exists('media_handle_sideload')) {
                 require_once ABSPATH . 'wp-admin/includes/image.php';
                 require_once ABSPATH . 'wp-admin/includes/file.php';
                 require_once ABSPATH . 'wp-admin/includes/media.php';
@@ -749,7 +749,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             }
 
             // Handle waveform JSON from JavaScript
-            if (! empty($form_data['waveform_json'])) {
+            if ( ! empty($form_data['waveform_json'])) {
                 $wf_value = \is_string($form_data['waveform_json']) ? $form_data['waveform_json'] : json_encode($form_data['waveform_json']);
                 error_log('[STARMUS PHP] Saving starmus_waveform_json. Size: ' . strlen($wf_value));
                 $this->update_acf_field('starmus_waveform_json', $wf_value, $audio_post_id);
@@ -758,20 +758,20 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             }
 
             // Handle first-pass transcription from JavaScript
-            if (! empty($form_data['transcription'])) {
+            if ( ! empty($form_data['transcription'])) {
                 error_log('[STARMUS PHP] Saving starmus_transcription_text. Keys: ' . substr($form_data['transcription'], 0, 50));
                 $this->update_acf_field('starmus_transcription_text', sanitize_textarea_field($form_data['transcription']), $audio_post_id);
             } else {
                 error_log('[STARMUS PHP] transcription is empty in form_data.');
             }
 
-            if (! empty($form_data['transcription_json'])) {
+            if ( ! empty($form_data['transcription_json'])) {
                 $trans_json = \is_string($form_data['transcription_json']) ? $form_data['transcription_json'] : json_encode($form_data['transcription_json']);
                 $this->update_acf_field('starmus_transcription_json', $trans_json, $audio_post_id);
             }
 
             // Handle recording metadata from JavaScript
-            if (! empty($form_data['recording_metadata'])) {
+            if ( ! empty($form_data['recording_metadata'])) {
                 $metadata_value = \is_string($form_data['recording_metadata']) ? $form_data['recording_metadata'] : json_encode($form_data['recording_metadata']);
                 $this->update_acf_field('starmus_recording_metadata', $metadata_value, $audio_post_id);
             }
@@ -857,11 +857,11 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             }
 
             // Handle taxonomies through mapped data
-            if (! empty($mapped_data['starmus_tax_language'])) {
+            if ( ! empty($mapped_data['starmus_tax_language'])) {
                 wp_set_post_terms($audio_post_id, [(int) $mapped_data['starmus_tax_language']], 'starmus_tax_language');
             }
 
-            if (! empty($mapped_data['recording-type'])) {
+            if ( ! empty($mapped_data['recording-type'])) {
                 wp_set_post_terms($audio_post_id, [(int) $mapped_data['recording-type']], 'recording-type');
             }
 
@@ -901,7 +901,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
 
             // Extract session UUID from environment data if available
             $session_uuid = 'unknown';
-            if (! empty($form_data['_starmus_env'])) {
+            if ( ! empty($form_data['_starmus_env'])) {
                 $decoded_env = json_decode(wp_unslash($form_data['_starmus_env']), true);
                 if ($decoded_env && isset($decoded_env['identifiers']['sessionId'])) {
                     $session_uuid = $decoded_env['identifiers']['sessionId'];
@@ -961,7 +961,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             $result    = $processor->process($post_id, $attachment_id, $params);
             error_log('[STARMUS PHP] Post processing result: ' . ($result ? 'SUCCESS' : 'FAILED'));
 
-            if (! $result && ! wp_next_scheduled('starmus_cron_process_pending_audio', [$post_id, $attachment_id])) {
+            if ( ! $result && ! wp_next_scheduled('starmus_cron_process_pending_audio', [$post_id, $attachment_id])) {
                 StarmusLogger::log(
                     '[STARMUS PHP] Scheduling cron job for post processing retry',
                     [
@@ -1103,7 +1103,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
     private function detect_file_key(array $files): ?string
     {
         foreach ($this->fallback_file_keys as $key) {
-            if (! empty($files[$key]) && \is_array($files[$key])) {
+            if ( ! empty($files[$key]) && \is_array($files[$key])) {
                 return $key;
             }
         }
@@ -1199,7 +1199,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             }
         }
 
-        if (! \in_array(strtolower($mime), $allowed_mimes, true)) {
+        if ( ! \in_array(strtolower($mime), $allowed_mimes, true)) {
             return $this->err('mime_not_allowed', 'Type not allowed: ' . $mime, 415);
         }
 

@@ -28,6 +28,7 @@ Ensures 1:1 data mapping for all unique fields.
 /
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\data\mappers;
 
 use function date;
@@ -61,31 +62,31 @@ Complex logic fields (dates, users, JSON blobs) are handled separately.
 @var array<int, string>
 /
     private const PASSTHROUGH_ALLOWLIST = [
-    // Core Fields
-    'contributor_name',
-    'dc_description',
-    'dc_title',
-    'dc_subject',
-    'dc_language',
-    'dc_format',
-    'dc_identifier',
-    'date_created',
-    'session_date',
-    'geolocation',
-    'parental_permission_slip',
+        // Core Fields
+        'contributor_name',
+        'dc_description',
+        'dc_title',
+        'dc_subject',
+        'dc_language',
+        'dc_format',
+        'dc_identifier',
+        'date_created',
+        'session_date',
+        'geolocation',
+        'parental_permission_slip',
 
-    // Legacy Fields (for backward compatibility)
-    'starmus_global_uuid',
-    'starmus_stable_uri',
-    'starmus_linked_data_uri',
-    'starmus_rights_type',
-    'starmus_rights_use',
-    'starmus_rights_geo',
-    'starmus_rights_royalty',
-    'starmus_data_sensitivity',
-    'starmus_anon_status',
-    'starmus_consent_scope',
-    'starmus_copyright_licensee',
+        // Legacy Fields (for backward compatibility)
+        'starmus_global_uuid',
+        'starmus_stable_uri',
+        'starmus_linked_data_uri',
+        'starmus_rights_type',
+        'starmus_rights_use',
+        'starmus_rights_geo',
+        'starmus_rights_royalty',
+        'starmus_data_sensitivity',
+        'starmus_anon_status',
+        'starmus_consent_scope',
+        'starmus_copyright_licensee',
     ];
 
     /**
@@ -192,6 +193,14 @@ Translates legacy frontend field keys (e.g. 'location') into the new
 Starmus database schema keys (e.g. 'starmus_session_location').
 @param array<string, mixed> $data Raw or semi-sanitized form data.
 @return array<string, mixed> Data ready for ACF saving.
+
+### `extract_user_ids()`
+
+**Visibility:** `public`
+
+Extracts user IDs for submission processing.
+@param array $data Raw form data
+@return array Key-value pair of field names and user IDs
 
 ### `is_json_field()`
 

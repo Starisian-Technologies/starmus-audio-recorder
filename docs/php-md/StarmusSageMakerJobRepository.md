@@ -1,15 +1,15 @@
 # StarmusSageMakerJobRepository
 
-**Namespace:** `Starisian\Sparxstar\Starmus\includes`
+**Namespace:** `Starisian\Sparxstar\Starmus\data`
 
-**File:** `/workspaces/starmus-audio-recorder/src/includes/StarmusSageMakerJobRepository.php`
+**File:** `/workspaces/starmus-audio-recorder/src/data/StarmusSageMakerJobRepository.php`
 
 ## Description
 
 Repository for SageMaker transcription jobs stored in wp_options.
-Encapsulates storage access to the aiwa_sagemaker_jobs option.
-@package Starisian\Sparxstar\Starmus
-@since 1.0.0
+Encapsulates storage access to the starmus_sagemaker_jobs option.
+Adapted from AiWA Orchestrator for Starmus.
+@package Starisian\Sparxstar\Starmus\data
 
 ## Methods
 
@@ -18,17 +18,16 @@ Encapsulates storage access to the aiwa_sagemaker_jobs option.
 **Visibility:** `public`
 
 Repository for SageMaker transcription jobs stored in wp_options.
-Encapsulates storage access to the aiwa_sagemaker_jobs option.
-@package Starisian\Sparxstar\Starmus
-@since 1.0.0
+Encapsulates storage access to the starmus_sagemaker_jobs option.
+Adapted from AiWA Orchestrator for Starmus.
+@package Starisian\Sparxstar\Starmus\data
 /
 final class StarmusSageMakerJobRepository
 {
     /**
 Option key in wp_options where jobs are stored.
-@var string
 /
-    private const OPTION_KEY = 'aiwa_sagemaker_jobs';
+    private const OPTION_KEY = 'starmus_sagemaker_jobs';
 
     /**
 Find a job by ID.
@@ -63,10 +62,10 @@ Get recent jobs (sorted by created_at, newest first).
 
 **Visibility:** `public`
 
-Save a job (create or update).
-@param string $job_id Job identifier.
-@param array $job_data Job data to save.
-@return bool True on success, false on failure.
+Save or update a job.
+@param string $job_id
+@param array $job_data
+@return bool
 
 ### `delete()`
 

@@ -6,14 +6,14 @@
  * without tight coupling. Supports command-based publish/subscribe pattern.
  */
 
-'use strict';
+"use strict";
 
 /**
  * Global scope detection for cross-environment compatibility.
  * Uses window in browser environments, globalThis in Node.js/workers.
  * @type {object}
  */
-const globalScope = typeof window !== 'undefined' ? window : globalThis;
+const globalScope = typeof window !== "undefined" ? window : globalThis;
 
 /**
  * Initialize global StarmusRegistry if it doesn't exist.
@@ -22,7 +22,7 @@ const globalScope = typeof window !== 'undefined' ? window : globalThis;
  * @namespace StarmusRegistry
  */
 if (!globalScope.StarmusRegistry) {
-	globalScope.StarmusRegistry = {};
+    globalScope.StarmusRegistry = {};
 }
 
 /**
@@ -50,18 +50,18 @@ const registry = globalScope.StarmusRegistry;
  * // Later: unsubscribe();
  */
 function subscribe(command, handler) {
-	if (!registry[command]) {
-		registry[command] = [];
-	}
-	registry[command].push(handler);
-	console.log(`[Bus] Listener added for: ${command}`);
+    if (!registry[command]) {
+        registry[command] = [];
+    }
+    registry[command].push(handler);
+    console.log(`[Bus] Listener added for: ${command}`);
 
-	return () => {
-		const idx = registry[command].indexOf(handler);
-		if (idx > -1) {
-			registry[command].splice(idx, 1);
-		}
-	};
+    return () => {
+        const idx = registry[command].indexOf(handler);
+        if (idx > -1) {
+            registry[command].splice(idx, 1);
+        }
+    };
 }
 
 /**
@@ -79,21 +79,21 @@ function subscribe(command, handler) {
  * dispatch('reset', {}, { instanceId: 'rec-123' });
  */
 function dispatch(command, payload = {}, meta = {}) {
-	const handlers = registry[command];
-	if (!handlers || !handlers.length) {
-		console.warn(`[Bus] ⚠️ Dispatched '${command}' but nobody is listening.`);
-		return;
-	}
+    const handlers = registry[command];
+    if (!handlers || !handlers.length) {
+        console.warn(`[Bus] ⚠️ Dispatched '${command}' but nobody is listening.`);
+        return;
+    }
 
-	console.log(`[Bus] Dispatching '${command}' to ${handlers.length} listeners`, meta);
+    console.log(`[Bus] Dispatching '${command}' to ${handlers.length} listeners`, meta);
 
-	handlers.forEach((fn) => {
-		try {
-			fn(payload, meta);
-		} catch (e) {
-			console.error(e);
-		}
-	});
+    handlers.forEach((fn) => {
+        try {
+            fn(payload, meta);
+        } catch (e) {
+            console.error(e);
+        }
+    });
 }
 
 /**
@@ -105,7 +105,7 @@ function dispatch(command, payload = {}, meta = {}) {
  * @returns {void}
  */
 function debugLog(..._args) {
-	/* console.log(...args); */
+    /* console.log(...args); */
 }
 
 /**

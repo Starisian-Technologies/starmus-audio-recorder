@@ -23,14 +23,13 @@ namespace Starisian\Sparxstar\Starmus\frontend;
 
 use Throwable;
 use Exception;
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 
 if ( ! \defined('ABSPATH')) {
     exit;
 }
-
-use Starisian\Sparxstar\Starmus\core\StarmusSettings;
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 
 /**
 Renders the user interface for the audio recorder and recordings list.
@@ -62,6 +61,16 @@ If post_id is not provided, will check for 'recording_id' in query string.
 **Visibility:** `public`
 
 Clear cached terms.
+
+### `add_conditional_redirect()`
+
+**Visibility:** `public`
+
+Add conditional redirect URL to the upload success response.
+@param array<string, mixed> $response  The upload response from the handler.
+@param int                  $post_id   The ID of the newly created/updated recording post.
+@param array<string, mixed> $form_data The raw form data submitted.
+@return array<string, mixed> Modified response with optional redirect_url.
 
 ---
 

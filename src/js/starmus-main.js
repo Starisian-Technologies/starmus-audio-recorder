@@ -35,45 +35,45 @@
  * @requires starmus-integrator
  */
 
-'use strict';
+"use strict";
 
 /* 1. GLOBALS & HOOKS */
-import Peaks from 'peaks.js';
+import Peaks from "peaks.js";
 if (!window.Peaks) {
-	window.Peaks = Peaks;
+    window.Peaks = Peaks;
 }
-import './starmus-hooks.js';
+import "./starmus-hooks.js";
 /* 2. MODULE IMPORTS */
-import { createStore } from './starmus-state-store.js';
-import { initCore } from './starmus-core.js';
-import { initInstance as initUI } from './starmus-ui.js';
-import { initRecorder } from './starmus-recorder.js';
+import { createStore } from "./starmus-state-store.js";
+import { initCore } from "./starmus-core.js";
+import { initInstance as initUI } from "./starmus-ui.js";
+import { initRecorder } from "./starmus-recorder.js";
 // CRITICAL FIX: Added getOfflineQueue to imports
-import { initOffline, queueSubmission, getOfflineQueue } from './starmus-offline.js';
-import { initAutoMetadata } from './starmus-metadata-auto.js';
-import TranscriptModule from './starmus-transcript-controller.js';
-import { default as StarmusAudioEditor } from './starmus-audio-editor.js';
-import StarmusCueEventsManager from './starmus-cue-events.js';
-import './starmus-integrator.js';
-import sparxstarIntegration from './starmus-sparxstar-integration.js';
+import { initOffline, queueSubmission, getOfflineQueue } from "./starmus-offline.js";
+import { initAutoMetadata } from "./starmus-metadata-auto.js";
+import TranscriptModule from "./starmus-transcript-controller.js";
+import { default as StarmusAudioEditor } from "./starmus-audio-editor.js";
+import StarmusCueEventsManager from "./starmus-cue-events.js";
+import "./starmus-integrator.js";
+import sparxstarIntegration from "./starmus-sparxstar-integration.js";
 
 (function () {
-	const log = (type, data) => {
-		console.warn('[STARMUS RUNTIME]', type, data);
-	};
+    const log = (type, data) => {
+        console.warn("[STARMUS RUNTIME]", type, data);
+    };
 
-	window.addEventListener('error', (e) => {
-		log('window.error', {
-			message: e.message,
-			file: e.filename,
-			line: e.lineno,
-			col: e.colno,
-		});
-	});
+    window.addEventListener("error", (e) => {
+        log("window.error", {
+            message: e.message,
+            file: e.filename,
+            line: e.lineno,
+            col: e.colno,
+        });
+    });
 
-	window.addEventListener('unhandledrejection', (e) => {
-		log('unhandledrejection', e.reason);
-	});
+    window.addEventListener("unhandledrejection", (e) => {
+        log("unhandledrejection", e.reason);
+    });
 })();
 
 /* 3. SETUP STORE */
@@ -129,33 +129,33 @@ window.StarmusStore = store;
  * @see {@link initAutoMetadata} Metadata synchronization
  */
 function initRecorderInstance(recorderForm, instanceId) {
-	console.log('[StarmusMain] Booting RECORDER for ID:', instanceId);
+    console.log("[StarmusMain] Booting RECORDER for ID:", instanceId);
 
-	recorderForm.addEventListener('submit', (e) => e.preventDefault());
+    recorderForm.addEventListener("submit", (e) => e.preventDefault());
 
-	// Initialize SPARXSTAR integration first, then other modules
-	sparxstarIntegration
-		.init()
-		.then((environmentData) => {
-			console.log('[StarmusMain] SPARXSTAR integration ready:', environmentData);
+    // Initialize SPARXSTAR integration first, then other modules
+    sparxstarIntegration
+        .init()
+        .then((environmentData) => {
+            console.log("[StarmusMain] SPARXSTAR integration ready:", environmentData);
 
-			// Initialize other modules with environment data
-			initCore(store, instanceId, environmentData);
-			initUI(store, {}, instanceId);
-			initRecorder(store, instanceId);
-			initOffline();
-			initAutoMetadata(store, recorderForm, {});
-		})
-		.catch((error) => {
-			console.warn('[StarmusMain] SPARXSTAR integration failed, using fallback:', error);
+            // Initialize other modules with environment data
+            initCore(store, instanceId, environmentData);
+            initUI(store, {}, instanceId);
+            initRecorder(store, instanceId);
+            initOffline();
+            initAutoMetadata(store, recorderForm, {});
+        })
+        .catch((error) => {
+            console.warn("[StarmusMain] SPARXSTAR integration failed, using fallback:", error);
 
-			// Fallback initialization without SPARXSTAR
-			initCore(store, instanceId, {});
-			initUI(store, {}, instanceId);
-			initRecorder(store, instanceId);
-			initOffline();
-			initAutoMetadata(store, recorderForm, {});
-		});
+            // Fallback initialization without SPARXSTAR
+            initCore(store, instanceId, {});
+            initUI(store, {}, instanceId);
+            initRecorder(store, instanceId);
+            initOffline();
+            initAutoMetadata(store, recorderForm, {});
+        });
 }
 
 /**
@@ -192,29 +192,29 @@ function initRecorderInstance(recorderForm, instanceId) {
  */
 
 function initEditorInstance() {
-	console.log('[StarmusMain] Booting EDITOR...');
+    console.log("[StarmusMain] Booting EDITOR...");
 
-	if (window.STARMUS_EDITOR_DATA && window.STARMUS_EDITOR_DATA.audioUrl) {
-		// Initialize the core Editor
-		StarmusAudioEditor.init()
-			.then((peaksInstance) => {
-				// 2. INITIALIZE CUE EVENTS MANAGER
-				// We pass the peaksInstance returned by the Editor's init
-				window.StarmusCueEvents = new StarmusCueEventsManager(peaksInstance, {
-					pointsTableId: 'points-list',
-					segmentsTableId: 'segments-list',
-					showNotifications: true,
-					autoHighlight: true,
-				});
+    if (window.STARMUS_EDITOR_DATA && window.STARMUS_EDITOR_DATA.audioUrl) {
+        // Initialize the core Editor
+        StarmusAudioEditor.init()
+            .then((peaksInstance) => {
+                // 2. INITIALIZE CUE EVENTS MANAGER
+                // We pass the peaksInstance returned by the Editor's init
+                window.StarmusCueEvents = new StarmusCueEventsManager(peaksInstance, {
+                    pointsTableId: "points-list",
+                    segmentsTableId: "segments-list",
+                    showNotifications: true,
+                    autoHighlight: true,
+                });
 
-				console.log('[StarmusMain] Cue Events Manager connected to Peaks.');
-			})
-			.catch((err) => {
-				console.error('[StarmusMain] Editor or Cue Manager failed to init:', err);
-			});
-	} else {
-		console.warn('[StarmusMain] Editor data missing.');
-	}
+                console.log("[StarmusMain] Cue Events Manager connected to Peaks.");
+            })
+            .catch((err) => {
+                console.error("[StarmusMain] Editor or Cue Manager failed to init:", err);
+            });
+    } else {
+        console.warn("[StarmusMain] Editor data missing.");
+    }
 }
 
 /**
@@ -242,22 +242,22 @@ function initEditorInstance() {
  * // <div id="starmus-editor-root">...</div>
  */
 /* 4. BOOTSTRAP ON DOM READY */
-document.addEventListener('DOMContentLoaded', () => {
-	try {
-		const recorderForm = document.querySelector('form[data-starmus-instance]');
-		const editorRoot = document.getElementById('starmus-editor-root');
+document.addEventListener("DOMContentLoaded", () => {
+    try {
+        const recorderForm = document.querySelector("form[data-starmus-instance]");
+        const editorRoot = document.getElementById("starmus-editor-root");
 
-		if (recorderForm) {
-			const instanceId = recorderForm.getAttribute('data-starmus-instance');
-			initRecorderInstance(recorderForm, instanceId);
-		} else if (editorRoot) {
-			initEditorInstance();
-		} else {
-			console.warn('[StarmusMain] ⚠️ No Starmus form or editor found.');
-		}
-	} catch (e) {
-		console.error('[StarmusMain] Boot failed:', e);
-	}
+        if (recorderForm) {
+            const instanceId = recorderForm.getAttribute("data-starmus-instance");
+            initRecorderInstance(recorderForm, instanceId);
+        } else if (editorRoot) {
+            initEditorInstance();
+        } else {
+            console.warn("[StarmusMain] ⚠️ No Starmus form or editor found.");
+        }
+    } catch (e) {
+        console.error("[StarmusMain] Boot failed:", e);
+    }
 });
 
 /**

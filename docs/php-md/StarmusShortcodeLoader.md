@@ -31,6 +31,16 @@ Data Access Layer instance.
     private ?StarmusAudioDAL $dal = null;
 
     /**
+Consent Handler instance.
+/
+    private ?StarmusConsentHandler $consent_handler = null;
+
+    /**
+Consent UI instance.
+/
+    private ?StarmusConsentUI $consent_ui = null;
+
+    /**
 Prosody player instance.
 /
     private ?StarmusProsodyPlayer $prosody = null;
@@ -51,6 +61,7 @@ Register shortcodes — but don't instantiate heavy UI classes yet.
 **Visibility:** `public`
 
 Render the "My Recordings" shortcode.
+Modified to handle Detail View inline since CPT is not publicly queryable.
 
 ### `render_submission_detail_shortcode()`
 

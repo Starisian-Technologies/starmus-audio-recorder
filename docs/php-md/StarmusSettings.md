@@ -26,6 +26,7 @@ Optimized and secure settings management for the Starmus plugin.
 @version 0.9.2
 @since 0.3.1
 /
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function absint;
@@ -77,24 +78,24 @@ Maps file extensions to their corresponding MIME types.
 @var array<string, string>
 /
     private const ALLOWED_MIMES = [
-    'mp3'  => 'audio/mpeg',
-    'wav'  => 'audio/wav',
-    'ogg'  => 'audio/ogg',
-    'oga'  => 'audio/ogg',
-    'opus' => 'audio/ogg; codecs=opus',
-    'weba' => 'audio/webm',
-    'aac'  => 'audio/aac',
-    'm4a'  => 'audio/mp4',
-    'flac' => 'audio/flac',
-    'mp4'  => 'video/mp4',
-    'm4v'  => 'video/x-m4v',
-    'mov'  => 'video/quicktime',
-    'webm' => 'video/webm',
-    'ogv'  => 'video/ogg',
-    'avi'  => 'video/x-msvideo',
-    'wmv'  => 'video/x-ms-wmv',
-    '3gp'  => 'video/3gpp',
-    '3g2'  => 'video/3gpp2',
+        'mp3'  => 'audio/mpeg',
+        'wav'  => 'audio/wav',
+        'ogg'  => 'audio/ogg',
+        'oga'  => 'audio/ogg',
+        'opus' => 'audio/ogg; codecs=opus',
+        'weba' => 'audio/webm',
+        'aac'  => 'audio/aac',
+        'm4a'  => 'audio/mp4',
+        'flac' => 'audio/flac',
+        'mp4'  => 'video/mp4',
+        'm4v'  => 'video/x-m4v',
+        'mov'  => 'video/quicktime',
+        'webm' => 'video/webm',
+        'ogv'  => 'video/ogg',
+        'avi'  => 'video/x-msvideo',
+        'wmv'  => 'video/x-ms-wmv',
+        '3gp'  => 'video/3gpp',
+        '3g2'  => 'video/3gpp2',
     ];
 
     /**
