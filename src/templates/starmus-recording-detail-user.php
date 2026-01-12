@@ -99,7 +99,8 @@ try {
     $playback_url = $mp3_url ?: $original_url;
 
     // --- 2. Additional Metadata (Using Admin Logic for Robustness) ---
-    $transcript_raw  = get_field('starmus_transcription_text', $post_id);
+    // OPTIMIZATION: Use get_post_meta to avoid ACF processing on potentially large fields
+    $transcript_raw  = get_post_meta($post_id, 'starmus_transcription_text', true);
     $transcript_text = '';
     if (! empty($transcript_raw)) {
         $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
@@ -126,13 +127,14 @@ try {
     $location_data    = get_field('starmus_session_location', $post_id);
 
     // --- 5. User-Appropriate Environment Data (New Schema) ---
-    $env_json_raw = get_field('starmus_environment_data', $post_id);
+    // OPTIMIZATION: Use get_post_meta for massive JSON
+    $env_json_raw = get_post_meta($post_id, 'starmus_environment_data', true);
 
     // SAFETY: Prevent memory exhaustion if JSON is huge.
     if (is_string($env_json_raw) && strlen($env_json_raw) > 50000) {
         $env_data = json_decode($env_json_raw, true); // Decode full if needed, but be careful
     } else {
-        $env_data = is_string($env_json_raw) ? json_decode($env_json_raw, true) : [];
+        $env_data = is_string($env_json_raw) ? json_decode((string)$env_json_raw, true) : [];
     }
 
     // Parse Browser/OS from User Agent (user-friendly display)
@@ -166,9 +168,9 @@ try {
     }
 
     // Parse Mic Profile (useful for users to understand quality)
-    $mic_data_raw        = get_field('starmus_transcriber_metadata', $post_id);
-    $mic_data            = json_decode($mic_data_raw, true);
-    $mic_profile_display = 'Standard';
+    // OPTIMIZATION: get_post_meta
+    $mic_data_raw        = get_post_meta($post_id, 'starmus_transcriber_metadata', true);
+    $mic_data            = json_decode((string)$mic_data_raw, true);
     if (isset($mic_data['gain'])) {
         $gain = $mic_data['gain'];
         if ($gain >= 1.5) {

@@ -20,6 +20,7 @@
  */
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus;
 
 use function add_action;
@@ -36,6 +37,7 @@ use RuntimeException;
 // Data Layer
 use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
 use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
+use Starisian\Sparxstar\Starmus\api\StarmusDataRESTHandler;
 // Components
 use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSettings;
 use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
@@ -58,7 +60,7 @@ use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -241,7 +243,7 @@ final class StarmusAudioRecorder
      */
     public static function starmus_get_instance(): StarmusAudioRecorder
     {
-        if ( ! self::$instance instanceof StarmusAudioRecorder) {
+        if (! self::$instance instanceof StarmusAudioRecorder) {
             self::$instance = new self();
         }
 
@@ -479,6 +481,12 @@ final class StarmusAudioRecorder
             // REST API
             if (class_exists(StarmusRESTHandler::class)) {
                 new StarmusRESTHandler($this->get_DAL(), $this->getSettings());
+            }
+
+            // Async Data Loading REST API (Retrieval)
+            if (class_exists(StarmusDataRESTHandler::class)) {
+                $data_rest = new StarmusDataRESTHandler();
+                $data_rest->init();
             }
 
             // Services

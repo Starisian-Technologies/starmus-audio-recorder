@@ -15,6 +15,7 @@ declare(strict_types=1);
  *
  * @version 0.9.2
  */
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;
@@ -33,7 +34,7 @@ use Throwable;
 use function trim;
 use function wp_create_nonce;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -178,7 +179,7 @@ final class StarmusAssetLoader
 
             // Resolve optional recording ID from context (e.g. Consent Handoff)
             $recording_id = filter_input(INPUT_GET, 'starmus_recording_id', FILTER_SANITIZE_NUMBER_INT);
-            if ( ! $recording_id && isset(self::$editor_data['post_id'])) {
+            if (! $recording_id && isset(self::$editor_data['post_id'])) {
                 $recording_id = self::$editor_data['post_id'];
             }
 
@@ -201,6 +202,11 @@ final class StarmusAssetLoader
                 ]
             );
 
+            // MEMORY SAFETY: Garbage collect before processing editor data which might be huge
+            if (\function_exists('gc_collect_cycles')) {
+                gc_collect_cycles();
+            }
+
             $default_editor_data = [
                 'enabled'     => false,
                 'post_id'     => get_the_ID() ?: 0,
@@ -211,11 +217,33 @@ final class StarmusAssetLoader
                 'annotations' => [],
             ];
 
+            // SECURITY/PERFORMANCE: If we are not in editor mode but editor data is set with huge blobs,
+            // we should sanitize it. If self::$editor_data is used, we check its size.
+            $final_editor_data = self::$editor_data ?? $default_editor_data;
+
+            // Ensure heavy keys are stripped to protect memory
+            // These should be loaded via REST API (StarmusRestApi)
+            if (isset($final_editor_data['waveform_json'])) {
+                unset($final_editor_data['waveform_json']);
+            }
+            if (isset($final_editor_data['transcription_json'])) {
+                unset($final_editor_data['transcription_json']);
+            }
+            if (isset($final_editor_data['environment_data'])) {
+                unset($final_editor_data['environment_data']);
+            }
+            // Nothing simple in PHP side. We rely on GC.
+
             wp_localize_script(
                 self::HANDLE_PROD_BUNDLE,
                 'STARMUS_EDITOR_DATA',
-                self::$editor_data ?? $default_editor_data
+                $final_editor_data
             );
+
+            // Cleanup
+            if (\function_exists('gc_collect_cycles')) {
+                gc_collect_cycles();
+            }
         } catch (Throwable $throwable) {
             // This is where your error happened.
             // We ensure StarmusLogger is available via the 'use' statement at the top.
@@ -270,7 +298,7 @@ final class StarmusAssetLoader
             $allowed_types  = array_values(
                 array_filter(
                     array_map(trim(...), explode(',', $allowed_string)),
-                    fn (string $v): bool => $v !== ''
+                    fn(string $v): bool => $v !== ''
                 )
             );
 

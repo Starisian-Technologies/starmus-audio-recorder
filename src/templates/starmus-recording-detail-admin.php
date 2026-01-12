@@ -95,7 +95,9 @@ try {
     $runtime_raw    = get_post_meta($post_id, 'runtime_metadata', true);
 
     // --- 3. Robust Data Parsing (New Schema) ---
-    $env_json_raw = get_field('starmus_environment_data', $post_id);
+    // OPTIMIZATION: Use get_post_meta() instead of get_field() for potentially massive JSON blobs.
+    // get_field() applies formatting which can double/triple memory usage for large strings, causing OOM.
+    $env_json_raw = get_post_meta($post_id, 'starmus_environment_data', true);
 
     // SAFETY: Truncate massively large JSON strings before processing or display to prevent memory exhaustion
     if (is_string($env_json_raw) && strlen($env_json_raw) > 50000) {
@@ -103,7 +105,7 @@ try {
         // We keep the full string for json_decode but for template output variables we must be careful.
     }
 
-    $env_data = empty($env_json_raw) ? [] : json_decode($env_json_raw, true);
+    $env_data = empty($env_json_raw) ? [] : json_decode((string)$env_json_raw, true);
 
     // FIX: Parse IDs correctly from the flat structure we built in JS
     $visitor_id = $env_data['identifiers']['visitorId'] ?? 'N/A';
@@ -113,13 +115,13 @@ try {
 
     $fingerprint_display = sprintf('Session: %s | Fingerprint: %s', $session_id, $fingerprint_val);
 
-    $submission_ip_display = get_field('contributor_ip', $post_id) ?: ($env_data['identifiers']['ipAddress'] ?? 'Unknown');
+    // Optimization: starmus_contributor_ip
+    $submission_ip_display = get_post_meta($post_id, 'starmus_contributor_ip', true) ?: ($env_data['identifiers']['ipAddress'] ?? 'Unknown');
 
     // FIX: Mic Profile Location (New Schema)
     // The JSON shows {"gain":1,"speechLevel":100} inside transcriber field
-    $mic_data_raw        = get_field('starmus_transcriber_metadata', $post_id);
-    $mic_data            = json_decode($mic_data_raw, true);
-    $mic_profile_display = isset($mic_data['gain']) ? 'Gain: ' . $mic_data['gain'] : 'N/A';
+    $mic_data_raw        = get_post_meta($post_id, 'starmus_transcriber_metadata', true);
+    $mic_data            = json_decode((string)$mic_data_raw, true);
 
     // CRITICAL FIX: Parse Browser/OS from User Agent string if structured data missing
     $ua_string = $env_data['device']['userAgent'] ?? '';
@@ -154,7 +156,8 @@ try {
     }
 
     // Parse Transcript
-    $transcript_raw  = get_field('starmus_transcription_text', $post_id);
+    // OPTIMIZATION: get_post_meta for large text
+    $transcript_raw  = get_post_meta($post_id, 'starmus_transcription_text', true);
     $transcript_text = '';
     if (! empty($transcript_raw)) {
         $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
@@ -162,9 +165,9 @@ try {
     }
 
     // Parse Waveform
-    $waveform_json_raw = get_field('starmus_waveform_json', $post_id);
-    $waveform_data     = ! empty($waveform_json_raw) ? json_decode($waveform_json_raw, true) : [];
-
+    // OPTIMIZATION: get_post_meta for massive JSON
+    $waveform_json_raw = get_post_meta($post_id, 'starmus_waveform_json', true);
+    $waveform_data     = ! empty($waveform_json_raw) ? json_decode((string)$waveform_json_raw, true) : [];
     // SAFETY: Free up massive raw strings immediately
     unset($waveform_json_raw);
 
@@ -299,6 +302,11 @@ try {
 
         // Free memory immediately
         unset($waveform_data);
+
+        // Force GC to reclaim memory before continuing to next tasks
+        if (function_exists('gc_collect_cycles')) {
+            gc_collect_cycles();
+        }
     ?>
         <section class="starmus-detail__section sparxstar-glass-card">
             <h2><?php esc_html_e('Waveform Data', 'starmus-audio-recorder'); ?></h2>
