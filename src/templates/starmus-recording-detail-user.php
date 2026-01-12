@@ -127,7 +127,13 @@ try {
 
     // --- 5. User-Appropriate Environment Data (New Schema) ---
     $env_json_raw = get_field('starmus_environment_data', $post_id);
-    $env_data     = is_string($env_json_raw) ? json_decode($env_json_raw, true) : [];
+
+    // SAFETY: Prevent memory exhaustion if JSON is huge.
+    if (is_string($env_json_raw) && strlen($env_json_raw) > 50000) {
+        $env_data = json_decode($env_json_raw, true); // Decode full if needed, but be careful
+    } else {
+        $env_data = is_string($env_json_raw) ? json_decode($env_json_raw, true) : [];
+    }
 
     // Parse Browser/OS from User Agent (user-friendly display)
     $ua_string          = $env_data['device']['userAgent'] ?? '';

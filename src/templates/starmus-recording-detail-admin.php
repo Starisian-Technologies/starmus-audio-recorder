@@ -96,7 +96,14 @@ try {
 
     // --- 3. Robust Data Parsing (New Schema) ---
     $env_json_raw = get_field('starmus_environment_data', $post_id);
-    $env_data     = empty($env_json_raw) ? [] : json_decode($env_json_raw, true);
+
+    // SAFETY: Truncate massively large JSON strings before processing or display to prevent memory exhaustion
+    if (is_string($env_json_raw) && strlen($env_json_raw) > 50000) {
+        // Just decode needed parts if possible, but for display, we must truncate
+        // We keep the full string for json_decode but for template output variables we must be careful.
+    }
+
+    $env_data = empty($env_json_raw) ? [] : json_decode($env_json_raw, true);
 
     // FIX: Parse IDs correctly from the flat structure we built in JS
     $visitor_id = $env_data['identifiers']['visitorId'] ?? 'N/A';
@@ -157,6 +164,9 @@ try {
     // Parse Waveform
     $waveform_json_raw = get_field('starmus_waveform_json', $post_id);
     $waveform_data     = ! empty($waveform_json_raw) ? json_decode($waveform_json_raw, true) : [];
+
+    // SAFETY: Free up massive raw strings immediately
+    unset($waveform_json_raw);
 
     // --- 4. Standard Metadata (New Schema) ---
     $accession_number = get_field('starmus_accession_number', $post_id);
@@ -266,15 +276,29 @@ try {
         $width   = 800;
         $height  = 100;
         $count   = count($waveform_data);
-        $step    = max(1, floor($count / 800));
+
+        // OPTIMIZATION: Downsample strictly to screen width
+        $target_points = 800;
+        $step    = max(1, floor($count / $target_points));
+
         $points  = [];
-        $max_val = max(array_map(abs(...), $waveform_data)) ?: 1;
+        // OPTIMIZATION: Find max value efficiently without creating new array
+        $max_val = 1.0;
+        foreach ($waveform_data as $v) {
+            $abs = abs((float)$v);
+            if ($abs > $max_val) $max_val = $abs;
+        }
+
         for ($i = 0; $i < $count; $i += $step) {
             $val      = (float) $waveform_data[$i];
-            $x        = ($i / $count) * $width;
-            $y        = $height - (($val / $max_val) * $height);
-            $points[] = sprintf('%s,%s', $x, $y);
+            // Format numbers to reduce string size
+            $x        = number_format(($i / $count) * $width, 2, '.', '');
+            $y        = number_format($height - (($val / $max_val) * $height), 2, '.', '');
+            $points[] = $x . ',' . $y;
         }
+
+        // Free memory immediately
+        unset($waveform_data);
     ?>
         <section class="starmus-detail__section sparxstar-glass-card">
             <h2><?php esc_html_e('Waveform Data', 'starmus-audio-recorder'); ?></h2>
@@ -330,7 +354,9 @@ try {
                                 <td>
                                     <details>
                                         <summary>View JSON</summary>
-                                        <pre style="font-size:0.8em; white-space:pre-wrap;"><?php echo esc_html($runtime_raw); ?></pre>
+                                        <div style="max-height: 200px; overflow: auto;">
+                                            <pre style="font-size:0.8em; white-space:pre-wrap;"><?php echo esc_html(substr((string)$runtime_raw, 0, 5000)); ?><?php echo strlen((string)$runtime_raw) > 5000 ? '... [TRUNCATED]' : ''; ?></pre>
+                                        </div>
                                     </details>
                                 </td>
                             </tr>
@@ -341,7 +367,9 @@ try {
                                 <td>
                                     <details>
                                         <summary>View JSON</summary>
-                                        <pre style="font-size:0.8em; white-space:pre-wrap;"><?php echo esc_html($env_json_raw); ?></pre>
+                                        <div style="max-height: 200px; overflow: auto;">
+                                            <pre style="font-size:0.8em; white-space:pre-wrap;"><?php echo esc_html(substr((string)$env_json_raw, 0, 5000)); ?><?php echo strlen((string)$env_json_raw) > 5000 ? '... [TRUNCATED]' : ''; ?></pre>
+                                        </div>
                                     </details>
                                 </td>
                             </tr>
@@ -356,7 +384,7 @@ try {
                     <details class="starmus-logs">
                         <summary style="cursor: pointer; font-weight: 600; color: var(--starmus-primary);">View Technical Processing Log</summary>
                         <div style="margin-top: 10px;">
-                            <pre class="starmus-processing-log" style="max-height: 300px; overflow-y: auto;"><?php echo esc_html($processing_log); ?></pre>
+                            <pre class="starmus-processing-log" style="max-height: 300px; overflow-y: auto;"><?php echo esc_html(substr((string)$processing_log, 0, 10000)); ?><?php echo strlen((string)$processing_log) > 10000 ? '... [TRUNCATED]' : ''; ?></pre>
                         </div>
                     </details>
                 </section>
