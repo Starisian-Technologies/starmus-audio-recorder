@@ -9,7 +9,7 @@
  * @package Starisian\Starmus
  */
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -21,11 +21,11 @@ use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 try {
     $post_id = get_the_ID();
 
-    if ( ! $post_id && isset($args['post_id'])) {
+    if (! $post_id && isset($args['post_id'])) {
         $post_id = intval($args['post_id']);
     }
 
-    if ( ! $post_id) {
+    if (! $post_id) {
         throw new \Exception('No post ID found.');
     }
 
@@ -149,7 +149,7 @@ try {
     // Parse Transcript
     $transcript_raw  = get_field('starmus_transcription_text', $post_id);
     $transcript_text = '';
-    if ( ! empty($transcript_raw)) {
+    if (! empty($transcript_raw)) {
         $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
         $transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
     }
@@ -194,10 +194,10 @@ try {
         <div class="starmus-detail__meta-badges">
             <span class="starmus-badge"><?php echo intval($post_id); ?></span>
             <span class="starmus-badge"><?php echo esc_html(get_the_date('F j, Y g:i A', $post_id)); ?></span>
-            <?php if ( ! empty($languages) && ! is_wp_error($languages)) { ?>
+            <?php if (! empty($languages) && ! is_wp_error($languages)) { ?>
                 <span class="starmus-badge"><?php echo esc_html($languages[0]->name); ?></span>
             <?php } ?>
-            <?php if ( ! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
+            <?php if (! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
                 <span class="starmus-badge"><?php echo esc_html($rec_types[0]->name); ?></span>
             <?php } ?>
         </div>
@@ -262,7 +262,7 @@ try {
 
     <!-- Waveform -->
     <?php
-    if ( ! empty($waveform_data)) {
+    if (! empty($waveform_data)) {
         $width   = 800;
         $height  = 100;
         $count   = count($waveform_data);
@@ -275,7 +275,7 @@ try {
             $y        = $height - (($val / $max_val) * $height);
             $points[] = sprintf('%s,%s', $x, $y);
         }
-        ?>
+    ?>
         <section class="starmus-detail__section sparxstar-glass-card">
             <h2><?php esc_html_e('Waveform Data', 'starmus-audio-recorder'); ?></h2>
             <figure class="starmus-waveform-container" style="background:#f0f0f1; border:1px solid #ddd; padding:10px; border-radius: 8px;">
@@ -324,7 +324,7 @@ try {
                             <th scope="row">Mic Profile</th>
                             <td><?php echo esc_html($mic_profile_display); ?></td>
                         </tr>
-                        <?php if ( ! empty($runtime_raw)) { ?>
+                        <?php if (! empty($runtime_raw)) { ?>
                             <tr>
                                 <th scope="row">Raw Runtime</th>
                                 <td>
@@ -335,7 +335,7 @@ try {
                                 </td>
                             </tr>
                         <?php } ?>
-                        <?php if ( ! empty($env_json_raw)) { ?>
+                        <?php if (! empty($env_json_raw)) { ?>
                             <tr>
                                 <th scope="row">Raw Environment</th>
                                 <td>

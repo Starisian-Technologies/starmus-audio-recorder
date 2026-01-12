@@ -9,7 +9,7 @@
  * @package Starisian\Starmus\templates
  */
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -23,11 +23,11 @@ try {
     $post_id = get_the_ID();
 
     // Fallback if specific ID passed via args (future proofing)
-    if ( ! $post_id && isset($args['post_id'])) {
+    if (! $post_id && isset($args['post_id'])) {
         $post_id = intval($args['post_id']);
     }
 
-    if ( ! $post_id) {
+    if (! $post_id) {
         // If loaded outside a loop context, return empty or error
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('[Starmus Detail] No Post ID found in context.');
@@ -101,7 +101,7 @@ try {
     // --- 2. Additional Metadata (Using Admin Logic for Robustness) ---
     $transcript_raw  = get_field('starmus_transcription_text', $post_id);
     $transcript_text = '';
-    if ( ! empty($transcript_raw)) {
+    if (! empty($transcript_raw)) {
         $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
         $transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
     }
@@ -210,13 +210,13 @@ try {
                 <?php echo esc_html(get_the_date('F j, Y', $post_id)); ?>
             </span>
 
-            <?php if ( ! empty($languages) && ! is_wp_error($languages)) { ?>
+            <?php if (! empty($languages) && ! is_wp_error($languages)) { ?>
                 <span class="starmus-tag starmus-tag--lang">
                     <?php echo esc_html($languages[0]->name); ?>
                 </span>
             <?php } ?>
 
-            <?php if ( ! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
+            <?php if (! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
                 <span class="starmus-tag starmus-tag--type">
                     <?php echo esc_html($rec_types[0]->name); ?>
                 </span>
