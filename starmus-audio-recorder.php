@@ -53,7 +53,7 @@ declare(strict_types=1);
 use Twig\Error\RuntimeError;
 
 
-if (! defined('ABSPATH')) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 
@@ -78,22 +78,22 @@ define('STARMUS_URL', plugin_dir_url(STARMUS_MAIN_FILE));
 define('STARMUS_PLUGIN_PREFIX', 'starmus');
 define('STARMUS_PLUGIN_DIR', plugin_dir_path(STARMUS_MAIN_FILE));
 
-if (! defined('STARMUS_LOG_LEVEL')) {
+if ( ! defined('STARMUS_LOG_LEVEL')) {
     define('STARMUS_LOG_LEVEL', 8);
 }
-if (! defined('STARMUS_TUS_ENDPOINT')) {
+if ( ! defined('STARMUS_TUS_ENDPOINT')) {
     define('STARMUS_TUS_ENDPOINT', 'https://upload.sparxstar.com/files/');
 }
-if (! defined('STARMUS_R2_ENDPOINT')) {
+if ( ! defined('STARMUS_R2_ENDPOINT')) {
     define('STARMUS_R2_ENDPOINT', 'https://cdn.sparxstar.com/');
 }
-if (! defined('STARMUS_TUS_WEBHOOK_SECRET')) {
+if ( ! defined('STARMUS_TUS_WEBHOOK_SECRET')) {
     define('STARMUS_TUS_WEBHOOK_SECRET', '84d34624286938554e5e19d9fafe9f5da3562c4d1d443e02c186f8e44019406e');
 }
-if (! defined('STARMUS_REST_NAMESPACE')) {
+if ( ! defined('STARMUS_REST_NAMESPACE')) {
     define('STARMUS_REST_NAMESPACE', 'star-starmus-audio-recorder/v1');
 }
-if (! defined('STARMUS_DELETE_ON_UNINSTALL')) {
+if ( ! defined('STARMUS_DELETE_ON_UNINSTALL')) {
     define('STARMUS_DELETE_ON_UNINSTALL', false);
 }
 
@@ -128,18 +128,18 @@ if (file_exists($starmus_autoloader)) {
 // Based on official SCF Composer documentation.
 // We check !class_exists('ACF') to ensure we don't crash if the standard plugin is active.
 
-if (! class_exists('ACF') && ! defined('SPARXSTAR_SCF_LOADED')) {
+if ( ! class_exists('ACF') && ! defined('SPARXSTAR_SCF_LOADED')) {
     error_log('Starmus Info: Booting bundled Secure Custom Fields plugin.');
     // Define path and URL to the bundled Secure Custom Fields plugin
-    if (! is_dir(STARMUS_PATH . 'vendor/secure-custom-fields/')) {
+    if ( ! is_dir(STARMUS_PATH . 'vendor/secure-custom-fields/')) {
         error_log('Starmus Error: Bundled SCF directory not found at ' . STARMUS_PATH . 'vendor/secure-custom-fields/');
         return;
     }
     // Uses 'vendor/secure-custom-fields/' per your composer.json "installer-paths"
-    if (! defined('SPARXSTAR_SCF_PATH')) {
+    if ( ! defined('SPARXSTAR_SCF_PATH')) {
         define('SPARXSTAR_SCF_PATH', STARMUS_PATH . 'vendor/secure-custom-fields/');
     }
-    if (! defined('SPARXSTAR_SCF_URL')) {
+    if ( ! defined('SPARXSTAR_SCF_URL')) {
         define('SPARXSTAR_SCF_URL', STARMUS_URL . 'vendor/secure-custom-fields/');
     }
 
@@ -190,7 +190,7 @@ if (class_exists('ACF') && file_exists(STARMUS_PATH . 'acf-json') && is_dir(STAR
 // -------------------------------------------------------------------------
 add_action('plugins_loaded', static function (): void {
     try {
-        if (! class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
+        if ( ! class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
             error_log('Starmus Critical: StarmusAudioRecorder class not found. Plugin cannot initialize.');
             throw new \RuntimeError('StarmusAudioRecorder class not found.');
         }

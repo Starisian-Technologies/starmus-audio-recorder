@@ -126,6 +126,7 @@ final class StarmusShortcodeLoader
 
     /**
      * Render the "My Recordings" shortcode.
+     * Modified to handle Detail View inline since CPT is not publicly queryable.
      */
     public function render_my_recordings_shortcode(array $atts = []): string
     {
@@ -134,6 +135,31 @@ final class StarmusShortcodeLoader
         }
 
         try {
+            // === Detail View Handler ===
+            // Since audio-recording is hidden from frontend queries, we handle display here.
+            $view         = filter_input(INPUT_GET, 'view', FILTER_SANITIZE_SPECIAL_CHARS);
+            $recording_id = filter_input(INPUT_GET, 'recording_id', FILTER_SANITIZE_NUMBER_INT);
+
+            if ($view === 'detail' && $recording_id) {
+                // Security: Ensure user owns this recording or can edit others
+                $post = get_post($recording_id);
+                if ($post && (get_current_user_id() === (int) $post->post_author || current_user_can('edit_others_posts'))) {
+                    // Masquerade global post for template parts that use get_the_ID()
+                    global $post;
+                    $post = get_post($recording_id);
+                    setup_postdata($post);
+
+                    $template = current_user_can('edit_others_posts')
+                        ? 'starmus-recording-detail-admin.php'
+                        : 'starmus-recording-detail-user.php';
+
+                    $output = StarmusTemplateLoaderHelper::render_template($template);
+                    wp_reset_postdata();
+                    return $output;
+                }
+            }
+
+            // === List View Handler ===
             $attributes     = shortcode_atts(['posts_per_page' => 10], $atts);
             $posts_per_page = max(1, absint($attributes['posts_per_page']));
             $paged          = get_query_var('paged') ? (int) get_query_var('paged') : 1;
