@@ -269,7 +269,13 @@ final class StarmusShortcodeLoader
             }
 
             // Get transcript data
-            $transcript_json = get_post_meta($context['post_id'], 'star_transcript_json', true);
+            // FIX: Updated key to match StarmusSubmissionHandler (starmus_transcription_json)
+            // Fallback to star_transcript_json for legacy
+            $transcript_json = get_post_meta($context['post_id'], 'starmus_transcription_json', true);
+            if (empty($transcript_json)) {
+                $transcript_json = get_post_meta($context['post_id'], 'star_transcript_json', true);
+            }
+
             $transcript_data = [];
             if ($transcript_json && \is_string($transcript_json)) {
                 $decoded = json_decode($transcript_json, true);

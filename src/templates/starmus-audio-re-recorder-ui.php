@@ -11,7 +11,7 @@
  *
  * @version 1.0.2-DATA-SAFE
  */
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -38,6 +38,13 @@ $data_policy_url ??= '';
         data-starmus-mode="update"
         data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
 
+        <!-- HIDDEN FIELDS: Props propagated from Shortcode/UI -->
+        <!-- Essential for linking recording to Script and setting Title -->
+        <!-- NOTE: dc_creator is mapped to Post Title in StarmusSchemaMapper/SubmissionHandler -->
+        <input type="hidden" name="dc_creator" value="<?php echo esc_attr($existing_title ?? ''); ?>">
+        <input type="hidden" name="artifact_id" value="<?php echo esc_attr($script_id ?? 0); ?>">
+        <input type="hidden" name="post_id" value="<?php echo esc_attr($post_id ?? 0); ?>">
+
         <div id="starmus_step1_<?php echo esc_attr($instance_id); ?>" class="starmus-step" data-starmus-step="1">
             <h2><?php esc_html_e('Initial Setup', 'starmus-audio-recorder'); ?></h2>
 
@@ -57,20 +64,13 @@ $data_policy_url ??= '';
             <input type="hidden" name="action" value="starmus_update_audio">
 
             <!-- METADATA PERSISTENCE -->
-            <input type="hidden" name="starmus_dc_creator" value="<?php echo esc_attr($existing_title); ?>">
+            <input type="hidden" name="starmus_dc_creator" value="<?php echo esc_attr($existing_title ?? ''); ?>">
             <input type="hidden" name="audio_file_type" value="audio/webm">
 
-            <?php if ( ! empty($existing_language)) { ?>
-                <input type="hidden" name="starmus_tax_language" value="<?php echo esc_attr((string) $existing_language); ?>">
-            <?php } ?>
-
-            <?php if ( ! empty($existing_type)) { ?>
-                <input type="hidden" name="recording_type" value="<?php echo esc_attr((string) $existing_type); ?>">
-            <?php } ?>
-
-            <?php if ( ! empty($existing_dialect)) { ?>
-                <input type="hidden" name="starmus_tax_dialect" value="<?php echo esc_attr((string) $existing_dialect); ?>">
-            <?php } ?>
+            <!-- Taxonomy Persistence -->
+            <input type="hidden" name="language" value="<?php echo esc_attr($existing_language ?? ''); ?>">
+            <input type="hidden" name="recording_type" value="<?php echo esc_attr($existing_type ?? ''); ?>">
+            <input type="hidden" name="dialect" value="<?php echo esc_attr($existing_dialect ?? ''); ?>">
 
             <!-- INJECTED BY JS (Protected by Safe Sync) -->
             <input type="hidden" name="_starmus_env" value="">
@@ -92,7 +92,7 @@ $data_policy_url ??= '';
                         required>
                     <label for="starmus_consent_<?php echo esc_attr($instance_id); ?>">
                         <?php echo wp_kses_post($consent_message); ?>
-                        <?php if ( ! empty($data_policy_url)) { ?>
+                        <?php if (! empty($data_policy_url)) { ?>
                             <a
                                 href="<?php echo esc_url($data_policy_url); ?>"
                                 target="_blank"

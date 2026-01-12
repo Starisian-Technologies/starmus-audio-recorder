@@ -248,6 +248,11 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             $form_data = $this->sanitize_submission_data($params);
             // Ensure filename is in form_data
             $form_data['filename'] = $filename;
+
+            // FIX: If dc_title matches filename, it means user didn't provide one.
+            // But if we have script_id, we might want to fetch title from script?
+            // Actually the frontend should send it.
+            // Just ensure form_data keys persist.
             // Mock file type if not provided
             if (empty($form_data['filetype'])) {
                 $check                 = wp_check_filetype($filename);

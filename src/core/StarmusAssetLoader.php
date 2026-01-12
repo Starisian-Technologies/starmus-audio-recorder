@@ -221,17 +221,53 @@ final class StarmusAssetLoader
             // we should sanitize it. If self::$editor_data is used, we check its size.
             $final_editor_data = self::$editor_data ?? $default_editor_data;
 
-            // Ensure heavy keys are stripped to protect memory
-            // These should be loaded via REST API (StarmusRestApi)
+            // Ensure heavy keys are stripped to protect memory ONLY if they are huge
+            // These should be loaded via REST API (StarmusDataRESTHandler) normally, but
+            // allowed for small data (short recordings).
+
+            // 1. Waveform
             if (isset($final_editor_data['waveform_json'])) {
-                unset($final_editor_data['waveform_json']);
+                $should_strip = false;
+                if (is_array($final_editor_data['waveform_json']) && count($final_editor_data['waveform_json']) > 5000) {
+                    $should_strip = true;
+                } elseif (is_string($final_editor_data['waveform_json']) && strlen($final_editor_data['waveform_json']) > 100000) {
+                    $should_strip = true;
+                }
+
+                if ($should_strip) {
+                    $final_editor_data['waveform_json'] = null;
+                }
             }
+
+            // 2. Transcription
             if (isset($final_editor_data['transcription_json'])) {
-                unset($final_editor_data['transcription_json']);
+                if (is_string($final_editor_data['transcription_json']) && strlen($final_editor_data['transcription_json']) > 200000) {
+                    $final_editor_data['transcription_json'] = null;
+                }
             }
+
+            // 3. Environment Data (Usually small)
             if (isset($final_editor_data['environment_data'])) {
-                unset($final_editor_data['environment_data']);
+                // Only strip if suspiciously large
+                if (is_string($final_editor_data['environment_data']) && strlen($final_editor_data['environment_data']) > 50000) {
+                    $final_editor_data['environment_data'] = null;
+                }
             }
+
+            // 4. Transcript (from ShortcodeLoader)
+            if (isset($final_editor_data['transcript']) && is_array($final_editor_data['transcript'])) {
+                // If massive array of words, strip it
+                if (count($final_editor_data['transcript']) > 5000) {
+                    $final_editor_data['transcript'] = [];
+                }
+            }
+
+            if (isset($final_editor_data['annotations']) && is_array($final_editor_data['annotations'])) {
+                if (count($final_editor_data['annotations']) > 2000) {
+                    $final_editor_data['annotations'] = [];
+                }
+            }
+
             // Nothing simple in PHP side. We rely on GC.
 
             wp_localize_script(

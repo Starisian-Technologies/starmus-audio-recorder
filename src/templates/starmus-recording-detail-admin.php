@@ -123,6 +123,8 @@ try {
     $mic_data_raw        = get_post_meta($post_id, 'starmus_transcriber_metadata', true);
     $mic_data            = json_decode((string)$mic_data_raw, true);
 
+    $mic_profile_display = empty($mic_data) ? 'N/A' : (json_encode($mic_data) ?: 'Invalid Data');
+
     // CRITICAL FIX: Parse Browser/OS from User Agent string if structured data missing
     $ua_string = $env_data['device']['userAgent'] ?? '';
 
