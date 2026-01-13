@@ -88,7 +88,7 @@ final class StarmusShortcodeLoader
             add_shortcode('starmus_audio_recorder', fn(): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode()));
             add_shortcode('starmus_audio_editor', fn(array $atts = []): string => $this->safe_render(fn(): string => $this->render_editor_with_bootstrap($atts)));
             add_shortcode('starmus_my_recordings', $this->render_my_recordings_shortcode(...));
-            add_shortcode('starmus_recording_detail', $this->render_submission_detail_shortcode(...));
+            add_shortcode('starmus_recording_detail', $this->render_recording_detail_shortcode(...));
             add_shortcode('starmus_audio_re_recorder', fn(array $atts = []): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts)));
             add_shortcode('starmus_contributor_consent', fn(): string => $this->safe_render(fn(): string => $this->consent_ui->render_shortcode()));
 
@@ -198,7 +198,7 @@ final class StarmusShortcodeLoader
     /**
      * Render the single recording detail shortcode.
      */
-    public function render_submission_detail_shortcode(): string
+    public function render_recording_detail_shortcode(): string
     {
         try {
             if ( ! is_singular('audio-recording')) {

@@ -48,9 +48,10 @@ class StarmusProsodyPlayer
 
     public function register_shortcodes(): void
     {
-        // Register the shortcode
+        // Register the shortcodes
         add_shortcode('prosody_reader', $this->render_shortcode(...));
         add_shortcode('starmus_script_card', $this->render_script_card(...));
+        add_shortcode('starmus_script_library', $this->render_script_library_shortcode(...));
     }
 
     public function init_dal(): void
@@ -298,74 +299,71 @@ class StarmusProsodyPlayer
                     </a>
                 </div>
             </div>
-            <style>
-                /* Minimal Card Styles */
-                .starmus-script-card {
-                    background: #fff;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 8px;
-                    padding: 1.5rem;
-                    margin-bottom: 1.5rem;
-                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                }
-
-                .starmus-card-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 1rem;
-                }
-
-                .starmus-card-title {
-                    margin: 0;
-                    font-size: 1.25rem;
-                }
-
-                .starmus-script-excerpt {
-                    color: #4a5568;
-                    margin-bottom: 1.5rem;
-                    font-style: italic;
-                    border-left: 3px solid #cbd5e0;
-                    padding-left: 1rem;
-                }
-
-                .starmus-audio-preview {
-                    margin-bottom: 1rem;
-                }
-
-                .starmus-simple-player {
-                    width: 100%;
-                }
-
-                .starmus-btn {
-                    display: inline-block;
-                    padding: 0.5rem 1rem;
-                    background: #3182ce;
-                    color: white;
-                    text-decoration: none;
-                    border-radius: 4px;
-                    font-weight: 500;
-                }
-
-                .starmus-btn:hover {
-                    background: #2b6cb0;
-                }
-
-                .starmus-badge {
-                    background: #c6f6d5;
-                    color: #22543d;
-                    padding: 0.25rem 0.5rem;
-                    border-radius: 99px;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                }
-            </style>
             <?php
             return ob_get_clean();
         } catch (Throwable $t) {
             StarmusLogger::log($t);
             return '<div class="starmus-error">' . esc_html__('Card Error', 'starmus-audio-recorder') . '</div>';
+        }
+    }
+
+    public function render_script_library_shortcode(array $atts = []): string
+    {
+        try {
+            $args = shortcode_atts(
+                [
+                    'posts_per_page' => 5,
+                    'paged'          => 1,
+                ],
+                $atts,
+                'starmus_script_library'
+            );
+
+            if ( ! is_user_logged_in()) {
+                return '<div class="starmus-error">' . esc_html__('You must be logged in to view your script library.', 'starmus-audio-recorder') . '</div>';
+            }
+
+            $user_id        = get_current_user_id();
+            $posts_per_page = (int) $args['posts_per_page'];
+            $paged          = (int) $args['paged'];
+
+            $query = $this->dal->get_unrecorded_scripts($user_id, $posts_per_page, $paged);
+
+            ob_start();
+
+            if ($query->have_posts()) {
+                echo '<div class="starmus-script-library">';
+                while ($query->have_posts()) {
+                    $query->the_post();
+                    echo do_shortcode('[starmus_script_card id="' . get_the_ID() . '"]');
+                }
+                echo '</div>';
+
+                // Pagination
+                $big = 999999999; // need an unlikely integer
+                $pagination_links = paginate_links([
+                    'base'      => str_replace($big, '%#%', esc_url(get_pagenum_link($big))),
+                    'format'    => '?paged=%#%',
+                    'current'   => max(1, $paged),
+                    'total'     => $query->max_num_pages,
+                    'prev_text' => __('« Previous', 'starmus-audio-recorder'),
+                    'next_text' => __('Next »', 'starmus-audio-recorder'),
+                ]);
+
+                if ($pagination_links) {
+                    echo '<div class="starmus-pagination">' . $pagination_links . '</div>';
+                }
+
+            } else {
+                echo '<div class="starmus-info">' . esc_html__('No unrecorded scripts found.', 'starmus-audio-recorder') . '</div>';
+            }
+
+            wp_reset_postdata();
+
+            return ob_get_clean();
+        } catch (Throwable $t) {
+            StarmusLogger::log($t);
+            return '<div class="starmus-error">' . esc_html__('Library Error', 'starmus-audio-recorder') . '</div>';
         }
     }
 

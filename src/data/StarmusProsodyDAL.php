@@ -12,12 +12,25 @@
  */
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\data;
 
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
 use Throwable;
+use WP_Query;
+use function wp_create_nonce;
+use function get_post;
+use function wp_strip_all_tags;
+use function preg_replace;
+use function trim;
+use function str_replace;
+use function round;
+use function implode;
+use function array_fill;
+use function count;;
+use function defined;
 
 if ( ! \defined('ABSPATH')) {
     exit;
@@ -30,11 +43,11 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
      * Kept identical to legacy for backward compatibility.
      */
     private const BASE_SPEEDS = [
-    'announcer'      => 2200,
-    'conversational' => 2800,
-    'character'      => 3000,
-    'narration'      => 3500,
-    'default'        => 3000,
+        'announcer'      => 2200,
+        'conversational' => 2800,
+        'character'      => 3000,
+        'narration'      => 3500,
+        'default'        => 3000,
     ];
 
     /**
@@ -42,9 +55,9 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
      * Kept identical to legacy for backward compatibility.
      */
     private const ENERGY_MODIFIERS = [
-    'high'    => 0.85, // Faster (Lower ms/line)
-    'neutral' => 1.0,  // Normal
-    'low'     => 1.2,  // Slower (Higher ms/line)
+        'high'    => 0.85, // Faster (Lower ms/line)
+        'neutral' => 1.0,  // Normal
+        'low'     => 1.2,  // Slower (Higher ms/line)
     ];
 
     public function __construct()
@@ -89,14 +102,14 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
             $trans_text = (string) $this->get_post_meta($post_id, 'starmus_translation_text');
 
             return [
-            'postID'      => $post_id,
-            'source'      => $this->sanitize_stream($source_text),
-            'translation' => $this->sanitize_stream($trans_text),
-            'startPace'   => $start_pace,
-            'density'     => $dens > 0 ? $dens : 28,
-            'mode'        => $mode,
-            'energy'      => $energy,
-            'nonce'       => wp_create_nonce('starmus_prosody_save_' . $post_id),
+                'postID'      => $post_id,
+                'source'      => $this->sanitize_stream($source_text),
+                'translation' => $this->sanitize_stream($trans_text),
+                'startPace'   => $start_pace,
+                'density'     => $dens > 0 ? $dens : 28,
+                'mode'        => $mode,
+                'energy'      => $energy,
+                'nonce'       => wp_create_nonce('starmus_prosody_save_' . $post_id),
             ];
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -117,6 +130,51 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
         // Use internal strict save method from StarmusBaseDAL
         // This respects ACF/Native logic and Error Logging
         return $this->save_post_meta($post_id, 'starmus_calibrated_pace_ms', $ms_per_word);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get_unrecorded_scripts(int $user_id, int $posts_per_page = 10, int $paged = 1): \WP_Query
+    {
+        global $wpdb;
+
+        try {
+            // 1. Get titles of recordings already made by this user
+            // We match by title as established in StarmusProsodyPlayer::render_script_card
+            $recorded_titles = $wpdb->get_col($wpdb->prepare(
+                "SELECT DISTINCT post_title FROM $wpdb->posts WHERE post_type = 'audio-recording' AND post_author = %d AND post_status = 'publish'",
+                $user_id
+            ));
+
+            $args = [
+                'post_type'      => 'starmus-script',
+                'posts_per_page' => $posts_per_page,
+                'paged'          => $paged,
+                'post_status'    => 'publish',
+                'orderby'        => 'date',
+                'order'          => 'DESC',
+            ];
+
+            if ( ! empty($recorded_titles)) {
+                // We need to exclude scripts with these specific titles.
+                // WP_Query doesn't have title__not_in, so we resolve to IDs.
+                $placeholders = implode(',', array_fill(0, \count($recorded_titles), '%s'));
+                $exclude_ids  = $wpdb->get_col($wpdb->prepare(
+                    "SELECT ID FROM $wpdb->posts WHERE post_type = 'starmus-script' AND post_title IN ($placeholders)", // phpcs:ignore
+                    ...$recorded_titles
+                ));
+
+                if ( ! empty($exclude_ids)) {
+                    $args['post__not_in'] = array_map('absint', $exclude_ids);
+                }
+            }
+
+            return new \WP_Query($args);
+        } catch (Throwable $throwable) {
+            StarmusLogger::log($throwable);
+            return new \WP_Query(['post__in' => [0]]); // Return empty but valid query
+        }
     }
 
     // --- INTERNAL LOGIC ---
@@ -149,4 +207,5 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
         $text = str_replace(["\r", "\n"], ' ', $text); // Flatten newlines
         return trim((string) preg_replace('/\s+/', ' ', $text));
     }
+
 }

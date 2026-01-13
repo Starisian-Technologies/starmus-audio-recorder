@@ -9,6 +9,7 @@
  */
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\data\interfaces;
 
 if ( ! \defined('ABSPATH')) {
@@ -27,4 +28,15 @@ interface IStarmusProsodyDAL extends IStarmusBaseDAL
      * Saves the user-calibrated reading pace.
      */
     public function save_calibrated_pace(int $post_id, int $ms_per_word): bool;
+
+    /**
+     * Retrieves scripts that have not been recorded by the user.
+     *
+     * @param int $user_id User ID.
+     * @param int $posts_per_page Posts per page.
+     * @param int $paged Page number.
+     *
+     * @return \WP_Query
+     */
+    public function get_unrecorded_scripts(int $user_id, int $posts_per_page = 10, int $paged = 1): \WP_Query;
 }
