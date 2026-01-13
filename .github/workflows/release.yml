@@ -60,7 +60,8 @@ jobs:
 
       # Step 7: Set up PHP and install Composer dependencies.
       - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+      # uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1
         with:
           php-version: '8.3'
           tools: composer:v2
@@ -70,7 +71,9 @@ jobs:
 
       # Step 8: Set up Node.js and build frontend assets.
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      # uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -141,7 +144,9 @@ jobs:
 
       # Step 11: Create GitHub Release
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      # uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
+
         with:
           files: |
             starmus-audio-recorder-${{ env.VERSION }}.zip
