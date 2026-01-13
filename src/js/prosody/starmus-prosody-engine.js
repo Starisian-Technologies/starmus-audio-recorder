@@ -263,12 +263,12 @@ class RhythmEngine {
 
         if (this.isPlaying) {
             icon.innerText = "II";
-            if (label) label.innerText = "PAUSE FLOW";
+            if (label) {label.innerText = "PAUSE FLOW";}
             this.els.playBtn.title = "Pause Flow";
             this.els.playBtn.classList.add("active");
         } else {
             icon.innerText = "▶";
-            if (label) label.innerText = "ENGAGE FLOW";
+            if (label) {label.innerText = "ENGAGE FLOW";}
             this.els.playBtn.title = "Test Flow";
             this.els.playBtn.classList.remove("active");
         }
@@ -277,9 +277,9 @@ class RhythmEngine {
     /**
      * CALIBRATION LOGIC
      */
-    recoif (this.calibrationLocked) return;
+    recordTap() {
+        if (this.calibrationLocked) {return;}
 
-        rdTap() {
         const now = Date.now();
         this.els.tapZone.classList.add("flash");
         setTimeout(() => this.els.tapZone.classList.remove("flash"), 100);
@@ -307,12 +307,10 @@ class RhythmEngine {
                 this.transitionToStage(avg);
             }
         }
-    }if (this.calibrationLocked) return;
-        this.calibrationLocked = true;
-
-
+    }
 
     transitionToStage(ms) {
+        this.calibrationLocked = true;
         let safeMs = parseInt(ms);
         if (isNaN(safeMs)) {
             safeMs = 3000;
@@ -341,10 +339,10 @@ class RhythmEngine {
                 this.els.slider.value = safeMs;
             }, 500);
         }, 600);
-    }calibrationLocked = false;
-        this.
+    }
 
     resetCalibration() {
+        this.calibrationLocked = false;
         this.stop();
         this.tapTimes = [];
         this.els.calibration.style.display = "flex";

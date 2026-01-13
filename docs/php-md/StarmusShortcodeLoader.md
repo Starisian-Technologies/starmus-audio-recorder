@@ -63,7 +63,7 @@ Register shortcodes — but don't instantiate heavy UI classes yet.
 Render the "My Recordings" shortcode.
 Modified to handle Detail View inline since CPT is not publicly queryable.
 
-### `render_submission_detail_shortcode()`
+### `render_recording_detail_shortcode()`
 
 **Visibility:** `public`
 

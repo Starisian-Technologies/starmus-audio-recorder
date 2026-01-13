@@ -15,11 +15,11 @@ Failure to follow these rules is considered an error.
 
 ### Platform Requirements (Non-Negotiable)
 
--   **PHP**: 8.2 or higher
+- **PHP**: 8.2 or higher
 
--   **WordPress**: 6.8 or higher
+- **WordPress**: 6.8 or higher
 
--   **Environment**: WordPress Multisite, production, shared infrastructure
+- **Environment**: WordPress Multisite, production, shared infrastructure
 
 No legacy support.\
 No downgraded compatibility.
@@ -28,15 +28,15 @@ No downgraded compatibility.
 
 ### Coding Standards (Hard Rules)
 
--   Follow **modern PSR standards** (PSR-1, PSR-4, PSR-12, strict typing where appropriate)
+- Follow **modern PSR standards** (PSR-1, PSR-4, PSR-12, strict typing where appropriate)
 
--   **Except where PSR conflicts with WordPress execution**
+- **Except where PSR conflicts with WordPress execution**
 
--   In all conflicts:
+- In all conflicts:
 
-    -   **WordPress behavior wins**
+  - **WordPress behavior wins**
 
-    -   **WordPress VIP standards apply**
+  - **WordPress VIP standards apply**
 
 You must produce **enterprise-class, commercial-grade code** suitable for long-term maintenance, audits, and scale.
 
@@ -47,21 +47,21 @@ You must **never** introduce patterns that WordPress VIP would reject.
 
 ### Architectural Discipline
 
--   Namespaces required: `Starisian\{Component}`
+- Namespaces required: `Starisian\{Component}`
 
--   No global functions
+- No global functions
 
--   No hidden side effects at load time
+- No hidden side effects at load time
 
--   Hooks must be:
+- Hooks must be:
 
-    -   Explicit
+  - Explicit
 
-    -   Conditional
+  - Conditional
 
-    -   Deterministic
+  - Deterministic
 
--   Execution order matters and must be respected
+- Execution order matters and must be respected
 
 You may not "clean up," "simplify," or "modernize" code unless explicitly instructed.
 
@@ -69,73 +69,73 @@ You may not "clean up," "simplify," or "modernize" code unless explicitly instru
 
 ### WordPress Constraints (Strict)
 
--   **No new Custom Post Types**
+- **No new Custom Post Types**
 
-    -   Allowed CPTs only:
+  - Allowed CPTs only:
 
-        -   `aiwa_lexicon`
+    - `aiwa_lexicon`
 
-        -   `aiwa_artifact`
+    - `aiwa_artifact`
 
--   All additional state must use:
+- All additional state must use:
 
-    -   ACF fields
+  - ACF fields
 
-    -   Taxonomies
+  - Taxonomies
 
-    -   Workflow state
+  - Workflow state
 
--   All mutations must include:
+- All mutations must include:
 
-    -   Capability checks
+  - Capability checks
 
-    -   Nonce validation
+  - Nonce validation
 
-    -   Explicit intent
+  - Explicit intent
 
 * * * * *
 
 ### JavaScript Constraints (When Applicable)
 
--   ES5-compatible unless explicitly authorized
+- ES5-compatible unless explicitly authorized
 
--   No frameworks without written justification
+- No frameworks without written justification
 
--   Offline-first, network-hostile assumptions
+- Offline-first, network-hostile assumptions
 
--   Event handlers attach **exactly once**
+- Event handlers attach **exactly once**
 
--   No modern syntax without polyfills
+- No modern syntax without polyfills
 
--   Inline handlers allowed **only when intentional**
+- Inline handlers allowed **only when intentional**
 
 * * * * *
 
 ### Security & Privacy (Enforced in Code)
 
--   Minimize PII by default
+- Minimize PII by default
 
--   Consent is mandatory and enforced in logic
+- Consent is mandatory and enforced in logic
 
--   No hidden data collection
+- No hidden data collection
 
--   Deletion paths must be complete and functional
+- Deletion paths must be complete and functional
 
--   Capabilities enforced in code, not UI
+- Capabilities enforced in code, not UI
 
 * * * * *
 
 ### Performance Budgets
 
--   JavaScript ≤ **60 KB gzipped**
+- JavaScript ≤ **60 KB gzipped**
 
--   CSS ≤ **25 KB gzipped**
+- CSS ≤ **25 KB gzipped**
 
--   Avoid large in-memory structures
+- Avoid large in-memory structures
 
--   Avoid repeated DOM queries
+- Avoid repeated DOM queries
 
--   Avoid polling unless explicitly required
+- Avoid polling unless explicitly required
 
 * * * * *
 
@@ -143,13 +143,13 @@ You may not "clean up," "simplify," or "modernize" code unless explicitly instru
 
 When producing code, you must provide:
 
-1.  Affected directory tree
+1. Affected directory tree
 
-2.  Full file contents (no partial snippets)
+2. Full file contents (no partial snippets)
 
-3.  Required build/test commands (if applicable)
+3. Required build/test commands (if applicable)
 
-4.  Machine-verifiable acceptance criteria
+4. Machine-verifiable acceptance criteria
 
 Explanations must be **short, operational, and implementation-focused**.
 
@@ -159,17 +159,17 @@ Explanations must be **short, operational, and implementation-focused**.
 
 You must be able to answer:
 
--   What layer does this code belong to?
+- What layer does this code belong to?
 
--   What data does it touch?
+- What data does it touch?
 
--   Who owns that data?
+- Who owns that data?
 
--   What happens if this runs twice?
+- What happens if this runs twice?
 
--   What happens if the network drops?
+- What happens if the network drops?
 
--   Does WordPress bootstrap see this correctly?
+- Does WordPress bootstrap see this correctly?
 
 If any answer is unclear, **stop and ask**.
 
@@ -179,17 +179,17 @@ If any answer is unclear, **stop and ask**.
 
 You must refuse to:
 
--   Add new CPTs
+- Add new CPTs
 
--   Introduce uncontrolled global state
+- Introduce uncontrolled global state
 
--   Break WordPress VIP standards
+- Break WordPress VIP standards
 
--   Require unsupported PHP or JS features
+- Require unsupported PHP or JS features
 
--   Bypass consent, permissions, or deletion
+- Bypass consent, permissions, or deletion
 
--   Perform stylistic refactors without instruction
+- Perform stylistic refactors without instruction
 
 * * * * *
 

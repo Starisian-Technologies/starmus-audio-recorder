@@ -26,12 +26,25 @@ Implements strict contracts for deterministic behavior.
 /
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\data;
 
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
 use Throwable;
+use WP_Query;
+use function wp_create_nonce;
+use function get_post;
+use function wp_strip_all_tags;
+use function preg_replace;
+use function trim;
+use function str_replace;
+use function round;
+use function implode;
+use function array_fill;
+use function count;;
+use function defined;
 
 if ( ! \defined('ABSPATH')) {
     exit;
@@ -44,11 +57,11 @@ Heuristic Constants for "Smart Guessing" pace.
 Kept identical to legacy for backward compatibility.
 /
     private const BASE_SPEEDS = [
-    'announcer'      => 2200,
-    'conversational' => 2800,
-    'character'      => 3000,
-    'narration'      => 3500,
-    'default'        => 3000,
+        'announcer'      => 2200,
+        'conversational' => 2800,
+        'character'      => 3000,
+        'narration'      => 3500,
+        'default'        => 3000,
     ];
 
     /**
@@ -56,9 +69,9 @@ Energy modifiers.
 Kept identical to legacy for backward compatibility.
 /
     private const ENERGY_MODIFIERS = [
-    'high'    => 0.85, // Faster (Lower ms/line)
-    'neutral' => 1.0,  // Normal
-    'low'     => 1.2,  // Slower (Higher ms/line)
+        'high'    => 0.85, // Faster (Lower ms/line)
+        'neutral' => 1.0,  // Normal
+        'low'     => 1.2,  // Slower (Higher ms/line)
     ];
 
     public function __construct()
@@ -72,6 +85,12 @@ Kept identical to legacy for backward compatibility.
 {@inheritdoc}
 
 ### `save_calibrated_pace()`
+
+**Visibility:** `public`
+
+{@inheritdoc}
+
+### `get_unrecorded_scripts()`
 
 **Visibility:** `public`
 

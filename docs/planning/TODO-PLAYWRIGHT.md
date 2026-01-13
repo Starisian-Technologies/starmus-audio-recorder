@@ -23,6 +23,7 @@
 - [x] Completion state appears exactly once
 
 ## Phase 4: Editor Workflow Tests (NEW)
+
 - [ ] Editor loads only on editor pages
 - [ ] Annotations persist across reloads
 - [ ] Slow REST responses don't double-apply edits

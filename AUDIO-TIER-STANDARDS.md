@@ -11,8 +11,6 @@ Tier Definitions and Feature Matrix
 
 The tiers define which recorder components and enhancements are available. A summary from the cross‑validation protocol shows the role of each tier:
 
-
-
 | Tier | Device class and features | UI behavior |
 | --- | --- | --- |
 | **A** | Fully capable devices (e.g., desktop browsers or modern smartphones). Support MediaRecorder, speech recognition and waveform rendering. | Provides the full multi‑stage recorder: waveform visualization, microphone calibration, noise suppression and real‑time speech‑to‑text. Tier A devices can save recordings to the offline queue. |
@@ -21,9 +19,9 @@ The tiers define which recorder components and enhancements are available. A sum
 
 ### Dynamic Behavior Rules
 
--   **No mid‑session tier change**: Once the tier is assigned at session start, it remains constant throughout the session; the system warns rather than changing tier when network quality degrades. Battery‑saver mode or iOS audio freeze also do not demote the tier.
+- **No mid‑session tier change**: Once the tier is assigned at session start, it remains constant throughout the session; the system warns rather than changing tier when network quality degrades. Battery‑saver mode or iOS audio freeze also do not demote the tier.
 
--   **No computation in Starmus**: Starmus uses the provided `env.tier` from Sparxstar; fallback detection is used only when environment data is missing. The `detectTier` function returns **'C'** when MediaRecorder or `getUserMedia` is unsupported, returns **'B'** if no `AudioContext` is available, and defaults to **'A'** otherwise. It dispatches environment‑ready events containing the selected tier.
+- **No computation in Starmus**: Starmus uses the provided `env.tier` from Sparxstar; fallback detection is used only when environment data is missing. The `detectTier` function returns **'C'** when MediaRecorder or `getUserMedia` is unsupported, returns **'B'** if no `AudioContext` is available, and defaults to **'A'** otherwise. It dispatches environment‑ready events containing the selected tier.
 
 Audio Settings per Tier
 -----------------------
@@ -48,11 +46,11 @@ To protect storage and bandwidth, the offline submission queue imposes tier‑sp
 
 When available, the Sparxstar environment optimizer provides additional audio recording constraints. The integration document lists three profiles:
 
--   **Very Low Spec** (e.g., slow‑2G connections): sample rate 8 kHz, bitrate 16 kbps.
+- **Very Low Spec** (e.g., slow‑2G connections): sample rate 8 kHz, bitrate 16 kbps.
 
--   **Low Spec** (3G/mobile): sample rate 16 kHz, bitrate 32 kbps.
+- **Low Spec** (3G/mobile): sample rate 16 kHz, bitrate 32 kbps.
 
--   **Default** (4G+/desktop): sample rate 16 kHz, bitrate 32 kbps.
+- **Default** (4G+/desktop): sample rate 16 kHz, bitrate 32 kbps.
 
 If Sparxstar is unavailable, the integration falls back to default settings and uses tier detection to determine behaviour. The `starmus-sparxstar-integration.js` file currently returns a default environment with `tier: 'C'` and an upload chunk size of 524 288 bytes when no optimizer is present. This fallback forces all devices into Tier C unless updated to use capability detection (e.g., check `window.MediaRecorder`).
 
@@ -64,14 +62,14 @@ The recorder implements progressive enhancement: Tier A devices benefit from th
 Summary and Recommendations
 ---------------------------
 
--   **Do not compute tiers in Starmus**; rely on Sparxstar UEC's environment data. Only use fallback detection when environment data is missing.
+- **Do not compute tiers in Starmus**; rely on Sparxstar UEC's environment data. Only use fallback detection when environment data is missing.
 
--   **Implement capability detection** in `starmus-sparxstar-integration.js` to avoid defaulting all devices to Tier C; check `window.MediaRecorder` and set `tier` accordingly.
+- **Implement capability detection** in `starmus-sparxstar-integration.js` to avoid defaulting all devices to Tier C; check `window.MediaRecorder` and set `tier` accordingly.
 
--   **Ensure templates and JavaScript use the correct taxonomy slug** for recording types. Align references to the actual taxonomy registered in the PHP loader rather than inventing new slugs.
+- **Ensure templates and JavaScript use the correct taxonomy slug** for recording types. Align references to the actual taxonomy registered in the PHP loader rather than inventing new slugs.
 
--   Maintain the **tier‑specific calibration settings**, offline queue limits and SPARXSTAR profiles documented above.
+- Maintain the **tier‑specific calibration settings**, offline queue limits and SPARXSTAR profiles documented above.
 
--   Use the **progressive enhancement model** to deliver the best possible experience on capable devices while providing a reliable fallback for low‑capability devices.
+- Use the **progressive enhancement model** to deliver the best possible experience on capable devices while providing a reliable fallback for low‑capability devices.
 
 This document serves as an authoritative specification for the tier system and audio standards of the Starmus audio recorder.
