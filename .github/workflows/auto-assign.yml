@@ -17,7 +17,9 @@ jobs:
 
     steps:
       - name: Auto-assign to Quality and Support team
-        uses: pozil/auto-assign-issue@v1
+      # uses: pozil/auto-assign-issue@v1
+        uses: pozil/auto-assign-issue@c5bca5027e680b9e8411b826d16947afd8c76b32
+
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           assignees: Starisian-Technologies/quality-and-support-services
