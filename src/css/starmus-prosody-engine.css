@@ -28,6 +28,13 @@
     --unit-spacing: 2.2;
     --tap-zone-size: 220px;
     --text-base: clamp(0.9rem, 2vw, 1.15rem);
+
+    /* Component Colors (Dark Default) */
+    --btn-bg: #333;
+    --btn-text: #fff;
+    --btn-hover: #444;
+    --tap-bg-hover: #161616;
+    --tap-bg-active: #333;
 }
 
 /* Light Mode (auto or manual) */
@@ -40,6 +47,13 @@
         --text-lit: #222;
         --accent: #246bf8;
         --ui-border: #ccc;
+
+        /* Component Colors (Light) */
+        --btn-bg: #e0e0e0;
+        --btn-text: #111;
+        --btn-hover: #d0d0d0;
+        --tap-bg-hover: #f0f0f0;
+        --tap-bg-active: #e8e8e8;
     }
 }
 
@@ -51,6 +65,13 @@
     --text-lit: #222;
     --accent: #246bf8;
     --ui-border: #ccc;
+
+    /* Component Colors (Light) */
+    --btn-bg: #e0e0e0;
+    --btn-text: #111;
+    --btn-hover: #d0d0d0;
+    --tap-bg-hover: #f0f0f0;
+    --tap-bg-active: #e8e8e8;
 }
 
 .dark-mode {
@@ -124,14 +145,14 @@ body {
 }
 
 .tap-zone:hover {
-    border-color: #555;
-    background: #161616;
+    border-color: var(--text-dim);
+    background: var(--tap-bg-hover);
 }
 
 .tap-zone.flash,
 .tap-zone:active {
-    background: #333;
-    border-color: #888;
+    background: var(--tap-bg-active);
+    border-color: var(--text-dim);
     transform: scale(0.96);
 }
 
@@ -290,8 +311,8 @@ body {
 }
 
 .neutral-btn {
-    background: #333;
-    color: #fff;
+    background: var(--btn-bg);
+    color: var(--btn-text);
     border: none;
     padding: 10px 16px;
     font-family: var(--font-stack);
@@ -306,7 +327,7 @@ body {
 }
 
 .neutral-btn:hover {
-    background: #444;
+    background: var(--btn-hover);
 }
 
 .neutral-btn.active {

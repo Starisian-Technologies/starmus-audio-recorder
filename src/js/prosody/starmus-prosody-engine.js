@@ -23,7 +23,7 @@ class RhythmEngine {
         };
 
         for (const [key, el] of Object.entries(this.els)) {
-            if (!el) {
+            if (!el && key !== "recalBtn") {
                 console.error(`Starmus Prosody: Critical DOM element missing: ${key}`);
                 return;
             }
@@ -263,11 +263,13 @@ class RhythmEngine {
 
         if (this.isPlaying) {
             icon.innerText = "II";
-            label.innerText = "PAUSE FLOW";
+            if (label) label.innerText = "PAUSE FLOW";
+            this.els.playBtn.title = "Pause Flow";
             this.els.playBtn.classList.add("active");
         } else {
             icon.innerText = "▶";
-            label.innerText = "ENGAGE FLOW";
+            if (label) label.innerText = "ENGAGE FLOW";
+            this.els.playBtn.title = "Test Flow";
             this.els.playBtn.classList.remove("active");
         }
     }
@@ -395,7 +397,9 @@ class RhythmEngine {
     bindEvents() {
         this.els.tapZone.addEventListener("click", () => this.recordTap());
         this.els.playBtn.addEventListener("click", () => this.toggle());
-        this.els.recalBtn.addEventListener("click", () => this.resetCalibration());
+        if (this.els.recalBtn) {
+            this.els.recalBtn.addEventListener("click", () => this.resetCalibration());
+        }
 
         // PERFORMANCE: Debounced Slider Input
         this.els.slider.addEventListener("input", (e) => {

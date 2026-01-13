@@ -90,6 +90,8 @@ jobs:
         run: |
           test -f assets/js/starmus-audio-recorder-script.bundle.min.js || { echo "Missing ES module bundle"; exit 1; }
           test -f assets/css/starmus-audio-recorder-styles.min.css || { echo "Missing bundled CSS"; exit 1; }
+          test -f assets/js/starmus-prosody-engine.min.js || { echo "Missing Prosody JS"; exit 1; }
+          test -f assets/css/starmus-prosody-engine.min.css || { echo "Missing Prosody CSS"; exit 1; }
           test -f assets/build-hash.txt || { echo "Missing build hash"; exit 1; }
           echo "✅ All required build artifacts present"
 
@@ -104,6 +106,8 @@ jobs:
           test -f starmus-audio-recorder.php || { echo "❌ Missing plugin main file"; exit 1; }
           test -f assets/js/starmus-audio-recorder-script.bundle.min.js || { echo "❌ Missing bundled JS"; exit 1; }
           test -f assets/css/starmus-audio-recorder-styles.min.css || { echo "❌ Missing bundled CSS"; exit 1; }
+          test -f assets/js/starmus-prosody-engine.min.js || { echo "❌ Missing Prosody JS"; exit 1; }
+          test -f assets/css/starmus-prosody-engine.min.css || { echo "❌ Missing Prosody CSS"; exit 1; }
           test -f vendor/autoload.php || { echo "❌ Missing Composer autoloader"; exit 1; }
           echo "✅ All production files verified"
 

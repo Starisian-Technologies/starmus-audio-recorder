@@ -50,7 +50,7 @@ class StarmusProsodyPlayer
     public function register_shortcodes(): void
     {
         // Register the shortcodes
-        add_shortcode('prosody_reader', $this->render_shortcode(...));
+        add_shortcode('prosody_player', $this->render_shortcode(...));
         add_shortcode('starmus_script_card', $this->render_script_card(...));
         add_shortcode('starmus_script_library', $this->render_script_library_shortcode(...));
         add_shortcode('starmus_add_script_form', $this->render_add_script_form_shortcode(...));
@@ -82,7 +82,7 @@ class StarmusProsodyPlayer
         // Enqueue the CSS (assuming you saved the CSS from previous chat to a file)
         wp_register_style(
             'starmus-prosody-css',
-            STARMUS_URL . 'src/css/starmus-prosody-engine.css',
+            STARMUS_URL . 'assets/css/starmus-prosody-engine.min.css',
             [],
             STARMUS_VERSION
         );
@@ -90,7 +90,7 @@ class StarmusProsodyPlayer
         // Enqueue the JS (assuming you saved the JS Class to a file)
         wp_register_script(
             'starmus-prosody-js',
-            STARMUS_URL . 'src/js/prosody/starmus-prosody-engine.js',
+            STARMUS_URL . 'assets/js/starmus-prosody-engine.min.js',
             [],
             STARMUS_VERSION,
             true // Load in footer
@@ -179,24 +179,21 @@ class StarmusProsodyPlayer
 
                 <!-- CONTROLS -->
                 <div class="control-deck hidden" id="main-controls">
-                    <div class="btn-group">
-                        <button id="btn-engage" class="neutral-btn">
-                            <span class="icon" aria-hidden="true">▶</span> <span class="label"><?php esc_html_e('TEST FLOW', 'starmus-audio-recorder'); ?></span>
-                        </button>
-                        <button id="btn-top" class="neutral-btn" title="<?php echo esc_attr__('Return to Top', 'starmus-audio-recorder'); ?>" style="margin-left: 8px;" aria-label="<?php echo esc_attr__('Return to Top', 'starmus-audio-recorder'); ?>">
-                            <span class="icon" aria-hidden="true">⬆</span>
-                        </button>
-                    </div>
+                    <!-- Play Button (Left) -->
+                    <button id="btn-engage" class="neutral-btn icon-only" title="<?php esc_attr_e('Test Flow', 'starmus-audio-recorder'); ?>">
+                        <span class="icon" aria-hidden="true">▶</span>
+                    </button>
 
+                    <!-- Slider (Middle) -->
                     <div class="fader-group">
                         <span class="fader-label" id="lbl-anxiety"><?php esc_html_e('Anxiety', 'starmus-audio-recorder'); ?></span>
                         <input type="range" id="pace-regulator" min="1000" max="6000" step="50" aria-labelledby="lbl-anxiety lbl-fatigue">
                         <span class="fader-label" id="lbl-fatigue"><?php esc_html_e('Fatigue', 'starmus-audio-recorder'); ?></span>
                     </div>
 
-                    <button id="btn-recal" class="secondary-text-btn" title="<?php echo esc_attr__('Reset Rhythm', 'starmus-audio-recorder'); ?>" aria-label="<?php echo esc_attr__('Reset Rhythm', 'starmus-audio-recorder'); ?>">
-                        <span class="dashicons dashicons-update"></span>
-                        <span class="re-tap-label"><?php esc_html_e('Re-Tap', 'starmus-audio-recorder'); ?></span>
+                    <!-- Top Button (Right) -->
+                    <button id="btn-top" class="neutral-btn icon-only" title="<?php echo esc_attr__('Top', 'starmus-audio-recorder'); ?>" aria-label="<?php echo esc_attr__('Return to Top', 'starmus-audio-recorder'); ?>">
+                        <span class="icon" aria-hidden="true">⬆</span>
                     </button>
                 </div>
             </div>
@@ -287,7 +284,7 @@ class StarmusProsodyPlayer
 
             ob_start();
         ?>
-            <div class="starmus-script-card <?php echo esc_attr($status_class); ?>">
+            <div class="starmus-script-card sparxstar-glass-card <?php echo esc_attr($status_class); ?>">
                 <div class="starmus-card-header">
                     <h3 class="starmus-card-title"><?php echo esc_html($post->post_title); ?></h3>
                     <?php if ($has_audio) { ?>
@@ -478,7 +475,7 @@ class StarmusProsodyPlayer
 
         ob_start();
         ?>
-        <div class="starmus-script-form-container">
+        <div class="starmus-script-form-container sparxstar-glass-card">
             <h2><?php echo esc_html($heading); ?></h2>
             <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post" class="starmus-script-form">
                 <input type="hidden" name="action" value="starmus_save_script">
