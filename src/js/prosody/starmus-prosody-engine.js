@@ -43,6 +43,7 @@ class RhythmEngine {
         // Calibration State
         this.tapTimes = [];
         this.requiredTaps = 4;
+        this.calibrationLocked = false;
 
         this.init();
     }
@@ -274,7 +275,9 @@ class RhythmEngine {
     /**
      * CALIBRATION LOGIC
      */
-    recordTap() {
+    recoif (this.calibrationLocked) return;
+
+        rdTap() {
         const now = Date.now();
         this.els.tapZone.classList.add("flash");
         setTimeout(() => this.els.tapZone.classList.remove("flash"), 100);
@@ -302,18 +305,26 @@ class RhythmEngine {
                 this.transitionToStage(avg);
             }
         }
-    }
+    }if (this.calibrationLocked) return;
+        this.calibrationLocked = true;
+
+
 
     transitionToStage(ms) {
-        if (ms < 1000) {
-            ms = 1000;
-        }
-        if (ms > 6000) {
-            ms = 6000;
+        let safeMs = parseInt(ms);
+        if (isNaN(safeMs)) {
+            safeMs = 3000;
         }
 
-        this.updatePace(ms);
-        this.savePaceToDatabase(ms);
+        if (safeMs < 1000) {
+            safeMs = 1000;
+        }
+        if (safeMs > 6000) {
+            safeMs = 6000;
+        }
+
+        this.updatePace(safeMs);
+        this.savePaceToDatabase(safeMs);
 
         this.els.tapFeedback.innerText = "RHYTHM LOCKED";
         this.els.tapFeedback.style.color = "#fff";
@@ -324,9 +335,12 @@ class RhythmEngine {
                 this.els.calibration.style.display = "none";
                 this.els.stage.classList.remove("hidden");
                 this.els.controls.classList.remove("hidden");
+                // Force slider update after visibility change to ensure UI sync
+                this.els.slider.value = safeMs;
             }, 500);
         }, 600);
-    }
+    }calibrationLocked = false;
+        this.
 
     resetCalibration() {
         this.stop();
