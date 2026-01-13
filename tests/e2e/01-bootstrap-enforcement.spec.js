@@ -50,7 +50,14 @@ test.describe('Bootstrap Enforcement', () => {
           window.__starmusInitAttempts = window.__starmusInitAttempts || [];
           window.__starmusInitAttempts.push(args[0]);
         }
-        return originalConsoleError.apply(console, args);
+        // Sanitize args to prevent log injection
+        const safeArgs = args.map(arg => {
+            if (typeof arg === 'string') {
+                return arg.replace(/[\r\n]/g, ' ');
+            }
+            return arg;
+        });
+        return originalConsoleError.apply(console, safeArgs);
       };
     });
 

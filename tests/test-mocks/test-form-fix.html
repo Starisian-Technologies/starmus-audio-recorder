@@ -100,17 +100,36 @@
 
             // Show current form state
             const debugEl = document.getElementById('debug');
-            debugEl.innerHTML = '<h3>Form Elements:</h3>';
+            debugEl.textContent = '';
+
+            const h3Form = document.createElement('h3');
+            h3Form.textContent = 'Form Elements:';
+            debugEl.appendChild(h3Form);
+
             const formData = new FormData(form);
             for (let [key, value] of formData.entries()) {
-                debugEl.innerHTML += `<p><strong>${key}:</strong> ${value}</p>`;
+                const p = document.createElement('p');
+                const strong = document.createElement('strong');
+                strong.textContent = key + ':';
+                p.appendChild(strong);
+                p.appendChild(document.createTextNode(' ' + value));
+                debugEl.appendChild(p);
             }
 
             // Show hidden inputs
             const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
-            debugEl.innerHTML += `<h3>Hidden Inputs (${hiddenInputs.length}):</h3>`;
+
+            const h3Hidden = document.createElement('h3');
+            h3Hidden.textContent = `Hidden Inputs (${hiddenInputs.length}):`;
+            debugEl.appendChild(h3Hidden);
+
             hiddenInputs.forEach(input => {
-                debugEl.innerHTML += `<p><strong>${input.name}:</strong> ${input.value}</p>`;
+                const p = document.createElement('p');
+                const strong = document.createElement('strong');
+                strong.textContent = input.name + ':';
+                p.appendChild(strong);
+                p.appendChild(document.createTextNode(' ' + input.value));
+                debugEl.appendChild(p);
             });
         });
     </script>

@@ -74,7 +74,12 @@
         function updateTest(testId, pass, message) {
             const el = document.getElementById(testId);
             el.className = `test-result ${pass ? 'pass' : 'fail'}`;
-            el.innerHTML = `<strong>${el.querySelector('strong').textContent}</strong> - ${message}`;
+            const strongText = el.querySelector('strong').textContent;
+            el.textContent = '';
+            const strong = document.createElement('strong');
+            strong.textContent = strongText;
+            el.appendChild(strong);
+            el.appendChild(document.createTextNode(` - ${message}`));
         }
 
         function runTests() {
