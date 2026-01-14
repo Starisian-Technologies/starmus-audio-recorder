@@ -45,21 +45,29 @@ test.describe('Bootstrap Enforcement', () => {
       delete window.STARMUS_BOOTSTRAP;
       // Override console to capture init attempts
       const originalConsoleError = console.error;
-      console.error = (...args) => {
-        if (args[0] && typeof args[0] === 'string' && args[0].includes('[STARMUS')) {
-          window.__starmusInitAttempts = window.__starmusInitAttempts || [];
-          window.__starmusInitAttempts.push(args[0]);
+
+      // Helper to sanitize any value before logging to avoid log injection
+      const sanitizeLogValue = (value) => {
+        try {
+          // Coerce to string and replace all control characters (including newlines)
+          // with spaces so each log entry stays on a single line.
+          return String(value).replace(/[\r\n\u0000-\u001f]+/g, ' ');
+        } catch (e) {
+          return '[LogSanitizationError]';
         }
-        // Sanitize args to prevent log injection
-        const safeArgs = args.map(arg => {
-            try {
-                // Coerce to string to handle objects/errors and strip newlines/control chars
-                // This prevents log forging even if objects have malicious toString methods
-                return String(arg).replace(/[\r\n\u0000-\u001f]/g, ' ');
-            } catch (e) {
-                return '[LogSanitizationError]';
-            }
-        });
+      };
+
+      console.error = (...args) => {
+        // Always work on sanitized copies of the arguments
+        const safeArgs = args.map(sanitizeLogValue);
+
+        // Capture Starmus-specific initialization errors using sanitized text
+        if (safeArgs[0] && typeof safeArgs[0] === 'string' && safeArgs[0].includes('[STARMUS')) {
+          window.__starmusInitAttempts = window.__starmusInitAttempts || [];
+          window.__starmusInitAttempts.push(safeArgs[0]);
+        }
+
+        // Forward only sanitized values to the original console.error
         return originalConsoleError.apply(console, safeArgs);
       };
     });
