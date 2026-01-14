@@ -25,7 +25,7 @@ $delete_on_uninstall = defined( 'STARMUS_DELETE_ON_UNINSTALL' ) ? STARMUS_DELETE
 $admin_setting       = isset( $settings['delete_on_uninstall'] ) ? (bool) $settings['delete_on_uninstall'] : false;
 
 // Only proceed with data deletion if either the constant OR admin setting allows it
-if ( ! $delete_on_uninstall && ! $admin_setting ) {
+if ( $delete_on_uninstall === false && $admin_setting === false ) {
     // User wants to keep data - just remove the settings option
     delete_option( 'starmus_settings' );
     return;

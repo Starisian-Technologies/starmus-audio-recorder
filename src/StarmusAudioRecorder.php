@@ -36,6 +36,7 @@ use LogicException;
 use RuntimeException;
 // Data Layer
 use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
+use Starisian\Sparxstar\Starmus\admin\StarmusTaskManager;
 use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
 use Starisian\Sparxstar\Starmus\api\StarmusDataRESTHandler;
 // Components
@@ -60,7 +61,7 @@ use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -243,7 +244,7 @@ final class StarmusAudioRecorder
      */
     public static function starmus_get_instance(): StarmusAudioRecorder
     {
-        if ( ! self::$instance instanceof StarmusAudioRecorder) {
+        if (! self::$instance instanceof StarmusAudioRecorder) {
             self::$instance = new self();
         }
 
@@ -426,7 +427,12 @@ final class StarmusAudioRecorder
             if (class_exists(StarmusAdmin::class) && is_admin()) {
                 new StarmusAdmin($this->get_DAL(), $this->getSettings());
                 StarmusLogger::info('Starmus Info: StarmusAdmin initialized successfully.');
-                return;
+            }
+
+            // Task Manager
+            if (class_exists(StarmusTaskManager::class)) {
+                new StarmusTaskManager();
+                StarmusLogger::info('Starmus Info: StarmusTaskManager initialized successfully.');
             }
 
             // Shortcodes

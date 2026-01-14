@@ -192,7 +192,7 @@ add_action('plugins_loaded', static function (): void {
     try {
         if ( ! class_exists(\Starisian\Sparxstar\Starmus\StarmusAudioRecorder::class)) {
             error_log('Starmus Critical: StarmusAudioRecorder class not found. Plugin cannot initialize.');
-            throw new \RuntimeError('StarmusAudioRecorder class not found.');
+            throw new RuntimeError('StarmusAudioRecorder class not found.');
         }
         error_log('Starmus Info: Initializing Starmus Audio Recorder plugin.');
         // Boot the App Instance
@@ -245,13 +245,10 @@ function starmus_on_deactivate(): void
 function starmus_on_uninstall(): void
 {
     try {
-
-        if (defined('STARMUS_DELETE_ON_UNINSTALL') && STARMUS_DELETE_ON_UNINSTALL && WP_UNINSTALL_PLUGIN) {
             $file = STARMUS_PATH . 'uninstall.php';
             if (file_exists($file)) {
                 require_once $file;
             }
-        }
     } catch (\Throwable $e) {
         error_log('Starmus uninstall error: ' . $e->getMessage());
     }

@@ -171,6 +171,7 @@ try {
     // OPTIMIZATION: get_post_meta
     $mic_data_raw        = get_post_meta($post_id, 'starmus_transcriber_metadata', true);
     $mic_data            = json_decode((string)$mic_data_raw, true);
+    $mic_profile_display = 'Unknown';
     if (isset($mic_data['gain'])) {
         $gain = $mic_data['gain'];
         if ($gain >= 1.5) {
