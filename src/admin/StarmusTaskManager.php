@@ -13,36 +13,39 @@ namespace Starisian\Sparxstar\Starmus\admin;
 
 use WP_Query;
 
-if (!defined('ABSPATH')) exit;
+if ( ! defined('ABSPATH')) {
+    exit;
+}
 
 class StarmusTaskManager
 {
 
     // Define allowed CPTs here
-    private $post_types = ['starmus_script', 'starmus_recording', 'starmus_transcription'];
+    // Updated to match actual CPT names from StarmusPostTypeLoader
+    private array $post_types = ['starmus-script', 'audio-recording', 'starmus_transcript'];
 
     public function __construct()
     {
         // Admin Menu
-        add_action('admin_menu', [$this, 'register_admin_menu']);
+        add_action('admin_menu', $this->register_admin_menu(...));
 
         // Assets
-        add_action('admin_enqueue_scripts', [$this, 'admin_scripts']);
-        add_action('wp_enqueue_scripts', [$this, 'frontend_scripts']);
+        add_action('admin_enqueue_scripts', $this->admin_scripts(...));
+        add_action('wp_enqueue_scripts', $this->frontend_scripts(...));
 
         // AJAX Handlers
-        add_action('wp_ajax_starmus_save_task_admin', [$this, 'handle_admin_save']);
-        add_action('wp_ajax_starmus_update_status_user', [$this, 'handle_user_save']);
+        add_action('wp_ajax_starmus_save_task_admin', $this->handle_admin_save(...));
+        add_action('wp_ajax_starmus_update_status_user', $this->handle_user_save(...));
 
         // Shortcode
-        add_shortcode('starmus_tasks', [$this, 'render_user_dashboard']);
+        add_shortcode('starmus_tasks', $this->render_user_dashboard(...));
     }
 
     /* ==========================================================================
        PART 1: ADMIN TASK BOARD
        ========================================================================== */
 
-    public function register_admin_menu()
+    public function register_admin_menu(): void
     {
         // Changed capability to 'edit_others_posts' to allow Editors/Managers
         add_menu_page(
@@ -50,15 +53,17 @@ class StarmusTaskManager
             'Starmus Tasks',
             'edit_others_posts',
             'starmus-tasks',
-            [$this, 'render_admin_page'],
+            $this->render_admin_page(...),
             'dashicons-clipboard',
             25
         );
     }
 
-    public function admin_scripts($hook)
+    public function admin_scripts($hook): void
     {
-        if ($hook !== 'toplevel_page_starmus-tasks') return;
+        if ($hook !== 'toplevel_page_starmus-tasks') {
+            return;
+        }
 
         wp_enqueue_style('starmus-admin-css', false);
         wp_add_inline_style('starmus-admin-css', "
@@ -79,7 +84,7 @@ class StarmusTaskManager
         ");
     }
 
-    public function render_admin_page()
+    public function render_admin_page(): void
     {
         // Handle Filters
         $filter_status = isset($_GET['f_status']) ? sanitize_text_field($_GET['f_status']) : '';
@@ -106,6 +111,21 @@ class StarmusTaskManager
             } else {
                 $args['meta_query'][] = ['key' => 'starmus_status', 'value' => $filter_status];
             }
+        } else {
+            // "When they are closed they should drop away"
+            // Default View: Hide closed/rejected unless specifically asked for
+            $args['meta_query'][] = [
+                'relation' => 'OR',
+                [
+                    'key'     => 'starmus_status',
+                    'value'   => 'closed',
+                    'compare' => '!='
+                ],
+                [
+                    'key'     => 'starmus_status',
+                    'compare' => 'NOT EXISTS'
+                ]
+            ];
         }
 
         if ($filter_user) {
@@ -121,7 +141,7 @@ class StarmusTaskManager
         // Get users with edit capabilities
         $users = get_users(['capability' => 'edit_posts']);
 
-?>
+        ?>
         <div class="wrap">
             <h1 class="wp-heading-inline">Starmus Task Assignment Board</h1>
 
@@ -175,7 +195,9 @@ class StarmusTaskManager
                             // Use get_post_meta single=true to avoid array issues, default empty strings
                             $cat = get_post_meta($pid, 'starmus_task_cat', true);
                             $status = get_post_meta($pid, 'starmus_status', true);
-                            if (empty($status)) $status = 'unassigned';
+                            if (empty($status)) {
+                                $status = 'unassigned';
+                            }
 
                             $assign_to = get_post_meta($pid, 'starmus_assign_to', true);
                             $priority = get_post_meta($pid, 'starmus_priority', true) ?: 'normal';
@@ -198,7 +220,7 @@ class StarmusTaskManager
                                 'due' => $due_local,
                                 'instruct' => $instruct
                             ];
-                    ?>
+                            ?>
                             <tr>
                                 <td>
                                     <strong><a href="<?php echo get_edit_post_link($pid); ?>"><?php the_title(); ?></a></strong>
@@ -319,20 +341,26 @@ class StarmusTaskManager
                 });
             });
         </script>
-    <?php
+        <?php
     }
 
-    public function handle_admin_save()
+    public function handle_admin_save(): void
     {
         check_ajax_referer('starmus_admin_action', 'starmus_nonce');
 
-        if (!current_user_can('edit_others_posts')) wp_send_json_error('Permission denied');
+        if ( ! current_user_can('edit_others_posts')) {
+            wp_send_json_error('Permission denied');
+        }
 
         $post_id = intval($_POST['post_id']);
-        if (!$post_id) wp_send_json_error('No ID');
+        if ( ! $post_id) {
+            wp_send_json_error('No ID');
+        }
 
         $old_status = get_post_meta($post_id, 'starmus_status', true);
-        if (empty($old_status)) $old_status = 'unassigned';
+        if (empty($old_status)) {
+            $old_status = 'unassigned';
+        }
 
         $new_status = sanitize_text_field($_POST['starmus_status']);
 
@@ -358,7 +386,7 @@ class StarmusTaskManager
             update_post_meta($post_id, 'starmus_assign_time', $now);
 
             // Generate Strong UUID
-            if (!get_post_meta($post_id, 'starmus_assign_id', true)) {
+            if ( ! get_post_meta($post_id, 'starmus_assign_id', true)) {
                 $uuid = wp_generate_uuid4(); // Native WP UUID
                 update_post_meta($post_id, 'starmus_assign_id', $uuid);
             }
@@ -377,7 +405,7 @@ class StarmusTaskManager
        PART 2: USER DASHBOARD (Frontend)
        ========================================================================== */
 
-    public function frontend_scripts()
+    public function frontend_scripts(): void
     {
         wp_enqueue_style('starmus-front-css', false);
         wp_add_inline_style('starmus-front-css', "
@@ -392,9 +420,9 @@ class StarmusTaskManager
         wp_enqueue_script('jquery');
     }
 
-    public function render_user_dashboard($atts)
+    public function render_user_dashboard($atts): string|false
     {
-        if (!is_user_logged_in()) {
+        if ( ! is_user_logged_in()) {
             return '<p>Please log in to view your tasks.</p>';
         }
 
@@ -415,7 +443,7 @@ class StarmusTaskManager
         $query = new WP_Query($args);
 
         ob_start();
-    ?>
+        ?>
         <div class="starmus-dashboard">
             <h3>My Tasks</h3>
             <table>
@@ -436,8 +464,8 @@ class StarmusTaskManager
                             $instruct = get_post_meta($pid, 'starmus_instruct', true);
 
                             // Status Logic for User
-                            $can_edit = !in_array($status, ['closed', 'rejected']);
-                    ?>
+                            $can_edit = ! in_array($status, ['closed', 'rejected']);
+                            ?>
                             <tr>
                                 <td>
                                     <strong><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></strong>
@@ -514,11 +542,11 @@ class StarmusTaskManager
                 });
             });
         </script>
-<?php
+        <?php
         return ob_get_clean();
     }
 
-    public function handle_user_save()
+    public function handle_user_save(): void
     {
         check_ajax_referer('starmus_user_action', 'nonce');
 
@@ -534,7 +562,7 @@ class StarmusTaskManager
 
         // Logic: Allowed statuses for users
         $allowed = ['assigned', 'in_progress', 'submitted'];
-        if (!in_array($new_status, $allowed)) {
+        if ( ! in_array($new_status, $allowed)) {
             wp_send_json_error('Invalid status');
         }
 
@@ -558,7 +586,7 @@ class StarmusTaskManager
        HELPERS
        ========================================================================== */
 
-    private function get_statuses()
+    private function get_statuses(): array
     {
         return [
             'unassigned' => 'Unassigned',
@@ -570,7 +598,7 @@ class StarmusTaskManager
         ];
     }
 
-    private function get_categories()
+    private function get_categories(): array
     {
         return [
             'performance' => 'Performance',

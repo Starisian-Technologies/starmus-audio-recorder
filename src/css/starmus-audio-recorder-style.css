@@ -705,3 +705,22 @@ select option {
     color: #000 !important;
     background: #fff !important;
 }
+
+/* ========================================================================
+   11. PROSODY LIGHT MODE INTEGRATION
+   ======================================================================== */
+
+/* When embedding Re-Recorder inside Prosody Engine in Light Mode,
+   we must forcibly reset text color because the theme inheritance
+   might assume a dark background. */
+.light-mode .starmus-recorder-form,
+.starmus-recorder-form.light-mode {
+    color: var(--starmus-text-hex) !important;
+}
+
+.light-mode .starmus-recorder-form label,
+.light-mode .starmus-recorder-form h2,
+.light-mode .starmus-recorder-form h3,
+.light-mode .starmus-recorder-form .starmus-status-message {
+    color: var(--starmus-text-hex) !important;
+}

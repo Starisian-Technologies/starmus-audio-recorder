@@ -118,7 +118,7 @@ $data_policy_url ??= '';
                     <option value=""><?php esc_html_e('Select Language', 'starmus-audio-recorder'); ?></option>
                     <?php if ( ! empty($languages) && is_array($languages)) { ?>
                         <?php foreach ($languages as $lang) { ?>
-                            <option value="<?php echo esc_attr($lang->term_id); ?>">
+                            <option value="<?php echo esc_attr((string) $lang->term_id); ?>">
                                 <?php echo esc_html($lang->name); ?>
                             </option>
                         <?php } ?>
@@ -139,7 +139,7 @@ $data_policy_url ??= '';
                     <option value=""><?php esc_html_e('Select Type', 'starmus-audio-recorder'); ?></option>
                     <?php if ( ! empty($recording_types) && is_array($recording_types)) { ?>
                         <?php foreach ($recording_types as $type) { ?>
-                            <option value="<?php echo esc_attr($type->term_id); ?>">
+                            <option value="<?php echo esc_attr((string) $type->term_id); ?>">
                                 <?php echo esc_html($type->name); ?>
                             </option>
                         <?php } ?>

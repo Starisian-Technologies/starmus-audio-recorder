@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\services;
 
 use Aws\S3\S3Client;
@@ -41,7 +42,7 @@ final class StarmusR2DirectService
             } else {
                 $this->configureR2();
             }
-        } catch (Throwable $throwable) {
+        } catch (\Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
     }
@@ -54,14 +55,14 @@ final class StarmusR2DirectService
         $this->public_endpoint = \defined('STARMUS_R2_ENDPOINT') ? STARMUS_R2_ENDPOINT : '';
 
         $this->storage_client = new S3Client([
-        'version'     => 'latest',
-        'region'      => 'auto',
-        'endpoint'    => sprintf('https://%s.r2.cloudflarestorage.com', $account_id),
-        'credentials' => [
-        'key'    => \defined('STARMUS_R2_ACCESS_KEY') ? STARMUS_R2_ACCESS_KEY : '',
-        'secret' => \defined('STARMUS_R2_SECRET_KEY') ? STARMUS_R2_SECRET_KEY : '',
-        ],
-        'use_path_style_endpoint' => true,
+            'version'     => 'latest',
+            'region'      => 'auto',
+            'endpoint'    => sprintf('https://%s.r2.cloudflarestorage.com', $account_id),
+            'credentials' => [
+                'key'    => \defined('STARMUS_R2_ACCESS_KEY') ? STARMUS_R2_ACCESS_KEY : '',
+                'secret' => \defined('STARMUS_R2_SECRET_KEY') ? STARMUS_R2_SECRET_KEY : '',
+            ],
+            'use_path_style_endpoint' => true,
         ]);
     }
 
@@ -72,16 +73,16 @@ final class StarmusR2DirectService
 
         // AWS Public Endpoint construction or Custom Domain
         $this->public_endpoint = \defined('STARMUS_S3_ENDPOINT')
-        ? STARMUS_S3_ENDPOINT
-        : sprintf('https://%s.s3.%s.amazonaws.com/', $this->bucket, $region);
+            ? STARMUS_S3_ENDPOINT
+            : sprintf('https://%s.s3.%s.amazonaws.com/', $this->bucket, $region);
 
         $this->storage_client = new S3Client([
-        'version'     => 'latest',
-        'region'      => $region,
-        'credentials' => [
-        'key'    => \defined('STARMUS_S3_ACCESS_KEY') ? STARMUS_S3_ACCESS_KEY : '',
-        'secret' => \defined('STARMUS_S3_SECRET_KEY') ? STARMUS_S3_SECRET_KEY : '',
-        ],
+            'version'     => 'latest',
+            'region'      => $region,
+            'credentials' => [
+                'key'    => \defined('STARMUS_S3_ACCESS_KEY') ? STARMUS_S3_ACCESS_KEY : '',
+                'secret' => \defined('STARMUS_S3_SECRET_KEY') ? STARMUS_S3_SECRET_KEY : '',
+            ],
         ]);
     }
 
@@ -99,9 +100,9 @@ final class StarmusR2DirectService
 
         // Create optimized versions
         $versions = [
-        '2g'   => ['-b:a', '32k', '-ar', '16000', '-ac', '1'],
-        '3g'   => ['-b:a', '48k', '-ar', '22050', '-ac', '1'],
-        'wifi' => ['-b:a', '64k', '-ar', '44100', '-ac', '1'],
+            '2g'   => ['-b:a', '32k', '-ar', '16000', '-ac', '1'],
+            '3g'   => ['-b:a', '48k', '-ar', '22050', '-ac', '1'],
+            'wifi' => ['-b:a', '64k', '-ar', '44100', '-ac', '1'],
         ];
 
         foreach ($versions as $quality => $params) {
@@ -114,9 +115,9 @@ final class StarmusR2DirectService
 
                 if ($url) {
                     $results[$quality] = [
-                     'url'     => $url,
-                     'size_mb' => round(filesize($temp_file) / (1024 * 1024), 2),
-                     'key'     => $key,
+                        'url'     => $url,
+                        'size_mb' => round(filesize($temp_file) / (1024 * 1024), 2),
+                        'key'     => $key,
                     ];
                 }
 
@@ -162,15 +163,15 @@ final class StarmusR2DirectService
         try {
             $result = $this->storage_client->putObject(
                 [
-            'Bucket'       => $this->bucket,
-            'Key'          => $key,
-            'Body'         => fopen($file_path, 'rb'),
-            'ContentType'  => 'audio/mpeg',
-            'CacheControl' => 'public, max-age=31536000', // 1 year cache
-            'Metadata'     => [
-            'starmus-optimized' => 'africa',
-            'created'           => date('c'),
-            ],
+                    'Bucket'       => $this->bucket,
+                    'Key'          => $key,
+                    'Body'         => fopen($file_path, 'rb'),
+                    'ContentType'  => 'audio/mpeg',
+                    'CacheControl' => 'public, max-age=31536000', // 1 year cache
+                    'Metadata'     => [
+                        'starmus-optimized' => 'africa',
+                        'created'           => date('c'),
+                    ],
                 ]
             );
 
@@ -204,7 +205,7 @@ final class StarmusR2DirectService
                 $tags['comment'] = [($tags['comment'][0] ?? '') . ' [R2-Africa]'];
                 $this->id3_service->writeTags($destination, $tags);
             }
-        } catch (Throwable $throwable) {
+        } catch (\Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
     }
@@ -217,10 +218,10 @@ final class StarmusR2DirectService
         $size_mb = filesize($file_path) / (1024 * 1024);
 
         return [
-        'original_mb'       => round($size_mb, 2),
-        'africa_2g_mb'      => round($size_mb * 0.15, 2), // 85% reduction
-        'cost_savings_usd'  => round($size_mb * 0.13, 2), // Gambia rates
-        'bandwidth_savings' => '85%',
+            'original_mb'       => round($size_mb, 2),
+            'africa_2g_mb'      => round($size_mb * 0.15, 2), // 85% reduction
+            'cost_savings_usd'  => round($size_mb * 0.13, 2), // Gambia rates
+            'bandwidth_savings' => '85%',
         ];
     }
 }

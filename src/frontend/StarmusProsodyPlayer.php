@@ -515,7 +515,7 @@ class StarmusProsodyPlayer
                 <input type="hidden" name="action" value="starmus_save_script">
                 <?php wp_nonce_field('starmus_save_script_nonce', 'starmus_nonce'); ?>
                 <?php if ($script_id > 0) { ?>
-                    <input type="hidden" name="script_id" value="<?php echo esc_attr($script_id); ?>">
+                    <input type="hidden" name="script_id" value="<?php echo esc_attr((string) $script_id); ?>">
                 <?php } ?>
 
                 <div class="starmus-form-group">
@@ -535,8 +535,8 @@ class StarmusProsodyPlayer
                         'editor_class'  => 'widefat'
                     ];
                     // Clean up block comments for display if they exist
-                    if (strpos($content, '<!-- wp:') !== false) {
-                        $content = preg_replace('/<!-- \/?wp:.*? -->/', '', $content);
+                    if (str_contains((string) $content, '<!-- wp:')) {
+                        $content = preg_replace('/<!-- \/?wp:.*? -->/', '', (string) $content);
                     }
                     wp_editor($content, 'starmus_script_content', $editor_settings);
                     ?>

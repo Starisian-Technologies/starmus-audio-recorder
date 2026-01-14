@@ -42,8 +42,8 @@ $data_policy_url ??= '';
         <!-- Essential for linking recording to Script and setting Title -->
         <!-- NOTE: dc_creator is mapped to Post Title in StarmusSchemaMapper/SubmissionHandler -->
         <input type="hidden" name="dc_creator" value="<?php echo esc_attr($existing_title ?? ''); ?>">
-        <input type="hidden" name="artifact_id" value="<?php echo esc_attr($script_id ?? 0); ?>">
-        <input type="hidden" name="post_id" value="<?php echo esc_attr($post_id ?? 0); ?>">
+        <input type="hidden" name="artifact_id" value="<?php echo esc_attr((string) ($script_id ?? 0)); ?>">
+        <input type="hidden" name="post_id" value="<?php echo esc_attr((string) ($post_id ?? 0)); ?>">
 
         <div id="starmus_step1_<?php echo esc_attr($instance_id); ?>" class="starmus-step" data-starmus-step="1">
             <h2><?php esc_html_e('Initial Setup', 'starmus-audio-recorder'); ?></h2>

@@ -68,6 +68,7 @@ WordPress Integration:
 @see StarmusAudioDAL Data access layer
 @see StarmusFileService File management service
 /
+
 namespace Starisian\Sparxstar\Starmus\services;
 
 use function apply_filters;

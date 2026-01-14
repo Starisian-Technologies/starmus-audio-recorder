@@ -1,14 +1,15 @@
 <?php
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\services;
 
 use function class_exists;
 use function file_exists;
 
 use getID3;
-use getID3_lib;
-use getID3_writetags;
+use getid3_lib;
+use getid3_writetags;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
@@ -168,8 +169,8 @@ class StarmusId3Service
             StarmusLogger::error(
                 'File missing for tagging',
                 [
-            'component' => self::class,
-            'path'      => $filepath,
+                    'component' => self::class,
+                    'path'      => $filepath,
                 ]
             );
             return false;
@@ -202,8 +203,8 @@ class StarmusId3Service
                 StarmusLogger::error(
                     'WriteTags Failed',
                     [
-                'component' => self::class,
-                'errors'    => $tagwriter->errors,
+                        'component' => self::class,
+                        'errors'    => $tagwriter->errors,
                     ]
                 );
                 return false;
@@ -213,8 +214,8 @@ class StarmusId3Service
                 StarmusLogger::warning(
                     'WriteTags Warnings',
                     [
-                'component' => self::class,
-                'warnings'  => $tagwriter->warnings,
+                        'component' => self::class,
+                        'warnings'  => $tagwriter->warnings,
                     ]
                 );
             }
@@ -224,8 +225,8 @@ class StarmusId3Service
             StarmusLogger::log(
                 $throwable,
                 [
-            'component' => self::class,
-            'path'      => $filepath,
+                    'component' => self::class,
+                    'path'      => $filepath,
                 ]
             );
             return false;

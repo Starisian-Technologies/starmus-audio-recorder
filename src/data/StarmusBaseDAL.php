@@ -13,6 +13,7 @@
  */
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\data;
 
 use function current_time;
@@ -107,9 +108,9 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     {
         $post = get_post($post_id);
         return $post ? [
-        'id'     => $post->ID,
-        'type'   => $post->post_type,
-        'status' => $post->post_status,
+            'id'     => $post->ID,
+            'type'   => $post->post_type,
+            'status' => $post->post_status,
         ] : null;
     }
 
@@ -136,12 +137,12 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     {
         try {
             $row = [
-            'revision_date'        => current_time('Y-m-d H:i:s'),
-            'revision_type'        => $type,
-            'revision_agent'       => $agent,
-            'revision_description' => $description,
-            'revision_hash'        => $hash,
-            'signature'            => '',
+                'revision_date'        => current_time('Y-m-d H:i:s'),
+                'revision_type'        => $type,
+                'revision_agent'       => $agent,
+                'revision_description' => $description,
+                'revision_hash'        => $hash,
+                'signature'            => '',
             ];
 
             // New Schema: starmus_revision_history_json (JSON String)
@@ -180,8 +181,8 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     {
         try {
             $row = [
-            'ts'     => current_time('Y-m-d H:i:s'),
-            'action' => $action,
+                'ts'     => current_time('Y-m-d H:i:s'),
+                'action' => $action,
             ];
 
             // New Schema: starmus_asset_audit_log (JSON String)
@@ -221,7 +222,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
         StarmusLogger::error(
             \sprintf('DATA LOSS PREVENTION: Write failed for Post %d, Key: %s. Reason: %s', $post_id, $key, $error_msg),
             [
-        'failed_payload' => $safe_value, // The data is now safe in the log
+                'failed_payload' => $safe_value, // The data is now safe in the log
             ]
         );
     }
@@ -237,17 +238,17 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     public static function get_user_contributor_id(int $user_id): ?int
     {
         try {
-            $query = new WP_Query([
-            'post_type'      => 'starmus_contributor',
-            'meta_key'       => 'starmus_user_id',
-            'meta_value'     => $user_id,
-            'posts_per_page' => 1,
-            'fields'         => 'ids',
+            $query = new \WP_Query([
+                'post_type'      => 'starmus_contributor',
+                'meta_key'       => 'starmus_user_id',
+                'meta_value'     => $user_id,
+                'posts_per_page' => 1,
+                'fields'         => 'ids',
             ]);
             if ($query->have_posts()) {
                 return (int) $query->posts[0];
             }
-        } catch (Throwable $throwable) {
+        } catch (\Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
 

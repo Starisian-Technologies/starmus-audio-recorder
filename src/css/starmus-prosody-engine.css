@@ -335,6 +335,17 @@ body {
     color: #111;
 }
 
+.neutral-btn.icon-only {
+    min-width: unset;
+    width: 50px;
+    max-width: 50px;
+    padding: 10px 0;
+    flex-grow: 0 !important; /* Rigid width */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .fader-group {
     flex-grow: 1;
     display: flex;
@@ -455,28 +466,32 @@ body {
     }
 
     .control-deck {
-        flex-flow: row wrap; /* Keep row on mobile if possible, or wrap */
-        gap: 10px;
-        padding: 10px;
+        flex-flow: row nowrap; /* Force single row */
+        gap: 8px;
+        padding: 8px;
         justify-content: space-between;
     }
 
     .neutral-btn {
-        width: auto;
-        flex-grow: 1;
-        min-width: unset;
-        padding: 12px;
+        /* Default buttons can shrink/grow, but icon-only are fixed */
+        padding: 8px;
+    }
+
+    /* Hide labels on mobile to fit slider in single row */
+    .fader-group .fader-label {
+        display: none;
     }
 
     .fader-group {
-        order: 3;
-        width: 100%; /* Move fader to new line on mobile */
-        padding-top: 8px;
-        border-top: 1px solid #2a2a2a;
+        order: unset;
+        width: auto;
+        padding-top: 0;
+        border-top: none;
+        flex-grow: 1; /* Ensure slider takes center stage */
     }
 
     .secondary-text-btn {
-        order: 2;
+        order: unset;
     }
 }
 
@@ -493,16 +508,7 @@ body {
     }
 }
 
-@supports (display: grid) {
-    .control-deck {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 20px;
-    }
+/* DEPRECATED: Grid Layout was breaking single-line requirement */
 
-    @media (width <= 600px) {
-        .control-deck {
-            grid-template-columns: 1fr;
-        }
-    }
-}
+/* Keeping fallback logic minimally invasive */
+

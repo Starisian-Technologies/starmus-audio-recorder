@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\services;
 
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use function date;
 use function escapeshellarg;
 use function file_exists;
@@ -19,23 +22,16 @@ use function is_wp_error;
 use function json_decode;
 use function json_encode;
 use function preg_match;
-
 use RuntimeException;
-
 use function shell_exec;
-
-use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
-use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
-
+use function sanitize_text_field;
 use function trailingslashit;
 use function trim;
 use function wp_insert_attachment;
 use function wp_mkdir_p;
-
 use WP_Post;
-
+use function wp_generate_attachment_metadata;
 use function wp_update_attachment_metadata;
 use function wp_upload_dir;
 
@@ -113,7 +109,7 @@ final readonly class StarmusPostProcessingService
      *
      * @since 1.0.0
      */
-    private StarmusAudioDAL $dal;
+    private IStarmusAudioDAL $dal;
 
     /**
      * Waveform generation service for visualization data.
