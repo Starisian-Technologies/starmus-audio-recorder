@@ -37,6 +37,7 @@
  * @see StarmusAudioDAL Data access layer
  * @see StarmusFileService File management service
  */
+
 namespace Starisian\Sparxstar\Starmus\services;
 
 use function apply_filters;
@@ -57,7 +58,7 @@ use function trim;
 use function uniqid;
 use function wp_json_encode;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -115,11 +116,11 @@ final class StarmusWaveformService
     private function get_config(): array
     {
         $defaults = [
-        'pixels_per_second' => 100,
-        'bits'              => 8,
-        'output_format'     => 'json',
+            'pixels_per_second' => 100,
+            'bits'              => 8,
+            'output_format'     => 'json',
         ];
-       apply_filters('starmus_waveform_config', $defaults);
+        apply_filters('starmus_waveform_config', $defaults);
         return $defaults;
     }
 
@@ -150,10 +151,12 @@ final class StarmusWaveformService
     public function is_tool_available(): bool
     {
         try {
-            $path = trim((string) shell_exec('command -v audiowaveform'));
+            $output = (string) shell_exec('command -v audiowaveform');
+            $path = trim($output);
             return $path !== '' && $path !== '0';
-        } catch (Throwable) {
-            StarmusLogger::log($throwanble);
+        } catch (Throwable $throwable) {
+            StarmusLogger::log($throwable);
+            return false;
         }
     }
 
@@ -208,14 +211,14 @@ final class StarmusWaveformService
         StarmusLogger::info(
             'Waveform generation started',
             [
-        'component'     => self::class,
-        'attachment_id' => $attachment_id,
-        'post_id'       => $explicit_parent_id,
+                'component'     => self::class,
+                'attachment_id' => $attachment_id,
+                'post_id'       => $explicit_parent_id,
             ]
         );
 
         // 1. Tool Check
-        if ( ! $this->is_tool_available()) {
+        if (! $this->is_tool_available()) {
             StarmusLogger::warning(
                 'audiowaveform binary missing. Skipping.',
                 ['component' => self::class, 'attachment_id' => $attachment_id]
@@ -239,26 +242,26 @@ final class StarmusWaveformService
 
         // 3. Skip if exists
         $existing = get_post_meta($recording_id, 'waveform_json', true);
-        if ( ! empty($existing)) {
+        if (! empty($existing)) {
             return true;
         }
 
         // 4. Get File Path (FIXED SYNTAX)
         $file_path = $this->files->get_local_copy($attachment_id);
 
-        if ( ! $file_path || ! file_exists($file_path)) {
+        if (! $file_path || ! file_exists($file_path)) {
             // Fallback to standard WP path
             $file_path = get_attached_file($attachment_id);
         }
 
-        if ( ! $file_path || ! file_exists($file_path)) {
+        if (! $file_path || ! file_exists($file_path)) {
             StarmusLogger::info('Audio file not found: ' . $attachment_id);
             return false;
         }
 
         // 5. Generate
         $data = $this->extract_waveform_from_file($file_path);
-        if ( ! $data || empty($data['data'])) {
+        if (! $data || empty($data['data'])) {
             StarmusLogger::error('Waveform extraction returned empty data: ' . $attachment_id);
             return false;
         }
@@ -279,9 +282,9 @@ final class StarmusWaveformService
             StarmusLogger::info(
                 'Waveform saved.',
                 [
-            'component'     => self::class,
-            'attachment_id' => $attachment_id,
-            'post_id'       => $recording_id,
+                    'component'     => self::class,
+                    'attachment_id' => $attachment_id,
+                    'post_id'       => $recording_id,
                 ]
             );
             return true;
@@ -382,8 +385,8 @@ final class StarmusWaveformService
             @unlink($temp_json); // Cleanup
 
             return [
-            'data'      => $data['data'] ?? [],
-            'json_path' => $file_path . '.waveform.json',
+                'data'      => $data['data'] ?? [],
+                'json_path' => $file_path . '.waveform.json',
             ];
         } catch (Throwable $throwable) {
             StarmusLogger::error('Waveform CLI Error: ' . $throwable->getMessage());
