@@ -71,16 +71,16 @@ final class StarmusPostTypeLoader implements IContentBundle
      */
     public function sparxStarmusRegister(): void
     {
-        add_action('acf/include_fields', function (): void {
-            if ( ! function_exists('acf_add_local_field_group')) {
+        add_action('acf/include_fields', function () {
+            if (! function_exists('acf_add_local_field_group')) {
                 return;
             }
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_agreement',
                 'title' => 'Agreement to Terms',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_authorized_signatory',
                         'label' => 'Authorized Signatory (Contributor)',
                         'name' => 'starmus_authorized_signatory',
@@ -89,24 +89,24 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The person who signed the legal agreement. Pick their name from the Contributors list.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'post_type' => [
+                        ),
+                        'post_type' => array(
                             0 => 'sparx_contributor',
-                        ],
-                        'post_status' => [],
-                        'taxonomy' => [],
+                        ),
+                        'post_status' => array(),
+                        'taxonomy' => array(),
                         'return_format' => 'id',
                         'multiple' => 0,
                         'allow_null' => 0,
                         'bidirectional' => 0,
                         'ui' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_terms_type',
                         'label' => 'Terms Type',
                         'name' => 'starmus_terms_type',
@@ -115,15 +115,15 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Which type of contract did they sign? Pick the one that matches what they agreed to.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'Full' => 'Full Terms - Complete legal agreement',
                             'Submission' => 'Recorded Submission Terms - Simple agreement for recordings',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -135,8 +135,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_contributor_signature',
                         'label' => 'Signature File',
                         'name' => 'starmus_contributor_signature',
@@ -145,18 +145,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Upload a picture of their signature or a PDF of the signed document. This proves they agreed to the terms.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'return_format' => 'array',
                         'library' => 'all',
                         'min_size' => '',
                         'max_size' => '',
                         'mime_types' => 'jpg,jpeg,png,pdf',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_agreement_datetime',
                         'label' => 'Agreement Datetime',
                         'name' => 'starmus_agreement_datetime',
@@ -165,17 +165,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The exact date and time when they agreed to the terms. Pick from the calendar and clock.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'display_format' => 'm/d/Y g:i a',
                         'return_format' => 'Y-m-d H:i:s',
                         'first_day' => 1,
                         'default_to_current_date' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_submission_id',
                         'label' => 'Submission ID',
                         'name' => 'starmus_submission_id',
@@ -184,18 +184,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A tracking number for this specific submission. This helps us keep records organized.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 100,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_agree_ip',
                         'label' => 'Signatory IP',
                         'name' => 'starmus_contributor_ip',
@@ -204,18 +204,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The internet address (IP address) of the person who signed. Looks like: 192.168.1.1. This helps verify who signed.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => '',
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_agree_ua',
                         'label' => 'User Agent',
                         'name' => 'starmus_contributor_user_agent',
@@ -224,19 +224,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Information about what web browser and device they used to sign. For example: Chrome on iPhone. Saved automatically.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => '',
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_agree_geo',
                         'label' => 'Signatory Geolocation',
                         'name' => 'starmus_contributor_geolocation',
@@ -245,26 +245,26 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The location on a map where they were when they signed the agreement. This helps verify the signature.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'center_lat' => '',
                         'center_lng' => '',
                         'zoom' => '',
                         'height' => '',
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-recording',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -275,13 +275,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_asset_health',
                 'title' => 'Audio Asset Health & Provenance',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_tab_health',
                         'label' => 'System Health',
                         'name' => '',
@@ -290,35 +290,35 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_asset_health',
                         'label' => 'File Integrity Status',
                         'name' => 'starmus_asset_health',
                         'aria-label' => '',
                         'type' => 'select',
-                        'instructions' => "Shows if the file is working correctly or if there's a problem with it.",
+                        'instructions' => 'Shows if the file is working correctly or if there\'s a problem with it.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'healthy' => '✅ Healthy - File is working fine',
                             'degraded' => '⚠️ Degraded - File has some problems',
                             'missing' => '❌ Missing File - Cannot find the file',
                             'verified' => '✅ Verified - File checked and confirmed good',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -330,8 +330,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_last_fixity_check',
                         'label' => 'Last Health Check',
                         'name' => 'starmus_last_fixity_check',
@@ -340,17 +340,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The last time the computer checked if this file was safe and working properly. This is filled in automatically.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'display_format' => 'd/m/Y g:i a',
                         'return_format' => 'd/m/Y g:i a',
                         'first_day' => 1,
                         'default_to_current_date' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_file_hash',
                         'label' => 'File Fingerprint',
                         'name' => 'starmus_file_hash',
@@ -359,18 +359,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A special code that shows if someone changed the file. Like a fingerprint for the file.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 128,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_cloud_etag',
                         'label' => 'Cloud Fingerprint (ETag)',
                         'name' => 'starmus_cloud_etag',
@@ -379,19 +379,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The tracking number used by online storage to keep track of this file. Filled in automatically.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => '',
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_tab_provenance',
                         'label' => 'Archival Provenance',
                         'name' => '',
@@ -400,36 +400,36 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_source_origin',
                         'label' => 'Original Ingest Source',
                         'name' => 'starmus_source_origin',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => "Where did this file come from originally? For example: 'Uploaded from iPhone' or 'Recorded in Studio A'.",
+                        'instructions' => 'Where did this file come from originally? For example: \'Uploaded from iPhone\' or \'Recorded in Studio A\'.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 500,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_asset_audit_log',
                         'label' => 'Asset Event Log (JSON)',
                         'name' => 'starmus_asset_audit_log',
@@ -438,11 +438,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A computer-generated list showing every time this file was moved, copied, or changed. This is created automatically by the system.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -450,17 +450,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-recording',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -471,13 +471,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_music_composition',
                 'title' => 'Composition & Arrangement',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_bpm',
                         'label' => 'Tempo (BPM)',
                         'name' => 'starmus_bpm',
@@ -486,11 +486,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'How fast is the song? BPM means Beats Per Minute. Slow songs are 60-90 BPM. Fast songs are 120-180 BPM.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'min' => 40,
                         'max' => 300,
@@ -498,22 +498,22 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => 'BPM',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_musical_key',
                         'label' => 'Musical Key',
                         'name' => 'starmus_musical_key',
                         'aria-label' => '',
                         'type' => 'select',
-                        'instructions' => "What musical key is the song in? This tells what notes sound best together. Ask a musician if you're not sure.",
+                        'instructions' => 'What musical key is the song in? This tells what notes sound best together. Ask a musician if you\'re not sure.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'Cmaj' => 'C Major',
                             'Cmin' => 'C Minor',
                             'Gmaj' => 'G Major',
@@ -528,7 +528,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                             'Bmin' => 'B Minor',
                             'Fmaj' => 'F Major',
                             'Fmin' => 'F Minor',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 1,
@@ -540,28 +540,28 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_isrc_code',
                         'label' => 'ISRC Code',
                         'name' => 'starmus_isrc_code',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => "The official tracking code for this song when it's sold. Format: CC-XXX-YY-NNNNN (example: US-S1Z-17-12345). Get this from your distributor.",
+                        'instructions' => 'The official tracking code for this song when it\'s sold. Format: CC-XXX-YY-NNNNN (example: US-S1Z-17-12345). Get this from your distributor.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 12,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_instrumentation',
                         'label' => 'Instrumentation List',
                         'name' => 'starmus_instrumentation',
@@ -570,11 +570,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'List all the instruments played in this recording and who played them. Add one row for each instrument.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'layout' => 'table',
                         'button_label' => 'Add Instrument',
                         'min' => 0,
@@ -582,8 +582,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'rows_per_page' => 20,
                         'collapsed' => '',
                         'acfe_repeater_stylised_button' => 0,
-                        'sub_fields' => [
-                            [
+                        'sub_fields' => array(
+                            array(
                                 'key' => 'starmus_inst_name',
                                 'label' => 'Instrument',
                                 'name' => 'starmus_instrument',
@@ -592,19 +592,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'Name of the instrument. For example: Guitar, Piano, Drums, Violin.',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_instrumentation',
                                 'default_value' => '',
                                 'maxlength' => 100,
                                 'placeholder' => '',
                                 'prepend' => '',
                                 'append' => '',
-                            ],
-                            [
+                            ),
+                            array(
                                 'key' => 'starmus_inst_performer',
                                 'label' => 'Performer',
                                 'name' => 'starmus_performer',
@@ -613,36 +613,36 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'Who played this instrument? Pick the musician from the Contributors list.',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_instrumentation',
-                                'post_type' => [
+                                'post_type' => array(
                                     0 => 'sparx_contributor',
-                                ],
-                                'post_status' => [],
-                                'taxonomy' => [],
+                                ),
+                                'post_status' => array(),
+                                'taxonomy' => array(),
                                 'return_format' => 'id',
                                 'multiple' => 0,
                                 'allow_null' => 0,
                                 'bidirectional' => 0,
                                 'ui' => 1,
-                                'bidirectional_target' => [],
-                            ],
-                        ],
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                                'bidirectional_target' => array(),
+                            ),
+                        ),
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-recording',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -653,13 +653,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_core_metadata',
                 'title' => 'Core Archival & Discovery Metadata',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_global_uuid',
                         'label' => 'Global Unique ID',
                         'name' => 'starmus_global_uuid',
@@ -668,19 +668,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A special computer code that identifies this file everywhere in the world. This code is created automatically and never changes.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => '',
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_dc_creator',
                         'label' => 'Creator/Author',
                         'name' => 'starmus_dc_creator',
@@ -689,18 +689,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The name of the main person who created this work. This is the artist, writer, or speaker.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 200,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_copyright_licensor',
                         'label' => 'Copyright Licensor',
                         'name' => 'starmus_copyright_licensor',
@@ -709,24 +709,24 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The person or company that gave permission for us to use this. Pick from the Contributors list.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'post_type' => [
+                        ),
+                        'post_type' => array(
                             0 => 'sparx_contributor',
-                        ],
-                        'post_status' => [],
-                        'taxonomy' => [],
+                        ),
+                        'post_status' => array(),
+                        'taxonomy' => array(),
                         'return_format' => 'id',
                         'multiple' => 0,
                         'allow_null' => 0,
                         'bidirectional' => 0,
                         'ui' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_copyright_licensee',
                         'label' => 'Copyright Licensee',
                         'name' => 'starmus_copyright_licensee',
@@ -735,18 +735,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The person or company receiving permission to use this work. Usually this is your organization name.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => 'System Owner',
                         'maxlength' => 200,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_date_created',
                         'label' => 'Date Created/Recorded',
                         'name' => 'starmus_date_created',
@@ -755,59 +755,59 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The day this recording was made or when this text was written. Pick the date from the calendar.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'display_format' => 'm/d/Y',
                         'return_format' => 'Y-m-d',
                         'first_day' => 1,
                         'default_to_current_date' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_rights_type',
                         'label' => 'License Type',
                         'name' => 'starmus_rights_type',
                         'aria-label' => '',
                         'type' => 'textarea',
-                        'instructions' => "What kind of legal agreement is being used? For example: 'Exclusive License' or 'Creative Commons BY-NC'.",
+                        'instructions' => 'What kind of legal agreement is being used? For example: \'Exclusive License\' or \'Creative Commons BY-NC\'.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
                         'maxlength' => 500,
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_rights_use',
                         'label' => 'Licensed Use',
                         'name' => 'starmus_rights_use',
                         'aria-label' => '',
                         'type' => 'textarea',
-                        'instructions' => "Explain exactly how this file can be used. For example: 'Can be used in videos' or 'Only for education'.",
+                        'instructions' => 'Explain exactly how this file can be used. For example: \'Can be used in videos\' or \'Only for education\'.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
                         'maxlength' => 1000,
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_rights_geo',
                         'label' => 'License Geography',
                         'name' => 'starmus_rights_geo',
@@ -816,17 +816,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Where in the world is this license valid? Where can people use this?',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'global' => 'Global - Anywhere in the world',
                             'us' => 'United States only',
                             'eu' => 'European Union only',
                             'limited' => 'Limited territories (specify in notes)',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -838,28 +838,28 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_rights_royalty',
                         'label' => 'Royalty Split',
                         'name' => 'starmus_rights_royalty',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => "Describe how money from this work will be shared. For example: '50% to creator, 50% to platform'.",
+                        'instructions' => 'Describe how money from this work will be shared. For example: \'50% to creator, 50% to platform\'.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 500,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_stable_uri',
                         'label' => 'Permanent Web Link',
                         'name' => 'starmus_stable_uri',
@@ -868,53 +868,53 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A web address for this file that will never change. This helps people find it in the future. Must start with http:// or https://',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_linked_data_uri',
                         'label' => 'Linked Data URI',
                         'name' => 'starmus_linked_data_uri',
                         'aria-label' => '',
                         'type' => 'url',
-                        'instructions' => "A link to this same information in another system, like Wikidata or MusicBrainz. Leave blank if you don't have one.",
+                        'instructions' => 'A link to this same information in another system, like Wikidata or MusicBrainz. Leave blank if you don\'t have one.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_data_classification',
                         'label' => 'Data Classification',
                         'name' => 'starmus_data_classification',
                         'aria-label' => '',
                         'type' => 'group',
-                        'instructions' => "Settings that control privacy and how this data can be used. This protects people's information.",
+                        'instructions' => 'Settings that control privacy and how this data can be used. This protects people\'s information.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'layout' => 'block',
                         'acfe_seamless_style' => 0,
                         'acfe_group_modal' => 0,
                         'acfe_group_modal_close' => 0,
                         'acfe_group_modal_button' => '',
                         'acfe_group_modal_size' => 'large',
-                        'sub_fields' => [
-                            [
+                        'sub_fields' => array(
+                            array(
                                 'key' => 'starmus_consent_scope',
                                 'label' => 'Consent Scope',
                                 'name' => 'starmus_consent_scope',
@@ -923,26 +923,26 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'Check what the person agreed to let us do with this data. Only use it for things they said yes to.',
                                 'required' => false,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '',
                                     'class' => '',
                                     'id' => '',
-                                ],
-                                'choices' => [
+                                ),
+                                'choices' => array(
                                     'educational' => 'Educational Use - Can be used for teaching',
                                     'ai_training' => 'AI Model Training - Can teach computers',
                                     'cultural_display' => 'Cultural Display - Can be shown in exhibits',
                                     'internal_only' => 'Internal Research Only - Private, for our use only',
-                                ],
+                                ),
                                 'layout' => 'vertical',
-                                'default_value' => [],
+                                'default_value' => array(),
                                 'allow_custom' => 0,
                                 'save_custom' => 0,
                                 'toggle' => 0,
                                 'return_format' => 'value',
                                 'custom_choice_button_text' => 'Add new choice',
-                            ],
-                            [
+                            ),
+                            array(
                                 'key' => 'starmus_data_sensitivity',
                                 'label' => 'Data Sensitivity Level',
                                 'name' => 'starmus_data_sensitivity',
@@ -951,16 +951,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'How private is this information? Who should be able to see it?',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '',
                                     'class' => '',
                                     'id' => '',
-                                ],
-                                'choices' => [
+                                ),
+                                'choices' => array(
                                     'public' => 'Public - Anyone can see this',
                                     'restricted' => 'Restricted - Only some people can see this',
                                     'confidential' => 'Confidential - Very private, very few people can see',
-                                ],
+                                ),
                                 'default_value' => false,
                                 'multiple' => 0,
                                 'allow_null' => 0,
@@ -972,8 +972,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'save_options' => 0,
                                 'allow_custom' => 0,
                                 'search_placeholder' => '',
-                            ],
-                            [
+                            ),
+                            array(
                                 'key' => 'starmus_anon_status',
                                 'label' => 'Anonymization Status',
                                 'name' => 'starmus_anon_status',
@@ -982,20 +982,20 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'Turn this on if personal details (like names) have been removed or hidden to protect privacy.',
                                 'required' => false,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'ui' => 1,
                                 'default_value' => 0,
                                 'message' => '',
                                 'ui_on_text' => 'Anonymous',
                                 'ui_off_text' => 'Not Anonymous',
-                            ],
-                        ],
-                    ],
-                    [
+                            ),
+                        ),
+                    ),
+                    array(
                         'key' => 'starmus_provenance_audit',
                         'label' => 'Provenance (Audit Trail)',
                         'name' => 'starmus_revision_history_json',
@@ -1004,11 +1004,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A detailed history showing who changed this file and when. This is created automatically by the computer to keep track of changes.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1016,17 +1016,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-recording',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -1037,13 +1037,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_music_stems',
                 'title' => 'Multi-track & Stem Assets',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_stems_cloud_uri',
                         'label' => 'Stem Bundle URI',
                         'name' => 'starmus_stems_cloud_uri',
@@ -1052,19 +1052,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A web link to download the separate audio tracks (like just the drums, just the vocals). Created automatically when stems are uploaded.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => '',
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_daw_project_uri',
                         'label' => 'DAW Project Link',
                         'name' => 'starmus_daw_project_uri',
@@ -1073,18 +1073,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A link to the original project file from music software like Pro Tools, Logic, or Ableton. This lets you edit the song later.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => '',
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_integrated_lufs',
                         'label' => 'Loudness (LUFS)',
                         'name' => 'starmus_integrated_lufs',
@@ -1093,27 +1093,27 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'How loud the song sounds to your ears. Streaming services like Spotify want around -14.0 LUFS. Ask your audio engineer for this number.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 10,
                         'placeholder' => '-14.0',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-recording',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -1124,13 +1124,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_music_engineering',
                 'title' => 'Music Engineering & Fidelity',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_sample_rate',
                         'label' => 'Sample Rate',
                         'name' => 'starmus_sample_rate',
@@ -1139,18 +1139,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'How many times per second was the sound captured? Higher numbers mean better quality but bigger files. 44.1 kHz is CD quality.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             44100 => '44.1 kHz - CD quality',
                             48000 => '48 kHz - Professional video standard',
                             88200 => '88.2 kHz - High resolution',
                             96000 => '96 kHz - High resolution',
                             192000 => '192 kHz - Ultra high resolution',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -1162,8 +1162,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_bit_depth',
                         'label' => 'Bit Depth',
                         'name' => 'starmus_bit_depth',
@@ -1172,16 +1172,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'How much detail is captured in each sound sample? Higher numbers mean more detail and better quality. 16-bit is CD quality.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             16 => '16-bit - CD quality',
                             24 => '24-bit - Professional quality',
                             32 => '32-bit Float - Studio master quality',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -1193,28 +1193,28 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_tuning_hz',
                         'label' => 'Tuning Frequency',
                         'name' => 'starmus_tuning_hz',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => "What pitch was used to tune the instruments? Usually 440Hz (standard concert pitch). Leave as 440Hz unless you know it's different.",
+                        'instructions' => 'What pitch was used to tune the instruments? Usually 440Hz (standard concert pitch). Leave as 440Hz unless you know it\'s different.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '440Hz',
                         'maxlength' => 10,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_channel_layout',
                         'label' => 'Channel Layout',
                         'name' => 'starmus_channel_layout',
@@ -1223,17 +1223,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'How many speakers is this recording made for? Mono = 1, Stereo = 2 (most common), Surround = multiple speakers all around.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'mono' => 'Mono - Single speaker, all sound in one channel',
                             'stereo' => 'Stereo - Two speakers, left and right',
                             'atmos' => 'Dolby Atmos (7.1.4) - Immersive surround sound',
                             'surround' => '5.1 Surround - Home theater setup',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -1245,17 +1245,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-recording',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -1266,13 +1266,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_music_rights',
                 'title' => 'Ownership & Royalty Splits',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_tab_publishing',
                         'label' => 'Publishing (Composition)',
                         'name' => '',
@@ -1281,16 +1281,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_publishing_splits',
                         'label' => 'Songwriter Splits',
                         'name' => 'starmus_publishing_splits',
@@ -1299,11 +1299,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Who wrote the song? List everyone who wrote the music or lyrics and how much of the songwriting money each person gets. All percentages should add up to 100%.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'layout' => 'block',
                         'button_label' => 'Add Songwriter',
                         'min' => 0,
@@ -1311,8 +1311,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'rows_per_page' => 20,
                         'collapsed' => '',
                         'acfe_repeater_stylised_button' => 0,
-                        'sub_fields' => [
-                            [
+                        'sub_fields' => array(
+                            array(
                                 'key' => 'starmus_pub_contributor',
                                 'label' => 'Contributor',
                                 'name' => 'starmus_contributor',
@@ -1321,25 +1321,25 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'Pick the songwriter from the Contributors list.',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '40',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_publishing_splits',
-                                'post_type' => [
+                                'post_type' => array(
                                     0 => 'sparx_contributor',
-                                ],
-                                'post_status' => [],
-                                'taxonomy' => [],
+                                ),
+                                'post_status' => array(),
+                                'taxonomy' => array(),
                                 'return_format' => 'id',
                                 'multiple' => 0,
                                 'allow_null' => 0,
                                 'bidirectional' => 0,
                                 'ui' => 1,
-                                'bidirectional_target' => [],
-                            ],
-                            [
+                                'bidirectional_target' => array(),
+                            ),
+                            array(
                                 'key' => 'starmus_pub_role',
                                 'label' => 'Role',
                                 'name' => 'starmus_role',
@@ -1348,19 +1348,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'What part of the song did they write?',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '30',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_publishing_splits',
-                                'choices' => [
+                                'choices' => array(
                                     'composer' => 'Composer - Wrote the music/melody',
                                     'lyricist' => 'Lyricist - Wrote the words/lyrics',
                                     'comp_lyr' => 'Composer-Lyricist - Wrote both music and words',
                                     'arranger' => 'Arranger - Arranged how instruments play',
                                     'translator' => 'Translator - Adapted lyrics to new language',
-                                ],
+                                ),
                                 'default_value' => false,
                                 'multiple' => 0,
                                 'allow_null' => 0,
@@ -1372,8 +1372,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'save_options' => 0,
                                 'allow_custom' => 0,
                                 'search_placeholder' => '',
-                            ],
-                            [
+                            ),
+                            array(
                                 'key' => 'starmus_pub_share',
                                 'label' => 'Share %',
                                 'name' => 'starmus_share_percentage',
@@ -1382,11 +1382,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'What percent of songwriting money do they get? All shares must add up to 100%.',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '15',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_publishing_splits',
                                 'default_value' => '',
                                 'min' => 0,
@@ -1395,10 +1395,10 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'placeholder' => '',
                                 'prepend' => '',
                                 'append' => '%',
-                            ],
-                        ],
-                    ],
-                    [
+                            ),
+                        ),
+                    ),
+                    array(
                         'key' => 'starmus_tab_master',
                         'label' => 'Master (Recording)',
                         'name' => '',
@@ -1407,16 +1407,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_master_splits',
                         'label' => 'Master Splits',
                         'name' => 'starmus_master_splits',
@@ -1425,11 +1425,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Who owns this specific recording? List everyone who owns part of this recording and what percentage they get. All percentages should add up to 100%.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'layout' => 'block',
                         'button_label' => 'Add Master Owner',
                         'min' => 0,
@@ -1437,8 +1437,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'rows_per_page' => 20,
                         'collapsed' => '',
                         'acfe_repeater_stylised_button' => 0,
-                        'sub_fields' => [
-                            [
+                        'sub_fields' => array(
+                            array(
                                 'key' => 'starmus_mst_contributor',
                                 'label' => 'Contributor',
                                 'name' => 'starmus_contributor',
@@ -1447,25 +1447,25 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'Pick the owner from the Contributors list.',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '40',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_master_splits',
-                                'post_type' => [
+                                'post_type' => array(
                                     0 => 'sparx_contributor',
-                                ],
-                                'post_status' => [],
-                                'taxonomy' => [],
+                                ),
+                                'post_status' => array(),
+                                'taxonomy' => array(),
                                 'return_format' => 'id',
                                 'multiple' => 0,
                                 'allow_null' => 0,
                                 'bidirectional' => 0,
                                 'ui' => 1,
-                                'bidirectional_target' => [],
-                            ],
-                            [
+                                'bidirectional_target' => array(),
+                            ),
+                            array(
                                 'key' => 'starmus_mst_role',
                                 'label' => 'Role',
                                 'name' => 'starmus_role',
@@ -1474,18 +1474,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'What was their job on this recording?',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '30',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_master_splits',
-                                'choices' => [
+                                'choices' => array(
                                     'artist' => 'Main Artist - The performer/singer',
                                     'producer' => 'Producer - Created/produced the recording',
                                     'engineer' => 'Engineer - Recorded and mixed the audio',
                                     'session_mus' => 'Session Musician - Played instruments on recording',
-                                ],
+                                ),
                                 'default_value' => false,
                                 'multiple' => 0,
                                 'allow_null' => 0,
@@ -1497,8 +1497,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'save_options' => 0,
                                 'allow_custom' => 0,
                                 'search_placeholder' => '',
-                            ],
-                            [
+                            ),
+                            array(
                                 'key' => 'starmus_mst_share',
                                 'label' => 'Share %',
                                 'name' => 'starmus_share_percentage',
@@ -1507,11 +1507,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'What percent of recording money do they get? All shares must add up to 100%.',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '15',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_master_splits',
                                 'default_value' => '',
                                 'min' => 0,
@@ -1520,19 +1520,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'placeholder' => '',
                                 'prepend' => '',
                                 'append' => '%',
-                            ],
-                        ],
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                            ),
+                        ),
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-recording',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -1543,13 +1543,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_processing',
                 'title' => 'Recording Processing',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_is_music',
                         'label' => 'Is Music?',
                         'name' => 'starmus_is_music',
@@ -1558,18 +1558,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Turn this on if this is a song or musical performance. Leave it off if this is talking, like an interview or speech.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'ui' => 1,
                         'default_value' => 0,
                         'message' => '',
                         'ui_on_text' => 'Music',
                         'ui_off_text' => 'Speech',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_proc_permission',
                         'label' => 'Parental Permission Slip',
                         'name' => 'starmus_parental_permission_slip',
@@ -1578,11 +1578,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Computer data from the digital permission form signed by a parent or guardian. This is created automatically when a parent gives permission.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1590,8 +1590,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_proc_school',
                         'label' => 'School Reviewed',
                         'name' => 'starmus_school_reviewed',
@@ -1600,11 +1600,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Information showing that a school official reviewed and approved this. Created automatically by the system.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1612,21 +1612,21 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_proc_verify',
                         'label' => 'Contributor Verification',
                         'name' => 'starmus_contributor_verification',
                         'aria-label' => '',
                         'type' => 'textarea',
-                        'instructions' => "Proof that we checked the person's identity. This is created automatically when we verify who someone is.",
+                        'instructions' => 'Proof that we checked the person\'s identity. This is created automatically when we verify who someone is.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1634,8 +1634,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_proc_qa',
                         'label' => 'QA Review',
                         'name' => 'starmus_qa_review',
@@ -1644,11 +1644,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Results from quality control checks. This shows if the recording passed our quality tests. Created automatically.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1656,8 +1656,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_proc_transcribed_meta',
                         'label' => 'Transcribed Metadata',
                         'name' => 'starmus_transcribed_metadata',
@@ -1666,11 +1666,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Computer information about when and how the text was typed out from the audio. Includes timestamps and version numbers.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1678,8 +1678,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_proc_transcriber_meta',
                         'label' => 'Transcriber Metadata',
                         'name' => 'starmus_transcriber_metadata',
@@ -1688,11 +1688,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Information about who or what computer program typed out the words from the audio.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1700,8 +1700,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_proc_translated_meta',
                         'label' => 'Translated Metadata',
                         'name' => 'starmus_translated_metadata',
@@ -1710,11 +1710,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Computer information about when and how the text was changed into a different language.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1722,8 +1722,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_proc_translator_meta',
                         'label' => 'Translator Metadata',
                         'name' => 'starmus_translator_metadata',
@@ -1732,11 +1732,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Information about who or what computer program changed the words into another language.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1744,8 +1744,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_proc_ai_training',
                         'label' => 'AI Training',
                         'name' => 'starmus_ai_training',
@@ -1754,11 +1754,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Records showing if this file was used to teach a computer or AI. Created automatically by the system.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1766,8 +1766,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_proc_ai_trained',
                         'label' => 'AI Trained',
                         'name' => 'starmus_ai_trained',
@@ -1776,11 +1776,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A list of which computer programs or AI models learned from this file. Filled in automatically.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1788,8 +1788,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_waveform_json',
                         'label' => 'Waveform Data',
                         'name' => 'starmus_waveform_json',
@@ -1798,11 +1798,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Computer code that draws the sound wave picture in the audio player. This is created automatically.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1810,8 +1810,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_original_source',
                         'label' => 'Original Source File',
                         'name' => 'starmus_original_source',
@@ -1820,18 +1820,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The very first audio file we got, before any changes were made. Upload the raw, unedited file here.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'return_format' => 'url',
                         'library' => 'all',
                         'min_size' => '',
                         'max_size' => '',
                         'mime_types' => 'mp3,wav,aiff,flac,m4a',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_archival_wav',
                         'label' => 'Archival WAV File',
                         'name' => 'starmus_archival_wav',
@@ -1840,38 +1840,38 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The highest quality version saved for long-term storage. Should be a WAV file. This is the master copy we keep forever.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'return_format' => 'url',
                         'library' => 'all',
                         'min_size' => '',
                         'max_size' => '',
                         'mime_types' => 'wav',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_mastered_mp3',
                         'label' => 'Mastered MP3 File',
                         'name' => 'starmus_mastered_mp3',
                         'aria-label' => '',
                         'type' => 'file',
-                        'instructions' => "A smaller, compressed file that's easier to share and listen to. Should be MP3 format. This is what most people will hear.",
+                        'instructions' => 'A smaller, compressed file that\'s easier to share and listen to. Should be MP3 format. This is what most people will hear.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'return_format' => 'url',
                         'library' => 'all',
                         'min_size' => '',
                         'max_size' => '',
                         'mime_types' => 'mp3',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'field_696170b31b348',
                         'label' => 'MP3 Audio Clip',
                         'name' => 'starmus-audio_clip_mp3',
@@ -1880,19 +1880,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => 0,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'return_format' => 'url',
                         'library' => 'all',
                         'min_size' => '',
                         'max_size' => '.25',
                         'mime_types' => 'mp3',
                         'allow_in_bindings' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'field_696172dd1b34b',
                         'label' => 'WebA Audio Clip',
                         'name' => 'starmus_audio_clip_weba',
@@ -1901,19 +1901,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => 0,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'return_format' => 'url',
                         'library' => 'all',
                         'min_size' => '',
                         'max_size' => '.25',
                         'mime_types' => 'weba',
                         'allow_in_bindings' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'field_696172991b34a',
                         'label' => 'MP3 Optimized Audio',
                         'name' => 'starmus_audio_opt_mp3',
@@ -1922,19 +1922,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => 0,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'return_format' => 'url',
                         'library' => 'all',
                         'min_size' => '',
                         'max_size' => '',
                         'mime_types' => 'mp3',
                         'allow_in_bindings' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'field_696171131b349',
                         'label' => 'WebA Optimized Audio',
                         'name' => 'starmus_audio_opt_weba',
@@ -1943,19 +1943,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => 0,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'return_format' => 'url',
                         'library' => 'all',
                         'min_size' => '',
                         'max_size' => '',
                         'mime_types' => 'weba',
                         'allow_in_bindings' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_cloud_object_uri',
                         'label' => 'Cloud Storage Link',
                         'name' => 'starmus_cloud_object_uri',
@@ -1964,19 +1964,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The web address where this file is stored in the cloud (like Amazon S3 or Google Cloud). Created automatically.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => '',
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_processing_log',
                         'label' => 'Audio Processing Log',
                         'name' => 'starmus_processing_log',
@@ -1985,11 +1985,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Notes from the computer about how the audio was edited, cleaned up, or changed. Created automatically by the system.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -1997,8 +1997,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_device_fingerprint',
                         'label' => 'Device Fingerprint',
                         'name' => 'starmus_device_fingerprint',
@@ -2007,19 +2007,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A code that identifies the specific computer, phone, or device that was used. Created automatically for security.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => '',
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_environment_data',
                         'label' => 'Environment Snapshot',
                         'name' => 'starmus_environment_data',
@@ -2028,11 +2028,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Computer information about the room or place where this was recorded. Created automatically by sensors and software.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -2040,17 +2040,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-recording',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -2061,13 +2061,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => 1,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_session_meta',
                 'title' => 'Recording Session Metadata',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_project_collection_id',
                         'label' => 'Project / Collection ID',
                         'name' => 'starmus_project_collection_id',
@@ -2076,18 +2076,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The ID number or name of the project or folder this recording belongs to. This helps organize related files together.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 100,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_accession_number',
                         'label' => 'Accession Number',
                         'name' => 'starmus_accession_number',
@@ -2096,18 +2096,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The official library or archive number for this item. Like a library book call number.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 100,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_session_date',
                         'label' => 'Session Date',
                         'name' => 'starmus_session_date',
@@ -2116,17 +2116,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The day this recording session happened. Pick from the calendar.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'display_format' => 'm/d/Y',
                         'return_format' => 'Y-m-d',
                         'first_day' => 1,
                         'default_to_current_date' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_session_start_time',
                         'label' => 'Session Start Time',
                         'name' => 'starmus_session_start_time',
@@ -2135,15 +2135,15 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'What time did the recording start? For example: 2:30 PM.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'display_format' => 'g:i a',
                         'return_format' => 'H:i:s',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_session_end_time',
                         'label' => 'Session End Time',
                         'name' => 'starmus_session_end_time',
@@ -2152,35 +2152,35 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'What time did the recording finish? Must be after the start time.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'display_format' => 'g:i a',
                         'return_format' => 'H:i:s',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_session_location',
                         'label' => 'Location',
                         'name' => 'starmus_session_location',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => "Where did the recording happen? For example: 'Studio A, New York' or 'Lincoln Elementary School, Room 205'.",
+                        'instructions' => 'Where did the recording happen? For example: \'Studio A, New York\' or \'Lincoln Elementary School, Room 205\'.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 300,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_session_gps',
                         'label' => 'GPS Coordinates',
                         'name' => 'starmus_session_gps',
@@ -2189,17 +2189,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The exact location on a map where the recording was made. Click on the map to set the location.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'center_lat' => '',
                         'center_lng' => '',
                         'zoom' => '',
                         'height' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_session_subject',
                         'label' => 'Subject (Contributor)',
                         'name' => 'starmus_subject_contributor',
@@ -2208,24 +2208,24 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The main person being recorded, interviewed, or performing. Pick from the Contributors list.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'post_type' => [
+                        ),
+                        'post_type' => array(
                             0 => 'sparx_contributor',
-                        ],
-                        'post_status' => [],
-                        'taxonomy' => [],
+                        ),
+                        'post_status' => array(),
+                        'taxonomy' => array(),
                         'return_format' => 'id',
                         'multiple' => 0,
                         'allow_null' => 0,
                         'bidirectional' => 0,
                         'ui' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_session_crew',
                         'label' => 'Interviewers / Recorders',
                         'name' => 'starmus_interviewers_recorders',
@@ -2234,45 +2234,45 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The people who ran the recording equipment or asked interview questions. You can pick multiple people.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'post_type' => [
+                        ),
+                        'post_type' => array(
                             0 => 'sparx_contributor',
-                        ],
-                        'post_status' => [],
-                        'taxonomy' => [],
+                        ),
+                        'post_status' => array(),
+                        'taxonomy' => array(),
                         'return_format' => 'id',
                         'multiple' => 1,
                         'allow_null' => 0,
                         'bidirectional' => 0,
                         'ui' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_recording_equipment',
                         'label' => 'Recording Equipment',
                         'name' => 'starmus_recording_equipment',
                         'aria-label' => '',
                         'type' => 'textarea',
-                        'instructions' => "List the microphones, recorders, and other equipment used. For example: 'Shure SM58 microphone, Zoom H6 recorder'.",
+                        'instructions' => 'List the microphones, recorders, and other equipment used. For example: \'Shure SM58 microphone, Zoom H6 recorder\'.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 4,
                         'default_value' => '',
                         'new_lines' => '',
                         'maxlength' => 1000,
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_audio_files_originals',
                         'label' => 'Audio Files (Originals)',
                         'name' => 'starmus_audio_files_originals',
@@ -2281,40 +2281,40 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Upload the original, unedited audio files here. You can upload multiple files. Allowed types: MP3, WAV, AIFF, FLAC, M4A.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'return_format' => 'array',
                         'library' => 'all',
                         'min_size' => '',
                         'max_size' => '',
                         'mime_types' => 'mp3,wav,aiff,flac,m4a',
                         'multiple' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_media_condition',
                         'label' => 'Media Condition Notes',
                         'name' => 'starmus_media_condition',
                         'aria-label' => '',
                         'type' => 'textarea',
-                        'instructions' => "Write notes about the recording quality. For example: 'Some background noise from traffic' or 'Very clear, no problems'.",
+                        'instructions' => 'Write notes about the recording quality. For example: \'Some background noise from traffic\' or \'Very clear, no problems\'.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 4,
                         'default_value' => '',
                         'new_lines' => '',
                         'maxlength' => 1000,
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_access_level',
                         'label' => 'Access Level',
                         'name' => 'starmus_access_level',
@@ -2323,17 +2323,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Who should be allowed to see or listen to this file?',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'public' => 'Public - Anyone can see or hear this',
                             'restricted' => 'Restricted - Only approved people can access',
                             'embargoed' => 'Embargoed - Hidden until a future date',
                             'private' => 'Private - Only administrators can access',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -2345,8 +2345,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_audio_quality_score',
                         'label' => 'Audio Quality Score',
                         'name' => 'starmus_audio_quality_score',
@@ -2355,11 +2355,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Rate how good the audio sounds. Is it clear and easy to hear, or are there problems?',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'taxonomy' => 'starmus_tax_audio_quality',
                         'field_type' => 'select',
                         'multiple' => 0,
@@ -2369,9 +2369,9 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'return_format' => 'id',
                         'ajax' => 1,
                         'add_term' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_recording_metadata',
                         'label' => 'Recording Metadata',
                         'name' => 'starmus_recording_metadata',
@@ -2380,11 +2380,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Extra computer information about the recording session. This is filled in automatically by the system.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -2392,17 +2392,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-recording',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -2413,13 +2413,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => 1,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_release_product_meta',
                 'title' => 'Release & Catalog Identity',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_upc_code',
                         'label' => 'UPC/EAN',
                         'name' => 'starmus_upc_code',
@@ -2428,38 +2428,38 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The barcode number for the whole album or single. Usually 12 or 13 digits. For example: 012345678905. Get this from your distributor.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 13,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_catalog_number',
                         'label' => 'Catalog Number',
                         'name' => 'starmus_catalog_number',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => "Your record label's internal tracking number for this release. Like a library call number but for your music catalog.",
+                        'instructions' => 'Your record label\'s internal tracking number for this release. Like a library call number but for your music catalog.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 50,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_release_type',
                         'label' => 'Release Type',
                         'name' => 'starmus_release_type',
@@ -2468,17 +2468,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'What kind of release is this? Pick based on how many songs are included.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'album' => 'Studio Album - Full length, 8+ songs',
                             'ep' => 'EP - Extended play, 4-7 songs',
                             'single' => 'Single - 1-3 songs',
                             'compilation' => 'Compilation - Collection of older songs',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -2490,8 +2490,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_release_date',
                         'label' => 'Street Date',
                         'name' => 'starmus_release_date',
@@ -2500,46 +2500,46 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The date when this music becomes available to the public. Pick the official release date from the calendar.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'display_format' => 'm/d/Y',
                         'return_format' => 'Y-m-d',
                         'first_day' => 1,
                         'default_to_current_date' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_label_name',
                         'label' => 'Record Label / Imprint',
                         'name' => 'starmus_label_name',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => "The name of the record label or company publishing this music. For example: 'Atlantic Records' or 'Self-Released'.",
+                        'instructions' => 'The name of the record label or company publishing this music. For example: \'Atlantic Records\' or \'Self-Released\'.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 200,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'starmus_release',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -2550,13 +2550,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_shared_rights',
                 'title' => 'Rights & Credits (Shared)',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_tab_rights',
                         'label' => 'Rights Management',
                         'name' => '',
@@ -2565,16 +2565,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_copyright_status',
                         'label' => 'Copyright Status',
                         'name' => 'starmus_copyright_status',
@@ -2583,16 +2583,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Who owns the legal rights to this work? This controls who can use it and how.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'copyrighted' => 'Copyrighted - Someone owns the rights',
                             'public_domain' => 'Public Domain - Free for anyone to use',
                             'cc' => 'Creative Commons - Free with some rules',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -2604,8 +2604,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_usage_constraints',
                         'label' => 'Usage Rules',
                         'name' => 'starmus_usage_constraints',
@@ -2614,24 +2614,24 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Check any special rules about how people can use this work.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'no_ai' => 'No AI Training - Cannot be used to teach computers',
                             'no_comm' => 'No Commercial Use - Cannot be used to make money',
-                        ],
+                        ),
                         'layout' => 'vertical',
-                        'default_value' => [],
+                        'default_value' => array(),
                         'allow_custom' => 0,
                         'save_custom' => 0,
                         'toggle' => 0,
                         'return_format' => 'value',
                         'custom_choice_button_text' => 'Add new choice',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_tab_credits',
                         'label' => 'Credits',
                         'name' => '',
@@ -2640,16 +2640,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_project_credits',
                         'label' => 'Project Credits',
                         'name' => 'starmus_project_credits',
@@ -2658,11 +2658,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A list of everyone who helped make this. Add each person and their job.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'layout' => 'table',
                         'button_label' => 'Add Another Person',
                         'min' => 0,
@@ -2670,8 +2670,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'rows_per_page' => 20,
                         'collapsed' => '',
                         'acfe_repeater_stylised_button' => 0,
-                        'sub_fields' => [
-                            [
+                        'sub_fields' => array(
+                            array(
                                 'key' => 'starmus_credit_contributor',
                                 'label' => 'Contributor',
                                 'name' => 'starmus_credit_contributor',
@@ -2680,25 +2680,25 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'Pick the person from the list.',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_project_credits',
-                                'post_type' => [
+                                'post_type' => array(
                                     0 => 'sparx_contributor',
-                                ],
-                                'post_status' => [],
-                                'taxonomy' => [],
+                                ),
+                                'post_status' => array(),
+                                'taxonomy' => array(),
                                 'return_format' => 'id',
                                 'multiple' => 0,
                                 'allow_null' => 0,
                                 'bidirectional' => 0,
                                 'ui' => 1,
-                                'bidirectional_target' => [],
-                            ],
-                            [
+                                'bidirectional_target' => array(),
+                            ),
+                            array(
                                 'key' => 'starmus_credit_role',
                                 'label' => 'Role',
                                 'name' => 'starmus_credit_role',
@@ -2707,19 +2707,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'What job did they do on this project?',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_project_credits',
-                                'choices' => [
+                                'choices' => array(
                                     'author' => 'Author - Wrote the words',
                                     'narrator' => 'Narrator - Read the words out loud',
                                     'editor' => 'Editor - Fixed mistakes and improved it',
                                     'producer' => 'Producer - Managed the project',
                                     'musician' => 'Musician - Played instruments',
-                                ],
+                                ),
                                 'default_value' => false,
                                 'multiple' => 0,
                                 'allow_null' => 0,
@@ -2731,26 +2731,26 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'save_options' => 0,
                                 'allow_custom' => 0,
                                 'search_placeholder' => '',
-                            ],
-                        ],
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                            ),
+                        ),
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-script',
-                        ],
-                    ],
-                    [
-                        [
+                        ),
+                    ),
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-recording',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -2761,13 +2761,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_script_direction',
                 'title' => 'Script: Narration & Voiceover Direction',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_tab_direction',
                         'label' => 'Direction',
                         'name' => '',
@@ -2776,37 +2776,37 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_instructions',
                         'label' => 'Directions and Instructions',
                         'name' => 'starmus_instructions',
                         'aria-label' => '',
                         'type' => 'textarea',
-                        'instructions' => "Write notes about how the speaker should sound. For example: 'Speak slowly and calmly' or 'Sound excited and happy'.",
+                        'instructions' => 'Write notes about how the speaker should sound. For example: \'Speak slowly and calmly\' or \'Sound excited and happy\'.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 4,
                         'default_value' => '',
                         'new_lines' => '',
                         'maxlength' => 2000,
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_performance_mode',
                         'label' => 'Performance Mode',
                         'name' => 'starmus_performance_mode',
@@ -2815,16 +2815,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Pick how the speaker should act when reading this.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'conversational' => 'Conversational - Like talking to a friend',
                             'narration' => 'Narration - Like reading a story',
                             'announcer' => 'Announcer - Like a professional news reader',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -2836,8 +2836,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_energy_level',
                         'label' => 'Energy Level',
                         'name' => 'starmus_energy_level',
@@ -2846,16 +2846,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Should the speaker sound calm or excited?',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'low' => 'Low - Calm and quiet',
                             'neutral' => 'Neutral - Normal speaking',
                             'high' => 'High - Excited and loud',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -2867,8 +2867,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_visual_density',
                         'label' => 'Visual Density',
                         'name' => 'starmus_visual_density',
@@ -2877,16 +2877,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'How many words should appear on the screen at once when someone is reading along.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             15 => 'Short - 15 words at a time',
                             28 => 'Standard - 28 words at a time',
                             45 => 'Long - 45 words at a time',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -2898,8 +2898,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_script_parent',
                         'label' => 'Source Script',
                         'name' => 'starmus_script_parent',
@@ -2908,33 +2908,33 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Connect this script to the audio recording that was made from it.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'post_type' => [
+                        ),
+                        'post_type' => array(
                             0 => 'audio-recording',
-                        ],
-                        'post_status' => [],
-                        'taxonomy' => [],
+                        ),
+                        'post_status' => array(),
+                        'taxonomy' => array(),
                         'return_format' => 'id',
                         'multiple' => 0,
                         'allow_null' => 0,
                         'bidirectional' => 0,
                         'ui' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                        'bidirectional_target' => array(),
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-script',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -2945,52 +2945,52 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_sparxstar_identity',
                 'title' => 'SPARXSTAR Identity',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'sparxstar_legal_name',
                         'label' => 'Display Name (Legal)',
                         'name' => 'sparxstar_legal_name',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => "The person's full real name as it appears on legal documents like a birth certificate or ID.",
+                        'instructions' => 'The person\'s full real name as it appears on legal documents like a birth certificate or ID.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 200,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'sparxstar_email',
                         'label' => 'Contact Email',
                         'name' => 'sparxstar_email',
                         'aria-label' => '',
                         'type' => 'email',
-                        'instructions' => "The email address where we can reach this person. Make sure it's typed correctly.",
+                        'instructions' => 'The email address where we can reach this person. Make sure it\'s typed correctly.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'sparxstar_website',
                         'label' => 'Website / Portfolio',
                         'name' => 'sparxstar_website',
@@ -2999,15 +2999,15 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A web link to their personal website or portfolio showing their work. Must start with http:// or https://',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'sparxstar_wp_user',
                         'label' => 'Linked WP User',
                         'name' => 'sparxstar_wp_user',
@@ -3016,18 +3016,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'If this person has a login account for this website, select their username here.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'role' => [],
+                        ),
+                        'role' => array(),
                         'return_format' => 'id',
                         'multiple' => 0,
                         'allow_null' => 0,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'sparxstar_ipi_number',
                         'label' => 'IPI / CAE Number',
                         'name' => 'sparxstar_ipi_number',
@@ -3036,27 +3036,27 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'A special ID number used to pay music royalties. Usually looks like: 00123456789. Only needed for songwriters and composers.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 20,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'sparx_contributor',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -3067,13 +3067,272 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => 0,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
+                'key' => 'group_starmus_task_assignment',
+                'title' => 'Task Assignment',
+                'fields' => array(
+                    array(
+                        'key' => 'field_starmus_assign_id',
+                        'label' => 'Assignment ID',
+                        'name' => 'starmus_assign_id',
+                        'aria-label' => '',
+                        'type' => 'text',
+                        'instructions' => 'A unique code that identifies this assignment. This number is created automatically by the system and cannot be changed.',
+                        'required' => false,
+                        'conditional_logic' => false,
+                        'wrapper' => array(
+                            'width' => '',
+                            'class' => 'readonly-field',
+                            'id' => '',
+                        ),
+                        'default_value' => '',
+                        'maxlength' => '',
+                        'placeholder' => 'Auto-generated',
+                        'prepend' => '',
+                        'append' => '',
+                        'readonly' => 1,
+                    ),
+                    array(
+                        'key' => 'field_starmus_task_cat',
+                        'label' => 'Task Category',
+                        'name' => 'starmus_task_cat',
+                        'aria-label' => '',
+                        'type' => 'select',
+                        'instructions' => 'What type of work needs to be done? Performance means recording audio, annotation means adding notes, translation means converting to another language, review means checking work, and delivery means sending finished files.',
+                        'required' => false,
+                        'conditional_logic' => false,
+                        'wrapper' => array(
+                            'width' => '',
+                            'class' => '',
+                            'id' => '',
+                        ),
+                        'choices' => array(
+                            'performance' => 'Performance',
+                            'annotation' => 'Annotation',
+                            'translation' => 'Translation',
+                            'review' => 'Review',
+                            'delivery' => 'Delivery',
+                        ),
+                        'default_value' => false,
+                        'allow_null' => 1,
+                        'multiple' => 0,
+                        'ui' => 0,
+                        'return_format' => 'value',
+                        'ajax' => 0,
+                        'placeholder' => 'Select category',
+                        'create_options' => 0,
+                        'save_options' => 0,
+                    ),
+                    array(
+                        'key' => 'field_starmus_assign_to',
+                        'label' => 'Assigned To',
+                        'name' => 'starmus_assign_to',
+                        'aria-label' => '',
+                        'type' => 'user',
+                        'instructions' => 'The person who will complete this task. Choose someone from the user list to give them this assignment.',
+                        'required' => false,
+                        'conditional_logic' => false,
+                        'wrapper' => array(
+                            'width' => '',
+                            'class' => '',
+                            'id' => '',
+                        ),
+                        'role' => array(),
+                        'return_format' => 'id',
+                        'multiple' => 0,
+                        'allow_null' => 1,
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
+                        'key' => 'field_starmus_assign_by',
+                        'label' => 'Assigned By',
+                        'name' => 'starmus_assign_by',
+                        'aria-label' => '',
+                        'type' => 'user',
+                        'instructions' => 'The person who created and handed out this task. This keeps a record of who is managing the work.',
+                        'required' => false,
+                        'conditional_logic' => false,
+                        'wrapper' => array(
+                            'width' => '',
+                            'class' => '',
+                            'id' => '',
+                        ),
+                        'role' => array(),
+                        'return_format' => 'id',
+                        'multiple' => 0,
+                        'allow_null' => 1,
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
+                        'key' => 'field_starmus_status',
+                        'label' => 'Assignment Status',
+                        'name' => 'starmus_status',
+                        'aria-label' => '',
+                        'type' => 'select',
+                        'instructions' => 'What stage is this task at right now? Update this as work moves forward: unassigned means nobody has it yet, assigned means someone is supposed to do it, in progress means they are working on it, submitted means they finished and sent it back, closed means everything is done, and rejected means the work was not good enough.',
+                        'required' => false,
+                        'conditional_logic' => false,
+                        'wrapper' => array(
+                            'width' => '',
+                            'class' => '',
+                            'id' => '',
+                        ),
+                        'choices' => array(
+                            'unassigned' => 'Unassigned',
+                            'assigned' => 'Assigned',
+                            'in_progress' => 'In Progress',
+                            'submitted' => 'Submitted',
+                            'closed' => 'Closed',
+                            'rejected' => 'Rejected',
+                        ),
+                        'default_value' => 'unassigned',
+                        'allow_null' => 0,
+                        'multiple' => 0,
+                        'ui' => 1,
+                        'return_format' => 'value',
+                        'ajax' => 0,
+                        'placeholder' => '',
+                        'create_options' => 0,
+                        'save_options' => 0,
+                    ),
+                    array(
+                        'key' => 'field_starmus_priority',
+                        'label' => 'Priority',
+                        'name' => 'starmus_priority',
+                        'aria-label' => '',
+                        'type' => 'select',
+                        'instructions' => 'How quickly does this task need to be finished? Low means it can wait a while, normal means do it in regular order, high means it is important, and urgent means drop everything and do this first.',
+                        'required' => false,
+                        'conditional_logic' => false,
+                        'wrapper' => array(
+                            'width' => '',
+                            'class' => '',
+                            'id' => '',
+                        ),
+                        'choices' => array(
+                            'low' => 'Low',
+                            'normal' => 'Normal',
+                            'high' => 'High',
+                            'urgent' => 'Urgent',
+                        ),
+                        'default_value' => 'normal',
+                        'allow_null' => 0,
+                        'multiple' => 0,
+                        'ui' => 0,
+                        'return_format' => 'value',
+                        'ajax' => 0,
+                        'placeholder' => '',
+                        'create_options' => 0,
+                        'save_options' => 0,
+                    ),
+                    array(
+                        'key' => 'field_starmus_due_date',
+                        'label' => 'Due Date',
+                        'name' => 'starmus_due_date',
+                        'aria-label' => '',
+                        'type' => 'date_time_picker',
+                        'instructions' => 'When does this task need to be completely finished? Pick both the day and the time when the work must be done.',
+                        'required' => false,
+                        'conditional_logic' => false,
+                        'wrapper' => array(
+                            'width' => '',
+                            'class' => '',
+                            'id' => '',
+                        ),
+                        'display_format' => 'm/d/Y g:i a',
+                        'return_format' => 'Y-m-d H:i:s',
+                        'first_day' => 1,
+                        'default_to_current_date' => 0,
+                    ),
+                    array(
+                        'key' => 'field_starmus_instruct',
+                        'label' => 'Instructions / Brief',
+                        'name' => 'starmus_instruct',
+                        'aria-label' => '',
+                        'type' => 'textarea',
+                        'instructions' => 'Write out exactly what needs to be done for this task. Be clear and detailed so the person doing the work knows what you expect. Include any special requirements or important details.',
+                        'required' => false,
+                        'conditional_logic' => false,
+                        'wrapper' => array(
+                            'width' => '',
+                            'class' => '',
+                            'id' => '',
+                        ),
+                        'default_value' => '',
+                        'maxlength' => '',
+                        'rows' => 6,
+                        'placeholder' => 'Enter detailed instructions here...',
+                        'new_lines' => '',
+                    ),
+                    array(
+                        'key' => 'field_starmus_assign_time',
+                        'label' => 'Assignment Timestamp',
+                        'name' => 'starmus_assign_time',
+                        'aria-label' => '',
+                        'type' => 'date_time_picker',
+                        'instructions' => 'The exact date and time when this task was created and assigned. This is set automatically by the system and shows when the work was officially given out.',
+                        'required' => false,
+                        'conditional_logic' => false,
+                        'wrapper' => array(
+                            'width' => '',
+                            'class' => 'readonly-field',
+                            'id' => '',
+                        ),
+                        'display_format' => 'm/d/Y g:i a',
+                        'return_format' => 'Y-m-d H:i:s',
+                        'first_day' => 1,
+                        'readonly' => 1,
+                        'default_to_current_date' => 0,
+                    ),
+                    array(
+                        'key' => 'field_starmus_done_time',
+                        'label' => 'Completion Timestamp',
+                        'name' => 'starmus_done_time',
+                        'aria-label' => '',
+                        'type' => 'date_time_picker',
+                        'instructions' => 'The exact date and time when this task was finished and closed. This is set automatically by the system when the status changes to Closed, showing when all the work was completed.',
+                        'required' => false,
+                        'conditional_logic' => false,
+                        'wrapper' => array(
+                            'width' => '',
+                            'class' => 'readonly-field',
+                            'id' => '',
+                        ),
+                        'display_format' => 'm/d/Y g:i a',
+                        'return_format' => 'Y-m-d H:i:s',
+                        'first_day' => 1,
+                        'readonly' => 1,
+                        'default_to_current_date' => 0,
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
+                            'param' => 'post_type',
+                            'operator' => '==',
+                            'value' => 'post',
+                        ),
+                    ),
+                ),
+                'menu_order' => 0,
+                'position' => 'normal',
+                'style' => 'default',
+                'label_placement' => 'top',
+                'instruction_placement' => 'label',
+                'hide_on_screen' => '',
+                'active' => true,
+                'description' => 'Task assignment and workflow management for audio recording projects.',
+                'show_in_rest' => 1,
+                'display_title' => '',
+            ));
+
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_classification',
                 'title' => 'Taxonomy & Classification',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_field_genre',
                         'label' => 'Primary Genres (Max 2)',
                         'name' => 'starmus_assigned_genres',
@@ -3082,11 +3341,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Pick up to 2 types of music or story that best match this recording. For example: Rock and Pop, or Comedy and Drama.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'taxonomy' => 'starmus_genre',
                         'field_type' => 'multi_select',
                         'multiple' => 0,
@@ -3097,9 +3356,9 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'ajax' => 1,
                         'max' => 2,
                         'add_term' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_field_mood',
                         'label' => 'Mood (Select 1)',
                         'name' => 'starmus_assigned_mood',
@@ -3108,11 +3367,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Choose the main feeling this recording gives. Pick just one, like Happy, Sad, or Exciting.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'taxonomy' => 'starmus_mood',
                         'field_type' => 'select',
                         'multiple' => 0,
@@ -3122,9 +3381,9 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'return_format' => 'id',
                         'ajax' => 1,
                         'add_term' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_field_theme',
                         'label' => 'Theme (Select 1)',
                         'name' => 'starmus_assigned_theme',
@@ -3133,11 +3392,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Pick the main topic or idea of this recording. For example: Love, Adventure, or History.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'taxonomy' => 'starmus_theme',
                         'field_type' => 'select',
                         'multiple' => 0,
@@ -3147,9 +3406,9 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'return_format' => 'id',
                         'ajax' => 1,
                         'add_term' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_field_workflow_status',
                         'label' => 'Workflow Status',
                         'name' => 'starmus_assigned_workflow_status',
@@ -3158,11 +3417,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Update where this is in the process. For example: Started, In Progress, Being Reviewed, or Finished.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'taxonomy' => 'starmus_workflow_status',
                         'field_type' => 'select',
                         'multiple' => 0,
@@ -3172,9 +3431,9 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'return_format' => 'id',
                         'ajax' => 1,
                         'add_term' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_field_part_of_speech',
                         'label' => 'Part of Speech',
                         'name' => 'starmus_assigned_pos',
@@ -3183,11 +3442,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'The type of word this is. For example: Noun (person/place/thing), Verb (action), or Adjective (describing word).',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'taxonomy' => 'starmus_part_of_speech',
                         'field_type' => 'select',
                         'multiple' => 0,
@@ -3197,9 +3456,9 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'return_format' => 'id',
                         'ajax' => 1,
                         'add_term' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_field_subject',
                         'label' => 'Subject',
                         'name' => 'starmus_assigned_subject',
@@ -3208,11 +3467,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Check all the topics that show up in this recording. You can pick as many as you need.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'taxonomy' => 'starmus_subject',
                         'field_type' => 'checkbox',
                         'multiple' => 0,
@@ -3223,9 +3482,9 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'ajax' => 1,
                         'layout' => 'vertical',
                         'add_term' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_field_story_type',
                         'label' => 'Story Type',
                         'name' => 'starmus_assigned_story_type',
@@ -3234,11 +3493,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'What kind of story is this? For example: Interview, Fairy Tale, Personal Story, or Speech.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'taxonomy' => 'starmus_story_type',
                         'field_type' => 'select',
                         'multiple' => 0,
@@ -3248,32 +3507,32 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'return_format' => 'id',
                         'ajax' => 1,
                         'add_term' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                        'bidirectional_target' => array(),
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'audio-recording',
-                        ],
-                    ],
-                    [
-                        [
+                        ),
+                    ),
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'starmus_transcript',
-                        ],
-                    ],
-                    [
-                        [
+                        ),
+                    ),
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'starmus_translate',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -3284,13 +3543,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_release_tracklist',
                 'title' => 'Tracklist Configuration',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_tracklist',
                         'label' => 'Tracks',
                         'name' => 'starmus_tracklist',
@@ -3299,11 +3558,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'List all the songs on this release in the order they should play. Add one row for each song.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'layout' => 'row',
                         'button_label' => 'Add Track',
                         'min' => 1,
@@ -3311,8 +3570,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'rows_per_page' => 20,
                         'collapsed' => '',
                         'acfe_repeater_stylised_button' => 0,
-                        'sub_fields' => [
-                            [
+                        'sub_fields' => array(
+                            array(
                                 'key' => 'starmus_track_number',
                                 'label' => 'No.',
                                 'name' => 'starmus_track_number',
@@ -3321,11 +3580,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'Track number: 1, 2, 3, etc.',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '10',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_tracklist',
                                 'default_value' => '',
                                 'min' => 1,
@@ -3334,8 +3593,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'placeholder' => '',
                                 'prepend' => '',
                                 'append' => '',
-                            ],
-                            [
+                            ),
+                            array(
                                 'key' => 'starmus_track_recording',
                                 'label' => 'Recording Link',
                                 'name' => 'starmus_recording',
@@ -3344,25 +3603,25 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'Pick the audio recording that goes here. Select the song from the list.',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '50',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_tracklist',
-                                'post_type' => [
+                                'post_type' => array(
                                     0 => 'audio-recording',
-                                ],
-                                'post_status' => [],
-                                'taxonomy' => [],
+                                ),
+                                'post_status' => array(),
+                                'taxonomy' => array(),
                                 'return_format' => 'id',
                                 'multiple' => 0,
                                 'allow_null' => 0,
                                 'bidirectional' => 0,
                                 'ui' => 1,
-                                'bidirectional_target' => [],
-                            ],
-                            [
+                                'bidirectional_target' => array(),
+                            ),
+                            array(
                                 'key' => 'starmus_track_side',
                                 'label' => 'Media Side',
                                 'name' => 'starmus_side',
@@ -3371,19 +3630,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'Which side of the record or which disc is this on? Usually used for vinyl or multi-disc releases.',
                                 'required' => false,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '20',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_tracklist',
-                                'choices' => [
+                                'choices' => array(
                                     'A' => 'Side A - First half',
                                     'B' => 'Side B - Second half',
                                     'D1' => 'Disc 1',
                                     'D2' => 'Disc 2',
                                     'D3' => 'Disc 3',
-                                ],
+                                ),
                                 'default_value' => false,
                                 'multiple' => 0,
                                 'allow_null' => 0,
@@ -3395,29 +3654,29 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'save_options' => 0,
                                 'allow_custom' => 0,
                                 'search_placeholder' => '',
-                            ],
-                            [
+                            ),
+                            array(
                                 'key' => 'starmus_track_isrc',
                                 'label' => 'ISRC Override',
                                 'name' => 'starmus_isrc_override',
                                 'aria-label' => '',
                                 'type' => 'text',
-                                'instructions' => "Only fill this if the track has a different ISRC code than what's on the recording. Leave blank to use the recording's ISRC.",
+                                'instructions' => 'Only fill this if the track has a different ISRC code than what\'s on the recording. Leave blank to use the recording\'s ISRC.',
                                 'required' => false,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '20',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_tracklist',
                                 'default_value' => '',
                                 'maxlength' => 12,
                                 'placeholder' => '',
                                 'prepend' => '',
                                 'append' => '',
-                            ],
-                            [
+                            ),
+                            array(
                                 'key' => 'starmus_is_explicit',
                                 'label' => 'Explicit Content',
                                 'name' => 'starmus_is_explicit',
@@ -3426,30 +3685,30 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'Turn this on if the song has curse words or adult content. This adds the Explicit warning label.',
                                 'required' => false,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_tracklist',
                                 'ui' => 1,
                                 'default_value' => 0,
                                 'message' => '',
                                 'ui_on_text' => 'EXPLICIT',
                                 'ui_off_text' => 'CLEAN',
-                            ],
-                        ],
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                            ),
+                        ),
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'starmus_release',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -3460,13 +3719,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_transcription_master',
                 'title' => 'Transcription Content & Engineering',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_tab_trans_content',
                         'label' => 'Content',
                         'name' => '',
@@ -3475,16 +3734,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_transcription_text',
                         'label' => 'Transcription Text',
                         'name' => 'starmus_transcription_text',
@@ -3493,18 +3752,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Type or paste the written text of everything said in the audio recording. Include all words spoken.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'tabs' => 'all',
                         'toolbar' => 'full',
                         'media_upload' => 0,
                         'default_value' => '',
                         'delay' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_transcription_json',
                         'label' => 'Time-Indexed Data (JSON)',
                         'name' => 'starmus_transcription_json',
@@ -3513,11 +3772,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Computer data that connects specific words to exact times in the audio. This lets you click a word and jump to that part. Created automatically.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 3,
                         'default_value' => '',
                         'new_lines' => '',
@@ -3525,8 +3784,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_orig_lang',
                         'label' => 'Original Language',
                         'name' => 'starmus_original_language',
@@ -3535,11 +3794,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'What language was spoken in the original recording? For example: English, Spanish, Mandarin.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'taxonomy' => 'starmus_tax_language',
                         'field_type' => 'select',
                         'multiple' => 0,
@@ -3549,9 +3808,9 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'return_format' => 'id',
                         'ajax' => 1,
                         'add_term' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_trans_lang',
                         'label' => 'Translation Language',
                         'name' => 'starmus_translation_language',
@@ -3560,11 +3819,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'If this text has been changed to a different language, select that language here. Leave blank if same as original.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'taxonomy' => 'starmus_tax_language',
                         'field_type' => 'select',
                         'multiple' => 0,
@@ -3574,9 +3833,9 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'return_format' => 'id',
                         'ajax' => 1,
                         'add_term' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_linked_audio',
                         'label' => 'Linked Audio',
                         'name' => 'starmus_linked_audio',
@@ -3585,24 +3844,24 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Connect this written text to the audio recording it came from. Pick the recording from the list.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'post_type' => [
+                        ),
+                        'post_type' => array(
                             0 => 'audio-recording',
-                        ],
-                        'post_status' => [],
-                        'taxonomy' => [],
+                        ),
+                        'post_status' => array(),
+                        'taxonomy' => array(),
                         'return_format' => 'id',
                         'multiple' => 0,
                         'allow_null' => 0,
                         'bidirectional' => 0,
                         'ui' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_tab_trans_method',
                         'label' => 'Methodology',
                         'name' => '',
@@ -3611,16 +3870,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_trans_method',
                         'label' => 'Method',
                         'name' => 'starmus_transcription_method',
@@ -3629,16 +3888,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'How was this written out? Did a person type it or did a computer do it?',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'human' => 'Human Transcribed - A person listened and typed it',
                             'asr' => 'Automated (ASR) - A computer listened and typed it',
                             'hybrid' => 'AI + Human Review - Computer typed it, person checked it',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -3650,28 +3909,28 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_trans_engine',
                         'label' => 'Engine/Model Info',
                         'name' => 'starmus_transcription_engine',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => "If a computer did the typing, which program was used? For example: 'Whisper' or 'Google Speech-to-Text'. Leave blank if done by hand.",
+                        'instructions' => 'If a computer did the typing, which program was used? For example: \'Whisper\' or \'Google Speech-to-Text\'. Leave blank if done by hand.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => 200,
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_tab_trans_integrity',
                         'label' => 'Integrity',
                         'name' => '',
@@ -3680,50 +3939,50 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_transcription_hash',
                         'label' => 'Text Content Hash',
                         'name' => 'starmus_transcription_hash',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => "A special code that proves this text hasn't been changed. Like a fingerprint for the words. Created automatically.",
+                        'instructions' => 'A special code that proves this text hasn\'t been changed. Like a fingerprint for the words. Created automatically.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => '',
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
                         'readonly' => 1,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_speaker_map',
                         'label' => 'Speaker Diarization Map',
                         'name' => 'starmus_speaker_map',
                         'aria-label' => '',
                         'type' => 'repeater',
-                        'instructions' => "If multiple people are talking in the recording, connect the labels in the text (like 'Speaker 1') to the real people's names.",
+                        'instructions' => 'If multiple people are talking in the recording, connect the labels in the text (like \'Speaker 1\') to the real people\'s names.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'layout' => 'table',
                         'button_label' => 'Add Speaker',
                         'min' => 0,
@@ -3731,29 +3990,29 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'rows_per_page' => 20,
                         'collapsed' => '',
                         'acfe_repeater_stylised_button' => 0,
-                        'sub_fields' => [
-                            [
+                        'sub_fields' => array(
+                            array(
                                 'key' => 'starmus_spk_label',
                                 'label' => 'Label in Text',
                                 'name' => 'starmus_label',
                                 'aria-label' => '',
                                 'type' => 'text',
-                                'instructions' => "The name used in the transcription. For example: 'Speaker 1' or 'Interviewer'.",
+                                'instructions' => 'The name used in the transcription. For example: \'Speaker 1\' or \'Interviewer\'.',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_speaker_map',
                                 'default_value' => '',
                                 'maxlength' => 50,
                                 'placeholder' => 'Speaker 1',
                                 'prepend' => '',
                                 'append' => '',
-                            ],
-                            [
+                            ),
+                            array(
                                 'key' => 'starmus_spk_contributor',
                                 'label' => 'Actual Contributor',
                                 'name' => 'starmus_contributor',
@@ -3762,36 +4021,36 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'instructions' => 'Who is this speaker? Pick the real person from the Contributors list.',
                                 'required' => true,
                                 'conditional_logic' => false,
-                                'wrapper' => [
+                                'wrapper' => array(
                                     'width' => '',
                                     'class' => '',
                                     'id' => '',
-                                ],
+                                ),
                                 'parent_repeater' => 'starmus_speaker_map',
-                                'post_type' => [
+                                'post_type' => array(
                                     0 => 'sparx_contributor',
-                                ],
-                                'post_status' => [],
-                                'taxonomy' => [],
+                                ),
+                                'post_status' => array(),
+                                'taxonomy' => array(),
                                 'return_format' => 'id',
                                 'multiple' => 0,
                                 'allow_null' => 0,
                                 'bidirectional' => 0,
                                 'ui' => 1,
-                                'bidirectional_target' => [],
-                            ],
-                        ],
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                                'bidirectional_target' => array(),
+                            ),
+                        ),
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'starmus_transcript',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -3802,13 +4061,13 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
 
-            acf_add_local_field_group([
+            acf_add_local_field_group(array(
                 'key' => 'group_starmus_translation_master',
                 'title' => 'Translation & Localization',
-                'fields' => [
-                    [
+                'fields' => array(
+                    array(
                         'key' => 'starmus_tab_transl_content',
                         'label' => 'Translated Text',
                         'name' => '',
@@ -3817,16 +4076,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_translation_text',
                         'label' => 'Translation Text',
                         'name' => 'starmus_translation_text',
@@ -3835,18 +4094,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Type or paste the text that has been changed into the new language. This should say the same thing as the original, just in different words.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'tabs' => 'all',
                         'toolbar' => 'full',
                         'media_upload' => 0,
                         'default_value' => '',
                         'delay' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_target_language',
                         'label' => 'Target Language',
                         'name' => 'starmus_target_language',
@@ -3855,11 +4114,11 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'What language has the text been changed into? For example: If translating English to Spanish, pick Spanish here.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'taxonomy' => 'starmus_tax_language',
                         'field_type' => 'select',
                         'multiple' => 0,
@@ -3869,9 +4128,9 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'return_format' => 'id',
                         'ajax' => 1,
                         'add_term' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_linked_audio_transl',
                         'label' => 'Linked Audio',
                         'name' => 'starmus_linked_audio',
@@ -3880,24 +4139,24 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'Connect this translated text to the original audio recording. Pick the recording from the list.',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'post_type' => [
+                        ),
+                        'post_type' => array(
                             0 => 'audio-recording',
-                        ],
-                        'post_status' => [],
-                        'taxonomy' => [],
+                        ),
+                        'post_status' => array(),
+                        'taxonomy' => array(),
                         'return_format' => 'id',
                         'multiple' => 0,
                         'allow_null' => 0,
                         'bidirectional' => 0,
                         'ui' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_tab_transl_validation',
                         'label' => 'Quality Control',
                         'name' => '',
@@ -3906,16 +4165,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_translation_type',
                         'label' => 'Translation Type',
                         'name' => 'starmus_translation_type',
@@ -3924,16 +4183,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'How was the text translated? Was it word-for-word, or was it adapted to sound natural in the new language?',
                         'required' => true,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'choices' => [
+                        ),
+                        'choices' => array(
                             'literal' => 'Literal / Direct - Word-for-word translation',
                             'localized' => 'Localized / Cultural - Adapted for meaning and culture',
                             'back_trans' => 'Back-Translation - Changed back to check accuracy',
-                        ],
+                        ),
                         'default_value' => false,
                         'multiple' => 0,
                         'allow_null' => 0,
@@ -3945,8 +4204,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'save_options' => 0,
                         'allow_custom' => 0,
                         'search_placeholder' => '',
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_back_translation_text',
                         'label' => 'Back-Translation Verification',
                         'name' => 'starmus_back_translation_text',
@@ -3955,19 +4214,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'To check accuracy, translate this back to the original language and paste it here. This helps us see if the meaning stayed the same.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'rows' => 4,
                         'default_value' => '',
                         'new_lines' => '',
                         'maxlength' => '',
                         'placeholder' => '',
                         'acfe_textarea_code' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_transcription_parent',
                         'label' => 'Source Transcription',
                         'name' => 'starmus_transcription_parent',
@@ -3976,24 +4235,24 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => 'If this translation came from a written transcription, connect it here. Pick the transcription from the list.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
-                        'post_type' => [
+                        ),
+                        'post_type' => array(
                             0 => 'starmus_transcript',
-                        ],
-                        'post_status' => [],
-                        'taxonomy' => [],
+                        ),
+                        'post_status' => array(),
+                        'taxonomy' => array(),
                         'return_format' => 'id',
                         'multiple' => 0,
                         'allow_null' => 0,
                         'bidirectional' => 0,
                         'ui' => 1,
-                        'bidirectional_target' => [],
-                    ],
-                    [
+                        'bidirectional_target' => array(),
+                    ),
+                    array(
                         'key' => 'starmus_tab_transl_integrity',
                         'label' => 'Integrity',
                         'name' => '',
@@ -4002,46 +4261,46 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'placement' => 'top',
                         'endpoint' => 0,
                         'selected' => 0,
-                    ],
-                    [
+                    ),
+                    array(
                         'key' => 'starmus_translation_hash',
                         'label' => 'Translation Hash',
                         'name' => 'starmus_translation_hash',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => "A special code that proves this translated text hasn't been changed. Like a fingerprint for the words. Created automatically.",
+                        'instructions' => 'A special code that proves this translated text hasn\'t been changed. Like a fingerprint for the words. Created automatically.',
                         'required' => false,
                         'conditional_logic' => false,
-                        'wrapper' => [
+                        'wrapper' => array(
                             'width' => '',
                             'class' => '',
                             'id' => '',
-                        ],
+                        ),
                         'default_value' => '',
                         'maxlength' => '',
                         'placeholder' => '',
                         'prepend' => '',
                         'append' => '',
                         'readonly' => 1,
-                    ],
-                ],
-                'location' => [
-                    [
-                        [
+                    ),
+                ),
+                'location' => array(
+                    array(
+                        array(
                             'param' => 'post_type',
                             'operator' => '==',
                             'value' => 'starmus_translate',
-                        ],
-                    ],
-                ],
+                        ),
+                    ),
+                ),
                 'menu_order' => 0,
                 'position' => 'normal',
                 'style' => 'default',
@@ -4052,17 +4311,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'description' => '',
                 'show_in_rest' => false,
                 'display_title' => '',
-            ]);
+            ));
         });
 
-        add_action('init', function (): void {
-            register_taxonomy('starmus_tax_audio_quality', [
+        add_action('init', function () {
+            register_taxonomy('starmus_tax_audio_quality', array(
                 0 => 'audio-recording',
-            ], [
-                'labels' => [
+            ), array(
+                'labels' => array(
                     'name' => 'Audio Quality',
                     'singular_name' => 'Audio Quality',
-                ],
+                ),
                 'description' => 'How clear and easy to hear the recording is.',
                 'public' => false,
                 'hierarchical' => true,
@@ -4071,15 +4330,15 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'show_in_rest' => true,
                 'show_tagcloud' => false,
                 'show_admin_column' => true,
-            ]);
+            ));
 
-            register_taxonomy('starmus_tax_audio_status', [
+            register_taxonomy('starmus_tax_audio_status', array(
                 0 => 'audio-recording',
-            ], [
-                'labels' => [
+            ), array(
+                'labels' => array(
                     'name' => 'Audio Statuses',
                     'singular_name' => 'Audio Status',
-                ],
+                ),
                 'description' => 'Shows if the file is new, being worked on, or finished.',
                 'public' => false,
                 'hierarchical' => true,
@@ -4088,18 +4347,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'show_in_rest' => true,
                 'show_tagcloud' => false,
                 'show_admin_column' => true,
-            ]);
+            ));
 
-            register_taxonomy('starmus_tax_dialect', [
+            register_taxonomy('starmus_tax_dialect', array(
                 0 => 'audio-script',
                 1 => 'audio-recording',
                 2 => 'starmus_transcript',
                 3 => 'starmus_translate',
-            ], [
-                'labels' => [
+            ), array(
+                'labels' => array(
                     'name' => 'Dialects',
                     'singular_name' => 'Dialect',
-                ],
+                ),
                 'description' => 'Different ways of speaking the same language in different places.',
                 'public' => false,
                 'hierarchical' => true,
@@ -4108,17 +4367,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'show_in_rest' => true,
                 'show_tagcloud' => false,
                 'show_admin_column' => true,
-            ]);
+            ));
 
-            register_taxonomy('starmus_genre', [
+            register_taxonomy('starmus_genre', array(
                 0 => 'audio-script',
                 1 => 'audio-recording',
                 2 => 'starmus_release',
-            ], [
-                'labels' => [
+            ), array(
+                'labels' => array(
                     'name' => 'Genres',
                     'singular_name' => 'Genre',
-                ],
+                ),
                 'description' => 'The type of music or story (like Rock, Jazz, or Comedy).',
                 'public' => false,
                 'hierarchical' => true,
@@ -4127,18 +4386,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'show_in_rest' => true,
                 'show_tagcloud' => false,
                 'show_admin_column' => true,
-            ]);
+            ));
 
-            register_taxonomy('starmus_tax_language', [
+            register_taxonomy('starmus_tax_language', array(
                 0 => 'audio-script',
                 1 => 'audio-recording',
                 2 => 'starmus_transcript',
                 3 => 'starmus_translate',
-            ], [
-                'labels' => [
+            ), array(
+                'labels' => array(
                     'name' => 'Languages',
                     'singular_name' => 'Language',
-                ],
+                ),
                 'description' => 'The language spoken or written in the file.',
                 'public' => false,
                 'hierarchical' => true,
@@ -4147,17 +4406,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'show_in_rest' => true,
                 'show_tagcloud' => false,
                 'show_admin_column' => true,
-            ]);
+            ));
 
-            register_taxonomy('starmus_mood', [
+            register_taxonomy('starmus_mood', array(
                 0 => 'audio-script',
                 1 => 'audio-recording',
                 2 => 'starmus_release',
-            ], [
-                'labels' => [
+            ), array(
+                'labels' => array(
                     'name' => 'Moods',
                     'singular_name' => 'Mood',
-                ],
+                ),
                 'description' => 'The feeling the content gives you (like Happy, Sad, or Scary).',
                 'public' => false,
                 'show_ui' => true,
@@ -4165,16 +4424,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'show_in_rest' => true,
                 'show_tagcloud' => false,
                 'show_admin_column' => true,
-            ]);
+            ));
 
-            register_taxonomy('starmus_part_of_speech', [
+            register_taxonomy('starmus_part_of_speech', array(
                 0 => 'starmus_transcript',
                 1 => 'starmus_translate',
-            ], [
-                'labels' => [
+            ), array(
+                'labels' => array(
                     'name' => 'Part of Speech',
                     'singular_name' => 'Part of Speech',
-                ],
+                ),
                 'description' => 'The type of word (Noun, Verb, Adjective).',
                 'public' => false,
                 'hierarchical' => true,
@@ -4183,16 +4442,16 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'show_in_rest' => true,
                 'show_tagcloud' => false,
                 'show_admin_column' => true,
-            ]);
+            ));
 
-            register_taxonomy('starmus_tax_project', [
+            register_taxonomy('starmus_tax_project', array(
                 0 => 'audio-script',
                 1 => 'audio-recording',
-            ], [
-                'labels' => [
+            ), array(
+                'labels' => array(
                     'name' => 'Projects',
                     'singular_name' => 'Project',
-                ],
+                ),
                 'description' => 'Groups files together into larger collections.',
                 'public' => false,
                 'hierarchical' => true,
@@ -4201,14 +4460,14 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'show_in_rest' => true,
                 'show_tagcloud' => false,
                 'show_admin_column' => true,
-            ]);
+            ));
 
-            register_taxonomy('recording-type', [
+            register_taxonomy('recording-type', array(
                 0 => 'audio-recording',
                 1 => 'starmus-script',
                 2 => 'starmus_transcript',
-            ], [
-                'labels' => [
+            ), array(
+                'labels' => array(
                     'name' => 'Recording Types',
                     'singular_name' => 'Recording Type',
                     'menu_name' => 'Recording Types',
@@ -4230,40 +4489,22 @@ final class StarmusPostTypeLoader implements IContentBundle
                     'back_to_items' => '← Go to recording types',
                     'item_link' => 'Recording Type Link',
                     'item_link_description' => 'A link to a recording type',
-                ],
+                ),
                 'public' => true,
                 'show_in_menu' => true,
                 'show_in_rest' => true,
                 'show_admin_column' => true,
                 'sort' => true,
-            ]);
+            ));
 
-            register_taxonomy('starmus_story_type', [
+            register_taxonomy('starmus_subject', array(
                 0 => 'starmus_transcript',
                 1 => 'starmus_translate',
-            ], [
-                'labels' => [
-                    'name' => 'Story Type',
-                    'singular_name' => 'Story Type',
-                ],
-                'description' => 'The kind of story being told (like fairy tale, interview, or speech).',
-                'public' => false,
-                'hierarchical' => true,
-                'show_ui' => true,
-                'show_in_nav_menus' => true,
-                'show_in_rest' => true,
-                'show_tagcloud' => false,
-                'show_admin_column' => true,
-            ]);
-
-            register_taxonomy('starmus_subject', [
-                0 => 'starmus_transcript',
-                1 => 'starmus_translate',
-            ], [
-                'labels' => [
+            ), array(
+                'labels' => array(
                     'name' => 'Subject',
                     'singular_name' => 'Subject',
-                ],
+                ),
                 'description' => 'What the text is about or talks about.',
                 'public' => false,
                 'hierarchical' => true,
@@ -4272,17 +4513,17 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'show_in_rest' => true,
                 'show_tagcloud' => false,
                 'show_admin_column' => true,
-            ]);
+            ));
 
-            register_taxonomy('starmus_theme', [
+            register_taxonomy('starmus_theme', array(
                 0 => 'audio-script',
                 1 => 'audio-recording',
                 2 => 'starmus_release',
-            ], [
-                'labels' => [
+            ), array(
+                'labels' => array(
                     'name' => 'Themes',
                     'singular_name' => 'Theme',
-                ],
+                ),
                 'description' => 'The main topic or idea (like Friendship or Space Travel).',
                 'public' => false,
                 'show_ui' => true,
@@ -4290,19 +4531,19 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'show_in_rest' => true,
                 'show_tagcloud' => false,
                 'show_admin_column' => true,
-            ]);
+            ));
 
-            register_taxonomy('starmus_workflow_status', [
+            register_taxonomy('starmus_workflow_status', array(
                 0 => 'audio-script',
                 1 => 'audio-recording',
                 2 => 'starmus_transcript',
                 3 => 'starmus_translate',
                 4 => 'starmus_release',
-            ], [
-                'labels' => [
+            ), array(
+                'labels' => array(
                     'name' => 'Workflow Status',
                     'singular_name' => 'Workflow Status',
-                ],
+                ),
                 'description' => 'Shows if the work is just started, in progress, being checked, or done.',
                 'public' => false,
                 'hierarchical' => true,
@@ -4311,12 +4552,12 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'show_in_rest' => true,
                 'show_tagcloud' => false,
                 'show_admin_column' => true,
-            ]);
+            ));
         });
 
-        add_action('init', function (): void {
-            register_post_type('audio-recording', [
-                'labels' => [
+        add_action('init', function () {
+            register_post_type('audio-recording', array(
+                'labels' => array(
                     'name' => 'Audio Recordings',
                     'singular_name' => 'Audio Recording',
                     'menu_name' => 'Audio Recordings',
@@ -4346,14 +4587,14 @@ final class StarmusPostTypeLoader implements IContentBundle
                     'item_updated' => 'Audio Recording updated.',
                     'item_link' => 'Audio Recording Link',
                     'item_link_description' => 'A link to a audio recording.',
-                ],
+                ),
                 'description' => 'The actual sound files and their technical details.',
                 'public' => true,
                 'exclude_from_search' => true,
                 'publicly_queryable' => false,
                 'show_in_rest' => true,
                 'menu_icon' => 'dashicons-microphone',
-                'supports' => [
+                'supports' => array(
                     0 => 'title',
                     1 => 'author',
                     2 => 'comments',
@@ -4364,8 +4605,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                     7 => 'thumbnail',
                     8 => 'custom-fields',
                     9 => 'post-formats',
-                ],
-                'taxonomies' => [
+                ),
+                'taxonomies' => array(
                     0 => 'starmus_tax_language',
                     1 => 'starmus_tax_dialect',
                     2 => 'starmus_tax_project',
@@ -4376,12 +4617,12 @@ final class StarmusPostTypeLoader implements IContentBundle
                     7 => 'starmus_theme',
                     8 => 'starmus_workflow_status',
                     9 => 'recording-type',
-                ],
+                ),
                 'delete_with_user' => false,
-            ]);
+            ));
 
-            register_post_type('starmus_transcript', [
-                'labels' => [
+            register_post_type('starmus_transcript', array(
+                'labels' => array(
                     'name' => 'Audio Transcriptions',
                     'singular_name' => 'Audio Transcription',
                     'menu_name' => 'Audio Transcriptions',
@@ -4411,14 +4652,14 @@ final class StarmusPostTypeLoader implements IContentBundle
                     'item_updated' => 'Audio Transcription updated.',
                     'item_link' => 'Audio Transcription Link',
                     'item_link_description' => 'A link to a audio transcription.',
-                ],
+                ),
                 'description' => 'The written-out text of what was said in a recording.',
                 'public' => true,
                 'exclude_from_search' => true,
                 'publicly_queryable' => false,
                 'show_in_rest' => true,
                 'menu_icon' => 'dashicons-editor-textcolor',
-                'supports' => [
+                'supports' => array(
                     0 => 'title',
                     1 => 'author',
                     2 => 'comments',
@@ -4429,8 +4670,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                     7 => 'thumbnail',
                     8 => 'custom-fields',
                     9 => 'post-formats',
-                ],
-                'taxonomies' => [
+                ),
+                'taxonomies' => array(
                     0 => 'starmus_tax_language',
                     1 => 'starmus_tax_dialect',
                     2 => 'starmus_tax_project',
@@ -4438,12 +4679,12 @@ final class StarmusPostTypeLoader implements IContentBundle
                     4 => 'starmus_mood',
                     5 => 'starmus_theme',
                     6 => 'starmus_subject',
-                ],
+                ),
                 'delete_with_user' => false,
-            ]);
+            ));
 
-            register_post_type('starmus_translate', [
-                'labels' => [
+            register_post_type('starmus_translate', array(
+                'labels' => array(
                     'name' => 'Audio Translations',
                     'singular_name' => 'Audio Translation',
                     'menu_name' => 'Audio Translations',
@@ -4473,14 +4714,14 @@ final class StarmusPostTypeLoader implements IContentBundle
                     'item_updated' => 'Audio Translation updated.',
                     'item_link' => 'Audio Translation Link',
                     'item_link_description' => 'A link to a audio translation.',
-                ],
+                ),
                 'description' => 'Text translated from the original language into a new one.',
                 'public' => true,
                 'exclude_from_search' => true,
                 'publicly_queryable' => false,
                 'show_in_rest' => true,
                 'menu_icon' => 'dashicons-translation',
-                'supports' => [
+                'supports' => array(
                     0 => 'title',
                     1 => 'author',
                     2 => 'comments',
@@ -4491,8 +4732,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                     7 => 'thumbnail',
                     8 => 'custom-fields',
                     9 => 'post-formats',
-                ],
-                'taxonomies' => [
+                ),
+                'taxonomies' => array(
                     0 => 'starmus_tax_language',
                     1 => 'starmus_tax_dialect',
                     2 => 'starmus_tax_project',
@@ -4500,22 +4741,22 @@ final class StarmusPostTypeLoader implements IContentBundle
                     4 => 'starmus_part_of_speech',
                     5 => 'starmus_subject',
                     6 => 'starmus_story_type',
-                ],
+                ),
                 'delete_with_user' => false,
-            ]);
+            ));
 
-            register_post_type('sparx_contributor', [
-                'labels' => [
+            register_post_type('sparx_contributor', array(
+                'labels' => array(
                     'name' => 'Contributors',
                     'singular_name' => 'Contributor',
-                ],
+                ),
                 'description' => 'People who helped create the work, like authors or performers.',
                 'public' => true,
                 'exclude_from_search' => true,
                 'publicly_queryable' => false,
                 'show_in_rest' => true,
                 'menu_icon' => 'dashicons-groups',
-                'supports' => [
+                'supports' => array(
                     0 => 'title',
                     1 => 'author',
                     2 => 'comments',
@@ -4526,12 +4767,12 @@ final class StarmusPostTypeLoader implements IContentBundle
                     7 => 'thumbnail',
                     8 => 'custom-fields',
                     9 => 'post-formats',
-                ],
+                ),
                 'delete_with_user' => false,
-            ]);
+            ));
 
-            register_post_type('mindset', [
-                'labels' => [
+            register_post_type('mindset', array(
+                'labels' => array(
                     'name' => 'Mindsets',
                     'singular_name' => 'Mindset',
                     'menu_name' => 'Mindsets',
@@ -4561,7 +4802,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                     'item_updated' => 'Mindset updated.',
                     'item_link' => 'Mindset Link',
                     'item_link_description' => 'A link to a mindset.',
-                ],
+                ),
                 'description' => 'Logs a contributor’s reflective response to a daily rotating question designed to gather emotional or psychosocial context at the time of sharing.',
                 'public' => true,
                 'exclude_from_search' => true,
@@ -4569,18 +4810,18 @@ final class StarmusPostTypeLoader implements IContentBundle
                 'show_in_rest' => true,
                 'menu_position' => 7,
                 'menu_icon' => 'dashicons-smiley',
-                'supports' => [
+                'supports' => array(
                     0 => 'title',
                     1 => 'author',
                     2 => 'editor',
                     3 => 'thumbnail',
                     4 => 'custom-fields',
-                ],
+                ),
                 'delete_with_user' => false,
-            ]);
+            ));
 
-            register_post_type('starmus_release', [
-                'labels' => [
+            register_post_type('starmus_release', array(
+                'labels' => array(
                     'name' => 'Releases',
                     'singular_name' => 'Release',
                     'menu_name' => 'Releases',
@@ -4610,14 +4851,14 @@ final class StarmusPostTypeLoader implements IContentBundle
                     'item_updated' => 'Release updated.',
                     'item_link' => 'Release Link',
                     'item_link_description' => 'A link to a release.',
-                ],
+                ),
                 'description' => 'Albums, EPs, or Singles prepared for public distribution.',
                 'public' => true,
                 'exclude_from_search' => true,
                 'publicly_queryable' => false,
                 'show_in_rest' => true,
                 'menu_icon' => 'dashicons-album',
-                'supports' => [
+                'supports' => array(
                     0 => 'title',
                     1 => 'author',
                     2 => 'comments',
@@ -4628,8 +4869,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                     7 => 'thumbnail',
                     8 => 'custom-fields',
                     9 => 'post-formats',
-                ],
-                'taxonomies' => [
+                ),
+                'taxonomies' => array(
                     0 => 'starmus_tax_language',
                     1 => 'starmus_tax_dialect',
                     2 => 'starmus_tax_project',
@@ -4637,12 +4878,12 @@ final class StarmusPostTypeLoader implements IContentBundle
                     4 => 'starmus_mood',
                     5 => 'starmus_theme',
                     6 => 'starmus_workflow_status',
-                ],
+                ),
                 'delete_with_user' => false,
-            ]);
+            ));
 
-            register_post_type('starmus-script', [
-                'labels' => [
+            register_post_type('starmus-script', array(
+                'labels' => array(
                     'name' => 'Scripts',
                     'singular_name' => 'Script',
                     'menu_name' => 'Scripts',
@@ -4672,14 +4913,14 @@ final class StarmusPostTypeLoader implements IContentBundle
                     'item_updated' => 'Script updated.',
                     'item_link' => 'Script Link',
                     'item_link_description' => 'A link to a script.',
-                ],
+                ),
                 'description' => 'Text documents meant to be read out loud.',
                 'public' => true,
                 'exclude_from_search' => true,
                 'publicly_queryable' => false,
                 'show_in_rest' => true,
                 'menu_icon' => 'dashicons-format-aside',
-                'supports' => [
+                'supports' => array(
                     0 => 'title',
                     1 => 'author',
                     2 => 'comments',
@@ -4689,8 +4930,8 @@ final class StarmusPostTypeLoader implements IContentBundle
                     6 => 'page-attributes',
                     7 => 'custom-fields',
                     8 => 'post-formats',
-                ],
-                'taxonomies' => [
+                ),
+                'taxonomies' => array(
                     0 => 'starmus_tax_language',
                     1 => 'starmus_tax_dialect',
                     2 => 'starmus_tax_project',
@@ -4698,9 +4939,9 @@ final class StarmusPostTypeLoader implements IContentBundle
                     4 => 'starmus_theme',
                     5 => 'starmus_mood',
                     6 => 'starmus_subject',
-                ],
+                ),
                 'delete_with_user' => false,
-            ]);
+            ));
         });
     }
 
