@@ -504,9 +504,12 @@ class StarmusProsodyPlayer
         $languages = get_terms(['taxonomy' => 'starmus_tax_language', 'hide_empty' => false]);
         $dialects  = get_terms(['taxonomy' => 'starmus_tax_dialect', 'hide_empty' => false]);
 
+        // Ensure Styles are loaded
+        wp_enqueue_style('starmus-audio-recorder-styles');
+
         ob_start();
         ?>
-        <div class="starmus-script-form-container sparxstar-glass-card">
+        <div class="starmus-script-form-container sparxstar-glass-card starmus-recorder-form">
             <h2><?php echo esc_html($heading); ?></h2>
             <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post" class="starmus-script-form">
                 <input type="hidden" name="action" value="starmus_save_script">
@@ -522,7 +525,21 @@ class StarmusProsodyPlayer
 
                 <div class="starmus-form-group">
                     <label for="starmus_script_content"><?php esc_html_e('Content (The Script)', 'starmus-audio-recorder'); ?></label>
-                    <textarea id="starmus_script_content" name="starmus_script_content" rows="10" required class="widefat"><?php echo esc_textarea($content); ?></textarea>
+                    <?php
+                    $editor_settings = [
+                        'media_buttons' => false,
+                        'textarea_name' => 'starmus_script_content',
+                        'textarea_rows' => 10,
+                        'teeny'         => true,
+                        'quicktags'     => false,
+                        'editor_class'  => 'widefat'
+                    ];
+                    // Clean up block comments for display if they exist
+                    if (strpos($content, '<!-- wp:') !== false) {
+                        $content = preg_replace('/<!-- \/?wp:.*? -->/', '', $content);
+                    }
+                    wp_editor($content, 'starmus_script_content', $editor_settings);
+                    ?>
                 </div>
 
                 <div class="starmus-form-row">
@@ -577,7 +594,7 @@ class StarmusProsodyPlayer
 
         // 3. Sanitize
         $title   = sanitize_text_field($_POST['starmus_script_title']);
-        $content = sanitize_textarea_field($_POST['starmus_script_content']); // or wp_kses_post if rich text allowed
+        $content = wp_kses_post($_POST['starmus_script_content']); // Allow HTML since we used wp_editor
         $lang    = sanitize_text_field($_POST['starmus_script_language']);
         $dial    = sanitize_text_field($_POST['starmus_script_dialect']);
         $script_id = isset($_POST['script_id']) ? (int) $_POST['script_id'] : 0;
