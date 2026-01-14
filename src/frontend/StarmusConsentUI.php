@@ -7,7 +7,6 @@ namespace Starisian\Sparxstar\Starmus\frontend;
 use Starisian\Sparxstar\Starmus\core\StarmusConsentHandler;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
-use WP_Error;
 
 if ( ! defined('ABSPATH')) {
     exit;
@@ -24,15 +23,11 @@ class StarmusConsentUI
 {
     /**
      * StarmusConsentHandler instance.
-     *
-     * @var StarmusConsentHandler
      */
     private StarmusConsentHandler $handler;
 
     /**
      * StarmusSettings instance.
-     *
-     * @var StarmusSettings
      */
     private StarmusSettings $settings;
 
@@ -50,12 +45,10 @@ class StarmusConsentUI
 
     /**
      * Register hooks.
-     *
-     * @return void
      */
     public function register_hooks(): void
     {
-        add_action('init', [$this, 'handle_submission']);
+        add_action('init', $this->handle_submission(...));
     }
 
     /**
@@ -71,8 +64,6 @@ class StarmusConsentUI
 
     /**
      * Handle form submission.
-     *
-     * @return void
      */
     public function handle_submission(): void
     {

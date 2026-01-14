@@ -69,11 +69,6 @@ Waveform service instance.
 /
     private ?StarmusWaveformService $waveform;
 
-    /**
-Post-processing service instance.
-/
-    private ?StarmusPostProcessingService $post;
-
     private ?StarmusAudioPipeline $pipeline;
 
     /**

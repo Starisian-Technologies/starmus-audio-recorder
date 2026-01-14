@@ -55,11 +55,6 @@ final readonly class StarmusCron
      */
     private ?StarmusWaveformService $waveform;
 
-    /**
-     * Post-processing service instance.
-     */
-    private ?StarmusPostProcessingService $post;
-
     private ?StarmusAudioPipeline $pipeline;
 
     /**
@@ -74,7 +69,6 @@ final readonly class StarmusCron
         ?StarmusAudioPipeline $audio_pipeline = null,
     ) {
         $this->waveform = $waveform_service ?: new StarmusWaveformService();
-        $this->post     = $post_service ?: new StarmusPostProcessingService();
         $this->pipeline = $audio_pipeline ?: new StarmusAudioPipeline();
     }
 

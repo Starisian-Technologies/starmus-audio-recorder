@@ -23,6 +23,7 @@ Supports legacy custom table storage (if used) in addition to options.
 final readonly class StarmusJobSearchRepository
 {
     private wpdb $db;
+
     private string $table_name;
 
     public function __construct()

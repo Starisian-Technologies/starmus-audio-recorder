@@ -145,6 +145,9 @@ class _SmartAudioPlayer {
             this.log("Audio pipeline upgraded: Enhanced Broadcast Leveling active.");
         } catch (e) {
             this.log("Web Audio API not supported. Continuing with standard playback.");
+            if (window.SparxstarIntegration && window.SparxstarIntegration.isAvailable) {
+                window.SparxstarIntegration.reportError("web_audio_init_failed", { error: e });
+            }
         }
     }
 
@@ -234,6 +237,9 @@ class _SmartAudioPlayer {
                 this.sourceNode.disconnect();
             } catch (e) {
                 /* Ignore disconnect errors */
+                if (window.SparxstarIntegration && window.SparxstarIntegration.isAvailable) {
+                    window.SparxstarIntegration.reportError("audio_node_disconnect_failed", { error: e });
+                }
             }
         }
 

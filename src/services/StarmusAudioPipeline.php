@@ -58,6 +58,7 @@ final class StarmusAudioPipeline
             if ($form_data === null) {
                 $form_data = [];
             }
+
             $starmus_tags                = $this->generateStarmusTags($form_data, $post_id);
             $results['metadata_written'] = $this->id3_service->writeTags($file_path, $starmus_tags);
 
@@ -101,7 +102,7 @@ final class StarmusAudioPipeline
 
             // Replacing Step 3 entirely with R2 Service Integration
             $r2_results = $this->r2_service->processAfricaAudio($file_path, $post_id);
-            if ( ! empty($r2_results) && ! isset($r2_results['message'])) {
+            if ( $r2_results !== [] && ! isset($r2_results['message'])) {
                 $results['web_versions'] = $r2_results;
             } else {
                 // Fallback or non-applicable file workflow (keep existing behavior but cleanup)
@@ -245,7 +246,7 @@ final class StarmusAudioPipeline
             }
 
             return false;
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
 
             return false;

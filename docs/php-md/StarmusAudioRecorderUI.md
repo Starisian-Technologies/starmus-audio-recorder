@@ -21,6 +21,7 @@ Front-end presentation layer for the Starmus recorder experience.
 
 namespace Starisian\Sparxstar\Starmus\frontend;
 
+use WP_Query;
 use Throwable;
 use Exception;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;

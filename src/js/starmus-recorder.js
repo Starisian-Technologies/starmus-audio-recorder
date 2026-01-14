@@ -158,7 +158,9 @@ class LanguageSignalAnalyzer {
                 try {
                     rec.stop();
                 } catch (_e) {
-                    /* intentionally empty */
+                    if (sparxstarIntegration.isAvailable) {
+                        sparxstarIntegration.reportError("media_recorder_stop_error", { error: _e });
+                    }
                 }
             }, this.maxDuration);
         });
@@ -613,6 +615,9 @@ function initRecorder(store, instanceId) {
                     source.disconnect();
                 } catch (e) {
                     console.debug("[ANALYZER]", "disconnect failed");
+                    if (sparxstarIntegration.isAvailable) {
+                        sparxstarIntegration.reportError("audio_node_disconnect_failed", { error: e });
+                    }
                 }
                 recorderRegistry.delete(instanceId);
             };

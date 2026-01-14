@@ -63,9 +63,6 @@ Get recent jobs (sorted by created_at, newest first).
 **Visibility:** `public`
 
 Save or update a job.
-@param string $job_id
-@param array $job_data
-@return bool
 
 ### `delete()`
 

@@ -3,7 +3,7 @@ import { injectAxe, checkA11y } from "axe-playwright";
 
 test.describe("Offline-first patterns", () => {
   test("audio recorder works without JS", async ({ page }) => {
-    await page.goto("/test-page-with-recorder");
+    await page.goto("/recorder-test/");
     await page.addInitScript(() => {
       window.navigator.serviceWorker = undefined;
       window.MediaRecorder = undefined;
@@ -15,7 +15,7 @@ test.describe("Offline-first patterns", () => {
   });
 
   test("offline queue resumes after connection", async ({ page }) => {
-    await page.goto("/test-page-with-recorder");
+    await page.goto("/recorder-test/");
 
     // Simulate offline
     await page.context().setOffline(true);
@@ -35,7 +35,7 @@ test.describe("Offline-first patterns", () => {
   });
 
   test("meets WCAG 2.1 AA standards", async ({ page }) => {
-    await page.goto("/test-page-with-recorder");
+    await page.goto("/recorder-test/");
     await injectAxe(page);
 
     await checkA11y(page, null, {
@@ -52,7 +52,7 @@ test.describe("Offline-first patterns", () => {
       },
     );
 
-    await page.goto("/test-page-with-recorder");
+    await page.goto("/recorder-test/");
 
     // Upload should work with delays
     await page.fill("#starmus_title", "Slow Upload Test");

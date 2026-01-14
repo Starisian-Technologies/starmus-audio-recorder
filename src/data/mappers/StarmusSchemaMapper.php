@@ -23,8 +23,6 @@ use function json_encode;
 use function json_last_error;
 use function json_last_error_msg;
 use function sanitize_text_field;
-
-use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
@@ -36,10 +34,7 @@ if ( ! \defined('ABSPATH')) {
 
 class StarmusSchemaMapper
 {
-    /**
-     * JSON Error Constant for Comparison
-     */
-    private const JSON_ERROR_NONE = 0;
+
     /**
      * FIELDS TO PASSTHROUGH WITHOUT MODIFICATION
      *
@@ -314,9 +309,7 @@ class StarmusSchemaMapper
      * Check if a specific field key should be treated as JSON.
      * UPDATED: Checks against NEW Starmus keys AND Legacy keys for backward compatibility.
      *
-     * @param string $field_name
      *
-     * @return bool
      */
     public static function is_json_field(string $field_name): bool
     {
@@ -358,14 +351,6 @@ class StarmusSchemaMapper
         }
 
         return '{}';
-    }
-
-    /**
-     * Helper: Decode to Array safely.
-     */
-    private static function get_contributor_id_for_user(int $user_id): ?int
-    {
-        return StarmusAudioDAL::get_user_contributor_id($user_id);
     }
 
     /**

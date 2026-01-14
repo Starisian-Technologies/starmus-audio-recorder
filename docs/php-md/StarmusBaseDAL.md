@@ -52,6 +52,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     {
         // do nothing.
     }
+
     // --- META OPERATIONS ---
 
     /**

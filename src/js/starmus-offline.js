@@ -18,6 +18,7 @@
 
 import { debugLog } from "./starmus-hooks.js";
 import { uploadWithPriority } from "./starmus-tus.js";
+import sparxstarIntegration from "./starmus-sparxstar-integration.js";
 
 /**
  * Configuration object for offline queue behavior.
@@ -148,8 +149,8 @@ class OfflineQueue {
                 reject(error);
             };
 
-            req.onsuccess = (e) => {
-                this.db = e.target.result;
+            req.onsuccess = () => {
+                this.db = req.result;
 
                 this.db.onversionchange = () => {
                     this.db.close();
@@ -462,6 +463,9 @@ class OfflineQueue {
             test.onerror = () => true;
             return false;
         } catch (e) {
+            if (sparxstarIntegration.isAvailable) {
+                sparxstarIntegration.reportError("private_browsing_detection_error", { error: e });
+            }
             return true;
         }
     }

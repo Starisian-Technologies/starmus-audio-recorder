@@ -33,7 +33,7 @@ class StarmusDataRESTHandler
      */
     public function init(): void
     {
-        add_action('rest_api_init', [$this, 'register_routes']);
+        add_action('rest_api_init', $this->register_routes(...));
     }
 
     /**
@@ -43,13 +43,11 @@ class StarmusDataRESTHandler
     {
         register_rest_route(self::NAMESPACE, '/recording/(?P<id>\d+)', [
             'methods'             => WP_REST_Server::READABLE,
-            'callback'            => [$this, 'get_recording_data'],
-            'permission_callback' => [$this, 'check_permission'],
+            'callback'            => $this->get_recording_data(...),
+            'permission_callback' => $this->check_permission(...),
             'args'                => [
                 'id' => [
-                    'validate_callback' => function ($param) {
-                        return is_numeric($param);
-                    },
+                    'validate_callback' => is_numeric(...),
                     'sanitize_callback' => 'absint',
                 ],
             ],
@@ -62,7 +60,7 @@ class StarmusDataRESTHandler
      * @param WP_REST_Request $request The request object.
      * @return bool|WP_Error True if authorized, WP_Error otherwise.
      */
-    public function check_permission(WP_REST_Request $request)
+    public function check_permission(WP_REST_Request $request): WP_Error|true
     {
         $post_id = $request->get_param('id');
 
@@ -86,7 +84,7 @@ class StarmusDataRESTHandler
      * @param WP_REST_Request $request The request object.
      * @return WP_REST_Response|WP_Error Response object or error.
      */
-    public function get_recording_data(WP_REST_Request $request)
+    public function get_recording_data(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         $post_id = $request->get_param('id');
         $post    = get_post($post_id);

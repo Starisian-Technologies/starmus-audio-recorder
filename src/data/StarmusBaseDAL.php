@@ -37,6 +37,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     {
         // do nothing.
     }
+
     // --- META OPERATIONS ---
 
     /**
@@ -224,6 +225,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
             ]
         );
     }
+
     /**
      * Get the contributor post ID for a given user ID.
      *

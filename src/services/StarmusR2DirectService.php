@@ -56,7 +56,7 @@ final class StarmusR2DirectService
         $this->storage_client = new S3Client([
         'version'     => 'latest',
         'region'      => 'auto',
-        'endpoint'    => "https://{$account_id}.r2.cloudflarestorage.com",
+        'endpoint'    => sprintf('https://%s.r2.cloudflarestorage.com', $account_id),
         'credentials' => [
         'key'    => \defined('STARMUS_R2_ACCESS_KEY') ? STARMUS_R2_ACCESS_KEY : '',
         'secret' => \defined('STARMUS_R2_SECRET_KEY') ? STARMUS_R2_SECRET_KEY : '',
@@ -73,7 +73,7 @@ final class StarmusR2DirectService
         // AWS Public Endpoint construction or Custom Domain
         $this->public_endpoint = \defined('STARMUS_S3_ENDPOINT')
         ? STARMUS_S3_ENDPOINT
-        : "https://{$this->bucket}.s3.{$region}.amazonaws.com/";
+        : sprintf('https://%s.s3.%s.amazonaws.com/', $this->bucket, $region);
 
         $this->storage_client = new S3Client([
         'version'     => 'latest',

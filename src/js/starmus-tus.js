@@ -291,6 +291,12 @@ export async function uploadDirect(
 
                     resolve(result);
                 } catch (e) {
+                    if (sparxstarIntegration.isAvailable) {
+                        sparxstarIntegration.reportError("upload_response_parse_error", {
+                            error: e.message,
+                            response: xhr.responseText.substring(0, 200),
+                        });
+                    }
                     reject(new Error("Invalid JSON response"));
                 }
             } else {

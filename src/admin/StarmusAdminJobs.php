@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\admin;
 
-use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\data\StarmusSageMakerJobRepository;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Starisian\Sparxstar\Starmus\services\StarmusSageMakerService;
 use Throwable;
 
 if ( ! \defined('ABSPATH')) {
@@ -21,22 +19,19 @@ if ( ! \defined('ABSPATH')) {
 final class StarmusAdminJobs
 {
     private StarmusSageMakerJobRepository $repository;
-    private StarmusSageMakerService $service;
 
     public function __construct(
-    StarmusSageMakerJobRepository $repository,
-    StarmusSageMakerService $service
+    StarmusSageMakerJobRepository $repository
     ) {
         $this->repository = $repository;
-        $this->service    = $service;
         $this->register_hooks();
     }
 
     private function register_hooks(): void
     {
-        add_action('admin_menu', [$this, 'add_menu_page']);
-        add_action('admin_post_starmus_delete_job', [$this, 'handle_delete_job']);
-        add_action('wp_ajax_starmus_retry_job', [$this, 'ajax_retry_job']);
+        add_action('admin_menu', $this->add_menu_page(...));
+        add_action('admin_post_starmus_delete_job', $this->handle_delete_job(...));
+        add_action('wp_ajax_starmus_retry_job', $this->ajax_retry_job(...));
     }
 
     public function add_menu_page(): void
@@ -47,7 +42,7 @@ final class StarmusAdminJobs
         __('Jobs', 'starmus-audio-recorder'),
         'manage_options',
         'starmus-sagemaker-jobs',
-        [$this, 'render']
+        $this->render(...)
         );
     }
 
@@ -124,7 +119,7 @@ final class StarmusAdminJobs
         echo '<th>' . esc_html__('Actions', 'starmus-audio-recorder') . '</th>';
         echo '</tr></thead><tbody>';
 
-        if (empty($jobs)) {
+        if ($jobs === []) {
             echo '<tr><td colspan="5">' . esc_html__('No jobs found.', 'starmus-audio-recorder') . '</td></tr>';
         } else {
             foreach ($jobs as $id => $job) {

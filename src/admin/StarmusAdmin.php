@@ -291,7 +291,7 @@ class StarmusAdmin
 
             foreach ($page_slug_fields as $key => $title) {
                 $raw_input = sanitize_text_field($input[$key] ?? '');
-                $slugs     = array_filter(array_map('trim', explode(',', $raw_input)));
+                $slugs     = array_filter(array_map(trim(...), explode(',', $raw_input)));
                 $page_ids  = [];
 
                 foreach ($slugs as $slug_input) {
@@ -575,7 +575,7 @@ class StarmusAdmin
                     foreach ($page_ids as $pid) {
                         if ($pid > 0) {
                             $slug = $this->dal->get_page_slug_by_id((int) $pid);
-                            if ( ! empty($slug)) {
+                            if ( $slug !== '' && $slug !== '0') {
                                 $slugs[] = $slug;
                             }
                         }

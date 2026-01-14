@@ -552,9 +552,8 @@ final readonly class StarmusPostProcessingService
         return $tag_data;
     }
 
-    public function process_and_archive_audio(int $parent_id, int $attachment_id): void
+    public function process_and_archive_audio(): void
     {
         // Implementation goes here
-
     }
 }

@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\data\interfaces;
 
+use WP_Query;
+
 if ( ! \defined('ABSPATH')) {
     exit;
 }
@@ -35,8 +37,6 @@ interface IStarmusProsodyDAL extends IStarmusBaseDAL
      * @param int $user_id User ID.
      * @param int $posts_per_page Posts per page.
      * @param int $paged Page number.
-     *
-     * @return \WP_Query
      */
-    public function get_unrecorded_scripts(int $user_id, int $posts_per_page = 10, int $paged = 1): \WP_Query;
+    public function get_unrecorded_scripts(int $user_id, int $posts_per_page = 10, int $paged = 1): WP_Query;
 }

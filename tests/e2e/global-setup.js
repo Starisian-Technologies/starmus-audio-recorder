@@ -73,6 +73,30 @@ async function globalSetup() {
   // Verify WordPress environment is running
   await verifyWordPressEnvironment(baseURL);
 
+  console.log('Configuring test environment...');
+  try {
+    // Activate plugin
+    console.log('Activating plugin...');
+    execSync('npx wp-env run tests-cli wp plugin activate starmus-audio-recorder', { stdio: 'inherit' });
+
+    // Create recorder page
+    console.log('Creating recorder page...');
+    execSync(
+      'npx wp-env run tests-cli wp post create --post_type=page --post_title="Recorder Test" --post_status=publish --post_content="[starmus_audio_recorder]" --post_name="recorder-test"',
+      { stdio: 'inherit' }
+    );
+
+    // Set recorder page option
+    console.log('Setting recorder page option...');
+    execSync(
+      `npx wp-env run tests-cli wp eval '$page = get_page_by_path("recorder-test"); $options = get_option("starmus_options", []); $options["recorder_page_id"] = $page->ID; update_option("starmus_options", $options); echo "Recorder page option set to ID: " . $page->ID;'`,
+      { stdio: 'inherit' }
+    );
+
+  } catch (e) {
+    console.warn("Setup warning (ignoring if just 'already exists'): " + e.message);
+  }
+
   console.log('Global setup complete');
 }
 

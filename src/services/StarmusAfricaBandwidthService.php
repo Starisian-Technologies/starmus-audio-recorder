@@ -103,12 +103,7 @@ final class StarmusAfricaBandwidthService
     {
         $output_path = \dirname($input_path) . '/' . pathinfo($input_path, PATHINFO_FILENAME) . '_preview.mp3';
 
-        $cmd = array_merge(
-            [$this->ffmpeg_path, '-i', escapeshellarg($input_path)],
-            ['-t', (string) $duration],
-            ['-ac', '1', '-ar', '22050', '-b:a', '64k'], // Low bandwidth preview
-            [escapeshellarg($output_path), '2>/dev/null']
-        );
+        $cmd = [$this->ffmpeg_path, '-i', escapeshellarg($input_path), '-t', (string) $duration, '-ac', '1', '-ar', '22050', '-b:a', '64k', escapeshellarg($output_path), '2>/dev/null'];
 
         exec(implode(' ', $cmd), $out, $code);
         return $code === 0 ? $output_path : null;

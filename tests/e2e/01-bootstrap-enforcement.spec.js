@@ -52,16 +52,19 @@ test.describe('Bootstrap Enforcement', () => {
         }
         // Sanitize args to prevent log injection
         const safeArgs = args.map(arg => {
-            if (typeof arg === 'string') {
-                return arg.replace(/[\r\n]/g, ' ');
+            try {
+                // Coerce to string to handle objects/errors and strip newlines/control chars
+                // This prevents log forging even if objects have malicious toString methods
+                return String(arg).replace(/[\r\n\u0000-\u001f]/g, ' ');
+            } catch (e) {
+                return '[LogSanitizationError]';
             }
-            return arg;
         });
         return originalConsoleError.apply(console, safeArgs);
       };
     });
 
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
 
     // Wait for page to be fully loaded
     await page.waitForLoadState('domcontentloaded');
@@ -130,7 +133,7 @@ test.describe('Bootstrap Enforcement', () => {
       };
     });
 
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
 
     // Wait for initialization
     await page.waitForLoadState('domcontentloaded');
@@ -175,7 +178,7 @@ test.describe('Bootstrap Enforcement', () => {
     });
 
     // Test without bootstrap - should not access DOM
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(500);
 
@@ -244,7 +247,7 @@ test.describe('Bootstrap Enforcement', () => {
       };
     });
 
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
@@ -294,7 +297,7 @@ test.describe('Bootstrap Enforcement', () => {
     });
 
     // Navigate to recorder page
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
@@ -314,7 +317,7 @@ test.describe('Bootstrap Enforcement', () => {
     });
 
     // Navigate back to recorder
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\services;
 
+use WP_Post;
+use InvalidArgumentException;
 use Aws\Exception\AwsException;
 use Aws\SageMakerRuntime\SageMakerRuntimeClient;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
@@ -41,20 +43,18 @@ final class StarmusSageMakerService
 {
     private ?SageMakerRuntimeClient $client = null;
 
-    public function __construct(private ?StarmusSettings $settings = null)
+    public function __construct(private ?StarmusSettings $settings = new StarmusSettings())
     {
-        $this->settings = $settings ?? new StarmusSettings();
     }
 
     /**
      * initialize and return the AWS SageMaker Runtime Client.
      *
-     * @return SageMakerRuntimeClient
      * @throws AwsException
      */
     private function get_client(): SageMakerRuntimeClient
     {
-        if ($this->client !== null) {
+        if ($this->client instanceof SageMakerRuntimeClient) {
             return $this->client;
         }
 
@@ -102,8 +102,8 @@ final class StarmusSageMakerService
     public function bundle_job_data(int $recording_id): array
     {
         $post = get_post($recording_id);
-        if ( ! $post instanceof \WP_Post || $post->post_type !== 'audio-recording') {
-            throw new \InvalidArgumentException("Invalid recording ID: {$recording_id}");
+        if ( ! $post instanceof WP_Post || $post->post_type !== 'audio-recording') {
+            throw new InvalidArgumentException('Invalid recording ID: ' . $recording_id);
         }
 
         // 1. Core Archival Identity
@@ -122,6 +122,7 @@ final class StarmusSageMakerService
                 $cloud_uri = wp_get_attachment_url((int) $attachment_id);
             }
         }
+
         $manifest['audio_uri'] = $cloud_uri;
 
         // 3. Language & Dialect
@@ -208,9 +209,9 @@ final class StarmusSageMakerService
 
             // 4. Return decoded result
             return json_decode((string) $body, true) ?: [];
-        } catch (Throwable $e) {
-            StarmusLogger::error('SageMaker Transcribe Job Failed: ' . $e->getMessage());
-            return ['error' => $e->getMessage()];
+        } catch (Throwable $throwable) {
+            StarmusLogger::error('SageMaker Transcribe Job Failed: ' . $throwable->getMessage());
+            return ['error' => $throwable->getMessage()];
         }
     }
 
@@ -261,7 +262,7 @@ final class StarmusSageMakerService
                 $args['CustomAttributes'] = $options['custom_attributes'];
             }
 
-            StarmusLogger::info("Invoking SageMaker Endpoint: {$endpoint_name}", ['file' => basename($file_path)]);
+            StarmusLogger::info('Invoking SageMaker Endpoint: ' . $endpoint_name, ['file' => basename($file_path)]);
 
             // 3. Invoke Endpoint
             $client = $this->get_client();

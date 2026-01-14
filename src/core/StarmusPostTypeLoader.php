@@ -13,7 +13,7 @@ namespace Starisian\Sparxstar\Starmus\core;
  *
  * @link https://starisian.com/
  */
-
+use Exception;
 use function add_action;
 use function register_post_type;
 use function register_taxonomy;
@@ -38,10 +38,9 @@ final class StarmusPostTypeLoader implements IContentBundle
 {
     /**
      * Summary of instance
-     *
-     * @var StarmusPostTypeLoader|null
      */
     private static ?StarmusPostTypeLoader $instance = null;
+
     /**
      * Private constructor to prevent direct instantiation.
      */
@@ -49,18 +48,19 @@ final class StarmusPostTypeLoader implements IContentBundle
     {
         add_action('init', $this->sparxStarmusRegister(...), 20);
     }
+
     /**
      * Gets the singleton instance of StarmusPostTypeLoader.
-     *
-     * @return StarmusPostTypeLoader|null
      */
     public static function sparxStarmusGetInstance(): StarmusPostTypeLoader
     {
-        if (self::$instance === null) {
+        if ( ! self::$instance instanceof \Starisian\Sparxstar\Starmus\core\StarmusPostTypeLoader) {
             self::$instance = new StarmusPostTypeLoader();
         }
+
         return self::$instance;
     }
+
     /**
      * Registers Custom Post Types and Taxonomies
      * PHP exported from Secure Custome Fields version 6.8
@@ -68,12 +68,10 @@ final class StarmusPostTypeLoader implements IContentBundle
      * @source Secure Custom Fields Plugin source code for registerPostTypes()
      *
      * @version 6.8
-     *
-     * @return void
      */
     public function sparxStarmusRegister(): void
     {
-        add_action('acf/include_fields', function () {
+        add_action('acf/include_fields', function (): void {
             if ( ! function_exists('acf_add_local_field_group')) {
                 return;
             }
@@ -307,7 +305,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_asset_health',
                         'aria-label' => '',
                         'type' => 'select',
-                        'instructions' => 'Shows if the file is working correctly or if there\'s a problem with it.',
+                        'instructions' => "Shows if the file is working correctly or if there's a problem with it.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -417,7 +415,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_source_origin',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => 'Where did this file come from originally? For example: \'Uploaded from iPhone\' or \'Recorded in Studio A\'.',
+                        'instructions' => "Where did this file come from originally? For example: 'Uploaded from iPhone' or 'Recorded in Studio A'.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -507,7 +505,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_musical_key',
                         'aria-label' => '',
                         'type' => 'select',
-                        'instructions' => 'What musical key is the song in? This tells what notes sound best together. Ask a musician if you\'re not sure.',
+                        'instructions' => "What musical key is the song in? This tells what notes sound best together. Ask a musician if you're not sure.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -549,7 +547,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_isrc_code',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => 'The official tracking code for this song when it\'s sold. Format: CC-XXX-YY-NNNNN (example: US-S1Z-17-12345). Get this from your distributor.',
+                        'instructions' => "The official tracking code for this song when it's sold. Format: CC-XXX-YY-NNNNN (example: US-S1Z-17-12345). Get this from your distributor.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -773,7 +771,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_rights_type',
                         'aria-label' => '',
                         'type' => 'textarea',
-                        'instructions' => 'What kind of legal agreement is being used? For example: \'Exclusive License\' or \'Creative Commons BY-NC\'.',
+                        'instructions' => "What kind of legal agreement is being used? For example: 'Exclusive License' or 'Creative Commons BY-NC'.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -794,7 +792,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_rights_use',
                         'aria-label' => '',
                         'type' => 'textarea',
-                        'instructions' => 'Explain exactly how this file can be used. For example: \'Can be used in videos\' or \'Only for education\'.',
+                        'instructions' => "Explain exactly how this file can be used. For example: 'Can be used in videos' or 'Only for education'.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -847,7 +845,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_rights_royalty',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => 'Describe how money from this work will be shared. For example: \'50% to creator, 50% to platform\'.',
+                        'instructions' => "Describe how money from this work will be shared. For example: '50% to creator, 50% to platform'.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -884,7 +882,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_linked_data_uri',
                         'aria-label' => '',
                         'type' => 'url',
-                        'instructions' => 'A link to this same information in another system, like Wikidata or MusicBrainz. Leave blank if you don\'t have one.',
+                        'instructions' => "A link to this same information in another system, like Wikidata or MusicBrainz. Leave blank if you don't have one.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -901,7 +899,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_data_classification',
                         'aria-label' => '',
                         'type' => 'group',
-                        'instructions' => 'Settings that control privacy and how this data can be used. This protects people\'s information.',
+                        'instructions' => "Settings that control privacy and how this data can be used. This protects people's information.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -1202,7 +1200,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_tuning_hz',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => 'What pitch was used to tune the instruments? Usually 440Hz (standard concert pitch). Leave as 440Hz unless you know it\'s different.',
+                        'instructions' => "What pitch was used to tune the instruments? Usually 440Hz (standard concert pitch). Leave as 440Hz unless you know it's different.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -1621,7 +1619,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_contributor_verification',
                         'aria-label' => '',
                         'type' => 'textarea',
-                        'instructions' => 'Proof that we checked the person\'s identity. This is created automatically when we verify who someone is.',
+                        'instructions' => "Proof that we checked the person's identity. This is created automatically when we verify who someone is.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -1859,7 +1857,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_mastered_mp3',
                         'aria-label' => '',
                         'type' => 'file',
-                        'instructions' => 'A smaller, compressed file that\'s easier to share and listen to. Should be MP3 format. This is what most people will hear.',
+                        'instructions' => "A smaller, compressed file that's easier to share and listen to. Should be MP3 format. This is what most people will hear.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -2168,7 +2166,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_session_location',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => 'Where did the recording happen? For example: \'Studio A, New York\' or \'Lincoln Elementary School, Room 205\'.',
+                        'instructions' => "Where did the recording happen? For example: 'Studio A, New York' or 'Lincoln Elementary School, Room 205'.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -2259,7 +2257,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_recording_equipment',
                         'aria-label' => '',
                         'type' => 'textarea',
-                        'instructions' => 'List the microphones, recorders, and other equipment used. For example: \'Shure SM58 microphone, Zoom H6 recorder\'.',
+                        'instructions' => "List the microphones, recorders, and other equipment used. For example: 'Shure SM58 microphone, Zoom H6 recorder'.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -2301,7 +2299,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_media_condition',
                         'aria-label' => '',
                         'type' => 'textarea',
-                        'instructions' => 'Write notes about the recording quality. For example: \'Some background noise from traffic\' or \'Very clear, no problems\'.',
+                        'instructions' => "Write notes about the recording quality. For example: 'Some background noise from traffic' or 'Very clear, no problems'.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -2447,7 +2445,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_catalog_number',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => 'Your record label\'s internal tracking number for this release. Like a library call number but for your music catalog.',
+                        'instructions' => "Your record label's internal tracking number for this release. Like a library call number but for your music catalog.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -2518,7 +2516,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_label_name',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => 'The name of the record label or company publishing this music. For example: \'Atlantic Records\' or \'Self-Released\'.',
+                        'instructions' => "The name of the record label or company publishing this music. For example: 'Atlantic Records' or 'Self-Released'.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -2793,7 +2791,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_instructions',
                         'aria-label' => '',
                         'type' => 'textarea',
-                        'instructions' => 'Write notes about how the speaker should sound. For example: \'Speak slowly and calmly\' or \'Sound excited and happy\'.',
+                        'instructions' => "Write notes about how the speaker should sound. For example: 'Speak slowly and calmly' or 'Sound excited and happy'.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -2959,7 +2957,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'sparxstar_legal_name',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => 'The person\'s full real name as it appears on legal documents like a birth certificate or ID.',
+                        'instructions' => "The person's full real name as it appears on legal documents like a birth certificate or ID.",
                         'required' => true,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -2979,7 +2977,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'sparxstar_email',
                         'aria-label' => '',
                         'type' => 'email',
-                        'instructions' => 'The email address where we can reach this person. Make sure it\'s typed correctly.',
+                        'instructions' => "The email address where we can reach this person. Make sure it's typed correctly.",
                         'required' => true,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -3404,7 +3402,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'name' => 'starmus_isrc_override',
                                 'aria-label' => '',
                                 'type' => 'text',
-                                'instructions' => 'Only fill this if the track has a different ISRC code than what\'s on the recording. Leave blank to use the recording\'s ISRC.',
+                                'instructions' => "Only fill this if the track has a different ISRC code than what's on the recording. Leave blank to use the recording's ISRC.",
                                 'required' => false,
                                 'conditional_logic' => false,
                                 'wrapper' => [
@@ -3659,7 +3657,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_transcription_engine',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => 'If a computer did the typing, which program was used? For example: \'Whisper\' or \'Google Speech-to-Text\'. Leave blank if done by hand.',
+                        'instructions' => "If a computer did the typing, which program was used? For example: 'Whisper' or 'Google Speech-to-Text'. Leave blank if done by hand.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -3697,7 +3695,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_transcription_hash',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => 'A special code that proves this text hasn\'t been changed. Like a fingerprint for the words. Created automatically.',
+                        'instructions' => "A special code that proves this text hasn't been changed. Like a fingerprint for the words. Created automatically.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -3718,7 +3716,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_speaker_map',
                         'aria-label' => '',
                         'type' => 'repeater',
-                        'instructions' => 'If multiple people are talking in the recording, connect the labels in the text (like \'Speaker 1\') to the real people\'s names.',
+                        'instructions' => "If multiple people are talking in the recording, connect the labels in the text (like 'Speaker 1') to the real people's names.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -3740,7 +3738,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                                 'name' => 'starmus_label',
                                 'aria-label' => '',
                                 'type' => 'text',
-                                'instructions' => 'The name used in the transcription. For example: \'Speaker 1\' or \'Interviewer\'.',
+                                'instructions' => "The name used in the transcription. For example: 'Speaker 1' or 'Interviewer'.",
                                 'required' => true,
                                 'conditional_logic' => false,
                                 'wrapper' => [
@@ -4019,7 +4017,7 @@ final class StarmusPostTypeLoader implements IContentBundle
                         'name' => 'starmus_translation_hash',
                         'aria-label' => '',
                         'type' => 'text',
-                        'instructions' => 'A special code that proves this translated text hasn\'t been changed. Like a fingerprint for the words. Created automatically.',
+                        'instructions' => "A special code that proves this translated text hasn't been changed. Like a fingerprint for the words. Created automatically.",
                         'required' => false,
                         'conditional_logic' => false,
                         'wrapper' => [
@@ -4057,7 +4055,7 @@ final class StarmusPostTypeLoader implements IContentBundle
             ]);
         });
 
-        add_action('init', function () {
+        add_action('init', function (): void {
             register_taxonomy('starmus_tax_audio_quality', [
                 0 => 'audio-recording',
             ], [
@@ -4316,7 +4314,7 @@ final class StarmusPostTypeLoader implements IContentBundle
             ]);
         });
 
-        add_action('init', function () {
+        add_action('init', function (): void {
             register_post_type('audio-recording', [
                 'labels' => [
                     'name' => 'Audio Recordings',
@@ -4718,10 +4716,11 @@ final class StarmusPostTypeLoader implements IContentBundle
 
     public function __clone(): never
     {
-        throw new \Exception('Cloning of ' . __CLASS__ . ' is not allowed.');
+        throw new Exception('Cloning of ' . self::class . ' is not allowed.');
     }
+
     public function __wakeup(): never
     {
-        throw new \Exception('Unserializing of ' . __CLASS__ . ' is not allowed.');
+        throw new Exception('Unserializing of ' . self::class . ' is not allowed.');
     }
 }

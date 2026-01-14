@@ -151,10 +151,10 @@ class StarmusCLI extends WP_CLI_Command
 
         $parent_id = wp_get_post_parent_id($attachment_id);
         if ( ! $parent_id) {
-            WP_CLI::error("Attachment $attachment_id has no parent post.");
+            WP_CLI::error(sprintf('Attachment %d has no parent post.', $attachment_id));
         }
 
-        WP_CLI::log("Starting pipeline for Attachment $attachment_id (Parent: $parent_id)...");
+        WP_CLI::log(sprintf('Starting pipeline for Attachment %d (Parent: %s)...', $attachment_id, $parent_id));
 
         update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_PROCESSING);
 
@@ -169,10 +169,10 @@ class StarmusCLI extends WP_CLI_Command
 
         if ($success) {
             update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_COMPLETED);
-            WP_CLI::success("Pipeline completed successfully for Attachment $attachment_id.");
+            WP_CLI::success(sprintf('Pipeline completed successfully for Attachment %d.', $attachment_id));
         } else {
             update_post_meta($attachment_id, '_audio_processing_status', StarmusPostProcessingService::STATE_ERR_UNKNOWN);
-            WP_CLI::error("Pipeline failed for Attachment $attachment_id.");
+            WP_CLI::error(sprintf('Pipeline failed for Attachment %d.', $attachment_id));
         }
     }
 

@@ -33,8 +33,6 @@ Usage: [prosody_reader] (uses current post) OR [prosody_reader id="123"]
 
 Renders a preview card for a Script.
 Shows excerpt, audio player (if valid recording exists), and proper CTA.
-@param array $atts
-@return string
 
 ### `handle_ajax_save()`
 

@@ -24,13 +24,11 @@ class StarmusConsentUI
 {
     /**
 StarmusConsentHandler instance.
-@var StarmusConsentHandler
 /
     private StarmusConsentHandler $handler;
 
     /**
 StarmusSettings instance.
-@var StarmusSettings
 /
     private StarmusSettings $settings;
 
@@ -44,7 +42,6 @@ Constructor.
 **Visibility:** `public`
 
 Register hooks.
-@return void
 
 ### `render_shortcode()`
 
@@ -58,7 +55,6 @@ Render the shortcode.
 **Visibility:** `public`
 
 Handle form submission.
-@return void
 
 ## Properties
 

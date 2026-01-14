@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\frontend;
 
+use WP_Query;
 use Throwable;
 use Exception;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
@@ -38,8 +39,6 @@ class StarmusAudioRecorderUI
 
     /**
      * Register shortcodes and taxonomy cache hooks.
-     *
-     * @return void
      */
     private function register_hooks(): void
     {
@@ -49,7 +48,7 @@ class StarmusAudioRecorderUI
             ['component' => self::class]
         );
         add_action('starmus_after_audio_upload', [$this, 'save_all_metadata'], 10, 3);
-        add_filter('starmus_audio_upload_success_response', [$this, 'add_conditional_redirect'], 10, 3);
+        add_filter('starmus_audio_upload_success_response', $this->add_conditional_redirect(...), 10, 3);
 
         // Cron scheduling moved to activation to avoid performance issues
         // Clear cache when a Language is added, edited, or deleted.
@@ -118,7 +117,7 @@ class StarmusAudioRecorderUI
             if ($post_id <= 0 && $script_id > 0 && is_user_logged_in()) {
                 $script_post = get_post($script_id);
                 if ($script_post) {
-                    $existing_query = new \WP_Query(
+                    $existing_query = new WP_Query(
                         [
                             'post_type'      => 'audio-recording',
                             'author'         => get_current_user_id(),
@@ -272,7 +271,7 @@ class StarmusAudioRecorderUI
         $page_setting = $this->settings->get('my_recordings_page_id');
         $page_id      = 0;
 
-        if (\is_array($page_setting) && ! empty($page_setting)) {
+        if (\is_array($page_setting) && $page_setting !== []) {
             // If multiple are set, use the first one
             $page_id = (int) reset($page_setting);
         } elseif (is_numeric($page_setting)) {

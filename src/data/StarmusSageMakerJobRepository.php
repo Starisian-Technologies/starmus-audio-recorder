@@ -108,10 +108,6 @@ final class StarmusSageMakerJobRepository
 
     /**
      * Save or update a job.
-     *
-     * @param string $job_id
-     * @param array $job_data
-     * @return bool
      */
     public function save(string $job_id, array $job_data): bool
     {

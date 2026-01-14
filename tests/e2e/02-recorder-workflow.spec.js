@@ -49,7 +49,7 @@ test.describe('Recorder Workflow - Offline & Network Conditions', () => {
       };
     });
 
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
     await page.waitForLoadState('domcontentloaded');
 
     // Explicit wait for page to be ready
@@ -146,7 +146,7 @@ test.describe('Recorder Workflow - Offline & Network Conditions', () => {
       };
     });
 
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
@@ -268,7 +268,7 @@ test.describe('Recorder Workflow - Offline & Network Conditions', () => {
       };
     });
 
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
@@ -364,7 +364,7 @@ test.describe('Recorder Workflow - Offline & Network Conditions', () => {
       };
     });
 
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
@@ -454,7 +454,7 @@ test.describe('Recorder Workflow - Offline & Network Conditions', () => {
       };
     });
 
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
@@ -549,7 +549,7 @@ test.describe('Recorder Workflow - Offline & Network Conditions', () => {
       };
     });
 
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
@@ -635,7 +635,7 @@ test.describe('Recorder Workflow - Offline & Network Conditions', () => {
       };
     });
 
-    await page.goto('/starmus-recorder/');
+    await page.goto('/recorder-test/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 

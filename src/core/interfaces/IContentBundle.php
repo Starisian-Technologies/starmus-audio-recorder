@@ -20,6 +20,7 @@ namespace Starisian\Sparxstar\Starmus\core\interfaces;
 if ( ! \defined('ABSPATH')) {
     exit;
 }
+
 /**
  * Interface IContentBundle
  *
@@ -32,15 +33,11 @@ interface IContentBundle
     /**
      * Register CPT, fields, taxonomies, and rules.
      * This method is allowed to call SCF functions directly.
-     *
-     * @return void
      */
     public function sparxStarmusRegister(): void;
 
     /**
      * Stable identifier for auditing / registry / tooling.
-     *
-     * @return string
      */
     public function sparxStarmusGetId(): string;
 }

@@ -13,7 +13,7 @@ test.describe('African Deployment Conditions', () => {
       }
     });
     
-    await page.goto('/recorder-test-page/');
+    await page.goto('/recorder-test/');
     
     // Simulate fast retry behavior
     await page.click('[data-starmus-action="setup-mic"]');
@@ -26,7 +26,7 @@ test.describe('African Deployment Conditions', () => {
   });
 
   test('Background tab simulation', async ({ page }) => {
-    await page.goto('/recorder-test-page/');
+    await page.goto('/recorder-test/');
     
     // Start recording
     await page.click('[data-starmus-action="setup-mic"]');
@@ -54,7 +54,7 @@ test.describe('African Deployment Conditions', () => {
     // Grant microphone permission
     await context.grantPermissions(['microphone']);
     
-    await page.goto('/recorder-test-page/');
+    await page.goto('/recorder-test/');
     
     // Should work without permission dialog
     await page.click('[data-starmus-action="setup-mic"]');
@@ -62,7 +62,7 @@ test.describe('African Deployment Conditions', () => {
   });
 
   test('Network interruption during upload', async ({ page }) => {
-    await page.goto('/recorder-test-page/');
+    await page.goto('/recorder-test/');
     
     // Complete recording
     await page.click('[data-starmus-action="setup-mic"]');

@@ -20,6 +20,7 @@ if ( ! \defined('ABSPATH')) {
 final readonly class StarmusJobSearchRepository
 {
     private wpdb $db;
+
     private string $table_name;
 
     public function __construct()
@@ -84,7 +85,7 @@ final readonly class StarmusJobSearchRepository
         )
         );
 
-        return array_map([$this, 'hydrate'], $results);
+        return array_map($this->hydrate(...), $results);
     }
 
     public function get_total_count(): int

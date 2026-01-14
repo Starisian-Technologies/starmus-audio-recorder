@@ -352,16 +352,16 @@ final class StarmusAudioRecorder
             } else {
                 $this->dal = $default_recorder;
             }
+
             StarmusLogger::info('Starmus Info: StarmusAudioDAL initialized successfully.');
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
             $this->dal = new StarmusAudioDAL(); // Fail safe
         }
     }
+
     /**
      * Initialize Prosody DAL.
-     *
-     * @return void
      */
     private function init_prosody_dal(): void
     {
@@ -375,10 +375,9 @@ final class StarmusAudioRecorder
             StarmusLogger::log($throwable);
         }
     }
+
     /**
      * Set up internationalization support.
-     *
-     * @return void
      */
     private function set_i18N(): void
     {
@@ -393,6 +392,7 @@ final class StarmusAudioRecorder
             StarmusLogger::log($throwable);
         }
     }
+
     /**
      * Initialize WP-CLI commands if WP-CLI is available.
      *
@@ -414,10 +414,9 @@ final class StarmusAudioRecorder
             StarmusLogger::log($throwable);
         }
     }
+
     /**
      * Initializes frontend and admin classes
-     *
-     * @return void
      */
     private function init_views(): void
     {

@@ -135,7 +135,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
     /**
      * {@inheritdoc}
      */
-    public function get_unrecorded_scripts(int $user_id, int $posts_per_page = 10, int $paged = 1): \WP_Query
+    public function get_unrecorded_scripts(int $user_id, int $posts_per_page = 10, int $paged = 1): WP_Query
     {
         global $wpdb;
 
@@ -143,7 +143,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
             // 1. Get titles of recordings already made by this user
             // We match by title as established in StarmusProsodyPlayer::render_script_card
             $recorded_titles = $wpdb->get_col($wpdb->prepare(
-                "SELECT DISTINCT post_title FROM $wpdb->posts WHERE post_type = 'audio-recording' AND post_author = %d AND post_status = 'publish'",
+                sprintf("SELECT DISTINCT post_title FROM %s WHERE post_type = 'audio-recording' AND post_author = %%d AND post_status = 'publish'", $wpdb->posts),
                 $user_id
             ));
 
@@ -161,19 +161,19 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
                 // WP_Query doesn't have title__not_in, so we resolve to IDs.
                 $placeholders = implode(',', array_fill(0, \count($recorded_titles), '%s'));
                 $exclude_ids  = $wpdb->get_col($wpdb->prepare(
-                    "SELECT ID FROM $wpdb->posts WHERE post_type = 'starmus-script' AND post_title IN ($placeholders)", // phpcs:ignore
+                    sprintf("SELECT ID FROM %s WHERE post_type = 'starmus-script' AND post_title IN (%s)", $wpdb->posts, $placeholders), // phpcs:ignore
                     ...$recorded_titles
                 ));
 
                 if ( ! empty($exclude_ids)) {
-                    $args['post__not_in'] = array_map('absint', $exclude_ids);
+                    $args['post__not_in'] = array_map(absint(...), $exclude_ids);
                 }
             }
 
-            return new \WP_Query($args);
+            return new WP_Query($args);
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
-            return new \WP_Query(['post__in' => [0]]); // Return empty but valid query
+            return new WP_Query(['post__in' => [0]]); // Return empty but valid query
         }
     }
 

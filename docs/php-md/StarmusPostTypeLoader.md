@@ -19,7 +19,6 @@
 **Visibility:** `public`
 
 Gets the singleton instance of StarmusPostTypeLoader.
-@return StarmusPostTypeLoader|null
 
 ### `sparxStarmusRegister()`
 
@@ -29,7 +28,6 @@ Registers Custom Post Types and Taxonomies
 PHP exported from Secure Custome Fields version 6.8
 @source Secure Custom Fields Plugin source code for registerPostTypes()
 @version 6.8
-@return void
 
 ## Properties
 

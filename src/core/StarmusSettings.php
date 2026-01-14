@@ -421,8 +421,9 @@ final class StarmusSettings implements IStarmusSettings
             case 'my_recordings_page_id':
             case 'prosody_page_id':
                 if (\is_array($value)) {
-                    return array_map('absint', $value);
+                    return array_map(absint(...), $value);
                 }
+
                 return absint($value);
             case 'allowed_file_types':
                 $list = \is_array($value) ? $value : explode(',', (string) $value);

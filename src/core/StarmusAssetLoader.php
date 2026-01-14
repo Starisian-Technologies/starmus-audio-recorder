@@ -265,32 +265,24 @@ final class StarmusAssetLoader
             }
 
             // 2. Transcription
-            if (isset($final_editor_data['transcription_json'])) {
-                if (is_string($final_editor_data['transcription_json']) && strlen($final_editor_data['transcription_json']) > 200000) {
-                    $final_editor_data['transcription_json'] = null;
-                }
+            if (isset($final_editor_data['transcription_json']) && (is_string($final_editor_data['transcription_json']) && strlen($final_editor_data['transcription_json']) > 200000)) {
+                $final_editor_data['transcription_json'] = null;
             }
 
             // 3. Environment Data (Usually small)
-            if (isset($final_editor_data['environment_data'])) {
-                // Only strip if suspiciously large
-                if (is_string($final_editor_data['environment_data']) && strlen($final_editor_data['environment_data']) > 50000) {
-                    $final_editor_data['environment_data'] = null;
-                }
+            // Only strip if suspiciously large
+            if (isset($final_editor_data['environment_data']) && (is_string($final_editor_data['environment_data']) && strlen($final_editor_data['environment_data']) > 50000)) {
+                $final_editor_data['environment_data'] = null;
             }
 
             // 4. Transcript (from ShortcodeLoader)
-            if (isset($final_editor_data['transcript']) && is_array($final_editor_data['transcript'])) {
-                // If massive array of words, strip it
-                if (count($final_editor_data['transcript']) > 5000) {
-                    $final_editor_data['transcript'] = [];
-                }
+            // If massive array of words, strip it
+            if (isset($final_editor_data['transcript']) && is_array($final_editor_data['transcript']) && count($final_editor_data['transcript']) > 5000) {
+                $final_editor_data['transcript'] = [];
             }
 
-            if (isset($final_editor_data['annotations']) && is_array($final_editor_data['annotations'])) {
-                if (count($final_editor_data['annotations']) > 2000) {
-                    $final_editor_data['annotations'] = [];
-                }
+            if (isset($final_editor_data['annotations']) && is_array($final_editor_data['annotations']) && count($final_editor_data['annotations']) > 2000) {
+                $final_editor_data['annotations'] = [];
             }
 
             // Nothing simple in PHP side. We rely on GC.
