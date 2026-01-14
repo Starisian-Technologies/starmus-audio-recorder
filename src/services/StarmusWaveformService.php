@@ -119,7 +119,8 @@ final class StarmusWaveformService
         'bits'              => 8,
         'output_format'     => 'json',
         ];
-        return apply_filters('starmus_waveform_config', $defaults);
+       apply_filters('starmus_waveform_config', $defaults);
+        return $defaults;
     }
 
     /**
