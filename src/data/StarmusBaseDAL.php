@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\data;
 
+use WP_Query;
 use function current_time;
 use function get_field;
 use function get_post;
@@ -238,7 +239,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     public static function get_user_contributor_id(int $user_id): ?int
     {
         try {
-            $query = new \WP_Query([
+            $query = new WP_Query([
                 'post_type'      => 'starmus_contributor',
                 'meta_key'       => 'starmus_user_id',
                 'meta_value'     => $user_id,
@@ -248,7 +249,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
             if ($query->have_posts()) {
                 return (int) $query->posts[0];
             }
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
 

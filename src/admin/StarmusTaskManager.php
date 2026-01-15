@@ -65,23 +65,13 @@ class StarmusTaskManager
             return;
         }
 
-        wp_enqueue_style('starmus-admin-css', false);
-        wp_add_inline_style('starmus-admin-css', "
-            .starmus-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; }
-            .starmus-modal-content { background:#fff; width:500px; margin:50px auto; padding:20px; box-shadow:0 4px 10px rgba(0,0,0,0.2); border-radius:4px; }
-            .starmus-modal h2 { margin-top:0; }
-            .starmus-row { margin-bottom:15px; }
-            .starmus-row label { display:block; font-weight:bold; margin-bottom:5px; }
-            .starmus-row input, .starmus-row select, .starmus-row textarea { width:100%; box-sizing: border-box; }
-            .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; text-transform: uppercase; }
-            .status-unassigned { background: #e5e5e5; color: #555; }
-            .status-assigned { background: #b3e5fc; color: #0277bd; }
-            .status-in_progress { background: #fff9c4; color: #fbc02d; }
-            .status-submitted { background: #e1bee7; color: #7b1fa2; }
-            .status-closed { background: #c8e6c9; color: #2e7d32; }
-            .status-rejected { background: #ffcdd2; color: #c62828; }
-            .post-type-label { font-size: 10px; background: #eee; padding: 2px 5px; border-radius: 3px; margin-left: 5px; }
-        ");
+        $url = \defined('STARMUS_URL') ? STARMUS_URL : plugin_dir_url(dirname(__DIR__));
+        wp_enqueue_style(
+            'starmus-admin-css',
+            $url . 'assets/css/starmus-admin.min.css',
+            [],
+            STARMUS_VERSION
+        );
     }
 
     public function render_admin_page(): void
@@ -174,12 +164,17 @@ class StarmusTaskManager
                         <input type="submit" class="button" value="Filter">
                     </div>
                 </form>
+
+                <div class="alignleft actions bulkactions" style="margin-left:20px;">
+                    <button type="button" class="button" id="starmus-bulk-edit-btn">Bulk Assign / Edit</button>
+                </div>
             </div>
 
             <!-- Table -->
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
+                        <td id="cb" class="manage-column column-cb check-column"><input type="checkbox" id="cb-select-all-1"></td>
                         <th>Asset Title</th>
                         <th>Category</th>
                         <th>Status</th>
@@ -222,6 +217,9 @@ class StarmusTaskManager
                             ];
                             ?>
                             <tr>
+                                <th scope="row" class="check-column">
+                                    <input type="checkbox" name="post[]" class="starmus-cb" value="<?php echo $pid; ?>">
+                                </th>
                                 <td>
                                     <strong><a href="<?php echo get_edit_post_link($pid); ?>"><?php the_title(); ?></a></strong>
                                     <span class="post-type-label"><?php echo get_post_type(); ?></span>
@@ -305,7 +303,39 @@ class StarmusTaskManager
 
         <script>
             jQuery(document).ready(function($) {
-                // Open Modal
+                // Select All / Bulk Logic
+                $('#cb-select-all-1').on('click', function() {
+                    var checked = $(this).prop('checked');
+                    $('.starmus-cb').prop('checked', checked);
+                });
+
+                // Bulk Edit Button
+                $('#starmus-bulk-edit-btn').on('click', function() {
+                    var ids = [];
+                    $('.starmus-cb:checked').each(function() {
+                        ids.push($(this).val());
+                    });
+
+                    if (ids.length === 0) {
+                        alert('Please select at least one task to assign.');
+                        return;
+                    }
+
+                    // Pre-fill Modal for Bulk
+                    // We join IDs with comma to handle in PHP
+                    $('#edit_post_id').val(ids.join(','));
+
+                    // Defaults for a fresh assignment
+                    $('#edit_assign_to').val('');
+                    $('#edit_status').val('assigned');
+                    $('#edit_priority').val('normal');
+                    $('#edit_due_date').val('');
+                    $('#edit_instruct').val('');
+
+                    $('#starmus-modal').show();
+                });
+
+                // Open Modal (Single)
                 $('.starmus-edit-btn').on('click', function() {
                     var btn = $(this);
                     // Safe parsing of JSON data
@@ -319,6 +349,7 @@ class StarmusTaskManager
                     $('#edit_instruct').val(data.instruct);
                     $('#starmus-modal').show();
                 });
+
 
                 // Save via AJAX
                 $('#starmus-admin-form').on('submit', function(e) {
@@ -352,49 +383,67 @@ class StarmusTaskManager
             wp_send_json_error('Permission denied');
         }
 
-        $post_id = intval($_POST['post_id']);
-        if ( ! $post_id) {
-            wp_send_json_error('No ID');
+        // Handle single or multiple IDs (checked inputs)
+        $raw_ids = $_POST['post_id'] ?? '';
+        $post_ids = [];
+
+        if (is_array($raw_ids)) {
+            $post_ids = array_map(intval(...), $raw_ids);
+        } elseif (str_contains((string) $raw_ids, ',')) {
+            $post_ids = array_map(intval(...), explode(',', (string) $raw_ids));
+        } else {
+            $post_ids = [intval($raw_ids)];
         }
 
-        $old_status = get_post_meta($post_id, 'starmus_status', true);
-        if (empty($old_status)) {
-            $old_status = 'unassigned';
+        $post_ids = array_filter($post_ids); // Remove 0s
+
+        if ($post_ids === []) {
+            wp_send_json_error('No IDs provided');
         }
 
         $new_status = sanitize_text_field($_POST['starmus_status']);
+        $assign_to = intval($_POST['starmus_assign_to']);
+        $priority = sanitize_text_field($_POST['starmus_priority']);
+        $instruct = sanitize_textarea_field($_POST['starmus_instruct']);
+        $current_user_id = get_current_user_id();
 
         // Date Conversion: HTML5 datetime-local (Y-m-d\TH:i) -> MySQL (Y-m-d H:i:s)
         $raw_date = sanitize_text_field($_POST['starmus_due_date']);
         $mysql_date = $raw_date ? date('Y-m-d H:i:s', strtotime($raw_date)) : '';
 
-        // Update Fields
-        update_post_meta($post_id, 'starmus_assign_to', intval($_POST['starmus_assign_to']));
-        update_post_meta($post_id, 'starmus_status', $new_status);
-        update_post_meta($post_id, 'starmus_priority', sanitize_text_field($_POST['starmus_priority']));
-        update_post_meta($post_id, 'starmus_due_date', $mysql_date);
-        update_post_meta($post_id, 'starmus_instruct', sanitize_textarea_field($_POST['starmus_instruct']));
-
-        // Track Assigned By
-        update_post_meta($post_id, 'starmus_assign_by', get_current_user_id());
-
-        // Timestamp Logic
         $now = current_time('mysql');
 
-        // If becoming assigned for first time or status changed to assigned
-        if ($new_status === 'assigned' && $old_status === 'unassigned') {
-            update_post_meta($post_id, 'starmus_assign_time', $now);
-
-            // Generate Strong UUID
-            if ( ! get_post_meta($post_id, 'starmus_assign_id', true)) {
-                $uuid = wp_generate_uuid4(); // Native WP UUID
-                update_post_meta($post_id, 'starmus_assign_id', $uuid);
+        foreach ($post_ids as $post_id) {
+            $old_status = get_post_meta($post_id, 'starmus_status', true);
+            if (empty($old_status)) {
+                $old_status = 'unassigned';
             }
-        }
 
-        // If closing
-        if ($new_status === 'closed' && $old_status !== 'closed') {
-            update_post_meta($post_id, 'starmus_done_time', $now);
+            // Update Fields
+            update_post_meta($post_id, 'starmus_assign_to', $assign_to);
+            update_post_meta($post_id, 'starmus_status', $new_status);
+            update_post_meta($post_id, 'starmus_priority', $priority);
+            update_post_meta($post_id, 'starmus_due_date', $mysql_date);
+            update_post_meta($post_id, 'starmus_instruct', $instruct);
+
+            // Track Assigned By
+            update_post_meta($post_id, 'starmus_assign_by', $current_user_id);
+
+            // If becoming assigned for first time or status changed to assigned
+            if ($new_status === 'assigned' && $old_status === 'unassigned') {
+                update_post_meta($post_id, 'starmus_assign_time', $now);
+
+                // Generate Strong UUID
+                if ( ! get_post_meta($post_id, 'starmus_assign_id', true)) {
+                    $uuid = wp_generate_uuid4(); // Native WP UUID
+                    update_post_meta($post_id, 'starmus_assign_id', $uuid);
+                }
+            }
+
+            // If closing
+            if ($new_status === 'closed' && $old_status !== 'closed') {
+                update_post_meta($post_id, 'starmus_done_time', $now);
+            }
         }
 
         wp_send_json_success();
@@ -407,15 +456,14 @@ class StarmusTaskManager
 
     public function frontend_scripts(): void
     {
-        wp_enqueue_style('starmus-front-css', false);
-        wp_add_inline_style('starmus-front-css', "
-            .starmus-dashboard table { width:100%; border-collapse: collapse; margin: 20px 0; }
-            .starmus-dashboard th, .starmus-dashboard td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align:top; }
-            .starmus-dashboard th { background-color: #f2f2f2; }
-            .starmus-instruct { font-size: 0.9em; color: #555; background: #fafafa; padding: 10px; border-radius: 4px; margin-top:5px; white-space: pre-wrap; }
-            .starmus-actions { display: flex; gap: 10px; align-items: center; }
-            .starmus-meta { font-size: 0.85em; color: #888; margin-bottom: 5px; }
-        ");
+        $url = \defined('STARMUS_URL') ? STARMUS_URL : plugin_dir_url(dirname(__DIR__));
+
+        wp_enqueue_style(
+            'starmus-front-css',
+            $url . 'assets/css/starmus-dashboard.min.css',
+            [],
+            '0.9.3'
+        );
 
         wp_enqueue_script('jquery');
     }

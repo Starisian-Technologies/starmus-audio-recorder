@@ -1,0 +1,47 @@
+/**
+ * Starmus Frontend Dashboard Styles
+ *
+ * Styles for the Starmus Task Manager frontend dashboard.
+ *
+ * @package Starisian\Sparxstar\Starmus\admin
+ */
+
+.starmus-dashboard table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 20px 0;
+}
+
+.starmus-dashboard th,
+.starmus-dashboard td {
+	border: 1px solid #ddd;
+	padding: 12px;
+	text-align: left;
+	vertical-align: top;
+}
+
+.starmus-dashboard th {
+	background-color: #f2f2f2;
+}
+
+.starmus-instruct {
+	font-size: 0.9em;
+	color: #555;
+	background: #fafafa;
+	padding: 10px;
+	border-radius: 4px;
+	margin-top: 5px;
+	white-space: pre-wrap;
+}
+
+.starmus-actions {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.starmus-meta {
+	font-size: 0.85em;
+	color: #888;
+	margin-bottom: 5px;
+}

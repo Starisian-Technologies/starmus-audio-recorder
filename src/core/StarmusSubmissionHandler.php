@@ -205,6 +205,8 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
 
     /**
      * Handles multipart chunk uploads via REST API.
+     *
+     * @return array<string, mixed>|WP_Error
      */
     public function handle_upload_chunk_rest_multipart(WP_REST_Request $request): array|WP_Error
     {
@@ -213,6 +215,8 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
 
     /**
      * Handles base64 encoded uploads via REST API (Legacy).
+     *
+     * @return array<string, mixed>|WP_Error
      */
     public function handle_upload_chunk_rest_base64(WP_REST_Request $request): array|WP_Error
     {
@@ -276,7 +280,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
      * finalization method with proper error handling.
      *
      * @param string $file_path Absolute path to the uploaded file on disk
-     * @param array $form_data Sanitized form submission data with metadata
+     * @param array<string, mixed> $form_data Sanitized form submission data with metadata
      *
      * @since 1.0.0
      * @see _finalize_from_local_disk() Internal finalization implementation
@@ -296,7 +300,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
      * @throws WP_Error 415 If MIME type not allowed
      * @throws WP_Error 500 If file operations or processing fail
      *
-     * @return array|WP_Error Success data with attachment/post IDs or error object
+     * @return array<string, mixed>|WP_Error Success data with attachment/post IDs or error object
      */
     public function process_completed_file(string $file_path, array $form_data): array|WP_Error
     {
@@ -339,7 +343,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
      * @throws WP_Error move_failed If file cannot be moved
      * @throws WP_Error server_error If DAL operations fail
      *
-     * @return array|WP_Error Success data or error object
+     * @return array<string, mixed>|WP_Error Success data or error object
      */
     private function _finalize_from_local_disk(string $file_path, array $form_data): array|WP_Error
     {
@@ -498,7 +502,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
      * @throws WP_Error upload_error If browser upload failed
      * @throws WP_Error server_error If processing fails
      *
-     * @return array|WP_Error Success response or error object
+     * @return array<string, mixed>|WP_Error Success response or error object
      */
     public function handle_fallback_upload_rest(WP_REST_Request $request): array|WP_Error
     {
@@ -579,8 +583,8 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
      * chunked uploads are not available. Uses WordPress core media handling
      * functions with DAL abstraction for consistency.
      *
-     * @param array $files_data $_FILES array data from request
-     * @param array $form_data Sanitized form submission data
+     * @param array<string, mixed> $files_data $_FILES array data from request
+     * @param array<string, mixed> $form_data Sanitized form submission data
      * @param string $file_key Detected file field key from files array
      *
      * @since 1.0.0
@@ -603,7 +607,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
      * @throws WP_Error missing_file If file field is empty
      * @throws WP_Error server_error If DAL operations fail
      *
-     * @return array|WP_Error Success data with redirect URL or error
+     * @return array<string, mixed>|WP_Error Success data with redirect URL or error
      */
     public function process_fallback_upload(array $files_data, array $form_data, string $file_key): array|WP_Error
     {
@@ -1021,9 +1025,9 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
     /**
      * Sanitizes form submission data using central sanitizer.
      *
-     * @param array $data Raw form submission data
+     * @param array<string, mixed> $data Raw form submission data
      *
-     * @return array Sanitized submission data
+     * @return array<string, mixed> Sanitized submission data
      *
      * @since 1.0.0
      * @see StarmusSanitizer::sanitize_submission_data()

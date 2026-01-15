@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Starisian\Sparxstar\Starmus\services;
 
+use Throwable;
 use Aws\S3\S3Client;
 use Exception;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
@@ -42,7 +43,7 @@ final class StarmusR2DirectService
             } else {
                 $this->configureR2();
             }
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
     }
@@ -205,7 +206,7 @@ final class StarmusR2DirectService
                 $tags['comment'] = [($tags['comment'][0] ?? '') . ' [R2-Africa]'];
                 $this->id3_service->writeTags($destination, $tags);
             }
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
     }
