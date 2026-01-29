@@ -118,7 +118,7 @@
     },
     "dependencies": {
         "axios": "latest",
-        "core-js": "^3.47.0",
+        "core-js": "^3.48.0",
         "konva": "latest",
         "peaks.js": "latest",
         "tus-js-client": "latest",
