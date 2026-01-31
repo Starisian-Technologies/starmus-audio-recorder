@@ -7,123 +7,123 @@
  */
 
 .starmus-modal {
-	display: none;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.5);
-	z-index: 9999;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
 }
 
 .starmus-modal-content {
-	background: #fff;
-	width: 500px;
-	margin: 50px auto;
-	padding: 20px;
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-	border-radius: 4px;
+    background: #fff;
+    width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
 }
 
 .starmus-modal h2 {
-	margin-top: 0;
-	font-size: 1.5em;
-	border-bottom: 1px solid #eee;
-	padding-bottom: 15px;
-	margin-bottom: 20px;
+    margin-top: 0;
+    font-size: 1.5em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .starmus-row {
-	margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .starmus-row label {
-	display: block;
-	font-weight: 600;
-	margin-bottom: 8px;
-	color: #444;
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #444;
 }
 
 .starmus-row input[type="text"],
 .starmus-row input[type="datetime-local"],
 .starmus-row select,
 .starmus-row textarea {
-	width: 100%;
-	box-sizing: border-box;
-	padding: 10px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	font-size: 14px;
-	line-height: 1.4;
-	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.4;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .starmus-row select {
-	height: 40px;
+    height: 40px;
 }
 
 .starmus-row textarea {
-	min-height: 100px;
-	resize: vertical;
+    min-height: 100px;
+    resize: vertical;
 }
 
 .starmus-row input:focus,
 .starmus-row select:focus,
 .starmus-row textarea:focus {
-	border-color: #2271b1;
-	box-shadow: 0 0 0 1px #2271b1;
-	outline: none;
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
 }
 
 .starmus-modal-content .button-primary {
-	padding: 5px 20px;
-	height: auto;
-	font-size: 14px;
+    padding: 5px 20px;
+    height: auto;
+    font-size: 14px;
 }
 
 .status-badge {
-	padding: 4px 8px;
-	border-radius: 4px;
-	font-weight: 600;
-	font-size: 11px;
-	text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
 }
 
 .status-unassigned {
-	background: #e5e5e5;
-	color: #555;
+    background: #e5e5e5;
+    color: #555;
 }
 
 .status-assigned {
-	background: #b3e5fc;
-	color: #0277bd;
+    background: #b3e5fc;
+    color: #0277bd;
 }
 
 .status-in_progress {
-	background: #fff9c4;
-	color: #fbc02d;
+    background: #fff9c4;
+    color: #fbc02d;
 }
 
 .status-submitted {
-	background: #e1bee7;
-	color: #7b1fa2;
+    background: #e1bee7;
+    color: #7b1fa2;
 }
 
 .status-closed {
-	background: #c8e6c9;
-	color: #2e7d32;
+    background: #c8e6c9;
+    color: #2e7d32;
 }
 
 .status-rejected {
-	background: #ffcdd2;
-	color: #c62828;
+    background: #ffcdd2;
+    color: #c62828;
 }
 
 .post-type-label {
-	font-size: 10px;
-	background: #eee;
-	padding: 2px 5px;
-	border-radius: 3px;
-	margin-left: 5px;
+    font-size: 10px;
+    background: #eee;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-left: 5px;
 }

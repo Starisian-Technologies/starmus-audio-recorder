@@ -146,10 +146,10 @@ export function initAutoMetadata(store, formEl, _options) {
         // 1. Calibration Data
         const calData = cal.complete
             ? {
-                gain: cal.gain,
-                speechLevel: cal.speechLevel,
-                message: cal.message,
-            }
+                  gain: cal.gain,
+                  speechLevel: cal.speechLevel,
+                  message: cal.message,
+              }
             : {};
         updateField(formEl, "_starmus_calibration", calData);
 

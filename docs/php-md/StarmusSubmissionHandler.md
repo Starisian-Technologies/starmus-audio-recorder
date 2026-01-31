@@ -170,12 +170,14 @@ successful construction. Throws exceptions on setup failures.
 **Visibility:** `public`
 
 Handles multipart chunk uploads via REST API.
+@return array<string, mixed>|WP_Error
 
 ### `handle_upload_chunk_rest_base64()`
 
 **Visibility:** `public`
 
 Handles base64 encoded uploads via REST API (Legacy).
+@return array<string, mixed>|WP_Error
 
 ### `process_completed_file()`
 
@@ -186,7 +188,7 @@ Main entry point for processing uploaded files that are already on disk,
 typically from TUS daemon webhook callbacks. Delegates to internal
 finalization method with proper error handling.
 @param string $file_path Absolute path to the uploaded file on disk
-@param array $form_data Sanitized form submission data with metadata
+@param array<string, mixed> $form_data Sanitized form submission data with metadata
 @since 1.0.0
 @see _finalize_from_local_disk() Internal finalization implementation
 Success Response:
@@ -202,7 +204,7 @@ Success Response:
 @throws WP_Error 413 If file exceeds size limits
 @throws WP_Error 415 If MIME type not allowed
 @throws WP_Error 500 If file operations or processing fail
-@return array|WP_Error Success data with attachment/post IDs or error object
+@return array<string, mixed>|WP_Error Success data with attachment/post IDs or error object
 
 ### `handle_fallback_upload_rest()`
 
@@ -263,7 +265,7 @@ Supported File Keys (Priority Order):
 @throws WP_Error missing_file If no valid file provided
 @throws WP_Error upload_error If browser upload failed
 @throws WP_Error server_error If processing fails
-@return array|WP_Error Success response or error object
+@return array<string, mixed>|WP_Error Success response or error object
 
 ### `process_fallback_upload()`
 
@@ -273,8 +275,8 @@ Processes traditional file uploads using WordPress media functions.
 Handles sideloaded file uploads for fallback scenarios when TUS or
 chunked uploads are not available. Uses WordPress core media handling
 functions with DAL abstraction for consistency.
-@param array $files_data $_FILES array data from request
-@param array $form_data Sanitized form submission data
+@param array<string, mixed> $files_data $_FILES array data from request
+@param array<string, mixed> $form_data Sanitized form submission data
 @param string $file_key Detected file field key from files array
 @since 1.0.0
 Required WordPress Functions:
@@ -291,7 +293,7 @@ Response Includes:
 - redirect_url: User-facing success page URL
 @throws WP_Error missing_file If file field is empty
 @throws WP_Error server_error If DAL operations fail
-@return array|WP_Error Success data with redirect URL or error
+@return array<string, mixed>|WP_Error Success data with redirect URL or error
 
 ### `save_all_metadata()`
 
@@ -347,8 +349,8 @@ and fallback to default value.
 **Visibility:** `public`
 
 Sanitizes form submission data using central sanitizer.
-@param array $data Raw form submission data
-@return array Sanitized submission data
+@param array<string, mixed> $data Raw form submission data
+@return array<string, mixed> Sanitized submission data
 @since 1.0.0
 @see StarmusSanitizer::sanitize_submission_data()
 

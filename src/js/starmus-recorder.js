@@ -69,14 +69,14 @@ class LanguageSignalAnalyzer {
         }
 
         switch (this.country) {
-        case "GM":
-            return ["en-US"]; // Gambia - English probe only
-        case "SN":
-        case "GN":
-        case "ML":
-            return ["fr-FR"]; // Francophone - French probe only
-        default:
-            return ["en-US"]; // Unknown - English fallback
+            case "GM":
+                return ["en-US"]; // Gambia - English probe only
+            case "SN":
+            case "GN":
+            case "ML":
+                return ["fr-FR"]; // Francophone - French probe only
+            default:
+                return ["en-US"]; // Unknown - English fallback
         }
     }
 
@@ -159,7 +159,9 @@ class LanguageSignalAnalyzer {
                     rec.stop();
                 } catch (_e) {
                     if (sparxstarIntegration.isAvailable) {
-                        sparxstarIntegration.reportError("media_recorder_stop_error", { error: _e });
+                        sparxstarIntegration.reportError("media_recorder_stop_error", {
+                            error: _e,
+                        });
                     }
                 }
             }, this.maxDuration);
@@ -616,7 +618,9 @@ function initRecorder(store, instanceId) {
                 } catch (e) {
                     console.debug("[ANALYZER]", "disconnect failed");
                     if (sparxstarIntegration.isAvailable) {
-                        sparxstarIntegration.reportError("audio_node_disconnect_failed", { error: e });
+                        sparxstarIntegration.reportError("audio_node_disconnect_failed", {
+                            error: e,
+                        });
                     }
                 }
                 recorderRegistry.delete(instanceId);

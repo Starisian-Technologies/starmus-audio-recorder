@@ -238,7 +238,9 @@ class _SmartAudioPlayer {
             } catch (e) {
                 /* Ignore disconnect errors */
                 if (window.SparxstarIntegration && window.SparxstarIntegration.isAvailable) {
-                    window.SparxstarIntegration.reportError("audio_node_disconnect_failed", { error: e });
+                    window.SparxstarIntegration.reportError("audio_node_disconnect_failed", {
+                        error: e,
+                    });
                 }
             }
         }

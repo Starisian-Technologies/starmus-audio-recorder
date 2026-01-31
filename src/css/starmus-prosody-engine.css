@@ -1,514 +1,175 @@
-/* =========================================
-   STARMUS PROSODY ENGINE
-   Theme: Cognitive Regulator (Dark/Light)
-   Mobile First + Localization + Monospace Engine
-   ========================================= */
+/* =========================================================
+   STARMUS PROSODY ENGINE: DARK-FIRST TACTILE SYSTEM
+   Default: Dark Mode (Charcoal Paper)
+   Option: Light Mode (Cream Paper)
+   Logic: Palette-Driven with Africa-Ready Hex Fallbacks
+   ========================================================= */
 
-/* =========================================
-   GLOBAL VARIABLES
-   ========================================= */
 :root {
-    --color-scheme: dark;
-    --bg-surface: #121212;
-    --bg-panel: #1a1a1a;
-    --text-dim: #444;
-    --text-lit: #e0e0e0;
-    --accent: #ffd700;
-    --ui-border: #333;
+    /* --- 1. DARK MODE DEFAULTS (The Standard) --- */
+    /* Theme mapping with safe dark-palette hex fallbacks */
+    --p-base: var(--wp--preset--color--base, #121212);
+    --p-base-two: var(--wp--preset--color--base-two, #1a1a1a);
+    --p-contrast: var(--wp--preset--color--contrast, #e0e0e0);
+    --p-accent: var(--wp--preset--color--accent, #ffd700); /* Gold accent for dark reading */
+    --p-border: #333333;
 
-    /* Font Families */
-    --font-stack: "Noto Sans", sans-serif;
-    --font-mono: "Noto Sans Mono", monospace;
-    --font-jp: "Noto Sans JP", sans-serif;
-    --font-ar: "Noto Naskh Arabic", serif;
-    --font-am: "Noto Sans Ethiopic", sans-serif;
-    --font-zh: "Noto Sans SC", sans-serif;
+    /* Shadows for Dark Surface (Deep & Sharp) */
+    --p-shadow-raised: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    --p-shadow-recessed: inset 2px 2px 5px rgba(0, 0, 0, 0.6);
+    --p-shadow-lift: 0 10px 20px rgba(0, 0, 0, 0.6);
+    --p-shadow-contrast-tint: rgba(0, 0, 0, 0.3);
 
-    /* UI Variables */
-    --unit-spacing: 2.2;
-    --tap-zone-size: 220px;
-    --text-base: clamp(0.9rem, 2vw, 1.15rem);
-
-    /* Component Colors (Dark Default) */
-    --btn-bg: #333;
-    --btn-text: #fff;
-    --btn-hover: #444;
-    --tap-bg-hover: #161616;
-    --tap-bg-active: #333;
+    /* Fonts */
+    --p-font-stack: "Noto Sans", system-ui, sans-serif;
+    --p-font-mono: "Noto Sans Mono", monospace;
 }
 
-/* Light Mode (auto or manual) */
+/* --- 2. LIGHT MODE OVERRIDES (The Option) --- */
+/* Triggers if the system is light OR the .light-mode class is present */
 @media (prefers-color-scheme: light) {
-    :root {
-        --color-scheme: light;
-        --bg-surface: #fafafa;
-        --bg-panel: #fff;
-        --text-dim: #888;
-        --text-lit: #222;
-        --accent: #246bf8;
-        --ui-border: #ccc;
+    :root:not(.dark-mode) {
+        --p-base: var(--wp--preset--color--base, #fcffe7);
+        --p-base-two: var(--wp--preset--color--base-two, #f5f5e0);
+        --p-contrast: var(--wp--preset--color--contrast, #180205);
+        --p-accent: var(--wp--preset--color--accent, #8e3b46); /* Earthy red for light reading */
+        --p-border: #c6c3b8;
 
-        /* Component Colors (Light) */
-        --btn-bg: #e0e0e0;
-        --btn-text: #111;
-        --btn-hover: #d0d0d0;
-        --tap-bg-hover: #f0f0f0;
-        --tap-bg-active: #e8e8e8;
+        /* Shadows for Light Surface (Soft Ink Tints) */
+        --p-shadow-raised: 0 1px 3px rgba(24, 2, 5, 0.12);
+        --p-shadow-recessed: inset 0 2px 4px rgba(24, 2, 5, 0.15);
+        --p-shadow-lift: 0 4px 12px rgba(24, 2, 5, 0.15);
+        --p-shadow-contrast-tint: rgba(24, 2, 5, 0.1);
     }
 }
 
+/* Manual .light-mode class trigger */
 .light-mode {
-    --color-scheme: light;
-    --bg-surface: #fafafa;
-    --bg-panel: #fff;
-    --text-dim: #888;
-    --text-lit: #222;
-    --accent: #246bf8;
-    --ui-border: #ccc;
-
-    /* Component Colors (Light) */
-    --btn-bg: #e0e0e0;
-    --btn-text: #111;
-    --btn-hover: #d0d0d0;
-    --tap-bg-hover: #f0f0f0;
-    --tap-bg-active: #e8e8e8;
-}
-
-.dark-mode {
-    --color-scheme: dark;
-    --bg-surface: #121212;
-    --bg-panel: #1a1a1a;
-    --text-dim: #444;
-    --text-lit: #e0e0e0;
-    --accent: #ffd700;
-    --ui-border: #333;
+    --p-base: var(--wp--preset--color--base, #fcffe7);
+    --p-base-two: var(--wp--preset--color--base-two, #f5f5e0);
+    --p-contrast: var(--wp--preset--color--contrast, #180205);
+    --p-accent: var(--wp--preset--color--accent, #8e3b46);
+    --p-border: #c6c3b8;
+    --p-shadow-raised: 0 1px 3px rgba(24, 2, 5, 0.12);
+    --p-shadow-recessed: inset 0 2px 4px rgba(24, 2, 5, 0.15);
+    --p-shadow-lift: 0 4px 12px rgba(24, 2, 5, 0.15);
 }
 
 /* =========================================
-   LAYER 0: HTML + BODY + TEXT BASE
+   3. LOSSLESS COMPONENT STYLES
    ========================================= */
-html,
-body {
-    margin: 0;
-    padding: 0;
-    font-size: var(--text-base);
-    font-family: var(--font-stack);
-    background: var(--bg-surface);
-    color: var(--text-dim);
-}
 
-/* --- CONTAINER SHELL --- */
 #cognitive-regulator {
-    background-color: var(--bg-surface);
-    color: var(--text-dim);
-    font-family: var(--font-stack);
-    height: 60vh;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    position: relative;
+    background-color: var(--p-base) !important;
+    color: var(--p-contrast) !important;
+    font-family: var(--p-font-stack) !important;
+    border: 1px solid var(--p-border);
+    border-radius: 8px;
     overflow: hidden;
-    user-select: none;
+    position: relative;
+    /* Transition for mood-switching */
+    transition:
+        background-color 0.4s ease,
+        color 0.4s ease;
 }
 
-/* =========================================
-   LAYER 1: CALIBRATION (Overlay)
-   ========================================= */
 #calibration-layer {
-    position: absolute;
-    inset: 0;
-    background: var(--bg-surface);
-    z-index: 200;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.5s ease;
-}
-
-#calibration-layer.fade-out {
-    opacity: 0;
-    pointer-events: none;
+    background: var(--p-base) !important;
 }
 
 .tap-zone {
-    width: var(--tap-zone-size);
-    height: var(--tap-zone-size);
-    border: 2px solid var(--ui-border);
-    border-radius: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.1s ease;
+    background: var(--p-base-two) !important;
+    border: 2px solid var(--p-border) !important;
+    box-shadow: var(--p-shadow-raised) !important;
+    width: clamp(160px, 40vw, 220px) !important;
+    height: clamp(160px, 40vw, 220px) !important;
 }
 
-.tap-zone:hover {
-    border-color: var(--text-dim);
-    background: var(--tap-bg-hover);
-}
-
-.tap-zone.flash,
-.tap-zone:active {
-    background: var(--tap-bg-active);
-    border-color: var(--text-dim);
-    transform: scale(0.96);
-}
-
-.tap-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-    filter: grayscale(1);
+.tap-zone:active,
+.tap-zone.flash {
+    box-shadow: var(--p-shadow-recessed) !important;
+    background: var(--p-base) !important;
 }
 
 .tap-label {
-    font-size: 14px;
-    letter-spacing: 3px;
-    color: var(--text-lit);
-    font-weight: 700;
+    color: var(--p-contrast) !important;
+    font-family: var(--p-font-stack) !important;
 }
 
-.tap-sub {
-    font-size: 11px;
-    color: #666;
-    margin-top: 8px;
-    text-transform: uppercase;
-}
-
-.tap-feedback {
-    margin-top: 2rem;
-    color: var(--accent);
-    font-family: sans-serif;
-    font-size: 13px;
-    letter-spacing: 1px;
-    min-height: 20px;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-#calibration-layer::after {
-    content: "OR PRESS [SPACE]";
-    position: absolute;
-    bottom: 40px;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: #444;
-}
-
-/* =========================================
-   LAYER 2: THE STAGE (Text Flow)
-   ========================================= */
-#scaffold-stage {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 0 clamp(10px, 5vw, 200px);
-    display: flex;
-    flex-direction: column;
-    scroll-behavior: smooth;
-    position: relative;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-#scaffold-stage::-webkit-scrollbar {
-    display: none;
-}
-
-#scaffold-stage.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
+/* Prosodic Stage (Monospace Rhythmic engine) */
 #text-flow {
-    position: relative;
-    padding-top: 35vh;
-    padding-bottom: 40vh;
-    font-size: 26px;
-    line-height: var(--unit-spacing);
-    text-align: center;
-    font-family: var(--font-mono); /* ✅ Noto Mono for precision */
+    font-family: var(--p-font-mono) !important;
+    line-height: 2 !important;
 }
 
-/* --- PROSODIC UNITS --- */
-.prosodic-unit {
-    display: inline-block;
-    padding: 2px 8px;
-    margin: 4px 2px;
-    border-radius: 4px;
-    transition:
-        color 0.3s,
-        opacity 0.3s,
-        transform 0.3s;
-    cursor: crosshair;
-    font-family: var(--font-mono); /* ✅ Monospace inside rhythm engine */
+.prosodic-unit.current {
+    color: var(--p-accent) !important;
+    opacity: 1 !important;
+    font-weight: 700 !important;
+    /* Soft palette-aware highlight */
+    background: rgba(255, 215, 0, 0.12) !important;
+    box-shadow: 0 4px 12px var(--p-shadow-contrast-tint) !important;
 }
 
 .prosodic-unit.future,
 .prosodic-unit.past {
-    color: var(--text-dim);
-    opacity: 0.3;
-    filter: blur(0.4px);
+    color: var(--p-contrast) !important;
+    opacity: 0.3 !important;
 }
 
-.prosodic-unit.current {
-    color: var(--text-lit);
-    opacity: 1;
-    font-weight: 700;
-    filter: blur(0);
-    background: rgb(255 255 255 / 5%);
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
-}
-
+/* Silence Beats */
 .prosodic-unit.silence-beat {
-    color: var(--accent);
-    font-weight: bold;
-    min-width: 60px;
-    height: 40px;
-    border: 1px dashed var(--ui-border);
-    margin: 0 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    vertical-align: middle;
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    font-size: 24px;
+    border: 1px dashed var(--p-border) !important;
+    color: var(--p-accent) !important;
 }
 
-.prosodic-unit.silence-beat.current {
-    border-color: var(--accent);
-    background: rgb(255 215 0 / 10%);
-    transform: scale(1.1);
-    box-shadow: 0 0 15px rgb(255 215 0 / 20%);
-}
-
-.spacer {
-    height: 50vh;
-}
-
-/* =========================================
-   LAYER 3: CONTROLS (The Deck)
-   ========================================= */
+/* Control Deck (The Footer) */
 .control-deck {
-    background: var(--bg-panel);
-    border-top: 1px solid var(--ui-border);
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    z-index: 100;
-    transition:
-        opacity 0.8s ease,
-        transform 0.8s ease;
-}
-
-.control-deck.hidden {
-    opacity: 0;
-    transform: translateY(20px);
-    pointer-events: none;
+    background: var(--p-base-two) !important;
+    border-top: 1px solid var(--p-border) !important;
 }
 
 .neutral-btn {
-    background: var(--btn-bg);
-    color: var(--btn-text);
-    border: none;
-    padding: 10px 16px;
-    font-family: var(--font-stack);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    min-width: 100px;
-    font-size: 13px;
-    border-radius: 4px;
-    transition: background 0.2s;
-}
-
-.neutral-btn:hover {
-    background: var(--btn-hover);
+    background: var(--p-base) !important;
+    color: var(--p-contrast) !important;
+    box-shadow: var(--p-shadow-raised) !important;
+    font-family: var(--p-font-stack) !important;
 }
 
 .neutral-btn.active {
-    background: #e0e0e0;
-    color: #111;
+    background: var(--p-accent) !important;
+    color: var(--p-base) !important; /* Inverted for high contrast */
+    box-shadow: var(--p-shadow-recessed) !important;
 }
 
-.neutral-btn.icon-only {
-    min-width: unset;
-    width: 50px;
-    max-width: 50px;
-    padding: 10px 0;
-    flex-grow: 0 !important; /* Rigid width */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.fader-group {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #666;
-    font-size: 9px;
-    text-transform: uppercase;
-    font-weight: bold;
-}
-
+/* Pace Slider (Africa/Mobile Support) */
 #pace-regulator {
-    flex-grow: 1;
-    accent-color: #888;
-    height: 4px;
-    background: #333;
-    border-radius: 2px;
-    appearance: none;
-    outline: none;
+    accent-color: var(--p-accent) !important;
 }
 
 #pace-regulator::-webkit-slider-thumb {
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    background: #bbb;
-    border-radius: 50%;
-    cursor: pointer;
-    transition:
-        background 0.2s,
-        transform 0.2s;
-}
-
-#pace-regulator::-webkit-slider-thumb:hover {
-    background: #fff;
-    transform: scale(1.1);
-}
-
-.secondary-text-btn {
-    background: none;
-    border: none;
-    color: #444;
-    cursor: pointer;
-    font-family: var(--font-stack);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 4px;
-    min-width: 60px;
-}
-
-.secondary-text-btn .dashicons {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    opacity: 0.7;
-}
-
-.secondary-text-btn .re-tap-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-}
-
-.secondary-text-btn:hover {
-    color: #888;
-}
-
-.secondary-text-btn:hover .dashicons {
-    opacity: 1;
+    background: var(--p-accent) !important;
+    border: 2px solid var(--p-base);
+    box-shadow: var(--p-shadow-raised);
 }
 
 /* =========================================
-   LOCALIZATION FONT RULES
+   LOCALIZATION & ACCESSIBILITY
    ========================================= */
-[lang="ja"] {
-    font-family: var(--font-jp);
-}
-
 [lang="ar"],
 .localized-text.ar {
-    font-family: var(--font-ar);
-    direction: rtl;
+    font-family: "Noto Naskh Arabic", serif !important;
 }
-
 [lang="am"],
 .localized-text.am {
-    font-family: var(--font-am);
+    font-family: "Noto Sans Ethiopic", sans-serif !important;
 }
 
-[lang="zh"],
-.localized-text.zh {
-    font-family: var(--font-zh);
-}
-
-/* =========================================
-   RESPONSIVE: Mobile-First
-   ========================================= */
-@media (width <= 600px) {
-    :root {
-        --tap-zone-size: 160px;
-        --unit-spacing: 1.5;
-    }
-
-    #text-flow {
-        font-size: 20px;
-        padding-top: 30vh;
-        padding-bottom: 35vh;
-    }
-
-    .prosodic-unit.silence-beat {
-        font-size: 16px;
-        min-width: 40px;
-        height: 30px;
-    }
-
+@media (prefers-reduced-motion: reduce) {
+    .prosodic-unit,
+    .tap-zone,
     .control-deck {
-        flex-flow: row nowrap; /* Force single row */
-        gap: 8px;
-        padding: 8px;
-        justify-content: space-between;
-    }
-
-    .neutral-btn {
-        /* Default buttons can shrink/grow, but icon-only are fixed */
-        padding: 8px;
-    }
-
-    /* Hide labels on mobile to fit slider in single row */
-    .fader-group .fader-label {
-        display: none;
-    }
-
-    .fader-group {
-        order: unset;
-        width: auto;
-        padding-top: 0;
-        border-top: none;
-        flex-grow: 1; /* Ensure slider takes center stage */
-    }
-
-    .secondary-text-btn {
-        order: unset;
+        transition: none !important;
+        animation: none !important;
     }
 }
-
-/* =========================================
-   PROGRESSIVE ENHANCEMENTS
-   ========================================= */
-@supports (backdrop-filter: blur(8px)) {
-    .tap-zone.flash {
-        backdrop-filter: blur(8px);
-    }
-
-    .prosodic-unit.current {
-        backdrop-filter: blur(2px);
-    }
-}
-
-/* DEPRECATED: Grid Layout was breaking single-line requirement */
-
-/* Keeping fallback logic minimally invasive */
-

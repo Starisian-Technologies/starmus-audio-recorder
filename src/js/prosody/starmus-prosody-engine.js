@@ -263,12 +263,16 @@ class RhythmEngine {
 
         if (this.isPlaying) {
             icon.innerText = "II";
-            if (label) {label.innerText = "PAUSE FLOW";}
+            if (label) {
+                label.innerText = "PAUSE FLOW";
+            }
             this.els.playBtn.title = "Pause Flow";
             this.els.playBtn.classList.add("active");
         } else {
             icon.innerText = "▶";
-            if (label) {label.innerText = "ENGAGE FLOW";}
+            if (label) {
+                label.innerText = "ENGAGE FLOW";
+            }
             this.els.playBtn.title = "Test Flow";
             this.els.playBtn.classList.remove("active");
         }
@@ -278,7 +282,9 @@ class RhythmEngine {
      * CALIBRATION LOGIC
      */
     recordTap() {
-        if (this.calibrationLocked) {return;}
+        if (this.calibrationLocked) {
+            return;
+        }
 
         const now = Date.now();
         this.els.tapZone.classList.add("flash");

@@ -114,7 +114,7 @@ final readonly class StarmusPostProcessingService
 Data Access Layer for WordPress operations.
 @since 1.0.0
 /
-    private StarmusAudioDAL $dal;
+    private IStarmusAudioDAL $dal;
 
     /**
 Waveform generation service for visualization data.
