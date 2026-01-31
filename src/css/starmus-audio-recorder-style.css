@@ -1,182 +1,168 @@
 /* =========================================================
-   SPARXSTAR COMPONENT SYSTEM (Production Ready)
-   Logic: Layout + Functional Logic in Plugin.
-   Identity + Texture in Theme.
+   STARMUS PRODUCTION REFACTOR (Selector-Preserving)
+   Logic: Standard Plugin Selectors + Tactile Design Pattern
+   Alignment: Fixed width/padding for forms
    ========================================================= */
 
 :root {
-    /* --- THEME TOKENS --- */
-    --sparxstar-clr-base:     var(--wp--preset--color--base);
-    --sparxstar-clr-surface:  var(--wp--preset--color--base-2, var(--wp--preset--color--base));
-    --sparxstar-clr-contrast: var(--wp--preset--color--contrast);
-    --sparxstar-clr-accent:   var(--wp--preset--color--accent);
+    /* --- THEME INHERITANCE --- */
+    --s-base:     var(--wp--preset--color--base);
+    --s-surface:  var(--wp--preset--color--base-2, var(--wp--preset--color--base));
+    --s-contrast: var(--wp--preset--color--contrast);
+    --s-accent:   var(--wp--preset--color--accent);
 
-    /* --- SEMANTIC COLORS (Functional - Fixed) --- */
-    --sparxstar-clr-success: #16a34a;
-    --sparxstar-clr-warning: #ea580c;
-    --sparxstar-clr-danger:  #b91c1c;
-
-    /* --- THEME SHADOWS (Fallbacks to flat if theme is empty) --- */
-    --sparxstar-shd-raised:   var(--wp--custom--shadow--raised, 0 4px 10px rgba(0,0,0,0.1));
-    --sparxstar-shd-embossed: var(--wp--custom--shadow--embossed, inset 2px 2px 4px rgba(0,0,0,0.1));
-    --sparxstar-shd-flat:     var(--wp--custom--shadow--flat, 0 10px 30px rgba(0,0,0,0.05));
+    /* --- TACTILE TOKENS (Material & Neumorphic) --- */
+    --shadow-raised:   rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    --shadow-active:   rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    --shadow-embossed: inset 3px 3px 6px rgba(0, 0, 0, 0.2), inset -3px -3px 6px rgba(255, 255, 255, 0.1);
+    --shadow-flat:     0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 /* ---------------------------------------------------------
-   1. LAYOUT ENGINE (Grids)
+   1. LAYOUT & CARDS (Original Selectors)
    --------------------------------------------------------- */
-.sparxstar-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
+.sparxstar-glass-card,
+.starmus-glass,
+.starmus-recorder-form,
+.starmus-player-card,
+.starmus-info-card,
+.starmus-actions-card,
+.starmus-script-card {
+    background-color: var(--s-surface) !important;
+    color: var(--s-contrast) !important;
+    box-shadow: var(--shadow-flat) !important;
+    border-radius: 8px !important;
+    padding: clamp(1.5rem, 5vw, 2.5rem) !important;
+    margin-bottom: 2rem !important;
+    border: 1px solid color-mix(in srgb, var(--s-contrast), transparent 95%) !important;
+    box-sizing: border-box !important;
 }
 
-@media (min-width: 1024px) {
-    .sparxstar-grid--sidebar { grid-template-columns: 2fr 1fr; }
-    .sparxstar-grid--halves { grid-template-columns: 1fr 1fr; }
-}
-
-/* ---------------------------------------------------------
-   2. COMPONENT: CARD
-   --------------------------------------------------------- */
-.sparxstar-card {
-    background-color: var(--sparxstar-clr-surface);
-    color: var(--sparxstar-clr-contrast);
-    box-shadow: var(--sparxstar-shd-flat);
-    border: 1px solid color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 95%);
-    border-radius: 8px;
-    padding: clamp(1.5rem, 5vw, 2.5rem);
-    margin-bottom: 2rem;
-    font-family: inherit;
-}
-
-.sparxstar-card__header {
-    border-bottom: 1px solid color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 90%);
+/* Header & Title Alignment */
+.starmus-card__header, .starmus-detail__header {
+    border-bottom: 1px solid color-mix(in srgb, var(--s-contrast), transparent 90%);
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
 }
 
-/* ---------------------------------------------------------
-   3. COMPONENT: FORMS (Embossed + Requested Border)
-   --------------------------------------------------------- */
-.sparxstar-form__group { margin-bottom: 1.5rem; }
-
-.sparxstar-form__label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: inherit;
-}
-
-.sparxstar-form__control {
-    width: 100%;
-    min-height: 48px;
-    background-color: var(--sparxstar-clr-base) !important;
-    color: var(--sparxstar-clr-contrast) !important;
-    font-family: inherit;
-    font-size: 1rem;
-
-    /* Embossed Look + Subtle Design Border */
-    border: 1px solid color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 85%) !important;
-    border-radius: 12px;
-    padding: 0 1rem;
-    box-shadow: var(--sparxstar-shd-embossed) !important;
-    transition: all 0.2s ease;
-}
-
-.sparxstar-form__control:focus {
-    outline: 2px solid var(--sparxstar-clr-accent);
-    outline-offset: 2px;
-}
-
-/* ---------------------------------------------------------
-   4. COMPONENT: BUTTONS (Raised)
-   --------------------------------------------------------- */
-.sparxstar-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    padding: 0 1.5rem;
-    background-color: var(--sparxstar-clr-accent);
-    color: var(--sparxstar-clr-base);
-    box-shadow: var(--sparxstar-shd-raised);
-    border: none;
-    border-radius: 8px;
-    font-family: inherit;
+h1, h2, .starmus-card__title, .starmus-detail__header h1 {
+    font-family: "Roboto Condensed", sans-serif !important;
+    text-transform: capitalize !important; /* Forced Title Case */
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-}
-
-.sparxstar-button:active {
-    transform: translateY(1px);
-    filter: brightness(0.9);
+    color: var(--s-accent) !important;
 }
 
 /* ---------------------------------------------------------
-   5. FUNCTIONAL: RECORDER COMPONENTS (Lossless)
+   2. FORM ALIGNMENT & EMBOSSING (The "Fix")
+   --------------------------------------------------------- */
+.starmus-field-group { 
+    margin-bottom: 2rem !important; 
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+}
+
+.starmus-recorder-form label {
+    display: block !important;
+    font-size: 0.9rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 10px !important;
+    color: var(--s-contrast) !important;
+    opacity: 0.9;
+}
+
+.starmus-recorder-form input[type="text"],
+.starmus-recorder-form select,
+.starmus-recorder-form textarea {
+    width: 100% !important; /* Forces all inputs to line up */
+    min-height: 48px !important;
+    box-sizing: border-box !important; /* Ensures padding doesn't break width */
+    background-color: var(--s-base) !important;
+    color: var(--s-contrast) !important;
+    font-family: inherit;
+    font-size: 1rem !important;
+    
+    /* The Design Border + Embossed Shadow */
+    border: 1px solid color-mix(in srgb, var(--s-contrast), transparent 85%) !important;
+    border-radius: 12px !important;
+    padding: 0 16px !important;
+    box-shadow: var(--shadow-embossed) !important;
+    transition: all 0.2s ease;
+}
+
+.starmus-recorder-form textarea { height: auto !important; padding: 16px !important; }
+
+/* ---------------------------------------------------------
+   3. BUTTONS (Material Raised)
+   --------------------------------------------------------- */
+.starmus-btn, .button.starmus-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 44px !important;
+    padding: 0 24px !important;
+    background-color: var(--s-accent) !important;
+    color: var(--s-base) !important;
+    box-shadow: var(--shadow-raised) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+}
+
+.starmus-btn:active {
+    box-shadow: var(--shadow-active) !important;
+    transform: translateY(2px) !important;
+}
+
+/* ---------------------------------------------------------
+   4. RECORDER FUNCTIONAL COMPONENTS (Restored Logic)
    --------------------------------------------------------- */
 
-/* Timer: High Contrast Noto Mono */
-.sparxstar-recorder__timer {
+/* Timer: Forced Noto Mono for Rhythmic Stability */
+.starmus-timer {
     font-family: "Noto Sans Mono", monospace !important;
-    font-size: clamp(2rem, 8vw, 3.5rem);
-    font-weight: 700;
-    text-align: center;
-    color: var(--sparxstar-clr-contrast);
-    font-variant-numeric: tabular-nums;
+    font-size: 3rem !important;
+    font-weight: 700 !important;
+    color: var(--s-contrast) !important;
+    font-variant-numeric: tabular-nums !important;
 }
 
-/* Meter Bar: Semantic Audio Track */
-.sparxstar-recorder__meter {
-    height: 12px;
-    background: color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 90%);
-    border-radius: 6px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);
+/* Audio Meter Bar */
+.starmus-meter-bar {
+    height: 14px !important;
+    background: color-mix(in srgb, var(--s-contrast), transparent 90%) !important;
+    border-radius: 7px !important;
+    overflow: hidden !important;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2) !important;
 }
 
-.sparxstar-recorder__meter-fill {
-    height: 100%;
-    width: var(--audio-level, 0%);
-    background: linear-gradient(to right,
-        var(--sparxstar-clr-success) 0%,
-        var(--sparxstar-clr-warning) 70%,
-        var(--sparxstar-clr-danger) 100%
-    );
-    transition: width 0.05s linear;
+/* Meter Fill (Preserving Functional Colors) */
+.starmus-meter-bar::after {
+    background: linear-gradient(90deg, 
+        #16a34a 0%, 
+        #ea580c 70%, 
+        #b91c1c 100%
+    ) !important;
 }
 
-/* Progress Monitor */
-.sparxstar-recorder__progress {
-    width: 100%;
-    height: 6px;
-    background: color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 92%);
-    border-radius: 3px;
-    margin-top: 10px;
-}
-
-.sparxstar-recorder__progress-bar {
-    height: 100%;
-    background: var(--sparxstar-clr-accent);
-    border-radius: 3px;
-    transition: width 0.3s ease;
+/* Progress logic */
+.starmus-duration-progress {
+    background: color-mix(in srgb, var(--s-contrast), transparent 95%) !important;
+    height: 8px !important;
+    border-radius: 4px !important;
 }
 
 /* ---------------------------------------------------------
-   6. UTILITY: IMAGE CURL (Independent Effect)
+   5. IMAGE TACTILE HOVER (Independent Effect)
    --------------------------------------------------------- */
-.sparxstar-image { position: relative; z-index: 1; margin: 1.5rem 0; }
-.sparxstar-image img { width: 100%; border-radius: 4px; display: block; }
+.wp-block-image { position: relative; z-index: 1; }
 
-.sparxstar-image--curled:hover::before,
-.sparxstar-image--curled:hover::after {
+.wp-block-image:hover::before, .wp-block-image:hover::after {
     content: '';
     position: absolute;
     bottom: 12px;
@@ -187,5 +173,5 @@
     transition: all 0.3s ease;
 }
 
-.sparxstar-image--curled:hover::before { left: 15px; transform: skew(-5deg) rotate(-5deg); }
-.sparxstar-image--curled:hover::after { right: 15px; transform: skew(5deg) rotate(5deg); }
+.wp-block-image:hover::before { left: 15px; transform: skew(-5deg) rotate(-5deg); }
+.wp-block-image:hover::after { right: 15px; transform: skew(5deg) rotate(5deg); }
