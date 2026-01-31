@@ -1,169 +1,161 @@
 /* =========================================================
-   STARMUS PROSODY ENGINE: FUNCTIONAL CORE (v4.2)
-   Logic: Layout Math (Plugin) + Visual Identity (Theme)
-   Requirement: No Theming. Total Structural Restoration.
+   STARMUS PROSODY ENGINE: FUNCTIONAL MASTER
+   Logic: Restoration of Layout, Sizing, and Contrast
+   Inheritance: Design Tokens (Shadows/Colors) from Theme
    ========================================================= */
 
 :root {
-    /* --- 1. THEME INTERFACE (Inherited Paint) --- */
     --p-base:       var(--wp--preset--color--base);
     --p-surface:    var(--wp--preset--color--base-2, var(--wp--preset--color--base));
     --p-contrast:   var(--wp--preset--color--contrast);
     --p-accent:     var(--wp--preset--color--accent);
-
-    /* --- 2. THEME SHADOWS --- */
-    --p-shd-raised:   var(--wp--custom--shadow--raised);
-    --p-shd-flat:     var(--wp--custom--shadow--flat);
-    --p-shd-embossed: var(--wp--custom--shadow--embossed);
 }
 
 /* =========================================
-   LAYER 0: THE SHELL (Fixed Height & Container)
+   1. THE CONTAINER (The Shell)
    ========================================= */
 #cognitive-regulator {
-    /* Functional Requirement: Fixed height to allow layers to scroll/overlay */
-    height: 60vh !important;
-    min-height: 450px !important;
-    width: 100% !important;
     display: flex !important;
     flex-direction: column !important;
-    position: relative !important;
-    overflow: hidden !important;
-
+    height: 65vh !important; /* Functional height for stage depth */
+    min-height: 500px !important;
     background-color: var(--p-base) !important;
     color: var(--p-contrast) !important;
-    font-family: inherit;
     border-radius: 8px;
-    box-shadow: var(--p-shd-flat);
-    box-sizing: border-box !important;
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--wp--custom--shadow--flat);
 }
 
 /* =========================================
-   LAYER 1: CALIBRATION (The Functional Overlay)
-   ========================================= */
-#calibration-layer {
-    position: absolute !important;
-    inset: 0 !important;
-    z-index: 200 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: var(--p-base) !important;
-    transition: opacity 0.5s ease;
-}
-
-.tap-zone {
-    /* Functional Target: Large and centered */
-    width: clamp(160px, 40vw, 220px) !important;
-    height: clamp(160px, 40vw, 220px) !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-
-    background: var(--p-surface) !important;
-    border: 2px solid var(--p-contrast) !important;
-    box-shadow: var(--p-shd-raised) !important;
-}
-
-.tap-label { color: var(--p-contrast) !important; font-weight: 700; }
-
-/* =========================================
-   LAYER 2: THE STAGE (Rhythmic Scrolling Area)
+   2. THE STAGE (Text Priority & Visibility)
    ========================================= */
 #scaffold-stage {
     flex-grow: 1 !important;
     overflow-y: auto !important;
     display: flex !important;
     flex-direction: column !important;
-    position: relative !important;
     scrollbar-width: none;
 }
 
 #text-flow {
-    /* Functional Requirement: Monospace for metronome-like word spacing */
     font-family: "Noto Sans Mono", monospace !important;
-    font-size: clamp(1.4rem, 5vw, 2rem) !important;
-    line-height: 2 !important;
+    font-size: clamp(1.6rem, 6vw, 2.4rem) !important;
+    line-height: 1.8 !important;
     text-align: center !important;
-    padding-top: 30vh !important; /* Critical: centers text vertically in viewport */
-    padding-bottom: 30vh !important;
+    padding: 35vh 10% !important; /* Critical vertical centering */
 }
 
 .prosodic-unit {
     display: inline-block !important;
-    padding: 2px 8px !important;
-    margin: 4px !important;
-    transition: color 0.3s, opacity 0.3s !important;
+    padding: 4px 10px !important;
+    margin: 2px !important;
+    transition: all 0.3s ease !important;
+    color: var(--p-contrast) !important;
+    opacity: 0.25; /* Future/Past state */
 }
 
-/* Active State: Semantic emphasis */
+/* Functional Focus: The Reading Highlight */
 .prosodic-unit.current {
-    color: var(--p-accent) !important;
-    font-weight: 800 !important;
     opacity: 1 !important;
+    font-weight: 800 !important;
+    color: var(--p-accent) !important;
     background: color-mix(in srgb, var(--p-accent), transparent 90%) !important;
     border-radius: 4px;
-}
-
-.prosodic-unit.past, .prosodic-unit.future {
-    opacity: 0.3 !important;
+    transform: scale(1.1);
 }
 
 /* =========================================
-   LAYER 3: CONTROLS (The Deck)
+   3. CONTROL DECK (Alignment & Sizing)
    ========================================= */
 .control-deck {
     display: flex !important;
     align-items: center !important;
-    gap: 15px !important;
-    padding: 12px 20px !important;
-    z-index: 100 !important;
-
+    justify-content: center !important; /* Centered Logic */
+    gap: 20px !important;
+    padding: 1.5rem 2rem !important;
     background: var(--p-surface) !important;
     border-top: 1px solid color-mix(in srgb, var(--p-contrast), transparent 90%) !important;
+    z-index: 100;
 }
 
+/* Icon Buttons: Uniform Sizing */
 .neutral-btn {
+    width: 48px !important;
+    height: 48px !important;
     display: inline-flex !important;
-    min-height: 40px !important;
-    padding: 0 16px !important;
     align-items: center !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
+    justify-content: center !important;
+    border-radius: 4px !important;
+    border: none !important;
     cursor: pointer !important;
-
     background: var(--p-base) !important;
     color: var(--p-contrast) !important;
-    box-shadow: var(--p-shd-raised) !important;
-    border-radius: 4px;
-    border: none !important;
+    box-shadow: var(--wp--custom--shadow--raised) !important;
 }
 
-/* Pace Slider (Embossed) */
+.neutral-btn.active {
+    background: var(--p-accent) !important;
+    color: var(--p-base) !important;
+}
+
+/* The Pace Regulator (Slider Machinery) */
+.fader-group {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-grow: 0.5 !important;
+    color: var(--p-contrast) !important;
+    font-size: 0.75rem !important;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
 #pace-regulator {
     flex-grow: 1 !important;
-    accent-color: var(--p-accent) !important;
+    appearance: none !important;
     height: 8px !important;
-    appearance: none;
-    background: var(--p-base) !important;
-    box-shadow: var(--p-shd-embossed) !important;
-    border-radius: 10px;
+    border-radius: 10px !important;
+    background: color-mix(in srgb, var(--p-contrast), transparent 85%) !important;
+    box-shadow: var(--wp--custom--shadow--embossed) !important;
+    outline: none !important;
 }
 
+/* Slider Thumb: Visible & Tactile */
 #pace-regulator::-webkit-slider-thumb {
-    appearance: none;
-    width: 20px; height: 20px;
-    background: var(--p-accent);
-    border-radius: 50%;
-    box-shadow: var(--p-shd-raised);
+    appearance: none !important;
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 50% !important;
+    background: var(--p-accent) !important;
+    border: 2px solid var(--p-base) !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    cursor: pointer !important;
 }
 
 /* =========================================
-   UTILITIES
+   4. CALIBRATION OVERLAY (Stacking Fix)
    ========================================= */
-#calibration-layer.fade-out { opacity: 0; pointer-events: none; }
-#scaffold-stage.hidden { opacity: 0; }
+#calibration-layer {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 200 !important;
+    background: var(--p-base) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.tap-zone {
+    width: 200px !important;
+    height: 200px !important;
+    border-radius: 50% !important;
+    background: var(--p-surface) !important;
+    border: 3px solid var(--p-contrast) !important;
+    box-shadow: var(--wp--custom--shadow--raised) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
