@@ -1,157 +1,127 @@
 /* =========================================================
-   STARMUS PROSODY ENGINE: FUNCTIONAL REFACTOR
-   Logic: Layout in Plugin. Identity in Theme.
-   Standard: Lossless Selector Mapping • Switchable Surface
+   SPARXSTAR UNIFIED SYSTEM: LIGHT MODE ALIGNMENT
+   Logic: High-Contrast Inheritance • Monospace Function
+   Fixed: Vanishing Titles & Dark/Light Surface Sync
    ========================================================= */
 
 :root {
-    /* --- THEME ALIASING --- */
-    /* Default: Plugin assumes Dark Surface (Base = Contrast, Contrast = Base) */
-    --p-base:       var(--wp--preset--color--contrast); 
-    --p-surface:    var(--wp--preset--color--contrast-2, var(--wp--preset--color--contrast));
-    --p-contrast:   var(--wp--preset--color--base);
-    --p-accent:     var(--wp--preset--color--accent);
-
-    /* --- INHERITED IDENTITY --- */
-    --p-shd-raised:   var(--wp--custom--shadow--raised);
-    --p-shd-embossed: var(--wp--custom--shadow--embossed);
-    --p-shd-flat:     var(--wp--custom--shadow--flat);
-}
-
-/* --- LIGHT MODE OPTION --- */
-/* Swaps variables back to standard theme mapping */
-.sparxstar-theme--light, .light-mode {
-    --p-base:       var(--wp--preset--color--base);
+    /* --- 1. CORE THEME MAPPING --- */
+    /* We map variables so they change automatically based on theme */
+    --p-base:       var(--wp--preset--color--base);      /* The Paper */
     --p-surface:    var(--wp--preset--color--base-2, var(--wp--preset--color--base));
-    --p-contrast:   var(--wp--preset--color--contrast);
+    --p-contrast:   var(--wp--preset--color--contrast);  /* The Ink */
+    --p-accent:     var(--wp--preset--color--accent);    /* The Action */
+
+    /* --- 2. TACTILE SHADOW INHERITANCE --- */
+    --p-shd-raised:   var(--wp--custom--shadow--raised, 0 4px 10px rgba(0,0,0,0.1));
+    --p-shd-embossed: var(--wp--custom--shadow--embossed, inset 2px 2px 4px rgba(0,0,0,0.1));
+    --p-shd-flat:     var(--wp--custom--shadow--flat, 0 10px 30px rgba(0,0,0,0.05));
 }
 
-/* =========================================
-   LAYER 0: CONTAINER & SURFACE
-   ========================================= */
+/* =========================================================
+   A. PROSODY PLAYER (Top Component)
+   ========================================================= */
+
 #cognitive-regulator {
     background-color: var(--p-base) !important;
     color: var(--p-contrast) !important;
-    font-family: inherit; /* Inherits Noto Sans from Readability Layer */
+    border: 1px solid color-mix(in srgb, var(--p-contrast), transparent 90%);
     border-radius: 8px;
-    box-shadow: var(--p-shd-flat) !important;
-    border: 1px solid color-mix(in srgb, var(--p-contrast), transparent 95%);
-    position: relative;
-    overflow: hidden;
+    box-shadow: var(--p-shd-flat);
 }
 
-/* =========================================
-   LAYER 1: CALIBRATION (Functional Rhythm)
-   ========================================= */
-#calibration-layer {
-    background: var(--p-base) !important;
-}
+#calibration-layer { background: var(--p-base) !important; }
 
+/* The Tap Zone - Now tactile and visible in Light Mode */
 .tap-zone {
-    width: clamp(160px, 40vw, 220px) !important;
-    height: clamp(160px, 40vw, 220px) !important;
     background: var(--p-surface) !important;
-    border: 2px solid color-mix(in srgb, var(--p-contrast), transparent 90%) !important;
-    border-radius: 50% !important;
+    border: 2px solid color-mix(in srgb, var(--p-contrast), transparent 85%) !important;
     box-shadow: var(--p-shd-raised) !important;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 }
 
-.tap-label {
-    color: var(--p-contrast) !important;
-    font-weight: 700;
-}
+.tap-label { color: var(--p-contrast) !important; }
 
-/* =========================================
-   LAYER 2: THE STAGE (Functional Monospace)
-   ========================================= */
+/* Text Flow - Functional Monospace */
 #text-flow {
-    /* Monospace is a functional requirement for rhythmic precision */
     font-family: "Noto Sans Mono", monospace !important;
-    line-height: 2 !important;
-    font-size: clamp(1.4rem, 5vw, 2.2rem) !important;
-    text-align: center;
-}
-
-.prosodic-unit {
-    display: inline-block;
-    padding: 2px 8px;
-    transition: color 0.3s, opacity 0.3s !important;
+    color: var(--p-contrast) !important;
 }
 
 .prosodic-unit.current {
-    /* Semantic Highlight: Uses Theme Accent */
     color: var(--p-accent) !important;
-    background: color-mix(in srgb, var(--p-accent), transparent 90%) !important;
-    border-radius: 4px;
-    opacity: 1 !important;
+    background: color-mix(in srgb, var(--p-accent), transparent 92%) !important;
 }
 
 .prosodic-unit.future, .prosodic-unit.past {
-    opacity: 0.3 !important;
+    opacity: 0.35 !important; /* Visible but dimmed */
 }
 
-.prosodic-unit.silence-beat {
-    border: 1px dashed color-mix(in srgb, var(--p-contrast), transparent 80%) !important;
-    color: var(--p-accent) !important;
-}
-
-/* =========================================
-   LAYER 3: CONTROLS (The Deck)
-   ========================================= */
+/* Control Deck (Slider area) */
 .control-deck {
     background: var(--p-surface) !important;
     border-top: 1px solid color-mix(in srgb, var(--p-contrast), transparent 90%) !important;
 }
 
-.neutral-btn {
-    background: var(--p-base) !important;
-    color: var(--p-contrast) !important;
-    box-shadow: var(--p-shd-raised) !important;
-    border: none !important;
-    font-family: inherit;
-    font-weight: 700;
-    text-transform: uppercase;
-    border-radius: 4px !important;
-}
+/* =========================================================
+   B. RE-RECORDER / STARMUS FORM (Bottom Component)
+   ========================================================= */
 
-.neutral-btn.active {
-    background: var(--p-accent) !important;
-    color: var(--p-base) !important;
-}
-
-/* Pace Slider (Functional Inset) */
-#pace-regulator {
-    accent-color: var(--p-accent) !important;
-    box-shadow: var(--p-shd-emboss) !important;
-    background: var(--p-base) !important;
-    appearance: none;
-    height: 8px;
-    border-radius: 10px;
-}
-
-#pace-regulator::-webkit-slider-thumb {
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    background: var(--p-accent);
-    border-radius: 50%;
-    box-shadow: var(--p-shd-raised);
-}
-
-/* =========================================
-   LAYER 4: CARDS (Library View)
-   ========================================= */
-.starmus-script-card {
-    background: var(--p-surface) !important;
+.starmus-recorder-form {
+    background-color: var(--p-base) !important; /* Matches Paper */
     box-shadow: var(--p-shd-flat) !important;
-    padding: 2rem !important;
-    border-radius: 8px !important;
+    border-radius: 8px;
+    padding: 2.5rem !important;
 }
 
-.starmus-card-title {
-    color: var(--p-accent) !important;
+/* FIX: Ensure Headings are dark and visible */
+h1, h2, h3, .starmus-recorder-form h2, .starmus-recorder-form h3 {
+    color: var(--p-contrast) !important;
+    text-transform: capitalize !important;
+    font-weight: 800 !important;
+    opacity: 1 !important;
+}
+
+/* FIX: Labels must be high-contrast */
+.starmus-recorder-form label {
+    color: var(--p-contrast) !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+/* Embossed Inputs - Ensuring "Ink" is dark */
+.starmus-recorder-form input,
+.starmus-recorder-form select,
+.starmus-recorder-form textarea {
+    background-color: var(--p-surface) !important;
+    color: var(--p-contrast) !important;
+    box-shadow: var(--p-shd-embossed) !important;
+    border: 1px solid color-mix(in srgb, var(--p-contrast), transparent 85%) !important;
+    border-radius: 12px !important;
+}
+
+/* =========================================================
+   C. BUTTONS (Material Raised)
+   ========================================================= */
+
+.starmus-btn, .button.starmus-btn, #cognitive-regulator button {
+    background-color: var(--p-accent) !important;
+    color: var(--wp--preset--color--base) !important; /* Text matches Paper */
+    box-shadow: var(--p-shd-raised) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    border-radius: 4px !important;
+    opacity: 1 !important;
+}
+
+.starmus-btn:active {
+    transform: translateY(2px);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
+}
+
+/* =========================================================
+   D. TYPOGRAPHY (The Baseline)
+   ========================================================= */
+body, .wp-site-blocks {
+    color: var(--p-contrast) !important;
+    font-family: "Noto Sans", sans-serif !important;
 }

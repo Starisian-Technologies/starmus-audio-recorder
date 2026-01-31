@@ -1,177 +1,180 @@
 /* =========================================================
-   STARMUS PRODUCTION REFACTOR (Selector-Preserving)
-   Logic: Standard Plugin Selectors + Tactile Design Pattern
-   Alignment: Fixed width/padding for forms
+   STARMUS RECORDER: FUNCTIONAL RESTORATION (v4.1)
+   Logic: Total Selector Preservation + Layout Math
+   Identity: Theme-Inherited (Colors, Shadows, Fonts)
    ========================================================= */
 
 :root {
-    /* --- THEME INHERITANCE --- */
-    --s-base:     var(--wp--preset--color--base);
-    --s-surface:  var(--wp--preset--color--base-2, var(--wp--preset--color--base));
-    --s-contrast: var(--wp--preset--color--contrast);
-    --s-accent:   var(--wp--preset--color--accent);
+    /* --- 1. THEME ALIASING (Plugin assumes Dark First) --- */
+    --s-base:       var(--wp--preset--color--contrast);
+    --s-surface:    var(--wp--preset--color--base-2, var(--wp--preset--color--contrast));
+    --s-contrast:   var(--wp--preset--color--base);
+    --s-accent:     var(--wp--preset--color--accent);
 
-    /* --- TACTILE TOKENS (Material & Neumorphic) --- */
-    --shadow-raised:   rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
-    --shadow-active:   rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
-    --shadow-embossed: inset 3px 3px 6px rgba(0, 0, 0, 0.2), inset -3px -3px 6px rgba(255, 255, 255, 0.1);
-    --shadow-flat:     0 4px 15px rgba(0, 0, 0, 0.05);
+    /* --- 2. INHERITED IDENTITY --- */
+    --s-shd-raised:   var(--wp--custom--shadow--raised);
+    --s-shd-embossed: var(--wp--custom--shadow--embossed);
+    --s-shd-flat:     var(--wp--custom--shadow--flat);
+
+    /* --- 3. SEMANTIC (Functional - Fixed) --- */
+    --s-success: #16a34a;
+    --s-warning: #ea580c;
+    --s-danger:  #b91c1c;
 }
 
-/* ---------------------------------------------------------
-   1. LAYOUT & CARDS (Original Selectors)
-   --------------------------------------------------------- */
-.sparxstar-glass-card,
-.starmus-glass,
+/* --- LIGHT MODE OVERRIDE (Swaps variables back) --- */
+.sparxstar-theme--light, .light-mode {
+    --s-base:       var(--wp--preset--color--base);
+    --s-surface:    var(--wp--preset--color--base-2, var(--wp--preset--color--base));
+    --s-contrast:   var(--wp--preset--color--contrast);
+}
+
+/* =========================================================
+   1. CORE CONTAINER & GRID (The "Stage")
+   ========================================================= */
 .starmus-recorder-form,
-.starmus-player-card,
-.starmus-info-card,
-.starmus-actions-card,
+.starmus-glass,
 .starmus-script-card {
     background-color: var(--s-surface) !important;
     color: var(--s-contrast) !important;
-    box-shadow: var(--shadow-flat) !important;
-    border-radius: 8px !important;
-    padding: clamp(1.5rem, 5vw, 2.5rem) !important;
-    margin-bottom: 2rem !important;
-    border: 1px solid color-mix(in srgb, var(--s-contrast), transparent 95%) !important;
+    box-shadow: var(--s-shd-flat) !important;
+    border-radius: 8px;
+    padding: clamp(1.5rem, 5vw, 3rem) !important;
+    margin-bottom: 2rem;
+    border: 1px solid color-mix(in srgb, var(--s-contrast), transparent 95%);
+
+    /* Layout Fix: Ensures internal elements align vertically */
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem;
     box-sizing: border-box !important;
 }
 
-/* Header & Title Alignment */
-.starmus-card__header, .starmus-detail__header {
-    border-bottom: 1px solid color-mix(in srgb, var(--s-contrast), transparent 90%);
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-}
-
-h1, h2, .starmus-card__title, .starmus-detail__header h1 {
-    font-family: "Roboto Condensed", sans-serif !important;
-    text-transform: capitalize !important; /* Forced Title Case */
-    font-weight: 700;
+/* =========================================================
+   2. TYPOGRAPHY & TIMERS (Functional Mono)
+   ========================================================= */
+.starmus-recorder-form h2,
+.starmus-recorder-form h3 {
+    font-family: inherit;
+    text-transform: capitalize;
     color: var(--s-accent) !important;
+    margin: 0;
 }
 
-/* ---------------------------------------------------------
-   2. FORM ALIGNMENT & EMBOSSING (The "Fix")
-   --------------------------------------------------------- */
-.starmus-field-group {
-    margin-bottom: 2rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-}
-
-.starmus-recorder-form label {
-    display: block !important;
-    font-size: 0.9rem !important;
-    font-weight: 700 !important;
-    margin-bottom: 10px !important;
+.starmus-timer {
+    /* Functional requirement: Tabular numbers for rhythmic stability */
+    font-family: "Noto Sans Mono", monospace !important;
+    font-size: clamp(2rem, 8vw, 3.5rem) !important;
+    font-weight: 700;
+    text-align: center;
     color: var(--s-contrast) !important;
-    opacity: 0.9;
+    font-variant-numeric: tabular-nums;
+    margin: 1rem 0 !important;
+}
+
+.starmus-progress-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--s-contrast);
+    opacity: 0.8;
+}
+
+/* =========================================================
+   3. BUTTON SYSTEM (Solving the Clumping)
+   ========================================================= */
+.starmus-recorder-form .starmus-btn-group,
+.starmus-recorder-form footer {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    justify-content: center !important;
+    margin-top: 1rem;
+}
+
+.starmus-btn, .button.starmus-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.75rem 1.5rem !important;
+    background-color: var(--s-accent) !important;
+    color: var(--s-base) !important; /* High contrast text */
+    box-shadow: var(--s-shd-raised) !important;
+    border-radius: 4px;
+    border: none !important;
+    font-family: inherit;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+/* State management */
+.starmus-btn--primary { background-color: var(--s-accent) !important; }
+.starmus-btn--stop, .is-recording { background-color: var(--s-danger) !important; color: white !important; }
+
+.starmus-btn:active {
+    transform: translateY(2px);
+    box-shadow: var(--shadow-active, inset 0 2px 4px rgba(0,0,0,0.2)) !important;
+}
+
+/* =========================================================
+   4. METERS & VISUALIZERS (Semantic Functional)
+   ========================================================= */
+.starmus-visualizer-stage {
+    background: var(--s-base) !important;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--s-shd-embossed) !important;
+    border: 1px solid color-mix(in srgb, var(--s-contrast), transparent 90%);
+}
+
+.starmus-meter-bar {
+    height: 14px !important;
+    background: color-mix(in srgb, var(--s-contrast), transparent 90%) !important;
+    border-radius: 7px;
+    overflow: hidden;
+    position: relative;
+    margin: 10px 0;
+}
+
+.starmus-meter-bar::after {
+    content: "";
+    display: block;
+    height: 100%;
+    /* Functional Semantic Gradient */
+    background: linear-gradient(90deg,
+        var(--s-success) 0%,
+        var(--s-warning) 70%,
+        var(--s-danger) 100%
+    ) !important;
+    width: var(--audio-level, 0%);
+    transition: width 0.05s linear;
+}
+
+/* =========================================================
+   5. FORM FIELDS (Embossed Inheritance)
+   ========================================================= */
+.starmus-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .starmus-recorder-form input[type="text"],
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
-    width: 100% !important; /* Forces all inputs to line up */
-    min-height: 48px !important;
-    box-sizing: border-box !important; /* Ensures padding doesn't break width */
+    width: 100% !important;
+    min-height: 48px;
     background-color: var(--s-base) !important;
     color: var(--s-contrast) !important;
+    box-shadow: var(--s-shd-embossed) !important;
+    border-radius: 13px;
+    padding: 0 1rem;
+    border: 1px solid color-mix(in srgb, var(--s-contrast), transparent 90%) !important;
     font-family: inherit;
-    font-size: 1rem !important;
-
-    /* The Design Border + Embossed Shadow */
-    border: 1px solid color-mix(in srgb, var(--s-contrast), transparent 85%) !important;
-    border-radius: 12px !important;
-    padding: 0 16px !important;
-    box-shadow: var(--shadow-embossed) !important;
-    transition: all 0.2s ease;
+    font-size: 1rem;
 }
-
-.starmus-recorder-form textarea { height: auto !important; padding: 16px !important; }
-
-/* ---------------------------------------------------------
-   3. BUTTONS (Material Raised)
-   --------------------------------------------------------- */
-.starmus-btn, .button.starmus-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-height: 44px !important;
-    padding: 0 24px !important;
-    background-color: var(--s-accent) !important;
-    color: var(--s-base) !important;
-    box-shadow: var(--shadow-raised) !important;
-    border: none !important;
-    border-radius: 8px !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
-    text-decoration: none !important;
-}
-
-.starmus-btn:active {
-    box-shadow: var(--shadow-active) !important;
-    transform: translateY(2px) !important;
-}
-
-/* ---------------------------------------------------------
-   4. RECORDER FUNCTIONAL COMPONENTS (Restored Logic)
-   --------------------------------------------------------- */
-
-/* Timer: Forced Noto Mono for Rhythmic Stability */
-.starmus-timer {
-    font-family: "Noto Sans Mono", monospace !important;
-    font-size: 3rem !important;
-    font-weight: 700 !important;
-    color: var(--s-contrast) !important;
-    font-variant-numeric: tabular-nums !important;
-}
-
-/* Audio Meter Bar */
-.starmus-meter-bar {
-    height: 14px !important;
-    background: color-mix(in srgb, var(--s-contrast), transparent 90%) !important;
-    border-radius: 7px !important;
-    overflow: hidden !important;
-    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2) !important;
-}
-
-/* Meter Fill (Preserving Functional Colors) */
-.starmus-meter-bar::after {
-    background: linear-gradient(90deg,
-        #16a34a 0%,
-        #ea580c 70%,
-        #b91c1c 100%
-    ) !important;
-}
-
-/* Progress logic */
-.starmus-duration-progress {
-    background: color-mix(in srgb, var(--s-contrast), transparent 95%) !important;
-    height: 8px !important;
-    border-radius: 4px !important;
-}
-
-/* ---------------------------------------------------------
-   5. IMAGE TACTILE HOVER (Independent Effect)
-   --------------------------------------------------------- */
-.wp-block-image { position: relative; z-index: 1; }
-
-.wp-block-image:hover::before, .wp-block-image:hover::after {
-    content: '';
-    position: absolute;
-    bottom: 12px;
-    width: 40%;
-    height: 10px;
-    box-shadow: 0 12px 20px rgba(0,0,0,0.5);
-    z-index: -1;
-    transition: all 0.3s ease;
-}
-
-.wp-block-image:hover::before { left: 15px; transform: skew(-5deg) rotate(-5deg); }
-.wp-block-image:hover::after { right: 15px; transform: skew(5deg) rotate(5deg); }
