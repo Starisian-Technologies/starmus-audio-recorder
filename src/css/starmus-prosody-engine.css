@@ -1,69 +1,239 @@
 /* =========================================================
-   PROSODY PLAYER: FUNCTIONAL RESTORATION
-   Logic: Restores original layer stacking and stage physics.
+   STARMUS PROSODY ENGINE: PRODUCTION MASTER
+   Logic: Total Structural Restoration (v3.2.0)
+   Standard: Mechanics by Plugin • Identity by Theme
+   Requirement: Dark-First • Switchable • Functional Black Ink
    ========================================================= */
 
-/* 1. RESTORE THE BOX PHYSICS */
-#cognitive-regulator {
-    position: relative !important; /* Required for the overlay to work */
-    height: 60vh !important;       /* Original height */
-    min-height: 450px !important;
-    overflow: hidden !important;   /* Prevents text from spilling into the form */
-    display: flex !important;
-    flex-direction: column !important;
+:root {
+    /* --- 1. THEME DESIGN TOKENS (Identity Only) --- */
+    /* Map to your WordPress/Design Layer variables */
+    --p-base:       var(--wp--preset--color--base, #180205);
+    --p-surface:    var(--wp--preset--color--base-2, #251717);
+    --p-contrast:   var(--wp--preset--color--contrast, #eceecf);
+    --p-accent:     var(--wp--preset--color--accent);
 
-    /* Inherit Theme Look */
-    background-color: var(--wp--preset--color--base) !important;
-    color: var(--wp--preset--color--contrast) !important;
+    /* Tactile Identity from Theme */
+    --p-shd-raised:   var(--wp--custom--shadow--raised, 0 4px 12px rgba(0,0,0,0.4));
+    --p-shd-embossed: var(--wp--custom--shadow--embossed, inset 2px 2px 5px rgba(0,0,0,0.5));
+
+    /* --- 2. FUNCTIONAL CONSTANTS (Restored from Origin) --- */
+    --unit-spacing: 2.2;
+    --tap-zone-size: 220px;
 }
 
-/* 2. RESTORE THE OVERLAY (Fixes the "Stuck" circle) */
+/* --- LIGHT MODE OPTION (Flipping Identity, not Mechanics) --- */
+.light-mode {
+    --p-base:       var(--wp--preset--color--contrast, #FCFFE7);
+    --p-surface:    var(--wp--preset--color--base-2, #F5F5E0);
+    --p-contrast:   var(--wp--preset--color--base, #180205);
+}
+
+/* =========================================
+   LAYER 0: CONTAINER SHELL (The Physics)
+   ========================================= */
+#cognitive-regulator {
+    background-color: var(--p-base) !important;
+    color: var(--p-contrast) !important;
+    font-family: "Noto Sans", sans-serif !important;
+    height: 60vh !important; /* Enforced Layer Model */
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    overflow: hidden !important;
+    user-select: none;
+}
+
+/* =========================================
+   LAYER 1: CALIBRATION (Gated Overlay)
+   ========================================= */
 #calibration-layer {
-    position: absolute !important; /* Makes it a layer, not a block */
+    position: absolute !important;
     inset: 0 !important;
+    background: var(--p-base) !important;
     z-index: 200 !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    background-color: var(--wp--preset--color--base) !important;
+    transition: opacity 0.5s ease;
 }
 
-/* 3. RESTORE THE STAGE (Vertical Centering) */
+#calibration-layer.fade-out {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.tap-zone {
+    width: var(--tap-zone-size) !important;
+    height: var(--tap-zone-size) !important;
+    border: 2px solid color-mix(in srgb, var(--p-contrast), transparent 80%) !important;
+    border-radius: 50% !important;
+    background: var(--p-surface) !important;
+    box-shadow: var(--p-shd-raised) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.tap-zone:active, .tap-zone.flash {
+    background: color-mix(in srgb, var(--p-surface), var(--p-contrast) 10%) !important;
+    transform: scale(0.96);
+}
+
+.tap-label { color: var(--p-contrast) !important; font-size: 14px; letter-spacing: 3px; font-weight: 700; text-transform: uppercase; }
+.tap-sub { font-size: 11px; color: color-mix(in srgb, var(--p-contrast), transparent 40%); margin-top: 8px; text-transform: uppercase; }
+
+/* =========================================
+   LAYER 2: THE STAGE (Rhythmic Content Flow)
+   ========================================= */
 #scaffold-stage {
     flex-grow: 1 !important;
     overflow-y: auto !important;
+    padding: 0 clamp(10px, 5vw, 200px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    scroll-behavior: smooth !important;
+    position: relative !important;
     scrollbar-width: none;
 }
 
+#scaffold-stage::-webkit-scrollbar { display: none; }
+
 #text-flow {
-    /* Functional Mono Font required for Rhythmic timing */
-    font-family: "Noto Sans Mono", monospace !important;
-    padding-top: 30vh !important;
-    padding-bottom: 35vh !important;
-    text-align: center !important;
-}
-
-/* 4. RESTORE THE DECK (Control alignment) */
-.control-deck {
     position: relative !important;
-    z-index: 100 !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 15px !important;
-    padding: 12px 20px !important;
-    background: var(--wp--preset--color--base-2, #f5f5f5) !important;
-    border-top: 1px solid rgba(0,0,0,0.1);
+    padding-top: 35vh !important; /* Critical vertical rhythm */
+    padding-bottom: 40vh !important;
+    font-size: 26px !important;
+    line-height: var(--unit-spacing) !important;
+    text-align: center !important;
+    /* Functional Font Required for Metronome Precision */
+    font-family: "Noto Sans Mono", monospace !important;
 }
 
-/* 5. FUNCTIONAL STATES (The word that stands out) */
-.prosodic-unit.current {
-    color: var(--wp--preset--color--accent) !important;
-    font-weight: 800 !important;
-    opacity: 1 !important;
-}
-
+/* Prosodic States (Semantic, not just Design) */
 .prosodic-unit {
     display: inline-block !important;
-    opacity: 0.3;
+    padding: 2px 8px !important;
+    margin: 4px 2px !important;
+    border-radius: 4px;
+    transition: color 0.3s, opacity 0.3s, transform 0.3s !important;
+    cursor: crosshair;
+}
+
+.prosodic-unit.future, .prosodic-unit.past {
+    color: var(--p-contrast) !important;
+    opacity: 0.3 !important;
+    filter: blur(0.4px);
+}
+
+/* THE BLACK INK RULE: Forced Functional Visibility */
+.prosodic-unit.current {
+    color: #000000 !important; /* PURE BLACK FOR FUNCTION */
+    opacity: 1 !important;
+    font-weight: 800 !important;
+    background: #eeeeee !important; /* Visual Anchor */
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.prosodic-unit.silence-beat {
+    color: var(--p-accent) !important;
+    font-weight: bold;
+    min-width: 60px !important;
+    height: 40px !important;
+    border: 1px dashed var(--p-contrast) !important;
+    margin: 0 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 8px;
+}
+
+/* =========================================
+   LAYER 3: CONTROLS (The Deck Alignment)
+   ========================================= */
+.control-deck {
+    background: var(--p-surface) !important;
+    border-top: 1px solid color-mix(in srgb, var(--p-contrast), transparent 90%) !important;
+    padding: 12px 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important; /* Restoration of mechanical row */
+    gap: 15px !important;
+    z-index: 100 !important;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.control-deck.hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
+
+.neutral-btn {
+    background: var(--p-base) !important;
+    color: var(--p-contrast) !important;
+    border: none !important;
+    padding: 10px 16px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px;
+    min-width: 100px !important;
+    border-radius: 4px !important;
+    box-shadow: var(--p-shd-raised) !important;
+    cursor: pointer !important;
+}
+
+.neutral-btn.active { background: var(--p-accent) !important; color: #000 !important; }
+
+/* The Pace Regulator (Mechanical Inset) */
+.fader-group {
+    flex-grow: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px;
+    max-width: 400px !important;
+}
+
+#pace-regulator {
+    flex-grow: 1 !important;
+    accent-color: var(--p-accent) !important;
+    box-shadow: var(--p-shd-embossed) !important;
+    height: 6px !important;
+    appearance: none !important;
+    background: #bbb !important;
+}
+
+#pace-regulator::-webkit-slider-thumb {
+    appearance: none !important;
+    width: 20px; height: 20px;
+    background: #000 !important;
+    border: 2px solid #fff;
+    border-radius: 50% !important;
+}
+
+/* =========================================
+   LOCALIZATION & ACCESSIBILITY (Lossless)
+   ========================================= */
+[lang="ja"] { font-family: "Noto Sans JP", sans-serif !important; }
+[lang="ar"], .localized-text.ar { font-family: "Noto Naskh Arabic", serif !important; direction: rtl; }
+[lang="am"], .localized-text.am { font-family: "Noto Sans Ethiopic", sans-serif !important; }
+[lang="zh"] { font-family: "Noto Sans SC", sans-serif !important; }
+
+@media (width <= 600px) {
+    :root { --tap-zone-size: 160px; --unit-spacing: 1.5; }
+    #text-flow { font-size: 20px !important; padding-top: 30vh !important; }
+    .control-deck { gap: 8px !important; padding: 8px !important; justify-content: space-between !important; }
+    .neutral-btn { min-width: 60px !important; padding: 8px !important; }
+    .fader-group .fader-label { display: none !important; }
+}
+
+/* Admin/User Cards (Inherited) */
+.starmus-script-card {
+    background: var(--p-surface) !important;
+    padding: 1.5rem !important;
+    border-radius: 8px !important;
+    box-shadow: var(--p-shd-raised) !important;
+    border: 1px solid color-mix(in srgb, var(--p-contrast), transparent 95%) !important;
 }

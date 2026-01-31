@@ -1,196 +1,253 @@
 /* =========================================================
-   STARMUS PROSODY ENGINE: COMPLETE FUNCTIONAL MASTER
-   Logic: Total Structural Restoration + Theme Inheritance
-   Rule: Design is inherited. Mechanics are forced.
+   STARMUS & PROSODY: TOTAL PRODUCTION RESTORATION
+   Logic: 100% Selector Recovery + Tactile Inheritance
+   Function: Black Ink • Centered Deck • Stacking Physics
    ========================================================= */
 
 :root {
-    /* --- THEME DESIGN TOKENS --- */
-    --p-base:       var(--wp--preset--color--base, #ffffff);
-    --p-surface:    var(--wp--preset--color--base-2, #f5f5f5);
-    --p-contrast:   var(--wp--preset--color--contrast, #000000);
-    --p-accent:     var(--wp--preset--color--accent, #246bf8);
+    /* --- 1. THEME MAPPING --- */
+    --sparx-base:       var(--wp--preset--color--base, #180205);
+    --sparx-surface:    var(--wp--preset--color--base-2, #251717);
+    --sparx-contrast:   var(--wp--preset--color--contrast, #eceecf);
+    --sparx-accent:     var(--wp--preset--color--accent);
 
-    /* --- MECHANICAL CONSTANTS --- */
-    --unit-spacing: 2.2;
-    --tap-zone-size: 220px;
+    /* --- 2. TACTILE INHERITANCE --- */
+    --sparx-shd-raised:   rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    --sparx-shd-click:    rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    --sparx-shd-emboss:   inset 4px 4px 8px rgba(0, 0, 0, 0.7), inset -4px -4px 8px rgba(255, 255, 255, 0.05);
 }
 
-/* =========================================
-   1. THE SHELL (Container Physics)
-   ========================================= */
+/* =========================================================
+   PART A: THE STARMUS AUDIO RECORDER (Lossless Restoration)
+   ========================================================= */
+
+/* 1. STRUCTURAL CONTAINERS */
+.starmus-recorder-form,
+.starmus-user-detail,
+.starmus-admin-detail,
+.starmus-editor,
+.starmus-glass,
+.sparxstar-glass-card {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+    padding: 2rem !important;
+    background-color: var(--sparx-surface) !important;
+    color: var(--sparx-contrast) !important;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-sizing: border-box !important;
+}
+
+/* 2. LAYOUT GRIDS & TABLES */
+.starmus-grid-layout, .starmus-layout-split, .starmus-admin-detail__grid {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+@media (min-width: 1024px) {
+    .starmus-grid-layout, .starmus-layout-split { grid-template-columns: 2fr 1fr !important; }
+}
+
+.starmus-recordings-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 1.5rem;
+}
+
+.starmus-info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.starmus-info-table th, .starmus-info-table td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    text-align: left;
+}
+
+/* 3. FORM FUNCTIONALITY (Embossed) */
+.starmus-field-group { width: 100% !important; display: flex; flex-direction: column; gap: 8px; }
+
+.starmus-recorder-form label { font-weight: 700; color: var(--sparx-contrast); }
+
+.starmus-recorder-form input, .starmus-recorder-form select, .starmus-recorder-form textarea {
+    width: 100% !important;
+    min-height: 48px;
+    background-color: var(--sparx-base) !important;
+    color: var(--sparx-contrast) !important;
+    box-shadow: var(--sparx-shd-emboss) !important;
+    border: 1px solid rgba(255,255,255,0.05) !important;
+    border-radius: 12px;
+    padding: 0 1rem !important;
+    font-family: inherit;
+}
+
+/* 4. BUTTON MACHINERY (Raised) */
+.starmus-btn, .button.starmus-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.75rem 1.5rem !important;
+    background-color: var(--sparx-accent) !important;
+    color: var(--sparx-base) !important;
+    box-shadow: var(--sparx-shd-raised) !important;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+}
+.starmus-btn:active { transform: translateY(2px); box-shadow: var(--sparx-shd-click) !important; }
+
+/* 5. AUDIO FEEDBACK (Meters & Timers) */
+.starmus-visualizer-stage {
+    background: var(--sparx-base) !important;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--sparx-shd-emboss) !important;
+}
+
+.starmus-timer {
+    font-family: "Noto Sans Mono", monospace !important;
+    font-variant-numeric: tabular-nums;
+    font-size: 3rem;
+    text-align: center;
+    color: var(--sparx-contrast);
+}
+
+.starmus-meter-bar {
+    height: 14px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 7px;
+    overflow: hidden;
+}
+.starmus-meter-bar::after {
+    content: ""; display: block; height: 100%; width: var(--starmus-audio-level, 0%);
+    background: linear-gradient(90deg, #16a34a 0%, #ea580c 70%, #b91c1c 100%) !important;
+}
+
+/* 6. PAGINATION & BADGES */
+.starmus-pagination { display: flex; justify-content: center; gap: 8px; margin-top: 2rem; }
+.page-numbers {
+    padding: 8px 16px;
+    background: var(--sparx-surface);
+    border-radius: 4px;
+    color: var(--sparx-contrast);
+    text-decoration: none;
+}
+.page-numbers.current { background: var(--sparx-accent); color: var(--sparx-base); }
+
+.starmus-badge, .starmus-tag {
+    background: var(--sparx-accent);
+    color: var(--sparx-base);
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+/* =========================================================
+   PART B: THE PROSODY ENGINE (Lossless Restoration)
+   ========================================================= */
+
+/* 1. THE SHELL (Physics Fix) */
 #cognitive-regulator {
     position: relative !important;
-    height: 65vh !important;
-    min-height: 500px !important;
-    width: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important; /* Prevents text spill-over */
-    box-sizing: border-box !important;
-    background-color: var(--p-base) !important;
-    color: var(--p-contrast) !important;
-    border-radius: 8px;
-    box-shadow: var(--wp--custom--shadow--flat, 0 10px 30px rgba(0,0,0,0.1));
+    height: 60vh !important;
+    min-height: 480px !important;
+    overflow: hidden !important;
+    background-color: var(--sparx-base) !important;
+    color: var(--sparx-contrast) !important;
 }
 
-/* =========================================
-   2. CALIBRATION LAYER (Stacking Fix)
-   ========================================= */
+/* 2. THE CALIBRATION LAYER (Absolute Stacking) */
 #calibration-layer {
-    position: absolute !important; /* FLOATS on top */
+    position: absolute !important;
     inset: 0 !important;
-    z-index: 500 !important; /* Top of sandwich */
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background-color: var(--p-base) !important;
-    transition: opacity 0.5s ease-in-out, visibility 0.5s !important;
+    z-index: 500 !important;
+    background: var(--sparx-base) !important;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-
-#calibration-layer.fade-out {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-}
+#calibration-layer.fade-out { opacity: 0; pointer-events: none; }
 
 .tap-zone {
-    width: var(--tap-zone-size) !important;
-    height: var(--tap-zone-size) !important;
-    flex: 0 0 var(--tap-zone-size) !important; /* Prevents squashing */
+    width: 220px !important; height: 220px !important;
     border-radius: 50% !important;
-    border: 4px solid var(--p-contrast) !important;
-    background: var(--p-surface) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    box-shadow: var(--wp--custom--shadow--raised, 0 4px 10px rgba(0,0,0,0.2));
+    border: 4px solid var(--sparx-contrast) !important;
+    background: var(--sparx-surface) !important;
+    box-shadow: var(--sparx-shd-raised) !important;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 
-.tap-label { color: var(--p-contrast) !important; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; font-size: 14px; }
-
-/* =========================================
-   3. THE STAGE (Text Content & Rhythm)
-   ========================================= */
+/* 3. THE STAGE (Rhythmic Scrolling) */
 #scaffold-stage {
     flex-grow: 1 !important;
     overflow-y: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    position: relative !important;
-    z-index: 100 !important;
-    scrollbar-width: none;
+    display: flex; flex-direction: column;
 }
 
 #text-flow {
-    /* Functional Mono for Rhythmic timing */
     font-family: "Noto Sans Mono", monospace !important;
-    font-size: clamp(1.6rem, 6vw, 2.5rem) !important;
-    line-height: var(--unit-spacing) !important;
+    padding-top: 30vh !important; padding-bottom: 35vh !important;
     text-align: center !important;
-    padding-top: 30vh !important; /* Centers reading line vertically */
-    padding-bottom: 35vh !important;
 }
 
-.prosodic-unit {
-    display: inline-block !important;
-    padding: 2px 10px !important;
-    margin: 4px !important;
-    transition: all 0.3s ease !important;
-    opacity: 0.3;
-}
-
-/* THE BLACK INK RULE: Forced visibility for reading */
+/* FUNCTIONAL BLACK INK */
 .prosodic-unit.current {
-    color: #000000 !important; /* PURE BLACK PERIOD */
-    background: color-mix(in srgb, var(--p-accent), transparent 90%) !important;
-    opacity: 1 !important;
+    color: #000000 !important; /* FORCED BLACK */
+    background: #eeeeee !important;
     font-weight: 900 !important;
-    transform: scale(1.1);
+    opacity: 1 !important;
+    padding: 4px 12px;
     border-radius: 4px;
 }
+.prosodic-unit { opacity: 0.3; display: inline-block; padding: 0 10px; }
 
-/* =========================================
-   4. CONTROL DECK (Mechanical Alignment)
-   ========================================= */
+/* 4. THE CONTROL DECK (Centered Mechanical Bar) */
 .control-deck {
-    position: relative !important;
-    z-index: 300 !important; /* Below calibration, above stage */
     display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 15px !important;
-    padding: 12px 20px !important;
-    background: var(--p-surface) !important;
-    border-top: 1px solid color-mix(in srgb, var(--p-contrast), transparent 90%) !important;
-}
-
-/* Buttons: Rigid sizing so they never shrink or clump */
-.neutral-btn {
-    width: 48px !important;
-    height: 48px !important;
-    flex: 0 0 48px !important;
-    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border-radius: 4px !important;
-    border: 2px solid var(--p-contrast) !important;
-    background: var(--p-base) !important;
-    color: var(--p-contrast) !important;
-    cursor: pointer !important;
-}
-
-.neutral-btn.active {
-    background: var(--p-accent) !important;
-    color: #fff !important;
-}
-
-/* Pace Slider (Mechanical Logic) */
-.fader-group {
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    flex-grow: 1 !important; /* Slider fills the gap */
-    max-width: 400px !important;
-}
-
-.fader-group span {
-    font-size: 10px !important;
-    font-weight: 800;
-    text-transform: uppercase;
+    gap: 20px !important;
+    padding: 1rem 2rem !important;
+    background: var(--sparx-surface) !important;
+    border-top: 1px solid rgba(255,255,255,0.05) !important;
 }
 
 #pace-regulator {
     flex-grow: 1 !important;
-    appearance: none !important;
+    max-width: 300px;
+    accent-color: var(--sparx-accent) !important;
+    background: #bbb !important;
     height: 8px !important;
-    background: #bbb !important; /* Visible track */
-    border-radius: 4px !important;
 }
 
-#pace-regulator::-webkit-slider-thumb {
-    appearance: none !important;
-    width: 24px !important;
-    height: 24px !important;
-    background: #000 !important;
-    border: 2px solid #fff !important;
-    border-radius: 50% !important;
-    cursor: pointer !important;
-}
+/* 5. LOCALIZATION */
+[lang="ja"] { font-family: "Noto Sans JP", sans-serif !important; }
+[lang="ar"] { font-family: "Noto Naskh Arabic", serif !important; direction: rtl; }
+[lang="am"] { font-family: "Noto Sans Ethiopic", sans-serif !important; }
 
-/* =========================================
-   5. LOCALIZATION & MOBILE (Lossless recovery)
-   ========================================= */
-[lang="ar"], .localized-text.ar { font-family: "Noto Naskh Arabic", serif !important; direction: rtl; }
-[lang="am"], .localized-text.am { font-family: "Noto Sans Ethiopic", sans-serif !important; }
+/* 6. EDITOR UI (The Transcript Boxes) */
+.starmus-editor__transcript, .starmus-transcript-box {
+    background: var(--sparx-surface) !important;
+    font-family: "Noto Sans Mono", monospace !important;
+    padding: 1.5rem !important;
+}
+.starmus-word.is-active { background: var(--sparx-accent); color: var(--sparx-base); }
+
+/* =========================================================
+   PART C: ACCESSIBILITY & UTILITIES
+   ========================================================= */
 
 @media (width <= 600px) {
-    :root { --tap-zone-size: 160px; --unit-spacing: 1.5; }
-    #text-flow { font-size: 18px !important; padding-top: 25vh !important; }
-    .control-deck { gap: 8px !important; padding: 8px !important; }
-    .fader-group span { display: none !important; } /* Hide labels to save slider room */
-};
+    .control-deck { padding: 10px !important; gap: 8px !important; }
+    .fader-group span { display: none !important; }
+    .starmus-timer { font-size: 2rem !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+}
+
+.screen-reader-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); }
