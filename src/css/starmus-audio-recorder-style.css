@@ -1,63 +1,177 @@
 /* =========================================================
-   PROSODY PLAYER: MOBILE ALIGNMENT FIX
-   Focus: Prevents horizontal overflow on 400px screens.
-   Logic: Guaranteed Button Space + Responsive Slider
+   STARMUS PROSODY ENGINE: COMPLETE FUNCTIONAL MASTER
+   Logic: Total Structural Restoration + Theme Inheritance
+   Rule: Design is inherited. Mechanics are forced.
    ========================================================= */
 
-/* 1. CONTROL DECK: Mobile-First Flex Logic */
+:root {
+    /* --- THEME DESIGN TOKENS --- */
+    --p-base:       var(--wp--preset--color--base, #ffffff);
+    --p-surface:    var(--wp--preset--color--base-2, #f5f5f5);
+    --p-contrast:   var(--wp--preset--color--contrast, #000000);
+    --p-accent:     var(--wp--preset--color--accent, #246bf8);
+
+    /* --- MECHANICAL CONSTANTS --- */
+    --unit-spacing: 2.2;
+    --tap-zone-size: 220px;
+}
+
+/* =========================================
+   1. THE SHELL (Container Physics)
+   ========================================= */
+#cognitive-regulator {
+    position: relative !important;
+    height: 65vh !important;
+    min-height: 500px !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important; /* Prevents text spill-over */
+    box-sizing: border-box !important;
+    background-color: var(--p-base) !important;
+    color: var(--p-contrast) !important;
+    border-radius: 8px;
+    box-shadow: var(--wp--custom--shadow--flat, 0 10px 30px rgba(0,0,0,0.1));
+}
+
+/* =========================================
+   2. CALIBRATION LAYER (Stacking Fix)
+   ========================================= */
+#calibration-layer {
+    position: absolute !important; /* FLOATS on top */
+    inset: 0 !important;
+    z-index: 500 !important; /* Top of sandwich */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: var(--p-base) !important;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s !important;
+}
+
+#calibration-layer.fade-out {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.tap-zone {
+    width: var(--tap-zone-size) !important;
+    height: var(--tap-zone-size) !important;
+    flex: 0 0 var(--tap-zone-size) !important; /* Prevents squashing */
+    border-radius: 50% !important;
+    border: 4px solid var(--p-contrast) !important;
+    background: var(--p-surface) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    box-shadow: var(--wp--custom--shadow--raised, 0 4px 10px rgba(0,0,0,0.2));
+}
+
+.tap-label { color: var(--p-contrast) !important; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; font-size: 14px; }
+
+/* =========================================
+   3. THE STAGE (Text Content & Rhythm)
+   ========================================= */
+#scaffold-stage {
+    flex-grow: 1 !important;
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    z-index: 100 !important;
+    scrollbar-width: none;
+}
+
+#text-flow {
+    /* Functional Mono for Rhythmic timing */
+    font-family: "Noto Sans Mono", monospace !important;
+    font-size: clamp(1.6rem, 6vw, 2.5rem) !important;
+    line-height: var(--unit-spacing) !important;
+    text-align: center !important;
+    padding-top: 30vh !important; /* Centers reading line vertically */
+    padding-bottom: 35vh !important;
+}
+
+.prosodic-unit {
+    display: inline-block !important;
+    padding: 2px 10px !important;
+    margin: 4px !important;
+    transition: all 0.3s ease !important;
+    opacity: 0.3;
+}
+
+/* THE BLACK INK RULE: Forced visibility for reading */
+.prosodic-unit.current {
+    color: #000000 !important; /* PURE BLACK PERIOD */
+    background: color-mix(in srgb, var(--p-accent), transparent 90%) !important;
+    opacity: 1 !important;
+    font-weight: 900 !important;
+    transform: scale(1.1);
+    border-radius: 4px;
+}
+
+/* =========================================
+   4. CONTROL DECK (Mechanical Alignment)
+   ========================================= */
 .control-deck {
+    position: relative !important;
+    z-index: 300 !important; /* Below calibration, above stage */
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    justify-content: space-between !important; /* Buttons on ends, slider in middle */
-    gap: 8px !important; /* Tighter for mobile */
-    padding: 10px 15px !important;
-    min-height: 70px !important;
+    justify-content: space-between !important;
+    gap: 15px !important;
+    padding: 12px 20px !important;
     background: var(--p-surface) !important;
-    box-sizing: border-box !important;
+    border-top: 1px solid color-mix(in srgb, var(--p-contrast), transparent 90%) !important;
 }
 
-/* 2. BUTTONS: Rigid Dimensions (Ensures they don't shrink) */
+/* Buttons: Rigid sizing so they never shrink or clump */
 .neutral-btn {
-    flex: 0 0 44px !important; /* Do not grow, do not shrink, stay 44px */
-    width: 44px !important;
-    height: 44px !important;
-    display: flex !important;
+    width: 48px !important;
+    height: 48px !important;
+    flex: 0 0 48px !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 0 !important;
     border-radius: 4px !important;
+    border: 2px solid var(--p-contrast) !important;
+    background: var(--p-base) !important;
+    color: var(--p-contrast) !important;
+    cursor: pointer !important;
 }
 
-/* 3. FADER GROUP: Fluid but constrained */
+.neutral-btn.active {
+    background: var(--p-accent) !important;
+    color: #fff !important;
+}
+
+/* Pace Slider (Mechanical Logic) */
 .fader-group {
     display: flex !important;
     align-items: center !important;
-    gap: 8px !important;
-    flex: 1 1 auto !important; /* Take remaining space */
-    min-width: 0 !important; /* Allow it to shrink below content width */
+    gap: 12px !important;
+    flex-grow: 1 !important; /* Slider fills the gap */
+    max-width: 400px !important;
 }
 
-/* 4. SLIDER LABELS: Tighter for Mobile */
 .fader-group span {
     font-size: 10px !important;
+    font-weight: 800;
     text-transform: uppercase;
-    font-weight: 700;
-    white-space: nowrap !important;
 }
 
-/* 5. THE SLIDER TRACK: Functional Width */
 #pace-regulator {
-    flex: 1 !important; /* Occupies all space between labels */
-    width: 100% !important;
-    min-width: 80px !important;
-    height: 8px !important;
+    flex-grow: 1 !important;
     appearance: none !important;
-    background: #bbb !important;
+    height: 8px !important;
+    background: #bbb !important; /* Visible track */
     border-radius: 4px !important;
 }
 
-/* 6. SLIDER THUMB: Mobile Touch-Friendly */
 #pace-regulator::-webkit-slider-thumb {
     appearance: none !important;
     width: 24px !important;
@@ -69,41 +183,14 @@
 }
 
 /* =========================================
-   7. STAGE & SHELL: Centering & Containment
+   5. LOCALIZATION & MOBILE (Lossless recovery)
    ========================================= */
-#cognitive-regulator {
-    height: 60vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
-}
+[lang="ar"], .localized-text.ar { font-family: "Noto Naskh Arabic", serif !important; direction: rtl; }
+[lang="am"], .localized-text.am { font-family: "Noto Sans Ethiopic", sans-serif !important; }
 
-#scaffold-stage {
-    flex: 1 1 auto !important;
-    overflow-y: auto !important;
-}
-
-#text-flow {
-    /* Hard-coded Black for Function */
-    color: #000000 !important;
-    font-family: "Noto Sans Mono", monospace !important;
-    padding: 25vh 5% !important; /* Vertical centering */
-    font-size: clamp(1.4rem, 5vw, 2rem) !important;
-}
-
-.prosodic-unit.current {
-    color: #000 !important;
-    font-weight: 900 !important;
-    background: #eee !important;
-}
-
-/* RESPONSIVE: Even smaller for 400px width */
-@media (max-width: 400px) {
-    .control-deck {
-        padding: 10px 8px !important;
-        gap: 5px !important;
-    }
-    .fader-group span {
-        display: none !important; /* Hide "Anxiety/Fatigue" labels to save room */
-    }
-}
+@media (width <= 600px) {
+    :root { --tap-zone-size: 160px; --unit-spacing: 1.5; }
+    #text-flow { font-size: 18px !important; padding-top: 25vh !important; }
+    .control-deck { gap: 8px !important; padding: 8px !important; }
+    .fader-group span { display: none !important; } /* Hide labels to save slider room */
+};
