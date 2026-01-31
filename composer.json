@@ -7,7 +7,8 @@
     "php": "^8.2",
     "james-heinrich/getid3": "^1.9",
     "wpackagist-plugin/secure-custom-fields": "^6.8",
-    "aws/aws-sdk-php": "^3.369"
+    "aws/aws-sdk-php": "^3.369",
+    "psr/log": "^3.0"
   },
   "autoload": {
     "psr-4": {
