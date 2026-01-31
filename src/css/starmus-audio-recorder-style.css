@@ -1,82 +1,55 @@
 /* =========================================================
-   SPARXSTAR DESIGN SYSTEM: THE BLUEPRINT
+   SPARXSTAR DESIGN SYSTEM: THEME-AWARE VERSION
+   Standard: WordPress Global Style Inheritance
+   Logic: Structure & Tactility only. Colors/Fonts are inherited.
    ========================================================= */
 
 :root {
-    /* --- TOKENS: PALETTE --- */
-    --sparxstar-clr-base:     var(--wp--preset--color--base, #180205);
-    --sparxstar-clr-surface:  var(--wp--preset--color--base-two, #251717);
-    --sparxstar-clr-contrast: var(--wp--preset--color--contrast, #eceecf);
-    --sparxstar-clr-accent:   var(--wp--preset--color--accent, #e5c34d);
+    /* --- INHERITANCE TOKENS --- */
+    /* We point to standard WP presets. No hard-coded hex here. */
+    --sparxstar-clr-base:     var(--wp--preset--color--base);
+    --sparxstar-clr-surface:  var(--wp--preset--color--base-2, var(--wp--preset--color--base));
+    --sparxstar-clr-contrast: var(--wp--preset--color--contrast);
+    --sparxstar-clr-accent:   var(--wp--preset--color--accent, var(--wp--preset--color--contrast));
 
-    /* --- TOKENS: SHADOWS (Material & Neumorphic) --- */
-    --sparxstar-shd-raised:   rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
-    --sparxstar-shd-click:    rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
-    --sparxstar-shd-emboss:   inset 4px 4px 8px rgba(0, 0, 0, 0.7), inset -4px -4px 8px rgba(255, 255, 255, 0.05);
-    --sparxstar-shd-flat:     0 4px 15px rgba(0, 0, 0, 0.4);
-
-    /* --- TOKENS: TYPOGRAPHY --- */
-    --sparxstar-fnt-body:     "Noto Sans", system-ui, sans-serif;
-    --sparxstar-fnt-heading:  "Roboto Condensed", sans-serif;
+    /* --- TACTILE FORMULAS --- */
+    /* We use color-mix to ensure shadows are based on theme contrast color */
+    --sparxstar-shd-color:    color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 80%);
+    --sparxstar-shd-raised:   var(--sparxstar-shd-color) 0px 10px 20px, var(--sparxstar-shd-color) 0px 6px 6px;
+    --sparxstar-shd-click:    var(--sparxstar-shd-color) 0px 1px 3px;
+    --sparxstar-shd-emboss:   inset 2px 2px 5px var(--sparxstar-shd-color), inset -2px -2px 5px rgba(255,255,255,0.1);
+    --sparxstar-shd-flat:     0 4px 15px var(--sparxstar-shd-color);
 }
 
 /* ---------------------------------------------------------
-   BASE STYLES
+   BASE INHERITANCE
    --------------------------------------------------------- */
 .sparxstar-sandbox {
-    padding: 2rem;
-    max-width: 600px;
-    margin: 0 auto;
+    font-family: inherit; /* Use Theme Font */
+    color: var(--sparxstar-clr-contrast);
 }
 
-.sparxstar-type--body {
-    font-family: var(--sparxstar-fnt-body);
-    font-size: 1.05rem;
-    line-height: 1.6;
-    letter-spacing: 0.012em;
-    word-spacing: 0.05em;
-}
-
-.sparxstar-type--muted {
-    font-size: 0.85rem;
-    opacity: 0.6;
+.sparxstar-card__title, h2, h3 {
+    font-family: var(--wp--preset--font-family--heading, inherit);
+    text-transform: capitalize;
 }
 
 /* ---------------------------------------------------------
-   COMPONENT: CARD
+   COMPONENT: CARD (Inherits Theme Surface)
    --------------------------------------------------------- */
 .sparxstar-card {
+    /* If the theme is light, surface is light. If dark, surface is dark. */
     background-color: var(--sparxstar-clr-surface);
     color: var(--sparxstar-clr-contrast);
     box-shadow: var(--sparxstar-shd-flat);
     border-radius: 4px;
-    padding: 2.5rem;
-    margin-bottom: 3rem;
-}
-
-.sparxstar-card__title {
-    font-family: var(--sparxstar-fnt-heading);
-    text-transform: capitalize !important; /* Forced Title Case */
-    font-weight: 700;
-    margin: 0 0 0.5rem 0;
-    color: var(--sparxstar-clr-accent);
-}
-
-.sparxstar-card__header { margin-bottom: 2rem; }
-.sparxstar-card__meta   { display: flex; gap: 12px; align-items: center; }
-
-.sparxstar-badge {
-    background: var(--sparxstar-clr-accent);
-    color: var(--sparxstar-clr-base);
-    padding: 2px 8px;
-    border-radius: 2px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    text-transform: uppercase;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    margin-bottom: 2rem;
+    border: 1px solid color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 90%);
 }
 
 /* ---------------------------------------------------------
-   COMPONENT: BUTTONS
+   COMPONENT: BUTTONS (Inherits Theme Accent)
    --------------------------------------------------------- */
 .sparxstar-button {
     display: inline-flex;
@@ -86,24 +59,25 @@
     padding: 0 24px;
     border: none;
     border-radius: 4px;
-    font-family: var(--sparxstar-fnt-body);
+    font-family: inherit;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     cursor: pointer;
     box-shadow: var(--sparxstar-shd-raised);
     transition: all 0.2s ease;
-    text-decoration: none;
 }
 
 .sparxstar-button--primary {
     background-color: var(--sparxstar-clr-accent);
-    color: var(--sparxstar-clr-base);
+    color: var(--sparxstar-clr-base); /* Text matches theme background */
 }
 
 .sparxstar-button--secondary {
-    background-color: var(--sparxstar-clr-base);
+    background-color: transparent;
     color: var(--sparxstar-clr-contrast);
+    border: 1px solid var(--sparxstar-clr-contrast);
+    box-shadow: none;
 }
 
 .sparxstar-button:active {
@@ -111,16 +85,13 @@
     transform: translateY(2px);
 }
 
-.sparxstar-button--wide { width: 100%; }
-
 /* ---------------------------------------------------------
-   COMPONENT: FORM CONTROLS
+   COMPONENT: FORM CONTROLS (Embossed Inset)
    --------------------------------------------------------- */
 .sparxstar-form__group { margin-bottom: 1.5rem; }
 
 .sparxstar-form__label {
     display: block;
-    font-family: var(--sparxstar-fnt-body);
     font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 8px;
@@ -129,10 +100,11 @@
 .sparxstar-form__control {
     width: 100%;
     min-height: 48px;
+    /* Background is theme base, color is theme ink */
     background-color: var(--sparxstar-clr-base) !important;
     color: var(--sparxstar-clr-contrast) !important;
-    border: none !important;
-    border-radius: 12px; /* Twitter Roundness */
+    border: 1px solid color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 90%) !important;
+    border-radius: 8px;
     padding: 0 16px;
     box-shadow: var(--sparxstar-shd-emboss) !important;
     font-family: inherit;
@@ -141,30 +113,24 @@
 .sparxstar-form__control--textarea { height: auto; padding: 16px; }
 
 /* ---------------------------------------------------------
-   SPECIAL EFFECT: IMAGE HOVER CURL
+   UTILITY: IMAGE (Tactile formula only)
    --------------------------------------------------------- */
 .sparxstar-image { position: relative; z-index: 1; margin-bottom: 2rem; }
 .sparxstar-image img { width: 100%; border-radius: 2px; display: block; }
 
-.sparxstar-image--curled::before,
-.sparxstar-image--curled::after {
+.sparxstar-image--curled:hover::before,
+.sparxstar-image--curled:hover::after {
     content: '';
     position: absolute;
-    bottom: 15px;
+    bottom: 12px;
     width: 40%;
     height: 10px;
-    box-shadow: 0 12px 20px rgba(0,0,0,0.8);
+    /* Shadow derived from theme contrast color */
+    box-shadow: 0 12px 20px color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 50%);
     z-index: -1;
-    opacity: 0; /* Hidden by default */
+    opacity: 1;
     transition: all 0.3s ease;
 }
 
-.sparxstar-image--curled::before { left: 15px; transform: skew(-5deg) rotate(-5deg); }
-.sparxstar-image--curled::after { right: 15px; transform: skew(5deg) rotate(5deg); }
-
-/* Reveal on hover */
-.sparxstar-image--curled:hover::before,
-.sparxstar-image--curled:hover::after {
-    opacity: 1;
-    bottom: 10px;
-}
+.sparxstar-image--curled:hover::before { left: 15px; transform: skew(-5deg) rotate(-5deg); }
+.sparxstar-image--curled:hover::after { right: 15px; transform: skew(5deg) rotate(5deg); }
