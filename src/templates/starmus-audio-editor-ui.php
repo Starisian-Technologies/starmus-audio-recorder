@@ -29,93 +29,168 @@ $editor_data = [
 
 <!-- JS Bootstrap Data -->
 <script>
-	window.STARMUS_EDITOR_DATA = <?php echo wp_json_encode($editor_data); ?>;
+    window.STARMUS_EDITOR_DATA = <?php echo wp_json_encode($editor_data); ?>;
 </script>
+<!--- TEST TEST TEST --->
+<!-- THE DESIGN BLUEPRINT CARD -->
+<div class="sparxstar-sandbox">
 
+    <!-- COMPONENT: THE REFERENCE CARD -->
+    <article class="sparxstar-card">
+        <header class="sparxstar-card__header">
+            <h2 class="sparxstar-card__title">Kee Kiling Ne Bota Komboo</h2>
+            <div class="sparxstar-card__meta">
+                <span class="sparxstar-badge">Mandinka</span>
+                <span class="sparxstar-type--muted">January 31, 2026</span>
+            </div>
+        </header>
+
+        <!-- Image to test hover curling -->
+        <div class="sparxstar-image sparxstar-image--curled">
+            <img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800" alt="Tactile Test">
+        </div>
+
+        <div class="sparxstar-card__body">
+            <p class="sparxstar-type--body">
+                This is a test of the Noto Sans typography engine. It should show balanced line lengths,
+                intentional word-spacing for dyslexia, and a comfortable editorial rhythm.
+            </p>
+        </div>
+
+        <footer class="sparxstar-card__footer">
+            <button class="sparxstar-button sparxstar-button--primary">Primary Action</button>
+            <button class="sparxstar-button sparxstar-button--secondary">Secondary Action</button>
+        </footer>
+    </article>
+
+    <!-- COMPONENT: THE REFERENCE FORM -->
+    <section class="sparxstar-card">
+        <header class="sparxstar-card__header">
+            <h2 class="sparxstar-card__title">Recording Details</h2>
+        </header>
+
+        <form class="sparxstar-form">
+            <div class="sparxstar-form__group">
+                <label class="sparxstar-form__label">Script Title</label>
+                <input type="text" class="sparxstar-form__control" placeholder="e.g. Morning Prayer">
+            </div>
+
+            <div class="sparxstar-form__group">
+                <label class="sparxstar-form__label">Language Selection</label>
+                <select class="sparxstar-form__control">
+                    <option value="" disabled selected>Choose a language...</option>
+                    <option>Mandinka</option>
+                    <option>Wolof</option>
+                </select>
+            </div>
+
+            <div class="sparxstar-form__group">
+                <label class="sparxstar-form__label">Transcription Text</label>
+                <textarea class="sparxstar-form__control sparxstar-form__control--textarea" rows="4" placeholder="Enter script content here..."></textarea>
+            </div>
+
+            <div class="sparxstar-form__group">
+                <button type="submit" class="sparxstar-button sparxstar-button--primary sparxstar-button--wide">
+                    Submit to Registry
+                </button>
+            </div>
+        </form>
+    </section>
+
+</div>
+
+
+
+
+
+
+
+
+<!--- END TEST TEST TEST --->
 <div
-	id="starmus-editor-root"
-	class="starmus-editor sparxstar-glass-card"
-	role="region"
-	aria-label="<?php esc_attr_e('Audio editor', 'starmus-audio-recorder'); ?>"
-	style="margin-top: 20px;">
+    id="starmus-editor-root"
+    class="starmus-editor sparxstar-glass-card"
+    role="region"
+    aria-label="<?php esc_attr_e('Audio editor', 'starmus-audio-recorder'); ?>"
+    style="margin-top: 20px;">
 
-	<div class="starmus-editor__head">
-		<h1 class="starmus-editor__title">
-			<?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?>
-			<span class="starmus-editor__id-badge">
-				<?php
-    if ($current_post_id) {
-        /* translators: %d: Recording ID */
-        printf(esc_html__('ID: %d', 'starmus-audio-recorder'), (int) $current_post_id);
-    } else {
-        esc_html_e('No Recording', 'starmus-audio-recorder');
-    }
-?>
-			</span>
-		</h1>
-		<div class="starmus-editor__time">
-			<span id="starmus-time-cur">0:00</span> / <span id="starmus-time-dur">0:00</span>
-		</div>
-	</div>
+    <div class="starmus-editor__head">
+        <h1 class="starmus-editor__title">
+            <?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?>
+            <span class="starmus-editor__id-badge">
+                <?php
+                if ($current_post_id) {
+                    /* translators: %d: Recording ID */
+                    printf(esc_html__('ID: %d', 'starmus-audio-recorder'), (int) $current_post_id);
+                } else {
+                    esc_html_e('No Recording', 'starmus-audio-recorder');
+                }
+                ?>
+            </span>
+        </h1>
+        <div class="starmus-editor__time">
+            <span id="starmus-time-cur">0:00</span> / <span id="starmus-time-dur">0:00</span>
+        </div>
+    </div>
 
-	<?php if (empty($audio_url)) { ?>
-		<div class="starmus-alert starmus-alert--error">
-			<p><strong><?php esc_html_e('Error:', 'starmus-audio-recorder'); ?></strong>
-        <?php esc_html_e('Audio file missing for this recording.', 'starmus-audio-recorder'); ?></p>
-		</div>
-	<?php } else { ?>
-		<div class="starmus-editor__layout">
-			<!-- WAVEFORM COLUMN -->
-			<div class="starmus-editor__wave">
-				<div id="peaks-container" class="starmus-editor__wave-inner">
-					<div id="zoomview" class="starmus-editor__zoom"></div>
-					<div id="overview" class="starmus-editor__overview"></div>
-				</div>
+    <?php if (empty($audio_url)) { ?>
+        <div class="starmus-alert starmus-alert--error">
+            <p><strong><?php esc_html_e('Error:', 'starmus-audio-recorder'); ?></strong>
+                <?php esc_html_e('Audio file missing for this recording.', 'starmus-audio-recorder'); ?></p>
+        </div>
+    <?php } else { ?>
+        <div class="starmus-editor__layout">
+            <!-- WAVEFORM COLUMN -->
+            <div class="starmus-editor__wave">
+                <div id="peaks-container" class="starmus-editor__wave-inner">
+                    <div id="zoomview" class="starmus-editor__zoom"></div>
+                    <div id="overview" class="starmus-editor__overview"></div>
+                </div>
 
-				<div class="starmus-editor__controls">
-					<div class="starmus-btn-group">
-						<button id="back5" class="starmus-btn starmus-btn--outline" type="button" aria-label="<?php esc_attr_e('Rewind 5 seconds', 'starmus-audio-recorder'); ?>">-5s</button>
-						<button id="play" class="starmus-btn starmus-btn--primary" type="button" aria-label="<?php esc_attr_e('Play', 'starmus-audio-recorder'); ?>">Play</button>
-						<button id="fwd5" class="starmus-btn starmus-btn--outline" type="button" aria-label="<?php esc_attr_e('Fast forward 5 seconds', 'starmus-audio-recorder'); ?>">+5s</button>
-					</div>
-					<div class="starmus-btn-group">
-						<button id="zoom-out" class="starmus-btn starmus-btn--outline" type="button" aria-label="<?php esc_attr_e('Zoom Out', 'starmus-audio-recorder'); ?>">-</button>
-						<button id="zoom-fit" class="starmus-btn starmus-btn--outline" type="button" aria-label="<?php esc_attr_e('Fit to Screen', 'starmus-audio-recorder'); ?>">Fit</button>
-						<button id="zoom-in" class="starmus-btn starmus-btn--outline" type="button" aria-label="<?php esc_attr_e('Zoom In', 'starmus-audio-recorder'); ?>">+</button>
-					</div>
-					<label class="starmus-editor__loop"><input id="loop" type="checkbox"> Loop</label>
-					<button id="add-region" class="starmus-btn starmus-btn--secondary" type="button">Add Region</button>
-					<button id="save" class="starmus-btn starmus-btn--primary" type="button" disabled>Save Changes</button>
-				</div>
-				<div id="starmus-editor-notice" class="starmus-alert" hidden></div>
-			</div>
+                <div class="starmus-editor__controls">
+                    <div class="starmus-btn-group">
+                        <button id="back5" class="starmus-btn starmus-btn--outline" type="button" aria-label="<?php esc_attr_e('Rewind 5 seconds', 'starmus-audio-recorder'); ?>">-5s</button>
+                        <button id="play" class="starmus-btn starmus-btn--primary" type="button" aria-label="<?php esc_attr_e('Play', 'starmus-audio-recorder'); ?>">Play</button>
+                        <button id="fwd5" class="starmus-btn starmus-btn--outline" type="button" aria-label="<?php esc_attr_e('Fast forward 5 seconds', 'starmus-audio-recorder'); ?>">+5s</button>
+                    </div>
+                    <div class="starmus-btn-group">
+                        <button id="zoom-out" class="starmus-btn starmus-btn--outline" type="button" aria-label="<?php esc_attr_e('Zoom Out', 'starmus-audio-recorder'); ?>">-</button>
+                        <button id="zoom-fit" class="starmus-btn starmus-btn--outline" type="button" aria-label="<?php esc_attr_e('Fit to Screen', 'starmus-audio-recorder'); ?>">Fit</button>
+                        <button id="zoom-in" class="starmus-btn starmus-btn--outline" type="button" aria-label="<?php esc_attr_e('Zoom In', 'starmus-audio-recorder'); ?>">+</button>
+                    </div>
+                    <label class="starmus-editor__loop"><input id="loop" type="checkbox"> Loop</label>
+                    <button id="add-region" class="starmus-btn starmus-btn--secondary" type="button">Add Region</button>
+                    <button id="save" class="starmus-btn starmus-btn--primary" type="button" disabled>Save Changes</button>
+                </div>
+                <div id="starmus-editor-notice" class="starmus-alert" hidden></div>
+            </div>
 
-			<!-- SIDEBAR COLUMN -->
-			<aside class="starmus-editor__side">
-				<section class="starmus-editor__transcript">
-					<h3><?php esc_html_e('Transcript', 'starmus-audio-recorder'); ?></h3>
-					<div id="starmus-transcript-panel" class="starmus-transcript-panel">
-						<?php if (empty($editor_data['transcript'])) { ?>
-							<p class="starmus-empty-state"><?php esc_html_e('No transcription data.', 'starmus-audio-recorder'); ?></p>
-						<?php } ?>
-					</div>
-				</section>
-				<section class="starmus-editor__list">
-					<h3><?php esc_html_e('Regions', 'starmus-audio-recorder'); ?></h3>
-					<table class="starmus-info-table">
-						<thead>
-							<tr>
-								<th scope="col"><?php esc_html_e('Label', 'starmus-audio-recorder'); ?></th>
-								<th scope="col" style="width:60px"><?php esc_html_e('Start', 'starmus-audio-recorder'); ?></th>
-								<th scope="col" style="width:60px"><?php esc_html_e('End', 'starmus-audio-recorder'); ?></th>
-								<th scope="col" style="width:50px"><?php esc_html_e('Dur', 'starmus-audio-recorder'); ?></th>
-								<th scope="col" style="width:100px"><?php esc_html_e('Actions', 'starmus-audio-recorder'); ?></th>
-							</tr>
-						</thead>
-						<tbody id="regions-list"></tbody>
-					</table>
-				</section>
-			</aside>
-		</div>
-	<?php } ?>
+            <!-- SIDEBAR COLUMN -->
+            <aside class="starmus-editor__side">
+                <section class="starmus-editor__transcript">
+                    <h3><?php esc_html_e('Transcript', 'starmus-audio-recorder'); ?></h3>
+                    <div id="starmus-transcript-panel" class="starmus-transcript-panel">
+                        <?php if (empty($editor_data['transcript'])) { ?>
+                            <p class="starmus-empty-state"><?php esc_html_e('No transcription data.', 'starmus-audio-recorder'); ?></p>
+                        <?php } ?>
+                    </div>
+                </section>
+                <section class="starmus-editor__list">
+                    <h3><?php esc_html_e('Regions', 'starmus-audio-recorder'); ?></h3>
+                    <table class="starmus-info-table">
+                        <thead>
+                            <tr>
+                                <th scope="col"><?php esc_html_e('Label', 'starmus-audio-recorder'); ?></th>
+                                <th scope="col" style="width:60px"><?php esc_html_e('Start', 'starmus-audio-recorder'); ?></th>
+                                <th scope="col" style="width:60px"><?php esc_html_e('End', 'starmus-audio-recorder'); ?></th>
+                                <th scope="col" style="width:50px"><?php esc_html_e('Dur', 'starmus-audio-recorder'); ?></th>
+                                <th scope="col" style="width:100px"><?php esc_html_e('Actions', 'starmus-audio-recorder'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody id="regions-list"></tbody>
+                    </table>
+                </section>
+            </aside>
+        </div>
+    <?php } ?>
 </div>

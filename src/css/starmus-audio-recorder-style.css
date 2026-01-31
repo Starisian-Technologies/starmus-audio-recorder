@@ -1,322 +1,170 @@
-/**
- * STARMUS AUDIO PLUGIN - FULL TACTILE RESTORATION
- * Logic: Lossless Selector Recovery • Dark-First • Material Depth
- * Focus: Africa-Ready • Dyslexia • Photophobia • Title Case
- */
+/* =========================================================
+   SPARXSTAR DESIGN SYSTEM: THE BLUEPRINT
+   ========================================================= */
 
-/* ========================================================================
-   1. THEME MAPPING & MATERIAL ROOTS
-   ======================================================================== */
 :root {
-    /* Inherit from TT5 Palette */
-    --starmus-base: var(--wp--preset--color--base, #180205);
-    --starmus-base-two: var(--wp--preset--color--base-two, #251717);
-    --starmus-text: var(--wp--preset--color--contrast, #eceecf);
-    --starmus-primary: var(--wp--preset--color--accent); /* Pure Theme Accent */
+    /* --- TOKENS: PALETTE --- */
+    --sparxstar-clr-base:     var(--wp--preset--color--base, #180205);
+    --sparxstar-clr-surface:  var(--wp--preset--color--base-two, #251717);
+    --sparxstar-clr-contrast: var(--wp--preset--color--contrast, #eceecf);
+    --sparxstar-clr-accent:   var(--wp--preset--color--accent, #e5c34d);
 
-    /* Requested Material Shadow Stack */
-    --shadow-material-raised: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
-    --shadow-material-click:
-        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
-    --shadow-cta-flash: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    /* --- TOKENS: SHADOWS (Material & Neumorphic) --- */
+    --sparxstar-shd-raised:   rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    --sparxstar-shd-click:    rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    --sparxstar-shd-emboss:   inset 4px 4px 8px rgba(0, 0, 0, 0.7), inset -4px -4px 8px rgba(255, 255, 255, 0.05);
+    --sparxstar-shd-flat:     0 4px 15px rgba(0, 0, 0, 0.4);
 
-    /* Neumorphic Inset (Embossed) Shadows */
-    --depth-black-soft: rgba(0, 0, 0, 0.7);
-    --soft-highlight: color-mix(in srgb, var(--starmus-base), white 10%);
-
-    /* Mapping Legacy Starmus Variables to New System */
-    --starmus-glass-bg: var(--starmus-base-two);
-    --starmus-glass-border-color: rgba(236, 238, 207, 0.1);
-    --starmus-danger: var(--wp--preset--color--accent-4, #b91c1c);
-    --starmus-success: var(--wp--preset--color--accent-5, #16a34a);
-    --starmus-warning: var(--wp--preset--color--accent-2, #ea580c);
+    /* --- TOKENS: TYPOGRAPHY --- */
+    --sparxstar-fnt-body:     "Noto Sans", system-ui, sans-serif;
+    --sparxstar-fnt-heading:  "Roboto Condensed", sans-serif;
 }
 
-/* ========================================================================
-   2. GLOBAL TYPOGRAPHY (TITLE CASE & NOTO SANS)
-   ======================================================================== */
-
-.starmus-recorder-form,
-.starmus-user-detail,
-.starmus-admin-detail,
-.starmus-editor {
-    font-family: "Noto Sans", system-ui, sans-serif !important;
-    color: var(--starmus-text) !important;
+/* ---------------------------------------------------------
+   BASE STYLES
+   --------------------------------------------------------- */
+.sparxstar-sandbox {
+    padding: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-/* Forced Title Case for Editorial Titles */
-h1,
-h2,
-h3,
-h4,
-.starmus-card__title,
-.starmus-detail__header h1,
-.starmus-editor__head h1 {
-    font-family: "Roboto Condensed", sans-serif !important;
-    text-transform: capitalize !important;
+.sparxstar-type--body {
+    font-family: var(--sparxstar-fnt-body);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    letter-spacing: 0.012em;
+    word-spacing: 0.05em;
+}
+
+.sparxstar-type--muted {
+    font-size: 0.85rem;
+    opacity: 0.6;
+}
+
+/* ---------------------------------------------------------
+   COMPONENT: CARD
+   --------------------------------------------------------- */
+.sparxstar-card {
+    background-color: var(--sparxstar-clr-surface);
+    color: var(--sparxstar-clr-contrast);
+    box-shadow: var(--sparxstar-shd-flat);
+    border-radius: 4px;
+    padding: 2.5rem;
+    margin-bottom: 3rem;
+}
+
+.sparxstar-card__title {
+    font-family: var(--sparxstar-fnt-heading);
+    text-transform: capitalize !important; /* Forced Title Case */
     font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: var(--sparxstar-clr-accent);
 }
 
-/* ========================================================================
-   3. LAYOUT & GRIDS (RECOVERY)
-   ======================================================================== */
+.sparxstar-card__header { margin-bottom: 2rem; }
+.sparxstar-card__meta   { display: flex; gap: 12px; align-items: center; }
 
-.starmus-grid-layout,
-.starmus-admin-detail__grid,
-.starmus-layout-split {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
+.sparxstar-badge {
+    background: var(--sparxstar-clr-accent);
+    color: var(--sparxstar-clr-base);
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
-@media (min-width: 1024px) {
-    .starmus-grid-layout,
-    .starmus-admin-detail__grid,
-    .starmus-layout-split {
-        grid-template-columns: 2fr 1fr;
-    }
+/* ---------------------------------------------------------
+   COMPONENT: BUTTONS
+   --------------------------------------------------------- */
+.sparxstar-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 24px;
+    border: none;
+    border-radius: 4px;
+    font-family: var(--sparxstar-fnt-body);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    box-shadow: var(--sparxstar-shd-raised);
+    transition: all 0.2s ease;
+    text-decoration: none;
 }
 
-.starmus-recordings-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+.sparxstar-button--primary {
+    background-color: var(--sparxstar-clr-accent);
+    color: var(--sparxstar-clr-base);
 }
 
-/* ========================================================================
-   4. TACTILE CONTAINERS (FLAT -> CURLED HOVER)
-   ======================================================================== */
-
-.sparxstar-glass-card,
-.starmus-glass,
-.starmus-recorder-form,
-.starmus-editor__wave-inner,
-.starmus-editor__transcript,
-.starmus-editor__list,
-.starmus-player-card,
-.starmus-info-card,
-.starmus-actions-card {
-    position: relative;
-    background: var(--starmus-glass-bg) !important;
-    border: 1px solid var(--starmus-glass-border-color) !important;
-    border-radius: 4px !important;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    z-index: 1;
-    backdrop-filter: none !important; /* Performance Gating */
+.sparxstar-button--secondary {
+    background-color: var(--sparxstar-clr-base);
+    color: var(--sparxstar-clr-contrast);
 }
 
-/* The Curled Corner Shadow (Hover Only) */
-.starmus-glass::before,
-.starmus-glass::after,
-.starmus-recorder-form::before,
-.starmus-recorder-form::after,
-.starmus-player-card::before,
-.starmus-player-card::after {
-    content: "";
+.sparxstar-button:active {
+    box-shadow: var(--sparxstar-shd-click);
+    transform: translateY(2px);
+}
+
+.sparxstar-button--wide { width: 100%; }
+
+/* ---------------------------------------------------------
+   COMPONENT: FORM CONTROLS
+   --------------------------------------------------------- */
+.sparxstar-form__group { margin-bottom: 1.5rem; }
+
+.sparxstar-form__label {
+    display: block;
+    font-family: var(--sparxstar-fnt-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.sparxstar-form__control {
+    width: 100%;
+    min-height: 48px;
+    background-color: var(--sparxstar-clr-base) !important;
+    color: var(--sparxstar-clr-contrast) !important;
+    border: none !important;
+    border-radius: 12px; /* Twitter Roundness */
+    padding: 0 16px;
+    box-shadow: var(--sparxstar-shd-emboss) !important;
+    font-family: inherit;
+}
+
+.sparxstar-form__control--textarea { height: auto; padding: 16px; }
+
+/* ---------------------------------------------------------
+   SPECIAL EFFECT: IMAGE HOVER CURL
+   --------------------------------------------------------- */
+.sparxstar-image { position: relative; z-index: 1; margin-bottom: 2rem; }
+.sparxstar-image img { width: 100%; border-radius: 2px; display: block; }
+
+.sparxstar-image--curled::before,
+.sparxstar-image--curled::after {
+    content: '';
     position: absolute;
     bottom: 15px;
     width: 40%;
     height: 10px;
-    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.8);
     z-index: -1;
-    opacity: 0; /* Flat by default */
-    transition: all 0.3s ease-in-out;
+    opacity: 0; /* Hidden by default */
+    transition: all 0.3s ease;
 }
 
-.starmus-glass::before,
-.starmus-recorder-form::before {
-    left: 15px;
-    transform: skew(-5deg) rotate(-5deg);
-}
-.starmus-glass::after,
-.starmus-recorder-form::after {
-    right: 15px;
-    transform: skew(5deg) rotate(5deg);
-}
+.sparxstar-image--curled::before { left: 15px; transform: skew(-5deg) rotate(-5deg); }
+.sparxstar-image--curled::after { right: 15px; transform: skew(5deg) rotate(5deg); }
 
-.starmus-glass:hover::before,
-.starmus-glass:hover::after,
-.starmus-recorder-form:hover::before,
-.starmus-recorder-form:hover::after {
+/* Reveal on hover */
+.sparxstar-image--curled:hover::before,
+.sparxstar-image--curled:hover::after {
     opacity: 1;
     bottom: 10px;
-}
-
-/* ========================================================================
-   5. FORMS & INPUTS (NEUMORPHIC EMBOSSED)
-   ======================================================================== */
-
-.starmus-recorder-form label {
-    font-family: "Noto Sans", sans-serif;
-    color: var(--starmus-text);
-    font-weight: 600;
-}
-
-.starmus-recorder-form input[type="text"],
-.starmus-recorder-form select,
-.starmus-recorder-form textarea {
-    width: 100%;
-    background-color: var(--starmus-base) !important;
-    color: var(--starmus-text) !important;
-    border: none !important;
-    border-radius: 12px !important;
-    padding: 0.85rem !important;
-    box-shadow:
-        inset 4px 4px 8px var(--depth-black-soft),
-        inset -4px -4px 8px var(--soft-highlight) !important;
-}
-
-.starmus-recorder-form input:focus {
-    outline: 2px solid var(--starmus-primary) !important;
-}
-
-/* ========================================================================
-   6. BUTTON SYSTEM (MATERIAL RAISED)
-   ======================================================================== */
-
-.starmus-btn,
-.button.starmus-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    border: none !important;
-    background-color: var(--starmus-base) !important;
-    color: var(--starmus-text) !important;
-    box-shadow: var(--shadow-material-raised) !important;
-    transition: all 0.2s ease !important;
-}
-
-.starmus-btn--primary,
-button[data-starmus-action="record"],
-button[data-starmus-action="submit"],
-button[data-starmus-action="continue"] {
-    background-color: var(--starmus-primary) !important;
-    color: var(--starmus-base) !important;
-}
-
-/* Pressed State */
-.starmus-btn:active {
-    box-shadow: var(--shadow-material-click) !important;
-    transform: translateY(2px);
-}
-
-/* ========================================================================
-   7. RECORDER COMPONENTS (RECESSED VISUALIZER)
-   ======================================================================== */
-
-.starmus-visualizer-stage {
-    background: var(--starmus-base) !important;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.5);
-    border: 1px solid var(--starmus-glass-border-color) !important;
-}
-
-.starmus-timer {
-    font-family: "Noto Sans Mono", monospace !important;
-    font-size: 2rem;
-    font-weight: 700;
-}
-
-.starmus-meter-bar {
-    height: 12px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-/* ========================================================================
-   8. ANIMATIONS (CTA FLASH LIFT)
-   ======================================================================== */
-
-@keyframes cta-lift-flash {
-    0% {
-        transform: scale(1);
-        box-shadow: var(--shadow-material-raised);
-    }
-    50% {
-        transform: scale(1.02);
-        box-shadow: var(--shadow-cta-flash) !important;
-    }
-    100% {
-        transform: scale(1);
-        box-shadow: var(--shadow-material-raised);
-    }
-}
-
-@keyframes cta-shine {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
-}
-
-button[data-starmus-action="submit"] {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(
-        90deg,
-        var(--starmus-primary) 0%,
-        color-mix(in srgb, var(--starmus-primary), white 20%) 50%,
-        var(--starmus-primary) 100%
-    ) !important;
-    background-size: 200% auto;
-    animation:
-        cta-lift-flash 0.8s ease 3s 1,
-        cta-shine 1.5s linear 3.5s 1;
-}
-
-/* ========================================================================
-   9. EDITOR, TRANSCRIPT & LISTS
-   ======================================================================== */
-
-.starmus-editor__transcript,
-.starmus-transcript-box {
-    font-family: "Noto Sans Mono", monospace !important;
-    background: var(--starmus-base-two) !important;
-    line-height: 1.8;
-}
-
-.starmus-word.is-active {
-    background: var(--starmus-primary) !important;
-    color: var(--starmus-base) !important;
-}
-
-.starmus-card__title a {
-    color: var(--starmus-primary) !important;
-    text-decoration: none;
-}
-
-.starmus-tag,
-.starmus-badge {
-    background: var(--starmus-base) !important;
-    border: 1px solid var(--starmus-glass-border-color) !important;
-    color: var(--starmus-text) !important;
-}
-
-/* ========================================================================
-   10. PERFORMANCE & ACCESSIBILITY
-   ======================================================================== */
-
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation: none !important;
-        transition: none !important;
-    }
-}
-
-@media (width <= 768px) {
-    .starmus-recorder-form.starmus-immersive {
-        background: var(--starmus-base) !important;
-        position: fixed;
-        z-index: 9999;
-    }
 }
