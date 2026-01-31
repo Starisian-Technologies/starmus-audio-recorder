@@ -1,56 +1,91 @@
 /**
- * STARISIAN TECHNOLOGIES - TACTILE DESIGN SYSTEM
- * Refactor: Photophobia-Friendly & Legacy-Hardened
- * Theme: Dark-First / Deep Ink / Noto Sans
+ * STARMUS AUDIO PLUGIN - FULL TACTILE RESTORATION
+ * Logic: Lossless Selector Recovery • Dark-First • Material Depth
+ * Focus: Africa-Ready • Dyslexia • Photophobia • Title Case
  */
 
 /* ========================================================================
-   1. THEME INHERITANCE & PHOTOPHOBIA VARIABLES
+   1. THEME MAPPING & MATERIAL ROOTS
    ======================================================================== */
 :root {
-    /* Base Colors: Using your Deep Ink & Warm Earth tones */
+    /* Inherit from TT5 Palette */
     --starmus-base: var(--wp--preset--color--base, #180205);
     --starmus-base-two: var(--wp--preset--color--base-two, #251717);
-
-    /* Photophobia Fix: Softened Cream (reduces "halo" effect for light-sensitive eyes) */
     --starmus-text: var(--wp--preset--color--contrast, #eceecf);
-    --starmus-text-muted: rgba(236, 238, 207, 0.6);
+    --starmus-primary: var(--wp--preset--color--accent); /* Pure Theme Accent */
 
-    /* Primary Action: Softened Gold (less "glare" than pure yellow) */
-    --starmus-primary: var(--wp--preset--color--accent, #e5c34d);
+    /* Requested Material Shadow Stack */
+    --shadow-material-raised: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    --shadow-material-click:
+        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    --shadow-cta-flash: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
 
-    /* Shadows: Palette-derived Ink (No pure black) */
-    --starmus-shadow-lift: 0 10px 20px -5px rgba(24, 2, 5, 0.7);
-    --starmus-shadow-raised: 2px 2px 5px rgba(24, 2, 5, 0.5);
-    --starmus-shadow-recessed: inset 2px 2px 5px rgba(24, 2, 5, 0.6);
+    /* Neumorphic Inset (Embossed) Shadows */
+    --depth-black-soft: rgba(0, 0, 0, 0.7);
+    --soft-highlight: color-mix(in srgb, var(--starmus-base), white 10%);
 
-    /* Glass/Paper Surface Logic */
+    /* Mapping Legacy Starmus Variables to New System */
     --starmus-glass-bg: var(--starmus-base-two);
-    --starmus-glass-border-color: rgba(236, 238, 207, 0.08);
-    --starmus-glass-shadow: var(--starmus-shadow-lift);
-
-    /* Accessible Semantic States (Slightly desaturated to prevent glare) */
-    --starmus-danger: #a52a2a;
-    --starmus-success: #2e7d32;
-    --starmus-warning: #c66900;
+    --starmus-glass-border-color: rgba(236, 238, 207, 0.1);
+    --starmus-danger: var(--wp--preset--color--accent-4, #b91c1c);
+    --starmus-success: var(--wp--preset--color--accent-5, #16a34a);
+    --starmus-warning: var(--wp--preset--color--accent-2, #ea580c);
 }
 
 /* ========================================================================
-   2. GLOBAL TYPOGRAPHY & SURFACE (LOSSLESS)
+   2. GLOBAL TYPOGRAPHY (TITLE CASE & NOTO SANS)
    ======================================================================== */
+
 .starmus-recorder-form,
 .starmus-user-detail,
 .starmus-admin-detail,
 .starmus-editor {
-    font-family:
-        "Noto Sans",
-        system-ui,
-        -apple-system,
-        sans-serif !important;
+    font-family: "Noto Sans", system-ui, sans-serif !important;
     color: var(--starmus-text) !important;
-    line-height: 1.6;
-    background-color: transparent;
 }
+
+/* Forced Title Case for Editorial Titles */
+h1,
+h2,
+h3,
+h4,
+.starmus-card__title,
+.starmus-detail__header h1,
+.starmus-editor__head h1 {
+    font-family: "Roboto Condensed", sans-serif !important;
+    text-transform: capitalize !important;
+    font-weight: 700;
+}
+
+/* ========================================================================
+   3. LAYOUT & GRIDS (RECOVERY)
+   ======================================================================== */
+
+.starmus-grid-layout,
+.starmus-admin-detail__grid,
+.starmus-layout-split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 1024px) {
+    .starmus-grid-layout,
+    .starmus-admin-detail__grid,
+    .starmus-layout-split {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+.starmus-recordings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+/* ========================================================================
+   4. TACTILE CONTAINERS (FLAT -> CURLED HOVER)
+   ======================================================================== */
 
 .sparxstar-glass-card,
 .starmus-glass,
@@ -61,133 +96,200 @@
 .starmus-player-card,
 .starmus-info-card,
 .starmus-actions-card {
+    position: relative;
     background: var(--starmus-glass-bg) !important;
     border: 1px solid var(--starmus-glass-border-color) !important;
     border-radius: 4px !important;
-    box-shadow: var(--starmus-glass-shadow) !important;
-    /* Optimized: Removed backdrop-filter to save CPU/Battery on low-end devices */
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    z-index: 1;
+    backdrop-filter: none !important; /* Performance Gating */
+}
+
+/* The Curled Corner Shadow (Hover Only) */
+.starmus-glass::before,
+.starmus-glass::after,
+.starmus-recorder-form::before,
+.starmus-recorder-form::after,
+.starmus-player-card::before,
+.starmus-player-card::after {
+    content: "";
+    position: absolute;
+    bottom: 15px;
+    width: 40%;
+    height: 10px;
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.8);
+    z-index: -1;
+    opacity: 0; /* Flat by default */
+    transition: all 0.3s ease-in-out;
+}
+
+.starmus-glass::before,
+.starmus-recorder-form::before {
+    left: 15px;
+    transform: skew(-5deg) rotate(-5deg);
+}
+.starmus-glass::after,
+.starmus-recorder-form::after {
+    right: 15px;
+    transform: skew(5deg) rotate(5deg);
+}
+
+.starmus-glass:hover::before,
+.starmus-glass:hover::after,
+.starmus-recorder-form:hover::before,
+.starmus-recorder-form:hover::after {
+    opacity: 1;
+    bottom: 10px;
 }
 
 /* ========================================================================
-   3. FORMS & INPUTS (TACTILE RECESSED)
+   5. FORMS & INPUTS (NEUMORPHIC EMBOSSED)
    ======================================================================== */
+
 .starmus-recorder-form label {
+    font-family: "Noto Sans", sans-serif;
+    color: var(--starmus-text);
     font-weight: 600;
-    color: var(--starmus-text-muted); /* Softer label for photophobia */
-    font-size: 0.9rem;
 }
 
 .starmus-recorder-form input[type="text"],
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
+    width: 100%;
     background-color: var(--starmus-base) !important;
     color: var(--starmus-text) !important;
-    border: 1px solid var(--starmus-glass-border-color) !important;
-    border-radius: 4px !important;
-    box-shadow: var(--starmus-shadow-recessed) !important;
-    font-size: 1rem;
+    border: none !important;
+    border-radius: 12px !important;
     padding: 0.85rem !important;
-    appearance: none; /* Uniform look on old Androids */
-}
-
-/* Compatibility fix for older mobile browser select dropdowns */
-.starmus-recorder-form select option {
-    background-color: var(--starmus-base-two) !important;
-    color: var(--starmus-text) !important;
+    box-shadow:
+        inset 4px 4px 8px var(--depth-black-soft),
+        inset -4px -4px 8px var(--soft-highlight) !important;
 }
 
 .starmus-recorder-form input:focus {
-    outline: none !important;
-    border-color: var(--starmus-primary) !important;
-    background-color: var(--starmus-base-two) !important;
+    outline: 2px solid var(--starmus-primary) !important;
 }
 
 /* ========================================================================
-   4. BUTTON SYSTEM (TACTILE RAISED)
+   6. BUTTON SYSTEM (MATERIAL RAISED)
    ======================================================================== */
+
 .starmus-btn,
 .button.starmus-btn {
-    font-family: "Noto Sans", sans-serif !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
     border-radius: 4px !important;
-    box-shadow: var(--starmus-shadow-raised) !important;
+    font-weight: 700 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.05em !important;
-    font-weight: 700 !important;
-    border: none;
+    border: none !important;
+    background-color: var(--starmus-base) !important;
+    color: var(--starmus-text) !important;
+    box-shadow: var(--shadow-material-raised) !important;
     transition: all 0.2s ease !important;
 }
 
 .starmus-btn--primary,
 button[data-starmus-action="record"],
-button[data-starmus-action="submit"] {
+button[data-starmus-action="submit"],
+button[data-starmus-action="continue"] {
     background-color: var(--starmus-primary) !important;
-    color: var(--starmus-base) !important; /* Inverted for clarity */
+    color: var(--starmus-base) !important;
 }
 
-.starmus-btn--secondary,
-.starmus-btn--resume,
-.starmus-btn--pause {
-    background: var(--starmus-base-two) !important;
-    border: 1px solid var(--starmus-primary) !important;
-    color: var(--starmus-primary) !important;
-}
-
-@media (hover: hover) {
-    .starmus-btn:hover:not(:disabled) {
-        transform: translateY(-2px) !important;
-        box-shadow: var(--starmus-shadow-lift) !important;
-    }
+/* Pressed State */
+.starmus-btn:active {
+    box-shadow: var(--shadow-material-click) !important;
+    transform: translateY(2px);
 }
 
 /* ========================================================================
-   5. RECORDER COMPONENTS (TIMER & METERS)
+   7. RECORDER COMPONENTS (RECESSED VISUALIZER)
    ======================================================================== */
+
 .starmus-visualizer-stage {
     background: var(--starmus-base) !important;
-    box-shadow: var(--starmus-shadow-recessed) !important;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.5);
     border: 1px solid var(--starmus-glass-border-color) !important;
-    filter: brightness(0.9); /* Reduces glare during live recording */
 }
 
 .starmus-timer {
     font-family: "Noto Sans Mono", monospace !important;
-    color: var(--starmus-text);
-    letter-spacing: -0.05em;
+    font-size: 2rem;
+    font-weight: 700;
 }
 
-/* Meters: Using desaturated semantic colors for photophobia */
 .starmus-meter-bar {
-    background: rgba(24, 2, 5, 0.5) !important;
-    border-radius: 2px;
-}
-
-.starmus-meter-bar::after {
-    filter: saturate(0.8); /* Dims the intensity of the "Green-to-Red" meter */
+    height: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    overflow: hidden;
 }
 
 /* ========================================================================
-   6. TRANSCRIPT & EDITOR (MONOSPACE ALIGNMENT)
+   8. ANIMATIONS (CTA FLASH LIFT)
    ======================================================================== */
+
+@keyframes cta-lift-flash {
+    0% {
+        transform: scale(1);
+        box-shadow: var(--shadow-material-raised);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: var(--shadow-cta-flash) !important;
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: var(--shadow-material-raised);
+    }
+}
+
+@keyframes cta-shine {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+button[data-starmus-action="submit"] {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(
+        90deg,
+        var(--starmus-primary) 0%,
+        color-mix(in srgb, var(--starmus-primary), white 20%) 50%,
+        var(--starmus-primary) 100%
+    ) !important;
+    background-size: 200% auto;
+    animation:
+        cta-lift-flash 0.8s ease 3s 1,
+        cta-shine 1.5s linear 3.5s 1;
+}
+
+/* ========================================================================
+   9. EDITOR, TRANSCRIPT & LISTS
+   ======================================================================== */
+
 .starmus-editor__transcript,
 .starmus-transcript-box {
     font-family: "Noto Sans Mono", monospace !important;
     background: var(--starmus-base-two) !important;
-    color: var(--starmus-text) !important;
-    border-radius: 4px;
+    line-height: 1.8;
 }
 
 .starmus-word.is-active {
-    background: color-mix(in srgb, var(--starmus-primary) 30%, transparent) !important;
-    color: var(--starmus-text) !important;
-    box-shadow: 0 0 10px rgba(229, 195, 77, 0.2);
-    border-radius: 2px;
+    background: var(--starmus-primary) !important;
+    color: var(--starmus-base) !important;
 }
 
-/* ========================================================================
-   7. LISTS, CARDS & PAGINATION
-   ======================================================================== */
 .starmus-card__title a {
     color: var(--starmus-primary) !important;
     text-decoration: none;
@@ -197,45 +299,24 @@ button[data-starmus-action="submit"] {
 .starmus-badge {
     background: var(--starmus-base) !important;
     border: 1px solid var(--starmus-glass-border-color) !important;
-    color: var(--starmus-text-muted) !important;
-    font-size: 0.7rem !important;
-}
-
-.starmus-pagination__item .page-numbers {
-    background: var(--starmus-base-two) !important;
-    border: 1px solid var(--starmus-glass-border-color) !important;
     color: var(--starmus-text) !important;
 }
 
 /* ========================================================================
-   8. PERFORMANCE & ACCESSIBILITY (HARDENED)
+   10. PERFORMANCE & ACCESSIBILITY
    ======================================================================== */
+
 @media (prefers-reduced-motion: reduce) {
     * {
-        transition: none !important;
         animation: none !important;
+        transition: none !important;
     }
 }
 
-/* Softened Shine Animation (Reduced glare) */
-button[data-starmus-action="submit"],
-.starmus-btn--primary {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(
-        90deg,
-        var(--starmus-primary) 0%,
-        rgba(229, 195, 77, 0.4) 50%,
-        var(--starmus-primary) 100%
-    ) !important;
-    background-size: 200% auto !important;
-}
-
-/* Mobile Immersive: Ensure dark-first background is forced */
 @media (width <= 768px) {
     .starmus-recorder-form.starmus-immersive {
         background: var(--starmus-base) !important;
         position: fixed;
-        z-index: 10000;
+        z-index: 9999;
     }
 }

@@ -161,9 +161,9 @@ export function initCore(store, instanceId, env) {
             transcript: source.transcript?.trim() || null,
             calibration: calibration.complete
                 ? {
-                      gain: calibration.gain,
-                      speechLevel: calibration.speechLevel,
-                  }
+                    gain: calibration.gain,
+                    speechLevel: calibration.speechLevel,
+                }
                 : null,
             env: stateEnv,
             tier: stateEnv.tier || currentEnvData?.tier || "C",
