@@ -55,8 +55,8 @@ h1, h2, .starmus-card__title, .starmus-detail__header h1 {
 /* ---------------------------------------------------------
    2. FORM ALIGNMENT & EMBOSSING (The "Fix")
    --------------------------------------------------------- */
-.starmus-field-group { 
-    margin-bottom: 2rem !important; 
+.starmus-field-group {
+    margin-bottom: 2rem !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: flex-start !important;
@@ -81,7 +81,7 @@ h1, h2, .starmus-card__title, .starmus-detail__header h1 {
     color: var(--s-contrast) !important;
     font-family: inherit;
     font-size: 1rem !important;
-    
+
     /* The Design Border + Embossed Shadow */
     border: 1px solid color-mix(in srgb, var(--s-contrast), transparent 85%) !important;
     border-radius: 12px !important;
@@ -143,9 +143,9 @@ h1, h2, .starmus-card__title, .starmus-detail__header h1 {
 
 /* Meter Fill (Preserving Functional Colors) */
 .starmus-meter-bar::after {
-    background: linear-gradient(90deg, 
-        #16a34a 0%, 
-        #ea580c 70%, 
+    background: linear-gradient(90deg,
+        #16a34a 0%,
+        #ea580c 70%,
         #b91c1c 100%
     ) !important;
 }
