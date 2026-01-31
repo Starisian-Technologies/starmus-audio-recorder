@@ -7,7 +7,7 @@ use Starisian\Sparxstar\Starmus\admin\interfaces\IStarmusAdminInterface;
 use Starisian\Sparxstar\Starmus\includes\StarmusSageMakerJobRepository;
 use Starisian\Sparxstar\Starmus\integrations\StarmusSageMakerClient;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -21,7 +21,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
     {
         // In a real DI container, these would be injected.
         $this->repository = new StarmusSageMakerJobRepository();
-        $this->manager    = new StarmusSageMakerClient($this->repository);
+        $this->manager = new StarmusSageMakerClient($this->repository);
 
         $this->register_hooks();
     }
@@ -40,7 +40,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 
     public function render(): void
     {
-        if ( ! current_user_can('manage_options')) {
+        if (! current_user_can('manage_options')) {
             wp_die(esc_html__('Insufficient permissions', 'starmus-audio-recorder'));
         }
 
@@ -65,7 +65,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
     private function render_detail_view(string $job_id): void
     {
         $job = $this->repository->find($job_id);
-        if ( ! $job) {
+        if (! $job) {
             echo '<p>' . esc_html__('Job not found.', 'starmus-audio-recorder') . '</p>';
             echo '<p><a href="' . esc_url(menu_page_url('starmus-sagemaker-jobs', false)) . '">' . esc_html__('Back to list', 'starmus-audio-recorder') . '</a></p>';
             return;
@@ -101,11 +101,11 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
      */
     private function render_list_view(): void
     {
-        $page     = isset($_GET['paged']) ? max(1, \intval($_GET['paged'])) : 1;
+        $page = isset($_GET['paged']) ? max(1, \intval($_GET['paged'])) : 1;
         $per_page = 20;
 
-        $jobs        = $this->repository->get_paged_jobs($page, $per_page);
-        $total_jobs  = $this->repository->get_total_count();
+        $jobs = $this->repository->get_paged_jobs($page, $per_page);
+        $total_jobs = $this->repository->get_total_count();
         $total_pages = ceil($total_jobs / $per_page);
 
         echo '<table class="widefat fixed striped">';
@@ -130,7 +130,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
 
                 $view_url = add_query_arg(
                     [
-                'page'   => 'starmus-sagemaker-jobs',
+                'page' => 'starmus-sagemaker-jobs',
                 'job_id' => $id,
                     ],
                     admin_url('admin.php')
@@ -148,12 +148,12 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
             echo '<div class="tablenav"><div class="tablenav-pages">';
             echo paginate_links(
                 [
-            'base'      => add_query_arg('paged', '%#%'),
-            'format'    => '',
+            'base' => add_query_arg('paged', '%#%'),
+            'format' => '',
             'prev_text' => __('&laquo;', 'starmus-audio-recorder'),
             'next_text' => __('&raquo;', 'starmus-audio-recorder'),
-            'total'     => (int) $total_pages,
-            'current'   => max(1, (int) $page),
+            'total' => (int) $total_pages,
+            'current' => max(1, (int) $page),
                 ]
             );
             echo '</div></div>';
@@ -168,7 +168,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
      */
     public function handle_delete_job(): void
     {
-        if ( ! current_user_can('manage_options')) {
+        if (! current_user_can('manage_options')) {
             wp_die(esc_html__('Insufficient permissions', 'starmus-audio-recorder'));
         }
 
@@ -187,7 +187,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
      */
     public function ajax_get_jobs(): void
     {
-        if ( ! current_user_can('manage_options')) {
+        if (! current_user_can('manage_options')) {
             wp_send_json_error('insufficient_permissions', 403);
         }
 
@@ -209,7 +209,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
      */
     public function ajax_retry_job(): void
     {
-        if ( ! current_user_can('manage_options')) {
+        if (! current_user_can('manage_options')) {
             wp_send_json_error('insufficient_permissions', 403);
         }
 
@@ -234,7 +234,7 @@ final readonly class StarmusSageMakerJobQueueManager implements IStarmusAdminInt
      */
     public function ajax_delete_job(): void
     {
-        if ( ! current_user_can('manage_options')) {
+        if (! current_user_can('manage_options')) {
             wp_send_json_error('insufficient_permissions', 403);
         }
 

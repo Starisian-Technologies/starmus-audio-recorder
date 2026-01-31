@@ -13,7 +13,6 @@
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\data\mappers;
 
 use function date;
@@ -23,18 +22,18 @@ use function json_encode;
 use function json_last_error;
 use function json_last_error_msg;
 use function sanitize_text_field;
+
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
 use function wp_unslash;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
 class StarmusSchemaMapper
 {
-
     /**
      * FIELDS TO PASSTHROUGH WITHOUT MODIFICATION
      *
@@ -80,94 +79,94 @@ class StarmusSchemaMapper
      */
     private const FIELD_MAP = [
         // -- Core Archival --
-        'global_uuid'            => 'starmus_global_uuid',
-        'stable_uri'             => 'starmus_stable_uri',
-        'linked_data_uri'        => 'starmus_linked_data_uri',
-        'dc_rights_type'         => 'starmus_rights_type',
-        'dc_rights'              => 'starmus_rights_use',
-        'dc_rights_geo'          => 'starmus_rights_geo',
-        'dc_rights_royalty'      => 'starmus_rights_royalty',
+        'global_uuid' => 'starmus_global_uuid',
+        'stable_uri' => 'starmus_stable_uri',
+        'linked_data_uri' => 'starmus_linked_data_uri',
+        'dc_rights_type' => 'starmus_rights_type',
+        'dc_rights' => 'starmus_rights_use',
+        'dc_rights_geo' => 'starmus_rights_geo',
+        'dc_rights_royalty' => 'starmus_rights_royalty',
         'data_sensitivity_level' => 'starmus_data_sensitivity',
-        'anonymization_status'   => 'starmus_anon_status',
-        'consent_scope'          => 'starmus_consent_scope',
-        'copyright_licensee'     => 'starmus_copyright_licensee',
+        'anonymization_status' => 'starmus_anon_status',
+        'consent_scope' => 'starmus_consent_scope',
+        'copyright_licensee' => 'starmus_copyright_licensee',
 
         // -- Session Metadata --
-        'project_collection_id'     => 'starmus_project_collection_id',
-        'accession_number'          => 'starmus_accession_number',
-        'session_start_time'        => 'starmus_session_start_time',
-        'session_end_time'          => 'starmus_session_end_time',
-        'location'                  => 'starmus_session_location',
-        'gps_coordinates'           => 'starmus_session_gps',
-        'recording_equipment'       => 'starmus_recording_equipment',
-        'audio_files_originals'     => 'starmus_audio_files_originals',
-        'media_condition_notes'     => 'starmus_media_condition',
+        'project_collection_id' => 'starmus_project_collection_id',
+        'accession_number' => 'starmus_accession_number',
+        'session_start_time' => 'starmus_session_start_time',
+        'session_end_time' => 'starmus_session_end_time',
+        'location' => 'starmus_session_location',
+        'gps_coordinates' => 'starmus_session_gps',
+        'recording_equipment' => 'starmus_recording_equipment',
+        'audio_files_originals' => 'starmus_audio_files_originals',
+        'media_condition_notes' => 'starmus_media_condition',
         'usage_restrictions_rights' => 'starmus_rights_use',
-        'access_level'              => 'starmus_access_level',
-        'audio_quality_score_tax'   => 'starmus_audio_quality_score',
+        'access_level' => 'starmus_access_level',
+        'audio_quality_score_tax' => 'starmus_audio_quality_score',
 
         // -- Technical Data (Distinct Fields) --
         'recording_metadata' => 'starmus_recording_metadata', // Technical Session JSON
-        'processing_log'     => 'starmus_processing_log',     // Audit Trail JSON
+        'processing_log' => 'starmus_processing_log',     // Audit Trail JSON
 
         // -- Rights & Credits --
-        'copyright_status'  => 'starmus_copyright_status',
+        'copyright_status' => 'starmus_copyright_status',
         'usage_constraints' => 'starmus_usage_constraints',
 
         // -- Processing Status --
-        'explicit'                 => 'starmus_is_explicit',
-        'is_music'                 => 'starmus_is_music',
-        'school_reviewed'          => 'starmus_school_reviewed',
+        'explicit' => 'starmus_is_explicit',
+        'is_music' => 'starmus_is_music',
+        'school_reviewed' => 'starmus_school_reviewed',
         'contributor_verification' => 'starmus_contributor_verification',
-        'qa_review'                => 'starmus_qa_review',
-        'waveform_json'            => 'starmus_waveform_json',
-        'original_source'          => 'starmus_original_source',
-        'archival_wav'             => 'starmus_archival_wav',
-        'mastered_mp3'             => 'starmus_mastered_mp3',
-        'cloud_object_uri'         => 'starmus_cloud_object_uri',
-        'device_fingerprint'       => 'starmus_device_fingerprint',
-        'environment_data'         => 'starmus_environment_data',
+        'qa_review' => 'starmus_qa_review',
+        'waveform_json' => 'starmus_waveform_json',
+        'original_source' => 'starmus_original_source',
+        'archival_wav' => 'starmus_archival_wav',
+        'mastered_mp3' => 'starmus_mastered_mp3',
+        'cloud_object_uri' => 'starmus_cloud_object_uri',
+        'device_fingerprint' => 'starmus_device_fingerprint',
+        'environment_data' => 'starmus_environment_data',
 
         // -- Agreement --
-        'terms_type'              => 'starmus_terms_type',
-        'submission_id'           => 'starmus_submission_id',
-        'contributor_signature'   => 'starmus_contributor_signature',
-        'contributor_user_agent'  => 'starmus_agree_ua',
-        'ip_address'              => 'starmus_agree_ip',
-        'submission_ip'           => 'starmus_agree_ip', // Legacy alias
-        'contributor_ip'          => 'starmus_agree_ip', // Legacy alias
+        'terms_type' => 'starmus_terms_type',
+        'submission_id' => 'starmus_submission_id',
+        'contributor_signature' => 'starmus_contributor_signature',
+        'contributor_user_agent' => 'starmus_agree_ua',
+        'ip_address' => 'starmus_agree_ip',
+        'submission_ip' => 'starmus_agree_ip', // Legacy alias
+        'contributor_ip' => 'starmus_agree_ip', // Legacy alias
         'contributor_geolocation' => 'starmus_agree_geo',
 
         // -- Music Engineering --
-        'sample_rate'    => 'starmus_sample_rate',
-        'bit_depth'      => 'starmus_bit_depth',
-        'tuning_hz'      => 'starmus_tuning_hz',
+        'sample_rate' => 'starmus_sample_rate',
+        'bit_depth' => 'starmus_bit_depth',
+        'tuning_hz' => 'starmus_tuning_hz',
         'channel_layout' => 'starmus_channel_layout',
 
         // -- Music Composition --
-        'bpm'             => 'starmus_bpm',
-        'musical_key'     => 'starmus_musical_key',
-        'isrc_code'       => 'starmus_isrc_code',
+        'bpm' => 'starmus_bpm',
+        'musical_key' => 'starmus_musical_key',
+        'isrc_code' => 'starmus_isrc_code',
         'integrated_lufs' => 'starmus_integrated_lufs',
         'stems_cloud_uri' => 'starmus_stems_cloud_uri',
         'daw_project_uri' => 'starmus_daw_project_uri',
 
         // -- Release --
-        'upc_code'       => 'starmus_upc_code',
+        'upc_code' => 'starmus_upc_code',
         'catalog_number' => 'starmus_catalog_number',
-        'label_name'     => 'starmus_label_name',
+        'label_name' => 'starmus_label_name',
 
         // -- Transcription & Translation --
-        'transcription'          => 'starmus_transcription_text', // The visual text
-        'transcription_json'     => 'starmus_transcription_json', // The timestamps
-        'translation'            => 'starmus_translation_text',
-        'translation_language'   => 'starmus_translation_language',
-        'original_language'      => 'starmus_original_language',
-        'back_translation_text'  => 'starmus_back_translation_text',
-        'transcription_hash'     => 'starmus_transcription_hash',
-        'translation_hash'       => 'starmus_translation_hash',
+        'transcription' => 'starmus_transcription_text', // The visual text
+        'transcription_json' => 'starmus_transcription_json', // The timestamps
+        'translation' => 'starmus_translation_text',
+        'translation_language' => 'starmus_translation_language',
+        'original_language' => 'starmus_original_language',
+        'back_translation_text' => 'starmus_back_translation_text',
+        'transcription_hash' => 'starmus_transcription_hash',
+        'translation_hash' => 'starmus_translation_hash',
         'audio_recording_parent' => 'starmus_linked_audio', // The link to parent
-        'transcription_parent'   => 'starmus_transcription_parent', // Link for translation
+        'transcription_parent' => 'starmus_transcription_parent', // Link for translation
     ];
 
     /**
@@ -222,12 +221,12 @@ class StarmusSchemaMapper
                 : $data['session_date'];
 
             // Geolocation (Used by Sanitizer to generate _starmus_geolocation)
-            if ( ! empty($data['geolocation'])) {
+            if (! empty($data['geolocation'])) {
                 $mapped['gps_coordinates'] = $data['geolocation'];
             }
 
             // JSON Blobs (Safely handled)
-            if ( ! empty($data['_starmus_env'])) {
+            if (! empty($data['_starmus_env'])) {
                 $mapped['environment_data'] = self::ensure_json_string($data['_starmus_env'], 'environment_data');
 
                 // Extract Fingerprint
@@ -237,51 +236,51 @@ class StarmusSchemaMapper
                 }
             }
 
-            if ( ! empty($data['waveform_json'])) {
+            if (! empty($data['waveform_json'])) {
                 $mapped['starmus_waveform_json'] = self::ensure_json_string($data['waveform_json'], 'waveform_json');
             }
 
-            if ( ! empty($data['transcription'])) {
+            if (! empty($data['transcription'])) {
                 $mapped['starmus_transcription_text'] = sanitize_textarea_field($data['transcription']);
             }
 
-            if ( ! empty($data['transcription_json'])) {
+            if (! empty($data['transcription_json'])) {
                 $mapped['starmus_transcription_json'] = self::ensure_json_string($data['transcription_json'], 'transcription_json');
             }
 
-            if ( ! empty($data['_starmus_calibration'])) {
+            if (! empty($data['_starmus_calibration'])) {
                 $mapped['transcriber'] = self::ensure_json_string($data['_starmus_calibration'], 'transcriber');
             }
 
             // Agreement Logic
-            if ( ! empty($data['agreement'])) {
+            if (! empty($data['agreement'])) {
                 $mapped['agreement_to_terms_toggle'] = 1;
-                $mapped['agreement_datetime']        = date('Y-m-d H:i:s');
+                $mapped['agreement_datetime'] = date('Y-m-d H:i:s');
             }
 
             // IP Address
-            if ( ! empty($data['ip_address'])) {
-                $mapped['submission_ip']  = $data['ip_address'];
+            if (! empty($data['ip_address'])) {
+                $mapped['submission_ip'] = $data['ip_address'];
                 $mapped['contributor_ip'] = $data['ip_address'];
             }
 
             // Taxonomies - Mapped to correct internal keys for SubmissionHandler
-            if ( ! empty($data['language'])) {
+            if (! empty($data['language'])) {
                 $mapped['starmus_tax_language'] = (int) $data['language'];
-            } elseif ( ! empty($data['starmus_tax_language'])) {
+            } elseif (! empty($data['starmus_tax_language'])) {
                 $mapped['starmus_tax_language'] = (int) $data['starmus_tax_language'];
             }
 
-            if ( ! empty($data['dialect'])) {
+            if (! empty($data['dialect'])) {
                 $mapped['starmus_tax_dialect'] = (int) $data['dialect'];
-            } elseif ( ! empty($data['starmus_tax_dialect'])) {
+            } elseif (! empty($data['starmus_tax_dialect'])) {
                 $mapped['starmus_tax_dialect'] = (int) $data['starmus_tax_dialect'];
             }
 
             // Fix for "Recording Types not working" - Map frontend key to taxonomy key
-            if ( ! empty($data['recording_type'])) {
+            if (! empty($data['recording_type'])) {
                 $mapped['recording-type'] = (int) $data['recording_type'];
-            } elseif ( ! empty($data['starmus_story_type'])) {
+            } elseif (! empty($data['starmus_story_type'])) {
                 $mapped['recording-type'] = (int) $data['starmus_story_type'];
             }
         } catch (Throwable $throwable) {
@@ -296,6 +295,7 @@ class StarmusSchemaMapper
      * Extracts user IDs for submission processing.
      *
      * @param array $data Raw form data
+     *
      * @return array Key-value pair of field names and user IDs
      */
     public static function extract_user_ids(array $data): array
@@ -308,8 +308,6 @@ class StarmusSchemaMapper
     /**
      * Check if a specific field key should be treated as JSON.
      * UPDATED: Checks against NEW Starmus keys AND Legacy keys for backward compatibility.
-     *
-     *
      */
     public static function is_json_field(string $field_name): bool
     {

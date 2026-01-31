@@ -5,7 +5,7 @@ namespace Starisian\Sparxstar\Starmus\integrations;
 
 use Starisian\Sparxstar\Starmus\includes\StarmusSageMakerJobRepository;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -45,11 +45,11 @@ final readonly class StarmusSageMakerClient
         $jobs = $this->get_all_jobs();
 
         $counts = [
-        'total'      => 0,
-        'pending'    => 0,
+        'total' => 0,
+        'pending' => 0,
         'processing' => 0,
-        'done'       => 0,
-        'failed'     => 0,
+        'done' => 0,
+        'failed' => 0,
         ];
 
         foreach ($jobs as $job) {
@@ -74,19 +74,19 @@ final readonly class StarmusSageMakerClient
     {
         $job = $this->repository->find($job_id);
 
-        if ( ! $job) {
+        if (! $job) {
             return false;
         }
 
         // Reset job status and schedule for processing
-        $job['status']       = 'pending';
-        $job['attempts']     = 0;
+        $job['status'] = 'pending';
+        $job['attempts'] = 0;
         $job['scheduled_at'] = time();
 
         $this->repository->save($job_id, $job);
 
         // Schedule WP Cron event if not already scheduled
-        if ( ! wp_next_scheduled('aiwa_orch_process_transcription_job', [$job_id])) {
+        if (! wp_next_scheduled('aiwa_orch_process_transcription_job', [$job_id])) {
             wp_schedule_single_event(time() + 5, 'aiwa_orch_process_transcription_job', [$job_id]);
         }
 
@@ -104,12 +104,12 @@ final readonly class StarmusSageMakerClient
     {
         $job = $this->repository->find($job_id);
 
-        if ( ! $job) {
+        if (! $job) {
             return false;
         }
 
         // Attempt to delete associated file if present
-        if ( ! empty($job['file']) && file_exists($job['file'])) {
+        if (! empty($job['file']) && file_exists($job['file'])) {
             @unlink($job['file']);
         }
 

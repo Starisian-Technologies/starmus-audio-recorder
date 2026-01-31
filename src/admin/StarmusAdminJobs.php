@@ -1,14 +1,13 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\admin;
 
 use Starisian\Sparxstar\Starmus\data\StarmusSageMakerJobRepository;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -21,7 +20,7 @@ final class StarmusAdminJobs
     private StarmusSageMakerJobRepository $repository;
 
     public function __construct(
-    StarmusSageMakerJobRepository $repository
+        StarmusSageMakerJobRepository $repository
     ) {
         $this->repository = $repository;
         $this->register_hooks();
@@ -37,19 +36,19 @@ final class StarmusAdminJobs
     public function add_menu_page(): void
     {
         add_submenu_page(
-        'starmus-audio-recorder', // Parent slug (assumed existing)
-        __('Transcription Jobs', 'starmus-audio-recorder'),
-        __('Jobs', 'starmus-audio-recorder'),
-        'manage_options',
-        'starmus-sagemaker-jobs',
-        $this->render(...)
+            'starmus-audio-recorder', // Parent slug (assumed existing)
+            __('Transcription Jobs', 'starmus-audio-recorder'),
+            __('Jobs', 'starmus-audio-recorder'),
+            'manage_options',
+            'starmus-sagemaker-jobs',
+            $this->render(...)
         );
     }
 
     public function render(): void
     {
         try {
-            if ( ! current_user_can('manage_options')) {
+            if (! current_user_can('manage_options')) {
                 wp_die(esc_html__('Insufficient permissions', 'starmus-audio-recorder'));
             }
 
@@ -73,7 +72,7 @@ final class StarmusAdminJobs
     private function render_detail_view(string $job_id): void
     {
         $job = $this->repository->find($job_id);
-        if ( ! $job) {
+        if (! $job) {
             echo '<p>' . esc_html__('Job not found.', 'starmus-audio-recorder') . '</p>';
             echo '<p><a href="' . esc_url(menu_page_url('starmus-sagemaker-jobs', false)) . '">' . esc_html__('Back to list', 'starmus-audio-recorder') . '</a></p>';
 
@@ -103,11 +102,11 @@ final class StarmusAdminJobs
 
     private function render_list_view(): void
     {
-        $page     = isset($_GET['paged']) ? max(1, (int) sanitize_key(wp_unslash($_GET['paged']))) : 1;
+        $page = isset($_GET['paged']) ? max(1, (int) sanitize_key(wp_unslash($_GET['paged']))) : 1;
         $per_page = 20;
 
-        $jobs        = $this->repository->get_paged_jobs($page, $per_page);
-        $total_jobs  = $this->repository->get_total_count();
+        $jobs = $this->repository->get_paged_jobs($page, $per_page);
+        $total_jobs = $this->repository->get_total_count();
         $total_pages = ceil($total_jobs / $per_page);
 
         echo '<table class="widefat fixed striped">';
@@ -130,7 +129,7 @@ final class StarmusAdminJobs
                 echo '<td>' . esc_html((string) ($job['attempts'] ?? 0)) . '</td>';
                 echo '<td>' . esc_html($created) . '</td>';
 
-                $view_url   = add_query_arg(['page' => 'starmus-sagemaker-jobs', 'job_id' => $id], admin_url('admin.php'));
+                $view_url = add_query_arg(['page' => 'starmus-sagemaker-jobs', 'job_id' => $id], admin_url('admin.php'));
                 $delete_url = wp_nonce_url(admin_url('admin-post.php?action=starmus_delete_job&job_id=' . rawurlencode((string) $id)), 'starmus_delete_job_' . $id);
                 echo '<td><a href="' . esc_url($view_url) . '">' . esc_html__('View', 'starmus-audio-recorder') . '</a> | <a href="' . esc_url($delete_url) . '" onclick="return confirm(\'Delete this job?\');">' . esc_html__('Delete', 'starmus-audio-recorder') . '</a></td>';
                 echo '</tr>';
@@ -142,10 +141,10 @@ final class StarmusAdminJobs
         if ($total_pages > 1) {
             echo '<div class="tablenav"><div class="tablenav-pages">';
             echo paginate_links([
-            'base'      => add_query_arg('paged', '%#%'),
-            'format'    => '',
-            'total'     => (int) $total_pages,
-            'current'   => $page,
+            'base' => add_query_arg('paged', '%#%'),
+            'format' => '',
+            'total' => (int) $total_pages,
+            'current' => $page,
             ]);
             echo '</div></div>';
         }
@@ -153,7 +152,7 @@ final class StarmusAdminJobs
 
     public function handle_delete_job(): void
     {
-        if ( ! current_user_can('manage_options')) {
+        if (! current_user_can('manage_options')) {
             wp_die(esc_html__('Insufficient permissions', 'starmus-audio-recorder'));
         }
 

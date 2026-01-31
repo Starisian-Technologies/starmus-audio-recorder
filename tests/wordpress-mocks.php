@@ -1,8 +1,28 @@
 <?php
 
+// Define WordPress constants for PHPStan analysis
+if (!defined('ABSPATH')) {
+	define('ABSPATH', __DIR__ . '/');
+}
+
+if (!defined('WPINC')) {
+	define('WPINC', 'wp-includes');
+}
+
+if (!defined('WP_CONTENT_DIR')) {
+	define('WP_CONTENT_DIR', ABSPATH . 'wp-content');
+}
+
+if (!defined('WP_PLUGIN_DIR')) {
+	define('WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins');
+}
+
+if (!defined('WP_DEBUG')) {
+	define('WP_DEBUG', true);
+}
 /**
  * WordPress Mock Classes for Unit Testing
- * 
+ *
  * These are mock implementations of WordPress classes
  * that don't exist in the unit test environment.
  */
@@ -71,7 +91,8 @@ if (!class_exists('WP_UnitTestCase')) {
 }
 
 if (!function_exists('wp_json_encode')) {
-    function wp_json_encode($data, $options = 0, $depth = 512) {
+    function wp_json_encode($data, $options = 0, $depth = 512)
+    {
         return json_encode($data, $options, $depth);
     }
 }

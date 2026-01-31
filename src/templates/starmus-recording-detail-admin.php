@@ -9,7 +9,7 @@
  * @package Starisian\Starmus
  */
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -21,11 +21,11 @@ use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 try {
     $post_id = get_the_ID();
 
-    if ( ! $post_id && isset($args['post_id'])) {
+    if (! $post_id && isset($args['post_id'])) {
         $post_id = intval($args['post_id']);
     }
 
-    if ( ! $post_id) {
+    if (! $post_id) {
         throw new \Exception('No post ID found.');
     }
 
@@ -38,8 +38,8 @@ try {
 
     // --- 1. Audio Assets (New Schema) ---
     // ACF fields return URLs when return_format is 'url', but we need attachment IDs
-    $mastered_mp3_field    = get_field('mastered_mp3', $post_id);
-    $archival_wav_field    = get_field('archival_wav', $post_id);
+    $mastered_mp3_field = get_field('mastered_mp3', $post_id);
+    $archival_wav_field = get_field('archival_wav', $post_id);
     $original_source_field = get_field('original_source', $post_id);
 
     // If ACF returns URLs, we need to get attachment IDs from URLs
@@ -85,14 +85,14 @@ try {
         return wp_get_attachment_url($att_id) ?: '';
     };
 
-    $mp3_url      = $get_url($mastered_mp3_id);
-    $wav_url      = $get_url($archival_wav_id);
+    $mp3_url = $get_url($mastered_mp3_id);
+    $wav_url = $get_url($archival_wav_id);
     $original_url = $get_url($original_id); // Assuming _audio_attachment_id is covered by audio_files_originals
     $playback_url = $mp3_url ?: $original_url;
 
     // --- 2. Telemetry & Logs ---
     $processing_log = get_post_meta($post_id, 'starmus_processing_log', true);
-    $runtime_raw    = get_post_meta($post_id, 'runtime_metadata', true);
+    $runtime_raw = get_post_meta($post_id, 'runtime_metadata', true);
 
     // --- 3. Robust Data Parsing (New Schema) ---
     // OPTIMIZATION: Use get_post_meta() instead of get_field() for potentially massive JSON blobs.
@@ -120,8 +120,8 @@ try {
 
     // FIX: Mic Profile Location (New Schema)
     // The JSON shows {"gain":1,"speechLevel":100} inside transcriber field
-    $mic_data_raw        = get_post_meta($post_id, 'starmus_transcriber_metadata', true);
-    $mic_data            = json_decode((string)$mic_data_raw, true);
+    $mic_data_raw = get_post_meta($post_id, 'starmus_transcriber_metadata', true);
+    $mic_data = json_decode((string)$mic_data_raw, true);
 
     $mic_profile_display = empty($mic_data) ? 'N/A' : (json_encode($mic_data) ?: 'Invalid Data');
 
@@ -159,37 +159,37 @@ try {
 
     // Parse Transcript
     // OPTIMIZATION: get_post_meta for large text
-    $transcript_raw  = get_post_meta($post_id, 'starmus_transcription_text', true);
+    $transcript_raw = get_post_meta($post_id, 'starmus_transcription_text', true);
     $transcript_text = '';
-    if ( ! empty($transcript_raw)) {
-        $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
+    if (! empty($transcript_raw)) {
+        $decoded = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
         $transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
     }
 
     // Parse Waveform
     // OPTIMIZATION: get_post_meta for massive JSON
     $waveform_json_raw = get_post_meta($post_id, 'starmus_waveform_json', true);
-    $waveform_data     = ! empty($waveform_json_raw) ? json_decode((string)$waveform_json_raw, true) : [];
+    $waveform_data = ! empty($waveform_json_raw) ? json_decode((string)$waveform_json_raw, true) : [];
     // SAFETY: Free up massive raw strings immediately
     unset($waveform_json_raw);
 
     // --- 4. Standard Metadata (New Schema) ---
     $accession_number = get_field('starmus_accession_number', $post_id);
-    $location_data    = get_field('starmus_session_location', $post_id);
-    $project_id       = get_field('starmus_project_collection_id', $post_id);
+    $location_data = get_field('starmus_session_location', $post_id);
+    $project_id = get_field('starmus_project_collection_id', $post_id);
 
     $languages = get_the_terms($post_id, 'starmus_tax_language');
     $rec_types = get_the_terms($post_id, 'recording-type');
 
     // --- 5. URLs ---
-    $edit_page_ids     = $settings->get('edit_page_id', []);
+    $edit_page_ids = $settings->get('edit_page_id', []);
     $recorder_page_ids = $settings->get('recorder_page_id', []);
 
     // Normalize to single ID (first one if array)
-    $edit_page_id     = is_array($edit_page_ids) ? ($edit_page_ids[0] ?? 0) : (int) $edit_page_ids;
+    $edit_page_id = is_array($edit_page_ids) ? ($edit_page_ids[0] ?? 0) : (int) $edit_page_ids;
     $recorder_page_id = is_array($recorder_page_ids) ? ($recorder_page_ids[0] ?? 0) : (int) $recorder_page_ids;
 
-    $edit_page_url     = $edit_page_id > 0 ? get_permalink($edit_page_id) : '';
+    $edit_page_url = $edit_page_id > 0 ? get_permalink($edit_page_id) : '';
     $recorder_page_url = $recorder_page_id > 0 ? get_permalink($recorder_page_id) : '';
 } catch (\Throwable $throwable) {
     echo '<div class="starmus-alert starmus-alert--error"><p>Error: ' . esc_html($throwable->getMessage()) . '</p></div>';
@@ -209,10 +209,10 @@ try {
         <div class="starmus-detail__meta-badges">
             <span class="starmus-badge"><?php echo intval($post_id); ?></span>
             <span class="starmus-badge"><?php echo esc_html(get_the_date('F j, Y g:i A', $post_id)); ?></span>
-            <?php if ( ! empty($languages) && ! is_wp_error($languages)) { ?>
+            <?php if (! empty($languages) && ! is_wp_error($languages)) { ?>
                 <span class="starmus-badge"><?php echo esc_html($languages[0]->name); ?></span>
             <?php } ?>
-            <?php if ( ! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
+            <?php if (! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
                 <span class="starmus-badge"><?php echo esc_html($rec_types[0]->name); ?></span>
             <?php } ?>
         </div>
@@ -277,28 +277,30 @@ try {
 
     <!-- Waveform -->
     <?php
-    if ( ! empty($waveform_data)) {
-        $width   = 800;
-        $height  = 100;
-        $count   = count($waveform_data);
+    if (! empty($waveform_data)) {
+        $width = 800;
+        $height = 100;
+        $count = count($waveform_data);
 
         // OPTIMIZATION: Downsample strictly to screen width
         $target_points = 800;
-        $step    = max(1, floor($count / $target_points));
+        $step = max(1, floor($count / $target_points));
 
-        $points  = [];
+        $points = [];
         // OPTIMIZATION: Find max value efficiently without creating new array
         $max_val = 1.0;
         foreach ($waveform_data as $v) {
             $abs = abs((float)$v);
-            if ($abs > $max_val) $max_val = $abs;
+            if ($abs > $max_val) {
+                $max_val = $abs;
+            }
         }
 
         for ($i = 0; $i < $count; $i += $step) {
-            $val      = (float) $waveform_data[$i];
+            $val = (float) $waveform_data[$i];
             // Format numbers to reduce string size
-            $x        = number_format(($i / $count) * $width, 2, '.', '');
-            $y        = number_format($height - (($val / $max_val) * $height), 2, '.', '');
+            $x = number_format(($i / $count) * $width, 2, '.', '');
+            $y = number_format($height - (($val / $max_val) * $height), 2, '.', '');
             $points[] = $x . ',' . $y;
         }
 
@@ -358,7 +360,7 @@ try {
                             <th scope="row">Mic Profile</th>
                             <td><?php echo esc_html($mic_profile_display); ?></td>
                         </tr>
-                        <?php if ( ! empty($runtime_raw)) { ?>
+                        <?php if (! empty($runtime_raw)) { ?>
                             <tr>
                                 <th scope="row">Raw Runtime</th>
                                 <td>
@@ -371,7 +373,7 @@ try {
                                 </td>
                             </tr>
                         <?php } ?>
-                        <?php if ( ! empty($env_json_raw)) { ?>
+                        <?php if (! empty($env_json_raw)) { ?>
                             <tr>
                                 <th scope="row">Raw Environment</th>
                                 <td>

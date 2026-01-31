@@ -20,7 +20,6 @@
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus;
 
 use function add_action;
@@ -37,8 +36,8 @@ use RuntimeException;
 // Data Layer
 use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
 use Starisian\Sparxstar\Starmus\admin\StarmusTaskManager;
-use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
 use Starisian\Sparxstar\Starmus\api\StarmusDataRESTHandler;
+use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
 // Components
 use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSettings;
 use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
@@ -61,7 +60,7 @@ use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -244,7 +243,7 @@ final class StarmusAudioRecorder
      */
     public static function starmus_get_instance(): StarmusAudioRecorder
     {
-        if ( ! self::$instance instanceof StarmusAudioRecorder) {
+        if (! self::$instance instanceof StarmusAudioRecorder) {
             self::$instance = new self();
         }
 
@@ -334,7 +333,7 @@ final class StarmusAudioRecorder
         try {
             $default_recorder = new StarmusAudioDAL();
 
-            $override_key      = \defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
+            $override_key = \defined('STARMUS_DAL_OVERRIDE_KEY') ? STARMUS_DAL_OVERRIDE_KEY : null;
             $filtered_recorder = apply_filters('starmus_register_dal', $default_recorder, $override_key);
 
             if ($filtered_recorder instanceof StarmusAudioDAL) {
@@ -479,7 +478,7 @@ final class StarmusAudioRecorder
             // Submission Logic
             if (class_exists(StarmusTusdHookHandler::class) && class_exists(StarmusSubmissionHandler::class)) {
                 $submission_handler = new StarmusSubmissionHandler($this->get_DAL(), $this->getSettings());
-                $tus_hook_handler   = new StarmusTusdHookHandler($submission_handler);
+                $tus_hook_handler = new StarmusTusdHookHandler($submission_handler);
                 $tus_hook_handler->register_hooks();
             }
 
@@ -495,9 +494,9 @@ final class StarmusAudioRecorder
             }
 
             // Services
-            $file_service            = null;
-            $id3_service             = null;
-            $waveform_service        = null;
+            $file_service = null;
+            $id3_service = null;
+            $waveform_service = null;
             $post_processing_service = null;
 
             if (class_exists(StarmusFileService::class)) {

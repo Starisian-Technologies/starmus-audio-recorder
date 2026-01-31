@@ -3,7 +3,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\includes;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -109,7 +109,7 @@ final class StarmusSageMakerJobRepository
      */
     public function save(string $job_id, array $job_data): bool
     {
-        $jobs            = $this->get_all();
+        $jobs = $this->get_all();
         $jobs[ $job_id ] = $job_data;
         return update_option(self::OPTION_KEY, $jobs);
     }
@@ -125,7 +125,7 @@ final class StarmusSageMakerJobRepository
     {
         $jobs = $this->get_all();
 
-        if ( ! isset($jobs[ $job_id ])) {
+        if (! isset($jobs[ $job_id ])) {
             return false;
         }
 

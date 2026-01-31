@@ -1,13 +1,12 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\services;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -28,9 +27,9 @@ final class StarmusAudioPipeline
     public function __construct()
     {
         try {
-            $this->id3_service    = new StarmusEnhancedId3Service();
+            $this->id3_service = new StarmusEnhancedId3Service();
             $this->ffmpeg_service = new StarmusFFmpegService($this->id3_service);
-            $this->r2_service     = new StarmusR2DirectService($this->id3_service);
+            $this->r2_service = new StarmusR2DirectService($this->id3_service);
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
         }
@@ -43,15 +42,15 @@ final class StarmusAudioPipeline
     {
         $results = [
         'original_analysis' => [],
-        'web_versions'      => [],
-        'waveform_data'     => null,
-        'preview_file'      => null,
-        'metadata_written'  => false,
+        'web_versions' => [],
+        'waveform_data' => null,
+        'preview_file' => null,
+        'metadata_written' => false,
         ];
 
         try {
             // 1. Analyze original file with getID3
-            $analysis                     = $this->id3_service->analyzeFile($file_path);
+            $analysis = $this->id3_service->analyzeFile($file_path);
             $results['original_analysis'] = $this->extractKeyMetadata($analysis);
 
             // 2. Write Starmus metadata to original file
@@ -59,14 +58,14 @@ final class StarmusAudioPipeline
                 $form_data = [];
             }
 
-            $starmus_tags                = $this->generateStarmusTags($form_data, $post_id);
+            $starmus_tags = $this->generateStarmusTags($form_data, $post_id);
             $results['metadata_written'] = $this->id3_service->writeTags($file_path, $starmus_tags);
 
             // 3. Generate web-optimized versions
             $upload_dir = wp_upload_dir();
             $output_dir = $upload_dir['path'] . '/starmus_processed';
 
-            if ( ! is_dir($output_dir)) {
+            if (! is_dir($output_dir)) {
                 wp_mkdir_p($output_dir);
             }
 
@@ -102,7 +101,7 @@ final class StarmusAudioPipeline
 
             // Replacing Step 3 entirely with R2 Service Integration
             $r2_results = $this->r2_service->processAfricaAudio($file_path, $post_id);
-            if ( $r2_results !== [] && ! isset($r2_results['message'])) {
+            if ($r2_results !== [] && ! isset($r2_results['message'])) {
                 $results['web_versions'] = $r2_results;
             } else {
                 // Fallback or non-applicable file workflow (keep existing behavior but cleanup)
@@ -117,18 +116,18 @@ final class StarmusAudioPipeline
             // 5. Preview clip generation delegated to Cron Pipeline (StarmusAfricaBandwidthService)
 
             StarmusLogger::info(
-            'Processing completed',
-            [
+                'Processing completed',
+                [
             'component' => self::class,
-            'post_id'   => $post_id,
+            'post_id' => $post_id,
             ]
             );
         } catch (Throwable $throwable) {
             StarmusLogger::log(
-            $throwable,
-            [
+                $throwable,
+                [
             'component' => self::class,
-            'post_id'   => $post_id,
+            'post_id' => $post_id,
             'file_path' => $file_path,
             ]
             );
@@ -142,18 +141,18 @@ final class StarmusAudioPipeline
      */
     private function extractKeyMetadata(array $analysis): array
     {
-        $audio    = $analysis['audio'] ?? [];
+        $audio = $analysis['audio'] ?? [];
         $comments = $analysis['comments'] ?? [];
 
         return [
-        'format'       => $analysis['fileformat'] ?? 'unknown',
-        'duration'     => $audio['playtime_seconds'] ?? 0,
-        'bitrate'      => $audio['bitrate'] ?? 0,
-        'sample_rate'  => $audio['sample_rate'] ?? 0,
-        'channels'     => $audio['channels'] ?? 0,
-        'file_size'    => $analysis['filesize'] ?? 0,
-        'title'        => $comments['title'][0] ?? '',
-        'artist'       => $comments['artist'][0] ?? '',
+        'format' => $analysis['fileformat'] ?? 'unknown',
+        'duration' => $audio['playtime_seconds'] ?? 0,
+        'bitrate' => $audio['bitrate'] ?? 0,
+        'sample_rate' => $audio['sample_rate'] ?? 0,
+        'channels' => $audio['channels'] ?? 0,
+        'file_size' => $analysis['filesize'] ?? 0,
+        'title' => $comments['title'][0] ?? '',
+        'artist' => $comments['artist'][0] ?? '',
         'quality_tier' => $this->assessQuality($audio),
         ];
     }
@@ -164,18 +163,18 @@ final class StarmusAudioPipeline
     private function generateStarmusTags(array $form_data, int $post_id): array
     {
         $site_name = get_bloginfo('name');
-        $year      = date('Y');
+        $year = date('Y');
 
         return [
-        'title'             => [$form_data['title'] ?? 'Recording #' . $post_id],
-        'artist'            => [$form_data['speaker_name'] ?? $site_name],
-        'album'             => [$site_name . ' Audio Archive'],
-        'year'              => [$year],
-        'comment'           => [$this->buildComment($form_data)],
+        'title' => [$form_data['title'] ?? 'Recording #' . $post_id],
+        'artist' => [$form_data['speaker_name'] ?? $site_name],
+        'album' => [$site_name . ' Audio Archive'],
+        'year' => [$year],
+        'comment' => [$this->buildComment($form_data)],
         'copyright_message' => [\sprintf('© %s %s', $year, $site_name)],
-        'publisher'         => [$site_name],
-        'language'          => [$form_data['language'] ?? 'en'],
-        'genre'             => ['Spoken Word'],
+        'publisher' => [$site_name],
+        'language' => [$form_data['language'] ?? 'en'],
+        'genre' => ['Spoken Word'],
         ];
     }
 
@@ -186,15 +185,15 @@ final class StarmusAudioPipeline
     {
         $parts = [];
 
-        if ( ! empty($form_data['description'])) {
+        if (! empty($form_data['description'])) {
             $parts[] = $form_data['description'];
         }
 
-        if ( ! empty($form_data['location'])) {
+        if (! empty($form_data['location'])) {
             $parts[] = 'Recorded in: ' . $form_data['location'];
         }
 
-        if ( ! empty($form_data['recording_type'])) {
+        if (! empty($form_data['recording_type'])) {
             $parts[] = 'Type: ' . $form_data['recording_type'];
         }
 
@@ -206,7 +205,7 @@ final class StarmusAudioPipeline
      */
     private function assessQuality(array $audio): string
     {
-        $bitrate     = $audio['bitrate'] ?? 0;
+        $bitrate = $audio['bitrate'] ?? 0;
         $sample_rate = $audio['sample_rate'] ?? 0;
 
         if ($bitrate >= 256000 && $sample_rate >= 44100) {

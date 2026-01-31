@@ -1,33 +1,35 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\services;
 
-use WP_Post;
-use InvalidArgumentException;
 use Aws\Exception\AwsException;
 use Aws\SageMakerRuntime\SageMakerRuntimeClient;
-use Starisian\Sparxstar\Starmus\core\StarmusSettings;
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
-use Throwable;
 
 use function basename;
-use function constant;
-use function defined;
 use function file_exists;
 use function file_get_contents;
 use function get_post;
 use function get_post_meta;
-use function wp_get_post_terms;
-use function wp_get_attachment_url;
+
+use InvalidArgumentException;
+
 use function is_wp_error;
 use function json_decode;
 use function json_encode;
 use function json_last_error;
 use function md5;
 
-if ( ! defined('ABSPATH')) {
+use Starisian\Sparxstar\Starmus\core\StarmusSettings;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Throwable;
+
+use function wp_get_attachment_url;
+use function wp_get_post_terms;
+
+use WP_Post;
+
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -76,13 +78,13 @@ final class StarmusSageMakerService
 
         $config = [
         'version' => 'latest',
-        'region'  => $region,
+        'region' => $region,
         ];
 
         // 2. Attach Credentials if provided
-        if ( ! empty($key) && ! empty($secret)) {
+        if (! empty($key) && ! empty($secret)) {
             $config['credentials'] = [
-            'key'    => $key,
+            'key' => $key,
             'secret' => $secret,
             ];
         }
@@ -102,14 +104,14 @@ final class StarmusSageMakerService
     public function bundle_job_data(int $recording_id): array
     {
         $post = get_post($recording_id);
-        if ( ! $post instanceof WP_Post || $post->post_type !== 'audio-recording') {
+        if (! $post instanceof WP_Post || $post->post_type !== 'audio-recording') {
             throw new InvalidArgumentException('Invalid recording ID: ' . $recording_id);
         }
 
         // 1. Core Archival Identity
         $manifest = [
         'global_uuid' => get_post_meta($recording_id, 'starmus_global_uuid', true) ?: '',
-        'created_at'  => $post->post_date_gmt,
+        'created_at' => $post->post_date_gmt,
         ];
 
         // 2. Audio Source (Prefer Cloud URI or fallback to local Attachment URL)
@@ -127,9 +129,9 @@ final class StarmusSageMakerService
 
         // 3. Language & Dialect
         $languages = wp_get_post_terms($recording_id, 'starmus_tax_language', ['fields' => 'names']);
-        $dialects  = wp_get_post_terms($recording_id, 'starmus_tax_dialect', ['fields' => 'names']);
+        $dialects = wp_get_post_terms($recording_id, 'starmus_tax_dialect', ['fields' => 'names']);
         $manifest['language'] = ! is_wp_error($languages) && ! empty($languages) ? $languages[0] : 'en'; // Default
-        $manifest['dialect']  = ! is_wp_error($dialects) && ! empty($dialects) ? $dialects[0] : '';
+        $manifest['dialect'] = ! is_wp_error($dialects) && ! empty($dialects) ? $dialects[0] : '';
 
         // 4. Consent & Legal
         $contributor_id = (int) get_post_meta($recording_id, 'starmus_authorized_signatory', true);
@@ -192,20 +194,20 @@ final class StarmusSageMakerService
 
             $args = [
             'EndpointName' => $endpoint_name,
-            'ContentType'  => 'application/json',
-            'Body'         => $payload,
+            'ContentType' => 'application/json',
+            'Body' => $payload,
             'CustomAttributes' => 'StarmusJobId=' . $recording_id,
             ];
             if (isset($options['custom_attributes'])) {
                 $args['CustomAttributes'] .= ',' . $options['custom_attributes'];
             }
 
-            StarmusLogger::info("Invoking SageMaker with Manifest", ['id' => $recording_id, 'endpoint' => $endpoint_name]);
+            StarmusLogger::info('Invoking SageMaker with Manifest', ['id' => $recording_id, 'endpoint' => $endpoint_name]);
 
             // 3. Invoke
             $client = $this->get_client();
             $result = $client->invokeEndpoint($args);
-            $body   = $result['Body'];
+            $body = $result['Body'];
 
             // 4. Return decoded result
             return json_decode((string) $body, true) ?: [];
@@ -225,7 +227,7 @@ final class StarmusSageMakerService
      */
     public function transcribe_audio(string $file_path, array $options = []): array
     {
-        if ( ! file_exists($file_path)) {
+        if (! file_exists($file_path)) {
             StarmusLogger::error('SageMaker: Audio file not found', ['path' => $file_path]);
 
             return ['error' => 'File not found'];
@@ -254,8 +256,8 @@ final class StarmusSageMakerService
 
             $args = [
             'EndpointName' => $endpoint_name,
-            'ContentType'  => $options['content_type'] ?? 'audio/x-audio', // Default content type for raw audio
-            'Body'         => $audio_data,
+            'ContentType' => $options['content_type'] ?? 'audio/x-audio', // Default content type for raw audio
+            'Body' => $audio_data,
             ];
 
             if (isset($options['custom_attributes'])) {
@@ -267,7 +269,7 @@ final class StarmusSageMakerService
             // 3. Invoke Endpoint
             $client = $this->get_client();
             $result = $client->invokeEndpoint($args);
-            $body   = $result['Body'];
+            $body = $result['Body'];
 
             // 4. Parse Response
             // Expecting JSON response from the inference container
@@ -277,17 +279,17 @@ final class StarmusSageMakerService
                 // If not JSON, return raw body wrapped
                 return [
                 'raw_response' => (string) $body,
-                'is_json'      => false,
+                'is_json' => false,
                 ];
             }
 
-            StarmusLogger::info("SageMaker Invocation Successful", ['endpoint' => $endpoint_name]);
+            StarmusLogger::info('SageMaker Invocation Successful', ['endpoint' => $endpoint_name]);
 
             return $decoded;
         } catch (AwsException $e) {
-            StarmusLogger::error("SageMaker AWS Error: " . $e->getMessage(), [
+            StarmusLogger::error('SageMaker AWS Error: ' . $e->getMessage(), [
             'code' => $e->getAwsErrorCode(),
-            'type' => $e->getAwsErrorType()
+            'type' => $e->getAwsErrorType(),
             ]);
 
             return ['error' => $e->getMessage(), 'aws_code' => $e->getAwsErrorCode()];

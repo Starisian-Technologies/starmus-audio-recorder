@@ -20,7 +20,7 @@ use Starisian\Sparxstar\Starmus\helpers\logger\StarLogger;
  * @license Starisian Technolgoies Proprietary License
  */
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit();
 }
 
@@ -133,7 +133,7 @@ class StarmusLogger
     public static function set_min_level(int $level): void
     {
         self::$min_log_level = $level;
-        self::$handler       = null; // Reset to refresh instance with new level
+        self::$handler = null; // Reset to refresh instance with new level
     }
 
     /**
@@ -144,7 +144,7 @@ class StarmusLogger
     private static function get_handler(): StarLogger
     {
         try {
-            if ( ! self::$handler instanceof StarLogger) {
+            if (! self::$handler instanceof StarLogger) {
                 self::$handler = new StarLogger(self::$min_log_level);
             }
         } catch (Exception $exception) {

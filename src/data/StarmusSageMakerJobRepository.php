@@ -1,17 +1,14 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\data;
 
-use function array_slice;
 use function count;
 use function get_option;
-use function is_array;
 use function uasort;
 use function update_option;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -34,6 +31,7 @@ final class StarmusSageMakerJobRepository
      * Find a job by ID.
      *
      * @param string $job_id The job identifier.
+     *
      * @return array|null Job data or null if not found.
      */
     public function find(string $job_id): ?array
@@ -48,6 +46,7 @@ final class StarmusSageMakerJobRepository
      *
      * @param int $page Page number (1-indexed).
      * @param int $per_page Items per page.
+     *
      * @return array Associative array of jobs for the page.
      */
     public function get_paged_jobs(int $page, int $per_page): array
@@ -56,18 +55,18 @@ final class StarmusSageMakerJobRepository
 
         // Sort by created_at descending (newest first)
         uasort(
-        $jobs,
-        function (array $a, array $b): int {
-            $ta = isset($a['created_at']) ? (int) $a['created_at'] : 0;
-            $tb = isset($b['created_at']) ? (int) $b['created_at'] : 0;
+            $jobs,
+            function (array $a, array $b): int {
+                $ta = isset($a['created_at']) ? (int) $a['created_at'] : 0;
+                $tb = isset($b['created_at']) ? (int) $b['created_at'] : 0;
 
-            return $tb <=> $ta;
-        }
+                return $tb <=> $ta;
+            }
         );
 
         $offset = ($page - 1) * $per_page;
 
-        return array_slice($jobs, $offset, $per_page, true);
+        return \array_slice($jobs, $offset, $per_page, true);
     }
 
     /**
@@ -79,13 +78,14 @@ final class StarmusSageMakerJobRepository
     {
         $jobs = $this->get_all();
 
-        return count($jobs);
+        return \count($jobs);
     }
 
     /**
      * Get recent jobs (sorted by created_at, newest first).
      *
      * @param int $limit Maximum number of jobs to return.
+     *
      * @return array Associative array of recent jobs.
      */
     public function get_recent_jobs(int $limit): array
@@ -94,16 +94,16 @@ final class StarmusSageMakerJobRepository
 
         // Sort by created_at descending
         uasort(
-        $jobs,
-        function (array $a, array $b): int {
-            $ta = isset($a['created_at']) ? (int) $a['created_at'] : 0;
-            $tb = isset($b['created_at']) ? (int) $b['created_at'] : 0;
+            $jobs,
+            function (array $a, array $b): int {
+                $ta = isset($a['created_at']) ? (int) $a['created_at'] : 0;
+                $tb = isset($b['created_at']) ? (int) $b['created_at'] : 0;
 
-            return $tb <=> $ta;
-        }
+                return $tb <=> $ta;
+            }
         );
 
-        return array_slice($jobs, 0, $limit, true);
+        return \array_slice($jobs, 0, $limit, true);
     }
 
     /**
@@ -111,7 +111,7 @@ final class StarmusSageMakerJobRepository
      */
     public function save(string $job_id, array $job_data): bool
     {
-        $jobs            = $this->get_all();
+        $jobs = $this->get_all();
         $jobs[$job_id] = $job_data;
 
         return update_option(self::OPTION_KEY, $jobs);
@@ -121,13 +121,14 @@ final class StarmusSageMakerJobRepository
      * Delete a job by ID.
      *
      * @param string $job_id Job identifier.
+     *
      * @return bool True if deleted, false if not found.
      */
     public function delete(string $job_id): bool
     {
         $jobs = $this->get_all();
 
-        if ( ! isset($jobs[$job_id])) {
+        if (! isset($jobs[$job_id])) {
             return false;
         }
 
@@ -146,6 +147,6 @@ final class StarmusSageMakerJobRepository
     {
         $jobs = get_option(self::OPTION_KEY, []);
 
-        return is_array($jobs) ? $jobs : [];
+        return \is_array($jobs) ? $jobs : [];
     }
 }

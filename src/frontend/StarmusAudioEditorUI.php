@@ -33,7 +33,7 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -99,7 +99,7 @@ final class StarmusAudioEditorUI
     public function render_audio_editor_shortcode(array $atts = []): string
     {
         try {
-            if ( ! is_user_logged_in()) {
+            if (! is_user_logged_in()) {
                 return '<p>' . esc_html__('You must be logged in to edit audio.', 'starmus-audio-recorder') . '</p>';
             }
 
@@ -165,61 +165,61 @@ final class StarmusAudioEditorUI
                 return $this->cached_context;
             }
 
-            $url_id       = absint($_GET['recording_id'] ?? $_GET['post_id'] ?? 0);
+            $url_id = absint($_GET['recording_id'] ?? $_GET['post_id'] ?? 0);
             $shortcode_id = isset($atts['post_id']) ? absint($atts['post_id']) : 0;
-            $post_id      = $url_id ?: $shortcode_id;
+            $post_id = $url_id ?: $shortcode_id;
 
-            if ( ! $post_id) {
+            if (! $post_id) {
                 return new WP_Error('no_id', __('No recording ID provided.', 'starmus-audio-recorder'));
             }
 
             $post = get_post($post_id);
-            if ( ! $post) {
+            if (! $post) {
                 return new WP_Error('invalid_id', __('Invalid recording ID.', 'starmus-audio-recorder'));
             }
 
-            if ( ! $this->user_can_access($post)) {
+            if (! $this->user_can_access($post)) {
                 return new WP_Error('permission_denied', __('You do not have permission to edit this recording.', 'starmus-audio-recorder'));
             }
 
             // Security Check for URL-based access
             if ($url_id > 0 && ! current_user_can('manage_options')) {
                 $nonce = $_GET['nonce'] ?? $_GET['_wpnonce'] ?? '';
-                if ( ! $nonce || ! wp_verify_nonce(sanitize_text_field($nonce), 'starmus_edit_audio_' . $post_id)) {
+                if (! $nonce || ! wp_verify_nonce(sanitize_text_field($nonce), 'starmus_edit_audio_' . $post_id)) {
                     return new WP_Error('invalid_nonce', __('Security check failed.', 'starmus-audio-recorder'));
                 }
             }
 
             $attachment_id = absint(get_field('mastered_mp3', $post_id)) ?: absint(get_field('original_source', $post_id)) ?: absint(get_post_meta($post_id, '_audio_attachment_id', true));
-            if ( ! $attachment_id) {
+            if (! $attachment_id) {
                 return new WP_Error('no_audio', __('No audio file found for this recording.', 'starmus-audio-recorder'));
             }
 
             $audio_url = '';
             if (class_exists(StarmusFileService::class)) {
-                $fs        = new StarmusFileService();
+                $fs = new StarmusFileService();
                 $audio_url = $fs->star_get_public_url($attachment_id);
             } else {
                 $audio_url = wp_get_attachment_url($attachment_id);
             }
 
-            if ( ! $audio_url) {
+            if (! $audio_url) {
                 return new WP_Error('no_audio_url', __('Audio file URL is not available.', 'starmus-audio-recorder'));
             }
 
-            $waveform_url     = $this->get_secure_waveform_url($attachment_id);
+            $waveform_url = $this->get_secure_waveform_url($attachment_id);
             $annotations_json = get_field('starmus_waveform_json', $post_id);
-            $transcript_json  = get_field('first_pass_transcription', $post_id);
+            $transcript_json = get_field('first_pass_transcription', $post_id);
 
             $this->cached_context = [
-                'post_id'               => $post_id,
-                'attachment_id'         => $attachment_id,
-                'audio_url'             => $audio_url,
-                'waveform_url'          => $waveform_url,
-                'annotations_json'      => \is_string($annotations_json) ? $annotations_json : '[]',
-                'transcript_json'       => \is_string($transcript_json) ? $transcript_json : '',
+                'post_id' => $post_id,
+                'attachment_id' => $attachment_id,
+                'audio_url' => $audio_url,
+                'waveform_url' => $waveform_url,
+                'annotations_json' => \is_string($annotations_json) ? $annotations_json : '[]',
+                'transcript_json' => \is_string($transcript_json) ? $transcript_json : '',
                 'starmus_waveform_json' => \is_string($annotations_json) ? $annotations_json : '[]',
-                'transcript_data'       => \is_string($transcript_json) ? $transcript_json : '',
+                'transcript_data' => \is_string($transcript_json) ? $transcript_json : '',
             ];
 
             return $this->cached_context;
@@ -233,12 +233,12 @@ final class StarmusAudioEditorUI
     {
         try {
             $wave_json_path = get_post_meta($attachment_id, '_waveform_json_path', true);
-            if ( ! \is_string($wave_json_path) || ($wave_json_path === '' || $wave_json_path === '0') || ! file_exists($wave_json_path)) {
+            if (! \is_string($wave_json_path) || ($wave_json_path === '' || $wave_json_path === '0') || ! file_exists($wave_json_path)) {
                 return '';
             }
 
             $uploads = wp_get_upload_dir();
-            if ( ! str_starts_with(realpath($wave_json_path), realpath($uploads['basedir']))) {
+            if (! str_starts_with(realpath($wave_json_path), realpath($uploads['basedir']))) {
                 return '';
             }
         } catch (Throwable $throwable) {
@@ -254,16 +254,16 @@ final class StarmusAudioEditorUI
             self::STARMUS_REST_NAMESPACE,
             '/annotations',
             [
-                'methods'             => 'POST',
-                'callback'            => $this->handle_save_annotations(...),
+                'methods' => 'POST',
+                'callback' => $this->handle_save_annotations(...),
                 'permission_callback' => $this->can_save_annotations(...),
-                'args'                => [
+                'args' => [
                     'postId' => [
-                        'required'          => true,
+                        'required' => true,
                         'validate_callback' => $this->validate_post_id(...),
                     ],
                     'annotations' => [
-                        'required'          => true,
+                        'required' => true,
                         'validate_callback' => $this->validate_annotations(...),
                     ],
                 ],
@@ -280,7 +280,7 @@ final class StarmusAudioEditorUI
     {
         try {
             // Full sanitization logic restored
-            if ( ! \is_array($value)) {
+            if (! \is_array($value)) {
                 return [];
             }
 
@@ -288,11 +288,11 @@ final class StarmusAudioEditorUI
             foreach ($value as $a) {
                 if (\is_array($a)) {
                     $sanitized[] = [
-                        'id'        => sanitize_key($a['id'] ?? ''),
+                        'id' => sanitize_key($a['id'] ?? ''),
                         'startTime' => (float) ($a['startTime'] ?? 0),
-                        'endTime'   => (float) ($a['endTime'] ?? 0),
+                        'endTime' => (float) ($a['endTime'] ?? 0),
                         'labelText' => wp_kses_post($a['labelText'] ?? ''),
-                        'color'     => sanitize_hex_color($a['color'] ?? '#000000'),
+                        'color' => sanitize_hex_color($a['color'] ?? '#000000'),
                     ];
                 }
             }
@@ -307,12 +307,12 @@ final class StarmusAudioEditorUI
     {
         try {
             // Full validation logic restored
-            if ( ! \is_array($value) || \count($value) > self::STARMUS_MAX_ANNOTATIONS) {
+            if (! \is_array($value) || \count($value) > self::STARMUS_MAX_ANNOTATIONS) {
                 return false;
             }
 
             foreach ($value as $a) {
-                if ( ! \is_array($a) || ! isset($a['startTime'], $a['endTime'])) {
+                if (! \is_array($a) || ! isset($a['startTime'], $a['endTime'])) {
                     return false;
                 }
 
@@ -330,7 +330,7 @@ final class StarmusAudioEditorUI
     public function can_save_annotations(WP_REST_Request $request): bool
     {
         $nonce = $request->get_header('X-WP-Nonce');
-        if ( ! $nonce || ! wp_verify_nonce($nonce, 'wp_rest')) {
+        if (! $nonce || ! wp_verify_nonce($nonce, 'wp_rest')) {
             return false;
         }
 
@@ -341,7 +341,7 @@ final class StarmusAudioEditorUI
     public function handle_save_annotations(WP_REST_Request $request): WP_REST_Response
     {
         try {
-            $post_id     = absint($request->get_param('postId'));
+            $post_id = absint($request->get_param('postId'));
             $annotations = $this->sanitize_annotations($request->get_param('annotations'));
 
             if ($this->is_rate_limited($post_id)) {
@@ -373,7 +373,7 @@ final class StarmusAudioEditorUI
             return new WP_REST_Response(
                 [
                     'success' => true,
-                    'count'   => \count($annotations),
+                    'count' => \count($annotations),
                 ],
                 200
             );

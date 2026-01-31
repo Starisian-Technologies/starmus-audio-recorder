@@ -9,7 +9,7 @@ namespace Starisian\Sparxstar\Starmus\admin\widgets;
 
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -86,11 +86,11 @@ class StarmusAdminWidgets
             $jobs = get_option('aiwa_sagemaker_jobs', []);
 
             $counts = [
-            'total'      => 0,
-            'pending'    => 0,
+            'total' => 0,
+            'pending' => 0,
             'processing' => 0,
-            'done'       => 0,
-            'failed'     => 0,
+            'done' => 0,
+            'failed' => 0,
             ];
 
             foreach ($jobs as $job) {
@@ -157,7 +157,7 @@ class StarmusAdminWidgets
     private function enqueue_jobs_widget_script(): void
     {
         try {
-            $nonce    = wp_create_nonce('aiwa_jobs_nonce');
+            $nonce = wp_create_nonce('aiwa_jobs_nonce');
             $ajax_url = admin_url('admin-ajax.php');
 
             $script = <<<JS

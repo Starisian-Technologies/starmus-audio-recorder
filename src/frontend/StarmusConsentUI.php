@@ -1,14 +1,13 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 use Starisian\Sparxstar\Starmus\core\StarmusConsentHandler;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 
-if ( ! defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -34,12 +33,12 @@ class StarmusConsentUI
     /**
      * Constructor.
      *
-     * @param StarmusConsentHandler $handler  Consent handler.
-     * @param StarmusSettings       $settings Plugin settings.
+     * @param StarmusConsentHandler $handler Consent handler.
+     * @param StarmusSettings $settings Plugin settings.
      */
     public function __construct(StarmusConsentHandler $handler, StarmusSettings $settings)
     {
-        $this->handler  = $handler;
+        $this->handler = $handler;
         $this->settings = $settings;
     }
 
@@ -67,19 +66,19 @@ class StarmusConsentUI
      */
     public function handle_submission(): void
     {
-        if ( ! isset($_POST['starmus_consent_nonce']) || ! wp_verify_nonce($_POST['starmus_consent_nonce'], 'starmus_consent_action')) {
+        if (! isset($_POST['starmus_consent_nonce']) || ! wp_verify_nonce($_POST['starmus_consent_nonce'], 'starmus_consent_action')) {
             return;
         }
 
         // Include necessary files for media upload.
-        if ( ! function_exists('media_handle_upload')) {
+        if (! \function_exists('media_handle_upload')) {
             require_once ABSPATH . 'wp-admin/includes/image.php';
             require_once ABSPATH . 'wp-admin/includes/file.php';
             require_once ABSPATH . 'wp-admin/includes/media.php';
         }
 
         $legal_name = isset($_POST['sparxstar_legal_name']) ? sanitize_text_field(wp_unslash($_POST['sparxstar_legal_name'])) : '';
-        $email      = isset($_POST['sparxstar_email']) ? sanitize_email(wp_unslash($_POST['sparxstar_email'])) : '';
+        $email = isset($_POST['sparxstar_email']) ? sanitize_email(wp_unslash($_POST['sparxstar_email'])) : '';
         $terms_type = isset($_POST['starmus_terms_type']) ? sanitize_text_field(wp_unslash($_POST['starmus_terms_type'])) : '';
 
         if (empty($legal_name) || empty($email)) {
@@ -102,7 +101,7 @@ class StarmusConsentUI
 
         // Create Contributor.
         $contributor_id = $this->handler->create_contributor([
-        'name'  => $legal_name,
+        'name' => $legal_name,
         'email' => $email,
         ]);
 
@@ -113,8 +112,8 @@ class StarmusConsentUI
         // Create Consent Recording.
         $consent_data = [
         'terms_type' => $terms_type,
-        'signature'  => $attachment_id,
-        'ip'         => $_SERVER['REMOTE_ADDR'] ?? '',
+        'signature' => $attachment_id,
+        'ip' => $_SERVER['REMOTE_ADDR'] ?? '',
         'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
         ];
 
@@ -126,8 +125,8 @@ class StarmusConsentUI
 
         // Redirect to Recorder.
         $recorder_page_id = $this->settings->get('recorder_page_id');
-        $redirect_url     = $recorder_page_id ? get_permalink($recorder_page_id) : home_url();
-        $redirect_url     = add_query_arg('starmus_recording_id', $recording_id, $redirect_url);
+        $redirect_url = $recorder_page_id ? get_permalink($recorder_page_id) : home_url();
+        $redirect_url = add_query_arg('starmus_recording_id', $recording_id, $redirect_url);
 
         wp_safe_redirect($redirect_url);
         exit;

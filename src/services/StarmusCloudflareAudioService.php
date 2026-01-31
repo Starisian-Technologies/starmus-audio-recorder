@@ -5,7 +5,7 @@ namespace Starisian\Sparxstar\Starmus\services;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -26,7 +26,7 @@ final class StarmusCloudflareAudioService
         StarmusEnhancedId3Service $id3_service
     ) {
         $this->file_service = $file_service;
-        $this->id3_service  = $id3_service;
+        $this->id3_service = $id3_service;
     }
 
     /**
@@ -38,13 +38,13 @@ final class StarmusCloudflareAudioService
 
         // 1. Get local copy (downloads from R2 if needed)
         $local_path = $this->file_service->get_local_copy($attachment_id);
-        if ( ! $local_path) {
+        if (! $local_path) {
             return ['error' => 'Cannot access file'];
         }
 
         try {
             // 2. Check if optimization needed
-            if ( ! $this->id3_service->needsAfricaOptimization($local_path)) {
+            if (! $this->id3_service->needsAfricaOptimization($local_path)) {
                 return ['message' => 'No optimization needed'];
             }
 
@@ -58,8 +58,8 @@ final class StarmusCloudflareAudioService
                     if ($new_attachment_id) {
                         $results[ $quality ] = [
                          'attachment_id' => $new_attachment_id,
-                         'url'           => $this->file_service->star_get_public_url($new_attachment_id),
-                         'size'          => filesize($temp_path),
+                         'url' => $this->file_service->star_get_public_url($new_attachment_id),
+                         'size' => filesize($temp_path),
                         ];
                     }
 
@@ -88,11 +88,11 @@ final class StarmusCloudflareAudioService
     private function createAfricaVersions(string $input_path): array
     {
         $base_name = pathinfo($input_path, PATHINFO_FILENAME);
-        $temp_dir  = sys_get_temp_dir();
+        $temp_dir = sys_get_temp_dir();
 
         $versions = [
-        'africa_2g'   => ['-b:a', '32k', '-ar', '16000', '-ac', '1'],
-        'africa_3g'   => ['-b:a', '48k', '-ar', '22050', '-ac', '1'],
+        'africa_2g' => ['-b:a', '32k', '-ar', '16000', '-ac', '1'],
+        'africa_3g' => ['-b:a', '48k', '-ar', '22050', '-ac', '1'],
         'africa_wifi' => ['-b:a', '64k', '-ar', '44100', '-ac', '1'],
         ];
 
@@ -135,10 +135,10 @@ final class StarmusCloudflareAudioService
     {
         $analysis = $this->id3_service->analyzeFile($source);
 
-        if ( ! empty($analysis['comments'])) {
+        if (! empty($analysis['comments'])) {
             $tags = [];
             foreach ($analysis['comments'] as $key => $values) {
-                if ( ! empty($values[0])) {
+                if (! empty($values[0])) {
                     $tags[ $key ] = $values;
                 }
             }
@@ -155,17 +155,17 @@ final class StarmusCloudflareAudioService
      */
     private function uploadToWordPress(string $temp_path, int $parent_id, string $quality): ?int
     {
-        if ( ! \function_exists('media_handle_sideload')) {
+        if (! \function_exists('media_handle_sideload')) {
             require_once ABSPATH . 'wp-admin/includes/image.php';
             require_once ABSPATH . 'wp-admin/includes/file.php';
             require_once ABSPATH . 'wp-admin/includes/media.php';
         }
 
         $file_array = [
-        'name'     => basename($temp_path),
+        'name' => basename($temp_path),
         'tmp_name' => $temp_path,
-        'type'     => 'audio/mpeg',
-        'size'     => filesize($temp_path),
+        'type' => 'audio/mpeg',
+        'size' => filesize($temp_path),
         ];
 
         $attachment_id = media_handle_sideload($file_array, $parent_id);
@@ -175,8 +175,8 @@ final class StarmusCloudflareAudioService
                 'Upload failed',
                 [
             'component' => self::class,
-            'post_id'   => $parent_id,
-            'quality'   => $quality,
+            'post_id' => $parent_id,
+            'quality' => $quality,
                 ]
             );
             return null;
@@ -185,7 +185,7 @@ final class StarmusCloudflareAudioService
         // Set title to indicate quality
         wp_update_post(
             [
-        'ID'         => $attachment_id,
+        'ID' => $attachment_id,
         'post_title' => get_the_title($parent_id) . \sprintf(' (%s)', $quality),
             ]
         );
@@ -199,7 +199,7 @@ final class StarmusCloudflareAudioService
     public function getAfricaDataEstimate(int $attachment_id): array
     {
         $local_path = $this->file_service->get_local_copy($attachment_id);
-        if ( ! $local_path) {
+        if (! $local_path) {
             return [];
         }
 
@@ -211,11 +211,11 @@ final class StarmusCloudflareAudioService
         }
 
         return [
-        'original_size_mb'         => round($size_mb, 2),
-        'estimated_2g_size_mb'     => round($size_mb * 0.15, 2), // ~85% reduction
-        'estimated_cost_usd'       => round($size_mb * 0.15, 2), // Gambia data rates
+        'original_size_mb' => round($size_mb, 2),
+        'estimated_2g_size_mb' => round($size_mb * 0.15, 2), // ~85% reduction
+        'estimated_cost_usd' => round($size_mb * 0.15, 2), // Gambia data rates
         'download_time_2g_seconds' => round($size_mb / 0.03, 0), // 30KB/s
-        'recommended_version'      => $size_mb > 5 ? '2g' : ($size_mb > 2 ? '3g' : 'wifi'),
+        'recommended_version' => $size_mb > 5 ? '2g' : ($size_mb > 2 ? '3g' : 'wifi'),
         ];
     }
 }

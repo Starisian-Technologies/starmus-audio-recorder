@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\services;
 
 use function class_exists;
@@ -13,7 +12,7 @@ use getid3_writetags;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -90,7 +89,7 @@ class StarmusId3Service
      */
     private function getID3Engine(): ?getID3
     {
-        if ( ! class_exists('getID3')) {
+        if (! class_exists('getID3')) {
             // Check if we can manually load it from a common vendor path if composer autoload failed context
             $possible_path = WP_CONTENT_DIR . '/plugins/starmus-audio-recorder/vendor/autoload.php';
             if (file_exists($possible_path)) {
@@ -98,7 +97,7 @@ class StarmusId3Service
             }
         }
 
-        if ( ! class_exists('getID3')) {
+        if (! class_exists('getID3')) {
             StarmusLogger::error(
                 'getID3 library class not found.',
                 ['component' => self::class]
@@ -165,12 +164,12 @@ class StarmusId3Service
      */
     public function writeTags(string $filepath, array $tagData): bool
     {
-        if ( ! file_exists($filepath)) {
+        if (! file_exists($filepath)) {
             StarmusLogger::error(
                 'File missing for tagging',
                 [
                     'component' => self::class,
-                    'path'      => $filepath,
+                    'path' => $filepath,
                 ]
             );
             return false;
@@ -178,12 +177,12 @@ class StarmusId3Service
 
         try {
             $engine = $this->getID3Engine();
-            if ( ! $engine instanceof getID3) {
+            if (! $engine instanceof getID3) {
                 return false;
             }
 
             // Ensure Writer is loaded
-            if ( ! class_exists('getid3_writetags')) {
+            if (! class_exists('getid3_writetags')) {
                 StarmusLogger::error(
                     'getid3_writetags class missing.',
                     ['component' => self::class]
@@ -191,20 +190,20 @@ class StarmusId3Service
                 return false;
             }
 
-            $tagwriter                    = new getid3_writetags();
-            $tagwriter->filename          = $filepath;
-            $tagwriter->tagformats        = ['id3v2.3'];
-            $tagwriter->overwrite_tags    = true;
-            $tagwriter->tag_encoding      = self::TEXT_ENCODING;
+            $tagwriter = new getid3_writetags();
+            $tagwriter->filename = $filepath;
+            $tagwriter->tagformats = ['id3v2.3'];
+            $tagwriter->overwrite_tags = true;
+            $tagwriter->tag_encoding = self::TEXT_ENCODING;
             $tagwriter->remove_other_tags = true;
-            $tagwriter->tag_data          = $tagData;
+            $tagwriter->tag_data = $tagData;
 
-            if ( ! $tagwriter->WriteTags()) {
+            if (! $tagwriter->WriteTags()) {
                 StarmusLogger::error(
                     'WriteTags Failed',
                     [
                         'component' => self::class,
-                        'errors'    => $tagwriter->errors,
+                        'errors' => $tagwriter->errors,
                     ]
                 );
                 return false;
@@ -215,7 +214,7 @@ class StarmusId3Service
                     'WriteTags Warnings',
                     [
                         'component' => self::class,
-                        'warnings'  => $tagwriter->warnings,
+                        'warnings' => $tagwriter->warnings,
                     ]
                 );
             }
@@ -226,7 +225,7 @@ class StarmusId3Service
                 $throwable,
                 [
                     'component' => self::class,
-                    'path'      => $filepath,
+                    'path' => $filepath,
                 ]
             );
             return false;
@@ -239,9 +238,9 @@ class StarmusId3Service
     public function needsAfricaOptimization(string $filepath): bool
     {
         $analysis = $this->analyzeFile($filepath);
-        $audio    = $analysis['audio'] ?? [];
+        $audio = $analysis['audio'] ?? [];
 
-        $bitrate  = $audio['bitrate'] ?? 0;
+        $bitrate = $audio['bitrate'] ?? 0;
         $filesize = $analysis['filesize'] ?? 0;
 
         // Optimize if > 64kbps or > 2MB
@@ -308,7 +307,7 @@ class StarmusId3Service
     public function analyzeFile(string $filepath): array
     {
         $engine = $this->getID3Engine();
-        if ( ! $engine instanceof getID3) {
+        if (! $engine instanceof getID3) {
             return [];
         }
 

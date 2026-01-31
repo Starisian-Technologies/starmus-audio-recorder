@@ -11,7 +11,7 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -104,18 +104,18 @@ class StarmusTusdHookHandler
             '/' . $this->rest_base,
             [
         [
-        'methods'             => WP_REST_Server::CREATABLE,
-        'callback'            => $this->handle_tusd_hook(...),
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => $this->handle_tusd_hook(...),
         'permission_callback' => $this->permissions_check(...),
-        'args'                => [
+        'args' => [
          'Type' => [
-          'required'          => true,
-          'type'              => 'string',
+          'required' => true,
+          'type' => 'string',
           'sanitize_callback' => 'sanitize_key',
          ],
          'Event' => [
           'required' => true,
-          'type'     => 'object',
+          'type' => 'object',
          ],
         ],
         ],
@@ -179,7 +179,7 @@ class StarmusTusdHookHandler
                 StarmusLogger::debug(
                     'Received payload',
                     [
-                'component'  => self::class,
+                'component' => self::class,
                 'event_type' => $event_type,
                     ]
                 );
@@ -191,7 +191,7 @@ class StarmusTusdHookHandler
             // WP_REST_Response handles this automatically.
             return match ($event_type) {
                 'post-finish' => $this->handle_post_finish($event_data),
-                default       => new WP_REST_Response([], 200), // Return empty JSON object {}
+                default => new WP_REST_Response([], 200), // Return empty JSON object {}
             };
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -316,17 +316,17 @@ class StarmusTusdHookHandler
             $result = $this->submission_handler->process_completed_file($temp_path, $sanitized_form_data);
 
             // VIP SECURITY: Path Traversal Check for the Info File deletion
-            $upload_dir           = wp_get_upload_dir();
-            $basedir              = wp_normalize_path($upload_dir['basedir']);
+            $upload_dir = wp_get_upload_dir();
+            $basedir = wp_normalize_path($upload_dir['basedir']);
             $normalized_info_path = wp_normalize_path($info_path);
 
             if (file_exists($normalized_info_path) && str_starts_with($normalized_info_path, $basedir)) {
-                if ( ! unlink($normalized_info_path)) {
+                if (! unlink($normalized_info_path)) {
                     StarmusLogger::warning(
                         'Failed to delete temp info file',
                         [
                     'component' => self::class,
-                    'path'      => $normalized_info_path,
+                    'path' => $normalized_info_path,
                         ]
                     );
                 }
@@ -335,7 +335,7 @@ class StarmusTusdHookHandler
                     'Security: Attempted deletion outside uploads',
                     [
                 'component' => self::class,
-                'path'      => $normalized_info_path,
+                'path' => $normalized_info_path,
                     ]
                 );
             }
@@ -406,7 +406,7 @@ class StarmusTusdHookHandler
                 return new WP_Error('unauthorized', 'Missing secret header.', ['status' => 403]);
             }
 
-            if ( ! hash_equals($expected_secret, $provided_secret)) {
+            if (! hash_equals($expected_secret, $provided_secret)) {
                 return new WP_Error('unauthorized', 'Invalid secret.', ['status' => 403]);
             }
         } catch (Throwable $throwable) {

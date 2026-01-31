@@ -8,18 +8,16 @@
  *
  * @package Starisian\Sparxstar\Starmus\admin
  */
-
 namespace Starisian\Sparxstar\Starmus\admin;
 
 use WP_Query;
 
-if ( ! defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
 class StarmusTaskManager
 {
-
     // Define allowed CPTs here
     // Updated to match actual CPT names from StarmusPostTypeLoader
     private array $post_types = ['starmus-script', 'audio-recording', 'starmus_transcript'];
@@ -65,7 +63,7 @@ class StarmusTaskManager
             return;
         }
 
-        $url = \defined('STARMUS_URL') ? STARMUS_URL : plugin_dir_url(dirname(__DIR__));
+        $url = \defined('STARMUS_URL') ? STARMUS_URL : plugin_dir_url(\dirname(__DIR__));
         wp_enqueue_style(
             'starmus-admin-css',
             $url . 'assets/css/starmus-admin.min.css',
@@ -78,14 +76,14 @@ class StarmusTaskManager
     {
         // Handle Filters
         $filter_status = isset($_GET['f_status']) ? sanitize_text_field($_GET['f_status']) : '';
-        $filter_user   = isset($_GET['f_user']) ? intval($_GET['f_user']) : '';
-        $filter_cat    = isset($_GET['f_cat']) ? sanitize_text_field($_GET['f_cat']) : '';
+        $filter_user = isset($_GET['f_user']) ? \intval($_GET['f_user']) : '';
+        $filter_cat = isset($_GET['f_cat']) ? sanitize_text_field($_GET['f_cat']) : '';
 
         // Query Args
         $args = [
-            'post_type'      => $this->post_types,
+            'post_type' => $this->post_types,
             'posts_per_page' => 50, // Limit to 50 for performance, add pagination if needed
-            'meta_query'     => ['relation' => 'AND']
+            'meta_query' => ['relation' => 'AND'],
         ];
 
         // REMOVED 'EXISTS' check. We now handle empty meta in the loop.
@@ -96,7 +94,7 @@ class StarmusTaskManager
                 $args['meta_query'][] = [
                     'relation' => 'OR',
                     ['key' => 'starmus_status', 'value' => 'unassigned'],
-                    ['key' => 'starmus_status', 'compare' => 'NOT EXISTS']
+                    ['key' => 'starmus_status', 'compare' => 'NOT EXISTS'],
                 ];
             } else {
                 $args['meta_query'][] = ['key' => 'starmus_status', 'value' => $filter_status];
@@ -107,14 +105,14 @@ class StarmusTaskManager
             $args['meta_query'][] = [
                 'relation' => 'OR',
                 [
-                    'key'     => 'starmus_status',
-                    'value'   => 'closed',
-                    'compare' => '!='
+                    'key' => 'starmus_status',
+                    'value' => 'closed',
+                    'compare' => '!=',
                 ],
                 [
-                    'key'     => 'starmus_status',
-                    'compare' => 'NOT EXISTS'
-                ]
+                    'key' => 'starmus_status',
+                    'compare' => 'NOT EXISTS',
+                ],
             ];
         }
 
@@ -142,23 +140,23 @@ class StarmusTaskManager
                     <div class="alignleft actions">
                         <select name="f_status">
                             <option value="">All Statuses</option>
-                            <?php foreach ($this->get_statuses() as $k => $v): ?>
+                            <?php foreach ($this->get_statuses() as $k => $v) { ?>
                                 <option value="<?php echo esc_attr($k); ?>" <?php selected($filter_status, $k); ?>><?php echo esc_html($v); ?></option>
-                            <?php endforeach; ?>
+                            <?php } ?>
                         </select>
 
                         <select name="f_user">
                             <option value="">All Users</option>
-                            <?php foreach ($users as $user): ?>
+                            <?php foreach ($users as $user) { ?>
                                 <option value="<?php echo $user->ID; ?>" <?php selected($filter_user, $user->ID); ?>><?php echo esc_html($user->display_name); ?></option>
-                            <?php endforeach; ?>
+                            <?php } ?>
                         </select>
 
                         <select name="f_cat">
                             <option value="">All Categories</option>
-                            <?php foreach ($this->get_categories() as $k => $v): ?>
+                            <?php foreach ($this->get_categories() as $k => $v) { ?>
                                 <option value="<?php echo esc_attr($k); ?>" <?php selected($filter_cat, $k); ?>><?php echo esc_html($v); ?></option>
-                            <?php endforeach; ?>
+                            <?php } ?>
                         </select>
 
                         <input type="submit" class="button" value="Filter">
@@ -185,7 +183,9 @@ class StarmusTaskManager
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if ($query->have_posts()): while ($query->have_posts()): $query->the_post();
+                    <?php if ($query->have_posts()) {
+                        while ($query->have_posts()) {
+                            $query->the_post();
                             $pid = get_the_ID();
                             // Use get_post_meta single=true to avoid array issues, default empty strings
                             $cat = get_post_meta($pid, 'starmus_task_cat', true);
@@ -213,7 +213,7 @@ class StarmusTaskManager
                                 'assign' => $assign_to,
                                 'priority' => $priority,
                                 'due' => $due_local,
-                                'instruct' => $instruct
+                                'instruct' => $instruct,
                             ];
                             ?>
                             <tr>
@@ -234,13 +234,13 @@ class StarmusTaskManager
                                         data-task="<?php echo esc_attr(json_encode($task_data)); ?>">Quick Edit</button>
                                 </td>
                             </tr>
-                        <?php endwhile;
-                    else: ?>
+                        <?php }
+                        } else { ?>
                         <tr>
                             <td colspan="7">No assets found.</td>
                         </tr>
-                    <?php endif;
-                    wp_reset_postdata(); ?>
+                    <?php }
+                        wp_reset_postdata(); ?>
                 </tbody>
             </table>
         </div>
@@ -257,18 +257,18 @@ class StarmusTaskManager
                         <label>Assigned To</label>
                         <select name="starmus_assign_to" id="edit_assign_to">
                             <option value="">-- Unassigned --</option>
-                            <?php foreach ($users as $user): ?>
+                            <?php foreach ($users as $user) { ?>
                                 <option value="<?php echo $user->ID; ?>"><?php echo esc_html($user->display_name); ?></option>
-                            <?php endforeach; ?>
+                            <?php } ?>
                         </select>
                     </div>
 
                     <div class="starmus-row">
                         <label>Status</label>
                         <select name="starmus_status" id="edit_status">
-                            <?php foreach ($this->get_statuses() as $k => $v): ?>
+                            <?php foreach ($this->get_statuses() as $k => $v) { ?>
                                 <option value="<?php echo esc_attr($k); ?>"><?php echo esc_html($v); ?></option>
-                            <?php endforeach; ?>
+                            <?php } ?>
                         </select>
                     </div>
 
@@ -379,7 +379,7 @@ class StarmusTaskManager
     {
         check_ajax_referer('starmus_admin_action', 'starmus_nonce');
 
-        if ( ! current_user_can('edit_others_posts')) {
+        if (! current_user_can('edit_others_posts')) {
             wp_send_json_error('Permission denied');
         }
 
@@ -387,12 +387,12 @@ class StarmusTaskManager
         $raw_ids = $_POST['post_id'] ?? '';
         $post_ids = [];
 
-        if (is_array($raw_ids)) {
+        if (\is_array($raw_ids)) {
             $post_ids = array_map(intval(...), $raw_ids);
         } elseif (str_contains((string) $raw_ids, ',')) {
             $post_ids = array_map(intval(...), explode(',', (string) $raw_ids));
         } else {
-            $post_ids = [intval($raw_ids)];
+            $post_ids = [\intval($raw_ids)];
         }
 
         $post_ids = array_filter($post_ids); // Remove 0s
@@ -402,7 +402,7 @@ class StarmusTaskManager
         }
 
         $new_status = sanitize_text_field($_POST['starmus_status']);
-        $assign_to = intval($_POST['starmus_assign_to']);
+        $assign_to = \intval($_POST['starmus_assign_to']);
         $priority = sanitize_text_field($_POST['starmus_priority']);
         $instruct = sanitize_textarea_field($_POST['starmus_instruct']);
         $current_user_id = get_current_user_id();
@@ -434,7 +434,7 @@ class StarmusTaskManager
                 update_post_meta($post_id, 'starmus_assign_time', $now);
 
                 // Generate Strong UUID
-                if ( ! get_post_meta($post_id, 'starmus_assign_id', true)) {
+                if (! get_post_meta($post_id, 'starmus_assign_id', true)) {
                     $uuid = wp_generate_uuid4(); // Native WP UUID
                     update_post_meta($post_id, 'starmus_assign_id', $uuid);
                 }
@@ -449,14 +449,13 @@ class StarmusTaskManager
         wp_send_json_success();
     }
 
-
     /* ==========================================================================
        PART 2: USER DASHBOARD (Frontend)
        ========================================================================== */
 
     public function frontend_scripts(): void
     {
-        $url = \defined('STARMUS_URL') ? STARMUS_URL : plugin_dir_url(dirname(__DIR__));
+        $url = \defined('STARMUS_URL') ? STARMUS_URL : plugin_dir_url(\dirname(__DIR__));
 
         wp_enqueue_style(
             'starmus-front-css',
@@ -470,22 +469,22 @@ class StarmusTaskManager
 
     public function render_user_dashboard($atts): string|false
     {
-        if ( ! is_user_logged_in()) {
+        if (! is_user_logged_in()) {
             return '<p>Please log in to view your tasks.</p>';
         }
 
         $current_user_id = get_current_user_id();
 
         $args = [
-            'post_type'      => $this->post_types,
+            'post_type' => $this->post_types,
             'posts_per_page' => -1,
-            'meta_query'     => [
+            'meta_query' => [
                 [
-                    'key'   => 'starmus_assign_to',
-                    'value' => $current_user_id
+                    'key' => 'starmus_assign_to',
+                    'value' => $current_user_id,
                 ],
                 // Exclude closed/rejected from main view if desired, but request implies list all
-            ]
+            ],
         ];
 
         $query = new WP_Query($args);
@@ -504,7 +503,9 @@ class StarmusTaskManager
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if ($query->have_posts()): while ($query->have_posts()): $query->the_post();
+                    <?php if ($query->have_posts()) {
+                        while ($query->have_posts()) {
+                            $query->the_post();
                             $pid = get_the_ID();
                             $status = get_post_meta($pid, 'starmus_status', true) ?: 'unassigned';
                             $cat = get_post_meta($pid, 'starmus_task_cat', true);
@@ -512,7 +513,7 @@ class StarmusTaskManager
                             $instruct = get_post_meta($pid, 'starmus_instruct', true);
 
                             // Status Logic for User
-                            $can_edit = ! in_array($status, ['closed', 'rejected']);
+                            $can_edit = ! \in_array($status, ['closed', 'rejected']);
                             ?>
                             <tr>
                                 <td>
@@ -524,14 +525,14 @@ class StarmusTaskManager
                                 </td>
                                 <td><?php echo $due ? date('M d, Y', strtotime($due)) . '<br><small>' . date('g:i a', strtotime($due)) . '</small>' : '—'; ?></td>
                                 <td>
-                                    <?php if ($instruct): ?>
+                                    <?php if ($instruct) { ?>
                                         <div class="starmus-instruct"><?php echo esc_html($instruct); ?></div>
-                                    <?php else: ?>
+                                    <?php } else { ?>
                                         <span style="color:#999;">None</span>
-                                    <?php endif; ?>
+                                    <?php } ?>
                                 </td>
                                 <td>
-                                    <?php if ($can_edit): ?>
+                                    <?php if ($can_edit) { ?>
                                         <form class="starmus-user-status-form" data-id="<?php echo $pid; ?>">
                                             <div class="starmus-actions">
                                                 <select name="new_status">
@@ -543,18 +544,18 @@ class StarmusTaskManager
                                             </div>
                                             <span class="msg"></span>
                                         </form>
-                                    <?php else: ?>
+                                    <?php } else { ?>
                                         <strong><?php echo ucfirst($status); ?></strong>
-                                    <?php endif; ?>
+                                    <?php } ?>
                                 </td>
                             </tr>
-                        <?php endwhile;
-                    else: ?>
+                        <?php }
+                        } else { ?>
                         <tr>
                             <td colspan="4">No tasks assigned to you.</td>
                         </tr>
-                    <?php endif;
-                    wp_reset_postdata(); ?>
+                    <?php }
+                        wp_reset_postdata(); ?>
                 </tbody>
             </table>
         </div>
@@ -575,7 +576,7 @@ class StarmusTaskManager
                         action: 'starmus_update_status_user',
                         post_id: pid,
                         status: status,
-                        nonce: '<?php echo wp_create_nonce("starmus_user_action"); ?>'
+                        nonce: '<?php echo wp_create_nonce('starmus_user_action'); ?>'
                     }, function(res) {
                         btn.prop('disabled', false).text('Update');
                         if (res.success) {
@@ -598,7 +599,7 @@ class StarmusTaskManager
     {
         check_ajax_referer('starmus_user_action', 'nonce');
 
-        $post_id = intval($_POST['post_id']);
+        $post_id = \intval($_POST['post_id']);
         $new_status = sanitize_text_field($_POST['status']);
         $user_id = get_current_user_id();
 
@@ -610,13 +611,13 @@ class StarmusTaskManager
 
         // Logic: Allowed statuses for users
         $allowed = ['assigned', 'in_progress', 'submitted'];
-        if ( ! in_array($new_status, $allowed)) {
+        if (! \in_array($new_status, $allowed)) {
             wp_send_json_error('Invalid status');
         }
 
         // Check if currently closed/rejected (User cannot reopen)
         $current_status = get_post_meta($post_id, 'starmus_status', true);
-        if (in_array($current_status, ['closed', 'rejected'])) {
+        if (\in_array($current_status, ['closed', 'rejected'])) {
             wp_send_json_error('Task is closed');
         }
 
@@ -642,7 +643,7 @@ class StarmusTaskManager
             'in_progress' => 'In Progress',
             'submitted' => 'Submitted',
             'closed' => 'Closed',
-            'rejected' => 'Rejected'
+            'rejected' => 'Rejected',
         ];
     }
 
@@ -653,7 +654,7 @@ class StarmusTaskManager
             'annotation' => 'Annotation',
             'translation' => 'Translation',
             'review' => 'Review',
-            'delivery' => 'Delivery'
+            'delivery' => 'Delivery',
         ];
     }
 }

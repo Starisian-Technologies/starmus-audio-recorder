@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\integrations;
 
 // Prevent direct access
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -39,7 +39,7 @@ class StarmusHuggingFaceClient
     public function __construct(?string $endpoint = null, ?string $api_key = null)
     {
         $this->endpoint = $endpoint ?: (string) get_option('aiwa_ai_endpoint', '');
-        $this->api_key  = $api_key ?: (string) get_option('aiwa_ai_api_key', '');
+        $this->api_key = $api_key ?: (string) get_option('aiwa_ai_api_key', '');
     }
 
     /**
@@ -49,20 +49,20 @@ class StarmusHuggingFaceClient
     public function sendFileWithFirstPass(int $attachment_id, string $first_pass_transcription): ?array
     {
         $attachment_id = absint($attachment_id);
-        if ( ! $attachment_id || ($this->endpoint === '' || $this->endpoint === '0')) {
+        if (! $attachment_id || ($this->endpoint === '' || $this->endpoint === '0')) {
             return null;
         }
 
         // Prefer the local file path for reliable reads
-        $file_path    = get_attached_file($attachment_id);
-        $filename     = '';
-        $mime_type    = '';
+        $file_path = get_attached_file($attachment_id);
+        $filename = '';
+        $mime_type = '';
         $audio_base64 = '';
 
         if ($file_path && file_exists($file_path)) {
-            $filename  = wp_basename($file_path);
+            $filename = wp_basename($file_path);
             $mime_type = wp_check_filetype($file_path)['type'] ?? mime_content_type($file_path);
-            $contents  = file_get_contents($file_path);
+            $contents = file_get_contents($file_path);
             if ($contents !== false) {
                 $audio_base64 = base64_encode($contents);
             }
@@ -73,12 +73,12 @@ class StarmusHuggingFaceClient
             $url = wp_get_attachment_url($attachment_id);
             if ($url) {
                 $resp = wp_remote_get($url, ['timeout' => 30]);
-                if ( ! is_wp_error($resp)) {
+                if (! is_wp_error($resp)) {
                     $body = wp_remote_retrieve_body($resp);
-                    if ( ! empty($body)) {
+                    if (! empty($body)) {
                         $audio_base64 = base64_encode($body);
-                        $filename     = wp_basename($url);
-                        $mime_type    = wp_remote_retrieve_header($resp, 'content-type') ?: '';
+                        $filename = wp_basename($url);
+                        $mime_type = wp_remote_retrieve_header($resp, 'content-type') ?: '';
                     }
                 }
             }
@@ -90,15 +90,15 @@ class StarmusHuggingFaceClient
         }
 
         $payload = [
-        'filename'                 => $filename,
-        'mime_type'                => $mime_type,
-        'audio_base64'             => $audio_base64,
+        'filename' => $filename,
+        'mime_type' => $mime_type,
+        'audio_base64' => $audio_base64,
         'first_pass_transcription' => $first_pass_transcription,
         ];
 
         $args = [
         'headers' => ['Content-Type' => 'application/json'],
-        'body'    => wp_json_encode($payload),
+        'body' => wp_json_encode($payload),
         'timeout' => 60,
         ];
 
@@ -120,7 +120,7 @@ class StarmusHuggingFaceClient
         }
 
         $decoded = json_decode($body, true);
-        if ( ! \is_array($decoded)) {
+        if (! \is_array($decoded)) {
             error_log('HuggingFace client response could not be decoded as JSON');
             return null;
         }

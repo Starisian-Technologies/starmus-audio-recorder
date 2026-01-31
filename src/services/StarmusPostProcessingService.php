@@ -1,12 +1,8 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\services;
 
-use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
-use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
-use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use function date;
 use function escapeshellarg;
 use function file_exists;
@@ -22,20 +18,29 @@ use function is_wp_error;
 use function json_decode;
 use function json_encode;
 use function preg_match;
+
 use RuntimeException;
-use function shell_exec;
-use Throwable;
+
 use function sanitize_text_field;
+use function shell_exec;
+
+use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
+use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Throwable;
+
 use function trailingslashit;
 use function trim;
+use function wp_generate_attachment_metadata;
 use function wp_insert_attachment;
 use function wp_mkdir_p;
+
 use WP_Post;
-use function wp_generate_attachment_metadata;
+
 use function wp_update_attachment_metadata;
 use function wp_upload_dir;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -143,10 +148,10 @@ final readonly class StarmusPostProcessingService
     public function __construct(?IStarmusAudioDAL $dal = null, ?StarmusFileService $file_service = null, ?StarmusWaveformService $waveform_service = null, ?StarmusEnhancedId3Service $id3_service = null)
     {
         try {
-            $this->dal              = $dal ?: new StarmusAudioDAL();
-            $this->file_service     = $file_service ?: new StarmusFileService(); // Instantiated
+            $this->dal = $dal ?: new StarmusAudioDAL();
+            $this->file_service = $file_service ?: new StarmusFileService(); // Instantiated
             $this->waveform_service = $waveform_service ?: new StarmusWaveformService($this->dal, $this->file_service);
-            $this->id3_service      = $id3_service ?: new StarmusEnhancedId3Service();
+            $this->id3_service = $id3_service ?: new StarmusEnhancedId3Service();
         } catch (Throwable $throwable) {
             error_log('StarmusPostProcessingService initialization error: ' . $throwable->getMessage());
             throw new RuntimeException('Failed to initialize StarmusPostProcessingService: ' . $throwable->getMessage(), 0, $throwable);
@@ -217,21 +222,21 @@ final readonly class StarmusPostProcessingService
      */
     public function process(int $post_id, int $attachment_id, array $params = []): bool
     {
-        $source_path  = null;
+        $source_path = null;
         $is_temp_file = false;
 
         try {
             StarmusLogger::info(
                 'Post-processing started',
                 [
-                    'post_id'       => $post_id,
+                    'post_id' => $post_id,
                     'attachment_id' => $attachment_id,
-                    'params'        => array_keys($params),
+                    'params' => array_keys($params),
                 ]
             );
             // 1. CRITICAL: GET LOCAL COPY (Handles Cloudflare offload)
             $source_path = $this->file_service->get_local_copy($attachment_id);
-            if ( ! $source_path || ! file_exists($source_path)) {
+            if (! $source_path || ! file_exists($source_path)) {
                 throw new RuntimeException('Source file could not be retrieved locally for attachment ID: ' . $attachment_id);
             }
 
@@ -241,9 +246,9 @@ final readonly class StarmusPostProcessingService
             }
 
             // 2. Prepare Output
-            $uploads    = wp_upload_dir();
+            $uploads = wp_upload_dir();
             $output_dir = trailingslashit($uploads['basedir']) . 'starmus_processed';
-            if ( ! is_dir($output_dir)) {
+            if (! is_dir($output_dir)) {
                 wp_mkdir_p($output_dir);
             }
 
@@ -255,14 +260,14 @@ final readonly class StarmusPostProcessingService
 
             // 4. Params
             $network_type = $params['network_type'] ?? '4g';
-            $sample_rate  = (int) ($params['samplerate'] ?? 44100);
-            $bitrate      = $params['bitrate'] ?? '192k';
+            $sample_rate = (int) ($params['samplerate'] ?? 44100);
+            $bitrate = $params['bitrate'] ?? '192k';
             $session_uuid = $params['session_uuid'] ?? 'unknown';
 
             // 5. Build Filter Chain (Full EBU R128 Normalization Restored)
             $highpass = match ($network_type) {
                 '2g', 'slow-2g' => 'highpass=f=100,lowpass=f=4000',
-                '3g'    => 'highpass=f=80,lowpass=f=7000',
+                '3g' => 'highpass=f=80,lowpass=f=7000',
                 default => 'highpass=f=60',
             };
 
@@ -288,8 +293,8 @@ final readonly class StarmusPostProcessingService
             $full_filter = \sprintf('%s,%s', $highpass, $loudnorm_filter);
 
             // 6. Define Output Paths
-            $mp3_path    = $output_dir . '/' . $post_id . '_master.mp3';
-            $wav_path    = $output_dir . '/' . $post_id . '_archival.wav';
+            $mp3_path = $output_dir . '/' . $post_id . '_master.mp3';
+            $wav_path = $output_dir . '/' . $post_id . '_archival.wav';
             $ffmpeg_meta = \sprintf('-metadata comment=%s', escapeshellarg(\sprintf('Source: Starmus | Profile: %s | Session: %s', $network_type, $session_uuid)));
 
             // 7. Transcode (Pass 2)
@@ -320,12 +325,12 @@ final readonly class StarmusPostProcessingService
 
             // 8. ID3 Tagging (Full Payload Restored)
             $post = get_post($post_id);
-            if ( ! $post) {
+            if (! $post) {
                 throw new RuntimeException('Post not found for ID: ' . $post_id);
             }
 
             $author_name = get_the_author_meta('display_name', (int) $post->post_author) ?: get_bloginfo('name');
-            $tag_data    = $this->build_tag_payload($post, $author_name, get_bloginfo('name'), $post_id);
+            $tag_data = $this->build_tag_payload($post, $author_name, get_bloginfo('name'), $post_id);
             $this->id3_service->writeTags($mp3_path, $tag_data);
 
             // 9. Import to Media Library
@@ -343,16 +348,16 @@ final readonly class StarmusPostProcessingService
             // 11. Compile Technical Metadata from FFmpeg Analysis
             $technical_metadata = [
                 'processing' => [
-                    'ffmpeg_version'    => trim(shell_exec($ffmpeg_path . ' -version 2>&1 | head -1')),
+                    'ffmpeg_version' => trim(shell_exec($ffmpeg_path . ' -version 2>&1 | head -1')),
                     'loudness_analysis' => $loudness_data,
-                    'network_profile'   => $network_type,
-                    'sample_rate'       => $sample_rate,
-                    'bitrate'           => $bitrate,
-                    'processing_date'   => gmdate('c'), // UTC ISO 8601
+                    'network_profile' => $network_type,
+                    'sample_rate' => $sample_rate,
+                    'bitrate' => $bitrate,
+                    'processing_date' => gmdate('c'), // UTC ISO 8601
                 ],
                 'files' => [
-                    'mp3_size'    => file_exists($mp3_path) ? filesize($mp3_path) : 0,
-                    'wav_size'    => file_exists($wav_path) ? filesize($wav_path) : 0,
+                    'mp3_size' => file_exists($mp3_path) ? filesize($mp3_path) : 0,
+                    'wav_size' => file_exists($wav_path) ? filesize($wav_path) : 0,
                     'source_size' => file_exists($source_path) ? filesize($source_path) : 0,
                 ],
             ];
@@ -360,7 +365,7 @@ final readonly class StarmusPostProcessingService
             // Merge with existing recording_metadata from JavaScript if present
             $existing_metadata = get_field('recording_metadata', $post_id);
             if ($existing_metadata) {
-                $existing_data      = json_decode($existing_metadata, true) ?: [];
+                $existing_data = json_decode($existing_metadata, true) ?: [];
                 $technical_metadata = array_merge($existing_data, $technical_metadata);
             }
 
@@ -381,8 +386,8 @@ final readonly class StarmusPostProcessingService
             StarmusLogger::error(
                 $throwable,
                 [
-                    'component'     => self::class,
-                    'post_id'       => $post_id,
+                    'component' => self::class,
+                    'post_id' => $post_id,
                     'attachment_id' => $attachment_id,
                 ]
             );
@@ -442,17 +447,17 @@ final readonly class StarmusPostProcessingService
      */
     private function import_to_media_library(string $filepath, int $parent_post_id, string $mime_type): int
     {
-        if ( ! file_exists($filepath)) {
+        if (! file_exists($filepath)) {
             error_log('[STARMUS POST-PROCESSING] File does not exist: ' . $filepath);
             return 0;
         }
 
-        $filename   = basename($filepath);
+        $filename = basename($filepath);
         $attachment = [
             'post_mime_type' => $mime_type,
-            'post_title'     => $filename,
-            'post_status'    => 'inherit',
-            'post_parent'    => $parent_post_id,
+            'post_title' => $filename,
+            'post_status' => 'inherit',
+            'post_parent' => $parent_post_id,
         ];
 
         error_log('[STARMUS POST-PROCESSING] Creating attachment for: ' . $filepath);
@@ -528,16 +533,16 @@ final readonly class StarmusPostProcessingService
     private function build_tag_payload(WP_Post $post, string $author_name, string $site_name, int $post_id): array
     {
         $recorded_at = (string) get_post_meta($post_id, 'session_date', true);
-        $year        = $recorded_at !== '' && $recorded_at !== '0' ? substr($recorded_at, 0, 4) : date('Y');
+        $year = $recorded_at !== '' && $recorded_at !== '0' ? substr($recorded_at, 0, 4) : date('Y');
 
         $tag_data = [
-            'title'             => [sanitize_text_field($post->post_title)],
-            'artist'            => [sanitize_text_field($author_name)],
-            'album'             => [$site_name . ' Archives'],
-            'year'              => [$year],
-            'comment'           => ['Recorded via Starmus | Post ID: ' . $post_id],
+            'title' => [sanitize_text_field($post->post_title)],
+            'artist' => [sanitize_text_field($author_name)],
+            'album' => [$site_name . ' Archives'],
+            'year' => [$year],
+            'comment' => ['Recorded via Starmus | Post ID: ' . $post_id],
             'copyright_message' => ['© ' . date('Y') . ' ' . $site_name . '. All rights reserved.'],
-            'publisher'         => [$site_name],
+            'publisher' => [$site_name],
         ];
 
         $language_term = get_the_terms($post_id, 'language');

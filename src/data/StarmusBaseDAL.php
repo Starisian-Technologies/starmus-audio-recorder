@@ -13,10 +13,8 @@
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\data;
 
-use WP_Query;
 use function current_time;
 use function get_field;
 use function get_post;
@@ -29,7 +27,9 @@ use Throwable;
 use function update_field;
 use function update_post_meta;
 
-if ( ! \defined('ABSPATH')) {
+use WP_Query;
+
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -56,11 +56,11 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
                 // update_post_meta returns int|bool. False on failure, true/int on success.
                 // Note: It returns false if the value is the same as existing, which is technically a "success",
                 // but for data loss prevention, we care about DB errors.
-                $result  = update_post_meta($post_id, $key, $value);
+                $result = update_post_meta($post_id, $key, $value);
                 $success = (false !== $result);
             }
 
-            if ( ! $success) {
+            if (! $success) {
                 // EMERGENCY DATA DUMP
                 // If WP/ACF says "False", we log the data so it isn't lost.
                 $this->log_write_failure($post_id, $key, $value);
@@ -109,8 +109,8 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     {
         $post = get_post($post_id);
         return $post ? [
-            'id'     => $post->ID,
-            'type'   => $post->post_type,
+            'id' => $post->ID,
+            'type' => $post->post_type,
             'status' => $post->post_status,
         ] : null;
     }
@@ -138,12 +138,12 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     {
         try {
             $row = [
-                'revision_date'        => current_time('Y-m-d H:i:s'),
-                'revision_type'        => $type,
-                'revision_agent'       => $agent,
+                'revision_date' => current_time('Y-m-d H:i:s'),
+                'revision_type' => $type,
+                'revision_agent' => $agent,
                 'revision_description' => $description,
-                'revision_hash'        => $hash,
-                'signature'            => '',
+                'revision_hash' => $hash,
+                'signature' => '',
             ];
 
             // New Schema: starmus_revision_history_json (JSON String)
@@ -154,7 +154,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
                 $history = $existing_json;
             } else {
                 $history = json_decode((string) $existing_json, true);
-                if ( ! \is_array($history)) {
+                if (! \is_array($history)) {
                     $history = [];
                 }
             }
@@ -182,7 +182,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     {
         try {
             $row = [
-                'ts'     => current_time('Y-m-d H:i:s'),
+                'ts' => current_time('Y-m-d H:i:s'),
                 'action' => $action,
             ];
 
@@ -193,7 +193,7 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
                 $log = $existing_json;
             } else {
                 $log = json_decode((string) $existing_json, true);
-                if ( ! \is_array($log)) {
+                if (! \is_array($log)) {
                     $log = [];
                 }
             }
@@ -240,11 +240,11 @@ abstract class StarmusBaseDAL implements IStarmusBaseDAL
     {
         try {
             $query = new WP_Query([
-                'post_type'      => 'starmus_contributor',
-                'meta_key'       => 'starmus_user_id',
-                'meta_value'     => $user_id,
+                'post_type' => 'starmus_contributor',
+                'meta_key' => 'starmus_user_id',
+                'meta_value' => $user_id,
                 'posts_per_page' => 1,
-                'fields'         => 'ids',
+                'fields' => 'ids',
             ]);
             if ($query->have_posts()) {
                 return (int) $query->posts[0];

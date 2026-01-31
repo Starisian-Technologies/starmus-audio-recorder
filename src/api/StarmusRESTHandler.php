@@ -77,7 +77,7 @@ namespace Starisian\Sparxstar\Starmus\api;
 
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -164,8 +164,8 @@ final class StarmusRESTHandler
         StarmusSettings $settings,
         ?StarmusSubmissionHandler $submission_handler = null
     ) {
-        $this->dal                = $dal;
-        $this->settings           = $settings;
+        $this->dal = $dal;
+        $this->settings = $settings;
         $this->submission_handler = $submission_handler ?? new StarmusSubmissionHandler($this->dal, $this->settings);
 
         // Use array callback syntax for PHP 8.2 compatibility
@@ -229,8 +229,8 @@ final class StarmusRESTHandler
             $namespace,
             '/upload-chunk',
             [
-        'methods'             => 'POST', // or WP_REST_Server::CREATABLE
-        'callback'            => $this->submission_handler->handle_upload_chunk_rest_multipart(...),
+        'methods' => 'POST', // or WP_REST_Server::CREATABLE
+        'callback' => $this->submission_handler->handle_upload_chunk_rest_multipart(...),
         'permission_callback' => $this->upload_permissions_check(...),
             ]
         );
@@ -240,8 +240,8 @@ final class StarmusRESTHandler
             $namespace,
             '/upload-fallback',
             [
-        'methods'             => 'POST',
-        'callback'            => $this->handle_fallback_upload(...),
+        'methods' => 'POST',
+        'callback' => $this->handle_fallback_upload(...),
         'permission_callback' => $this->upload_permissions_check(...),
             ]
         );
@@ -251,8 +251,8 @@ final class StarmusRESTHandler
             $namespace,
             '/upload-chunk-legacy',
             [
-        'methods'             => 'POST',
-        'callback'            => $this->submission_handler->handle_upload_chunk_rest_base64(...),
+        'methods' => 'POST',
+        'callback' => $this->submission_handler->handle_upload_chunk_rest_base64(...),
         'permission_callback' => $this->upload_permissions_check(...),
             ]
         );
@@ -262,10 +262,10 @@ final class StarmusRESTHandler
             $namespace,
             '/status/(?P<id>\d+)',
             [
-        'methods'             => 'GET',
-        'callback'            => $this->handle_status(...),
+        'methods' => 'GET',
+        'callback' => $this->handle_status(...),
         'permission_callback' => $this->upload_permissions_check(...),
-        'args'                => [
+        'args' => [
         'id' => [
          'validate_callback' => 'is_numeric',
         ],
@@ -379,12 +379,12 @@ final class StarmusRESTHandler
 
             // Defensive file-key handling
             $file = $files['audio_file'] ?? ($files['file'] ?? null);
-            if ( ! $file || ! \is_array($file) || empty($file['tmp_name'])) {
+            if (! $file || ! \is_array($file) || empty($file['tmp_name'])) {
                 return new WP_REST_Response(
                     [ // Explicit Response object for errors
-                     'code'    => 'server_error',
+                     'code' => 'server_error',
                      'message' => __('Missing or invalid file upload data.', 'starmus-audio-recorder'),
-                     'data'    => ['status' => 400],
+                     'data' => ['status' => 400],
                     ],
                     400
                 );
@@ -396,16 +396,16 @@ final class StarmusRESTHandler
             if (is_wp_error($result)) {
                 return new WP_REST_Response(
                     [
-                  'code'    => $result->get_error_code(),
+                  'code' => $result->get_error_code(),
                   'message' => $result->get_error_message(),
-                  'data'    => ['status' => 500],
+                  'data' => ['status' => 500],
                     ],
                     500
                 );
             }
 
             // Extract submission data
-            $response_data   = $result;
+            $response_data = $result;
             $submission_data = $response_data['data'] ?? [];
 
             do_action(
@@ -417,7 +417,7 @@ final class StarmusRESTHandler
             return new WP_REST_Response(
                 [
             'success' => true,
-            'data'    => $submission_data,
+            'data' => $submission_data,
                 ],
                 200
             );
@@ -425,9 +425,9 @@ final class StarmusRESTHandler
             error_log('[STARMUS PHP] REST Upload Error: ' . $throwable->getMessage() . ' in ' . $throwable->getFile() . ':' . $throwable->getLine());
             return new WP_REST_Response(
                 [
-            'code'    => 'server_error',
+            'code' => 'server_error',
             'message' => __('Upload failed. Please try again later.', 'starmus-audio-recorder'),
-            'data'    => ['status' => 500],
+            'data' => ['status' => 500],
                 ],
                 500
             );
@@ -532,10 +532,10 @@ final class StarmusRESTHandler
 
         try {
             $post_info = $this->dal->get_post_info($post_id);
-            if ( ! $post_info) {
+            if (! $post_info) {
                 return new WP_REST_Response(
                     [
-                  'code'    => 'not_found',
+                  'code' => 'not_found',
                   'message' => 'Submission not found',
                     ],
                     404
@@ -545,7 +545,7 @@ final class StarmusRESTHandler
             if ($post_info['type'] !== $this->submission_handler->get_cpt_slug()) {
                 return new WP_REST_Response(
                     [
-                'code'    => 'invalid_type',
+                'code' => 'invalid_type',
                 'message' => 'Not an audio recording',
                     ],
                     403
@@ -555,10 +555,10 @@ final class StarmusRESTHandler
             return new WP_REST_Response(
                 [
             'success' => true,
-            'data'    => [
-            'id'     => $post_id,
+            'data' => [
+            'id' => $post_id,
             'status' => $post_info['status'],
-            'type'   => $post_info['type'],
+            'type' => $post_info['type'],
             ],
                 ],
                 200
@@ -567,7 +567,7 @@ final class StarmusRESTHandler
             error_log('[STARMUS PHP] Status Error: ' . $throwable->getMessage() . ' in ' . $throwable->getFile() . ':' . $throwable->getLine());
             return new WP_REST_Response(
                 [
-            'code'    => 'server_error',
+            'code' => 'server_error',
             'message' => 'Could not fetch status',
                 ],
                 500

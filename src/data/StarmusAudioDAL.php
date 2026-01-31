@@ -17,7 +17,7 @@ use Throwable;
 use WP_Error;
 use WP_Query;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -42,8 +42,8 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
         try {
             $post_id = wp_insert_post(
                 [
-            'post_title'  => $title,
-            'post_type'   => $cpt_slug,
+            'post_title' => $title,
+            'post_type' => $cpt_slug,
             'post_status' => 'publish',
             'post_author' => $author_id,
                 ],
@@ -65,8 +65,8 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
         try {
             $post_id = wp_insert_post(
                 [
-            'post_title'  => 'Transcription for Recording #' . $audio_post_id,
-            'post_type'   => 'audio-transcription',
+            'post_title' => 'Transcription for Recording #' . $audio_post_id,
+            'post_type' => 'audio-transcription',
             'post_status' => 'publish',
             'post_author' => $author_id,
             'post_parent' => $audio_post_id,
@@ -96,8 +96,8 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
         try {
             $post_id = wp_insert_post(
                 [
-            'post_title'  => 'Translation for Recording #' . $audio_post_id,
-            'post_type'   => 'audio-translation',
+            'post_title' => 'Translation for Recording #' . $audio_post_id,
+            'post_type' => 'audio-translation',
             'post_status' => 'publish',
             'post_author' => $author_id,
             'post_parent' => $audio_post_id,
@@ -131,8 +131,8 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
             $attachment_id = wp_insert_attachment(
                 [
             'post_mime_type' => $filetype['type'] ?: 'application/octet-stream',
-            'post_title'     => pathinfo($filename, PATHINFO_FILENAME),
-            'post_status'    => 'inherit',
+            'post_title' => pathinfo($filename, PATHINFO_FILENAME),
+            'post_status' => 'inherit',
                 ],
                 $file_path
             );
@@ -156,7 +156,7 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
     public function create_attachment_from_sideload(array $file_data): int|WP_Error
     {
         try {
-            if ( ! \function_exists('media_handle_sideload')) {
+            if (! \function_exists('media_handle_sideload')) {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
                 require_once ABSPATH . 'wp-admin/includes/image.php';
                 require_once ABSPATH . 'wp-admin/includes/media.php';
@@ -184,7 +184,7 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
             update_attached_file($attachment_id, $file_path);
             return (bool) wp_update_post(
                 [
-            'ID'             => $attachment_id,
+            'ID' => $attachment_id,
             'post_mime_type' => 'audio/mpeg',
                 ]
             );
@@ -200,12 +200,12 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
     public function update_attachment_metadata(int $attachment_id, string $file_path): bool
     {
         try {
-            if ( ! file_exists($file_path)) {
+            if (! file_exists($file_path)) {
                 return false;
             }
 
             // Required for wp_generate_attachment_metadata
-            if ( ! \function_exists('wp_generate_attachment_metadata')) {
+            if (! \function_exists('wp_generate_attachment_metadata')) {
                 require_once ABSPATH . 'wp-admin/includes/image.php';
             }
 
@@ -228,7 +228,7 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
         try {
             return (bool) wp_update_post(
                 [
-            'ID'          => $attachment_id,
+            'ID' => $attachment_id,
             'post_parent' => $parent_post_id,
                 ]
             );
@@ -263,13 +263,13 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
         try {
             return new WP_Query(
                 [
-            'post_type'      => $cpt_slug,
-            'author'         => $user_id,
+            'post_type' => $cpt_slug,
+            'author' => $user_id,
             'posts_per_page' => $posts_per_page,
-            'paged'          => $paged,
-            'post_status'    => ['publish', 'draft', 'pending', 'private'],
-            'orderby'        => 'date',
-            'order'          => 'DESC',
+            'paged' => $paged,
+            'post_status' => ['publish', 'draft', 'pending', 'private'],
+            'orderby' => 'date',
+            'order' => 'DESC',
                 ]
             );
         } catch (Throwable $throwable) {
@@ -342,7 +342,7 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
             return false;
         }
 
-        $key   = 'starmus_rate_' . $user_id;
+        $key = 'starmus_rate_' . $user_id;
         $count = (int) get_transient($key);
 
         if ($count >= $limit) {
@@ -432,7 +432,7 @@ final class StarmusAudioDAL extends StarmusBaseDAL implements IStarmusAudioDAL
             StarmusLogger::log(
                 $throwable,
                 [
-            'phase'         => 'DAL persist_audio_outputs',
+            'phase' => 'DAL persist_audio_outputs',
             'attachment_id' => $attachment_id,
                 ]
             );

@@ -6,7 +6,7 @@ namespace Starisian\Sparxstar\Starmus\services;
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -21,7 +21,7 @@ final class StarmusAfricaBandwidthService
 
     public function __construct(?IStarmusAudioDAL $dal = null)
     {
-        $dal               = $dal ?: new StarmusAudioDAL();
+        $dal = $dal ?: new StarmusAudioDAL();
         $this->ffmpeg_path = $dal->get_ffmpeg_path() ?: 'ffmpeg';
     }
 
@@ -31,7 +31,7 @@ final class StarmusAfricaBandwidthService
     public function createAfricaOptimized(string $input_path): array
     {
         $base_name = pathinfo($input_path, PATHINFO_FILENAME);
-        $dir       = \dirname($input_path);
+        $dir = \dirname($input_path);
 
         return [
         // 2G networks (EDGE) - 32kbps, 16kHz
@@ -114,18 +114,18 @@ final class StarmusAfricaBandwidthService
      */
     public function estimateDataUsage(string $file_path): array
     {
-        if ( ! file_exists($file_path)) {
+        if (! file_exists($file_path)) {
             return [];
         }
 
         $size_mb = filesize($file_path) / (1024 * 1024);
 
         return [
-        'size_mb'           => round($size_mb, 2),
+        'size_mb' => round($size_mb, 2),
         'cost_estimate_usd' => round($size_mb * 0.15, 2), // ~$0.15/MB in Gambia
-        'download_time_2g'  => round($size_mb / 0.03, 0) . 's', // ~30KB/s
-        'download_time_3g'  => round($size_mb / 0.1, 0) . 's',  // ~100KB/s
-        'recommended'       => $size_mb > 5 ? '2g' : ($size_mb > 2 ? '3g' : 'wifi'),
+        'download_time_2g' => round($size_mb / 0.03, 0) . 's', // ~30KB/s
+        'download_time_3g' => round($size_mb / 0.1, 0) . 's',  // ~100KB/s
+        'recommended' => $size_mb > 5 ? '2g' : ($size_mb > 2 ? '3g' : 'wifi'),
         ];
     }
 }

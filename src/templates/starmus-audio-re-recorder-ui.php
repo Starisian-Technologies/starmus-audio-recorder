@@ -11,7 +11,7 @@
  *
  * @version 1.0.2-DATA-SAFE
  */
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -21,8 +21,8 @@ if ( ! defined('ABSPATH')) {
 $instance_id = 'starmus_form_' . sanitize_key('rerecord_' . wp_generate_uuid4());
 
 $allowed_file_types ??= 'webm';
-$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
-$is_admin          = current_user_can('manage_options');
+$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+$is_admin = current_user_can('manage_options');
 $consent_message ??= __('By submitting this recording, you agree to our', 'starmus-audio-recorder');
 $data_policy_url ??= '';
 ?>
@@ -92,7 +92,7 @@ $data_policy_url ??= '';
                         required>
                     <label for="starmus_consent_<?php echo esc_attr($instance_id); ?>">
                         <?php echo wp_kses_post($consent_message); ?>
-                        <?php if ( ! empty($data_policy_url)) { ?>
+                        <?php if (! empty($data_policy_url)) { ?>
                             <a
                                 href="<?php echo esc_url($data_policy_url); ?>"
                                 target="_blank"

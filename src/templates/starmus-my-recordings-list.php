@@ -29,12 +29,12 @@ if ($query->have_posts()) { ?>
             while ($query->have_posts()) {
                 $query->the_post();
                 $current_post_id = get_the_ID();
-                $post_title      = get_the_title();
+                $post_title = get_the_title();
 
                 // === 1. RESOLVE AUDIO ID (Priority Order) ===
-                $master_id   = (int) get_post_meta($current_post_id, 'mastered_mp3', true);
+                $master_id = (int) get_post_meta($current_post_id, 'mastered_mp3', true);
                 $original_id = (int) get_post_meta($current_post_id, 'audio_files_originals', true);
-                $legacy_id   = (int) get_post_meta($current_post_id, '_audio_attachment_id', true);
+                $legacy_id = (int) get_post_meta($current_post_id, '_audio_attachment_id', true);
 
                 $audio_att_id = $master_id ?: ($original_id ?: $legacy_id);
 
@@ -65,10 +65,10 @@ if ($query->have_posts()) { ?>
 
                 // === 4. METADATA & DURATION FALLBACK ===
                 $recording_type = get_the_terms($current_post_id, 'recording-type');
-                $language       = get_the_terms($current_post_id, 'language');
+                $language = get_the_terms($current_post_id, 'language');
 
                 // Duration Logic
-                $duration_sec       = get_post_meta($current_post_id, 'audio_duration', true);
+                $duration_sec = get_post_meta($current_post_id, 'audio_duration', true);
                 $duration_formatted = '';
 
                 if ($duration_sec) {
@@ -100,14 +100,14 @@ if ($query->have_posts()) { ?>
                                 </time>
                             </span>
 
-                            <?php if ( ! empty($recording_type) && ! is_wp_error($recording_type)) { ?>
+                            <?php if (! empty($recording_type) && ! is_wp_error($recording_type)) { ?>
                                 <span class="starmus-card__type">
                                     <span class="screen-reader-text"><?php esc_html_e('Type:', 'starmus-audio-recorder'); ?></span>
                                     <?php echo esc_html($recording_type[0]->name); ?>
                                 </span>
                             <?php } ?>
 
-                            <?php if ( ! empty($language) && ! is_wp_error($language)) { ?>
+                            <?php if (! empty($language) && ! is_wp_error($language)) { ?>
                                 <span class="starmus-card__language">
                                     <span class="screen-reader-text"><?php esc_html_e('Language:', 'starmus-audio-recorder'); ?></span>
                                     <?php echo esc_html($language[0]->name); ?>
@@ -131,7 +131,7 @@ if ($query->have_posts()) { ?>
                                     <?php
                                     /* translators: %s: Formatted duration time (e.g. "2:34") */
                                     printf(esc_html__('Duration: %s', 'starmus-audio-recorder'), $duration_formatted);
-                                    ?>
+                                ?>
                                 </span>
                             <?php } ?>
                         </div>
@@ -147,10 +147,10 @@ if ($query->have_posts()) { ?>
                             <?php esc_html_e('View Details', 'starmus-audio-recorder'); ?>
                         </a>
 
-                        <?php if ( ! empty($edit_page_url) && current_user_can('edit_post', $current_post_id)) { ?>
+                        <?php if (! empty($edit_page_url) && current_user_can('edit_post', $current_post_id)) { ?>
                             <?php
                             // Use 'recording_id' for consistency with Editor/Recorder templates
-                            $edit_link        = add_query_arg('recording_id', $current_post_id, $edit_page_url);
+                            $edit_link = add_query_arg('recording_id', $current_post_id, $edit_page_url);
                             $secure_edit_link = wp_nonce_url($edit_link, 'starmus_edit_audio_' . $current_post_id, 'nonce');
                             ?>
                             <a href="<?php echo esc_url($secure_edit_link); ?>" class="starmus-btn starmus-btn--primary" aria-label="
@@ -177,13 +177,13 @@ if ($query->have_posts()) { ?>
 
     $pagination_links = paginate_links(
         [
-            'base'      => str_replace('999999999', '%#%', esc_url(get_pagenum_link(999999999))),
-            'format'    => '?paged=%#%',
-            'current'   => $current_page,
-            'total'     => $query->max_num_pages, // Uses specific custom query total
+            'base' => str_replace('999999999', '%#%', esc_url(get_pagenum_link(999999999))),
+            'format' => '?paged=%#%',
+            'current' => $current_page,
+            'total' => $query->max_num_pages, // Uses specific custom query total
             'prev_text' => '<span aria-hidden="true">&laquo;</span> <span class="screen-reader-text">' . __('Previous page', 'starmus-audio-recorder') . '</span>',
             'next_text' => '<span class="screen-reader-text">' . __('Next page', 'starmus-audio-recorder') . '</span> <span aria-hidden="true">&raquo;</span>',
-            'type'      => 'array', // Return array for accessible list rendering
+            'type' => 'array', // Return array for accessible list rendering
         ]
     );
 

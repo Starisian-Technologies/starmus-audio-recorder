@@ -65,13 +65,13 @@ class StarLogger extends AbstractLogger
      */
     private const LEVEL_PRIORITY = [
     'emergency' => 0,
-    'alert'     => 1,
-    'critical'  => 2,
-    'error'     => 3,
-    'warning'   => 4,
-    'notice'    => 5,
-    'info'      => 6,
-    'debug'     => 7,
+    'alert' => 1,
+    'critical' => 2,
+    'error' => 3,
+    'warning' => 4,
+    'notice' => 5,
+    'info' => 6,
+    'debug' => 7,
     ];
 
     /**
@@ -95,7 +95,7 @@ class StarLogger extends AbstractLogger
         try {
             // 1. Determine priority and skip if below min_level
             $level_str = (string) $level;
-            $priority  = self::LEVEL_PRIORITY[strtolower($level_str)] ?? 6;
+            $priority = self::LEVEL_PRIORITY[strtolower($level_str)] ?? 6;
 
             if ($priority > $this->min_level) {
                 return;
@@ -105,7 +105,7 @@ class StarLogger extends AbstractLogger
             $processed_message = $this->process_message($message);
 
             // 3. Detect the caller
-            $caller      = $this->get_caller();
+            $caller = $this->get_caller();
             $context_str = $context === [] ? '' : ' ' . wp_json_encode($context);
 
             // 4. Format and send to error_log
@@ -205,7 +205,7 @@ class StarLogger extends AbstractLogger
             $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 8);
             foreach ($trace as $frame) {
                 if (isset($frame['class']) && ! str_contains($frame['class'], 'Logger')) {
-                    $class  = basename(str_replace('\\', '/', $frame['class']));
+                    $class = basename(str_replace('\\', '/', $frame['class']));
                     $method = $frame['function'] ?? 'unknown';
                     return \sprintf('%s::%s', $class, $method);
                 }

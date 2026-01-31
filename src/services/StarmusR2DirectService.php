@@ -1,15 +1,14 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\services;
 
-use Throwable;
 use Aws\S3\S3Client;
 use Exception;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
+use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -51,16 +50,16 @@ final class StarmusR2DirectService
     private function configureR2(): void
     {
         $this->bucket = \defined('STARMUS_R2_BUCKET') ? STARMUS_R2_BUCKET : 'starmus-audio';
-        $account_id   = \defined('STARMUS_R2_ACCOUNT_ID') ? STARMUS_R2_ACCOUNT_ID : '';
+        $account_id = \defined('STARMUS_R2_ACCOUNT_ID') ? STARMUS_R2_ACCOUNT_ID : '';
 
         $this->public_endpoint = \defined('STARMUS_R2_ENDPOINT') ? STARMUS_R2_ENDPOINT : '';
 
         $this->storage_client = new S3Client([
-            'version'     => 'latest',
-            'region'      => 'auto',
-            'endpoint'    => sprintf('https://%s.r2.cloudflarestorage.com', $account_id),
+            'version' => 'latest',
+            'region' => 'auto',
+            'endpoint' => \sprintf('https://%s.r2.cloudflarestorage.com', $account_id),
             'credentials' => [
-                'key'    => \defined('STARMUS_R2_ACCESS_KEY') ? STARMUS_R2_ACCESS_KEY : '',
+                'key' => \defined('STARMUS_R2_ACCESS_KEY') ? STARMUS_R2_ACCESS_KEY : '',
                 'secret' => \defined('STARMUS_R2_SECRET_KEY') ? STARMUS_R2_SECRET_KEY : '',
             ],
             'use_path_style_endpoint' => true,
@@ -70,18 +69,18 @@ final class StarmusR2DirectService
     private function configureAws(): void
     {
         $this->bucket = \defined('STARMUS_S3_BUCKET') ? STARMUS_S3_BUCKET : '';
-        $region       = \defined('STARMUS_S3_REGION') ? STARMUS_S3_REGION : 'us-east-1';
+        $region = \defined('STARMUS_S3_REGION') ? STARMUS_S3_REGION : 'us-east-1';
 
         // AWS Public Endpoint construction or Custom Domain
         $this->public_endpoint = \defined('STARMUS_S3_ENDPOINT')
             ? STARMUS_S3_ENDPOINT
-            : sprintf('https://%s.s3.%s.amazonaws.com/', $this->bucket, $region);
+            : \sprintf('https://%s.s3.%s.amazonaws.com/', $this->bucket, $region);
 
         $this->storage_client = new S3Client([
-            'version'     => 'latest',
-            'region'      => $region,
+            'version' => 'latest',
+            'region' => $region,
             'credentials' => [
-                'key'    => \defined('STARMUS_S3_ACCESS_KEY') ? STARMUS_S3_ACCESS_KEY : '',
+                'key' => \defined('STARMUS_S3_ACCESS_KEY') ? STARMUS_S3_ACCESS_KEY : '',
                 'secret' => \defined('STARMUS_S3_SECRET_KEY') ? STARMUS_S3_SECRET_KEY : '',
             ],
         ]);
@@ -92,17 +91,17 @@ final class StarmusR2DirectService
      */
     public function processAfricaAudio(string $local_path, int $post_id): array
     {
-        if ( ! $this->id3_service->needsAfricaOptimization($local_path)) {
+        if (! $this->id3_service->needsAfricaOptimization($local_path)) {
             return ['message' => 'No optimization needed'];
         }
 
-        $results   = [];
+        $results = [];
         $base_name = pathinfo($local_path, PATHINFO_FILENAME);
 
         // Create optimized versions
         $versions = [
-            '2g'   => ['-b:a', '32k', '-ar', '16000', '-ac', '1'],
-            '3g'   => ['-b:a', '48k', '-ar', '22050', '-ac', '1'],
+            '2g' => ['-b:a', '32k', '-ar', '16000', '-ac', '1'],
+            '3g' => ['-b:a', '48k', '-ar', '22050', '-ac', '1'],
             'wifi' => ['-b:a', '64k', '-ar', '44100', '-ac', '1'],
         ];
 
@@ -116,9 +115,9 @@ final class StarmusR2DirectService
 
                 if ($url) {
                     $results[$quality] = [
-                        'url'     => $url,
+                        'url' => $url,
                         'size_mb' => round(filesize($temp_file) / (1024 * 1024), 2),
-                        'key'     => $key,
+                        'key' => $key,
                     ];
                 }
 
@@ -164,14 +163,14 @@ final class StarmusR2DirectService
         try {
             $result = $this->storage_client->putObject(
                 [
-                    'Bucket'       => $this->bucket,
-                    'Key'          => $key,
-                    'Body'         => fopen($file_path, 'rb'),
-                    'ContentType'  => 'audio/mpeg',
+                    'Bucket' => $this->bucket,
+                    'Key' => $key,
+                    'Body' => fopen($file_path, 'rb'),
+                    'ContentType' => 'audio/mpeg',
                     'CacheControl' => 'public, max-age=31536000', // 1 year cache
-                    'Metadata'     => [
+                    'Metadata' => [
                         'starmus-optimized' => 'africa',
-                        'created'           => date('c'),
+                        'created' => date('c'),
                     ],
                 ]
             );
@@ -195,10 +194,10 @@ final class StarmusR2DirectService
         try {
             $analysis = $this->id3_service->analyzeFile($source);
 
-            if ( ! empty($analysis['comments'])) {
+            if (! empty($analysis['comments'])) {
                 $tags = [];
                 foreach ($analysis['comments'] as $key => $values) {
-                    if ( ! empty($values[0])) {
+                    if (! empty($values[0])) {
                         $tags[$key] = $values;
                     }
                 }
@@ -219,9 +218,9 @@ final class StarmusR2DirectService
         $size_mb = filesize($file_path) / (1024 * 1024);
 
         return [
-            'original_mb'       => round($size_mb, 2),
-            'africa_2g_mb'      => round($size_mb * 0.15, 2), // 85% reduction
-            'cost_savings_usd'  => round($size_mb * 0.13, 2), // Gambia rates
+            'original_mb' => round($size_mb, 2),
+            'africa_2g_mb' => round($size_mb * 0.15, 2), // 85% reduction
+            'cost_savings_usd' => round($size_mb * 0.13, 2), // Gambia rates
             'bandwidth_savings' => '85%',
         ];
     }

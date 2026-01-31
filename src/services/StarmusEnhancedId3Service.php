@@ -3,7 +3,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -27,9 +27,9 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
         }
 
         return [
-        'technical'     => $this->extractTechnicalData($analysis),
-        'metadata'      => $this->extractStandardizedMetadata($analysis),
-        'quality'       => $this->assessAudioQuality($analysis),
+        'technical' => $this->extractTechnicalData($analysis),
+        'metadata' => $this->extractStandardizedMetadata($analysis),
+        'quality' => $this->assessAudioQuality($analysis),
         'compatibility' => $this->checkFormatCompatibility($analysis),
         ];
     }
@@ -42,15 +42,15 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
         $audio = $analysis['audio'] ?? [];
 
         return [
-        'format'       => $analysis['fileformat'] ?? 'unknown',
-        'codec'        => $audio['dataformat'] ?? 'unknown',
-        'bitrate'      => $audio['bitrate'] ?? 0,
-        'sample_rate'  => $audio['sample_rate'] ?? 0,
-        'channels'     => $audio['channels'] ?? 0,
-        'duration'     => $audio['playtime_seconds'] ?? 0,
+        'format' => $analysis['fileformat'] ?? 'unknown',
+        'codec' => $audio['dataformat'] ?? 'unknown',
+        'bitrate' => $audio['bitrate'] ?? 0,
+        'sample_rate' => $audio['sample_rate'] ?? 0,
+        'channels' => $audio['channels'] ?? 0,
+        'duration' => $audio['playtime_seconds'] ?? 0,
         'bitrate_mode' => $audio['bitrate_mode'] ?? 'unknown',
-        'lossless'     => $audio['lossless'] ?? false,
-        'file_size'    => $analysis['filesize'] ?? 0,
+        'lossless' => $audio['lossless'] ?? false,
+        'file_size' => $analysis['filesize'] ?? 0,
         ];
     }
 
@@ -62,14 +62,14 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
         $comments = $analysis['comments'] ?? [];
 
         return [
-        'title'        => $this->getFirstValue($comments['title'] ?? []),
-        'artist'       => $this->getFirstValue($comments['artist'] ?? []),
-        'album'        => $this->getFirstValue($comments['album'] ?? []),
-        'year'         => $this->getFirstValue($comments['year'] ?? []),
-        'genre'        => $this->getFirstValue($comments['genre'] ?? []),
-        'comment'      => $this->getFirstValue($comments['comment'] ?? []),
+        'title' => $this->getFirstValue($comments['title'] ?? []),
+        'artist' => $this->getFirstValue($comments['artist'] ?? []),
+        'album' => $this->getFirstValue($comments['album'] ?? []),
+        'year' => $this->getFirstValue($comments['year'] ?? []),
+        'genre' => $this->getFirstValue($comments['genre'] ?? []),
+        'comment' => $this->getFirstValue($comments['comment'] ?? []),
         'track_number' => $this->getFirstValue($comments['track_number'] ?? []),
-        'language'     => $this->detectLanguage($comments),
+        'language' => $this->detectLanguage($comments),
         ];
     }
 
@@ -78,16 +78,16 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
      */
     private function assessAudioQuality(array $analysis): array
     {
-        $audio       = $analysis['audio'] ?? [];
-        $bitrate     = $audio['bitrate'] ?? 0;
+        $audio = $analysis['audio'] ?? [];
+        $bitrate = $audio['bitrate'] ?? 0;
         $sample_rate = $audio['sample_rate'] ?? 0;
 
         return [
-        'quality_tier'         => $this->determineQualityTier($bitrate, $sample_rate),
-        'suitable_for_web'     => $bitrate >= 64000 && $bitrate <= 320000,
+        'quality_tier' => $this->determineQualityTier($bitrate, $sample_rate),
+        'suitable_for_web' => $bitrate >= 64000 && $bitrate <= 320000,
         'suitable_for_archive' => $bitrate >= 128000 || ($audio['lossless'] ?? false),
-        'mobile_friendly'      => $bitrate <= 128000,
-        'bandwidth_estimate'   => $this->estimateBandwidth($bitrate),
+        'mobile_friendly' => $bitrate <= 128000,
+        'bandwidth_estimate' => $this->estimateBandwidth($bitrate),
         ];
     }
 
@@ -99,10 +99,10 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
         $format = $analysis['fileformat'] ?? '';
 
         return [
-        'web_compatible'         => \in_array($format, ['mp3', 'wav', 'ogg', 'webm']),
-        'mobile_compatible'      => \in_array($format, ['mp3', 'wav']),
-        'legacy_compatible'      => $format === 'mp3',
-        'modern_web'             => \in_array($format, ['webm', 'ogg']),
+        'web_compatible' => \in_array($format, ['mp3', 'wav', 'ogg', 'webm']),
+        'mobile_compatible' => \in_array($format, ['mp3', 'wav']),
+        'legacy_compatible' => $format === 'mp3',
+        'modern_web' => \in_array($format, ['webm', 'ogg']),
         'recommended_conversion' => $this->getRecommendedFormat($format),
         ];
     }
@@ -112,19 +112,19 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
      */
     public function generateStarmusMetadata(int $post_id, array $form_data): array
     {
-        $site_name    = get_bloginfo('name');
+        $site_name = get_bloginfo('name');
         $current_year = date('Y');
 
         return [
-        'title'             => [$form_data['title'] ?? 'Recording #' . $post_id],
-        'artist'            => [$form_data['speaker_name'] ?? get_bloginfo('name')],
-        'album'             => [$site_name . ' Audio Archive'],
-        'year'              => [$current_year],
-        'comment'           => [$this->buildComment($form_data)],
+        'title' => [$form_data['title'] ?? 'Recording #' . $post_id],
+        'artist' => [$form_data['speaker_name'] ?? get_bloginfo('name')],
+        'album' => [$site_name . ' Audio Archive'],
+        'year' => [$current_year],
+        'comment' => [$this->buildComment($form_data)],
         'copyright_message' => [\sprintf('© %s %s', $current_year, $site_name)],
-        'publisher'         => [$site_name],
-        'language'          => [$form_data['language'] ?? 'en'],
-        'genre'             => [$this->mapRecordingTypeToGenre($form_data['recording_type'] ?? '')],
+        'publisher' => [$site_name],
+        'language' => [$form_data['language'] ?? 'en'],
+        'genre' => [$this->mapRecordingTypeToGenre($form_data['recording_type'] ?? '')],
         ];
     }
 
@@ -136,13 +136,13 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
         $results = [];
 
         foreach ($file_paths as $path) {
-            if ( ! file_exists($path)) {
+            if (! file_exists($path)) {
                 continue;
             }
 
             $results[basename((string) $path)] = [
-            'path'         => $path,
-            'metadata'     => $this->extractEnhancedMetadata($path),
+            'path' => $path,
+            'metadata' => $this->extractEnhancedMetadata($path),
             'processed_at' => time(),
             ];
         }
@@ -185,11 +185,11 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
     {
         $parts = [];
 
-        if ( ! empty($form_data['description'])) {
+        if (! empty($form_data['description'])) {
             $parts[] = $form_data['description'];
         }
 
-        if ( ! empty($form_data['location'])) {
+        if (! empty($form_data['location'])) {
             $parts[] = 'Location: ' . $form_data['location'];
         }
 
@@ -199,11 +199,11 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
     private function mapRecordingTypeToGenre(string $recording_type): string
     {
         $mapping = [
-        'interview'    => 'Speech',
+        'interview' => 'Speech',
         'oral-history' => 'Documentary',
-        'music'        => 'Music',
-        'podcast'      => 'Podcast',
-        'lecture'      => 'Educational',
+        'music' => 'Music',
+        'podcast' => 'Podcast',
+        'lecture' => 'Educational',
         ];
 
         return $mapping[$recording_type] ?? 'Other';

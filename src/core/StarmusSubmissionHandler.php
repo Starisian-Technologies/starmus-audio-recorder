@@ -49,7 +49,6 @@ declare(strict_types=1);
  * @see StarmusSettings Plugin configuration management
  * @see StarmusPostProcessingService Audio processing service
  */
-
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function apply_filters;
@@ -110,7 +109,7 @@ use function wp_unique_filename;
 use function wp_unslash;
 use function wp_upload_dir;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -196,7 +195,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
                 $throwable,
                 [
                     'component' => self::class,
-                    'method'    => __METHOD__,
+                    'method' => __METHOD__,
                 ]
             );
             throw $throwable;
@@ -238,11 +237,11 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             }
 
             $temp_dir = $this->get_temp_dir();
-            if ( ! file_exists($temp_dir)) {
+            if (! file_exists($temp_dir)) {
                 mkdir($temp_dir, 0o755, true);
             }
 
-            $filename  = sanitize_file_name($params['filename']);
+            $filename = sanitize_file_name($params['filename']);
             $temp_file = $temp_dir . $filename;
 
             if (file_put_contents($temp_file, $decoded) === false) {
@@ -259,7 +258,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             // Just ensure form_data keys persist.
             // Mock file type if not provided
             if (empty($form_data['filetype'])) {
-                $check                 = wp_check_filetype($filename);
+                $check = wp_check_filetype($filename);
                 $form_data['filetype'] = $check['type'] ?: 'application/octet-stream';
             }
 
@@ -348,8 +347,8 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
     private function _finalize_from_local_disk(string $file_path, array $form_data): array|WP_Error
     {
         $attachment_id = 0;
-        $cpt_post_id   = 0;
-        $filename      = $form_data['filename'] ?? pathinfo($file_path, PATHINFO_BASENAME);
+        $cpt_post_id = 0;
+        $filename = $form_data['filename'] ?? pathinfo($file_path, PATHINFO_BASENAME);
 
         try {
             if ($file_path === '' || $file_path === '0' || ! file_exists($file_path)) {
@@ -359,7 +358,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             $upload_dir = wp_upload_dir();
 
             // SECURITY: Path Traversal Protection
-            $base_path   = wp_normalize_path(trailingslashit($upload_dir['path']));
+            $base_path = wp_normalize_path(trailingslashit($upload_dir['path']));
             $unique_name = wp_unique_filename($upload_dir['path'], $filename);
             $destination = $base_path . $unique_name;
 
@@ -367,13 +366,13 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             $detected_mime = mime_content_type($file_path);
             if (false === $detected_mime) {
                 $wp_check = wp_check_filetype($filename);
-                $mime     = $wp_check['type'] ?: 'application/octet-stream';
+                $mime = $wp_check['type'] ?: 'application/octet-stream';
             } else {
                 $mime = $detected_mime;
             }
 
             $final_mime = empty($mime) ? ($form_data['filetype'] ?? '') : $mime;
-            $size       = file_exists($file_path) ? filesize($file_path) : 0;
+            $size = file_exists($file_path) ? filesize($file_path) : 0;
 
             $valid = $this->validate_file_against_settings($final_mime, (int) $size);
             if (is_wp_error($valid)) {
@@ -384,12 +383,12 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             global $wp_filesystem;
             if (empty($wp_filesystem)) {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
-                if ( ! WP_Filesystem()) {
+                if (! WP_Filesystem()) {
                     return $this->err('fs_init_failed', 'Could not initialize filesystem.', 500);
                 }
             }
 
-            if ( ! $wp_filesystem->move($file_path, $destination, true)) {
+            if (! $wp_filesystem->move($file_path, $destination, true)) {
                 unlink($file_path);
                 return $this->err('move_failed', 'Failed to move upload.', 500);
             }
@@ -414,15 +413,15 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             $existing_post_id = isset($form_data['post_id']) ? absint($form_data['post_id']) : (isset($form_data['recording_id']) ? absint($form_data['recording_id']) : 0);
 
             if ($existing_post_id > 0 && get_post_type($existing_post_id) === $this->get_cpt_slug()) {
-                $cpt_post_id       = $existing_post_id;
+                $cpt_post_id = $existing_post_id;
                 $old_attachment_id = (int) get_post_meta($cpt_post_id, '_audio_attachment_id', true);
                 if ($old_attachment_id > 0) {
                     $this->dal->delete_attachment($old_attachment_id);
                 }
             } else {
-                $user_id     = isset($form_data['user_id']) ? absint($form_data['user_id']) : get_current_user_id();
+                $user_id = isset($form_data['user_id']) ? absint($form_data['user_id']) : get_current_user_id();
                 $mapped_data = StarmusSchemaMapper::map_form_data($form_data);
-                $title       = $mapped_data['dc_creator'] ?? pathinfo($filename, PATHINFO_FILENAME);
+                $title = $mapped_data['dc_creator'] ?? pathinfo($filename, PATHINFO_FILENAME);
                 $cpt_post_id = $this->dal->create_audio_post(
                     $title,
                     $this->get_cpt_slug(),
@@ -445,10 +444,10 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             do_action('starmus_after_audio_saved', (int) $cpt_post_id, $form_data);
 
             $response = [
-                'success'       => true,
+                'success' => true,
                 'attachment_id' => (int) $attachment_id,
-                'post_id'       => (int) $cpt_post_id,
-                'url'           => wp_get_attachment_url((int) $attachment_id),
+                'post_id' => (int) $cpt_post_id,
+                'url' => wp_get_attachment_url((int) $attachment_id),
             ];
 
             return apply_filters('starmus_audio_upload_success_response', $response, (int) $cpt_post_id, $form_data);
@@ -456,12 +455,12 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             StarmusLogger::log(
                 $throwable,
                 [
-                    'component'     => self::class,
-                    'method'        => __METHOD__,
+                    'component' => self::class,
+                    'method' => __METHOD__,
                     'attachment_id' => (int) $attachment_id,
-                    'post_id'       => (int) $cpt_post_id,
-                    'file_path'     => $file_path,
-                    'filename'      => $filename,
+                    'post_id' => (int) $cpt_post_id,
+                    'file_path' => $file_path,
+                    'filename' => $filename,
                 ]
             );
             return $this->err('server_error', 'File finalization failed.', 500);
@@ -506,26 +505,26 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
      */
     public function handle_fallback_upload_rest(WP_REST_Request $request): array|WP_Error
     {
-        $file_key   = '';
-        $form_data  = [];
+        $file_key = '';
+        $form_data = [];
         $files_data = [];
-        $mime       = '';
+        $mime = '';
 
         try {
             if ($this->is_rate_limited(get_current_user_id())) {
                 return $this->err('rate_limited', 'Too frequent.', 429);
             }
 
-            $form_data  = $this->sanitize_submission_data($request->get_params() ?? []);
+            $form_data = $this->sanitize_submission_data($request->get_params() ?? []);
             $files_data = $request->get_file_params() ?? [];
 
             $file_key = $this->detect_file_key($files_data);
-            if ( ! $file_key) {
+            if (! $file_key) {
                 return $this->err('missing_file', 'No audio file provided.', 400);
             }
 
             $file = $files_data[$file_key];
-            if ( ! isset($file['error']) || (int) $file['error'] !== 0 || empty($file['tmp_name'])) {
+            if (! isset($file['error']) || (int) $file['error'] !== 0 || empty($file['tmp_name'])) {
                 return $this->err('upload_error', 'Upload failed on client.', 400);
             }
 
@@ -539,7 +538,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
                 } else {
                     // Fallback to extension check
                     $check = wp_check_filetype((string) ($file['name'] ?? ''));
-                    $mime  = $check['type'] ?? '';
+                    $mime = $check['type'] ?? '';
                 }
             }
 
@@ -560,16 +559,16 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
 
             return [
                 'success' => true,
-                'data'    => $result['data'],
+                'data' => $result['data'],
             ];
         } catch (Throwable $throwable) {
             StarmusLogger::log(
                 $throwable,
                 [
                     'component' => self::class,
-                    'method'    => __METHOD__,
-                    'file_key'  => $file_key,
-                    'mime'      => $mime,
+                    'method' => __METHOD__,
+                    'file_key' => $file_key,
+                    'mime' => $mime,
                 ]
             );
             return $this->err('server_error', 'Fallback upload exception.', 500);
@@ -612,10 +611,10 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
     public function process_fallback_upload(array $files_data, array $form_data, string $file_key): array|WP_Error
     {
         $attachment_id = 0;
-        $cpt_post_id   = 0;
+        $cpt_post_id = 0;
 
         try {
-            if ( ! \function_exists('media_handle_sideload')) {
+            if (! \function_exists('media_handle_sideload')) {
                 require_once ABSPATH . 'wp-admin/includes/image.php';
                 require_once ABSPATH . 'wp-admin/includes/file.php';
                 require_once ABSPATH . 'wp-admin/includes/media.php';
@@ -636,7 +635,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
                 $cpt_post_id = $existing_id;
             } else {
                 $mapped_data = StarmusSchemaMapper::map_form_data($form_data);
-                $title       = $mapped_data['dc_creator'] ?? pathinfo((string) $files_data[$file_key]['name'], PATHINFO_FILENAME);
+                $title = $mapped_data['dc_creator'] ?? pathinfo((string) $files_data[$file_key]['name'], PATHINFO_FILENAME);
                 $cpt_post_id = $this->dal->create_audio_post($title, $this->get_cpt_slug(), get_current_user_id());
             }
 
@@ -653,22 +652,22 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
 
             return [
                 'success' => true,
-                'data'    => [
+                'data' => [
                     'attachment_id' => (int) $attachment_id,
-                    'post_id'       => (int) $cpt_post_id,
-                    'url'           => wp_get_attachment_url((int) $attachment_id),
-                    'redirect_url'  => esc_url($this->get_redirect_url()),
+                    'post_id' => (int) $cpt_post_id,
+                    'url' => wp_get_attachment_url((int) $attachment_id),
+                    'redirect_url' => esc_url($this->get_redirect_url()),
                 ],
             ];
         } catch (Throwable $throwable) {
             StarmusLogger::log(
                 $throwable,
                 [
-                    'component'     => self::class,
-                    'method'        => __METHOD__,
+                    'component' => self::class,
+                    'method' => __METHOD__,
                     'attachment_id' => (int) $attachment_id,
-                    'post_id'       => (int) $cpt_post_id,
-                    'file_key'      => $file_key,
+                    'post_id' => (int) $cpt_post_id,
+                    'file_key' => $file_key,
                 ]
             );
             return $this->err('server_error', 'Fallback processing failed.', 500);
@@ -727,7 +726,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             error_log('[STARMUS PHP] Mapped form data: ' . json_encode(array_keys($mapped_data)));
 
             // Handle JavaScript-submitted environment data (_starmus_env)
-            $env_json    = $form_data['_starmus_env'] ?? '';
+            $env_json = $form_data['_starmus_env'] ?? '';
             $decoded_env = null;
             if ($env_json) {
                 $decoded_env = json_decode(wp_unslash($env_json), true);
@@ -753,29 +752,29 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             }
 
             // Handle waveform JSON from JavaScript
-            if ( ! empty($form_data['waveform_json'])) {
+            if (! empty($form_data['waveform_json'])) {
                 $wf_value = \is_string($form_data['waveform_json']) ? $form_data['waveform_json'] : json_encode($form_data['waveform_json']);
-                error_log('[STARMUS PHP] Saving starmus_waveform_json. Size: ' . strlen($wf_value));
+                error_log('[STARMUS PHP] Saving starmus_waveform_json. Size: ' . \strlen($wf_value));
                 $this->update_acf_field('starmus_waveform_json', $wf_value, $audio_post_id);
             } else {
                 error_log('[STARMUS PHP] waveform_json is empty in form_data.');
             }
 
             // Handle first-pass transcription from JavaScript
-            if ( ! empty($form_data['transcription'])) {
+            if (! empty($form_data['transcription'])) {
                 error_log('[STARMUS PHP] Saving starmus_transcription_text. Keys: ' . substr((string) $form_data['transcription'], 0, 50));
                 $this->update_acf_field('starmus_transcription_text', sanitize_textarea_field($form_data['transcription']), $audio_post_id);
             } else {
                 error_log('[STARMUS PHP] transcription is empty in form_data.');
             }
 
-            if ( ! empty($form_data['transcription_json'])) {
+            if (! empty($form_data['transcription_json'])) {
                 $trans_json = \is_string($form_data['transcription_json']) ? $form_data['transcription_json'] : json_encode($form_data['transcription_json']);
                 $this->update_acf_field('starmus_transcription_json', $trans_json, $audio_post_id);
             }
 
             // Handle recording metadata from JavaScript
-            if ( ! empty($form_data['recording_metadata'])) {
+            if (! empty($form_data['recording_metadata'])) {
                 $metadata_value = \is_string($form_data['recording_metadata']) ? $form_data['recording_metadata'] : json_encode($form_data['recording_metadata']);
                 $this->update_acf_field('starmus_recording_metadata', $metadata_value, $audio_post_id);
             }
@@ -787,8 +786,8 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             }
 
             // Agreement to Terms (Group D) - Store in UTC
-            $timestamp  = gmdate('Y-m-d H:i:s'); // UTC timestamp
-            $user_ip    = StarmusSanitizer::get_user_ip();
+            $timestamp = gmdate('Y-m-d H:i:s'); // UTC timestamp
+            $user_ip = StarmusSanitizer::get_user_ip();
             $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
             // Use correct Starmus keys (verified against ACF JSON)
@@ -861,11 +860,11 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             }
 
             // Handle taxonomies through mapped data
-            if ( ! empty($mapped_data['starmus_tax_language'])) {
+            if (! empty($mapped_data['starmus_tax_language'])) {
                 wp_set_post_terms($audio_post_id, [(int) $mapped_data['starmus_tax_language']], 'starmus_tax_language');
             }
 
-            if ( ! empty($mapped_data['recording-type'])) {
+            if (! empty($mapped_data['recording-type'])) {
                 wp_set_post_terms($audio_post_id, [(int) $mapped_data['recording-type']], 'recording-type');
             }
 
@@ -905,7 +904,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
 
             // Extract session UUID from environment data if available
             $session_uuid = 'unknown';
-            if ( ! empty($form_data['_starmus_env'])) {
+            if (! empty($form_data['_starmus_env'])) {
                 $decoded_env = json_decode(wp_unslash($form_data['_starmus_env']), true);
                 if ($decoded_env && isset($decoded_env['identifiers']['sessionId'])) {
                     $session_uuid = $decoded_env['identifiers']['sessionId'];
@@ -913,8 +912,8 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             }
 
             $processing_params = [
-                'bitrate'      => '192k',
-                'samplerate'   => 44100,
+                'bitrate' => '192k',
+                'samplerate' => 44100,
                 'network_type' => '4g',
                 'session_uuid' => $session_uuid,
             ];
@@ -923,9 +922,9 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             StarmusLogger::log(
                 $throwable,
                 [
-                    'component'     => self::class,
-                    'method'        => __METHOD__,
-                    'post_id'       => $audio_post_id,
+                    'component' => self::class,
+                    'method' => __METHOD__,
+                    'post_id' => $audio_post_id,
                     'attachment_id' => $attachment_id,
                 ]
             );
@@ -962,15 +961,15 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
         try {
             error_log('[STARMUS PHP] Triggering post processing for post: ' . $post_id . ', attachment: ' . $attachment_id);
             $processor = new StarmusPostProcessingService();
-            $result    = $processor->process($post_id, $attachment_id, $params);
+            $result = $processor->process($post_id, $attachment_id, $params);
             error_log('[STARMUS PHP] Post processing result: ' . ($result ? 'SUCCESS' : 'FAILED'));
 
-            if ( ! $result && ! wp_next_scheduled('starmus_cron_process_pending_audio', [$post_id, $attachment_id])) {
+            if (! $result && ! wp_next_scheduled('starmus_cron_process_pending_audio', [$post_id, $attachment_id])) {
                 StarmusLogger::log(
                     '[STARMUS PHP] Scheduling cron job for post processing retry',
                     [
-                        'component'     => self::class,
-                        'post_id'       => $post_id,
+                        'component' => self::class,
+                        'post_id' => $post_id,
                         'attachment_id' => $attachment_id,
                     ]
                 );
@@ -981,7 +980,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             StarmusLogger::log(
                 $throwable,
                 [
-                    'post_id'       => $post_id,
+                    'post_id' => $post_id,
                     'attachment_id' => $attachment_id,
                 ]
             );
@@ -1077,7 +1076,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
     {
         // Try getting the Page ID first (Most reliable)
         $page_ids = $this->settings->get('my_recordings_page_id');
-        $page_id  = \is_array($page_ids) ? reset($page_ids) : $page_ids;
+        $page_id = \is_array($page_ids) ? reset($page_ids) : $page_ids;
 
         if ($page_id) {
             return get_permalink((int) $page_id);
@@ -1107,7 +1106,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
     private function detect_file_key(array $files): ?string
     {
         foreach ($this->fallback_file_keys as $key) {
-            if ( ! empty($files[$key]) && \is_array($files[$key])) {
+            if (! empty($files[$key]) && \is_array($files[$key])) {
                 return $key;
             }
         }
@@ -1181,9 +1180,9 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
         if (empty($allowed_str)) {
             $allowed_mimes = $this->default_allowed_mimes;
         } else {
-            $exts          = array_map(trim(...), explode(',', (string) $allowed_str));
+            $exts = array_map(trim(...), explode(',', (string) $allowed_str));
             $allowed_mimes = [];
-            $wp_mimes      = wp_get_mime_types();
+            $wp_mimes = wp_get_mime_types();
 
             foreach ($exts as $ext) {
                 // FIX: Ensure audio/webm is allowed if 'webm' is listed.
@@ -1203,7 +1202,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
             }
         }
 
-        if ( ! \in_array(strtolower($mime), $allowed_mimes, true)) {
+        if (! \in_array(strtolower($mime), $allowed_mimes, true)) {
             return $this->err('mime_not_allowed', 'Type not allowed: ' . $mime, 415);
         }
 
@@ -1228,7 +1227,7 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
     private function cleanup_chunks_dir(string $path): void
     {
         $temp_dir = $this->get_temp_dir();
-        $path     = trailingslashit($path);
+        $path = trailingslashit($path);
 
         if (str_starts_with($path, $temp_dir) && is_dir($path)) {
             $files = glob($path . '*');

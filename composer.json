@@ -8,7 +8,8 @@
     "james-heinrich/getid3": "^1.9",
     "wpackagist-plugin/secure-custom-fields": "^6.8",
     "aws/aws-sdk-php": "^3.369",
-    "psr/log": "^3.0"
+    "psr/log": "^3.0",
+    "ext-simplexml": "*"
   },
   "autoload": {
     "psr-4": {
@@ -71,7 +72,8 @@
     "szepeviktor/phpstan-wordpress": "^2.0",
     "phpcompatibility/php-compatibility": "^9.3",
     "phpcompatibility/phpcompatibility-wp": "^2.1",
-    "rector/rector": "^2.2"
+    "rector/rector": "^2.2",
+    "roave/security-advisories": "dev-latest"
   },
   "scripts": {
     "phpcs": "vendor/bin/phpcs --standard=phpcs.xml.dist",

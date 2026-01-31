@@ -13,7 +13,7 @@ namespace Starisian\Sparxstar\Starmus\helpers;
 
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -30,7 +30,7 @@ class StarmusTemplateLoaderHelper
      */
     public static function secure_render_template(string $template, array $args = [], string $user_group = 'admin'): string
     {
-        if ( ! is_user_logged_in()) {
+        if (! is_user_logged_in()) {
             return '<p>' . esc_html__('You must be logged in to record audio.', 'starmus-audio-recorder') . '</p>';
         }
 
@@ -88,7 +88,7 @@ class StarmusTemplateLoaderHelper
 
             $template_path = self::locate_template($template);
 
-            if ( ! $template_path) {
+            if (! $template_path) {
                 error_log('[StarmusTemplateLoader] Template not found: ' . $template);
                 error_log('[StarmusTemplateLoader] STARMUS_PATH: ' . (\defined('STARMUS_PATH') ? STARMUS_PATH : 'NOT DEFINED'));
                 return '<div class="notice notice-error"><p>Template not found: ' . esc_html($template) . '</p></div>';
@@ -123,7 +123,7 @@ class StarmusTemplateLoaderHelper
     private static function locate_template(string $template): string|false
     {
         $template_name = basename($template);
-        $locations     = [
+        $locations = [
         trailingslashit(get_stylesheet_directory()) . 'starmus/' . $template_name,
         trailingslashit(get_template_directory()) . 'starmus/' . $template_name,
         trailingslashit(STARMUS_PATH) . 'src/templates/' . $template_name,

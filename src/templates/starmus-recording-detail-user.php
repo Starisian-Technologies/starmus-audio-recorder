@@ -9,7 +9,7 @@
  * @package Starisian\Starmus\templates
  */
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -23,11 +23,11 @@ try {
     $post_id = get_the_ID();
 
     // Fallback if specific ID passed via args (future proofing)
-    if ( ! $post_id && isset($args['post_id'])) {
+    if (! $post_id && isset($args['post_id'])) {
         $post_id = intval($args['post_id']);
     }
 
-    if ( ! $post_id) {
+    if (! $post_id) {
         // If loaded outside a loop context, return empty or error
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('[Starmus Detail] No Post ID found in context.');
@@ -45,8 +45,8 @@ try {
 
     // --- 1. Audio Assets (New Schema) ---
     // ACF fields return URLs when return_format is 'url', but we need attachment IDs
-    $mastered_mp3_field    = get_field('mastered_mp3', $post_id);
-    $archival_wav_field    = get_field('archival_wav', $post_id);
+    $mastered_mp3_field = get_field('mastered_mp3', $post_id);
+    $archival_wav_field = get_field('archival_wav', $post_id);
     $original_source_field = get_field('original_source', $post_id);
 
     // If ACF returns URLs, we need to get attachment IDs from URLs
@@ -93,23 +93,23 @@ try {
         return wp_get_attachment_url($att_id) ?: '';
     };
 
-    $mp3_url      = $get_url($mastered_mp3_id);
+    $mp3_url = $get_url($mastered_mp3_id);
     $original_url = $get_url($original_id);
     // Playback preference: Mastered MP3 > Original
     $playback_url = $mp3_url ?: $original_url;
 
     // --- 2. Additional Metadata (Using Admin Logic for Robustness) ---
     // OPTIMIZATION: Use get_post_meta to avoid ACF processing on potentially large fields
-    $transcript_raw  = get_post_meta($post_id, 'starmus_transcription_text', true);
+    $transcript_raw = get_post_meta($post_id, 'starmus_transcription_text', true);
     $transcript_text = '';
-    if ( ! empty($transcript_raw)) {
-        $decoded         = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
+    if (! empty($transcript_raw)) {
+        $decoded = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
         $transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
     }
 
     // --- 3. Resolve Duration (Using Admin Logic for Robustness) ---
     $duration_formatted = '';
-    $duration_sec       = get_post_meta($post_id, 'audio_duration', true);
+    $duration_sec = get_post_meta($post_id, 'audio_duration', true);
 
     if ($duration_sec) {
         $duration_formatted = gmdate('i:s', intval($duration_sec));
@@ -124,7 +124,7 @@ try {
 
     // --- 4. Fetch Metadata (New Schema) ---
     $accession_number = get_field('starmus_accession_number', $post_id);
-    $location_data    = get_field('starmus_session_location', $post_id);
+    $location_data = get_field('starmus_session_location', $post_id);
 
     // --- 5. User-Appropriate Environment Data (New Schema) ---
     // OPTIMIZATION: Use get_post_meta for massive JSON
@@ -138,7 +138,7 @@ try {
     }
 
     // Parse Browser/OS from User Agent (user-friendly display)
-    $ua_string          = $env_data['device']['userAgent'] ?? '';
+    $ua_string = $env_data['device']['userAgent'] ?? '';
     $user_agent_display = 'Unknown Browser';
 
     if ($ua_string) {
@@ -169,8 +169,8 @@ try {
 
     // Parse Mic Profile (useful for users to understand quality)
     // OPTIMIZATION: get_post_meta
-    $mic_data_raw        = get_post_meta($post_id, 'starmus_transcriber_metadata', true);
-    $mic_data            = json_decode((string)$mic_data_raw, true);
+    $mic_data_raw = get_post_meta($post_id, 'starmus_transcriber_metadata', true);
+    $mic_data = json_decode((string)$mic_data_raw, true);
     $mic_profile_display = 'Unknown';
     if (isset($mic_data['gain'])) {
         $gain = $mic_data['gain'];
@@ -188,14 +188,14 @@ try {
     $rec_types = get_the_terms($post_id, 'recording-type');
 
     // --- 7. Action URLs ---
-    $edit_page_ids     = $settings->get('edit_page_id', []);
+    $edit_page_ids = $settings->get('edit_page_id', []);
     $recorder_page_ids = $settings->get('recorder_page_id', []);
 
     // Normalize to single ID (first one if array)
-    $edit_page_id     = is_array($edit_page_ids) ? ($edit_page_ids[0] ?? 0) : (int) $edit_page_ids;
+    $edit_page_id = is_array($edit_page_ids) ? ($edit_page_ids[0] ?? 0) : (int) $edit_page_ids;
     $recorder_page_id = is_array($recorder_page_ids) ? ($recorder_page_ids[0] ?? 0) : (int) $recorder_page_ids;
 
-    $edit_page_url     = $edit_page_id > 0 ? get_permalink($edit_page_id) : '';
+    $edit_page_url = $edit_page_id > 0 ? get_permalink($edit_page_id) : '';
     $recorder_page_url = $recorder_page_id > 0 ? get_permalink($recorder_page_id) : '';
 } catch (\Throwable $throwable) {
     // Fail silently in production, log in debug
@@ -219,13 +219,13 @@ try {
                 <?php echo esc_html(get_the_date('F j, Y', $post_id)); ?>
             </span>
 
-            <?php if ( ! empty($languages) && ! is_wp_error($languages)) { ?>
+            <?php if (! empty($languages) && ! is_wp_error($languages)) { ?>
                 <span class="starmus-tag starmus-tag--lang">
                     <?php echo esc_html($languages[0]->name); ?>
                 </span>
             <?php } ?>
 
-            <?php if ( ! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
+            <?php if (! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
                 <span class="starmus-tag starmus-tag--type">
                     <?php echo esc_html($rec_types[0]->name); ?>
                 </span>

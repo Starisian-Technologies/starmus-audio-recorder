@@ -5,7 +5,7 @@ namespace Starisian\Sparxstar\Starmus\services;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -33,13 +33,13 @@ final class StarmusFFmpegService
     public function optimizeForWeb(string $input_path, string $output_dir): array
     {
         $base_name = pathinfo($input_path, PATHINFO_FILENAME);
-        $results   = [];
+        $results = [];
 
         // Generate multiple quality versions
         $formats = [
-        'high'     => ['-b:a', '192k', '-ar', '44100'],
+        'high' => ['-b:a', '192k', '-ar', '44100'],
         'standard' => ['-b:a', '128k', '-ar', '44100'],
-        'mobile'   => ['-b:a', '64k', '-ar', '22050'],
+        'mobile' => ['-b:a', '64k', '-ar', '22050'],
         ];
 
         foreach ($formats as $quality => $params) {
@@ -155,9 +155,9 @@ final class StarmusFFmpegService
             StarmusLogger::error(
                 'Conversion failed',
                 [
-            'component'  => self::class,
+            'component' => self::class,
             'input_file' => $input,
-            'output'     => $output,
+            'output' => $output,
                 ]
             );
         }
@@ -172,10 +172,10 @@ final class StarmusFFmpegService
     {
         $analysis = $this->id3_service->analyzeFile($source);
 
-        if ( ! empty($analysis['comments'])) {
+        if (! empty($analysis['comments'])) {
             $tags = [];
             foreach ($analysis['comments'] as $key => $values) {
-                if ( ! empty($values[0])) {
+                if (! empty($values[0])) {
                     $tags[ $key ] = $values;
                 }
             }
@@ -191,13 +191,13 @@ final class StarmusFFmpegService
      */
     private function processWaveformData(string $raw_data): array
     {
-        $samples    = unpack('f*', $raw_data);
-        $peaks      = [];
+        $samples = unpack('f*', $raw_data);
+        $peaks = [];
         $chunk_size = 100;
-        $counter    = \count($samples); // Samples per peak
+        $counter = \count($samples); // Samples per peak
 
         for ($i = 0; $i < $counter; $i += $chunk_size) {
-            $chunk   = \array_slice($samples, $i, $chunk_size);
+            $chunk = \array_slice($samples, $i, $chunk_size);
             $peaks[] = [
             'min' => min($chunk),
             'max' => max($chunk),

@@ -4,7 +4,7 @@ namespace Starisian\Sparxstar\Starmus\core;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -73,12 +73,12 @@ class StarmusAudioRecorderUpdater
                 $plugin_slug = plugin_basename($this->plugin_file);
 
                 $transient->response[$plugin_slug] = (object) [
-                'slug'        => 'starmus-audio-recorder',
-                'plugin'      => $plugin_slug,
+                'slug' => 'starmus-audio-recorder',
+                'plugin' => $plugin_slug,
                 'new_version' => $update_data->new_version,
-                'url'         => $update_data->url, // Link to your plugin's homepage
-                'package'     => $update_data->package, // The secure S3/download link for the ZIP file
-                'tested'      => $update_data->tested, // e.g., "6.4.1"
+                'url' => $update_data->url, // Link to your plugin's homepage
+                'package' => $update_data->package, // The secure S3/download link for the ZIP file
+                'tested' => $update_data->tested, // e.g., "6.4.1"
                 ];
             }
         } catch (Throwable $throwable) {

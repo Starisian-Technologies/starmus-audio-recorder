@@ -34,7 +34,7 @@ use Throwable;
 use function trim;
 use function wp_unslash;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -107,45 +107,45 @@ class StarmusSanitizer
 
         // --- LEGACY MAPPING (PRESERVED) ---
 
-        if ( ! empty($mapped_data['dc_creator'])) {
+        if (! empty($mapped_data['dc_creator'])) {
             $meta['_starmus_title'] = sanitize_text_field($mapped_data['dc_creator']);
         }
 
-        if ( ! empty($form_data['description'])) {
+        if (! empty($form_data['description'])) {
             $meta['_starmus_description'] = sanitize_textarea_field($form_data['description']);
         }
 
-        if ( ! empty($mapped_data['language'])) {
+        if (! empty($mapped_data['language'])) {
             $meta['_starmus_language'] = sanitize_text_field((string) $mapped_data['language']);
         }
 
-        if ( ! empty($form_data['dialect'])) {
+        if (! empty($form_data['dialect'])) {
             $meta['_starmus_dialect'] = sanitize_text_field((string) $form_data['dialect']);
         }
 
-        if ( ! empty($form_data['project_id'])) {
+        if (! empty($form_data['project_id'])) {
             $meta['_starmus_project_id'] = sanitize_text_field($form_data['project_id']);
         }
 
-        if ( ! empty($form_data['interview_type'])) {
+        if (! empty($form_data['interview_type'])) {
             $meta['_starmus_interview_type'] = sanitize_text_field($form_data['interview_type']);
         }
 
         // Content classification
-        if ( ! empty($form_data['story_type'])) {
+        if (! empty($form_data['story_type'])) {
             $meta['_story_type'] = sanitize_text_field($form_data['story_type']);
         }
 
-        if ( ! empty($form_data['rating'])) {
+        if (! empty($form_data['rating'])) {
             $meta['_content_rating'] = sanitize_text_field($form_data['rating']);
         }
 
         // Location context
-        if ( ! empty($form_data['geolocation'])) {
+        if (! empty($form_data['geolocation'])) {
             $meta['_geolocation'] = sanitize_text_field($form_data['geolocation']);
         }
 
-        if ( ! empty($form_data['countries_lived']) && \is_array($form_data['countries_lived'])) {
+        if (! empty($form_data['countries_lived']) && \is_array($form_data['countries_lived'])) {
             $meta['_countries_lived'] = array_map(sanitize_text_field(...), $form_data['countries_lived']);
         }
 
@@ -168,7 +168,7 @@ class StarmusSanitizer
      */
     public static function get_user_ip(): string
     {
-        $ip      = '';
+        $ip = '';
         $headers = [
         'HTTP_CLIENT_IP',
         'HTTP_X_FORWARDED_FOR',
@@ -179,7 +179,7 @@ class StarmusSanitizer
         ];
 
         foreach ($headers as $header) {
-            if ( ! empty($_SERVER[$header])) {
+            if (! empty($_SERVER[$header])) {
                 $ip = wp_unslash($_SERVER[$header]);
                 break;
             }
@@ -188,7 +188,7 @@ class StarmusSanitizer
         // Handle multiple IPs (e.g. "client, proxy1, proxy2")
         if (str_contains((string) $ip, ',')) {
             $parts = explode(',', (string) $ip);
-            $ip    = trim($parts[0]);
+            $ip = trim($parts[0]);
         }
 
         return sanitize_text_field((string) $ip) ?: '0.0.0.0';
@@ -203,11 +203,11 @@ class StarmusSanitizer
     public static function capture_system_context(): array
     {
         return [
-        'user_agent'      => sanitize_text_field($_SERVER['HTTP_USER_AGENT'] ?? ''),
+        'user_agent' => sanitize_text_field($_SERVER['HTTP_USER_AGENT'] ?? ''),
         'server_protocol' => sanitize_text_field($_SERVER['SERVER_PROTOCOL'] ?? ''),
-        'request_method'  => sanitize_text_field($_SERVER['REQUEST_METHOD'] ?? ''),
-        'content_type'    => sanitize_text_field($_SERVER['CONTENT_TYPE'] ?? ''),
-        'timestamp_utc'   => gmdate('Y-m-d H:i:s'),
+        'request_method' => sanitize_text_field($_SERVER['REQUEST_METHOD'] ?? ''),
+        'content_type' => sanitize_text_field($_SERVER['CONTENT_TYPE'] ?? ''),
+        'timestamp_utc' => gmdate('Y-m-d H:i:s'),
         ];
     }
 
@@ -223,14 +223,14 @@ class StarmusSanitizer
             $post = get_post($post_id);
 
             // Note: Adjusted check to match 'audio-script' or 'starmus-script' depending on your CPT name
-            if ( ! $post || ! \in_array($post->post_type, ['starmus-script', 'audio-script'], true)) {
+            if (! $post || ! \in_array($post->post_type, ['starmus-script', 'audio-script'], true)) {
                 return [];
             }
 
             $raw_data = [
-            'performance_mode'   => get_field('starmus_performance_mode', $post_id) ?: 'conversational',
-            'energy_level'       => get_field('starmus_energy_level', $post_id) ?: 'neutral',
-            'visual_density'     => (int) get_field('starmus_visual_density', $post_id),
+            'performance_mode' => get_field('starmus_performance_mode', $post_id) ?: 'conversational',
+            'energy_level' => get_field('starmus_energy_level', $post_id) ?: 'neutral',
+            'visual_density' => (int) get_field('starmus_visual_density', $post_id),
             'calibrated_pace_ms' => (int) get_field('starmus_calibrated_pace_ms', $post_id),
             ];
 
@@ -270,7 +270,7 @@ class StarmusSanitizer
 
     private static function sanitize_complex(mixed $value): string
     {
-        if ( ! \is_string($value)) {
+        if (! \is_string($value)) {
             return (string) json_encode($value);
         }
 

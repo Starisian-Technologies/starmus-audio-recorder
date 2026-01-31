@@ -9,12 +9,11 @@
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\data\interfaces;
 
 use WP_Query;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 

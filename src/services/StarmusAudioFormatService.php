@@ -3,7 +3,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -33,15 +33,15 @@ final class StarmusAudioFormatService
             return ['error' => 'Could not analyze file'];
         }
 
-        $audio  = $analysis['audio'] ?? [];
+        $audio = $analysis['audio'] ?? [];
         $format = $analysis['fileformat'] ?? '';
 
         return [
-        'current_format'        => $format,
-        'current_bitrate'       => $audio['bitrate'] ?? 0,
-        'current_size'          => $analysis['filesize'] ?? 0,
-        'recommendations'       => $this->getWebOptimizationRecommendations($analysis),
-        'browser_support'       => $this->getBrowserSupport($format),
+        'current_format' => $format,
+        'current_bitrate' => $audio['bitrate'] ?? 0,
+        'current_size' => $analysis['filesize'] ?? 0,
+        'recommendations' => $this->getWebOptimizationRecommendations($analysis),
+        'browser_support' => $this->getBrowserSupport($format),
         'mobile_considerations' => $this->getMobileConsiderations($analysis),
         ];
     }
@@ -51,8 +51,8 @@ final class StarmusAudioFormatService
      */
     private function getWebOptimizationRecommendations(array $analysis): array
     {
-        $audio    = $analysis['audio'] ?? [];
-        $bitrate  = $audio['bitrate'] ?? 0;
+        $audio = $analysis['audio'] ?? [];
+        $bitrate = $audio['bitrate'] ?? 0;
         $duration = $audio['playtime_seconds'] ?? 0;
 
         $recommendations = [];
@@ -60,27 +60,27 @@ final class StarmusAudioFormatService
         // High-quality archive version
         if ($bitrate < 192000) {
             $recommendations['archive'] = [
-            'format'  => 'wav',
+            'format' => 'wav',
             'bitrate' => 'lossless',
-            'reason'  => 'Preserve original quality for archival',
+            'reason' => 'Preserve original quality for archival',
             ];
         }
 
         // Web streaming version
         if ($bitrate > 128000 || $duration > 300) {
             $recommendations['web'] = [
-            'format'  => 'mp3',
+            'format' => 'mp3',
             'bitrate' => '128kbps',
-            'reason'  => 'Optimize for web streaming and bandwidth',
+            'reason' => 'Optimize for web streaming and bandwidth',
             ];
         }
 
         // Mobile version for low-bandwidth
         if ($duration > 60) {
             $recommendations['mobile'] = [
-            'format'  => 'mp3',
+            'format' => 'mp3',
             'bitrate' => '64kbps',
-            'reason'  => 'Optimize for mobile and low-bandwidth connections',
+            'reason' => 'Optimize for mobile and low-bandwidth connections',
             ];
         }
 
@@ -94,46 +94,46 @@ final class StarmusAudioFormatService
     {
         $support_matrix = [
         'mp3' => [
-        'chrome'  => true,
+        'chrome' => true,
         'firefox' => true,
-        'safari'  => true,
-        'edge'    => true,
-        'mobile'  => true,
-        'legacy'  => true,
+        'safari' => true,
+        'edge' => true,
+        'mobile' => true,
+        'legacy' => true,
         ],
         'wav' => [
-        'chrome'  => true,
+        'chrome' => true,
         'firefox' => true,
-        'safari'  => true,
-        'edge'    => true,
-        'mobile'  => true,
-        'legacy'  => false,
+        'safari' => true,
+        'edge' => true,
+        'mobile' => true,
+        'legacy' => false,
         ],
         'ogg' => [
-        'chrome'  => true,
+        'chrome' => true,
         'firefox' => true,
-        'safari'  => false,
-        'edge'    => true,
-        'mobile'  => false,
-        'legacy'  => false,
+        'safari' => false,
+        'edge' => true,
+        'mobile' => false,
+        'legacy' => false,
         ],
         'webm' => [
-        'chrome'  => true,
+        'chrome' => true,
         'firefox' => true,
-        'safari'  => false,
-        'edge'    => true,
-        'mobile'  => false,
-        'legacy'  => false,
+        'safari' => false,
+        'edge' => true,
+        'mobile' => false,
+        'legacy' => false,
         ],
         ];
 
         return $support_matrix[ $format ] ?? [
-        'chrome'  => false,
+        'chrome' => false,
         'firefox' => false,
-        'safari'  => false,
-        'edge'    => false,
-        'mobile'  => false,
-        'legacy'  => false,
+        'safari' => false,
+        'edge' => false,
+        'mobile' => false,
+        'legacy' => false,
         ];
     }
 
@@ -142,15 +142,15 @@ final class StarmusAudioFormatService
      */
     private function getMobileConsiderations(array $analysis): array
     {
-        $audio    = $analysis['audio'] ?? [];
+        $audio = $analysis['audio'] ?? [];
         $filesize = $analysis['filesize'] ?? 0;
         $duration = $audio['playtime_seconds'] ?? 0;
-        $bitrate  = $audio['bitrate'] ?? 0;
+        $bitrate = $audio['bitrate'] ?? 0;
 
         return [
-        'data_usage'          => $this->estimateDataUsage($filesize, $duration),
-        'battery_impact'      => $this->estimateBatteryImpact($bitrate, $duration),
-        'loading_time'        => $this->estimateLoadingTime($filesize),
+        'data_usage' => $this->estimateDataUsage($filesize, $duration),
+        'battery_impact' => $this->estimateBatteryImpact($bitrate, $duration),
+        'loading_time' => $this->estimateLoadingTime($filesize),
         'recommended_quality' => $this->getRecommendedMobileQuality($duration, $filesize),
         ];
     }
@@ -167,31 +167,31 @@ final class StarmusAudioFormatService
         }
 
         $base_name = pathinfo($filepath, PATHINFO_FILENAME);
-        $dir       = \dirname($filepath);
+        $dir = \dirname($filepath);
 
         return [
         'original' => [
-        'path'     => $filepath,
-        'format'   => $analysis['fileformat'] ?? 'unknown',
-        'quality'  => 'original',
+        'path' => $filepath,
+        'format' => $analysis['fileformat'] ?? 'unknown',
+        'quality' => 'original',
         'use_case' => 'archive',
         ],
         'web_high' => [
-        'path'     => \sprintf('%s/%s_web_high.mp3', $dir, $base_name),
-        'format'   => 'mp3',
-        'quality'  => '192kbps',
+        'path' => \sprintf('%s/%s_web_high.mp3', $dir, $base_name),
+        'format' => 'mp3',
+        'quality' => '192kbps',
         'use_case' => 'desktop_streaming',
         ],
         'web_standard' => [
-        'path'     => \sprintf('%s/%s_web_standard.mp3', $dir, $base_name),
-        'format'   => 'mp3',
-        'quality'  => '128kbps',
+        'path' => \sprintf('%s/%s_web_standard.mp3', $dir, $base_name),
+        'format' => 'mp3',
+        'quality' => '128kbps',
         'use_case' => 'general_web',
         ],
         'mobile' => [
-        'path'     => \sprintf('%s/%s_mobile.mp3', $dir, $base_name),
-        'format'   => 'mp3',
-        'quality'  => '64kbps',
+        'path' => \sprintf('%s/%s_mobile.mp3', $dir, $base_name),
+        'format' => 'mp3',
+        'quality' => '64kbps',
         'use_case' => 'mobile_low_bandwidth',
         ],
         ];
@@ -200,12 +200,12 @@ final class StarmusAudioFormatService
     // Helper methods
     private function estimateDataUsage(int $filesize, float $duration): array
     {
-        $mb_size       = $filesize / (1024 * 1024);
+        $mb_size = $filesize / (1024 * 1024);
         $mb_per_minute = $duration > 0 ? ($mb_size / ($duration / 60)) : 0;
 
         return [
-        'total_mb'         => round($mb_size, 2),
-        'mb_per_minute'    => round($mb_per_minute, 2),
+        'total_mb' => round($mb_size, 2),
+        'mb_per_minute' => round($mb_per_minute, 2),
         'data_plan_impact' => $mb_size > 50 ? 'high' : ($mb_size > 10 ? 'medium' : 'low'),
         ];
     }
@@ -230,8 +230,8 @@ final class StarmusAudioFormatService
         $mb_size = $filesize / (1024 * 1024);
 
         return [
-        '3g'   => round($mb_size / 0.5, 1) . 's', // ~0.5 MB/s
-        '4g'   => round($mb_size / 2, 1) . 's',   // ~2 MB/s
+        '3g' => round($mb_size / 0.5, 1) . 's', // ~0.5 MB/s
+        '4g' => round($mb_size / 2, 1) . 's',   // ~2 MB/s
         'wifi' => round($mb_size / 10, 1) . 's', // ~10 MB/s
         ];
     }

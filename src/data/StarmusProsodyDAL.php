@@ -12,27 +12,32 @@
  */
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\data;
+
+use function array_fill;
+use function get_post;
+use function implode;
+use function preg_replace;
+use function round;
 
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusSanitizer;
-use Throwable;
-use WP_Query;
-use function wp_create_nonce;
-use function get_post;
-use function wp_strip_all_tags;
-use function preg_replace;
-use function trim;
-use function str_replace;
-use function round;
-use function implode;
-use function array_fill;
-use function count;;
-use function defined;
 
-if ( ! \defined('ABSPATH')) {
+use function str_replace;
+
+use Throwable;
+
+use function trim;
+use function wp_create_nonce;
+
+use WP_Query;
+
+use function wp_strip_all_tags;
+
+;
+
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -43,11 +48,11 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
      * Kept identical to legacy for backward compatibility.
      */
     private const BASE_SPEEDS = [
-        'announcer'      => 2200,
+        'announcer' => 2200,
         'conversational' => 2800,
-        'character'      => 3000,
-        'narration'      => 3500,
-        'default'        => 3000,
+        'character' => 3000,
+        'narration' => 3500,
+        'default' => 3000,
     ];
 
     /**
@@ -55,9 +60,9 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
      * Kept identical to legacy for backward compatibility.
      */
     private const ENERGY_MODIFIERS = [
-        'high'    => 0.85, // Faster (Lower ms/line)
+        'high' => 0.85, // Faster (Lower ms/line)
         'neutral' => 1.0,  // Normal
-        'low'     => 1.2,  // Slower (Higher ms/line)
+        'low' => 1.2,  // Slower (Higher ms/line)
     ];
 
     public function __construct()
@@ -76,7 +81,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
             // 1. Validate Post Type (Legacy Requirement)
             // Uses inherited get_post_info from StarmusBaseDAL
             $post_info = $this->get_post_info($post_id);
-            if ( ! $post_info || 'starmus-script' !== $post_info['type']) {
+            if (! $post_info || 'starmus-script' !== $post_info['type']) {
                 return [];
             }
 
@@ -86,10 +91,10 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
 
             // 3. Calculate Pace
             // If sanitizer returned empty (failure), fallback safely
-            $calib  = $data['calibrated_pace_ms'] ?? 0;
-            $mode   = $data['performance_mode'] ?? 'conversational';
+            $calib = $data['calibrated_pace_ms'] ?? 0;
+            $mode = $data['performance_mode'] ?? 'conversational';
             $energy = $data['energy_level'] ?? 'neutral';
-            $dens   = $data['visual_density'] ?? 28;
+            $dens = $data['visual_density'] ?? 28;
 
             $start_pace = $this->resolve_pace($calib, $mode, $energy);
 
@@ -102,14 +107,14 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
             $trans_text = (string) $this->get_post_meta($post_id, 'starmus_translation_text');
 
             return [
-                'postID'      => $post_id,
-                'source'      => $this->sanitize_stream($source_text),
+                'postID' => $post_id,
+                'source' => $this->sanitize_stream($source_text),
                 'translation' => $this->sanitize_stream($trans_text),
-                'startPace'   => $start_pace,
-                'density'     => $dens > 0 ? $dens : 28,
-                'mode'        => $mode,
-                'energy'      => $energy,
-                'nonce'       => wp_create_nonce('starmus_prosody_save_' . $post_id),
+                'startPace' => $start_pace,
+                'density' => $dens > 0 ? $dens : 28,
+                'mode' => $mode,
+                'energy' => $energy,
+                'nonce' => wp_create_nonce('starmus_prosody_save_' . $post_id),
             ];
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -143,29 +148,29 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
             // 1. Get titles of recordings already made by this user
             // We match by title as established in StarmusProsodyPlayer::render_script_card
             $recorded_titles = $wpdb->get_col($wpdb->prepare(
-                sprintf("SELECT DISTINCT post_title FROM %s WHERE post_type = 'audio-recording' AND post_author = %%d AND post_status = 'publish'", $wpdb->posts),
+                \sprintf("SELECT DISTINCT post_title FROM %s WHERE post_type = 'audio-recording' AND post_author = %%d AND post_status = 'publish'", $wpdb->posts),
                 $user_id
             ));
 
             $args = [
-                'post_type'      => 'starmus-script',
+                'post_type' => 'starmus-script',
                 'posts_per_page' => $posts_per_page,
-                'paged'          => $paged,
-                'post_status'    => 'publish',
-                'orderby'        => 'date',
-                'order'          => 'DESC',
+                'paged' => $paged,
+                'post_status' => 'publish',
+                'orderby' => 'date',
+                'order' => 'DESC',
             ];
 
-            if ( ! empty($recorded_titles)) {
+            if (! empty($recorded_titles)) {
                 // We need to exclude scripts with these specific titles.
                 // WP_Query doesn't have title__not_in, so we resolve to IDs.
                 $placeholders = implode(',', array_fill(0, \count($recorded_titles), '%s'));
-                $exclude_ids  = $wpdb->get_col($wpdb->prepare(
-                    sprintf("SELECT ID FROM %s WHERE post_type = 'starmus-script' AND post_title IN (%s)", $wpdb->posts, $placeholders), // phpcs:ignore
+                $exclude_ids = $wpdb->get_col($wpdb->prepare(
+                    \sprintf("SELECT ID FROM %s WHERE post_type = 'starmus-script' AND post_title IN (%s)", $wpdb->posts, $placeholders), // phpcs:ignore
                     ...$recorded_titles
                 ));
 
-                if ( ! empty($exclude_ids)) {
+                if (! empty($exclude_ids)) {
                     $args['post__not_in'] = array_map(absint(...), $exclude_ids);
                 }
             }
@@ -192,7 +197,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
 
         // B: Calculate Heuristic (Legacy Math)
         $base = self::BASE_SPEEDS[$mode] ?? self::BASE_SPEEDS['default'];
-        $mod  = self::ENERGY_MODIFIERS[$energy] ?? 1.0;
+        $mod = self::ENERGY_MODIFIERS[$energy] ?? 1.0;
 
         return (int) round($base * $mod);
     }

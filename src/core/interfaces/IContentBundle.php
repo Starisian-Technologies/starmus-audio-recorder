@@ -17,7 +17,7 @@ namespace Starisian\Sparxstar\Starmus\core\interfaces;
  * @since 1.0.0
  */
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 

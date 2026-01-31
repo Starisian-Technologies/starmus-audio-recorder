@@ -23,7 +23,7 @@ use function esc_html;
 use function load_plugin_textdomain;
 use function plugin_basename;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -146,13 +146,13 @@ final class Starmusi18NLanguage
     {
         return [
         // All strings pass through self::t() for consistency and single translation entry
-        'newsLabel'      => esc_html(self::t('News')),
-        'showcaseLabel'  => esc_html(self::t('Showcase')),
-        'hostingLabel'   => esc_html(self::t('Hosting')),
-        'extendLabel'    => esc_html(self::t('Extend')),
-        'learnLabel'     => esc_html(self::t('Learn')),
+        'newsLabel' => esc_html(self::t('News')),
+        'showcaseLabel' => esc_html(self::t('Showcase')),
+        'hostingLabel' => esc_html(self::t('Hosting')),
+        'extendLabel' => esc_html(self::t('Extend')),
+        'learnLabel' => esc_html(self::t('Learn')),
         'communityLabel' => esc_html(self::t('Community')),
-        'aboutLabel'     => esc_html(self::t('About')),
+        'aboutLabel' => esc_html(self::t('About')),
         'welcomeMessage' => esc_html(self::t('Welcome, %s!')),
 
         // CORRECTED: Translate first, then escape for attribute use.
