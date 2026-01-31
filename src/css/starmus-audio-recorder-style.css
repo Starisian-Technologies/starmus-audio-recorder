@@ -1,136 +1,103 @@
 /* =========================================================
-   SPARXSTAR DESIGN SYSTEM: THEME-AWARE VERSION
-   Standard: WordPress Global Style Inheritance
-   Logic: Structure & Tactility only. Colors/Fonts are inherited.
+   SPARXSTAR PLUGIN CORE (Structure & Inheritance)
+   Logic: Zero Design Opinion. Total Theme Dependency.
    ========================================================= */
 
 :root {
-    /* --- INHERITANCE TOKENS --- */
-    /* We point to standard WP presets. No hard-coded hex here. */
-    --sparxstar-clr-base:     var(--wp--preset--color--base);
-    --sparxstar-clr-surface:  var(--wp--preset--color--base-2, var(--wp--preset--color--base));
-    --sparxstar-clr-contrast: var(--wp--preset--color--contrast);
-    --sparxstar-clr-accent:   var(--wp--preset--color--accent, var(--wp--preset--color--contrast));
+    /* --- THEME MAPPING (The Standard Setup) --- */
+    --sparxstar-bg:       var(--wp--preset--color--base);
+    --sparxstar-surface:  var(--wp--preset--color--base-2, var(--wp--preset--color--base));
+    --sparxstar-text:     var(--wp--preset--color--contrast);
+    --sparxstar-accent:   var(--wp--preset--color--accent);
 
-    /* --- TACTILE FORMULAS --- */
-    /* We use color-mix to ensure shadows are based on theme contrast color */
-    --sparxstar-shd-color:    color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 80%);
-    --sparxstar-shd-raised:   var(--sparxstar-shd-color) 0px 10px 20px, var(--sparxstar-shd-color) 0px 6px 6px;
-    --sparxstar-shd-click:    var(--sparxstar-shd-color) 0px 1px 3px;
-    --sparxstar-shd-emboss:   inset 2px 2px 5px var(--sparxstar-shd-color), inset -2px -2px 5px rgba(255,255,255,0.1);
-    --sparxstar-shd-flat:     0 4px 15px var(--sparxstar-shd-color);
+    /* --- SHADOW INHERITANCE --- */
+    /* We expect the theme to provide these. If not, they remain empty/flat */
+    --sparxstar-shd-raised:  var(--wp--custom--shadow--raised);
+    --sparxstar-shd-embossed: var(--wp--custom--shadow--embossed);
+    --sparxstar-shd-flat:    var(--wp--custom--shadow--flat);
+}
+
+/* --- THE INTERNAL FLIP (Dark/Light Switcher) --- */
+/* If you apply this class, the plugin swaps the theme's logic internally */
+.sparxstar-theme--invert {
+    --sparxstar-bg:       var(--wp--preset--color--contrast);
+    --sparxstar-surface:  var(--wp--preset--color--contrast-2, var(--wp--preset--color--contrast));
+    --sparxstar-text:     var(--wp--preset--color--base);
+    /* Shadows must also be flipped or they will look like "glows" on dark */
+    --sparxstar-shd-raised:   var(--wp--custom--shadow--raised-inverted);
+    --sparxstar-shd-embossed: var(--wp--custom--shadow--embossed-inverted);
 }
 
 /* ---------------------------------------------------------
-   BASE INHERITANCE
+   1. LAYOUT ENGINE (Grids & Spacing)
    --------------------------------------------------------- */
-.sparxstar-sandbox {
-    font-family: inherit; /* Use Theme Font */
-    color: var(--sparxstar-clr-contrast);
+.sparxstar-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--wp--style--spacing--medium, 2rem);
 }
 
-.sparxstar-card__title, h2, h3 {
-    font-family: var(--wp--preset--font-family--heading, inherit);
-    text-transform: capitalize;
+@media (min-width: 782px) {
+    .sparxstar-grid--halves { grid-template-columns: repeat(2, 1fr); }
+    .sparxstar-grid--sidebar { grid-template-columns: 2fr 1fr; }
 }
 
 /* ---------------------------------------------------------
-   COMPONENT: CARD (Inherits Theme Surface)
+   2. COMPONENT STRUCTURE: CARD
    --------------------------------------------------------- */
 .sparxstar-card {
-    /* If the theme is light, surface is light. If dark, surface is dark. */
-    background-color: var(--sparxstar-clr-surface);
-    color: var(--sparxstar-clr-contrast);
+    background-color: var(--sparxstar-surface);
+    color: var(--sparxstar-text);
     box-shadow: var(--sparxstar-shd-flat);
-    border-radius: 4px;
-    padding: clamp(1.5rem, 5vw, 2.5rem);
-    margin-bottom: 2rem;
-    border: 1px solid color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 90%);
+
+    /* Structural padding only */
+    padding: var(--wp--style--spacing--large, 2.5rem);
+    border-radius: var(--wp--custom--border-radius--card, 8px);
+    font-family: inherit;
+    line-height: inherit;
 }
 
 /* ---------------------------------------------------------
-   COMPONENT: BUTTONS (Inherits Theme Accent)
+   3. COMPONENT STRUCTURE: FORM & CONTROLS
+   --------------------------------------------------------- */
+.sparxstar-form__group { margin-bottom: 1.5rem; }
+
+.sparxstar-form__control {
+    width: 100%;
+    min-height: 48px; /* Touch target structure */
+    padding: 0 1rem;
+
+    /* Identity inherited from Theme */
+    background-color: var(--sparxstar-bg) !important;
+    color: var(--sparxstar-text) !important;
+    font-family: inherit;
+    font-size: inherit;
+
+    /* Shadow inherited from Theme */
+    box-shadow: var(--sparxstar-shd-embossed) !important;
+    border: var(--wp--custom--border--input, none);
+    border-radius: var(--wp--custom--border-radius--input, 13px);
+}
+
+/* ---------------------------------------------------------
+   4. COMPONENT STRUCTURE: BUTTONS
    --------------------------------------------------------- */
 .sparxstar-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-height: 44px;
-    padding: 0 24px;
+    padding: 0 1.5rem;
+
+    /* Inherit identity */
+    background-color: var(--sparxstar-accent);
+    color: var(--sparxstar-bg); /* Contrast text */
+
+    box-shadow: var(--sparxstar-shd-raised);
     border: none;
-    border-radius: 4px;
+    border-radius: var(--wp--custom--border-radius--button, 13px);
     font-family: inherit;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
     cursor: pointer;
-    box-shadow: var(--sparxstar-shd-raised);
-    transition: all 0.2s ease;
 }
-
-.sparxstar-button--primary {
-    background-color: var(--sparxstar-clr-accent);
-    color: var(--sparxstar-clr-base); /* Text matches theme background */
-}
-
-.sparxstar-button--secondary {
-    background-color: transparent;
-    color: var(--sparxstar-clr-contrast);
-    border: 1px solid var(--sparxstar-clr-contrast);
-    box-shadow: none;
-}
-
-.sparxstar-button:active {
-    box-shadow: var(--sparxstar-shd-click);
-    transform: translateY(2px);
-}
-
-/* ---------------------------------------------------------
-   COMPONENT: FORM CONTROLS (Embossed Inset)
-   --------------------------------------------------------- */
-.sparxstar-form__group { margin-bottom: 1.5rem; }
-
-.sparxstar-form__label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.sparxstar-form__control {
-    width: 100%;
-    min-height: 48px;
-    /* Background is theme base, color is theme ink */
-    background-color: var(--sparxstar-clr-base) !important;
-    color: var(--sparxstar-clr-contrast) !important;
-    border: 1px solid color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 90%) !important;
-    border-radius: 8px;
-    padding: 0 16px;
-    box-shadow: var(--sparxstar-shd-emboss) !important;
-    font-family: inherit;
-}
-
-.sparxstar-form__control--textarea { height: auto; padding: 16px; }
-
-/* ---------------------------------------------------------
-   UTILITY: IMAGE (Tactile formula only)
-   --------------------------------------------------------- */
-.sparxstar-image { position: relative; z-index: 1; margin-bottom: 2rem; }
-.sparxstar-image img { width: 100%; border-radius: 2px; display: block; }
-
-.sparxstar-image--curled:hover::before,
-.sparxstar-image--curled:hover::after {
-    content: '';
-    position: absolute;
-    bottom: 12px;
-    width: 40%;
-    height: 10px;
-    /* Shadow derived from theme contrast color */
-    box-shadow: 0 12px 20px color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 50%);
-    z-index: -1;
-    opacity: 1;
-    transition: all 0.3s ease;
-}
-
-.sparxstar-image--curled:hover::before { left: 15px; transform: skew(-5deg) rotate(-5deg); }
-.sparxstar-image--curled:hover::after { right: 15px; transform: skew(5deg) rotate(5deg); }
