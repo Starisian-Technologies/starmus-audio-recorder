@@ -1,127 +1,179 @@
 /* =========================================================
-   SPARXSTAR UNIFIED SYSTEM: LIGHT MODE ALIGNMENT
-   Logic: High-Contrast Inheritance • Monospace Function
-   Fixed: Vanishing Titles & Dark/Light Surface Sync
+   CORE FUNCTIONAL ENGINE: PROSODY + STARMUS
+   Requirement: skipping theme, NOT function.
+   Logic: Standard Layout Math + Semantic Functional States
    ========================================================= */
 
 :root {
-    /* --- 1. CORE THEME MAPPING --- */
-    /* We map variables so they change automatically based on theme */
-    --p-base:       var(--wp--preset--color--base);      /* The Paper */
-    --p-surface:    var(--wp--preset--color--base-2, var(--wp--preset--color--base));
-    --p-contrast:   var(--wp--preset--color--contrast);  /* The Ink */
-    --p-accent:     var(--wp--preset--color--accent);    /* The Action */
+    /* --- FUNCTIONAL SEMANTICS (Non-negotiable for Audio) --- */
+    --s-success: #16a34a; /* Green: Safe levels */
+    --s-warning: #ea580c; /* Orange: High levels */
+    --s-danger:  #b91c1c; /* Red: Clipping/Recording */
 
-    /* --- 2. TACTILE SHADOW INHERITANCE --- */
-    --p-shd-raised:   var(--wp--custom--shadow--raised, 0 4px 10px rgba(0,0,0,0.1));
-    --p-shd-embossed: var(--wp--custom--shadow--embossed, inset 2px 2px 4px rgba(0,0,0,0.1));
-    --p-shd-flat:     var(--wp--custom--shadow--flat, 0 10px 30px rgba(0,0,0,0.05));
+    /* --- THEME INTERFACE (Inherited Paint) --- */
+    --s-base:     var(--wp--preset--color--base);
+    --s-surface:  var(--wp--preset--color--base-2, var(--wp--preset--color--base));
+    --s-contrast: var(--wp--preset--color--contrast);
+    --s-accent:   var(--wp--preset--color--accent);
 }
 
-/* =========================================================
-   A. PROSODY PLAYER (Top Component)
-   ========================================================= */
-
-#cognitive-regulator {
-    background-color: var(--p-base) !important;
-    color: var(--p-contrast) !important;
-    border: 1px solid color-mix(in srgb, var(--p-contrast), transparent 90%);
-    border-radius: 8px;
-    box-shadow: var(--p-shd-flat);
+/* ---------------------------------------------------------
+   1. GLOBAL FUNCTIONAL DEFAULTS
+   --------------------------------------------------------- */
+.starmus-recorder-form, #cognitive-regulator {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+    padding: 2rem !important;
+    background-color: var(--s-base) !important;
+    color: var(--s-contrast) !important;
 }
 
-#calibration-layer { background: var(--p-base) !important; }
+/* ---------------------------------------------------------
+   2. STARMUS RECORDER: FUNCTIONAL MACHINERY
+   --------------------------------------------------------- */
 
-/* The Tap Zone - Now tactile and visible in Light Mode */
-.tap-zone {
-    background: var(--p-surface) !important;
-    border: 2px solid color-mix(in srgb, var(--p-contrast), transparent 85%) !important;
-    box-shadow: var(--p-shd-raised) !important;
+/* Button Grouping: Prevents clumping/overlapping */
+.starmus-btn-group, .starmus-recorder-form footer {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    justify-content: center !important;
 }
 
-.tap-label { color: var(--p-contrast) !important; }
-
-/* Text Flow - Functional Monospace */
-#text-flow {
-    font-family: "Noto Sans Mono", monospace !important;
-    color: var(--p-contrast) !important;
-}
-
-.prosodic-unit.current {
-    color: var(--p-accent) !important;
-    background: color-mix(in srgb, var(--p-accent), transparent 92%) !important;
-}
-
-.prosodic-unit.future, .prosodic-unit.past {
-    opacity: 0.35 !important; /* Visible but dimmed */
-}
-
-/* Control Deck (Slider area) */
-.control-deck {
-    background: var(--p-surface) !important;
-    border-top: 1px solid color-mix(in srgb, var(--p-contrast), transparent 90%) !important;
-}
-
-/* =========================================================
-   B. RE-RECORDER / STARMUS FORM (Bottom Component)
-   ========================================================= */
-
-.starmus-recorder-form {
-    background-color: var(--p-base) !important; /* Matches Paper */
-    box-shadow: var(--p-shd-flat) !important;
-    border-radius: 8px;
-    padding: 2.5rem !important;
-}
-
-/* FIX: Ensure Headings are dark and visible */
-h1, h2, h3, .starmus-recorder-form h2, .starmus-recorder-form h3 {
-    color: var(--p-contrast) !important;
-    text-transform: capitalize !important;
-    font-weight: 800 !important;
-    opacity: 1 !important;
-}
-
-/* FIX: Labels must be high-contrast */
-.starmus-recorder-form label {
-    color: var(--p-contrast) !important;
-    font-weight: 700 !important;
-    opacity: 1 !important;
-}
-
-/* Embossed Inputs - Ensuring "Ink" is dark */
-.starmus-recorder-form input,
-.starmus-recorder-form select,
-.starmus-recorder-form textarea {
-    background-color: var(--p-surface) !important;
-    color: var(--p-contrast) !important;
-    box-shadow: var(--p-shd-embossed) !important;
-    border: 1px solid color-mix(in srgb, var(--p-contrast), transparent 85%) !important;
-    border-radius: 12px !important;
-}
-
-/* =========================================================
-   C. BUTTONS (Material Raised)
-   ========================================================= */
-
-.starmus-btn, .button.starmus-btn, #cognitive-regulator button {
-    background-color: var(--p-accent) !important;
-    color: var(--wp--preset--color--base) !important; /* Text matches Paper */
-    box-shadow: var(--p-shd-raised) !important;
+/* Functional Buttons: Touch-targets and State */
+.starmus-btn, .button.starmus-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 44px !important; /* WCAG standard */
+    padding: 0.75rem 1.5rem !important;
+    cursor: pointer !important;
+    font-family: "Noto Sans", sans-serif !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
-    border-radius: 4px !important;
+    box-shadow: var(--wp--custom--shadow--raised); /* Inherit paint */
+    background-color: var(--s-accent) !important;
+    color: var(--s-base) !important;
+}
+
+/* Recording State: Visual Safety cue */
+.starmus-btn--stop, .starmus-btn--record.is-recording {
+    background-color: var(--s-danger) !important;
+    color: #fff !important;
+}
+
+/* Timer: Functional Tabular numbers */
+.starmus-timer {
+    font-family: "Noto Sans Mono", monospace !important;
+    font-variant-numeric: tabular-nums !important;
+    font-size: clamp(2rem, 8vw, 3.5rem) !important;
+    text-align: center !important;
+    margin: 1rem 0 !important;
+}
+
+/* Audio Meter: Functional Semantic Gradient */
+.starmus-meter-bar {
+    height: 14px !important;
+    width: 100% !important;
+    background: color-mix(in srgb, var(--s-contrast), transparent 90%) !important;
+    border-radius: 7px !important;
+    overflow: hidden !important;
+}
+
+.starmus-meter-bar::after {
+    content: "";
+    display: block;
+    height: 100%;
+    width: var(--starmus-audio-level, 0%);
+    background: linear-gradient(90deg, var(--s-success) 0%, var(--s-warning) 70%, var(--s-danger) 100%) !important;
+    transition: width 0.05s linear;
+}
+
+/* ---------------------------------------------------------
+   3. PROSODY PLAYER: FUNCTIONAL MACHINERY
+   --------------------------------------------------------- */
+
+/* The Stage: Rhythmic Flow */
+#scaffold-stage {
+    flex-grow: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+#text-flow {
+    font-family: "Noto Sans Mono", monospace !important; /* precision required */
+    line-height: 2 !important;
+    text-align: center !important;
+}
+
+/* Prosodic Units: Rhythmic containers */
+.prosodic-unit {
+    display: inline-block !important;
+    padding: 2px 8px !important;
+    margin: 4px !important;
+    transition: opacity 0.3s ease !important;
+}
+
+/* Current Word State: High focus visibility */
+.prosodic-unit.current {
+    font-weight: 700 !important;
+    color: var(--s-accent) !important;
+    background: color-mix(in srgb, var(--s-accent), transparent 90%) !important;
     opacity: 1 !important;
 }
 
-.starmus-btn:active {
-    transform: translateY(2px);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
+.prosodic-unit.past, .prosodic-unit.future {
+    opacity: 0.3 !important;
 }
 
-/* =========================================================
-   D. TYPOGRAPHY (The Baseline)
-   ========================================================= */
-body, .wp-site-blocks {
-    color: var(--p-contrast) !important;
-    font-family: "Noto Sans", sans-serif !important;
+/* The Tap Zone: Centered Functional Interface */
+.tap-zone {
+    width: clamp(160px, 40vw, 220px) !important;
+    height: clamp(160px, 40vw, 220px) !important;
+    margin: 2rem auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    box-shadow: var(--wp--custom--shadow--raised);
 }
+
+/* Control Deck: Sticky bottom controls */
+.control-deck {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    padding: 1rem 2rem !important;
+    border-top: 1px solid color-mix(in srgb, var(--s-contrast), transparent 90%) !important;
+}
+
+/* ---------------------------------------------------------
+   4. FORM ELEMENTS: STRUCTURAL DEPTH
+   --------------------------------------------------------- */
+.starmus-recorder-form input, .starmus-recorder-form select, .starmus-recorder-form textarea {
+    width: 100% !important;
+    min-height: 48px !important;
+    box-sizing: border-box !important;
+    background-color: var(--s-surface) !important;
+    color: var(--s-contrast) !important;
+    border: 1px solid color-mix(in srgb, var(--s-contrast), transparent 85%) !important;
+    box-shadow: var(--wp--custom--shadow--embossed);
+    padding: 0 1rem !important;
+    font-family: inherit;
+}
+
+/* Busy/Loading states: Critical function */
+.starmus-btn[aria-busy="true"]::after {
+    content: "";
+    border: 2px solid var(--s-base);
+    border-radius: 50%;
+    border-left-color: transparent;
+    width: 18px; height: 18px;
+    animation: starmus-spin 1s linear infinite;
+}
+
+@keyframes starmus-spin { 100% { transform: rotate(360deg); } }
