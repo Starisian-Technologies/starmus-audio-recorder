@@ -1,161 +1,69 @@
 /* =========================================================
-   STARMUS PROSODY ENGINE: FUNCTIONAL MASTER
-   Logic: Restoration of Layout, Sizing, and Contrast
-   Inheritance: Design Tokens (Shadows/Colors) from Theme
+   PROSODY PLAYER: FUNCTIONAL RESTORATION
+   Logic: Restores original layer stacking and stage physics.
    ========================================================= */
 
-:root {
-    --p-base:       var(--wp--preset--color--base);
-    --p-surface:    var(--wp--preset--color--base-2, var(--wp--preset--color--base));
-    --p-contrast:   var(--wp--preset--color--contrast);
-    --p-accent:     var(--wp--preset--color--accent);
-}
-
-/* =========================================
-   1. THE CONTAINER (The Shell)
-   ========================================= */
+/* 1. RESTORE THE BOX PHYSICS */
 #cognitive-regulator {
+    position: relative !important; /* Required for the overlay to work */
+    height: 60vh !important;       /* Original height */
+    min-height: 450px !important;
+    overflow: hidden !important;   /* Prevents text from spilling into the form */
     display: flex !important;
     flex-direction: column !important;
-    height: 65vh !important; /* Functional height for stage depth */
-    min-height: 500px !important;
-    background-color: var(--p-base) !important;
-    color: var(--p-contrast) !important;
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: var(--wp--custom--shadow--flat);
+
+    /* Inherit Theme Look */
+    background-color: var(--wp--preset--color--base) !important;
+    color: var(--wp--preset--color--contrast) !important;
 }
 
-/* =========================================
-   2. THE STAGE (Text Priority & Visibility)
-   ========================================= */
+/* 2. RESTORE THE OVERLAY (Fixes the "Stuck" circle) */
+#calibration-layer {
+    position: absolute !important; /* Makes it a layer, not a block */
+    inset: 0 !important;
+    z-index: 200 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: var(--wp--preset--color--base) !important;
+}
+
+/* 3. RESTORE THE STAGE (Vertical Centering) */
 #scaffold-stage {
     flex-grow: 1 !important;
     overflow-y: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
     scrollbar-width: none;
 }
 
 #text-flow {
+    /* Functional Mono Font required for Rhythmic timing */
     font-family: "Noto Sans Mono", monospace !important;
-    font-size: clamp(1.6rem, 6vw, 2.4rem) !important;
-    line-height: 1.8 !important;
+    padding-top: 30vh !important;
+    padding-bottom: 35vh !important;
     text-align: center !important;
-    padding: 35vh 10% !important; /* Critical vertical centering */
+}
+
+/* 4. RESTORE THE DECK (Control alignment) */
+.control-deck {
+    position: relative !important;
+    z-index: 100 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    padding: 12px 20px !important;
+    background: var(--wp--preset--color--base-2, #f5f5f5) !important;
+    border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+/* 5. FUNCTIONAL STATES (The word that stands out) */
+.prosodic-unit.current {
+    color: var(--wp--preset--color--accent) !important;
+    font-weight: 800 !important;
+    opacity: 1 !important;
 }
 
 .prosodic-unit {
     display: inline-block !important;
-    padding: 4px 10px !important;
-    margin: 2px !important;
-    transition: all 0.3s ease !important;
-    color: var(--p-contrast) !important;
-    opacity: 0.25; /* Future/Past state */
-}
-
-/* Functional Focus: The Reading Highlight */
-.prosodic-unit.current {
-    opacity: 1 !important;
-    font-weight: 800 !important;
-    color: var(--p-accent) !important;
-    background: color-mix(in srgb, var(--p-accent), transparent 90%) !important;
-    border-radius: 4px;
-    transform: scale(1.1);
-}
-
-/* =========================================
-   3. CONTROL DECK (Alignment & Sizing)
-   ========================================= */
-.control-deck {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important; /* Centered Logic */
-    gap: 20px !important;
-    padding: 1.5rem 2rem !important;
-    background: var(--p-surface) !important;
-    border-top: 1px solid color-mix(in srgb, var(--p-contrast), transparent 90%) !important;
-    z-index: 100;
-}
-
-/* Icon Buttons: Uniform Sizing */
-.neutral-btn {
-    width: 48px !important;
-    height: 48px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 4px !important;
-    border: none !important;
-    cursor: pointer !important;
-    background: var(--p-base) !important;
-    color: var(--p-contrast) !important;
-    box-shadow: var(--wp--custom--shadow--raised) !important;
-}
-
-.neutral-btn.active {
-    background: var(--p-accent) !important;
-    color: var(--p-base) !important;
-}
-
-/* The Pace Regulator (Slider Machinery) */
-.fader-group {
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    flex-grow: 0.5 !important;
-    color: var(--p-contrast) !important;
-    font-size: 0.75rem !important;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-#pace-regulator {
-    flex-grow: 1 !important;
-    appearance: none !important;
-    height: 8px !important;
-    border-radius: 10px !important;
-    background: color-mix(in srgb, var(--p-contrast), transparent 85%) !important;
-    box-shadow: var(--wp--custom--shadow--embossed) !important;
-    outline: none !important;
-}
-
-/* Slider Thumb: Visible & Tactile */
-#pace-regulator::-webkit-slider-thumb {
-    appearance: none !important;
-    width: 22px !important;
-    height: 22px !important;
-    border-radius: 50% !important;
-    background: var(--p-accent) !important;
-    border: 2px solid var(--p-base) !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    cursor: pointer !important;
-}
-
-/* =========================================
-   4. CALIBRATION OVERLAY (Stacking Fix)
-   ========================================= */
-#calibration-layer {
-    position: absolute !important;
-    inset: 0 !important;
-    z-index: 200 !important;
-    background: var(--p-base) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-.tap-zone {
-    width: 200px !important;
-    height: 200px !important;
-    border-radius: 50% !important;
-    background: var(--p-surface) !important;
-    border: 3px solid var(--p-contrast) !important;
-    box-shadow: var(--wp--custom--shadow--raised) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
+    opacity: 0.3;
 }
