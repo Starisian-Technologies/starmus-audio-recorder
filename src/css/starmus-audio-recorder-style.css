@@ -1,35 +1,35 @@
 /* =========================================================
-   STARMUS PROSODY ENGINE: COMPLETE FUNCTIONAL RESTORATION
-   Logic: Total Structural Preservation + Theme Identity mapping
-   Standard: Lossless Restoration of v3.2.0 Mechanics
+   STARMUS PROSODY ENGINE - TOTAL FUNCTIONAL RESTORATION
+   Standard: v3.2.0 Mechanics + WP Theme Inheritance
+   Requirement: Hard-coded Black Reading Text + Centered Deck
    ========================================================= */
 
 :root {
-    /* --- THEME DESIGN TOKENS (Identity) --- */
-    --p-base:       var(--wp--preset--color--base, #180205);
-    --p-surface:    var(--wp--preset--color--base-2, #251717);
-    --p-contrast:   var(--wp--preset--color--contrast, #eceecf);
-    --p-accent:     var(--wp--preset--color--accent);
+    /* --- 1. THEME INHERITANCE HOOKS --- */
+    --p-base:       var(--wp--preset--color--base, #121212);
+    --p-surface:    var(--wp--preset--color--base-2, #1a1a1a);
+    --p-contrast:   var(--wp--preset--color--contrast, #e0e0e0);
+    --p-accent:     var(--wp--preset--color--accent, #ffd700);
 
-    /* --- SHADOW INHERITANCE (Identity) --- */
+    /* --- 2. TACTILE INHERITANCE --- */
     --p-shd-raised:   var(--wp--custom--shadow--raised, 0 4px 10px rgba(0,0,0,0.3));
     --p-shd-embossed: var(--wp--custom--shadow--embossed, inset 2px 2px 4px rgba(0,0,0,0.3));
 
-    /* --- ORIGINAL FUNCTIONAL VARIABLES --- */
+    /* --- 3. ORIGINAL FUNCTIONAL CONSTANTS --- */
     --unit-spacing: 2.2;
     --tap-zone-size: 220px;
     --text-base: clamp(0.9rem, 2vw, 1.15rem);
 }
 
-/* --- THE LIGHT MODE OVERRIDE (Flipping Identity, not Physics) --- */
+/* --- LIGHT MODE OPTION (Flipping Identity, not Function) --- */
 .light-mode {
-    --p-base:       var(--wp--preset--color--contrast, #FCFFE7);
-    --p-surface:    var(--wp--preset--color--base-2, #F5F5E0);
-    --p-contrast:   var(--wp--preset--color--base, #180205);
+    --p-base:       var(--wp--preset--color--base, #fafafa);
+    --p-surface:    var(--wp--preset--color--base-2, #ffffff);
+    --p-contrast:   var(--wp--preset--color--contrast, #111111);
 }
 
 /* =========================================
-   LAYER 0: HTML + BODY + TEXT BASE
+   LAYER 0: THE CONTAINER SHELL
    ========================================= */
 #cognitive-regulator {
     background-color: var(--p-base) !important;
@@ -42,10 +42,12 @@
     position: relative !important;
     overflow: hidden !important;
     user-select: none;
+    border-radius: 8px;
+    box-shadow: var(--wp--custom--shadow--flat);
 }
 
 /* =========================================
-   LAYER 1: CALIBRATION (The Functional Overlay)
+   LAYER 1: CALIBRATION (Absolute Overlay)
    ========================================= */
 #calibration-layer {
     position: absolute !important;
@@ -64,7 +66,7 @@
 .tap-zone {
     width: var(--tap-zone-size) !important;
     height: var(--tap-zone-size) !important;
-    border: 2px solid color-mix(in srgb, var(--p-contrast), transparent 80%) !important;
+    border: 3px solid var(--p-contrast) !important;
     background: var(--p-surface) !important;
     box-shadow: var(--p-shd-raised) !important;
     border-radius: 50% !important;
@@ -77,8 +79,7 @@
 }
 
 .tap-zone:active { transform: scale(0.96); box-shadow: var(--p-shd-embossed) !important; }
-
-.tap-label { color: var(--p-contrast) !important; font-weight: 700; letter-spacing: 3px; }
+.tap-label { color: var(--p-contrast) !important; font-size: 14px; letter-spacing: 3px; font-weight: 700; }
 
 /* =========================================
    LAYER 2: THE STAGE (Rhythmic Scrolling)
@@ -99,7 +100,6 @@
     font-size: 26px !important;
     line-height: var(--unit-spacing) !important;
     text-align: center !important;
-    /* Functional Font: Required for timing */
     font-family: "Noto Sans Mono", monospace !important;
 }
 
@@ -108,7 +108,7 @@
     padding: 2px 8px !important;
     margin: 4px 2px !important;
     border-radius: 4px;
-    transition: color 0.3s, opacity 0.3s, transform 0.3s !important;
+    transition: all 0.3s ease !important;
 }
 
 .prosodic-unit.future, .prosodic-unit.past {
@@ -116,26 +116,28 @@
     opacity: 0.3 !important;
 }
 
+/* FUNCTIONAL FOCUS: High Contrast Black Ink */
 .prosodic-unit.current {
-    color: var(--p-accent) !important;
+    color: #000000 !important; /* BLACK PERIOD FOR FUNCTION */
     opacity: 1 !important;
-    font-weight: 700 !important;
-    background: color-mix(in srgb, var(--p-accent), transparent 95%) !important;
+    font-weight: 800 !important;
+    background: #eeeeee !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transform: scale(1.05);
 }
 
 .prosodic-unit.silence-beat {
     color: var(--p-accent) !important;
     min-width: 60px !important;
     height: 40px !important;
-    border: 1px dashed color-mix(in srgb, var(--p-contrast), transparent 80%) !important;
+    border: 1px dashed var(--p-contrast) !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
 }
 
 /* =========================================
-   LAYER 3: CONTROLS (The Deck)
+   LAYER 3: CONTROLS (Centered Mechanical Deck)
    ========================================= */
 .control-deck {
     background: var(--p-surface) !important;
@@ -143,7 +145,8 @@
     padding: 12px 20px !important;
     display: flex !important;
     align-items: center !important;
-    gap: 15px !important;
+    justify-content: center !important; /* Forces Deck Centering */
+    gap: 20px !important;
     z-index: 100 !important;
 }
 
@@ -151,42 +154,60 @@
     background: var(--p-base) !important;
     color: var(--p-contrast) !important;
     border: none !important;
-    padding: 10px 16px !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1px !important;
-    min-width: 100px !important;
+    padding: 0 !important;
+    width: 48px !important; /* Sized exactly to each other */
+    height: 48px !important;
+    min-width: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     border-radius: 4px !important;
     box-shadow: var(--p-shd-raised) !important;
+    cursor: pointer !important;
 }
 
 .neutral-btn.active {
     background: var(--p-accent) !important;
-    color: var(--p-base) !important;
+    color: #000 !important;
+}
+
+/* Pace Regulator (Mechanical Track) */
+.fader-group {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-grow: 1 !important;
+    max-width: 350px !important;
 }
 
 #pace-regulator {
     flex-grow: 1 !important;
     accent-color: var(--p-accent) !important;
-    box-shadow: var(--p-shd-embossed) !important;
+    appearance: none !important;
+    height: 8px !important;
+    background: #bbb !important; /* Visible functional track */
+    border-radius: 4px !important;
+}
+
+#pace-regulator::-webkit-slider-thumb {
+    appearance: none !important;
+    width: 22px !important;
+    height: 22px !important;
+    background: #000 !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
 }
 
 /* =========================================
-   LOCALIZATION & RESPONSIVE (Preserved)
+   LOCALIZATION & RESPONSIVE (Lossless Recovery)
    ========================================= */
+[lang="ja"] { font-family: "Noto Sans JP", sans-serif !important; }
 [lang="ar"], .localized-text.ar { font-family: "Noto Naskh Arabic", serif !important; direction: rtl; }
 [lang="am"], .localized-text.am { font-family: "Noto Sans Ethiopic", sans-serif !important; }
+[lang="zh"] { font-family: "Noto Sans SC", sans-serif !important; }
 
 @media (width <= 600px) {
     :root { --tap-zone-size: 160px; --unit-spacing: 1.5; }
     #text-flow { font-size: 20px !important; padding-top: 30vh !important; }
-}
-
-/* COMPONENT: SCRIPT CARD (Library View) */
-.starmus-script-card {
-    background: var(--p-surface) !important;
-    box-shadow: var(--p-shd-raised) !important;
-    border: 1px solid color-mix(in srgb, var(--p-contrast), transparent 95%) !important;
-    padding: 1.5rem !important;
-    border-radius: 8px !important;
+    .control-deck { gap: 8px !important; padding: 8px !important; }
 }
