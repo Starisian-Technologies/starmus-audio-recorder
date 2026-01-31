@@ -1,86 +1,97 @@
 /* =========================================================
-   SPARXSTAR PLUGIN CORE (Structure & Inheritance)
-   Logic: Zero Design Opinion. Total Theme Dependency.
+   SPARXSTAR COMPONENT SYSTEM (Production Ready)
+   Logic: Layout + Functional Logic in Plugin.
+   Identity + Texture in Theme.
    ========================================================= */
 
 :root {
-    /* --- THEME MAPPING (The Standard Setup) --- */
-    --sparxstar-bg:       var(--wp--preset--color--base);
-    --sparxstar-surface:  var(--wp--preset--color--base-2, var(--wp--preset--color--base));
-    --sparxstar-text:     var(--wp--preset--color--contrast);
-    --sparxstar-accent:   var(--wp--preset--color--accent);
+    /* --- THEME TOKENS --- */
+    --sparxstar-clr-base:     var(--wp--preset--color--base);
+    --sparxstar-clr-surface:  var(--wp--preset--color--base-2, var(--wp--preset--color--base));
+    --sparxstar-clr-contrast: var(--wp--preset--color--contrast);
+    --sparxstar-clr-accent:   var(--wp--preset--color--accent);
 
-    /* --- SHADOW INHERITANCE --- */
-    /* We expect the theme to provide these. If not, they remain empty/flat */
-    --sparxstar-shd-raised:  var(--wp--custom--shadow--raised);
-    --sparxstar-shd-embossed: var(--wp--custom--shadow--embossed);
-    --sparxstar-shd-flat:    var(--wp--custom--shadow--flat);
-}
+    /* --- SEMANTIC COLORS (Functional - Fixed) --- */
+    --sparxstar-clr-success: #16a34a;
+    --sparxstar-clr-warning: #ea580c;
+    --sparxstar-clr-danger:  #b91c1c;
 
-/* --- THE INTERNAL FLIP (Dark/Light Switcher) --- */
-/* If you apply this class, the plugin swaps the theme's logic internally */
-.sparxstar-theme--invert {
-    --sparxstar-bg:       var(--wp--preset--color--contrast);
-    --sparxstar-surface:  var(--wp--preset--color--contrast-2, var(--wp--preset--color--contrast));
-    --sparxstar-text:     var(--wp--preset--color--base);
-    /* Shadows must also be flipped or they will look like "glows" on dark */
-    --sparxstar-shd-raised:   var(--wp--custom--shadow--raised-inverted);
-    --sparxstar-shd-embossed: var(--wp--custom--shadow--embossed-inverted);
+    /* --- THEME SHADOWS (Fallbacks to flat if theme is empty) --- */
+    --sparxstar-shd-raised:   var(--wp--custom--shadow--raised, 0 4px 10px rgba(0,0,0,0.1));
+    --sparxstar-shd-embossed: var(--wp--custom--shadow--embossed, inset 2px 2px 4px rgba(0,0,0,0.1));
+    --sparxstar-shd-flat:     var(--wp--custom--shadow--flat, 0 10px 30px rgba(0,0,0,0.05));
 }
 
 /* ---------------------------------------------------------
-   1. LAYOUT ENGINE (Grids & Spacing)
+   1. LAYOUT ENGINE (Grids)
    --------------------------------------------------------- */
 .sparxstar-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--wp--style--spacing--medium, 2rem);
+    gap: 2rem;
 }
 
-@media (min-width: 782px) {
-    .sparxstar-grid--halves { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 1024px) {
     .sparxstar-grid--sidebar { grid-template-columns: 2fr 1fr; }
+    .sparxstar-grid--halves { grid-template-columns: 1fr 1fr; }
 }
 
 /* ---------------------------------------------------------
-   2. COMPONENT STRUCTURE: CARD
+   2. COMPONENT: CARD
    --------------------------------------------------------- */
 .sparxstar-card {
-    background-color: var(--sparxstar-surface);
-    color: var(--sparxstar-text);
+    background-color: var(--sparxstar-clr-surface);
+    color: var(--sparxstar-clr-contrast);
     box-shadow: var(--sparxstar-shd-flat);
-
-    /* Structural padding only */
-    padding: var(--wp--style--spacing--large, 2.5rem);
-    border-radius: var(--wp--custom--border-radius--card, 8px);
+    border: 1px solid color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 95%);
+    border-radius: 8px;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    margin-bottom: 2rem;
     font-family: inherit;
-    line-height: inherit;
+}
+
+.sparxstar-card__header {
+    border-bottom: 1px solid color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 90%);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
 }
 
 /* ---------------------------------------------------------
-   3. COMPONENT STRUCTURE: FORM & CONTROLS
+   3. COMPONENT: FORMS (Embossed + Requested Border)
    --------------------------------------------------------- */
 .sparxstar-form__group { margin-bottom: 1.5rem; }
 
+.sparxstar-form__label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: inherit;
+}
+
 .sparxstar-form__control {
     width: 100%;
-    min-height: 48px; /* Touch target structure */
-    padding: 0 1rem;
-
-    /* Identity inherited from Theme */
-    background-color: var(--sparxstar-bg) !important;
-    color: var(--sparxstar-text) !important;
+    min-height: 48px;
+    background-color: var(--sparxstar-clr-base) !important;
+    color: var(--sparxstar-clr-contrast) !important;
     font-family: inherit;
-    font-size: inherit;
+    font-size: 1rem;
 
-    /* Shadow inherited from Theme */
+    /* Embossed Look + Subtle Design Border */
+    border: 1px solid color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 85%) !important;
+    border-radius: 12px;
+    padding: 0 1rem;
     box-shadow: var(--sparxstar-shd-embossed) !important;
-    border: var(--wp--custom--border--input, none);
-    border-radius: var(--wp--custom--border-radius--input, 13px);
+    transition: all 0.2s ease;
+}
+
+.sparxstar-form__control:focus {
+    outline: 2px solid var(--sparxstar-clr-accent);
+    outline-offset: 2px;
 }
 
 /* ---------------------------------------------------------
-   4. COMPONENT STRUCTURE: BUTTONS
+   4. COMPONENT: BUTTONS (Raised)
    --------------------------------------------------------- */
 .sparxstar-button {
     display: inline-flex;
@@ -88,16 +99,93 @@
     justify-content: center;
     min-height: 44px;
     padding: 0 1.5rem;
-
-    /* Inherit identity */
-    background-color: var(--sparxstar-accent);
-    color: var(--sparxstar-bg); /* Contrast text */
-
+    background-color: var(--sparxstar-clr-accent);
+    color: var(--sparxstar-clr-base);
     box-shadow: var(--sparxstar-shd-raised);
     border: none;
-    border-radius: var(--wp--custom--border-radius--button, 13px);
+    border-radius: 8px;
     font-family: inherit;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
     cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
 }
+
+.sparxstar-button:active {
+    transform: translateY(1px);
+    filter: brightness(0.9);
+}
+
+/* ---------------------------------------------------------
+   5. FUNCTIONAL: RECORDER COMPONENTS (Lossless)
+   --------------------------------------------------------- */
+
+/* Timer: High Contrast Noto Mono */
+.sparxstar-recorder__timer {
+    font-family: "Noto Sans Mono", monospace !important;
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    font-weight: 700;
+    text-align: center;
+    color: var(--sparxstar-clr-contrast);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Meter Bar: Semantic Audio Track */
+.sparxstar-recorder__meter {
+    height: 12px;
+    background: color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 90%);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+.sparxstar-recorder__meter-fill {
+    height: 100%;
+    width: var(--audio-level, 0%);
+    background: linear-gradient(to right,
+        var(--sparxstar-clr-success) 0%,
+        var(--sparxstar-clr-warning) 70%,
+        var(--sparxstar-clr-danger) 100%
+    );
+    transition: width 0.05s linear;
+}
+
+/* Progress Monitor */
+.sparxstar-recorder__progress {
+    width: 100%;
+    height: 6px;
+    background: color-mix(in srgb, var(--sparxstar-clr-contrast), transparent 92%);
+    border-radius: 3px;
+    margin-top: 10px;
+}
+
+.sparxstar-recorder__progress-bar {
+    height: 100%;
+    background: var(--sparxstar-clr-accent);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* ---------------------------------------------------------
+   6. UTILITY: IMAGE CURL (Independent Effect)
+   --------------------------------------------------------- */
+.sparxstar-image { position: relative; z-index: 1; margin: 1.5rem 0; }
+.sparxstar-image img { width: 100%; border-radius: 4px; display: block; }
+
+.sparxstar-image--curled:hover::before,
+.sparxstar-image--curled:hover::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    width: 40%;
+    height: 10px;
+    box-shadow: 0 12px 20px rgba(0,0,0,0.5);
+    z-index: -1;
+    transition: all 0.3s ease;
+}
+
+.sparxstar-image--curled:hover::before { left: 15px; transform: skew(-5deg) rotate(-5deg); }
+.sparxstar-image--curled:hover::after { right: 15px; transform: skew(5deg) rotate(5deg); }
