@@ -22,7 +22,6 @@ This is the final, consolidated class containing all commands and best practices
 @package Starisian\Sparxstar\Starmus\cli
 @version 0.9.2
 /
-
 namespace Starisian\Sparxstar\Starmus\cli;
 
 use function absint;
@@ -56,7 +55,7 @@ use WP_Query;
 
 use function wp_strip_all_tags;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -80,7 +79,7 @@ Pipeline service instance.
     public function __construct()
     {
         $this->waveform_service = new StarmusWaveformService();
-        $this->pipeline         = new StarmusAudioPipeline();
+        $this->pipeline = new StarmusAudioPipeline();
     }
 
     /**

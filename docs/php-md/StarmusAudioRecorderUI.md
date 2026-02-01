@@ -18,17 +18,16 @@ Front-end presentation layer for the Starmus recorder experience.
 Front-end presentation layer for the Starmus recorder experience.
 @package   Starisian\Sparxstar\Starmus\frontend
 /
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
-use WP_Query;
-use Throwable;
 use Exception;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
+use Throwable;
+use WP_Query;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -68,8 +67,8 @@ Clear cached terms.
 **Visibility:** `public`
 
 Add conditional redirect URL to the upload success response.
-@param array<string, mixed> $response  The upload response from the handler.
-@param int                  $post_id   The ID of the newly created/updated recording post.
+@param array<string, mixed> $response The upload response from the handler.
+@param int $post_id The ID of the newly created/updated recording post.
 @param array<string, mixed> $form_data The raw form data submitted.
 @return array<string, mixed> Modified response with optional redirect_url.
 

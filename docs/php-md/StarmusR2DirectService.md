@@ -53,16 +53,16 @@ final class StarmusR2DirectService
     private function configureR2(): void
     {
         $this->bucket = \defined('STARMUS_R2_BUCKET') ? STARMUS_R2_BUCKET : 'starmus-audio';
-        $account_id   = \defined('STARMUS_R2_ACCOUNT_ID') ? STARMUS_R2_ACCOUNT_ID : '';
+        $account_id = \defined('STARMUS_R2_ACCOUNT_ID') ? STARMUS_R2_ACCOUNT_ID : '';
 
         $this->public_endpoint = \defined('STARMUS_R2_ENDPOINT') ? STARMUS_R2_ENDPOINT : '';
 
         $this->storage_client = new S3Client([
-            'version'     => 'latest',
-            'region'      => 'auto',
-            'endpoint'    => sprintf('https://%s.r2.cloudflarestorage.com', $account_id),
+            'version' => 'latest',
+            'region' => 'auto',
+            'endpoint' => \sprintf('https://%s.r2.cloudflarestorage.com', $account_id),
             'credentials' => [
-                'key'    => \defined('STARMUS_R2_ACCESS_KEY') ? STARMUS_R2_ACCESS_KEY : '',
+                'key' => \defined('STARMUS_R2_ACCESS_KEY') ? STARMUS_R2_ACCESS_KEY : '',
                 'secret' => \defined('STARMUS_R2_SECRET_KEY') ? STARMUS_R2_SECRET_KEY : '',
             ],
             'use_path_style_endpoint' => true,
@@ -72,18 +72,18 @@ final class StarmusR2DirectService
     private function configureAws(): void
     {
         $this->bucket = \defined('STARMUS_S3_BUCKET') ? STARMUS_S3_BUCKET : '';
-        $region       = \defined('STARMUS_S3_REGION') ? STARMUS_S3_REGION : 'us-east-1';
+        $region = \defined('STARMUS_S3_REGION') ? STARMUS_S3_REGION : 'us-east-1';
 
         // AWS Public Endpoint construction or Custom Domain
         $this->public_endpoint = \defined('STARMUS_S3_ENDPOINT')
             ? STARMUS_S3_ENDPOINT
-            : sprintf('https://%s.s3.%s.amazonaws.com/', $this->bucket, $region);
+            : \sprintf('https://%s.s3.%s.amazonaws.com/', $this->bucket, $region);
 
         $this->storage_client = new S3Client([
-            'version'     => 'latest',
-            'region'      => $region,
+            'version' => 'latest',
+            'region' => $region,
             'credentials' => [
-                'key'    => \defined('STARMUS_S3_ACCESS_KEY') ? STARMUS_S3_ACCESS_KEY : '',
+                'key' => \defined('STARMUS_S3_ACCESS_KEY') ? STARMUS_S3_ACCESS_KEY : '',
                 'secret' => \defined('STARMUS_S3_SECRET_KEY') ? STARMUS_S3_SECRET_KEY : '',
             ],
         ]);

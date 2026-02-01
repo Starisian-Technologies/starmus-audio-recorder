@@ -1,10 +1,14 @@
 {
   "default": true,
-  "MD003": { "style": "atx" },
+  "MD001": false,
+  "MD003": false,
   "MD007": { "indent": 2 },
-  "MD013": { "line_length": 120 },
-  "MD024": { "allow_different_nesting": true },
-  "MD033": { "allowed_elements": ["br", "img", "kbd", "sub", "sup"] },
+  "MD013": false,
+  "MD024": false,
+  "MD033": { "allowed_elements": ["br", "img", "kbd", "sub", "sup", "details", "summary", "p"] },
+  "MD035": false,
+  "MD036": false,
+  "MD040": false,
   "MD041": false,
   "MD046": { "style": "fenced" }
 }

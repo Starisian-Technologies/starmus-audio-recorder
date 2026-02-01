@@ -24,7 +24,7 @@ final class StarmusAfricaBandwidthService
 
     public function __construct(?IStarmusAudioDAL $dal = null)
     {
-        $dal               = $dal ?: new StarmusAudioDAL();
+        $dal = $dal ?: new StarmusAudioDAL();
         $this->ffmpeg_path = $dal->get_ffmpeg_path() ?: 'ffmpeg';
     }
 

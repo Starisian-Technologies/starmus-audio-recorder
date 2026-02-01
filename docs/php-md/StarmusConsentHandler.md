@@ -20,7 +20,6 @@ Handles creation of contributors and consent recordings.
 /
 class StarmusConsentHandler
 {
-
     /**
 Creates a sparx_contributor post.
 @param array<string, mixed> $data Contributor data. Must contain 'name' and 'email'.
@@ -31,8 +30,8 @@ Creates a sparx_contributor post.
 **Visibility:** `public`
 
 Creates a draft audio-recording post for consent.
-@param int                  $contributor_id The ID of the sparx_contributor.
-@param array<string, mixed> $consent_data   Consent data. keys: terms_type, signature, ip, user_agent.
+@param int $contributor_id The ID of the sparx_contributor.
+@param array<string, mixed> $consent_data Consent data. keys: terms_type, signature, ip, user_agent.
 @return int|WP_Error Recording ID on success, WP_Error on failure.
 
 ---

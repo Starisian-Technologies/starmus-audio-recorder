@@ -30,7 +30,6 @@ This class is the sole authority for enqueuing all Starmus client-side assets.
 @package Starisian\Sparxstar\Starmus\core
 @version 0.9.2
 /
-
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;
@@ -49,7 +48,7 @@ use Throwable;
 use function trim;
 use function wp_create_nonce;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 

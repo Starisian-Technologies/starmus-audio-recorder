@@ -29,14 +29,14 @@ final readonly class StarmusJobSearchRepository
     public function __construct()
     {
         global $wpdb;
-        $this->db         = $wpdb;
+        $this->db = $wpdb;
         $this->table_name = $this->db->prefix . 'starmus_jobs';
     }
 
     public function find(string $job_id): ?StarmusJob
     {
         $row = $this->db->get_row($this->db->prepare(\sprintf('SELECT * FROM %s WHERE job_id = %%s', $this->table_name), $job_id));
-        if ( ! $row) {
+        if (! $row) {
             return null;
         }
 

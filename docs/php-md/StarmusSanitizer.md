@@ -48,7 +48,7 @@ use Throwable;
 use function trim;
 use function wp_unslash;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 

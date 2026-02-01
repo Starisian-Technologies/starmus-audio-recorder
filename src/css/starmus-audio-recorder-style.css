@@ -2,8 +2,12 @@
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * @file    starmus-audio-plugin.css
- * @version 3.2.0 (Full Compatibility Restoration + Progressive Enhancement)
+ * @file    starmus-audio-recorder-style.css
+ * @package SPARXSTAR Starmus Audio
+ * @author  Starisian Technologies (https://starisian.com)
+ * @license Starisian Technologies Proprietary License (STPL)
+ * @copyright Copyright (c) 2025-2026Starisian Technologies
+ * @version 3.2.0 Mechanics by Plugin • Identity by Theme
  * @desc    Resilient, performance-optimized for emerging markets.
  *          ZERO selector deletion policy.
  */
@@ -48,9 +52,9 @@
     --sparxstar-warning: var(--sparxstar-warning-hex);
 
         /* Tactile Identity from Theme */
-    --sparxstar-shd:   rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
-    --sparxstar-shd-onhover: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
-    --sparxstar-shd-onclick: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    --sparxstar-shd:   rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
+    --sparxstar-shd-onhover: rgb(0 0 0 / 19%) 0 10px 20px, rgb(0 0 0 / 23%) 0 6px 6px;
+    --sparxstar-shd-onclick: rgb(60 64 67 / 30%) 0 1px 2px 0, rgb(60 64 67 / 15%) 0 1px 3px 1px;
 }
 
 /* Modern Enhancement: color-mix support */
@@ -118,42 +122,11 @@
 .starmus-player-card,
 .starmus-info-card,
 .starmus-actions-card {
-    /*background: var(--sparxstar-bg);
-    border: 1px solid var(--sparxstar-border-color);
-    border-top: 1px solid var(--sparxstar-border-highlight-color);
-    border-left: 1px solid var(--sparxstar-border-highlight-color);
-    border-radius: 16px;
-    box-shadow: var(--sparxstar-shadow);*/
     padding: 1.5rem;
-    /*transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;*/
+    transition:
+        transform 0.2s ease;
     margin-bottom: 1.5rem;
 }
-
-/*@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    @media (width >= 768px) {
-        .sparxstar-card,
-        .starmus-glass,
-        .starmus-recorder-form,
-        .starmus-editor__wave-inner,
-        .starmus-editor__transcript,
-        .starmus-editor__list,
-        .starmus-player-card,
-        .starmus-info-card,
-        .starmus-actions-card {
-            backdrop-filter: blur(var(--sparxstar-blur));
-        }
-    }
-}
-
-@supports (filter: drop-shadow(0 0 1px black)) {
-    .starmus-card.sparxstar-card:hover {
-        transform: translateY(-4px);
-        filter: drop-shadow(0 12px 30px rgb(0 0 0 / 15%));
-    }
-}*/
 
 /* ========================================================================
    4. FORMS & INPUTS (RESTORED)
@@ -187,7 +160,7 @@
     border-color: var(--sparxstar-primary-strong);
 }
 
-@supports (box-shadow: 0 0 0 1px red) {
+@supports (box-shadow: 0 0 0 3px var(--sparxstar-primary-soft)) {
     .starmus-recorder-form input:focus,
     .starmus-recorder-form select:focus,
     .starmus-recorder-form textarea:focus {
@@ -213,11 +186,6 @@
 .starmus-rerecord-info {
     padding: 1rem 1.25rem;
     margin: 0 0 1.5rem;
-   /* background: rgb(247 89 255 / 10%);
-    border: 1px solid var(--sparxstar-primary-strong);
-    border-radius: 8px;
-    color: var(--sparxstar-text);
-    font-size: 0.9375rem;*/
 }
 
 .starmus-notice strong {
@@ -237,15 +205,8 @@
     gap: 8px;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
-    /*font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    border: none;
-    line-height: 1.2;
-    font-size: 0.9375rem;
     transition:
-        transform 0.2s ease,
-        background 0.2s ease;*/
+        transform 0.2s ease;
     touch-action: manipulation;
 }
 
@@ -308,7 +269,7 @@ button[data-starmus-action="setup-mic"] {
    ======================================================================== */
 
 .starmus-visualizer-stage {
-   /* background: var(--sparxstar-inner-bg);*/
+    background: var(--sparxstar-inner-bg);
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
@@ -405,7 +366,7 @@ button[data-starmus-action="setup-mic"] {
     text-transform: capitalize;
 }
 
-s/*tarmus-card__title {
+.starmus-card__title {
     font-size: 1.25rem;
     margin: 0 0 0.5rem;
     text-transform: capitalize;
@@ -418,7 +379,7 @@ s/*tarmus-card__title {
 
 .starmus-card__title a:hover {
     color: var(--sparxstar-primary-strong);
-}*/
+}
 
 .starmus-card__meta {
     display: flex;
@@ -450,14 +411,12 @@ s/*tarmus-card__title {
 .starmus-card__actions {
     margin-top: auto;
     padding-top: 1rem;
-   /* border-top: 1px solid var(--sparxstar-border-color);*/
     display: flex;
     gap: 0.5rem;
 }
 
 .starmus-card__actions .starmus-btn {
     flex: 1;
-   /* font-size: 0.875rem;*/
 }
 
 /* Pagination (Restored) */
@@ -485,16 +444,7 @@ s/*tarmus-card__title {
     border-radius: 8px;
     background: var(--sparxstar-inner-bg);
     border: 1px solid var(--sparxstar-border-color);
-   /* color: var(--sparxstar-text);
-    text-decoration: none;
-    font-weight: 600;*/
 }
-
-/*.starmus-pagination__item .page-numbers.current,
-.starmus-pagination__item .page-numbers:hover {
-    background: var(--sparxstar-primary);
-    color: #fff;
-}*/
 
 /* ========================================================================
    8. ADMIN & USER DETAIL (RESTORED)
@@ -510,9 +460,7 @@ s/*tarmus-card__title {
 }
 
 .starmus-detail__header h1 {
-    /*font-size: 2rem;*/
     margin: 0 0 1rem;
-    /*color: var(--sparxstar-primary);*/
 }
 
 .starmus-detail__meta-badges,
@@ -622,7 +570,7 @@ s/*tarmus-card__title {
 
 .starmus-editor__id-badge {
     font-size: 0.5em;
-    /*background: #eee;*/
+    background: #eee;
     padding: 2px 6px;
     border-radius: 4px;
     margin-left: 10px;
@@ -631,7 +579,6 @@ s/*tarmus-card__title {
 .starmus-empty-state {
     padding: 20px;
     text-align: center;
-   /* color: #888;*/
     font-style: italic;
 }
 
@@ -640,9 +587,9 @@ s/*tarmus-card__title {
     gap: 2px;
 }
 
-/*.starmus-transcript-box {
+.starmus-transcript-box {
     color: #000 ;
-}*/
+}
 
 .starmus-word:hover {
     background: rgb(0 0 0 / 5%);
@@ -677,6 +624,10 @@ s/*tarmus-card__title {
     }
 }
 
+.is-spinning {
+    animation: starmus-spin 1s linear infinite;
+}
+
 @keyframes starmus-pulse {
     0%,
     100% {
@@ -686,6 +637,10 @@ s/*tarmus-card__title {
     50% {
         opacity: 0.6;
     }
+}
+
+.is-pulsing {
+    animation: starmus-pulse 1.5s infinite;
 }
 
 @media (width <= 768px) {

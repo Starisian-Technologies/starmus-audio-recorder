@@ -46,7 +46,7 @@ use function wp_next_scheduled;
 use function wp_schedule_event;
 use function wp_unschedule_event;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 

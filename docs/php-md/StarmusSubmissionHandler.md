@@ -56,7 +56,6 @@ Upload Flow:
 @see StarmusSettings Plugin configuration management
 @see StarmusPostProcessingService Audio processing service
 /
-
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function apply_filters;
@@ -117,7 +116,7 @@ use function wp_unique_filename;
 use function wp_unslash;
 use function wp_upload_dir;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -216,10 +215,10 @@ This hook is fired for backward compatibility.
             do_action('starmus_after_audio_saved', (int) $cpt_post_id, $form_data);
 
             $response = [
-                'success'       => true,
+                'success' => true,
                 'attachment_id' => (int) $attachment_id,
-                'post_id'       => (int) $cpt_post_id,
-                'url'           => wp_get_attachment_url((int) $attachment_id),
+                'post_id' => (int) $cpt_post_id,
+                'url' => wp_get_attachment_url((int) $attachment_id),
             ];
 
             return apply_filters('starmus_audio_upload_success_response', $response, (int) $cpt_post_id, $form_data);
@@ -227,12 +226,12 @@ This hook is fired for backward compatibility.
             StarmusLogger::log(
                 $throwable,
                 [
-                    'component'     => self::class,
-                    'method'        => __METHOD__,
+                    'component' => self::class,
+                    'method' => __METHOD__,
                     'attachment_id' => (int) $attachment_id,
-                    'post_id'       => (int) $cpt_post_id,
-                    'file_path'     => $file_path,
-                    'filename'      => $filename,
+                    'post_id' => (int) $cpt_post_id,
+                    'file_path' => $file_path,
+                    'filename' => $filename,
                 ]
             );
             return $this->err('server_error', 'File finalization failed.', 500);

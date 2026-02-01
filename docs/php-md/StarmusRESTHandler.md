@@ -132,7 +132,7 @@ namespace Starisian\Sparxstar\Starmus\api;
 
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 

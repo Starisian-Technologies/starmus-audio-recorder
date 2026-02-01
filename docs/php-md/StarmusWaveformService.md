@@ -68,7 +68,6 @@ WordPress Integration:
 @see StarmusAudioDAL Data access layer
 @see StarmusFileService File management service
 /
-
 namespace Starisian\Sparxstar\Starmus\services;
 
 use function apply_filters;
@@ -89,7 +88,7 @@ use function trim;
 use function uniqid;
 use function wp_json_encode;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 

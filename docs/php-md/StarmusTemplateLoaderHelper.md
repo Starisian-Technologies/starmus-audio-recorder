@@ -26,7 +26,7 @@ namespace Starisian\Sparxstar\Starmus\helpers;
 
 use Throwable;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 

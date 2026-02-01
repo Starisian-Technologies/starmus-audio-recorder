@@ -39,7 +39,7 @@ use function esc_html;
 use function load_plugin_textdomain;
 use function plugin_basename;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 

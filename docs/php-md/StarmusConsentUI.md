@@ -34,8 +34,8 @@ StarmusSettings instance.
 
     /**
 Constructor.
-@param StarmusConsentHandler $handler  Consent handler.
-@param StarmusSettings       $settings Plugin settings.
+@param StarmusConsentHandler $handler Consent handler.
+@param StarmusSettings $settings Plugin settings.
 
 ### `register_hooks()`
 

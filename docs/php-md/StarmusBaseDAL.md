@@ -28,10 +28,8 @@ so it can be recovered manually.
 /
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\data;
 
-use WP_Query;
 use function current_time;
 use function get_field;
 use function get_post;
@@ -44,7 +42,9 @@ use Throwable;
 use function update_field;
 use function update_post_meta;
 
-if ( ! \defined('ABSPATH')) {
+use WP_Query;
+
+if (! \defined('ABSPATH')) {
     exit;
 }
 

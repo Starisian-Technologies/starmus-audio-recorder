@@ -1,12 +1,25 @@
-/* =========================================================
-   STARMUS PROSODY ENGINE: PRODUCTION MASTER
-   Logic: Total Structural Restoration (v3.2.0)
-   Standard: Mechanics by Plugin • Identity by Theme
-   Requirement: Dark-First • Switchable • Functional Black Ink
-   ========================================================= */
+/**
+ * STARISIAN TECHNOLOGIES CONFIDENTIAL
+ * © 2023–2025 Starisian Technologies. All Rights Reserved.
+ *
+ * @file    starmus-prosody-engine.css
+ * @package SPARXSTAR Prosody Engine
+ * @author  Starisian Technologies (https://starisian.com)
+ * @license Starisian Technologies Proprietary License (STPL)
+ * @copyright Copyright (c) 2025-2026Starisian Technologies
+ * @version 3.2.0 Mechanics by Plugin • Identity by Theme
+ * @desc    Resilient, performance-optimized for emerging markets.
+ *          ZERO selector deletion policy.
+ */
+
+/* =========================================
+   THEME DESIGN TOKENS (Identity Only)
+   Mapped to WordPress Design Layer Variables
+   ========================================= */
 
 :root {
     /* -- 1. THEME DESIGN TOKENS (Identity Only) --- */
+
     /* Map to your WordPress/Design Layer variables */
     --sparxstar-base:       var(--wp--preset--color--base, #180205);
     --sparxstar-surface:    var(--wp--preset--color--base-2, #251717);
@@ -14,9 +27,9 @@
     --sparxstar-accent:     var(--wp--preset--color--accent);
 
     /* Tactile Identity from Theme */
-    --sparxstar-shd:   rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
-    --sparxstar-shd-onhover: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
-    --sparxstar-shd-onclick: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    --sparxstar-shd:   rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
+    --sparxstar-shd-onhover: rgb(0 0 0 / 19%) 0 10px 20px, rgb(0 0 0 / 23%) 0 6px 6px;
+    --sparxstar-shd-onclick: rgb(60 64 67 / 30%) 0 1px 2px 0, rgb(60 64 67 / 15%) 0 1px 3px 1px;
 
      /* Font Families */
     --sparxstar-font-stack: "Noto Sans", sans-serif;
@@ -41,98 +54,17 @@
 }
 
 /* =========================================
-   STARMUS PROSODY ENGINE
-   Theme: Cognitive Regulator (Dark/Light)
-   Mobile First + Localization + Monospace Engine
+   SPARXSTAR PROSODY ENGINE STYLES
+   Mechanics Layer
    ========================================= */
-
-/* =========================================
-   GLOBAL VARIABLES
-   ========================================= */
-:root {
-    --sparxstar-color-scheme: dark;
-    --sparxstar-bg-surface: #121212;
-    --sparxstar-bg-panel: #1a1a1a;
-    --sparxstar-text-dim: #444;
-    --sparxstar-text-lit: #e0e0e0;
-    --sparxstar-accent: #ffd700;
-    --sparxstar-ui-border: #333;
-
-    /* Font Families */
-    --sparxstar-font-stack: "Noto Sans", sans-serif;
-    --sparxstar-font-mono: "Noto Sans Mono", monospace;
-    --sparxstar-font-jp: "Noto Sans JP", sans-serif;
-    --sparxstar-font-ar: "Noto Naskh Arabic", serif;
-    --sparxstar-font-am: "Noto Sans Ethiopic", sans-serif;
-    --sparxstar-font-zh: "Noto Sans SC", sans-serif;
-
-    /* UI Variables */
-    --sparxstar-unit-spacing: 2.2;
-    --sparxstar-tap-zone-size: 220px;
-    --sparxstar-text-base: clamp(0.9rem, 2vw, 1.15rem);
-
-    /* Component Colors (Dark Default) */
-    --sparxstar-btn-bg: #333;
-    --sparxstar-btn-text: #fff;
-    --sparxstar-btn-hover: #444;
-    --sparxstar-tap-bg-hover: #161616;
-    --sparxstar-tap-bg-active: #333;
-}
-
-/* Light Mode (auto or manual) */
-@media (prefers-color-scheme: light) {
-    :root {
-        --sparxstar-color-scheme: light;
-        --sparxstar-bg-surface: #fafafa;
-        --sparxstar-bg-panel: #fff;
-        --sparxstar-text-dim: #888;
-        --sparxstar-text-lit: #222;
-        --sparxstar-accent: #246bf8;
-        --sparxstar-ui-border: #ccc;
-
-        /* Component Colors (Light) */
-        --sparxstar-btn-bg: #e0e0e0;
-        --sparxstar-btn-text: #111;
-        --sparxstar-btn-hover: #d0d0d0;
-        --sparxstar-tap-bg-hover: #f0f0f0;
-        --sparxstar-tap-bg-active: #e8e8e8;
-    }
-}
-
-.light-mode {
-    --sparxstar-color-scheme: light;
-    --sparxstar-bg-surface: #fafafa;
-    --sparxstar-bg-panel: #fff;
-    --sparxstar-text-dim: #888;
-    --sparxstar-text-lit: #222;
-    --sparxstar-accent: #246bf8;
-    --sparxstar-ui-border: #ccc;
-
-    /* Component Colors (Light) */
-    --sparxstar-btn-bg: #e0e0e0;
-    --sparxstar-btn-text: #111;
-    --sparxstar-btn-hover: #d0d0d0;
-    --sparxstar-tap-bg-hover: #f0f0f0;
-    --sparxstar-tap-bg-active: #e8e8e8;
-}
-
-.dark-mode {
-    --sparxstar-color-scheme: dark;
-    --sparxstar-bg-surface: #121212;
-    --sparxstar-bg-panel: #1a1a1a;
-    --sparxstar-text-dim: #444;
-    --sparxstar-text-lit: #e0e0e0;
-    --sparxstar-accent: #ffd700;
-    --sparxstar-ui-border: #333;
-}
 
 
 
 /* --sparxstar-- CONTAINER SHELL --sparxstar-- */
 #cognitive-regulator {
-   /* background-color: var(--sparxstar-bg-surface);
+    background-color: var(--sparxstar-bg-surface);
     color: var(--sparxstar-text-dim);
-    font-family: var(--sparxstar-font-stack);*/
+    font-family: var(--sparxstar-font-stack);
     height: 60vh;
     width: 100%;
     display: flex;
@@ -148,7 +80,7 @@
 #calibration-layer {
     position: absolute;
     inset: 0;
-    /*background: var(--sparxstar-bg-surface);*/
+    background: var(--sparxstar-bg-surface);
     z-index: 200;
     display: flex;
     flex-direction: column;
@@ -165,8 +97,8 @@
 .tap-zone {
     width: var(--sparxstar-tap-zone-size);
     height: var(--sparxstar-tap-zone-size);
-   /* border: 2px solid var(--sparxstar-ui-border);
-    border-radius: 50%;*/
+    border: 2px solid var(--sparxstar-ui-border);
+    border-radius: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -176,14 +108,14 @@
 }
 
 .tap-zone:hover {
-   /* border-color: var(--sparxstar-text-dim);*/
-  /*  background: var(--sparxstar-tap-bg-hover);*/
+    border-color: var(--sparxstar-text-dim);
+    background: var(--sparxstar-tap-bg-hover);
 }
 
 .tap-zone.flash,
 .tap-zone:active {
-   /* background: var(--sparxstar-tap-bg-active);
-    border-color: var(--sparxstar-text-dim);*/
+    background: var(--sparxstar-tap-bg-active);
+    border-color: var(--sparxstar-text-dim);
     transform: scale(0.96);
 }
 
@@ -194,10 +126,10 @@
 }
 
 .tap-label {
-   /* font-size: 14px;
-    letter-spacing: 3px;*/
-   /* color: var(--sparxstar-text-lit);
-    font-weight: 700;*/
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--sparxstar-text-lit);
+    font-weight: var(--sparxstar-font-weight-bold);
 }
 
 .tap-sub {
@@ -210,21 +142,14 @@
 .tap-feedback {
     margin-top: 2rem;
     color: var(--sparxstar-accent);
-    /*font-family: sans-serif;
-    font-size: 13px;
-    letter-spacing: 1px;
-    min-height: 20px;
     opacity: 0;
-    transition: opacity 0.3s;*/
+    transition: opacity 0.3s;
 }
 
 #calibration-layer::after {
     content: "OR PRESS [SPACE]";
     position: absolute;
     bottom: 40px;
-   /* font-size: 10px;
-    letter-spacing: 2px;
-    color: #444;*/
 }
 
 /* =========================================
@@ -261,7 +186,7 @@
     font-family: "Noto Sans Mono", monospace; /* ✅ Noto Mono for precision */
 }
 
-/* --sparxstar-- PROSODIC UNITS --sparxstar-- */
+/* -- PROSODIC UNITS -- */
 .prosodic-unit {
     display: inline-block;
     padding: 2px 8px;
@@ -285,7 +210,7 @@
 .prosodic-unit.current {
     color: var(--sparxstar-text-lit);
     opacity: 1;
-    font-weight: 700;
+    font-weight: var(--sparxstar-font-weight-bold);
     filter: blur(0);
     background: rgb(255 255 255 / 5%);
     transform: scale(1.02);
@@ -293,7 +218,7 @@
 
 .prosodic-unit.silence-beat {
     color: var(--sparxstar-accent);
-    font-weight: bold;
+    font-weight: var(--sparxstar-font-weight-bold);
     min-width: 60px;
     height: 40px;
     border: 1px dashed var(--sparxstar-ui-border);

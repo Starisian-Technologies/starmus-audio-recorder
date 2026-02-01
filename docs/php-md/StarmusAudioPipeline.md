@@ -31,9 +31,9 @@ final class StarmusAudioPipeline
     public function __construct()
     {
         try {
-            $this->id3_service    = new StarmusEnhancedId3Service();
+            $this->id3_service = new StarmusEnhancedId3Service();
             $this->ffmpeg_service = new StarmusFFmpegService($this->id3_service);
-            $this->r2_service     = new StarmusR2DirectService($this->id3_service);
+            $this->r2_service = new StarmusR2DirectService($this->id3_service);
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
         }

@@ -23,7 +23,7 @@
 @license Starisian Technolgoies Proprietary License
 /
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit();
 }
 

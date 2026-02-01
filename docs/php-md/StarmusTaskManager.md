@@ -22,18 +22,16 @@ Manual task assignment workflow for Starmus assets.
 Defines admin interfaces and frontend dashboards for task management.
 @package Starisian\Sparxstar\Starmus\admin
 /
-
 namespace Starisian\Sparxstar\Starmus\admin;
 
 use WP_Query;
 
-if ( ! defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
 class StarmusTaskManager
 {
-
     // Define allowed CPTs here
     // Updated to match actual CPT names from StarmusPostTypeLoader
     private array $post_types = ['starmus-script', 'audio-recording', 'starmus_transcript'];
