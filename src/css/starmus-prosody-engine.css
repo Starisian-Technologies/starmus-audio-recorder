@@ -8,34 +8,34 @@
 :root {
     /* --- 1. THEME DESIGN TOKENS (Identity Only) --- */
     /* Map to your WordPress/Design Layer variables */
-    --p-base:       var(--wp--preset--color--base, #111111);
-    --p-surface:    var(--wp--preset--color--base-2, #000000);
-    --p-contrast:   var(--wp--preset--color--contrast, #e2e2e2);
-    --p-accent:     var(--wp--preset--color--accent);
+    --sparxstar-base:       var(--wp--preset--color--base, #180205);
+    --sparxstar-surface:    var(--wp--preset--color--base-2, #251717);
+    --sparxstar-contrast:   var(--wp--preset--color--contrast, #eceecf);
+    --sparxstar-accent:     var(--wp--preset--color--accent);
 
     /* Tactile Identity from Theme */
-    --p-shd:   rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
-    --p-shd-onhover: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
-    --p-shd-onclick: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    --sparxstar-shd:   rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    --sparxstar-shd-onhover: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    --sparxstar-shd-onclick: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 
 
     /* --- 2. FUNCTIONAL CONSTANTS (Restored from Origin) --- */
-    --unit-spacing: 2.2;
-    --tap-zone-size: 220px;
+    --sparxstar-unit-spacing: 2.2;
+    --sparxstar-tap-zone-size: 220px;
 }
 
 /* --- LIGHT MODE OPTION (Flipping Identity, not Mechanics) --- */
 .light-mode {
-    --p-base:       var(--wp--preset--color--contrast, #FCFFE7);
-    --p-surface:    var(--wp--preset--color--base-2, #F5F5E0);
-    --p-contrast:   var(--wp--preset--color--base, #180205);
+    --sparxstar-base:       var(--wp--preset--color--contrast, #FCFFE7);
+    --sparxstar-surface:    var(--wp--preset--color--base-2, #F5F5E0);
+    --sparxstar-contrast:   var(--wp--preset--color--base, #180205);
 }
 
 /* =========================================
    LAYER 0: CONTAINER SHELL (The Physics)
    ========================================= */
 #cognitive-regulator {
-    background-color: var(--p-base) ;
+    background-color: var(--sparxstar-base) ;
     height: 60vh ; /* Enforced Layer Model */
     width: 100% ;
     display: flex ;
@@ -51,7 +51,7 @@
 #calibration-layer {
     position: absolute ;
     inset: 0 ;
-    background: var(--p-base) ;
+    background: var(--sparxstar-base) ;
     z-index: 200 ;
     display: flex ;
     flex-direction: column ;
@@ -66,11 +66,11 @@
 }
 
 .tap-zone {
-    width: var(--tap-zone-size) ;
-    height: var(--tap-zone-size) ;
-    border: 2px solid color-mix(in srgb, var(--p-contrast), transparent 80%) ;
+    width: var(--sparxstar-tap-zone-size) ;
+    height: var(--sparxstar-tap-zone-size) ;
+    border: 2px solid color-mix(in srgb, var(--sparxstar-contrast), transparent 80%) ;
     border-radius: 50% ;
-    background: var(--p-surface) ;
+    background: var(--sparxstar-surface) ;
     display: flex ;
     flex-direction: column ;
     align-items: center ;
@@ -80,12 +80,12 @@
 }
 
 .tap-zone:active, .tap-zone.flash {
-    background: color-mix(in srgb, var(--p-surface), var(--p-contrast) 10%) ;
+    background: color-mix(in srgb, var(--sparxstar-surface), var(--sparxstar-contrast) 10%) ;
     transform: scale(0.96);
 }
 
-.tap-label { color: var(--p-contrast) ; font-size: 14px; letter-spacing: 3px; font-weight: 700; text-transform: uppercase; }
-.tap-sub { font-size: 11px; color: color-mix(in srgb, var(--p-contrast), transparent 40%); margin-top: 8px; text-transform: uppercase; }
+.tap-label { color: var(--sparxstar-contrast) ; font-size: 14px; letter-spacing: 3px; font-weight: 700; text-transform: uppercase; }
+.tap-sub { font-size: 11px; color: color-mix(in srgb, var(--sparxstar-contrast), transparent 40%); margin-top: 8px; text-transform: uppercase; }
 
 /* =========================================
    LAYER 2: THE STAGE (Rhythmic Content Flow)
@@ -108,7 +108,7 @@
     padding-top: 35vh ; /* Critical vertical rhythm */
     padding-bottom: 40vh ;
     font-size: 1.4rem ;
-    line-height: var(--unit-spacing) ;
+    line-height: var(--sparxstar-unit-spacing) ;
     text-align: center ;
     /* Functional Font Required for Metronome Precision */
     font-family: "Noto Sans Mono", monospace ;
@@ -125,7 +125,7 @@
 }
 
 .prosodic-unit.future, .prosodic-unit.past {
-    color: var(--p-contrast) ;
+    color: var(--sparxstar-contrast) ;
     opacity: 0.3 ;
     filter: blur(0.4px);
 }
@@ -144,7 +144,7 @@
     font-weight: bold;
     min-width: 60px ;
     height: 40px ;
-    border: 1px dashed var(--p-contrast) ;
+    border: 1px dashed var(--sparxstar-contrast) ;
     margin: 0 12px ;
     display: inline-flex ;
     align-items: center ;
@@ -156,8 +156,8 @@
    LAYER 3: CONTROLS (The Deck Alignment)
    ========================================= */
 .control-deck {
-    background: var(--p-surface) ;
-    border-top: 1px solid color-mix(in srgb, var(--p-contrast), transparent 90%) ;
+    background: var(--sparxstar-surface) ;
+    border-top: 1px solid color-mix(in srgb, var(--sparxstar-contrast), transparent 90%) ;
     padding: 12px 20px ;
     display: flex ;
     align-items: center ;
@@ -170,8 +170,8 @@
 .control-deck.hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
 
 .neutral-btn {
-    background: var(--p-base) ;
-    color: var(--p-contrast) ;
+    background: var(--sparxstar-base) ;
+    color: var(--sparxstar-contrast) ;
     border: none ;
     padding: 10px 16px ;
     font-weight: 700 ;
@@ -179,12 +179,20 @@
     letter-spacing: 1px;
     min-width: 100px ;
     border-radius: 4px ;
-    box-shadow: var(--p-shd) ;
+    box-shadow: var(--sparxstar-shd) ;
     cursor: pointer ;
 }
 
-.neutral-btn:hover { box-shadow: var(--p-shd-onhover) ; }
-.neutral-btn:active { box-shadow: var(--p-shd-onclick) ; }
+.neutral-btn:hover {
+    box-shadow: var(--sparxstar-shd-onhover) ;
+    transform: scale(1.02) ;
+    border: none;
+}
+.neutral-btn:active {
+    box-shadow: var(--sparxstar-shd-onclick) ;
+    border: none;
+    transform: scale(0.98) ;
+}
 
 /* The Pace Regulator (Mechanical Inset) */
 .fader-group {
@@ -197,7 +205,7 @@
 
 #pace-regulator {
     flex-grow: 1 ;
-    accent-color: var(--p-accent) ;
+    accent-color: var(--sparxstar-accent) ;
     height: 6px ;
     appearance: none ;
 }
@@ -218,7 +226,7 @@
 [lang="zh"] { font-family: "Noto Sans SC", sans-serif ; }
 
 @media (width <= 600px) {
-    :root { --tap-zone-size: 160px; --unit-spacing: 1.5; }
+    :root { --sparxstar-tap-zone-size: 160px; --sparxstar-unit-spacing: 1.5; }
     #text-flow { font-size: 20px ; padding-top: 30vh ; }
     .control-deck { gap: 8px ; padding: 8px ; justify-content: space-between ; }
     .neutral-btn { min-width: 60px ; padding: 8px ; }
@@ -227,16 +235,16 @@
 
 /* Admin/User Cards (Inherited) */
 .starmus-script-card {
-    background: var(--p-surface) ;
+    background: var(--sparxstar-surface) ;
     padding: 1.5rem ;
-    box-shadow: var(--p-shd) ;
-    border: 1px solid color-mix(in srgb, var(--p-contrast), transparent 95%) ;
+    box-shadow: var(--sparxstar-shd) ;
+    border: 1px solid color-mix(in srgb, var(--sparxstar-contrast), transparent 95%) ;
 }
 
 .starmus-script-card h3 {
     margin-top: 0 ;
-    color: var(--p-contrast) ;
+    color: var(--sparxstar-contrast) ;
 }
 .starmus-script-card p {
-    color: color-mix(in srgb, var(--p-contrast), transparent 70%) ;
+    color: color-mix(in srgb, var(--sparxstar-contrast), transparent 70%) ;
 }
