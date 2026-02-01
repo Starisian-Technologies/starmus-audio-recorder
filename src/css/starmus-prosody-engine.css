@@ -19,6 +19,7 @@
 
 :root {
     /* -- 1. THEME DESIGN TOKENS (Identity Only) --- */
+    --color-scheme: dark;
 
     /* Map to your WordPress/Design Layer variables */
     --sparxstar-base:       var(--wp--preset--color--base, #180205);
@@ -48,9 +49,21 @@
 
 /* --- LIGHT MODE OPTION (Flipping Identity, not Mechanics) --- */
 .light-mode {
-    --sparxstar-base:       var(--wp--preset--color--contrast, #FCFFE7);
-    --sparxstar-surface:    var(--wp--preset--color--base-2, #F5F5E0);
-    --sparxstar-contrast:   var(--wp--preset--color--base, #180205);
+        --color-scheme: light;
+
+        --sparxstar-base:       var(--wp--preset--color--contrast, #FCFFE7);
+        --sparxstar-surface:    var(--wp--preset--color--base-2, #F5F5E0);
+        --sparxstar-contrast:   var(--wp--preset--color--base, #180205);
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --color-scheme: light;
+
+        --sparxstar-base:       var(--wp--preset--color--contrast, #FCFFE7);
+        --sparxstar-surface:    var(--wp--preset--color--base-2, #F5F5E0);
+        --sparxstar-contrast:   var(--wp--preset--color--base, #180205);
+    }
 }
 
 /* =========================================
