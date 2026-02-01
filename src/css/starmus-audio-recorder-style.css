@@ -166,9 +166,7 @@
 .starmus-recorder-form label {
     display: block;
     margin-bottom: 0.5rem;
-    /*font-weight: 600;
     color: var(--sparxstar-text);
-    font-size: 0.9375rem;*/
 }
 
 .starmus-recorder-form input[type="text"],
@@ -176,28 +174,26 @@
 .starmus-recorder-form textarea {
     width: 100%;
     padding: 0.75rem;
-   /* border: 1px solid var(--sparxstar-border-color);
+    border: 1px solid var(--sparxstar-border-color);
     border-radius: 8px;
     background-color: #fff;
-    font-size: 1rem;
-    line-height: 1.5;*/
     box-sizing: border-box;
 }
 
-/*.starmus-recorder-form input:focus,
+.starmus-recorder-form input:focus,
 .starmus-recorder-form select:focus,
 .starmus-recorder-form textarea:focus {
     outline: none;
     border-color: var(--sparxstar-primary-strong);
-}*/
+}
 
-/*@supports (box-shadow: 0 0 0 1px red) {
+@supports (box-shadow: 0 0 0 1px red) {
     .starmus-recorder-form input:focus,
     .starmus-recorder-form select:focus,
     .starmus-recorder-form textarea:focus {
         box-shadow: 0 0 0 3px var(--sparxstar-primary-soft);
     }
-}*/
+}
 
 .starmus-consent-fieldset {
     border: 1px solid var(--sparxstar-border-color);
@@ -237,6 +233,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    margin-top:10px;
     gap: 8px;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
@@ -257,18 +254,15 @@
 }
 
 /* Primary Action Attribute Bindings */
-/*.starmus-btn--primary,
 button[data-starmus-action="record"],
 button[data-starmus-action="submit"],
 button[data-starmus-action="continue"],
 button[data-starmus-action="setup-mic"] {
     background-color: var(--sparxstar-primary);
     color: #fff;
-}*/
+}
 
 /* Secondary / Outline Bindings */
-.starmus-btn--secondary,
-.starmus-btn--outline,
 .starmus-btn--resume,
 .starmus-btn--pause {
     background: transparent;

@@ -6,7 +6,7 @@
    ========================================================= */
 
 :root {
-    /* --- 1. THEME DESIGN TOKENS (Identity Only) --- */
+    /* -- 1. THEME DESIGN TOKENS (Identity Only) --- */
     /* Map to your WordPress/Design Layer variables */
     --sparxstar-base:       var(--wp--preset--color--base, #180205);
     --sparxstar-surface:    var(--wp--preset--color--base-2, #251717);
@@ -18,10 +18,19 @@
     --sparxstar-shd-onhover: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
     --sparxstar-shd-onclick: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 
+     /* Font Families */
+    --sparxstar-font-stack: "Noto Sans", sans-serif;
+    --sparxstar-font-mono: "Noto Sans Mono", monospace;
+    --sparxstar-font-jp: "Noto Sans JP", sans-serif;
+    --sparxstar-font-ar: "Noto Naskh Arabic", serif;
+    --sparxstar-font-am: "Noto Sans Ethiopic", sans-serif;
+    --sparxstar-font-zh: "Noto Sans SC", sans-serif;
 
-    /* --- 2. FUNCTIONAL CONSTANTS (Restored from Origin) --- */
+    /* UI Variables */
     --sparxstar-unit-spacing: 2.2;
     --sparxstar-tap-zone-size: 220px;
+    --sparxstar-text-base: clamp(0.9rem, 2vw, 1.15rem);
+
 }
 
 /* --- LIGHT MODE OPTION (Flipping Identity, not Mechanics) --- */
@@ -32,219 +41,478 @@
 }
 
 /* =========================================
-   LAYER 0: CONTAINER SHELL (The Physics)
+   STARMUS PROSODY ENGINE
+   Theme: Cognitive Regulator (Dark/Light)
+   Mobile First + Localization + Monospace Engine
    ========================================= */
+
+/* =========================================
+   GLOBAL VARIABLES
+   ========================================= */
+:root {
+    --sparxstar-color-scheme: dark;
+    --sparxstar-bg-surface: #121212;
+    --sparxstar-bg-panel: #1a1a1a;
+    --sparxstar-text-dim: #444;
+    --sparxstar-text-lit: #e0e0e0;
+    --sparxstar-accent: #ffd700;
+    --sparxstar-ui-border: #333;
+
+    /* Font Families */
+    --sparxstar-font-stack: "Noto Sans", sans-serif;
+    --sparxstar-font-mono: "Noto Sans Mono", monospace;
+    --sparxstar-font-jp: "Noto Sans JP", sans-serif;
+    --sparxstar-font-ar: "Noto Naskh Arabic", serif;
+    --sparxstar-font-am: "Noto Sans Ethiopic", sans-serif;
+    --sparxstar-font-zh: "Noto Sans SC", sans-serif;
+
+    /* UI Variables */
+    --sparxstar-unit-spacing: 2.2;
+    --sparxstar-tap-zone-size: 220px;
+    --sparxstar-text-base: clamp(0.9rem, 2vw, 1.15rem);
+
+    /* Component Colors (Dark Default) */
+    --sparxstar-btn-bg: #333;
+    --sparxstar-btn-text: #fff;
+    --sparxstar-btn-hover: #444;
+    --sparxstar-tap-bg-hover: #161616;
+    --sparxstar-tap-bg-active: #333;
+}
+
+/* Light Mode (auto or manual) */
+@media (prefers-color-scheme: light) {
+    :root {
+        --sparxstar-color-scheme: light;
+        --sparxstar-bg-surface: #fafafa;
+        --sparxstar-bg-panel: #fff;
+        --sparxstar-text-dim: #888;
+        --sparxstar-text-lit: #222;
+        --sparxstar-accent: #246bf8;
+        --sparxstar-ui-border: #ccc;
+
+        /* Component Colors (Light) */
+        --sparxstar-btn-bg: #e0e0e0;
+        --sparxstar-btn-text: #111;
+        --sparxstar-btn-hover: #d0d0d0;
+        --sparxstar-tap-bg-hover: #f0f0f0;
+        --sparxstar-tap-bg-active: #e8e8e8;
+    }
+}
+
+.light-mode {
+    --sparxstar-color-scheme: light;
+    --sparxstar-bg-surface: #fafafa;
+    --sparxstar-bg-panel: #fff;
+    --sparxstar-text-dim: #888;
+    --sparxstar-text-lit: #222;
+    --sparxstar-accent: #246bf8;
+    --sparxstar-ui-border: #ccc;
+
+    /* Component Colors (Light) */
+    --sparxstar-btn-bg: #e0e0e0;
+    --sparxstar-btn-text: #111;
+    --sparxstar-btn-hover: #d0d0d0;
+    --sparxstar-tap-bg-hover: #f0f0f0;
+    --sparxstar-tap-bg-active: #e8e8e8;
+}
+
+.dark-mode {
+    --sparxstar-color-scheme: dark;
+    --sparxstar-bg-surface: #121212;
+    --sparxstar-bg-panel: #1a1a1a;
+    --sparxstar-text-dim: #444;
+    --sparxstar-text-lit: #e0e0e0;
+    --sparxstar-accent: #ffd700;
+    --sparxstar-ui-border: #333;
+}
+
+
+
+/* --sparxstar-- CONTAINER SHELL --sparxstar-- */
 #cognitive-regulator {
-    background-color: var(--sparxstar-base) ;
-    height: 60vh ; /* Enforced Layer Model */
-    width: 100% ;
-    display: flex ;
-    flex-direction: column ;
-    position: relative ;
-    overflow: hidden ;
+   /* background-color: var(--sparxstar-bg-surface);
+    color: var(--sparxstar-text-dim);
+    font-family: var(--sparxstar-font-stack);*/
+    height: 60vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
     user-select: none;
 }
 
 /* =========================================
-   LAYER 1: CALIBRATION (Gated Overlay)
+   LAYER 1: CALIBRATION (Overlay)
    ========================================= */
 #calibration-layer {
-    position: absolute ;
-    inset: 0 ;
-    background: var(--sparxstar-base) ;
-    z-index: 200 ;
-    display: flex ;
-    flex-direction: column ;
-    align-items: center ;
-    justify-content: center ;
+    position: absolute;
+    inset: 0;
+    /*background: var(--sparxstar-bg-surface);*/
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     transition: opacity 0.5s ease;
 }
 
 #calibration-layer.fade-out {
-    opacity: 0 ;
-    pointer-events: none ;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .tap-zone {
-    width: var(--sparxstar-tap-zone-size) ;
-    height: var(--sparxstar-tap-zone-size) ;
-    border: 2px solid color-mix(in srgb, var(--sparxstar-contrast), transparent 80%) ;
-    border-radius: 50% ;
-    background: var(--sparxstar-surface) ;
-    display: flex ;
-    flex-direction: column ;
-    align-items: center ;
-    justify-content: center ;
+    width: var(--sparxstar-tap-zone-size);
+    height: var(--sparxstar-tap-zone-size);
+   /* border: 2px solid var(--sparxstar-ui-border);
+    border-radius: 50%;*/
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     transition: all 0.1s ease;
 }
 
-.tap-zone:active, .tap-zone.flash {
-    background: color-mix(in srgb, var(--sparxstar-surface), var(--sparxstar-contrast) 10%) ;
+.tap-zone:hover {
+   /* border-color: var(--sparxstar-text-dim);*/
+  /*  background: var(--sparxstar-tap-bg-hover);*/
+}
+
+.tap-zone.flash,
+.tap-zone:active {
+   /* background: var(--sparxstar-tap-bg-active);
+    border-color: var(--sparxstar-text-dim);*/
     transform: scale(0.96);
 }
 
-.tap-label { color: var(--sparxstar-contrast) ; font-size: 14px; letter-spacing: 3px; font-weight: 700; text-transform: uppercase; }
-.tap-sub { font-size: 11px; color: color-mix(in srgb, var(--sparxstar-contrast), transparent 40%); margin-top: 8px; text-transform: uppercase; }
+.tap-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    filter: grayscale(1);
+}
+
+.tap-label {
+   /* font-size: 14px;
+    letter-spacing: 3px;*/
+   /* color: var(--sparxstar-text-lit);
+    font-weight: 700;*/
+}
+
+.tap-sub {
+    font-size: 11px;
+    color: #666;
+    margin-top: 8px;
+    text-transform: uppercase;
+}
+
+.tap-feedback {
+    margin-top: 2rem;
+    color: var(--sparxstar-accent);
+    /*font-family: sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    min-height: 20px;
+    opacity: 0;
+    transition: opacity 0.3s;*/
+}
+
+#calibration-layer::after {
+    content: "OR PRESS [SPACE]";
+    position: absolute;
+    bottom: 40px;
+   /* font-size: 10px;
+    letter-spacing: 2px;
+    color: #444;*/
+}
 
 /* =========================================
-   LAYER 2: THE STAGE (Rhythmic Content Flow)
+   LAYER 2: THE STAGE (Text Flow)
    ========================================= */
 #scaffold-stage {
-    flex-grow: 1 ;
-    overflow-y: auto ;
-    padding: 0 clamp(10px, 5vw, 200px) ;
-    display: flex ;
-    flex-direction: column ;
-    scroll-behavior: smooth ;
-    position: relative ;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0 clamp(10px, 5vw, 200px);
+    display: flex;
+    flex-direction: column;
+    scroll-behavior: smooth;
+    position: relative;
     scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-#scaffold-stage::-webkit-scrollbar { display: none; }
+#scaffold-stage::-webkit-scrollbar {
+    display: none;
+}
+
+#scaffold-stage.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
 
 #text-flow {
-    position: relative ;
-    padding-top: 35vh ; /* Critical vertical rhythm */
-    padding-bottom: 40vh ;
-    font-size: 1.4rem ;
-    line-height: var(--sparxstar-unit-spacing) ;
-    text-align: center ;
-    /* Functional Font Required for Metronome Precision */
-    font-family: "Noto Sans Mono", monospace ;
+    position: relative;
+    padding-top: 35vh;
+    padding-bottom: 40vh;
+    font-size: 26px;
+    line-height: var(--sparxstar-unit-spacing);
+    text-align: center;
+    font-family: "Noto Sans Mono", monospace; /* ✅ Noto Mono for precision */
 }
 
-/* Prosodic States (Semantic, not just Design) */
+/* --sparxstar-- PROSODIC UNITS --sparxstar-- */
 .prosodic-unit {
-    display: inline-block ;
-    padding: 2px 8px ;
-    margin: 4px 2px ;
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 4px 2px;
     border-radius: 4px;
-    transition: color 0.3s, opacity 0.3s, transform 0.3s ;
+    transition:
+        color 0.3s,
+        opacity 0.3s,
+        transform 0.3s;
     cursor: crosshair;
+    font-family: "Noto Sans Mono", monospace; /* ✅ Monospace inside rhythm engine */
 }
 
-.prosodic-unit.future, .prosodic-unit.past {
-    color: var(--sparxstar-contrast) ;
-    opacity: 0.3 ;
+.prosodic-unit.future,
+.prosodic-unit.past {
+    color: var(--sparxstar-text-dim);
+    opacity: 0.3;
     filter: blur(0.4px);
 }
 
-/* THE BLACK INK RULE: Forced Functional Visibility */
 .prosodic-unit.current {
-    color: #000000 ; /* PURE BLACK FOR FUNCTION */
-    opacity: 1 ;
-    font-weight: 800 ;
-    background: #eeeeee ; /* Visual Anchor */
+    color: var(--sparxstar-text-lit);
+    opacity: 1;
+    font-weight: 700;
+    filter: blur(0);
+    background: rgb(255 255 255 / 5%);
     transform: scale(1.02);
 }
 
 .prosodic-unit.silence-beat {
-    color: #ff0000 ;
+    color: var(--sparxstar-accent);
     font-weight: bold;
-    min-width: 60px ;
-    height: 40px ;
-    border: 1px dashed var(--sparxstar-contrast) ;
-    margin: 0 12px ;
-    display: inline-flex ;
-    align-items: center ;
-    justify-content: center ;
+    min-width: 60px;
+    height: 40px;
+    border: 1px dashed var(--sparxstar-ui-border);
+    margin: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    transition: all 0.3s ease;
     border-radius: 8px;
+    font-size: 24px;
+}
+
+.prosodic-unit.silence-beat.current {
+    border-color: var(--sparxstar-accent);
+    background: rgb(255 215 0 / 10%);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgb(255 215 0 / 20%);
+}
+
+.spacer {
+    height: 50vh;
 }
 
 /* =========================================
-   LAYER 3: CONTROLS (The Deck Alignment)
+   LAYER 3: CONTROLS (The Deck)
    ========================================= */
 .control-deck {
-    background: var(--sparxstar-surface) ;
-    border-top: 1px solid color-mix(in srgb, var(--sparxstar-contrast), transparent 90%) ;
-    padding: 12px 20px ;
-    display: flex ;
-    align-items: center ;
-    justify-content: center ; /* Restoration of mechanical row */
-    gap: 15px ;
-    z-index: 100 ;
-    transition: opacity 0.8s ease, transform 0.8s ease;
+    background: var(--sparxstar-bg-panel);
+    border-top: 1px solid var(--sparxstar-ui-border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 100;
+    transition:
+        opacity 0.8s ease,
+        transform 0.8s ease;
 }
 
-.control-deck.hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
+.control-deck.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
 
 .neutral-btn {
-    background: var(--sparxstar-base) ;
-    color: var(--sparxstar-contrast) ;
-    border: none ;
-    padding: 10px 16px ;
-    font-weight: 700 ;
-    text-transform: uppercase ;
-    letter-spacing: 1px;
-    min-width: 100px ;
-    border-radius: 4px ;
-    box-shadow: var(--sparxstar-shd) ;
-    cursor: pointer ;
+    border: none;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
 }
 
-.neutral-btn:hover {
-    box-shadow: var(--sparxstar-shd-onhover) ;
-    transform: scale(1.02) ;
-    border: none;
-}
-.neutral-btn:active {
-    box-shadow: var(--sparxstar-shd-onclick) ;
-    border: none;
-    transform: scale(0.98) ;
+
+.neutral-btn.icon-only {
+    min-width: unset;
+    width: 50px;
+    max-width: 50px;
+    padding: 10px 0;
+    flex-grow: 0 !important; /* Rigid width */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* The Pace Regulator (Mechanical Inset) */
 .fader-group {
-    flex-grow: 1 ;
-    display: flex ;
-    align-items: center ;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
     gap: 10px;
-    max-width: 400px ;
 }
 
 #pace-regulator {
-    flex-grow: 1 ;
-    accent-color: var(--sparxstar-accent) ;
-    height: 6px ;
-    appearance: none ;
+    flex-grow: 1;
+    accent-color: #888;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    appearance: none;
+    outline: none;
 }
 
 #pace-regulator::-webkit-slider-thumb {
-    appearance: none ;
-    width: 20px; height: 20px;
-    background: #000 ;
-    border-radius: 50% ;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #bbb;
+    border-radius: 50%;
+    cursor: pointer;
+    transition:
+        background 0.2s,
+        transform 0.2s;
+}
+
+#pace-regulator::-webkit-slider-thumb:hover {
+    background: #fff;
+    transform: scale(1.1);
+}
+
+.secondary-text-btn {
+    background: none;
+    border: none;
+    color: #444;
+    cursor: pointer;
+    font-family: var(--sparxstar-font-stack);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 4px;
+    min-width: 60px;
+}
+
+.secondary-text-btn .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    opacity: 0.7;
+}
+
+.secondary-text-btn .re-tap-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.secondary-text-btn:hover {
+    color: #888;
+}
+
+.secondary-text-btn:hover .dashicons {
+    opacity: 1;
 }
 
 /* =========================================
-   LOCALIZATION & ACCESSIBILITY (Lossless)
+   LOCALIZATION FONT RULES
    ========================================= */
-[lang="ja"] { font-family: "Noto Sans JP", sans-serif ; }
-[lang="ar"], .localized-text.ar { font-family: "Noto Naskh Arabic", serif ; direction: rtl; }
-[lang="am"], .localized-text.am { font-family: "Noto Sans Ethiopic", sans-serif ; }
-[lang="zh"] { font-family: "Noto Sans SC", sans-serif ; }
+[lang="ja"] {
+    font-family: var(--sparxstar-font-jp);
+}
 
+[lang="ar"],
+.localized-text.ar {
+    font-family: var(--sparxstar-font-ar);
+    direction: rtl;
+}
+
+[lang="am"],
+.localized-text.am {
+    font-family: var(--sparxstar-font-am);
+}
+
+[lang="zh"],
+.localized-text.zh {
+    font-family: var(--sparxstar-font-zh);
+}
+
+/* =========================================
+   RESPONSIVE: Mobile-First
+   ========================================= */
 @media (width <= 600px) {
-    :root { --sparxstar-tap-zone-size: 160px; --sparxstar-unit-spacing: 1.5; }
-    #text-flow { font-size: 20px ; padding-top: 30vh ; }
-    .control-deck { gap: 8px ; padding: 8px ; justify-content: space-between ; }
-    .neutral-btn { min-width: 60px ; padding: 8px ; }
-    .fader-group .fader-label { display: none ; }
+    :root {
+        --sparxstar-tap-zone-size: 160px;
+        --sparxstar-unit-spacing: 1.5;
+    }
+
+    #text-flow {
+        font-size: 20px;
+        padding-top: 30vh;
+        padding-bottom: 35vh;
+    }
+
+    .prosodic-unit.silence-beat {
+        font-size: 16px;
+        min-width: 40px;
+        height: 30px;
+    }
+
+    .control-deck {
+        flex-flow: row nowrap; /* Force single row */
+        gap: 8px;
+        padding: 8px;
+        justify-content: space-between;
+    }
+
+    .neutral-btn {
+        /* Default buttons can shrink/grow, but icon-only are fixed */
+        padding: 8px;
+    }
+
+    /* Hide labels on mobile to fit slider in single row */
+    .fader-group .fader-label {
+        display: none;
+    }
+
+    .fader-group {
+        order: unset;
+        width: auto;
+        padding-top: 0;
+        border-top: none;
+        flex-grow: 1; /* Ensure slider takes center stage */
+    }
+
+    .secondary-text-btn {
+        order: unset;
+    }
 }
 
-/* Admin/User Cards (Inherited) */
-.starmus-script-card {
-    background: var(--sparxstar-surface) ;
-    padding: 1.5rem ;
-    box-shadow: var(--sparxstar-shd) ;
-    border: 1px solid color-mix(in srgb, var(--sparxstar-contrast), transparent 95%) ;
-}
+/* =========================================
+   PROGRESSIVE ENHANCEMENTS
+   ========================================= */
+@supports (backdrop-filter: blur(8px)) {
+    .tap-zone.flash {
+        backdrop-filter: blur(8px);
+    }
 
-.starmus-script-card h3 {
-    margin-top: 0 ;
-    color: var(--sparxstar-contrast) ;
-}
-.starmus-script-card p {
-    color: color-mix(in srgb, var(--sparxstar-contrast), transparent 70%) ;
+    .prosodic-unit.current {
+        backdrop-filter: blur(2px);
+    }
 }
