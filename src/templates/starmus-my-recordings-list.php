@@ -138,7 +138,7 @@ if ($query->have_posts()) { ?>
                     <?php } ?>
 
                     <div class="starmus-card__actions">
-                        <a href="<?php echo esc_url(add_query_arg(['view' => 'detail', 'recording_id' => $current_post_id])); ?>" class="starmus-btn starmus-btn--outline" aria-label="
+                        <a href="<?php echo esc_url(add_query_arg(['view' => 'detail', 'recording_id' => $current_post_id])); ?>" class="starmus-btn starmus-btn--primary" aria-label="
                 <?php
                 /* translators: %s: Recording title/name */
                 echo esc_attr(sprintf(__('View details for %s', 'starmus-audio-recorder'), $post_title));
@@ -153,7 +153,7 @@ if ($query->have_posts()) { ?>
                             $edit_link = add_query_arg('recording_id', $current_post_id, $edit_page_url);
                             $secure_edit_link = wp_nonce_url($edit_link, 'starmus_edit_audio_' . $current_post_id, 'nonce');
                             ?>
-                            <a href="<?php echo esc_url($secure_edit_link); ?>" class="starmus-btn starmus-btn--primary" aria-label="
+                            <a href="<?php echo esc_url($secure_edit_link); ?>" class="starmus-btn starmus-btn--outline" aria-label="
                             <?php
                             /* translators: %s: Recording title/name */
                             echo esc_attr(sprintf(__('Edit audio for %s', 'starmus-audio-recorder'), $post_title));

@@ -177,6 +177,7 @@
     scroll-behavior: smooth;
     position: relative;
     scrollbar-width: none;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px -50px 36px -28px inset;
     -ms-overflow-style: none;
 }
 
@@ -226,6 +227,7 @@
     font-weight: var(--sparxstar-font-weight-bold);
     filter: blur(0);
     background: rgb(255 255 255 / 5%);
+    text-shadow: .1em .1em 0 hsl(200 50% 30%);
     transform: scale(1.02);
 }
 
@@ -267,6 +269,7 @@
     align-items: center;
     gap: 15px;
     z-index: 100;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
     transition:
         opacity 0.8s ease,
         transform 0.8s ease;
@@ -282,6 +285,7 @@
     border: none;
     padding: 10px 16px;
     cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
     transition: background 0.2s;
 }
 
@@ -295,6 +299,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
 }
 
 .fader-group {
@@ -321,6 +326,7 @@
     background: #bbb;
     border-radius: 50%;
     cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
     transition:
         background 0.2s,
         transform 0.2s;
@@ -334,7 +340,6 @@
 .secondary-text-btn {
     background: none;
     border: none;
-    color: #444;
     cursor: pointer;
     font-family: var(--sparxstar-font-stack);
     display: flex;
@@ -344,6 +349,7 @@
     gap: 4px;
     padding: 4px;
     min-width: 60px;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
 }
 
 .secondary-text-btn .dashicons {

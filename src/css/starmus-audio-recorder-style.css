@@ -90,6 +90,8 @@
 .starmus-recorder-form .entry-content,
 .starmus-user-detail .entry-content {
     margin: 0 ;
+    border-radius: 20px ;
+    box-shadow:  40px 40px 81px #bebebe,  -40px -40px 81px #ffffff;
 }
 
 .starmus-grid-layout {
@@ -110,7 +112,7 @@
 }
 
 /* ========================================================================
-   3. GLOBAL GLASSMORPHISM CLASSES (ZERO DELETIONS)
+   3. GLOBAL CLASSES (ZERO DELETIONS)
    ======================================================================== */
 
 .sparxstar-card,
@@ -201,13 +203,26 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-top:10px;
+    margin-top: 10px;
     gap: 8px;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
     transition:
         transform 0.2s ease;
     touch-action: manipulation;
+}
+
+.starmus-btn:hover,
+.button.starmus-btn:hover {
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    transform: scale(1.05);
+}
+
+.starmus-btn:active,
+.button.starmus-btn:active {
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    transform: scale(0.95);
 }
 
 .starmus-btn--full {
@@ -219,27 +234,29 @@ button[data-starmus-action="record"],
 button[data-starmus-action="submit"],
 button[data-starmus-action="continue"],
 button[data-starmus-action="setup-mic"] {
-    background-color: var(--sparxstar-primary);
-    color: #fff;
+    background-color: var(--sparxstar-color-input);
+    color: var(--sparxstar-color-input-text);
 }
 
 /* Secondary / Outline Bindings */
 .starmus-btn--resume,
 .starmus-btn--pause {
-    background: transparent;
-    border: 2px solid var(--sparxstar-primary);
-    color: var(--sparxstar-primary);
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
 }
 
-.starmus-btn--stop,
+.starmus-btn--stop{
+    background: linear-gradient(145deg, #f0f0f0, #cacaca);
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+}
 .starmus-btn--record.is-recording {
-    background-color: var(--sparxstar-danger);
-    color: #fff;
+    background: linear-gradient(145deg, #cacaca, #f0f0f0);
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    border: 1px outset var(--sparxstar-danger);
 }
 
 .starmus-btn:disabled {
-    opacity: 0.5;
     cursor: not-allowed;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
 }
 
 /* Busy State (Base + Spinner) */
@@ -269,11 +286,10 @@ button[data-starmus-action="setup-mic"] {
    ======================================================================== */
 
 .starmus-visualizer-stage {
-    background: var(--sparxstar-inner-bg);
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    border: 1px solid var(--sparxstar-border-color);
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
 }
 
 .starmus-timer {
@@ -295,6 +311,7 @@ button[data-starmus-action="setup-mic"] {
     border-radius: 6px;
     overflow: hidden;
     width: 100%;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
 }
 
 .starmus-meter-bar::after {
@@ -309,6 +326,7 @@ button[data-starmus-action="setup-mic"] {
         var(--sparxstar-warning) 66%,
         var(--sparxstar-danger) 100%
     );
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
     transition: width 0.05s linear;
 }
 
@@ -334,6 +352,7 @@ button[data-starmus-action="setup-mic"] {
     width: var(--sparxstar-recording-progress, 0%);
     background-color: var(--sparxstar-primary);
     border-radius: 4px;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
     transition: width 0.2s ease;
 }
 
@@ -357,6 +376,10 @@ button[data-starmus-action="setup-mic"] {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
+}
+
+.starmus-card{
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
 }
 
 .starmus-card__header {
@@ -400,6 +423,9 @@ button[data-starmus-action="setup-mic"] {
 
 .starmus-card__audio {
     margin: 1rem 0;
+    border-radius: 53px;
+    background: #e0e0e0;
+    box-shadow: inset 5px 5px 3px #bebebe, inset -5px -5px 3px #ffffff;
 }
 
 .starmus-audio-player,
@@ -442,8 +468,6 @@ button[data-starmus-action="setup-mic"] {
     height: 40px;
     padding: 0 10px;
     border-radius: 8px;
-    background: var(--sparxstar-inner-bg);
-    border: 1px solid var(--sparxstar-border-color);
 }
 
 /* ========================================================================
@@ -476,8 +500,8 @@ button[data-starmus-action="setup-mic"] {
     display: inline-flex;
     align-items: center;
     padding: 0.5rem 1rem;
-    background: var(--sparxstar-inner-bg);
     border-radius: 8px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
 }
 
 .starmus-layout-split,
