@@ -400,7 +400,7 @@ final class StarmusAssetLoader
     private function starmusEnqueueImageAssets()
     {
         // 2. Get the full URL to your image
-        $bg_image_url = plugins_url('src/images/bo-play.png', __FILE__);
+        $bg_image_url = plugins_url('src/frontend/images/bo-play.png', __FILE__);
 
         // 3. Create a CSS variable and attach it to your stylesheet
         $custom_css = "
