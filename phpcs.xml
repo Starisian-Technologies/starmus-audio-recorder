@@ -97,6 +97,14 @@
     </properties>
   </rule>
 
+  <!-- Relax spacing rules slightly -->
+  <rule ref="WordPress.WhiteSpace.OperatorSpacing.NoSpaceBefore">
+     <severity>0</severity>
+  </rule>
+  <rule ref="WordPress.WhiteSpace.OperatorSpacing.NoSpaceAfter">
+     <severity>0</severity>
+  </rule>
+
   <!-- Optional: Disable JS/CSS sniff listeners entirely -->
   <exclude name="WordPressVIPMinimum.JS.*"/>
 

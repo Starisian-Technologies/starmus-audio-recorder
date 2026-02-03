@@ -22,17 +22,17 @@
     --color-scheme: dark;
 
     /* Map to your WordPress/Design Layer variables */
-    --sparxstar-base:       var(--wp--preset--color--base, #180205);
-    --sparxstar-surface:    var(--wp--preset--color--base-2, #251717);
-    --sparxstar-contrast:   var(--wp--preset--color--contrast, #eceecf);
-    --sparxstar-accent:     var(--wp--preset--color--accent);
+    --sparxstar-base: var(--wp--preset--color--base, #180205);
+    --sparxstar-surface: var(--wp--preset--color--base-2, #251717);
+    --sparxstar-contrast: var(--wp--preset--color--contrast, #eceecf);
+    --sparxstar-accent: var(--wp--preset--color--accent);
 
     /* Tactile Identity from Theme */
-    --sparxstar-shd:   rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
+    --sparxstar-shd: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
     --sparxstar-shd-onhover: rgb(0 0 0 / 19%) 0 10px 20px, rgb(0 0 0 / 23%) 0 6px 6px;
     --sparxstar-shd-onclick: rgb(60 64 67 / 30%) 0 1px 2px 0, rgb(60 64 67 / 15%) 0 1px 3px 1px;
 
-     /* Font Families */
+    /* Font Families */
     --sparxstar-font-stack: "Noto Sans", sans-serif;
     --sparxstar-font-mono: "Noto Sans Mono", monospace;
     --sparxstar-font-jp: "Noto Sans JP", sans-serif;
@@ -44,25 +44,24 @@
     --sparxstar-unit-spacing: 2.2;
     --sparxstar-tap-zone-size: 220px;
     --sparxstar-text-base: clamp(0.9rem, 2vw, 1.15rem);
-
 }
 
 /* --- LIGHT MODE OPTION (Flipping Identity, not Mechanics) --- */
 .light-mode {
-        --color-scheme: light;
+    --color-scheme: light;
 
-        --sparxstar-base:       var(--wp--preset--color--contrast, #FCFFE7);
-        --sparxstar-surface:    var(--wp--preset--color--base-2, #F5F5E0);
-        --sparxstar-contrast:   var(--wp--preset--color--base, #180205);
+    --sparxstar-base: var(--wp--preset--color--contrast, #fcffe7);
+    --sparxstar-surface: var(--wp--preset--color--base-2, #f5f5e0);
+    --sparxstar-contrast: var(--wp--preset--color--base, #180205);
 }
 
 @media (prefers-color-scheme: light) {
     :root {
         --color-scheme: light;
 
-        --sparxstar-base:       var(--wp--preset--color--contrast, #FCFFE7);
-        --sparxstar-surface:    var(--wp--preset--color--base-2, #F5F5E0);
-        --sparxstar-contrast:   var(--wp--preset--color--base, #180205);
+        --sparxstar-base: var(--wp--preset--color--contrast, #fcffe7);
+        --sparxstar-surface: var(--wp--preset--color--base-2, #f5f5e0);
+        --sparxstar-contrast: var(--wp--preset--color--base, #180205);
     }
 }
 
@@ -70,8 +69,6 @@
    SPARXSTAR PROSODY ENGINE STYLES
    Mechanics Layer
    ========================================= */
-
-
 
 /* --sparxstar-- CONTAINER SHELL --sparxstar-- */
 #cognitive-regulator {
@@ -117,12 +114,18 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    box-shadow:
+        rgba(39, 244, 3, 0.517) 0px 2px 4px 0px,
+        rgba(39, 244, 3, 0.517) 0px 2px 16px 0px;
     transition: all 0.1s ease;
 }
 
 .tap-zone:hover {
     border-color: var(--sparxstar-text-dim);
     background: var(--sparxstar-tap-bg-hover);
+    box-shadow:
+        rgba(39, 244, 3, 0.278) 0px 1px 2px 0px,
+        rgba(39, 244, 3, 0.278) 0px 1px 8px 0px;
 }
 
 .tap-zone.flash,
@@ -177,7 +180,6 @@
     scroll-behavior: smooth;
     position: relative;
     scrollbar-width: none;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px -50px 36px -28px inset;
     -ms-overflow-style: none;
 }
 
@@ -197,6 +199,8 @@
     font-size: 26px;
     line-height: var(--sparxstar-unit-spacing);
     text-align: center;
+    /* The use of Noto Sans Mono ensures consistent character width,
+       which is crucial for maintaining rhythmic accuracy in prosody visualization. */
     font-family: "Noto Sans Mono", monospace; /* ✅ Noto Mono for precision */
 }
 
@@ -211,6 +215,8 @@
         opacity 0.3s,
         transform 0.3s;
     cursor: crosshair;
+    /* The use of Noto Sans Mono ensures consistent character width,
+       which is crucial for maintaining rhythmic accuracy in prosody visualization. */
     font-family: "Noto Sans Mono", monospace; /* ✅ Monospace inside rhythm engine */
 }
 
@@ -226,8 +232,8 @@
     opacity: 1;
     font-weight: var(--sparxstar-font-weight-bold);
     filter: blur(0);
-    background: rgb(255 255 255 / 5%);
-    text-shadow: .1em .1em 0 hsl(200 50% 30%);
+    background: rgb(255 255 255 / 10%);
+    text-shadow: 0.1em 0.1em 0 hsl(200 50% 30%);
     transform: scale(1.02);
 }
 
@@ -269,7 +275,9 @@
     align-items: center;
     gap: 15px;
     z-index: 100;
-    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    box-shadow:
+        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+        rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
     transition:
         opacity 0.8s ease,
         transform 0.8s ease;
@@ -285,10 +293,11 @@
     border: none;
     padding: 10px 16px;
     cursor: pointer;
-    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    box-shadow:
+        rgba(0, 0, 0, 0.12) 0px 1px 3px,
+        rgba(0, 0, 0, 0.24) 0px 1px 2px;
     transition: background 0.2s;
 }
-
 
 .neutral-btn.icon-only {
     min-width: unset;
@@ -299,7 +308,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    box-shadow:
+        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+        rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
 }
 
 .fader-group {
@@ -326,7 +337,9 @@
     background: #bbb;
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    box-shadow:
+        rgba(0, 0, 0, 0.16) 0px 3px 6px,
+        rgba(0, 0, 0, 0.23) 0px 3px 6px;
     transition:
         background 0.2s,
         transform 0.2s;
@@ -349,7 +362,9 @@
     gap: 4px;
     padding: 4px;
     min-width: 60px;
-    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    box-shadow:
+        rgba(0, 0, 0, 0.12) 0px 1px 3px,
+        rgba(0, 0, 0, 0.24) 0px 1px 2px;
 }
 
 .secondary-text-btn .dashicons {

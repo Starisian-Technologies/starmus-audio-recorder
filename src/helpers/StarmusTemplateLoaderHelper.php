@@ -124,9 +124,9 @@ class StarmusTemplateLoaderHelper
     {
         $template_name = basename($template);
         $locations = [
-        trailingslashit(get_stylesheet_directory()) . 'starmus/' . $template_name,
-        trailingslashit(get_template_directory()) . 'starmus/' . $template_name,
-        trailingslashit(STARMUS_PATH) . 'src/templates/' . $template_name,
+            trailingslashit(get_stylesheet_directory()) . 'starmus/' . $template_name,
+            trailingslashit(get_template_directory()) . 'starmus/' . $template_name,
+            trailingslashit(STARMUS_PATH) . 'src/templates/' . $template_name,
         ];
 
         foreach ($locations as $location) {

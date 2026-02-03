@@ -207,7 +207,7 @@ $data_policy_url ??= '';
         <!-- Step 2: Audio Recording -->
         <div
             id="starmus_step2_<?php echo esc_attr($instance_id); ?>"
-            class="starmus-step starmus-step-2"
+            class="starmus-step starmus-step-2 starmus-mic-stage"
             data-starmus-step="2"
             style="display:none;">
 
