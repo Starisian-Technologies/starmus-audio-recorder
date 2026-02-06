@@ -17,22 +17,24 @@
    ======================================================================== */
 :root {
     /* High-compatibility Hex Fallbacks (Safe for legacy browsers) */
-    --sparxstar-primary-hex: #f759ff;
+    --sparxstar-base-hex: #f0f0f0;
+    --sparxstar-contrast-hex: #000;
+    --sparxstar-primary-hex: #dedede;
     --sparxstar-accent-hex: #246bf8;
-    --sparxstar-text-hex: #dddee0;
+    --sparxstar-text-hex: #000;
     --sparxstar-danger-hex: #b91c1c;
     --sparxstar-success-hex: #16a34a;
     --sparxstar-warning-hex: #ea580c;
 
     /* Theme Mapping */
     --sparxstar-primary: var(--wp--preset--color--accent-3, var(--sparxstar-primary-hex));
-    --sparxstar-text: var(--wp--preset--color--contrast, var(--sparxstar-text-hex));
-    --sparxstar-theme-base: var(--sparxstar-primary);
-    --sparxstar-theme-border: var(--wp--preset--color--accent-3, var(--sparxstar-accent-hex));
+    --sparxstar-text: var(--sparxstar-text-hex);
+    --sparxstar-theme-base: var(--sparxstar-base-hex);
+    --sparxstar-theme-border: var(--sparxstar-contrast-hex);
 
     /* Default Structural Variables */
-    --sparxstar-primary-soft: var(--sparxstar-primary);
-    --sparxstar-primary-strong: #d449db;
+    --sparxstar-primary-soft: var(--sparxstar-primary) transparent 80%;
+    --sparxstar-primary-strong: var(--sparxstar-primary) black 10%;
     --sparxstar-bg: rgb(255 255 255 / 90%);
     --sparxstar-inner-bg: rgb(255 255 255 / 40%);
     --sparxstar-border-color: var(
@@ -50,9 +52,9 @@
     --sparxstar-danger: var(--sparxstar-danger-hex);
     --sparxstar-success: var(--sparxstar-success-hex);
     --sparxstar-warning: var(--sparxstar-warning-hex);
-    --sparxstar-color-input: var(--wp--preset--color--accent-3, var(--sparxstar-primary-hex));
-    --sparxstar-color-input-text: var(--wp--preset--color--contrast, var(--sparxstar-text-hex));
-    --sparxstar-color-input-border: var(--wp--preset--color--accent-3, var(--sparxstar-primary-hex));
+    --sparxstar-color-input: #ffffff, transparent 90%;);
+    --sparxstar-color-input-text: var(--sparxstar-text-hex);
+    --sparxstar-color-input-border: var(--sparxstar-primary-hex));
     --sparxstar-color-input-focus-border: var(--wp--preset--color--accent-2, var(--sparxstar-primary-hex));
 
      /* Tactile Identity from Theme */
@@ -154,7 +156,7 @@
     padding: 0.75rem;
     border: 1px solid var(--sparxstar-border-color);
     border-radius: 8px;
-    background-color: #fff;
+    background-color: var(--sparxstar-color-input);
     box-sizing: border-box;
     box-shadow: inset 2px 2px 3px 0 #aaa, inset -3px -3px 6px 1px #ececec;
     transition:
@@ -780,14 +782,14 @@ select option {
    might assume a dark background. */
 .light-mode .starmus-recorder-form,
 .starmus-recorder-form.light-mode {
-    color: var(--sparxstar-text-hex);
+    /**color: var(--sparxstar-text-hex);*/
 }
 
 .light-mode .starmus-recorder-form label,
 .light-mode .starmus-recorder-form h2,
 .light-mode .starmus-recorder-form h3,
 .light-mode .starmus-recorder-form .starmus-status-message {
-    color: var(--sparxstar-text-hex);
+    /**color: var(--sparxstar-text-hex);*/
 }
 
 /* ================================
