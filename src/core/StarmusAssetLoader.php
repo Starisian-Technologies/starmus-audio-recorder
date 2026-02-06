@@ -397,7 +397,7 @@ final class StarmusAssetLoader
         }
     }
 
-    private function starmusEnqueueImageAssets()
+    private function starmusEnqueueImageAssets(): void
     {
         // 2. Get the full URL to your image
         $bg_image_url = plugins_url('src/frontend/images/bo-play.png', __FILE__);
@@ -405,7 +405,7 @@ final class StarmusAssetLoader
         // 3. Create a CSS variable and attach it to your stylesheet
         $custom_css = "
             :root {
-                --starmus-bg-url: url('$bg_image_url');
+                --sparxstar-starmus-bg-url: url('$bg_image_url');
             }
         ";
         wp_add_inline_style('starmus-styles', $custom_css);

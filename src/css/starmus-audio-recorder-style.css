@@ -337,7 +337,10 @@ button[data-starmus-action="setup-mic"] {
    ======================================================================== */
 
 .starmus-visualizer-stage {
-    background-image: url(../src/frontend/images/bo-play.png) repeat top left;
+    background-image: var(--sparxstar-starmus-bg-url);
+    background-repeat: repeat;
+    background-position: center center;
+    background-size: auto;
     border-radius: 8px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
@@ -348,11 +351,11 @@ button[data-starmus-action="setup-mic"] {
 
 .starmus-mic-stage {
     /* Use the variable injected by PHP */
-    background-image: var(--starmus-bg-url);
+    background-image: var(--sparxstar-starmus-bg-url);
 
     /* Tiling settings */
     background-repeat: repeat; /* This tiles the image both horizontally and vertically */
-    background-position: top left;
+    background-position: center center;
     background-size: auto; /* Keeps the image at its original pixel size while tiling */
 }
 
@@ -362,6 +365,7 @@ button[data-starmus-action="setup-mic"] {
     text-align: center;
     font-variant-numeric: tabular-nums;
     margin-bottom: 1rem;
+    color: var(--sparxstar-success);
 }
 
 .starmus-timer--recording {
@@ -498,13 +502,17 @@ button[data-starmus-action="setup-mic"] {
     background: var(--sparxstar-inner-bg);
     color: var(--sparxstar-text);
     font-weight: 600;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
 .starmus-card__audio {
+    border-radius: 50px;
+    height:40px;
     margin: 1rem 10px;
     border-radius: 50px;
-    box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px
 }
+
 .starmus-audio-player,
 .starmus-audio-full {
     width: 100%;
@@ -529,6 +537,16 @@ button[data-starmus-action="setup-mic"] {
 
 .starmus-card__actions .starmus-btn {
     flex: 1;
+    font-size: 0.9rem;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+}
+
+.starmus-card_actions .starmus-btn:hover {
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+}
+
+.starmus-card__actions .starmus-btn:active {
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
 /* Pagination (Restored) */
