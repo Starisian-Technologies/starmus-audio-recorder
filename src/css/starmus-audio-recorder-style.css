@@ -19,7 +19,7 @@
     /* High-compatibility Hex Fallbacks (Safe for legacy browsers) */
     --sparxstar-primary-hex: #f759ff;
     --sparxstar-accent-hex: #246bf8;
-    --sparxstar-text-hex: #111827;
+    --sparxstar-text-hex: #dddee0;
     --sparxstar-danger-hex: #b91c1c;
     --sparxstar-success-hex: #16a34a;
     --sparxstar-warning-hex: #ea580c;
@@ -50,11 +50,16 @@
     --sparxstar-danger: var(--sparxstar-danger-hex);
     --sparxstar-success: var(--sparxstar-success-hex);
     --sparxstar-warning: var(--sparxstar-warning-hex);
+    --sparxstar-color-input: var(--wp--preset--color--accent-3, var(--sparxstar-primary-hex));
+    --sparxstar-color-input-text: var(--wp--preset--color--contrast, var(--sparxstar-text-hex));
+    --sparxstar-color-input-border: var(--wp--preset--color--accent-3, var(--sparxstar-primary-hex));
+    --sparxstar-color-input-focus-border: var(--wp--preset--color--accent-2, var(--sparxstar-primary-hex));
 
-    /* Tactile Identity from Theme */
+     /* Tactile Identity from Theme */
     --sparxstar-shd: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
     --sparxstar-shd-onhover: rgb(0 0 0 / 19%) 0 10px 20px, rgb(0 0 0 / 23%) 0 6px 6px;
     --sparxstar-shd-onclick: rgb(60 64 67 / 30%) 0 1px 2px 0, rgb(60 64 67 / 15%) 0 1px 3px 1px;
+
 }
 
 /* Modern Enhancement: color-mix support */
@@ -86,10 +91,8 @@
 .starmus-recorder-form .entry-content,
 .starmus-user-detail .entry-content {
     margin: 0;
-    border-radius: 20px;
-    box-shadow:
-        rgba(50, 50, 105, 0.15) 0px 2px 5px 0px,
-        rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .starmus-grid-layout {
@@ -145,6 +148,7 @@
 .starmus-recorder-form input[type="text"],
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
+    font-size: 1rem;
     color: var(--sparxstar-form-text, var(--sparxstar-text));
     width: 100%;
     padding: 0.75rem;
@@ -152,23 +156,21 @@
     border-radius: 8px;
     background-color: #fff;
     box-sizing: border-box;
-    box-shadow:
-        rgb(204, 219, 232) 3px 3px 6px 0px inset,
-        rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+    box-shadow: inset 2px 2px 3px 0 #aaa, inset -3px -3px 6px 1px #ececec;
     transition:
         box-shadow 0.2s ease,
         border-color 0.2s ease,
         color 0.2s ease;
 }
 
+.starmus-recorder-form input[type="text"]{
+    margin-right: 1rem;
+}
+
 .starmus-recorder-form input:focus,
 .starmus-recorder-form select:focus,
 .starmus-recorder-form textarea:focus {
-    color: var(--sparxstar-form-text, var(--sparxstar-text));
     outline: none;
-    box-shadow:
-        rgb(204, 219, 232) 3px 3px 6px 0px inset,
-        rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
     border-color: var(--sparxstar-primary-strong);
     transition:
         box-shadow 0.2s ease,
@@ -176,15 +178,28 @@
         color 0.2s ease;
 }
 
+input[type="checkbox" i]{
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--sparxstar-border-color);
+    border-radius: 4px;
+    background-color: #fff;
+    box-shadow: inset 2px 2px 3px 0 #aaa, inset -3px -3px 6px 1px #ececec;
+    transition:
+        box-shadow 0.2s ease,
+        border-color 0.2s ease,
+        background-color 0.2s ease;
+}
+
 @supports (
-    box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset,
+    box-shadow: rgb(220, 220, 221) 3px 3px 6px 0px inset,
     rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
 ) {
     .starmus-recorder-form input:focus,
     .starmus-recorder-form select:focus,
     .starmus-recorder-form textarea:focus {
         box-shadow:
-            rgb(204, 219, 232) 3px 3px 6px 0px inset,
+            rgb(220, 220, 221) 3px 3px 6px 0px inset,
             rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
     }
 }
@@ -226,7 +241,6 @@
     margin-top: 10px;
     gap: 8px;
     padding: 0.75rem 1.5rem;
-    border-radius: 8px;
     box-shadow:
         rgba(14, 63, 126, 0.04) 0px 0px 0px 1px,
         rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px,
@@ -321,7 +335,8 @@ button[data-starmus-action="setup-mic"] {
    ======================================================================== */
 
 .starmus-visualizer-stage {
-    border-radius: 12px;
+    background-image: url(../src/frontend/images/bo-play.png) repeat top left;
+    border-radius: 8px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     box-shadow:
@@ -444,7 +459,7 @@ button[data-starmus-action="setup-mic"] {
 
 .starmus-card__header {
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 1rem;
+    padding: 10px;
     margin-bottom: 1rem;
     text-transform: capitalize;
 }
@@ -484,33 +499,23 @@ button[data-starmus-action="setup-mic"] {
 }
 
 .starmus-card__audio {
-    margin: 1rem 0;
+    margin: 1rem 10px;
     border-radius: 50px;
-    background: #e0e0e0;
-    box-shadow:
-        rgb(204, 219, 232) 3px 3px 6px 0px inset,
-        rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+    box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
 }
 .starmus-audio-player,
 .starmus-audio-full {
     width: 100%;
     height: 40px;
-    margin: 1rem 0;
-    border-radius: 50px;
-    background: #e0e0e0;
-    box-shadow:
-        rgb(204, 219, 232) 3px 3px 6px 0px inset,
-        rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
 }
 
 .starmus-audio-form {
     width: 100%;
     margin: 1rem 0;
+    padding: 20px;
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow:
-        rgb(204, 219, 232) 3px 3px 6px 0px inset,
-        rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
 .starmus-card__actions {
