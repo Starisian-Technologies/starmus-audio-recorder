@@ -120,7 +120,7 @@ final class StarmusAudioPipeline
                 [
             'component' => self::class,
             'post_id' => $post_id,
-            ]
+                ]
             );
         } catch (Throwable $throwable) {
             StarmusLogger::log(
@@ -129,7 +129,7 @@ final class StarmusAudioPipeline
             'component' => self::class,
             'post_id' => $post_id,
             'file_path' => $file_path,
-            ]
+                ]
             );
         }
 

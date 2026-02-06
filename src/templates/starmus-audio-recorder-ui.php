@@ -20,7 +20,7 @@ if (! defined('ABSPATH')) {
 $form_id ??= 'default';
 $instance_id = 'starmus_form_' . sanitize_key($form_id . '_' . wp_generate_uuid4());
 $allowed_file_types ??= 'webm';
-$allowed_types_arr = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
+$allowed_types_arr = array_values(array_filter(array_map('trim', explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
 $is_admin = current_user_can('manage_options');
 $languages = get_terms(
     [

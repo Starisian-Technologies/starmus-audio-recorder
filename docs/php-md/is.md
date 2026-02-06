@@ -30,6 +30,7 @@ This class is the sole authority for enqueuing all Starmus client-side assets.
 @package Starisian\Sparxstar\Starmus\core
 @version 0.9.2
 /
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;

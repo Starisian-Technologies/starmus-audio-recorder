@@ -10,12 +10,12 @@ namespace Starisian\Sparxstar\Starmus;
  */
 
 // If uninstall not called from WordPress, then exit.
-if (! defined('WP_UNINSTALL_PLUGIN')) {
+if ( ! defined('WP_UNINSTALL_PLUGIN')) {
     exit;
 }
 
 // Check if the user has permissions to uninstall.
-if (! current_user_can('activate_plugins')) {
+if ( ! current_user_can('activate_plugins')) {
     return;
 }
 
@@ -50,7 +50,7 @@ foreach ($sparxstar_starmus_post_types as $cpt_slug) {
         ]
     );
 
-    if (! empty($posts)) {
+    if ( ! empty($posts)) {
         foreach ($posts as $post_id) {
             wp_delete_post($post_id, true); // Force delete.
         }
@@ -76,7 +76,7 @@ foreach ($sparxstar_starmus_taxonomies as $taxonomy) {
             'hide_empty' => false,
         ]
     );
-    if (! empty($terms) && ! is_wp_error($terms)) {
+    if ( ! empty($terms) && ! is_wp_error($terms)) {
         foreach ($terms as $term) {
             wp_delete_term($term->term_id, $taxonomy);
         }
@@ -99,7 +99,7 @@ $sparxstar_starmus_acf_items = get_posts(
         ],
     ]
 );
-if (! empty($sparxstar_starmus_acf_items)) {
+if ( ! empty($sparxstar_starmus_acf_items)) {
     foreach ($sparxstar_starmus_acf_items as $item) {
         wp_delete_post($item->ID, true);
     }

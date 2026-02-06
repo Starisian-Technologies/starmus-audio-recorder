@@ -55,13 +55,15 @@
     --sparxstar-color-input: #ffffff, transparent 90%;
     --sparxstar-color-input-text: var(--sparxstar-text-hex);
     --sparxstar-color-input-border: var(--sparxstar-primary-hex);
-    --sparxstar-color-input-focus-border: var(--wp--preset--color--accent-2, var(--sparxstar-primary-hex));
+    --sparxstar-color-input-focus-border: var(
+        --wp--preset--color--accent-2,
+        var(--sparxstar-primary-hex)
+    );
 
-     /* Tactile Identity from Theme */
+    /* Tactile Identity from Theme */
     --sparxstar-shd: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
     --sparxstar-shd-onhover: rgb(0 0 0 / 19%) 0 10px 20px, rgb(0 0 0 / 23%) 0 6px 6px;
     --sparxstar-shd-onclick: rgb(60 64 67 / 30%) 0 1px 2px 0, rgb(60 64 67 / 15%) 0 1px 3px 1px;
-
 }
 
 /* Modern Enhancement: color-mix support */
@@ -144,6 +146,9 @@
 .starmus-recorder-form label {
     display: block;
     margin-bottom: 0.5rem;
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
     color: var(--sparxstar-label-text, var(--sparxstar-text));
 }
 
@@ -158,14 +163,16 @@
     border-radius: 8px;
     background-color: var(--sparxstar-color-input);
     box-sizing: border-box;
-    box-shadow: inset 2px 2px 3px 0 #aaa, inset -3px -3px 6px 1px #ececec;
+    box-shadow:
+        inset 2px 2px 3px 0 #aaa,
+        inset -3px -3px 6px 1px #ececec;
     transition:
         box-shadow 0.2s ease,
         border-color 0.2s ease,
         color 0.2s ease;
 }
 
-.starmus-recorder-form input[type="text"]{
+.starmus-recorder-form input[type="text"] {
     margin-right: 1rem;
 }
 
@@ -180,13 +187,15 @@
         color 0.2s ease;
 }
 
-input[type="checkbox" i]{
+input[type="checkbox" i] {
     width: 18px;
     height: 18px;
     border: 1px solid var(--sparxstar-border-color);
     border-radius: 4px;
     background-color: #fff;
-    box-shadow: inset 2px 2px 3px 0 #aaa, inset -3px -3px 6px 1px #ececec;
+    box-shadow:
+        inset 2px 2px 3px 0 #aaa,
+        inset -3px -3px 6px 1px #ececec;
     transition:
         box-shadow 0.2s ease,
         border-color 0.2s ease,
@@ -365,11 +374,10 @@ button[data-starmus-action="setup-mic"] {
     text-align: center;
     font-variant-numeric: tabular-nums;
     margin-bottom: 1rem;
-    color: var(--sparxstar-success);
 }
 
 .starmus-timer--recording {
-    color: var(--sparxstar-danger);
+    color: var(--starmus-danger);
     animation: starmus-pulse 1.5s infinite;
 }
 
@@ -379,26 +387,20 @@ button[data-starmus-action="setup-mic"] {
     border-radius: 6px;
     overflow: hidden;
     width: 100%;
-    box-shadow:
-        rgba(0, 0, 0, 0.19) 0px 10px 20px,
-        rgba(0, 0, 0, 0.23) 0px 6px 6px;
 }
 
 .starmus-meter-bar::after {
     content: "";
     display: block;
     height: 100%;
-    width: var(--sparxstar-audio-level, 0%);
+    width: var(--starmus-audio-level, 0%);
     background: linear-gradient(
         90deg,
-        var(--sparxstar-success) 0%,
-        var(--sparxstar-success) 33%,
-        var(--sparxstar-warning) 66%,
-        var(--sparxstar-danger) 100%
+        var(--starmus-success) 0%,
+        var(--starmus-success) 33%,
+        var(--starmus-warning) 66%,
+        var(--starmus-danger) 100%
     );
-    box-shadow:
-        rgba(0, 0, 0, 0.19) 0px 10px 20px,
-        rgba(0, 0, 0, 0.23) 0px 6px 6px;
     transition: width 0.05s linear;
 }
 
@@ -410,7 +412,7 @@ button[data-starmus-action="setup-mic"] {
 
 .starmus-progress-label {
     font-size: 0.75rem;
-    color: var(--sparxstar-text);
+    color: var(--starmus-text);
     font-weight: 600;
     margin-bottom: 6px;
     display: block;
@@ -421,26 +423,24 @@ button[data-starmus-action="setup-mic"] {
     content: "";
     display: block;
     height: 100%;
-    width: var(--sparxstar-recording-progress, 0%);
-    background-color: var(--sparxstar-primary);
+    width: var(--starmus-recording-progress, 0%);
+    background-color: var(--starmus-primary);
     border-radius: 4px;
-    box-shadow:
-        rgba(0, 0, 0, 0.19) 0px 10px 20px,
-        rgba(0, 0, 0, 0.23) 0px 6px 6px;
     transition: width 0.2s ease;
 }
 
 .starmus-duration-progress[data-level="safe"]::after {
-    background-color: var(--sparxstar-success);
+    background-color: var(--starmus-success);
 }
 
 .starmus-duration-progress[data-level="warning"]::after {
-    background-color: var(--sparxstar-warning);
+    background-color: var(--starmus-warning);
 }
 
 .starmus-duration-progress[data-level="danger"]::after {
-    background-color: var(--sparxstar-danger);
+    background-color: var(--starmus-danger);
 }
+
 
 /* ========================================================================
    7. LIST VIEW & PAGINATION (FULL RESTORATION)
@@ -502,15 +502,19 @@ button[data-starmus-action="setup-mic"] {
     background: var(--sparxstar-inner-bg);
     color: var(--sparxstar-text);
     font-weight: 600;
-    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    box-shadow:
+        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+        rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
 .starmus-card__audio {
     border-radius: 50px;
-    height:40px;
+    height: 40px;
     margin: 1rem 10px;
     border-radius: 50px;
-    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px
+    box-shadow:
+        rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
+        rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
 }
 
 .starmus-audio-player,
@@ -525,7 +529,9 @@ button[data-starmus-action="setup-mic"] {
     padding: 20px;
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    box-shadow:
+        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+        rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
 .starmus-card__actions {
@@ -538,15 +544,21 @@ button[data-starmus-action="setup-mic"] {
 .starmus-card__actions .starmus-btn {
     flex: 1;
     font-size: 0.9rem;
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+    box-shadow:
+        rgba(0, 0, 0, 0.1) 0px 1px 3px 0px,
+        rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
 }
 
 .starmus-card_actions .starmus-btn:hover {
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    box-shadow:
+        rgba(0, 0, 0, 0.16) 0px 3px 6px,
+        rgba(0, 0, 0, 0.23) 0px 3px 6px;
 }
 
 .starmus-card__actions .starmus-btn:active {
-    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    box-shadow:
+        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+        rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
 /* Pagination (Restored) */

@@ -8,14 +8,17 @@ declare(strict_types=1);
  */
 namespace Starisian\Sparxstar\Starmus\frontend;
 
+use function absint;
+
 use Exception;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 use Throwable;
-use WP_Query;
+
 use function wp_get_object_terms;
-use function absint;
+
+use WP_Query;
 
 if (! \defined('ABSPATH')) {
     exit;
@@ -159,10 +162,10 @@ class StarmusAudioRecorderUI
                 $post = get_post($post_id);
                 $existing_title = $post ? $post->post_title : '';
 
-                $language_terms = \wp_get_object_terms($post_id, 'starmus_tax_language');
+                $language_terms = wp_get_object_terms($post_id, 'starmus_tax_language');
                 $language_id = (! is_wp_error($language_terms) && ! empty($language_terms)) ? $language_terms[0]->term_id : 0;
 
-                $type_terms = \wp_get_object_terms($post_id, 'recording-type');
+                $type_terms = wp_get_object_terms($post_id, 'recording-type');
                 $type_id = (! is_wp_error($type_terms) && ! empty($type_terms)) ? $type_terms[0]->term_id : 0;
             }
 
@@ -172,12 +175,12 @@ class StarmusAudioRecorderUI
                 if ($script_post) {
                     $existing_title = $script_post->post_title; // Script title wins for new/re-record
 
-                    $script_langs = \wp_get_object_terms($script_id, 'starmus_tax_language');
+                    $script_langs = wp_get_object_terms($script_id, 'starmus_tax_language');
                     if (! is_wp_error($script_langs) && ! empty($script_langs)) {
                         $language_id = $script_langs[0]->term_id;
                     }
 
-                    $script_dialects = \wp_get_object_terms($script_id, 'starmus_tax_dialect');
+                    $script_dialects = wp_get_object_terms($script_id, 'starmus_tax_dialect');
                     if (! is_wp_error($script_dialects) && ! empty($script_dialects)) {
                         $dialect_id = $script_dialects[0]->term_id;
                     }

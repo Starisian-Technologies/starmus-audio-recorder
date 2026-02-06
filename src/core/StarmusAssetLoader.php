@@ -15,7 +15,6 @@ declare(strict_types=1);
  *
  * @version 0.9.2
  */
-
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;
@@ -353,7 +352,7 @@ final class StarmusAssetLoader
             $allowed_types = array_values(
                 array_filter(
                     array_map(trim(...), explode(',', $allowed_string)),
-                    fn(string $v): bool => $v !== ''
+                    fn (string $v): bool => $v !== ''
                 )
             );
 
