@@ -52,7 +52,7 @@
     --sparxstar-danger: var(--sparxstar-danger-hex);
     --sparxstar-success: var(--sparxstar-success-hex);
     --sparxstar-warning: var(--sparxstar-warning-hex);
-    --sparxstar-color-input: #ffffff, transparent 90%;);
+    --sparxstar-color-input: #ffffff, transparent 90%;
     --sparxstar-color-input-text: var(--sparxstar-text-hex);
     --sparxstar-color-input-border: var(--sparxstar-primary-hex));
     --sparxstar-color-input-focus-border: var(--wp--preset--color--accent-2, var(--sparxstar-primary-hex));
