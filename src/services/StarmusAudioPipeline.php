@@ -6,7 +6,7 @@ namespace Starisian\Sparxstar\Starmus\services;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -65,7 +65,7 @@ final class StarmusAudioPipeline
             $upload_dir = wp_upload_dir();
             $output_dir = $upload_dir['path'] . '/starmus_processed';
 
-            if (! is_dir($output_dir)) {
+            if ( ! is_dir($output_dir)) {
                 wp_mkdir_p($output_dir);
             }
 
@@ -185,15 +185,15 @@ final class StarmusAudioPipeline
     {
         $parts = [];
 
-        if (! empty($form_data['description'])) {
+        if ( ! empty($form_data['description'])) {
             $parts[] = $form_data['description'];
         }
 
-        if (! empty($form_data['location'])) {
+        if ( ! empty($form_data['location'])) {
             $parts[] = 'Recorded in: ' . $form_data['location'];
         }
 
-        if (! empty($form_data['recording_type'])) {
+        if ( ! empty($form_data['recording_type'])) {
             $parts[] = 'Type: ' . $form_data['recording_type'];
         }
 

@@ -9,7 +9,7 @@ use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
@@ -62,7 +62,7 @@ class StarmusProsodyPlayer
             return;
         }
 
-        if (! class_exists(StarmusProsodyDAL::class)) {
+        if ( ! class_exists(StarmusProsodyDAL::class)) {
             StarmusLogger::error('StarmusProsodyDAL class not found');
         }
 
@@ -217,7 +217,7 @@ class StarmusProsodyPlayer
             }
 
             $post = get_post($script_id);
-            if (! $post || $post->post_type !== 'starmus-script') {
+            if ( ! $post || $post->post_type !== 'starmus-script') {
                 return '';
             }
 
@@ -247,7 +247,7 @@ class StarmusProsodyPlayer
                     // Or native attachment if post_mime_type is audio.
                     // Let's check get_attached_media.
                     $media = get_attached_media('audio', $rec_id);
-                    if (! empty($media)) {
+                    if ( ! empty($media)) {
                         $audio_url = wp_get_attachment_url(reset($media)->ID);
                     }
                 }
@@ -363,7 +363,7 @@ class StarmusProsodyPlayer
                 'starmus_script_library'
             );
 
-            if (! is_user_logged_in()) {
+            if ( ! is_user_logged_in()) {
                 return '<div class="starmus-error">' . esc_html__('You must be logged in to view your script library.', 'starmus-audio-recorder') . '</div>';
             }
 
@@ -426,11 +426,11 @@ class StarmusProsodyPlayer
             $pace = (int) $_POST['pace_ms'];
             $nonce = $_POST['nonce'];
 
-            if (! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
+            if ( ! wp_verify_nonce($nonce, 'starmus_prosody_save_' . $post_id)) {
                 wp_send_json_error(__('Security check failed', 'starmus-audio-recorder'));
             }
 
-            if (! current_user_can('edit_post', $post_id)) {
+            if ( ! current_user_can('edit_post', $post_id)) {
                 wp_send_json_error(__('Permission denied', 'starmus-audio-recorder'));
             }
 
@@ -454,7 +454,7 @@ class StarmusProsodyPlayer
      */
     public function render_add_script_form_shortcode(array $atts = []): string
     {
-        if (! is_user_logged_in()) {
+        if ( ! is_user_logged_in()) {
             return '<p>' . esc_html__('You must be logged in to add or edit scripts.', 'starmus-audio-recorder') . '</p>';
         }
 
@@ -476,7 +476,7 @@ class StarmusProsodyPlayer
             $post = get_post($script_id);
             if ($post && $post->post_type === 'starmus-script') {
                 // Check permissions
-                if (! current_user_can('edit_post', $script_id)) {
+                if ( ! current_user_can('edit_post', $script_id)) {
                     return '<div class="starmus-error">' . esc_html__('You do not have permission to edit this script.', 'starmus-audio-recorder') . '</div>';
                 }
 
@@ -531,12 +531,12 @@ class StarmusProsodyPlayer
                         'quicktags' => false,
                         'editor_class' => 'widefat',
                     ];
-        // Clean up block comments for display if they exist
-        if (str_contains((string) $content, '<!-- wp:')) {
-            $content = preg_replace('/<!-- \/?wp:.*? -->/', '', (string) $content);
-        }
-        wp_editor($content, 'starmus_script_content', $editor_settings);
-        ?>
+                    // Clean up block comments for display if they exist
+                    if (str_contains((string) $content, '<!-- wp:')) {
+                        $content = preg_replace('/<!-- \/?wp:.*? -->/', '', (string) $content);
+                    }
+                    wp_editor($content, 'starmus_script_content', $editor_settings);
+                    ?>
                 </div>
 
                 <div class="starmus-form-row">
@@ -544,7 +544,7 @@ class StarmusProsodyPlayer
                         <label for="starmus_script_language"><?php esc_html_e('Language', 'starmus-audio-recorder'); ?></label>
                         <select id="starmus_script_language" name="starmus_script_language" required>
                             <option value=""><?php esc_html_e('Select Language', 'starmus-audio-recorder'); ?></option>
-                            <?php if (! is_wp_error($languages)) {
+                            <?php if ( ! is_wp_error($languages)) {
                                 foreach ($languages as $term) {
                                     echo '<option value="' . esc_attr($term->slug) . '" ' . selected($sel_lang, $term->slug, false) . '>' . esc_html($term->name) . '</option>';
                                 }
@@ -556,7 +556,7 @@ class StarmusProsodyPlayer
                         <label for="starmus_script_dialect"><?php esc_html_e('Dialect', 'starmus-audio-recorder'); ?></label>
                         <select id="starmus_script_dialect" name="starmus_script_dialect">
                             <option value=""><?php esc_html_e('Select Dialect (Optional)', 'starmus-audio-recorder'); ?></option>
-                            <?php if (! is_wp_error($dialects)) {
+                            <?php if ( ! is_wp_error($dialects)) {
                                 foreach ($dialects as $term) {
                                     echo '<option value="' . esc_attr($term->slug) . '" ' . selected($sel_dial, $term->slug, false) . '>' . esc_html($term->name) . '</option>';
                                 }
@@ -580,12 +580,12 @@ class StarmusProsodyPlayer
     public function handle_post_script(): void
     {
         // 1. Check Nonce
-        if (! isset($_POST['starmus_nonce']) || ! wp_verify_nonce($_POST['starmus_nonce'], 'starmus_save_script_nonce')) {
+        if ( ! isset($_POST['starmus_nonce']) || ! wp_verify_nonce($_POST['starmus_nonce'], 'starmus_save_script_nonce')) {
             wp_die(__('Security check failed', 'starmus-audio-recorder'));
         }
 
         // 2. Check Auth
-        if (! is_user_logged_in()) {
+        if ( ! is_user_logged_in()) {
             wp_die(__('You must be logged in.', 'starmus-audio-recorder'));
         }
 
@@ -606,7 +606,7 @@ class StarmusProsodyPlayer
 
         if ($script_id > 0) {
             // Edit Mode
-            if (! current_user_can('edit_post', $script_id)) {
+            if ( ! current_user_can('edit_post', $script_id)) {
                 wp_die(__('Permission denied.', 'starmus-audio-recorder'));
             }
             $post_data['ID'] = $script_id;
@@ -632,7 +632,7 @@ class StarmusProsodyPlayer
         // 6. Redirect back
         // Referer check
         $redirect_url = wp_get_referer();
-        if (! $redirect_url) {
+        if ( ! $redirect_url) {
             $redirect_url = home_url();
         }
 

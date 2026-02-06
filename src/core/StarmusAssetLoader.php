@@ -33,7 +33,7 @@ use Throwable;
 use function trim;
 use function wp_create_nonce;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -203,7 +203,7 @@ final class StarmusAssetLoader
 
             // Resolve optional recording ID from context (e.g. Consent Handoff)
             $recording_id = filter_input(INPUT_GET, 'starmus_recording_id', FILTER_SANITIZE_NUMBER_INT);
-            if (! $recording_id && isset(self::$editor_data['post_id'])) {
+            if ( ! $recording_id && isset(self::$editor_data['post_id'])) {
                 $recording_id = self::$editor_data['post_id'];
             }
 

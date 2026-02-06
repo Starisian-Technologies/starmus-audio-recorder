@@ -3,7 +3,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -136,7 +136,7 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
         $results = [];
 
         foreach ($file_paths as $path) {
-            if (! file_exists($path)) {
+            if ( ! file_exists($path)) {
                 continue;
             }
 
@@ -185,11 +185,11 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
     {
         $parts = [];
 
-        if (! empty($form_data['description'])) {
+        if ( ! empty($form_data['description'])) {
             $parts[] = $form_data['description'];
         }
 
-        if (! empty($form_data['location'])) {
+        if ( ! empty($form_data['location'])) {
             $parts[] = 'Location: ' . $form_data['location'];
         }
 

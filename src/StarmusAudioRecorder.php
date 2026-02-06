@@ -60,7 +60,7 @@ use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -243,7 +243,7 @@ final class StarmusAudioRecorder
      */
     public static function starmus_get_instance(): StarmusAudioRecorder
     {
-        if (! self::$instance instanceof StarmusAudioRecorder) {
+        if ( ! self::$instance instanceof StarmusAudioRecorder) {
             self::$instance = new self();
         }
 

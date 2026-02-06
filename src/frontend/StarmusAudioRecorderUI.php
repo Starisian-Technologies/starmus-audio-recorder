@@ -20,7 +20,7 @@ use function wp_get_object_terms;
 
 use WP_Query;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -163,10 +163,10 @@ class StarmusAudioRecorderUI
                 $existing_title = $post ? $post->post_title : '';
 
                 $language_terms = wp_get_object_terms($post_id, 'starmus_tax_language');
-                $language_id = (! is_wp_error($language_terms) && ! empty($language_terms)) ? $language_terms[0]->term_id : 0;
+                $language_id = ( ! is_wp_error($language_terms) && ! empty($language_terms)) ? $language_terms[0]->term_id : 0;
 
                 $type_terms = wp_get_object_terms($post_id, 'recording-type');
-                $type_id = (! is_wp_error($type_terms) && ! empty($type_terms)) ? $type_terms[0]->term_id : 0;
+                $type_id = ( ! is_wp_error($type_terms) && ! empty($type_terms)) ? $type_terms[0]->term_id : 0;
             }
 
             // 2. Override/Supplement from Script Context
@@ -176,12 +176,12 @@ class StarmusAudioRecorderUI
                     $existing_title = $script_post->post_title; // Script title wins for new/re-record
 
                     $script_langs = wp_get_object_terms($script_id, 'starmus_tax_language');
-                    if (! is_wp_error($script_langs) && ! empty($script_langs)) {
+                    if ( ! is_wp_error($script_langs) && ! empty($script_langs)) {
                         $language_id = $script_langs[0]->term_id;
                     }
 
                     $script_dialects = wp_get_object_terms($script_id, 'starmus_tax_dialect');
-                    if (! is_wp_error($script_dialects) && ! empty($script_dialects)) {
+                    if ( ! is_wp_error($script_dialects) && ! empty($script_dialects)) {
                         $dialect_id = $script_dialects[0]->term_id;
                     }
 
@@ -237,7 +237,7 @@ class StarmusAudioRecorderUI
                     'hide_empty' => false,
                 ]
             );
-            if (! is_wp_error($terms)) {
+            if ( ! is_wp_error($terms)) {
                 set_transient($cache_key, $terms, 12 * HOUR_IN_SECONDS);
             } else {
                 StarmusLogger::log(new Exception($terms->get_error_message()));
@@ -268,7 +268,7 @@ class StarmusAudioRecorderUI
      */
     public function add_conditional_redirect(array $response, int $post_id, array $form_data): array
     {
-        if (! $this->settings instanceof StarmusSettings) {
+        if ( ! $this->settings instanceof StarmusSettings) {
             return $response;
         }
 

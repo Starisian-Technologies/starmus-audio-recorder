@@ -8,7 +8,7 @@ use function get_option;
 use function uasort;
 use function update_option;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -128,7 +128,7 @@ final class StarmusSageMakerJobRepository
     {
         $jobs = $this->get_all();
 
-        if (! isset($jobs[$job_id])) {
+        if ( ! isset($jobs[$job_id])) {
             return false;
         }
 

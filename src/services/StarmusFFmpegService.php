@@ -5,7 +5,7 @@ namespace Starisian\Sparxstar\Starmus\services;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -172,10 +172,10 @@ final class StarmusFFmpegService
     {
         $analysis = $this->id3_service->analyzeFile($source);
 
-        if (! empty($analysis['comments'])) {
+        if ( ! empty($analysis['comments'])) {
             $tags = [];
             foreach ($analysis['comments'] as $key => $values) {
-                if (! empty($values[0])) {
+                if ( ! empty($values[0])) {
                     $tags[ $key ] = $values;
                 }
             }

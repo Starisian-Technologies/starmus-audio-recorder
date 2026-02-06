@@ -8,7 +8,7 @@
  * @version 1.1.0-ROBUST-TEMPLATE
  */
 
-if (! defined('ABSPATH')) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 
@@ -52,7 +52,7 @@ $editor_data = [
                 } else {
                     esc_html_e('No Recording', 'starmus-audio-recorder');
                 }
-?>
+                ?>
             </span>
         </h1>
         <div class="starmus-editor__time">

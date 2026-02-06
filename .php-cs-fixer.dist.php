@@ -17,7 +17,8 @@ return (new PhpCsFixer\Config())
         '@PHP82Migration' => true,
         'array_syntax' => ['syntax' => 'short'],
         'not_operator_with_successor_space' => true,
-        'no_spaces_inside_parenthesis' => false, // Allow WordPress style ( ! condition )
+        'spaces_inside_parentheses' => false, // Allow WordPress style ( ! condition )
+        'no_spaces_inside_parenthesis' => false, // Deprecated but kept for safety
         'single_quote' => true,
         'no_unused_imports' => true,
         'no_trailing_whitespace' => true,

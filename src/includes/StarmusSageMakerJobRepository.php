@@ -3,7 +3,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\includes;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -125,7 +125,7 @@ final class StarmusSageMakerJobRepository
     {
         $jobs = $this->get_all();
 
-        if (! isset($jobs[ $job_id ])) {
+        if ( ! isset($jobs[ $job_id ])) {
             return false;
         }
 

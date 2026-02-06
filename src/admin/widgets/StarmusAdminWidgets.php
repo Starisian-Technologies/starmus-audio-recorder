@@ -9,7 +9,7 @@ namespace Starisian\Sparxstar\Starmus\admin\widgets;
 
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

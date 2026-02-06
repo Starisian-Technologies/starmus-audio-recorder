@@ -29,7 +29,7 @@ use function wp_get_post_terms;
 
 use WP_Post;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -82,7 +82,7 @@ final class StarmusSageMakerService
         ];
 
         // 2. Attach Credentials if provided
-        if (! empty($key) && ! empty($secret)) {
+        if ( ! empty($key) && ! empty($secret)) {
             $config['credentials'] = [
             'key' => $key,
             'secret' => $secret,
@@ -104,7 +104,7 @@ final class StarmusSageMakerService
     public function bundle_job_data(int $recording_id): array
     {
         $post = get_post($recording_id);
-        if (! $post instanceof WP_Post || $post->post_type !== 'audio-recording') {
+        if ( ! $post instanceof WP_Post || $post->post_type !== 'audio-recording') {
             throw new InvalidArgumentException('Invalid recording ID: ' . $recording_id);
         }
 
@@ -227,7 +227,7 @@ final class StarmusSageMakerService
      */
     public function transcribe_audio(string $file_path, array $options = []): array
     {
-        if (! file_exists($file_path)) {
+        if ( ! file_exists($file_path)) {
             StarmusLogger::error('SageMaker: Audio file not found', ['path' => $file_path]);
 
             return ['error' => 'File not found'];

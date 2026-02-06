@@ -5,7 +5,7 @@ namespace Starisian\Sparxstar\Starmus\data;
 
 use wpdb;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -31,7 +31,7 @@ final readonly class StarmusJobSearchRepository
     public function find(string $job_id): ?StarmusJob
     {
         $row = $this->db->get_row($this->db->prepare(\sprintf('SELECT * FROM %s WHERE job_id = %%s', $this->table_name), $job_id));
-        if (! $row) {
+        if ( ! $row) {
             return null;
         }
 

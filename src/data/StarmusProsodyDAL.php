@@ -37,7 +37,7 @@ use function wp_strip_all_tags;
 
 ;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -81,7 +81,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
             // 1. Validate Post Type (Legacy Requirement)
             // Uses inherited get_post_info from StarmusBaseDAL
             $post_info = $this->get_post_info($post_id);
-            if (! $post_info || 'starmus-script' !== $post_info['type']) {
+            if ( ! $post_info || 'starmus-script' !== $post_info['type']) {
                 return [];
             }
 
@@ -161,7 +161,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
                 'order' => 'DESC',
             ];
 
-            if (! empty($recorded_titles)) {
+            if ( ! empty($recorded_titles)) {
                 // We need to exclude scripts with these specific titles.
                 // WP_Query doesn't have title__not_in, so we resolve to IDs.
                 $placeholders = implode(',', array_fill(0, \count($recorded_titles), '%s'));
@@ -170,7 +170,7 @@ final class StarmusProsodyDAL extends StarmusBaseDAL implements IStarmusProsodyD
                     ...$recorded_titles
                 ));
 
-                if (! empty($exclude_ids)) {
+                if ( ! empty($exclude_ids)) {
                     $args['post__not_in'] = array_map(absint(...), $exclude_ids);
                 }
             }
