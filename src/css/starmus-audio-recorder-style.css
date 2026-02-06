@@ -6,11 +6,27 @@
  * @package SPARXSTAR Starmus Audio
  * @author  Starisian Technologies (https://starisian.com)
  * @license Starisian Technologies Proprietary License (STPL)
- * @copyright Copyright (c) 2025-2026Starisian Technologies
+ * @copyright Copyright (c) 2025-2026 Starisian Technologies
  * @version 3.2.0 Mechanics by Plugin • Identity by Theme
  * @desc    Resilient, performance-optimized for emerging markets.
  *          ZERO selector deletion policy.
  */
+
+ /*=======================================================================
+   TABLE OF CONTENTS
+   =======================================================================
+
+   1. VARIABLES & THEME MAPPING (WITH LEGACY FALLBACKS)
+   2. RESET & LAYOUT FIXES (RESTORED)
+   3. GLOBAL CLASSES (ZERO DELETIONS)
+   4. FORMS & INPUTS (RESTORED)
+   5. BUTTON SYSTEM (FULL RESTORATION)
+   6. RECORDER UI COMPONENTS (RESTORED)
+   7. LIST VIEW & PAGINATION (FULL RESTORATION)
+   8. ADMIN & USER DETAIL (RESTORED)
+   9. EDITOR UI (RESTORED)
+  10. UTILITIES & ANIMATIONS
+   ======================================================================== */
 
 /* ========================================================================
    1. VARIABLES & THEME MAPPING (WITH LEGACY FALLBACKS)
@@ -846,3 +862,9 @@ body.sparxstar-scroll-locked {
     overflow: hidden;
     touch-action: none;
 }
+
+/* =========================================
+   END OF starmus-audio-recorder-style.css
+   STARISIAN TECHNOLOGIES CONFIDENTIAL
+   © 2023–2025 Starisian Technologies. All Rights Reserved.
+   ========================================= */

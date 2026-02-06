@@ -26,6 +26,8 @@
     --sparxstar-surface: var(--wp--preset--color--base-2, #251717);
     --sparxstar-contrast: var(--wp--preset--color--contrast, #eceecf);
     --sparxstar-accent: var(--wp--preset--color--accent);
+    --sparxstar-glow: rgba(39, 244, 3, 0.517);
+    --sparxstar-glow-dark: rgba(39, 244, 3, 0.278);
 
     /* Tactile Identity from Theme */
     --sparxstar-shd: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
@@ -115,8 +117,8 @@
     justify-content: center;
     cursor: pointer;
     box-shadow:
-        rgba(39, 244, 3, 0.517) 0px 2px 4px 0px,
-        rgba(39, 244, 3, 0.517) 0px 2px 16px 0px;
+        var(--sparxstar-glow) 0px 2px 4px 0px,
+        var(--sparxstar-glow) 0px 2px 16px 0px;
     transition: all 0.1s ease;
 }
 
@@ -124,8 +126,8 @@
     border-color: var(--sparxstar-text-dim);
     background: var(--sparxstar-tap-bg-hover);
     box-shadow:
-        rgba(39, 244, 3, 0.278) 0px 1px 2px 0px,
-        rgba(39, 244, 3, 0.278) 0px 1px 8px 0px;
+        var(--sparxstar-glow-dark) 0px 1px 2px 0px,
+        var(--sparxstar-glow-dark) 0px 1px 8px 0px;
 }
 
 .tap-zone.flash,
@@ -202,6 +204,8 @@
     /* The use of Noto Sans Mono ensures consistent character width,
        which is crucial for maintaining rhythmic accuracy in prosody visualization. */
     font-family: "Noto Sans Mono", monospace; /* ✅ Noto Mono for precision */
+    font-optical-sizing: auto; /* Enable optical sizing for better readability at various sizes */
+
 }
 
 /* -- PROSODIC UNITS -- */
@@ -218,6 +222,7 @@
     /* The use of Noto Sans Mono ensures consistent character width,
        which is crucial for maintaining rhythmic accuracy in prosody visualization. */
     font-family: "Noto Sans Mono", monospace; /* ✅ Monospace inside rhythm engine */
+    font-optical-sizing: auto; /* Enable optical sizing for better readability at various sizes */
 }
 
 .prosodic-unit.future,
@@ -475,3 +480,89 @@
         backdrop-filter: blur(2px);
     }
 }
+
+/* =========================================
+   STARISIAN BRANDING ELEMENTS
+   - Subtle use of brand colors and motifs.
+   - Can be expanded with SVG icons or background patterns.
+   ========================================= */
+
+/* Minimal Card Styles */
+.starmus-script-card {
+    border: 1px solid var(--sparxstar-ui-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+.starmus-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.starmus-card-title {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.starmus-script-excerpt {
+    color: var(--sparxstar-text-base);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    border-left: 3px solid var(--sparxstar-accent);
+    padding-left: 1rem;
+}
+
+.starmus-audio-preview {
+    margin-bottom: 1rem;
+}
+
+.starmus-simple-player {
+    width: 100%;
+}
+
+.starmus-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--sparxstar-accent);
+    color: var(--sparxstar-text-base);
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.starmus-btn:hover {
+    background: var(--sparxstar-accent-dark);
+}
+
+.starmus-badge {
+    background: var(--sparxstar-accent-light);
+    color: var(--sparxstar-text-base);
+    padding: 0.25rem 0.5rem;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* =========================================
+   PERFORMANCE OPTIMIZATIONS
+   - Reduced animation durations for snappier feel.
+   - Limited use of expensive properties like box-shadow and filter.
+   - Used will-change for elements that animate frequently.
+   ========================================= */
+.tap-zone,
+.prosodic-unit.current {
+    will-change: transform, opacity;
+}
+
+
+
+/* =========================================
+   END OF starmus-prosody-engine.css
+   STARISIAN TECHNOLOGIES CONFIDENTIAL
+   © 2023–2025 Starisian Technologies. All Rights Reserved.
+   ========================================= */
