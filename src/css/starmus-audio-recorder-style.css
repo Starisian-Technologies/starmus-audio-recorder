@@ -54,7 +54,7 @@
     --sparxstar-warning: var(--sparxstar-warning-hex);
     --sparxstar-color-input: #ffffff, transparent 90%;
     --sparxstar-color-input-text: var(--sparxstar-text-hex);
-    --sparxstar-color-input-border: var(--sparxstar-primary-hex));
+    --sparxstar-color-input-border: var(--sparxstar-primary-hex);
     --sparxstar-color-input-focus-border: var(--wp--preset--color--accent-2, var(--sparxstar-primary-hex));
 
      /* Tactile Identity from Theme */
@@ -195,7 +195,7 @@ input[type="checkbox" i]{
 
 @supports (
     box-shadow: rgb(220, 220, 221) 3px 3px 6px 0px inset,
-    rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+    rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset
 ) {
     .starmus-recorder-form input:focus,
     .starmus-recorder-form select:focus,

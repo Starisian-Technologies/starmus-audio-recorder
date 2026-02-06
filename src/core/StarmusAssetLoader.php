@@ -15,6 +15,7 @@ declare(strict_types=1);
  *
  * @version 0.9.2
  */
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;
@@ -213,7 +214,7 @@ final class StarmusAssetLoader
                 [
                     'version' => $this->resolve_version(),
                     'config' => $config,
-                    'env' => \defined('WP_ENV') ? WP_ENV : 'production',
+                    'env' => wp_get_environment_type(),
                     'postId' => get_the_ID() ?: 0,
                     'recordingId' => $recording_id ? (int) $recording_id : 0, // Injected for workflow handoff
                     'restUrl' => esc_url_raw(rest_url()),
@@ -352,7 +353,7 @@ final class StarmusAssetLoader
             $allowed_types = array_values(
                 array_filter(
                     array_map(trim(...), explode(',', $allowed_string)),
-                    fn (string $v): bool => $v !== ''
+                    fn(string $v): bool => $v !== ''
                 )
             );
 
