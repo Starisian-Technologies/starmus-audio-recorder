@@ -268,6 +268,9 @@ input[type="checkbox" i] {
     padding: 0.75rem 1.5rem;
     box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
     transition: transform 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
     touch-action: manipulation;
 }
 
@@ -303,6 +306,34 @@ button[data-starmus-action="setup-mic"] {
     box-shadow:
         inset 2px 2px 3px 0 #aaa,
         inset -3px -3px 6px 1px #ececec;
+}
+
+button[data-starmus-action="setup-mic"] {
+    transition: 0.5s;
+    background-size: 200% auto;
+    background-color: var(--sparxstar-color-input);
+    color: var(--sparxstar-color-input-text);
+    border-radius: 25px;
+    border: 1px solid var(--sparxstar-color-input-border);
+    text-shadow:#000 1px 1px 2px;
+    background-image: linear-gradient(45deg, #FF512F 0%, #F09819  51%, #FF512F  100%);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+button[data-starmus-action="setup-mic"]:hover{
+    background-position: right center;
+  /* change the direction of the change here */
+}
+
+button[data-starmus-action="setup-mic"]:active{
+    box-shadow:
+        inset 2px 2px 3px 0 #aaa,
+        inset -3px -3px 6px 1px #ececec;
+    transform: scale(0.95);
+
 }
 
 /* Secondary / Outline Bindings */
@@ -371,31 +402,25 @@ button[data-starmus-action="setup-mic"] {
         rgba(0, 0, 0, 0.23) 0px 3px 6px;
 }
 
-.starmus-setup-container {
+.starmus-setup-container, .starmus-mic-stage{
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
+    width: 100%;
+    padding: 1.5rem;
     margin-bottom: 1.5rem;
-    background-color: rgba(51, 51, 51, 0.75);
+    border-radius: 25px;
+    background-color: #808080;
     /* Use the variable injected by PHP */
-    background-image: var(--sparxstar-starmus-bg-url);
-
+    background-image: url(../../src/frontend/images/gun-metal.png);
     /* Tiling settings */
     background-repeat: repeat; /* This tiles the image both horizontally and vertically */
     background-position: center center;
     background-size: auto; /* Keeps the image at its original pixel size while tiling */
+    box-shadow: rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px;
 }
 
-.starmus-mic-stage {
-    /* Use the variable injected by PHP */
-    background-image: var(--sparxstar-starmus-bg-url);
-
-    /* Tiling settings */
-    background-repeat: repeat; /* This tiles the image both horizontally and vertically */
-    background-position: center center;
-    background-size: auto; /* Keeps the image at its original pixel size while tiling */
-}
 
 .starmus-timer {
     font-size: 2rem;
