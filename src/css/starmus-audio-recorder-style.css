@@ -117,8 +117,8 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.starmus-recorder-form h2{
-    font-size: clamp(.9rem, 1.1rem, 1.5rem)
+.starmus-recorder-form h2 {
+    font-size: clamp(0.9rem, 1.1rem, 1.5rem);
 }
 
 .starmus-grid-layout {
@@ -184,6 +184,7 @@
 }
 
 .starmus-recorder-form input[type="text"],
+.starmus-recorder-form input[type="email"],
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
     font-size: 1rem;
@@ -337,8 +338,8 @@ button[data-starmus-action="setup-mic"] {
     border-radius: 25px;
     border: 1px solid var(--sparxstar-color-input-border);
     text-shadow: #666 1px 1px 2px;
-    background: #3F5EFB;
-    background-image: radial-gradient(circle,rgba(63, 94, 251, 1) 0%, rgba(252, 70, 107, 1) 100%);
+    background: #3f5efb;
+    background-image: radial-gradient(circle, rgba(63, 94, 251, 1) 0%, rgba(252, 70, 107, 1) 100%);
     background-size: 200% auto;
     cursor: pointer;
     user-select: none;
@@ -644,15 +645,15 @@ button[data-starmus-action="setup-mic"]:active {
     height: 40px;
     margin: 1rem 10px;
     border-radius: 50px;
-    box-shadow:
-        rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
-        rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
 }
 
 .starmus-audio-player,
 .starmus-audio-full {
-    width: 100%;
     height: 40px;
+    border-radius: 25px;
+    box-shadow:
+        rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
+        rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
 }
 
 .starmus-audio-form {
@@ -748,10 +749,8 @@ button[data-starmus-action="setup-mic"]:active {
     align-items: center;
     font-size: small;
     padding: 0.5rem 1rem;
-    border-radius: 8px;
-    box-shadow:
-        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-        rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    border-radius: 25px;
+    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
 }
 
 .starmus-layout-split,
@@ -776,7 +775,7 @@ button[data-starmus-action="setup-mic"]:active {
 .starmus-info-table th,
 .starmus-info-table td {
     padding: 10px;
-    border-bottom: 1px solid var(--sparxstar-border-color);
+    border-bottom: 1px dotted var(--sparxstar-border-color);
     text-align: left;
 }
 
@@ -801,6 +800,10 @@ button[data-starmus-action="setup-mic"]:active {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.starmus-info-table .starmus-btn, .starmus-infor-table .starmus-btn:hover, .starmus-info-table .starmus-btn:active {
+    box-shadow:none;
 }
 
 /* ========================================================================

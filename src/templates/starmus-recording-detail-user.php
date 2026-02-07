@@ -211,7 +211,7 @@ try {
 
     <!-- Header: Title & Badges -->
     <header class="starmus-header-clean">
-        <h1 class="starmus-title"><?php echo esc_html(get_the_title($post_id)); ?></h1>
+        <h2 class="starmus-title"><?php echo esc_html(get_the_title($post_id)); ?></h2>
 
         <div class="starmus-meta-row">
             <span class="starmus-meta-item">
@@ -255,7 +255,7 @@ try {
             <!-- Transcription -->
             <?php if ($transcript_text) { ?>
                 <section class="starmus-info-card sparxstar-glass-card">
-                    <h3><?php esc_html_e('Transcription', 'starmus-audio-recorder'); ?></h3>
+                    <h4><?php esc_html_e('Transcription', 'starmus-audio-recorder'); ?></h4>
                     <div class="starmus-transcript-box" style="background:#f9f9f9; padding:15px; border:1px solid #eee; border-radius:4px; max-height:200px; overflow-y:auto;">
                         <?php echo wp_kses_post(nl2br($transcript_text)); ?>
                     </div>
@@ -264,7 +264,7 @@ try {
 
             <!-- Recording Details (User-Appropriate Technical Info) -->
             <section class="starmus-info-card sparxstar-glass-card">
-                <h3><?php esc_html_e('Recording Details', 'starmus-audio-recorder'); ?></h3>
+                <h4><?php esc_html_e('Recording Details', 'starmus-audio-recorder'); ?></h4>
                 <dl class="starmus-dl-list">
 
                     <div class="starmus-dl-item">
@@ -303,7 +303,7 @@ try {
 
             <!-- Public Metadata -->
             <section class="starmus-info-card sparxstar-glass-card">
-                <h3><?php esc_html_e('About this Recording', 'starmus-audio-recorder'); ?></h3>
+                <h4><?php esc_html_e('About this Recording', 'starmus-audio-recorder'); ?></h4>
                 <dl class="starmus-dl-list">
 
                     <?php if ($location_data) { ?>
@@ -328,7 +328,7 @@ try {
         <aside class="starmus-content-sidebar">
             <?php if (current_user_can('edit_post', $post_id)) { ?>
                 <section class="starmus-actions-card sparxstar-glass-card">
-                    <h3><?php esc_html_e('Actions', 'starmus-audio-recorder'); ?></h3>
+                    <h4><?php esc_html_e('Actions', 'starmus-audio-recorder'); ?></h4>
 
                     <div class="starmus-btn-stack">
                         <!-- Re-Record -->

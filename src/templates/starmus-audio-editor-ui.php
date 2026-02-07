@@ -42,7 +42,7 @@ $editor_data = [
     style="margin-top: 20px;">
 
     <div class="starmus-editor__head">
-        <h1 class="starmus-editor__title">
+        <h2 class="starmus-editor__title">
             <?php esc_html_e('Audio Editor', 'starmus-audio-recorder'); ?>
             <span class="starmus-editor__id-badge">
                 <?php
@@ -54,7 +54,7 @@ $editor_data = [
                 }
                 ?>
             </span>
-        </h1>
+        </h2>
         <div class="starmus-editor__time">
             <span id="starmus-time-cur">0:00</span> / <span id="starmus-time-dur">0:00</span>
         </div>
@@ -95,7 +95,7 @@ $editor_data = [
             <!-- SIDEBAR COLUMN -->
             <aside class="starmus-editor__side">
                 <section class="starmus-editor__transcript">
-                    <h3><?php esc_html_e('Transcript', 'starmus-audio-recorder'); ?></h3>
+                    <h4><?php esc_html_e('Transcript', 'starmus-audio-recorder'); ?></h4>
                     <div id="starmus-transcript-panel" class="starmus-transcript-panel">
                         <?php if (empty($editor_data['transcript'])) { ?>
                             <p class="starmus-empty-state"><?php esc_html_e('No transcription data.', 'starmus-audio-recorder'); ?></p>
@@ -103,7 +103,7 @@ $editor_data = [
                     </div>
                 </section>
                 <section class="starmus-editor__list">
-                    <h3><?php esc_html_e('Regions', 'starmus-audio-recorder'); ?></h3>
+                    <h4><?php esc_html_e('Regions', 'starmus-audio-recorder'); ?></h4>
                     <table class="starmus-info-table">
                         <thead>
                             <tr>

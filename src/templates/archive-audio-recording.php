@@ -8,7 +8,7 @@ get_header(); ?>
 <div id="primary" class="content-area">
 	<main id="main" class="site-main">
 		<header class="page-header">
-			<h1 class="page-title"><?php post_type_archive_title(); ?></h1>
+			<h2 class="page-title"><?php post_type_archive_title(); ?></h2>
 		</header>
 
 		<?php if (have_posts()) { ?>
@@ -18,7 +18,7 @@ get_header(); ?>
             the_post();
             ?>
 					<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-						<h2 class="entry-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+						<h3 class="entry-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 						<div class="entry-meta">
 							<span>Recorded on: <?php echo esc_html(get_the_date()); ?></span>
 						</div>

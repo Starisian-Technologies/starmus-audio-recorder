@@ -6,7 +6,7 @@ namespace Starisian\Sparxstar\Starmus\frontend;
 
 use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -244,7 +244,7 @@ final class StarmusShortcodeLoader
      */
     public function render_my_recordings_shortcode(array $atts = []): string
     {
-        if (! is_user_logged_in()) {
+        if ( ! is_user_logged_in()) {
             return '<p>' . esc_html__('You must be logged in to view your recordings.', 'starmus-audio-recorder') . '</p>';
         }
 
@@ -330,7 +330,7 @@ final class StarmusShortcodeLoader
     public function render_recording_detail_shortcode(): string
     {
         try {
-            if (! is_singular('audio-recording')) {
+            if ( ! is_singular('audio-recording')) {
                 return '<p><em>[starmus_recording_detail] can only be used on a single audio recording page.</em></p>';
             }
 
@@ -372,7 +372,7 @@ final class StarmusShortcodeLoader
     public function render_submission_detail_via_filter(string $content = ''): string
     {
         try {
-            if (! is_singular('audio-recording') || ! in_the_loop() || ! is_main_query()) {
+            if ( ! is_singular('audio-recording') || ! in_the_loop() || ! is_main_query()) {
                 return $content;
             }
 
@@ -431,7 +431,7 @@ final class StarmusShortcodeLoader
 
             // Parse annotations
             $annotations_data = [];
-            if (! empty($context['annotations_json']) && \is_string($context['annotations_json'])) {
+            if ( ! empty($context['annotations_json']) && \is_string($context['annotations_json'])) {
                 $decoded = json_decode($context['annotations_json'], true);
                 if (\is_array($decoded)) {
                     $annotations_data = $decoded;
@@ -472,25 +472,24 @@ final class StarmusShortcodeLoader
     public function starmus_render_script_recorder(array $atts = [], ?string $content = null): string
     {
         // Ensure prosody engine is available before attempting to render
-        if (!$this->prosody instanceof StarmusProsodyPlayer) {
+        if ( ! $this->prosody instanceof StarmusProsodyPlayer) {
             return '<p>' . esc_html__('SPARXSTAR Prosody recorder unavailable.', 'starmus-audio-recorder') . '</p>';
         }
         // This shortcode is intended for logged-in users only, as it involves recording functionality.
-        if (!is_user_logged_in()) {
+        if ( ! is_user_logged_in()) {
             return '<p>' . esc_html__('Login required.', 'starmus-audio-recorder') . '</p>';
         }
 
         /*
-     * Define supported attributes here.
-     * These will be forwarded to inner shortcodes.
-     */
+        * Define supported attributes here.
+        * These will be forwarded to inner shortcodes.
+        */
         $atts = shortcode_atts([
             'post_id'   => '',
             'user_id'   => '',
             'mode'      => '',
             'class'     => '',
         ], $atts, 'starmus_script_recorder');
-
 
         // Build attribute string for pass-through to inner shortcodes, excluding 'class' which is used for the wrapper div
         $attr_string = '';
@@ -504,7 +503,7 @@ final class StarmusShortcodeLoader
                 continue;
             }
 
-            if (!is_scalar($value)) {
+            if ( ! is_scalar($value)) {
                 continue;
             }
 

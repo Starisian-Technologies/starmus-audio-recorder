@@ -23,12 +23,12 @@ class StarmusConsentUI
     /**
      * StarmusConsentHandler instance.
      */
-    private StarmusConsentHandler $handler;
+    private ?StarmusConsentHandler $handler = null;
 
     /**
      * StarmusSettings instance.
      */
-    private StarmusSettings $settings;
+    private ?StarmusSettings $settings = null;
 
     /**
      * Constructor.

@@ -201,10 +201,10 @@ try {
 
     <!-- Header -->
     <header class="starmus-detail__header">
-        <h1>
+        <h2>
             <span class="screen-reader-text"><?php esc_html_e('Recording Title:', 'starmus-audio-recorder'); ?></span>
             <?php echo esc_html(get_the_title($post_id)); ?>
-        </h1>
+        </h2>
 
         <div class="starmus-detail__meta-badges">
             <span class="starmus-badge"><?php echo intval($post_id); ?></span>
@@ -220,7 +220,7 @@ try {
 
     <!-- Audio Player & Assets -->
     <section class="starmus-detail__section sparxstar-glass-card">
-        <h2 id="starmus-audio-heading"><?php esc_html_e('Audio Assets', 'starmus-audio-recorder'); ?></h2>
+        <h3 id="starmus-audio-heading"><?php esc_html_e('Audio Assets', 'starmus-audio-recorder'); ?></h3>
 
         <?php if ($playback_url) { ?>
             <figure class="starmus-player-wrap" style="margin-bottom: 20px;">
@@ -313,7 +313,7 @@ try {
         }
         ?>
         <section class="starmus-detail__section sparxstar-glass-card">
-            <h2><?php esc_html_e('Waveform Data', 'starmus-audio-recorder'); ?></h2>
+            <h3><?php esc_html_e('Waveform Data', 'starmus-audio-recorder'); ?></h3>
             <figure class="starmus-waveform-container" style="background:#f0f0f1; border:1px solid #ddd; padding:10px; border-radius: 8px;">
                 <svg role="img" aria-label="<?php esc_attr_e('Audio waveform visualization', 'starmus-audio-recorder'); ?>" viewBox="0 0 <?php echo $width; ?> <?php echo $height; ?>" preserveAspectRatio="none" width="100%" height="<?php echo $height; ?>">
                     <polyline fill="none" stroke="#2271b1" stroke-width="1" points="<?php echo esc_attr(implode(' ', $points)); ?>" />
@@ -329,7 +329,7 @@ try {
 
             <!-- Transcription -->
             <section class="starmus-detail__section sparxstar-glass-card">
-                <h2><?php esc_html_e('Transcription', 'starmus-audio-recorder'); ?></h2>
+                <h3><?php esc_html_e('Transcription', 'starmus-audio-recorder'); ?></h3>
                 <?php if ($transcript_text) { ?>
                     <div class="starmus-transcript-box" style="background:#f9f9f9; padding:15px; border:1px solid #eee; border-radius:4px; max-height:200px; overflow-y:auto;">
                         <?php echo wp_kses_post(nl2br($transcript_text)); ?>
@@ -341,7 +341,7 @@ try {
 
             <!-- Environment Data (Parsed) -->
             <section class="starmus-detail__section sparxstar-glass-card">
-                <h2><?php esc_html_e('Environment & Device', 'starmus-audio-recorder'); ?></h2>
+                <h3><?php esc_html_e('Environment & Device', 'starmus-audio-recorder'); ?></h3>
                 <table class="starmus-info-table">
                     <tbody>
                         <tr>
@@ -406,8 +406,17 @@ try {
 
         <!-- RIGHT: Admin Actions -->
         <aside class="starmus-col-sidebar">
+            <!-- Archive Info -->
             <section class="starmus-detail__section sparxstar-glass-card">
-                <h2><?php esc_html_e('Admin Actions', 'starmus-audio-recorder'); ?></h2>
+                <h4>Archive Info</h4>
+                <ul style="list-style:none; padding:0; margin:0; font-size:0.9em;">
+                    <li><strong>Collection ID:</strong> <?php echo esc_html($project_id ?: '-'); ?></li>
+                    <li><strong>Accession #:</strong> <?php echo esc_html($accession_number ?: '-'); ?></li>
+                    <li><strong>Location:</strong> <?php echo esc_html($location_data ?: '-'); ?></li>
+                </ul>
+            </section>
+            <section class="starmus-detail__section sparxstar-glass-card">
+                <h4><?php esc_html_e('Admin Actions', 'starmus-audio-recorder'); ?></h4>
                 <div class="starmus-btn-stack">
                     <?php if (current_user_can('edit_post', $post_id)) { ?>
                         <a href="<?php echo esc_url(get_edit_post_link($post_id)); ?>" class="starmus-btn starmus-btn--primary" style="justify-content:center;">Edit Metadata</a>
@@ -421,15 +430,7 @@ try {
                 </div>
             </section>
 
-            <!-- Archive Info -->
-            <section class="starmus-detail__section sparxstar-glass-card">
-                <h3>Archive Info</h3>
-                <ul style="list-style:none; padding:0; margin:0; font-size:0.9em;">
-                    <li><strong>Collection ID:</strong> <?php echo esc_html($project_id ?: '-'); ?></li>
-                    <li><strong>Accession #:</strong> <?php echo esc_html($accession_number ?: '-'); ?></li>
-                    <li><strong>Location:</strong> <?php echo esc_html($location_data ?: '-'); ?></li>
-                </ul>
-            </section>
+
         </aside>
 
     </div>
