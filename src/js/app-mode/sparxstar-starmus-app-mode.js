@@ -4,7 +4,8 @@
 
 const SparxstarApp = {
     activeElement: null,
-    historyReady: false,
+    threshold: 1024,
+    isClosing: false,
 
     /* Initialize global back-button listener */
     init() {
@@ -13,15 +14,15 @@ const SparxstarApp = {
                 this._cleanupUI();
             }
         });
-
-        // Safari edge-case: ensure history system ready
-        requestAnimationFrame(() => {
-            this.historyReady = true;
-        });
     },
 
     /* Open App Mode */
     open(selector) {
+        // Safety: Do not open if screen is too wide
+        if (window.innerWidth > this.threshold) {
+            return;
+        }
+
         if (this.activeElement) {
             return;
         } // Prevent double-open
@@ -32,11 +33,10 @@ const SparxstarApp = {
         }
 
         this.activeElement = element;
+        this.isClosing = false;
 
         // Push history state (Back button support)
-        if (this.historyReady) {
-            window.history.pushState({ sparxstarMode: true }, "");
-        }
+        window.history.pushState({ sparxstarMode: true }, "");
 
         // Lock background scroll
         document.body.classList.add("sparxstar-scroll-locked");
@@ -56,9 +56,10 @@ const SparxstarApp = {
 
     /* Close App Mode — unified with Back button */
     close() {
-        if (!this.activeElement) {
+        if (!this.activeElement || this.isClosing) {
             return;
         }
+        this.isClosing = true;
         window.history.back();
     },
 
@@ -79,6 +80,7 @@ const SparxstarApp = {
         }
 
         this.activeElement = null;
+        this.isClosing = false;
     },
 
     /* Scaling logic */
@@ -115,6 +117,11 @@ const SparxstarApp = {
 
 /* Bind resize handler once to preserve reference */
 SparxstarApp._handleResizeBound = () => {
+    // 2) Shut off App Mode if screen becomes too large
+    if (window.innerWidth > SparxstarApp.threshold) {
+        SparxstarApp.close();
+        return;
+    }
     requestAnimationFrame(() => SparxstarApp._fitToScreen());
 };
 

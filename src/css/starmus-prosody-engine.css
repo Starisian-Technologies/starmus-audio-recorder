@@ -74,16 +74,17 @@
 
 /* --sparxstar-- CONTAINER SHELL --sparxstar-- */
 #cognitive-regulator {
-    background-color: var(--sparxstar-bg-surface);
+    background: linear-gradient(270deg,rgba(168, 5, 250, 1) 0%, rgba(13, 129, 212, 1) 24%, rgba(87, 255, 3, 1) 50%, rgba(255, 187, 0, 1) 74%, rgba(245, 96, 47, 1) 92%, rgba(255, 30, 0, 1) 99%);
     color: var(--sparxstar-text-dim);
     font-family: var(--sparxstar-font-stack);
-    height: 60vh;
+    height: 50dvh;
     width: 100%;
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
     user-select: none;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
 }
 
 /* =========================================
@@ -109,7 +110,7 @@
 .tap-zone {
     width: var(--sparxstar-tap-zone-size);
     height: var(--sparxstar-tap-zone-size);
-    border: 2px solid var(--sparxstar-ui-border);
+    border: 1px solid var(--sparxstar-ui-border);
     border-radius: 50%;
     display: flex;
     flex-direction: column;
@@ -123,18 +124,19 @@
 }
 
 .tap-zone:hover {
-    border-color: var(--sparxstar-text-dim);
+    border: 1px solid var(--sparxstar-text-dim);
     background: var(--sparxstar-tap-bg-hover);
-    box-shadow:
-        var(--sparxstar-glow-dark) 0px 1px 2px 0px,
-        var(--sparxstar-glow-dark) 0px 1px 8px 0px;
+    box-shadow: var(--sparxstar-glow) 2px 4px 12px 4px,var(--sparxstar-glow) -2px -3px 16px 3px
 }
 
 .tap-zone.flash,
 .tap-zone:active {
     background: var(--sparxstar-tap-bg-active);
-    border-color: var(--sparxstar-text-dim);
+    border: 1px solid var(--sparxstar-text-dim);
     transform: scale(0.96);
+    box-shadow:
+        var(--sparxstar-glow-dark) 0px 1px 2px 0px,
+        var(--sparxstar-glow-dark) 0px 1px 8px 0px;
 }
 
 .tap-icon {
@@ -165,7 +167,7 @@
 }
 
 #calibration-layer::after {
-    content: "The pace at which you tap sets the 🪘 rhythm for the text flow. Tap steadily to find your groove!";
+    content: "Your taps sets the 🪘 rhythm for the script flow.";
     position: absolute;
     bottom: 40px;
 }
@@ -235,16 +237,16 @@
 .prosodic-unit.current {
     color: var(--sparxstar-text-lit);
     opacity: 1;
-    font-weight: var(--sparxstar-font-weight-bold);
+    font-weight: 600;
     filter: blur(0);
     background: rgb(255 255 255 / 10%);
     border: 1px solid var(--sparxstar-ui-border);
-    transform: scale(1.02);
+    transform: scale(1.2);
 }
 
 .prosodic-unit.silence-beat {
     color: var(--sparxstar-accent);
-    font-weight: var(--sparxstar-font-weight-bold);
+    font-weight: 600;
     min-width: 60px;
     height: 40px;
     border: 1px dashed var(--sparxstar-ui-border);
@@ -306,6 +308,7 @@
 }
 
 .neutral-btn:hover {
+    border:none;
     box-shadow:
             rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
             rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
@@ -317,6 +320,7 @@
 }
 
 .neutral-btn.icon-only {
+    background: inherit;
     min-width: unset;
     width: 50px;
     max-width: 50px;
@@ -325,6 +329,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
 .fader-group {
@@ -437,8 +442,8 @@
 
     #text-flow {
         font-size: 20px;
-        padding-top: 30vh;
-        padding-bottom: 35vh;
+        padding-top: 10dvh;
+        padding-bottom: 15dvh;
     }
 
     .prosodic-unit.silence-beat {
@@ -502,10 +507,10 @@
 }
 
 /* Minimal Card Styles */
-.starmus-script-card, {
+.starmus-script-card {
     display: flex;
     flex-direction: column;
-    padding: 1.5rem;
+    padding: 1rem;
     border: 1px solid var(--sparxstar-ui-border);
     border-radius: 12px;
     box-shadow:

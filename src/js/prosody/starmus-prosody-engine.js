@@ -19,6 +19,7 @@ class RhythmEngine {
             tapFeedback: document.getElementById("tap-feedback"),
             playBtn: document.getElementById("btn-engage"),
             recalBtn: document.getElementById("btn-recal"),
+            topBtn: document.getElementById("btn-top"),
             slider: document.getElementById("pace-regulator"),
         };
 
@@ -402,6 +403,12 @@ class RhythmEngine {
         this.els.tapZone.addEventListener("click", () => this.recordTap());
         this.els.playBtn.addEventListener("click", () => this.toggle());
         if (this.els.recalBtn) {
+            if (this.els.topBtn) {
+                this.els.topBtn.addEventListener("click", () => {
+                    this.stop();
+                    this.jumpTo(0);
+                });
+            }
             this.els.recalBtn.addEventListener("click", () => this.resetCalibration());
         }
 

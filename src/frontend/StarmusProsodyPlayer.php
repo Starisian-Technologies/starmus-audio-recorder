@@ -161,10 +161,10 @@ class StarmusProsodyPlayer
             <div id="cognitive-regulator">
                 <!-- CALIBRATION LAYER -->
                 <div id="calibration-layer">
-                    <button type="button" class="tap-zone" id="btn-tap" aria-label="<?php echo esc_attr__('Tap to set rhythm', 'starmus-audio-recorder'); ?>">
+                    <button type="button" class="tap-zone" id="btn-tap" aria-label="<?php echo esc_attr__('Tap to set pace of the script.', 'starmus-audio-recorder'); ?>">
                         <div class="tap-icon" aria-hidden="true">👆</div>
-                        <div class="tap-label"><?php esc_html_e('TAP RHYTHM', 'starmus-audio-recorder'); ?></div>
-                        <div class="tap-sub"><?php esc_html_e('Click to set pace or spacebar', 'starmus-audio-recorder'); ?></div>
+                        <div class="tap-label"><?php esc_html_e('TAP or SPACEBAR', 'starmus-audio-recorder'); ?></div>
+                        <div class="tap-sub"><?php esc_html_e('To Set Script Pace', 'starmus-audio-recorder'); ?></div>
                     </button>
                     <div class="tap-feedback" id="tap-feedback" role="status" aria-live="polite">...</div>
                 </div>
@@ -178,15 +178,15 @@ class StarmusProsodyPlayer
                 <!-- CONTROLS -->
                 <div class="control-deck hidden" id="main-controls">
                     <!-- Play Button (Left) -->
-                    <button id="btn-engage" class="neutral-btn icon-only" title="<?php esc_attr_e('Test Flow', 'starmus-audio-recorder'); ?>">
+                    <button id="btn-engage" class="neutral-btn icon-only" title="<?php esc_attr_e('Test Pace', 'starmus-audio-recorder'); ?>">
                         <span class="icon" aria-hidden="true">►</span>
                     </button>
 
                     <!-- Slider (Middle) -->
                     <div class="fader-group">
-                        <span class="fader-label" id="lbl-anxiety"><?php esc_html_e('Anxiety', 'starmus-audio-recorder'); ?></span>
+                        <span class="fader-label" id="lbl-anxiety"><?php esc_html_e('Fast/Anxiety', 'starmus-audio-recorder'); ?></span>
                         <input type="range" id="pace-regulator" min="1000" max="6000" step="50" aria-labelledby="lbl-anxiety lbl-fatigue">
-                        <span class="fader-label" id="lbl-fatigue"><?php esc_html_e('Fatigue', 'starmus-audio-recorder'); ?></span>
+                        <span class="fader-label" id="lbl-fatigue"><?php esc_html_e('Slow/Fatigue', 'starmus-audio-recorder'); ?></span>
                     </div>
 
                     <!-- Top Button (Right) -->
