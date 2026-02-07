@@ -369,11 +369,8 @@ final class StarmusShortcodeLoader
      * @example This also means that if the shortcode is used within the content, it will render the detail view twice, so it's recommended to use the shortcode approach for better control over placement in the content.
      * @example This is particularly useful given that the CPT is not publicly queryable, so relying on the shortcode alone might lead to cases where the detail view is not rendered if the user forgets to include it in the content. This filter ensures a consistent user experience regardless of shortcode usage.
      */
-    public function render_submission_detail_via_filter(array $attr = [], string $content = ''): string
+    public function render_submission_detail_via_filter(string $content = ''): string
     {
-        if( ! empty($attr)) {
-             // If attributes are present, it means the shortcode is being processed, so we should not interfere with the content.
-        }
         try {
             if (! is_singular('audio-recording') || ! in_the_loop() || ! is_main_query()) {
                 return $content;
