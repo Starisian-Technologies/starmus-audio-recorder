@@ -12,7 +12,7 @@ namespace Starisian\Sparxstar\Starmus\admin;
 
 use WP_Query;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -235,7 +235,7 @@ class StarmusTaskManager
                                 </td>
                             </tr>
                         <?php }
-                        } else { ?>
+                    } else { ?>
                         <tr>
                             <td colspan="7">No assets found.</td>
                         </tr>
@@ -379,7 +379,7 @@ class StarmusTaskManager
     {
         check_ajax_referer('starmus_admin_action', 'starmus_nonce');
 
-        if (! current_user_can('edit_others_posts')) {
+        if ( ! current_user_can('edit_others_posts')) {
             wp_send_json_error('Permission denied');
         }
 
@@ -434,7 +434,7 @@ class StarmusTaskManager
                 update_post_meta($post_id, 'starmus_assign_time', $now);
 
                 // Generate Strong UUID
-                if (! get_post_meta($post_id, 'starmus_assign_id', true)) {
+                if ( ! get_post_meta($post_id, 'starmus_assign_id', true)) {
                     $uuid = wp_generate_uuid4(); // Native WP UUID
                     update_post_meta($post_id, 'starmus_assign_id', $uuid);
                 }
@@ -469,7 +469,7 @@ class StarmusTaskManager
 
     public function render_user_dashboard($atts): string|false
     {
-        if (! is_user_logged_in()) {
+        if ( ! is_user_logged_in()) {
             return '<p>Please log in to view your tasks.</p>';
         }
 
@@ -550,7 +550,7 @@ class StarmusTaskManager
                                 </td>
                             </tr>
                         <?php }
-                        } else { ?>
+                    } else { ?>
                         <tr>
                             <td colspan="4">No tasks assigned to you.</td>
                         </tr>
@@ -611,7 +611,7 @@ class StarmusTaskManager
 
         // Logic: Allowed statuses for users
         $allowed = ['assigned', 'in_progress', 'submitted'];
-        if (! \in_array($new_status, $allowed)) {
+        if ( ! \in_array($new_status, $allowed)) {
             wp_send_json_error('Invalid status');
         }
 

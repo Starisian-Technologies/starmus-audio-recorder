@@ -3,7 +3,7 @@
 declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus\services;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

@@ -8,7 +8,7 @@ use Exception;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -91,7 +91,7 @@ final class StarmusR2DirectService
      */
     public function processAfricaAudio(string $local_path, int $post_id): array
     {
-        if (! $this->id3_service->needsAfricaOptimization($local_path)) {
+        if ( ! $this->id3_service->needsAfricaOptimization($local_path)) {
             return ['message' => 'No optimization needed'];
         }
 
@@ -194,10 +194,10 @@ final class StarmusR2DirectService
         try {
             $analysis = $this->id3_service->analyzeFile($source);
 
-            if (! empty($analysis['comments'])) {
+            if ( ! empty($analysis['comments'])) {
                 $tags = [];
                 foreach ($analysis['comments'] as $key => $values) {
-                    if (! empty($values[0])) {
+                    if ( ! empty($values[0])) {
                         $tags[$key] = $values;
                     }
                 }

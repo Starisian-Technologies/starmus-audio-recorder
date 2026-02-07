@@ -26,6 +26,8 @@
     --sparxstar-surface: var(--wp--preset--color--base-2, #251717);
     --sparxstar-contrast: var(--wp--preset--color--contrast, #eceecf);
     --sparxstar-accent: var(--wp--preset--color--accent);
+    --sparxstar-glow: rgba(39, 244, 3, 0.517);
+    --sparxstar-glow-dark: rgba(39, 244, 3, 0.278);
 
     /* Tactile Identity from Theme */
     --sparxstar-shd: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
@@ -115,8 +117,8 @@
     justify-content: center;
     cursor: pointer;
     box-shadow:
-        rgba(39, 244, 3, 0.517) 0px 2px 4px 0px,
-        rgba(39, 244, 3, 0.517) 0px 2px 16px 0px;
+        var(--sparxstar-glow) 0px 2px 4px 0px,
+        var(--sparxstar-glow) 0px 2px 16px 0px;
     transition: all 0.1s ease;
 }
 
@@ -124,8 +126,8 @@
     border-color: var(--sparxstar-text-dim);
     background: var(--sparxstar-tap-bg-hover);
     box-shadow:
-        rgba(39, 244, 3, 0.278) 0px 1px 2px 0px,
-        rgba(39, 244, 3, 0.278) 0px 1px 8px 0px;
+        var(--sparxstar-glow-dark) 0px 1px 2px 0px,
+        var(--sparxstar-glow-dark) 0px 1px 8px 0px;
 }
 
 .tap-zone.flash,
@@ -202,6 +204,8 @@
     /* The use of Noto Sans Mono ensures consistent character width,
        which is crucial for maintaining rhythmic accuracy in prosody visualization. */
     font-family: "Noto Sans Mono", monospace; /* ✅ Noto Mono for precision */
+    font-optical-sizing: auto; /* Enable optical sizing for better readability at various sizes */
+
 }
 
 /* -- PROSODIC UNITS -- */
@@ -218,6 +222,7 @@
     /* The use of Noto Sans Mono ensures consistent character width,
        which is crucial for maintaining rhythmic accuracy in prosody visualization. */
     font-family: "Noto Sans Mono", monospace; /* ✅ Monospace inside rhythm engine */
+    font-optical-sizing: auto; /* Enable optical sizing for better readability at various sizes */
 }
 
 .prosodic-unit.future,
@@ -475,3 +480,130 @@
         backdrop-filter: blur(2px);
     }
 }
+
+/* =========================================
+   STARISIAN BRANDING ELEMENTS
+   - Subtle use of brand colors and motifs.
+   - Can be expanded with SVG icons or background patterns.
+   ========================================= */
+.starmus-script-library{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Minimal Card Styles */
+.starmus-script-card, {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    border: 1px solid var(--sparxstar-ui-border);
+    border-radius: 12px;
+    box-shadow:
+        rgba(0, 0, 0, 0.1) 0px 1px 3px 0px,
+        rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+}
+
+.starmus-card-header {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    margin-bottom: 1rem;
+    text-transform: capitalize;
+
+}
+
+.starmus-card-title {
+    color: var(--sparxstar-text);
+    font-size: medium;
+    margin: 0 0 0.5rem;
+    text-transform: capitalize;
+}
+
+.starmus-card-title a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.starmus-card-title a:hover {
+    color: var(--sparxstar-primary-strong);
+}
+
+.starmus-script-excerpt {
+    color: var(--sparxstar-text-base);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    border-left: 3px solid var(--sparxstar-accent);
+    padding-left: 1rem;
+}
+
+.starmus-card__meta {
+    display: flex;
+    font-size: smaller;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.starmus-card__type,
+.starmus-card__language,
+.starmus-tag {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: var(--sparxstar-inner-bg);
+    color: var(--sparxstar-text);
+    font-weight: 600;
+    box-shadow:
+        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+        rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+
+.starmus-audio-preview {
+    margin-bottom: 1rem;
+}
+
+.starmus-simple-player {
+    width: 100%;
+}
+
+.starmus-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--sparxstar-accent);
+    color: var(--sparxstar-text-base);
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.starmus-btn:hover {
+    background: var(--sparxstar-accent-dark);
+}
+
+.starmus-badge {
+    background: var(--sparxstar-accent-light);
+    color: var(--sparxstar-text-base);
+    padding: 0.25rem 0.5rem;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* =========================================
+   PERFORMANCE OPTIMIZATIONS
+   - Reduced animation durations for snappier feel.
+   - Limited use of expensive properties like box-shadow and filter.
+   - Used will-change for elements that animate frequently.
+   ========================================= */
+.tap-zone,
+.prosodic-unit.current {
+    will-change: transform, opacity;
+}
+
+
+
+/* =========================================
+   END OF starmus-prosody-engine.css
+   STARISIAN TECHNOLOGIES CONFIDENTIAL
+   © 2023–2025 Starisian Technologies. All Rights Reserved.
+   ========================================= */

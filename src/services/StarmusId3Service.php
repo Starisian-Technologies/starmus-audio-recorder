@@ -12,7 +12,7 @@ use getid3_writetags;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -89,7 +89,7 @@ class StarmusId3Service
      */
     private function getID3Engine(): ?getID3
     {
-        if (! class_exists('getID3')) {
+        if ( ! class_exists('getID3')) {
             // Check if we can manually load it from a common vendor path if composer autoload failed context
             $possible_path = WP_CONTENT_DIR . '/plugins/starmus-audio-recorder/vendor/autoload.php';
             if (file_exists($possible_path)) {
@@ -97,7 +97,7 @@ class StarmusId3Service
             }
         }
 
-        if (! class_exists('getID3')) {
+        if ( ! class_exists('getID3')) {
             StarmusLogger::error(
                 'getID3 library class not found.',
                 ['component' => self::class]
@@ -164,7 +164,7 @@ class StarmusId3Service
      */
     public function writeTags(string $filepath, array $tagData): bool
     {
-        if (! file_exists($filepath)) {
+        if ( ! file_exists($filepath)) {
             StarmusLogger::error(
                 'File missing for tagging',
                 [
@@ -177,12 +177,12 @@ class StarmusId3Service
 
         try {
             $engine = $this->getID3Engine();
-            if (! $engine instanceof getID3) {
+            if ( ! $engine instanceof getID3) {
                 return false;
             }
 
             // Ensure Writer is loaded
-            if (! class_exists('getid3_writetags')) {
+            if ( ! class_exists('getid3_writetags')) {
                 StarmusLogger::error(
                     'getid3_writetags class missing.',
                     ['component' => self::class]
@@ -198,7 +198,7 @@ class StarmusId3Service
             $tagwriter->remove_other_tags = true;
             $tagwriter->tag_data = $tagData;
 
-            if (! $tagwriter->WriteTags()) {
+            if ( ! $tagwriter->WriteTags()) {
                 StarmusLogger::error(
                     'WriteTags Failed',
                     [
@@ -307,7 +307,7 @@ class StarmusId3Service
     public function analyzeFile(string $filepath): array
     {
         $engine = $this->getID3Engine();
-        if (! $engine instanceof getID3) {
+        if ( ! $engine instanceof getID3) {
             return [];
         }
 

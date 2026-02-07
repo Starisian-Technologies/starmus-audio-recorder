@@ -8,7 +8,7 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -64,7 +64,7 @@ class StarmusDataRESTHandler
     {
         $post_id = $request->get_param('id');
 
-        if (! current_user_can('edit_post', $post_id)) {
+        if ( ! current_user_can('edit_post', $post_id)) {
             return new WP_Error(
                 'rest_forbidden',
                 __('Sorry, you are not allowed to view this recording.', 'starmus-audio-recorder'),
@@ -90,7 +90,7 @@ class StarmusDataRESTHandler
         $post_id = $request->get_param('id');
         $post = get_post($post_id);
 
-        if (! $post || $post->post_type !== 'audio-recording') {
+        if ( ! $post || $post->post_type !== 'audio-recording') {
             return new WP_Error(
                 'rest_post_invalid',
                 __('Invalid recording ID.', 'starmus-audio-recorder'),
@@ -112,7 +112,7 @@ class StarmusDataRESTHandler
         ];
 
         // Process Waveform
-        if (! empty($waveform_json)) {
+        if ( ! empty($waveform_json)) {
             if (\is_string($waveform_json)) {
                 $decoded = json_decode($waveform_json, true);
                 if (json_last_error() === JSON_ERROR_NONE) {
@@ -124,7 +124,7 @@ class StarmusDataRESTHandler
         }
 
         // Process Transcription
-        if (! empty($transcription_json)) {
+        if ( ! empty($transcription_json)) {
             if (\is_string($transcription_json)) {
                 $decoded = json_decode($transcription_json, true);
                 if (json_last_error() === JSON_ERROR_NONE) {

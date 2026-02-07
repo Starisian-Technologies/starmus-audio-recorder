@@ -6,7 +6,7 @@ namespace Starisian\Sparxstar\Starmus\services;
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -114,7 +114,7 @@ final class StarmusAfricaBandwidthService
      */
     public function estimateDataUsage(string $file_path): array
     {
-        if (! file_exists($file_path)) {
+        if ( ! file_exists($file_path)) {
             return [];
         }
 

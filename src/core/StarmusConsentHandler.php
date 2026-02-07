@@ -56,7 +56,7 @@ class StarmusConsentHandler
     {
         // Validate contributor.
         $contributor = get_post($contributor_id);
-        if (! $contributor || 'sparx_contributor' !== $contributor->post_type) {
+        if ( ! $contributor || 'sparx_contributor' !== $contributor->post_type) {
             return new WP_Error('invalid_contributor', 'Invalid contributor ID.');
         }
 
@@ -80,7 +80,7 @@ class StarmusConsentHandler
         update_field('starmus_authorized_signatory', $contributor_id, $post_id);
         update_field('starmus_terms_type', $consent_data['terms_type'] ?? '', $post_id);
 
-        if (! empty($consent_data['signature'])) {
+        if ( ! empty($consent_data['signature'])) {
             update_field('starmus_contributor_signature', $consent_data['signature'], $post_id);
         }
 

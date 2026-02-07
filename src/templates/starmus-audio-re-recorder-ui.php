@@ -11,7 +11,7 @@
  *
  * @version 1.0.2-DATA-SAFE
  */
-if (! defined('ABSPATH')) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 
@@ -92,7 +92,7 @@ $data_policy_url ??= '';
                         required>
                     <label for="starmus_consent_<?php echo esc_attr($instance_id); ?>">
                         <?php echo wp_kses_post($consent_message); ?>
-                        <?php if (! empty($data_policy_url)) { ?>
+                        <?php if ( ! empty($data_policy_url)) { ?>
                             <a
                                 href="<?php echo esc_url($data_policy_url); ?>"
                                 target="_blank"

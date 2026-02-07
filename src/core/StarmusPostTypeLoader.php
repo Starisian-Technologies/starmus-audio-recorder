@@ -21,7 +21,7 @@ use function register_taxonomy;
 
 use Starisian\Sparxstar\Starmus\core\interfaces\IContentBundle;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 } // Exit if accessed directly
 /**
@@ -55,7 +55,7 @@ final class StarmusPostTypeLoader implements IContentBundle
      */
     public static function sparxStarmusGetInstance(): StarmusPostTypeLoader
     {
-        if (! self::$instance instanceof \Starisian\Sparxstar\Starmus\core\StarmusPostTypeLoader) {
+        if ( ! self::$instance instanceof \Starisian\Sparxstar\Starmus\core\StarmusPostTypeLoader) {
             self::$instance = new StarmusPostTypeLoader();
         }
 
@@ -73,7 +73,7 @@ final class StarmusPostTypeLoader implements IContentBundle
     public function sparxStarmusRegister(): void
     {
         add_action('acf/include_fields', function (): void {
-            if (! \function_exists('acf_add_local_field_group')) {
+            if ( ! \function_exists('acf_add_local_field_group')) {
                 return;
             }
 

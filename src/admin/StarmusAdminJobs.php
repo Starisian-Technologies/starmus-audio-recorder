@@ -7,7 +7,7 @@ use Starisian\Sparxstar\Starmus\data\StarmusSageMakerJobRepository;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Throwable;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -48,7 +48,7 @@ final class StarmusAdminJobs
     public function render(): void
     {
         try {
-            if (! current_user_can('manage_options')) {
+            if ( ! current_user_can('manage_options')) {
                 wp_die(esc_html__('Insufficient permissions', 'starmus-audio-recorder'));
             }
 
@@ -72,7 +72,7 @@ final class StarmusAdminJobs
     private function render_detail_view(string $job_id): void
     {
         $job = $this->repository->find($job_id);
-        if (! $job) {
+        if ( ! $job) {
             echo '<p>' . esc_html__('Job not found.', 'starmus-audio-recorder') . '</p>';
             echo '<p><a href="' . esc_url(menu_page_url('starmus-sagemaker-jobs', false)) . '">' . esc_html__('Back to list', 'starmus-audio-recorder') . '</a></p>';
 
@@ -152,7 +152,7 @@ final class StarmusAdminJobs
 
     public function handle_delete_job(): void
     {
-        if (! current_user_can('manage_options')) {
+        if ( ! current_user_can('manage_options')) {
             wp_die(esc_html__('Insufficient permissions', 'starmus-audio-recorder'));
         }
 

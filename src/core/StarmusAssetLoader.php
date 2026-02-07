@@ -33,7 +33,7 @@ use Throwable;
 use function trim;
 use function wp_create_nonce;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -203,7 +203,7 @@ final class StarmusAssetLoader
 
             // Resolve optional recording ID from context (e.g. Consent Handoff)
             $recording_id = filter_input(INPUT_GET, 'starmus_recording_id', FILTER_SANITIZE_NUMBER_INT);
-            if (! $recording_id && isset(self::$editor_data['post_id'])) {
+            if ( ! $recording_id && isset(self::$editor_data['post_id'])) {
                 $recording_id = self::$editor_data['post_id'];
             }
 
@@ -213,7 +213,7 @@ final class StarmusAssetLoader
                 [
                     'version' => $this->resolve_version(),
                     'config' => $config,
-                    'env' => \defined('WP_ENV') ? WP_ENV : 'production',
+                    'env' => wp_get_environment_type(),
                     'postId' => get_the_ID() ?: 0,
                     'recordingId' => $recording_id ? (int) $recording_id : 0, // Injected for workflow handoff
                     'restUrl' => esc_url_raw(rest_url()),
@@ -397,7 +397,7 @@ final class StarmusAssetLoader
         }
     }
 
-    private function starmusEnqueueImageAssets()
+    private function starmusEnqueueImageAssets(): void
     {
         // 2. Get the full URL to your image
         $bg_image_url = plugins_url('src/frontend/images/bo-play.png', __FILE__);
@@ -405,7 +405,7 @@ final class StarmusAssetLoader
         // 3. Create a CSS variable and attach it to your stylesheet
         $custom_css = "
             :root {
-                --starmus-bg-url: url('$bg_image_url');
+                --sparxstar-starmus-bg-url: url('$bg_image_url');
             }
         ";
         wp_add_inline_style('starmus-styles', $custom_css);

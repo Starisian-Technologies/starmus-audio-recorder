@@ -26,6 +26,8 @@ use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 use Throwable;
 use WP_Query;
+use function wp_get_object_terms;
+use function absint;
 
 if (! \defined('ABSPATH')) {
     exit;

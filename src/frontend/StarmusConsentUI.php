@@ -7,7 +7,7 @@ use Starisian\Sparxstar\Starmus\core\StarmusConsentHandler;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -66,12 +66,12 @@ class StarmusConsentUI
      */
     public function handle_submission(): void
     {
-        if (! isset($_POST['starmus_consent_nonce']) || ! wp_verify_nonce($_POST['starmus_consent_nonce'], 'starmus_consent_action')) {
+        if ( ! isset($_POST['starmus_consent_nonce']) || ! wp_verify_nonce($_POST['starmus_consent_nonce'], 'starmus_consent_action')) {
             return;
         }
 
         // Include necessary files for media upload.
-        if (! \function_exists('media_handle_upload')) {
+        if ( ! \function_exists('media_handle_upload')) {
             require_once ABSPATH . 'wp-admin/includes/image.php';
             require_once ABSPATH . 'wp-admin/includes/file.php';
             require_once ABSPATH . 'wp-admin/includes/media.php';

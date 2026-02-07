@@ -16,13 +16,16 @@ return (new PhpCsFixer\Config())
         '@PSR12' => true,
         '@PHP82Migration' => true,
         'array_syntax' => ['syntax' => 'short'],
+        'not_operator_with_successor_space' => true,
+        'spaces_inside_parentheses' => false, // Allow WordPress style ( ! condition )
+        'no_spaces_inside_parenthesis' => false, // Deprecated but kept for safety
         'single_quote' => true,
         'no_unused_imports' => true,
         'no_trailing_whitespace' => true,
         'no_extra_blank_lines' => ['tokens' => ['extra', 'throw', 'use']],
         'align_multiline_comment' => true,
-       'binary_operator_spaces' => ['default' => 'single_space'],
-       'blank_line_after_namespace' => true,
+        'binary_operator_spaces' => ['default' => 'single_space'],
+        'blank_line_after_namespace' => true,
         'blank_line_after_opening_tag' => true,
         'concat_space' => ['spacing' => 'one'],
         'declare_strict_types' => false, // WordPress compat

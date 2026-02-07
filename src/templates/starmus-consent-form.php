@@ -6,7 +6,7 @@
  * @package Starisian\Sparxstar\Starmus\templates
  */
 
-if (! defined('ABSPATH')) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 
@@ -16,7 +16,7 @@ $instance_id = 'starmus_consent_' . uniqid();
 <div class="starmus-consent-container sparxstar-glass-card">
 	<h2><?php esc_html_e('Contributor Consent', 'starmus-audio-recorder'); ?></h2>
 
-	<?php if (! empty($error_message)) { ?>
+	<?php if ( ! empty($error_message)) { ?>
 		<div class="starmus-alert starmus-alert-error" role="alert">
         <?php echo esc_html($error_message); ?>
 		</div>
