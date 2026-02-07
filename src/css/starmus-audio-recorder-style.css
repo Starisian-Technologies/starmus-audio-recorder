@@ -371,6 +371,22 @@ button[data-starmus-action="setup-mic"] {
         rgba(0, 0, 0, 0.23) 0px 3px 6px;
 }
 
+.starmus-setup-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: rgba(51, 51, 51, 0.75);
+    /* Use the variable injected by PHP */
+    background-image: var(--sparxstar-starmus-bg-url);
+
+    /* Tiling settings */
+    background-repeat: repeat; /* This tiles the image both horizontally and vertically */
+    background-position: center center;
+    background-size: auto; /* Keeps the image at its original pixel size while tiling */
+}
+
 .starmus-mic-stage {
     /* Use the variable injected by PHP */
     background-image: var(--sparxstar-starmus-bg-url);
