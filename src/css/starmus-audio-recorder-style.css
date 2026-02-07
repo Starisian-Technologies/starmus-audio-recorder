@@ -41,6 +41,7 @@
     --sparxstar-danger-hex: #b91c1c;
     --sparxstar-success-hex: #16a34a;
     --sparxstar-warning-hex: #ea580c;
+    --sparxstar-info-hex: #0ea5e9;
 
     /* Theme Mapping */
     --sparxstar-primary: var(--wp--preset--color--accent-3, var(--sparxstar-primary-hex));
@@ -95,6 +96,7 @@
         --sparxstar-danger: color-mix(in srgb, #dc143c 85%, var(--sparxstar-text) 15%);
         --sparxstar-success: color-mix(in srgb, #008000 85%, var(--sparxstar-text) 15%);
         --sparxstar-warning: color-mix(in srgb, #ffa500 85%, var(--sparxstar-text) 15%);
+        --sparxstar-info: color-mix(in srgb, #17a2b8 85%, var(--sparxstar-text) 15%);
     }
 }
 
@@ -251,11 +253,15 @@ input[type="checkbox" i] {
 /* Notices & Messages (Restored) */
 .starmus-notice,
 .starmus-rerecord-info {
+    padding: 10px 15px;
     font-weight: 600;
+    border-left: 4px solid var(--sparxstar-info-hex);
+    border-radius: 25px;
 }
 
 .starmus-notice strong {
     color: var(--sparxstar-primary-strong);
+    border-left: 4px solid var(--sparxstar-warning-hex);
 }
 
 /* ========================================================================
@@ -428,7 +434,7 @@ button[data-starmus-action="setup-mic"]:active{
 
 
 .starmus-timer {
-    font-family: "Noto Sans Monospace", monospace, monospace;
+    font-family: "Noto Sans Monospace", monospace;
     font-size: 2rem;
     font-weight: 700;
       font-optical-sizing: auto;
