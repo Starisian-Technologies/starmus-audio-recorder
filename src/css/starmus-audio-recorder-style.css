@@ -298,6 +298,11 @@ button[data-starmus-action="continue"],
 button[data-starmus-action="setup-mic"] {
     background-color: var(--sparxstar-color-input);
     color: var(--sparxstar-color-input-text);
+    border-radius: 25px;
+    border: 1px solid var(--sparxstar-color-input-border);
+    box-shadow:
+        inset 2px 2px 3px 0 #aaa,
+        inset -3px -3px 6px 1px #ececec;
 }
 
 /* Secondary / Outline Bindings */

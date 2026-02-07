@@ -141,8 +141,14 @@ final class StarmusShortcodeLoader
             add_shortcode('starmus_recording_detail', $this->render_recording_detail_shortcode(...));
             add_shortcode('starmus_audio_re_recorder', fn(array $atts = []): string => $this->safe_render(fn(): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts)));
             add_shortcode('starmus_contributor_consent', fn(): string => $this->safe_render(fn(): string => $this->consent_ui->render_shortcode()));
-            add_shortcode('starmus_script_recorder', $this->starmus_render_script_recorder(...));
-
+            add_shortcode(
+                'starmus_script_recorder',
+                fn(array $atts = [], string $content = null): string =>
+                $this->safe_render(
+                    fn(): string =>
+                    $this->starmus_render_script_recorder($atts, $content)
+                )
+            );
             add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -450,10 +456,15 @@ final class StarmusShortcodeLoader
      * @return string Rendered HTML for the script recorder.
      */
 
-    public function starmus_render_script_recorder(array $atts = [], string $content = null): string
+    public function starmus_render_script_recorder(array $atts = [], ?string $content = null): string
     {
-        if (!class_exists('ProsodyPlayer')) {
-            return '<p>' . esc_html__('Prosody Player component is not available.', 'starmus-audio-recorder') . '</p>';
+        // Ensure prosody engine is available before attempting to render
+        if (!$this->prosody instanceof StarmusProsodyPlayer) {
+            return '<p>' . esc_html__('SPARXSTAR Prosody recorder unavailable.', 'starmus-audio-recorder') . '</p>';
+        }
+        // This shortcode is intended for logged-in users only, as it involves recording functionality.
+        if (!is_user_logged_in()) {
+            return '<p>' . esc_html__('Login required.', 'starmus-audio-recorder') . '</p>';
         }
 
         /*
@@ -467,15 +478,24 @@ final class StarmusShortcodeLoader
             'class'     => '',
         ], $atts, 'starmus_script_recorder');
 
-        /*
-     * Build attribute string for pass-through
-     */
+
+        // Build attribute string for pass-through to inner shortcodes, excluding 'class' which is used for the wrapper div
         $attr_string = '';
 
         foreach ($atts as $key => $value) {
-            if ($value !== '' && $key !== 'class') {
-                $attr_string .= ' ' . $key . '="' . esc_attr($value) . '"';
+            if ($key === 'class') {
+                continue;
             }
+
+            if ($value === '' || $value === null) {
+                continue;
+            }
+
+            if (!is_scalar($value)) {
+                continue;
+            }
+
+            $attr_string .= sprintf(' %s="%s"', esc_attr($key), esc_attr((string) $value));
         }
 
         ob_start();
