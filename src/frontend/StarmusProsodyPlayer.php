@@ -164,7 +164,7 @@ class StarmusProsodyPlayer
                     <button type="button" class="tap-zone" id="btn-tap" aria-label="<?php echo esc_attr__('Tap to set rhythm', 'starmus-audio-recorder'); ?>">
                         <div class="tap-icon" aria-hidden="true">👆</div>
                         <div class="tap-label"><?php esc_html_e('TAP RHYTHM', 'starmus-audio-recorder'); ?></div>
-                        <div class="tap-sub"><?php esc_html_e('Spacebar or Click to set pace', 'starmus-audio-recorder'); ?></div>
+                        <div class="tap-sub"><?php esc_html_e('Click to set pace or spacebar', 'starmus-audio-recorder'); ?></div>
                     </button>
                     <div class="tap-feedback" id="tap-feedback" role="status" aria-live="polite">...</div>
                 </div>

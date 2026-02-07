@@ -118,15 +118,15 @@ $data_policy_url ??= '';
             </div>
 
             <div class="starmus-recorder-container" data-starmus-recorder-container>
-                <div class="starmus-visualizer-stage">
+                <div class="starmus-visualizer-stage starmus-mic-stage">
                     <div class="starmus-timer-wrapper">
-                        <span class="starmus-timer-label"><?php esc_html_e('Time:', 'starmus-audio-recorder'); ?></span>
+                        <span class="starmus-timer-label starmus-mic-stage-label"><?php esc_html_e('Time:', 'starmus-audio-recorder'); ?></span>
                         <div class="starmus-timer" data-starmus-timer>
                             <span class="starmus-timer-elapsed">00m 00s</span>
                         </div>
                     </div>
                     <div class="starmus-duration-progress-wrapper">
-                        <span class="starmus-progress-label" id="starmus_progress_lbl_<?php echo esc_attr($instance_id); ?>">
+                        <span class="starmus-progress-label starmus-mic-stage-label" id="starmus_progress_lbl_<?php echo esc_attr($instance_id); ?>">
                             <?php esc_html_e('Length:', 'starmus-audio-recorder'); ?>
                         </span>
                         <div class="starmus-duration-progress"
@@ -138,7 +138,7 @@ $data_policy_url ??= '';
                             aria-labelledby="starmus_progress_lbl_<?php echo esc_attr($instance_id); ?>"></div>
                     </div>
                     <div class="starmus-meter-wrap">
-                        <span class="starmus-meter-label"><?php esc_html_e('Volume:', 'starmus-audio-recorder'); ?></span>
+                        <span class="starmus-meter-label starmus-mic-stage-label"><?php esc_html_e('Volume:', 'starmus-audio-recorder'); ?></span>
                         <div class="starmus-meter-bar" data-starmus-volume-meter></div>
                     </div>
                 </div>

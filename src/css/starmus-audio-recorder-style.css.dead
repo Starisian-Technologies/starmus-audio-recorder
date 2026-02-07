@@ -329,13 +329,7 @@ button[data-starmus-action="setup-mic"] {
     animation: starmus-pulse 1.5s infinite;
 }
 
-.starmus-meter-bar {
-    height: 12px;
-    background: rgb(0 0 0 / 10%);
-    border-radius: 6px;
-    overflow: hidden;
-    width: 100%;
-}
+
 
 .starmus-meter-bar::after {
     content: "";

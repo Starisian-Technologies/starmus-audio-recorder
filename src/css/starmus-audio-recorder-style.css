@@ -12,7 +12,7 @@
  *          ZERO selector deletion policy.
  */
 
- /*=======================================================================
+/*=======================================================================
    TABLE OF CONTENTS
    =======================================================================
 
@@ -165,13 +165,18 @@
     display: block;
     margin-bottom: 0.5rem;
     padding-left: 5px;
-    border-radius:25px;
-    font-size: .75rem;
+    border-radius: 25px;
+    font-size: 0.75rem;
     font-weight: 900;
     text-transform: uppercase;
-      font-optical-sizing: auto;
+    font-optical-sizing: auto;
     color: var(--sparxstar-label-text, var(--sparxstar-text));
-    background: linear-gradient(90deg,rgba(249, 249, 249, 1) 0%, rgba(235, 245, 239, 1) 25%, rgba(153, 153, 153, 0.25) 100%)
+    background: linear-gradient(
+        90deg,
+        rgba(249, 249, 249, 1) 0%,
+        rgba(235, 245, 239, 1) 25%,
+        rgba(153, 153, 153, 0.25) 100%
+    );
 }
 
 .starmus-recorder-form input[type="text"],
@@ -253,10 +258,11 @@ input[type="checkbox" i] {
 /* Notices & Messages (Restored) */
 .starmus-notice,
 .starmus-rerecord-info {
-    padding: 10px 15px;
+    padding: 1px 15px;
     font-weight: 600;
+    border: 1px solid #cacaca;
     border-left: 4px solid var(--sparxstar-info-hex);
-    border-radius: 25px;
+    border-radius: 12px;
 }
 
 .starmus-notice strong {
@@ -277,7 +283,9 @@ input[type="checkbox" i] {
     gap: 8px;
     padding: 0.75rem 1.5rem;
     text-decoration: none;
-    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    box-shadow:
+        rgba(0, 0, 0, 0.12) 0px 1px 3px,
+        rgba(0, 0, 0, 0.24) 0px 1px 2px;
     transition: transform 0.2s ease;
     cursor: pointer;
     user-select: none;
@@ -326,25 +334,24 @@ button[data-starmus-action="setup-mic"] {
     color: var(--sparxstar-color-input-text);
     border-radius: 25px;
     border: 1px solid var(--sparxstar-color-input-border);
-    text-shadow:#000 1px 1px 2px;
-    background-image: linear-gradient(45deg, #FF512F 0%, #F09819  51%, #FF512F  100%);
+    text-shadow: #000 1px 1px 2px;
+    background-image: linear-gradient(45deg, #ff512f 0%, #f09819 51%, #ff512f 100%);
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
 }
 
-button[data-starmus-action="setup-mic"]:hover{
+button[data-starmus-action="setup-mic"]:hover {
     background-position: right center;
-  /* change the direction of the change here */
+    /* change the direction of the change here */
 }
 
-button[data-starmus-action="setup-mic"]:active{
+button[data-starmus-action="setup-mic"]:active {
     box-shadow:
         inset 2px 2px 3px 0 #aaa,
         inset -3px -3px 6px 1px #ececec;
     transform: scale(0.95);
-
 }
 
 /* Secondary / Outline Bindings */
@@ -413,12 +420,12 @@ button[data-starmus-action="setup-mic"]:active{
         rgba(0, 0, 0, 0.23) 0px 3px 6px;
 }
 
-.starmus-setup-container, .starmus-mic-stage{
+.starmus-setup-container,
+.starmus-mic-stage {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
-    width: 100%;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     border-radius: 25px;
@@ -429,26 +436,61 @@ button[data-starmus-action="setup-mic"]:active{
     background-repeat: repeat; /* This tiles the image both horizontally and vertically */
     background-position: center center;
     background-size: auto; /* Keeps the image at its original pixel size while tiling */
-    box-shadow: rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px;
+    box-shadow:
+        rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset,
+        rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset,
+        rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset,
+        rgba(0, 0, 0, 0.06) 0px 2px 1px,
+        rgba(0, 0, 0, 0.09) 0px 4px 2px,
+        rgba(0, 0, 0, 0.09) 0px 8px 4px,
+        rgba(0, 0, 0, 0.09) 0px 16px 8px,
+        rgba(0, 0, 0, 0.09) 0px 32px 16px;
 }
 
+.starmus-mic-stage-label {
+    font-size: 1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--sparxstar-text);
+    text-shadow: grey 2px 2px 4px;
+    font-optical-sizing: auto;
+    border-radius: 25px;
+    background: radial-gradient(
+        circle,
+        rgba(249, 249, 249, 1) 0%,
+        rgba(235, 245, 239, 1) 67%,
+        rgba(153, 153, 153, 1) 100%
+    );
+    box-shadow:
+        rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset,
+        rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset,
+        inset rgba(0, 0, 0, 0.3) 4px 4px 12px 6px;
+}
 
 .starmus-timer {
     font-family: "Noto Sans Monospace", monospace;
     font-size: 2rem;
     font-weight: 700;
-      font-optical-sizing: auto;
+    font-optical-sizing: auto;
     text-align: center;
     text-shadow: grey 2px 2px 4px;
     font-variant-numeric: tabular-nums;
-    border-radius:8px;
+    border-radius: 8px;
     margin-bottom: 1rem;
-    background: radial-gradient(circle,rgba(249, 249, 249, 1) 0%, rgba(235, 245, 239, 1) 67%, rgba(153, 153, 153, 1) 100%);
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset, inset rgba(0,0,0,0.3) 4px 4px 12px 6px;
+    background: radial-gradient(
+        circle,
+        rgba(249, 249, 249, 1) 0%,
+        rgba(235, 245, 239, 1) 67%,
+        rgba(153, 153, 153, 1) 100%
+    );
+    box-shadow:
+        rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset,
+        rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset,
+        inset rgba(0, 0, 0, 0.3) 4px 4px 12px 6px;
 }
 
 .starmus-timer--recording {
-    color: var(--starmus-danger);
+    color: var(--sparxstar-danger);
     animation: starmus-pulse 1.5s infinite;
 }
 
@@ -458,7 +500,10 @@ button[data-starmus-action="setup-mic"]:active{
     border-radius: 6px;
     overflow: hidden;
     width: 100%;
-    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+    box-shadow:
+        rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
+        rgba(6, 24, 44, 0.65) 0px 4px 6px -1px,
+        rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
 }
 
 .starmus-meter-bar::after {
@@ -468,21 +513,24 @@ button[data-starmus-action="setup-mic"]:active{
     width: var(--starmus-audio-level, 0%);
     background: linear-gradient(
         90deg,
-        var(--starmus-success) 0%,
-        var(--starmus-success) 33%,
-        var(--starmus-warning) 66%,
-        var(--starmus-danger) 100%
+        var(--sparxstar-success) 0%,
+        var(--sparxstar-success) 33%,
+        var(--sparxstar-warning) 66%,
+        var(--sparxstar-danger) 100%
     );
     transition: width 0.05s linear;
 }
 
-.starmus-duration-progress{
+.starmus-duration-progress {
     height: 12px;
     background: rgb(0 0 0 / 10%);
     border-radius: 25px;
     overflow: hidden;
     width: 100%;
-    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+    box-shadow:
+        rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
+        rgba(6, 24, 44, 0.65) 0px 4px 6px -1px,
+        rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
 }
 
 /* Duration Progress UI */
@@ -493,7 +541,7 @@ button[data-starmus-action="setup-mic"]:active{
 
 .starmus-progress-label {
     font-size: 0.75rem;
-    color: var(--starmus-text);
+    color: var(--sparxstar-text);
     font-weight: 600;
     margin-bottom: 6px;
     display: block;
@@ -505,23 +553,22 @@ button[data-starmus-action="setup-mic"]:active{
     display: block;
     height: 100%;
     width: var(--starmus-recording-progress, 0%);
-    background-color: var(--starmus-primary);
+    background-color: var(--sparxstar-primary);
     border-radius: 4px;
     transition: width 0.2s ease;
 }
 
 .starmus-duration-progress[data-level="safe"]::after {
-    background-color: var(--starmus-success);
+    background-color: var(--sparxstar-success);
 }
 
 .starmus-duration-progress[data-level="warning"]::after {
-    background-color: var(--starmus-warning);
+    background-color: var(--sparxstar-warning);
 }
 
 .starmus-duration-progress[data-level="danger"]::after {
-    background-color: var(--starmus-danger);
+    background-color: var(--sparxstar-danger);
 }
-
 
 /* ========================================================================
    7. LIST VIEW & PAGINATION (FULL RESTORATION)
@@ -915,6 +962,7 @@ select option {
     z-index: 99999;
     overflow: hidden;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     transform-origin: center center;

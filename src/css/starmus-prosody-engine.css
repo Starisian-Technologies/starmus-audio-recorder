@@ -165,7 +165,7 @@
 }
 
 #calibration-layer::after {
-    content: "OR PRESS [SPACE]";
+    content: "The pace at which you tap sets the 🪘 rhythm for the text flow. Tap steadily to find your groove!";
     position: absolute;
     bottom: 40px;
 }
