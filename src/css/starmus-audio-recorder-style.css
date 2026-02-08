@@ -143,7 +143,6 @@
    ======================================================================== */
 
 .sparxstar-card,
-.starmus-glass,
 .starmus-recorder-form,
 .starmus-editor__wave-inner,
 .starmus-editor__transcript,
@@ -470,10 +469,9 @@ button[data-starmus-action="setup-mic"]:active {
     text-align: center;
     font-family: "Noto Sans Monospace", monospace;
     font-size: 2rem;
-    font-weight:700;
+    font-weight: 700;
     font-variant-numeric: tabular-nums; /* Prevents jittering digits */
     text-shadow: grey 2px 2px 4px;
-
 }
 .starmus-timer {
     border-radius: 8px;
@@ -495,13 +493,10 @@ button[data-starmus-action="setup-mic"]:active {
     animation: starmus-pulse 1.5s infinite;
 }
 
-#starmus-level-meter {
+/* #starmus-level-meter removed as ID is no longer static in HTML */
+
+.starmus-meter-wrap {
     width: 100%;
-    /* Ensure height is sufficient for visibility */
-    height: 60px;
-    background-color: #333; /* Dark background enhances the colored bars */
-    border-radius: 4px;
-    display: block;
     margin-bottom: 1rem;
 }
 
@@ -759,7 +754,10 @@ button[data-starmus-action="setup-mic"]:active {
     font-size: small;
     padding: 0.5rem 1rem;
     border-radius: 25px;
-    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+    box-shadow:
+        rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
+        rgba(6, 24, 44, 0.65) 0px 4px 6px -1px,
+        rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
 }
 
 .starmus-layout-split,
@@ -811,8 +809,10 @@ button[data-starmus-action="setup-mic"]:active {
     gap: 10px;
 }
 
-.starmus-info-table .starmus-btn, .starmus-infor-table .starmus-btn:hover, .starmus-info-table .starmus-btn:active {
-    box-shadow:none;
+.starmus-info-table .starmus-btn,
+.starmus-infor-table .starmus-btn:hover,
+.starmus-info-table .starmus-btn:active {
+    box-shadow: none;
 }
 
 /* ========================================================================
