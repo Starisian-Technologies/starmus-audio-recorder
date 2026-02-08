@@ -218,8 +218,9 @@ $data_policy_url ??= '';
                     data-starmus-step="2"
                     style="display:none;">
                     <div class="starmus-mic-stage">
+                        <div class="starmus-logo-container"><?php the_custom_logo(); ?></div>
                         <h2 id="starmus_audioRecorderHeading_<?php echo esc_attr($instance_id); ?>" tabindex="-1">
-                            <?php esc_html_e('Record Your Audio', 'starmus-audio-recorder'); ?>
+                            <?php esc_html_e('Starmus Audio Recorder', 'starmus-audio-recorder'); ?>
                         </h2>
 
                         <!-- Microphone Setup Button -->

@@ -111,6 +111,9 @@ $data_policy_url ??= '';
 
                 <!-- Step 2: Recorder -->
                 <div id="starmus_step2_<?php echo esc_attr($instance_id); ?>" class="starmus-step" style="display:none;" data-starmus-step="2">
+                    <div class="starmus-mic-stage">
+                    <div class="starmus-logo-container"><?php the_custom_logo(); ?></div>
+
                     <h2 tabindex="-1"><?php esc_html_e('Starmus Audio Recorder', 'starmus-audio-recorder'); ?></h2>
 
                     <div class="starmus-setup-container" data-starmus-setup-container>
@@ -122,7 +125,7 @@ $data_policy_url ??= '';
                     </div>
 
                     <div class="starmus-recorder-container" data-starmus-recorder-container>
-                        <div class="starmus-visualizer-stage starmus-mic-stage">
+                        <div class="starmus-visualizer-stage">
                             <div class="starmus-timer-wrapper">
                                 <span class="starmus-timer-label starmus-mic-stage-label">
                                     <?php esc_html_e('Time:', 'starmus-audio-recorder'); ?>
@@ -150,56 +153,57 @@ $data_policy_url ??= '';
                                 <div class="starmus-meter-bar" data-starmus-volume-meter></div>
                             </div>
                         </div>
-
-                        <div class="starmus-recorder-controls">
-                            <button type="button" class="starmus-btn starmus-btn--record" data-starmus-action="record">
-                                <span class="dashicons dashicons-microphone" aria-hidden="true"></span>
-                                <?php esc_html_e('⬤ REC', 'starmus-audio-recorder'); ?>
+                    </div>
+                    <div class="starmus-recorder-controls">
+                        <button type="button" class="starmus-btn starmus-btn--record" data-starmus-action="record">
+                            <span class="dashicons dashicons-microphone" aria-hidden="true"></span>
+                            <?php esc_html_e('⬤ REC', 'starmus-audio-recorder'); ?>
+                        </button>
+                        <button type="button" class="starmus-btn starmus-btn--stop" data-starmus-action="stop" style="display:none;">
+                            <span class="dashicons dashicons-media-default" aria-hidden="false"></span>
+                            <?php esc_html_e('◼ STOP', 'starmus-audio-recorder'); ?>
+                        </button>
+                        <div class="starmus-review-controls" style="display:none;">
+                            <button type="button" class="starmus-btn starmus-btn--secondary" data-starmus-action="play">
+                                <span class="dashicons dashicons-controls-play" aria-hidden="false"></span>
+                                <?php esc_html_e('PLAY', 'starmus-audio-recorder'); ?>
                             </button>
-                            <button type="button" class="starmus-btn starmus-btn--stop" data-starmus-action="stop" style="display:none;">
-                                <span class="dashicons dashicons-media-default" aria-hidden="false"></span>
-                                <?php esc_html_e('◼ STOP', 'starmus-audio-recorder'); ?>
-                            </button>
-                            <div class="starmus-review-controls" style="display:none;">
-                                <button type="button" class="starmus-btn starmus-btn--secondary" data-starmus-action="play">
+                            <!--<button type="button" class="starmus-btn starmus-btn--outline" data-starmus-action="reset">
+                            <span class="dashicons dashicons-controls-repeat" aria-hidden="false"></span>
+                            <?php //esc_html_e('RETAKE', 'starmus-audio-recorder');
+                            ?>
+                        </button>-->
+                            <!-- 3. REVIEW STATE -->
+                            <div id="starmus_review_controls_<?php echo esc_attr($instance_id); ?>" class="starmus-review-controls" style="display:none;">
+                                <button
+                                    type="button"
+                                    id="starmus_play_btn_<?php echo esc_attr($instance_id); ?>"
+                                    class="starmus-btn starmus-btn--secondary"
+                                    data-starmus-action="play">
                                     <span class="dashicons dashicons-controls-play" aria-hidden="false"></span>
                                     <?php esc_html_e('PLAY', 'starmus-audio-recorder'); ?>
+
                                 </button>
-                                <!--<button type="button" class="starmus-btn starmus-btn--outline" data-starmus-action="reset">
-                            <span class="dashicons dashicons-controls-repeat" aria-hidden="false"></span>
-                            <?php //esc_html_e('RETAKE', 'starmus-audio-recorder'); ?>
-                        </button>-->
-                                <!-- 3. REVIEW STATE -->
-                                <div id="starmus_review_controls_<?php echo esc_attr($instance_id); ?>" class="starmus-review-controls" style="display:none;">
-                                    <button
-                                        type="button"
-                                        id="starmus_play_btn_<?php echo esc_attr($instance_id); ?>"
-                                        class="starmus-btn starmus-btn--secondary"
-                                        data-starmus-action="play">
-                                        <span class="dashicons dashicons-controls-play" aria-hidden="false"></span>
-                                        <?php esc_html_e('PLAY', 'starmus-audio-recorder'); ?>
 
-                                    </button>
+                                <button
+                                    type="button"
+                                    id="starmus_reset_btn_<?php echo esc_attr($instance_id); ?>"
+                                    class="starmus-btn starmus-btn--outline"
+                                    data-starmus-action="reset">
+                                    <span class="dashicons dashicons-controls-repeat" aria-hidden="false"></span>
+                                    <?php esc_html_e('Retake', 'starmus-audio-recorder'); ?>
 
-                                    <button
-                                        type="button"
-                                        id="starmus_reset_btn_<?php echo esc_attr($instance_id); ?>"
-                                        class="starmus-btn starmus-btn--outline"
-                                        data-starmus-action="reset">
-                                        <span class="dashicons dashicons-controls-repeat" aria-hidden="false"></span>
-                                        <?php esc_html_e('Retake', 'starmus-audio-recorder'); ?>
-
-                                    </button>
-                                </div>
+                                </button>
                             </div>
-
-                            <div data-starmus-transcript style="display:none;" role="log" aria-live="polite"></div>
                         </div>
 
-                        <button type="submit" class="starmus-btn starmus-btn--primary starmus-btn--full" data-starmus-action="submit" disabled>
-                            <?php esc_html_e('Save Replacement', 'starmus-audio-recorder'); ?>
-                        </button>
+                        <div data-starmus-transcript style="display:none;" role="log" aria-live="polite"></div>
                     </div>
+
+                    <button type="submit" class="starmus-btn starmus-btn--primary starmus-btn--full" data-starmus-action="submit" disabled>
+                        <?php esc_html_e('Save Replacement', 'starmus-audio-recorder'); ?>
+                    </button>
+                </div>
             </form>
         </div>
     </div>
