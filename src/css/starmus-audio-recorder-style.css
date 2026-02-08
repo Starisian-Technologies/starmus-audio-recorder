@@ -175,12 +175,6 @@
     text-transform: uppercase;
     font-optical-sizing: auto;
     color: var(--sparxstar-label-text, var(--sparxstar-text));
-    background: linear-gradient(
-        90deg,
-        rgba(249, 249, 249, 1) 0%,
-        rgba(235, 245, 239, 1) 25%,
-        rgba(153, 153, 153, 0.25) 100%
-    );
 }
 
 .starmus-recorder-form input[type="text"],
@@ -471,15 +465,17 @@ button[data-starmus-action="setup-mic"]:active {
         rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset,
         inset rgba(0, 0, 0, 0.3) 4px 4px 12px 6px;
 }
-
-.starmus-timer {
+/* Timmer requires monospace and font-variant-numeric for perfect alignment and tabular numbers */
+#starmus-recording-timer {
+    text-align: center;
     font-family: "Noto Sans Monospace", monospace;
     font-size: 2rem;
-    font-weight: 700;
-    font-optical-sizing: auto;
-    text-align: center;
+    font-weight:700;
+    font-variant-numeric: tabular-nums; /* Prevents jittering digits */
     text-shadow: grey 2px 2px 4px;
-    font-variant-numeric: tabular-nums;
+
+}
+.starmus-timer {
     border-radius: 8px;
     margin-bottom: 1rem;
     background: radial-gradient(
@@ -497,6 +493,16 @@ button[data-starmus-action="setup-mic"]:active {
 .starmus-timer--recording {
     color: var(--sparxstar-danger);
     animation: starmus-pulse 1.5s infinite;
+}
+
+#starmus-level-meter {
+    width: 100%;
+    /* Ensure height is sufficient for visibility */
+    height: 60px;
+    background-color: #333; /* Dark background enhances the colored bars */
+    border-radius: 4px;
+    display: block;
+    margin-bottom: 1rem;
 }
 
 .starmus-meter-bar {
@@ -621,9 +627,12 @@ button[data-starmus-action="setup-mic"]:active {
 
 .starmus-card__meta {
     display: flex;
-    font-size: smaller;
+    font-size: 0.75rem;
+    text-transform: uppercase;
     gap: 0.5rem;
     flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .starmus-card__type,

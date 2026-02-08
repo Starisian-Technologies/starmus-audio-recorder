@@ -38,7 +38,8 @@ $consent_message ??= __('By submitting this recording, you agree to our', 'starm
 $data_policy_url ??= '';
 
 ?>
-
+<div id="starmus-app-mode"class="starmus-app-mode sparxstar-app-mode " data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
+<div class="starmus-audio-recorder-wrapper" data-starmus="recorder" data-starmus-mode="create" data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
 <div id="starmus-app" class="starmus-recorder-form sparxstar-glass-card">
     <script>
         (function() {
@@ -301,7 +302,7 @@ $data_policy_url ??= '';
                         id="starmus_record_btn_<?php echo esc_attr($instance_id); ?>"
                         class="starmus-btn starmus-btn--record starmus-btn--large"
                         data-starmus-action="record">
-                        <span class="dashicons dashicons-microphone" aria-hidden="true"></span> <?php esc_html_e('Start Recording', 'starmus-audio-recorder'); ?>
+                        <span class="dashicons dashicons-microphone" aria-hidden="true"></span> <?php esc_html_e('REC ⬤', 'starmus-audio-recorder'); ?>
                     </button>
 
                     <!-- 2. RECORDING STATE -->
@@ -311,7 +312,7 @@ $data_policy_url ??= '';
                         class="starmus-btn starmus-btn--pause starmus-btn--large"
                         data-starmus-action="pause"
                         style="display:none;">
-                        <span class="dashicons dashicons-controls-pause" aria-hidden="true"></span> <?php esc_html_e('Pause', 'starmus-audio-recorder'); ?>
+                        <span class="dashicons dashicons-controls-pause" aria-hidden="true"></span> <?php esc_html_e('PAUSE ▮▮', 'starmus-audio-recorder'); ?>
                     </button>
 
                     <button
@@ -320,7 +321,7 @@ $data_policy_url ??= '';
                         class="starmus-btn starmus-btn--stop starmus-btn--large"
                         data-starmus-action="stop"
                         style="display:none;">
-                        <span class="dashicons dashicons-media-default" aria-hidden="true"></span> <?php esc_html_e('Stop', 'starmus-audio-recorder'); ?>
+                        <span class="dashicons dashicons-media-default" aria-hidden="true"></span> <?php esc_html_e('STOP ◼', 'starmus-audio-recorder'); ?>
                     </button>
 
                     <!-- 2b. PAUSED STATE -->
@@ -330,7 +331,7 @@ $data_policy_url ??= '';
                         class="starmus-btn starmus-btn--resume starmus-btn--large"
                         data-starmus-action="resume"
                         style="display:none;">
-                        <span class="dashicons dashicons-controls-play" aria-hidden="true"></span> <?php esc_html_e('Resume Recording', 'starmus-audio-recorder'); ?>
+                        <span class="dashicons dashicons-controls-play" aria-hidden="true"></span> <?php esc_html_e('RESUME ▶', 'starmus-audio-recorder'); ?>
                     </button>
 
                     <!-- 3. REVIEW STATE -->
@@ -431,4 +432,6 @@ $data_policy_url ??= '';
         <?php } ?>
 </div>
 </form>
+</div>
+</div>
 </div>

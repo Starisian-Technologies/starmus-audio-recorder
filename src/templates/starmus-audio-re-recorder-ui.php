@@ -11,7 +11,7 @@
  *
  * @version 1.0.2-DATA-SAFE
  */
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -21,12 +21,13 @@ if ( ! defined('ABSPATH')) {
 $instance_id = 'starmus_form_' . sanitize_key('rerecord_' . wp_generate_uuid4());
 
 $allowed_file_types ??= 'webm';
-$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn ($v): bool => $v !== ''));
+$allowed_types_arr = array_values(array_filter(array_map(trim(...), explode(',', (string) $allowed_file_types)), fn($v): bool => $v !== ''));
 $is_admin = current_user_can('manage_options');
 $consent_message ??= __('By submitting this recording, you agree to our', 'starmus-audio-recorder');
 $data_policy_url ??= '';
 ?>
-
+<div id="starmus-app-mode"class="starmus-app-mode sparxstar-app-mode " data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
+<div class="starmus-audio-re-recorder-wrapper" data-starmus="recorder" data-starmus-mode="update" data-starmus-instance="<?php echo esc_attr($instance_id); ?>">
 <div class="starmus-recorder-form sparxstar-glass-card">
     <form
         id="<?php echo esc_attr($instance_id); ?>"
@@ -92,7 +93,7 @@ $data_policy_url ??= '';
                         required>
                     <label for="starmus_consent_<?php echo esc_attr($instance_id); ?>">
                         <?php echo wp_kses_post($consent_message); ?>
-                        <?php if ( ! empty($data_policy_url)) { ?>
+                        <?php if (! empty($data_policy_url)) { ?>
                             <a
                                 href="<?php echo esc_url($data_policy_url); ?>"
                                 target="_blank"
@@ -109,7 +110,7 @@ $data_policy_url ??= '';
 
         <!-- Step 2: Recorder -->
         <div id="starmus_step2_<?php echo esc_attr($instance_id); ?>" class="starmus-step" style="display:none;" data-starmus-step="2">
-            <h2 tabindex="-1"><?php esc_html_e('Record Replacement', 'starmus-audio-recorder'); ?></h2>
+            <h2 tabindex="-1"><?php esc_html_e('Starmus Audio Recorder', 'starmus-audio-recorder'); ?></h2>
 
             <div class="starmus-setup-container" data-starmus-setup-container>
                 <button type="button" class="starmus-btn starmus-btn--primary" data-starmus-action="setup-mic">
@@ -145,17 +146,17 @@ $data_policy_url ??= '';
 
                 <div class="starmus-recorder-controls">
                     <button type="button" class="starmus-btn starmus-btn--record" data-starmus-action="record">
-                        <span class="dashicons dashicons-microphone" aria-hidden="true"></span> <?php esc_html_e('Record', 'starmus-audio-recorder'); ?>
+                        <span class="dashicons dashicons-microphone" aria-hidden="true"></span> <?php esc_html_e('REC ⬤', 'starmus-audio-recorder'); ?>
                     </button>
                     <button type="button" class="starmus-btn starmus-btn--stop" data-starmus-action="stop" style="display:none;">
-                        <span class="dashicons dashicons-media-default" aria-hidden="true"></span> <?php esc_html_e('Stop', 'starmus-audio-recorder'); ?>
+                        <span class="dashicons dashicons-media-default" aria-hidden="false"></span> <?php esc_html_e('STOP ◼', 'starmus-audio-recorder'); ?>
                     </button>
                     <div class="starmus-review-controls" style="display:none;">
                         <button type="button" class="starmus-btn starmus-btn--secondary" data-starmus-action="play">
-                            <span class="dashicons dashicons-controls-play" aria-hidden="true"></span> <?php esc_html_e('Play', 'starmus-audio-recorder'); ?>
+                            <span class="dashicons dashicons-controls-play" aria-hidden="false"></span> <?php esc_html_e('PLAY', 'starmus-audio-recorder'); ?>
                         </button>
                         <button type="button" class="starmus-btn starmus-btn--outline" data-starmus-action="reset">
-                            <span class="dashicons dashicons-undo" aria-hidden="true"></span> <?php esc_html_e('Retake', 'starmus-audio-recorder'); ?>
+                            <span class="dashicons dashicons-controls-repeat" aria-hidden="false"></span> <?php esc_html_e('RETAKE', 'starmus-audio-recorder'); ?>
                         </button>
                     </div>
                 </div>
@@ -168,4 +169,6 @@ $data_policy_url ??= '';
             </button>
         </div>
     </form>
+</div>
+</div>
 </div>

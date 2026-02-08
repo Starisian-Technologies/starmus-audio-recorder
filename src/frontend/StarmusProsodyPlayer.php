@@ -313,7 +313,7 @@ class StarmusProsodyPlayer
 
             ob_start();
             ?>
-            <div class="starmus-script-card sparxstar-glass-card <?php echo esc_attr($status_class); ?>">
+            <div class="starmus-script-card <?php echo esc_attr($status_class); ?>">
                 <div class="starmus-card-header">
                     <h3 class="starmus-card-title"><?php echo esc_html($post->post_title); ?></h3>
                     <?php if ($has_audio) { ?>
