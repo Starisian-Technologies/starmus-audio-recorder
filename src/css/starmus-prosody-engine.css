@@ -26,8 +26,8 @@
     --sparxstar-surface: var(--wp--preset--color--base-2, #251717);
     --sparxstar-contrast: var(--wp--preset--color--contrast, #eceecf);
     --sparxstar-accent: var(--wp--preset--color--accent);
-    --sparxstar-glow: rgba(39, 244, 3, 0.517);
-    --sparxstar-glow-dark: rgba(39, 244, 3, 0.278);
+    --sparxstar-glow: rgb(39 244 3 / 51.7%);
+    --sparxstar-glow-dark: rgb(39 244 3 / 27.8%);
 
     /* Tactile Identity from Theme */
     --sparxstar-shd: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
@@ -51,7 +51,6 @@
 /* --- LIGHT MODE OPTION (Flipping Identity, not Mechanics) --- */
 .light-mode {
     --color-scheme: light;
-
     --sparxstar-base: var(--wp--preset--color--contrast, #fcffe7);
     --sparxstar-surface: var(--wp--preset--color--base-2, #f5f5e0);
     --sparxstar-contrast: var(--wp--preset--color--base, #180205);
@@ -60,7 +59,6 @@
 @media (prefers-color-scheme: light) {
     :root {
         --color-scheme: light;
-
         --sparxstar-base: var(--wp--preset--color--contrast, #fcffe7);
         --sparxstar-surface: var(--wp--preset--color--base-2, #f5f5e0);
         --sparxstar-contrast: var(--wp--preset--color--base, #180205);
@@ -74,7 +72,15 @@
 
 /* --sparxstar-- CONTAINER SHELL --sparxstar-- */
 #cognitive-regulator {
-    background: linear-gradient(270deg,rgba(168, 5, 250, 1) 0%, rgba(13, 129, 212, 1) 24%, rgba(87, 255, 3, 1) 50%, rgba(255, 187, 0, 1) 74%, rgba(245, 96, 47, 1) 92%, rgba(255, 30, 0, 1) 99%);
+    background: linear-gradient(
+        270deg,
+        rgb(168 5 250 / 100%) 0%,
+        rgb(13 129 212 / 100%) 24%,
+        rgb(87 255 3 / 100%) 50%,
+        rgb(255 187 0 / 100%) 74%,
+        rgb(245 96 47 / 100%) 92%,
+        rgb(255 30 0 / 100%) 99%
+    );
     color: var(--sparxstar-text-dim);
     font-family: var(--sparxstar-font-stack);
     height: 50dvh;
@@ -84,7 +90,9 @@
     position: relative;
     overflow: hidden;
     user-select: none;
-    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    box-shadow:
+        rgb(0 0 0 / 12%) 0 1px 3px,
+        rgb(0 0 0 / 24%) 0 1px 2px;
 }
 
 /* =========================================
@@ -118,15 +126,17 @@
     justify-content: center;
     cursor: pointer;
     box-shadow:
-        var(--sparxstar-glow) 0px 2px 4px 0px,
-        var(--sparxstar-glow) 0px 2px 16px 0px;
+        var(--sparxstar-glow) 0 2px 4px 0,
+        var(--sparxstar-glow) 0 2px 16px 0;
     transition: all 0.1s ease;
 }
 
 .tap-zone:hover {
     border: 1px solid var(--sparxstar-text-dim);
     background: var(--sparxstar-tap-bg-hover);
-    box-shadow: var(--sparxstar-glow) 2px 4px 12px 4px,var(--sparxstar-glow) -2px -3px 16px 3px
+    box-shadow:
+        var(--sparxstar-glow) 2px 4px 12px 4px,
+        var(--sparxstar-glow) -2px -3px 16px 3px;
 }
 
 .tap-zone.flash,
@@ -135,8 +145,8 @@
     border: 1px solid var(--sparxstar-text-dim);
     transform: scale(0.96);
     box-shadow:
-        var(--sparxstar-glow-dark) 0px 1px 2px 0px,
-        var(--sparxstar-glow-dark) 0px 1px 8px 0px;
+        var(--sparxstar-glow-dark) 0 1px 2px 0,
+        var(--sparxstar-glow-dark) 0 1px 8px 0;
 }
 
 .tap-icon {
@@ -203,11 +213,11 @@
     font-size: 26px;
     line-height: var(--sparxstar-unit-spacing);
     text-align: center;
+
     /* The use of Noto Sans Mono ensures consistent character width,
        which is crucial for maintaining rhythmic accuracy in prosody visualization. */
     font-family: "Noto Sans Mono", monospace; /* ✅ Noto Mono for precision */
     font-optical-sizing: auto; /* Enable optical sizing for better readability at various sizes */
-
 }
 
 /* -- PROSODIC UNITS -- */
@@ -221,6 +231,7 @@
         opacity 0.3s,
         transform 0.3s;
     cursor: crosshair;
+
     /* The use of Noto Sans Mono ensures consistent character width,
        which is crucial for maintaining rhythmic accuracy in prosody visualization. */
     font-family: "Noto Sans Mono", monospace; /* ✅ Monospace inside rhythm engine */
@@ -283,8 +294,8 @@
     gap: 15px;
     z-index: 100;
     box-shadow:
-        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-        rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+        rgb(60 64 67 / 30%) 0 1px 2px 0,
+        rgb(60 64 67 / 15%) 0 1px 3px 1px;
     transition:
         opacity 0.8s ease,
         transform 0.8s ease;
@@ -299,23 +310,27 @@
 .neutral-btn {
     border: none;
     padding: 10px 16px;
-    box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
-    transition: background 0.2s, box-shadow 0.2s;
-     cursor: pointer;
+    box-shadow: rgb(0 0 0 / 8%) 0 4px 12px;
+    transition:
+        background 0.2s,
+        box-shadow 0.2s;
+    cursor: pointer;
     user-select: none;
-    -webkit-user-select: none;
+    user-select: none;
     touch-action: manipulation;
 }
 
 .neutral-btn:hover {
-    border:none;
+    border: none;
     box-shadow:
-            rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-            rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+        rgb(60 64 67 / 30%) 0 1px 2px 0,
+        rgb(60 64 67 / 15%) 0 2px 6px 2px;
 }
 
 .neutral-btn:active {
-    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    box-shadow:
+        rgb(60 64 67 / 30%) 0 1px 2px 0,
+        rgb(60 64 67 / 15%) 0 1px 3px 1px;
     transform: scale(0.95);
 }
 
@@ -329,7 +344,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    box-shadow:
+        rgb(60 64 67 / 30%) 0 1px 2px 0,
+        rgb(60 64 67 / 15%) 0 1px 3px 1px;
 }
 
 .fader-group {
@@ -357,8 +374,8 @@
     border-radius: 50%;
     cursor: pointer;
     box-shadow:
-        rgba(0, 0, 0, 0.16) 0px 3px 6px,
-        rgba(0, 0, 0, 0.23) 0px 3px 6px;
+        rgb(0 0 0 / 16%) 0 3px 6px,
+        rgb(0 0 0 / 23%) 0 3px 6px;
     transition:
         background 0.2s,
         transform 0.2s;
@@ -382,8 +399,8 @@
     padding: 4px;
     min-width: 60px;
     box-shadow:
-        rgba(0, 0, 0, 0.12) 0px 1px 3px,
-        rgba(0, 0, 0, 0.24) 0px 1px 2px;
+        rgb(0 0 0 / 12%) 0 1px 3px,
+        rgb(0 0 0 / 24%) 0 1px 2px;
 }
 
 .secondary-text-btn .dashicons {
@@ -500,7 +517,7 @@
    - Subtle use of brand colors and motifs.
    - Can be expanded with SVG icons or background patterns.
    ========================================= */
-.starmus-script-library{
+.starmus-script-library {
     display: grid;
     flex-direction: column;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -514,15 +531,16 @@
     padding: 1.5rem;
     border: 1px solid var(--sparxstar-ui-border);
     border-radius: 8px;
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+    box-shadow:
+        rgb(0 0 0 / 10%) 0 1px 3px 0,
+        rgb(0 0 0 / 6%) 0 1px 2px 0;
 }
 
 .starmus-card-header {
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(255 255 255 / 10%);
     padding: 10px;
     margin-bottom: 1rem;
     text-transform: capitalize;
-
 }
 
 .starmus-card-title {
@@ -566,8 +584,8 @@
     color: var(--sparxstar-text);
     font-weight: 600;
     box-shadow:
-        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-        rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+        rgb(60 64 67 / 30%) 0 1px 2px 0,
+        rgb(60 64 67 / 15%) 0 1px 3px 1px;
 }
 
 .starmus-audio-preview {
@@ -612,8 +630,6 @@
 .prosodic-unit.current {
     will-change: transform, opacity;
 }
-
-
 
 /* =========================================
    END OF starmus-prosody-engine.css

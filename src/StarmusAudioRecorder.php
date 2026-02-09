@@ -39,6 +39,7 @@ use Starisian\Sparxstar\Starmus\admin\StarmusTaskManager;
 use Starisian\Sparxstar\Starmus\api\StarmusDataRESTHandler;
 use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
 // Components
+use Starisian\Sparxstar\Starmus\cli\StarmusCLI;
 use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSettings;
 use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
 use Starisian\Sparxstar\Starmus\core\StarmusPostTypeLoader;
@@ -49,11 +50,11 @@ use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
+use Starisian\Sparxstar\Starmus\integrations\appmode\SparxstarAppMode;
 use Starisian\Sparxstar\Starmus\frontend\StarmusShortcodeLoader;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage;
 use Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler;
-use Starisian\Sparxstar\Starmus\services\StarmusCLI;
 use Starisian\Sparxstar\Starmus\services\StarmusEnhancedId3Service;
 use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
@@ -178,6 +179,12 @@ final class StarmusAudioRecorder
      * @since 0.1.0
      */
     private ?StarmusSettings $settings = null;
+
+    private ?StarmusShortcodeLoader $frontend = null;
+
+    private ?StarmusAdmin $admin = null;
+
+    private ?StarmusTaskManager $taskManager = null;
 
     /**
      * Private constructor for singleton pattern.
@@ -405,10 +412,8 @@ final class StarmusAudioRecorder
     {
         try {
             if (class_exists(StarmusCLI::class) && \defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
-                $cli = new StarmusCLI($this->get_DAL(), $this->getSettings());
-                $cli->register_hooks();
+                $cli = new StarmusCLI();
                 StarmusLogger::info('Starmus Info: StarmusCLI initialized successfully.');
-                return;
             }
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -424,21 +429,25 @@ final class StarmusAudioRecorder
 
             // Admin
             if (class_exists(StarmusAdmin::class) && is_admin()) {
-                new StarmusAdmin($this->get_DAL(), $this->getSettings());
+                $this->admin = new StarmusAdmin($this->get_DAL(), $this->getSettings());
                 StarmusLogger::info('Starmus Info: StarmusAdmin initialized successfully.');
             }
 
             // Task Manager
             if (class_exists(StarmusTaskManager::class)) {
-                new StarmusTaskManager();
+                $this->taskManager = new StarmusTaskManager();
                 StarmusLogger::info('Starmus Info: StarmusTaskManager initialized successfully.');
+            }
+
+            if(class_exists(SparxstarAppMode::class)) {
+                $appMode = new SparxstarAppMode();
+                StarmusLogger::info('Starmus Info: SparxstarAppMode initialized successfully.');
             }
 
             // Shortcodes
             if (class_exists(StarmusShortcodeLoader::class)) {
-                new StarmusShortcodeLoader($this->get_DAL(), $this->getSettings(), $this->get_ProsodyDAL());
+                $this->frontend = new StarmusShortcodeLoader($this->get_DAL(), $this->getSettings(), $this->get_ProsodyDAL(), $appMode ?? null);
                 StarmusLogger::info('Starmus Info: StarmusShortcodeLoader initialized successfully.');
-                return;
             }
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
@@ -599,6 +608,21 @@ final class StarmusAudioRecorder
         return $this->settings;
     }
 
+    public function getFrontend(): ?StarmusShortcodeLoader
+    {
+        return $this->frontend;
+    }
+
+    public function getAdmin(): ?StarmusAdmin
+    {
+        return $this->admin;
+    }
+
+    public function getTaskManager(): ?StarmusTaskManager
+    {
+        return $this->taskManager;
+    }
+
     /**
      * Display collected runtime errors as admin notices.
      *
@@ -640,8 +664,6 @@ final class StarmusAudioRecorder
      * @since  0.1.0
      *
      * @throws LogicException Always - cloning is not allowed.
-     *
-     * @return void
      */
     public function __clone()
     {

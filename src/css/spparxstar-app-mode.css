@@ -1,0 +1,161 @@
+/**
+ * @file       sparxstar-app-mode.css
+ * @author     Starisian Technologies (Max Barrett)
+ * @license    MIT License
+ * @copyright  Copyright (c) 2026 Starisian Technologies
+ */
+
+/* ================================================================
+   SPARXSTAR APP MODE STYLES (Golden Master v1.2.1)
+   - Mobile-first, WebView-hardened
+   - iOS + Android safe
+   - Gesture + Accessibility aligned with JS engine
+   - Production-locked
+   ================================================================ */
+
+/* ------------------------------------------------
+   1. Trigger Elements
+------------------------------------------------ */
+.sparxstar-app-mode {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* ------------------------------------------------
+   2. Active Modal State
+------------------------------------------------ */
+.sparxstar-active {
+    /* Positioning */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+
+    /* Height fallbacks (order matters) */ /* legacy */ /* stable viewport */
+    height: 100dvh; /* dynamic viewport */
+    min-height: 100vh;
+    z-index: 99999;
+
+    /* Layout */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    /* Visuals */
+    background-color: #fff;
+    transform-origin: center top;
+    will-change: transform;
+
+    /* Scrolling & gestures */
+    overflow: hidden auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+
+    /* Interaction polish */
+    -webkit-tap-highlight-color: transparent;
+
+    /* Focus & box model */
+    outline: none;
+    box-sizing: border-box;
+
+    /* Safe-area support (notches / home indicators) */
+    padding: calc(20px + env(safe-area-inset-top, 0px)) env(safe-area-inset-right, 0)
+        env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+}
+
+/* ------------------------------------------------
+   3. iOS / Mobile Body Scroll Lock
+   (Paired with JS body.style.top handling)
+------------------------------------------------ */
+body.sparxstar-scroll-locked {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+}
+
+/* ------------------------------------------------
+   4. Reduced Motion (Accessibility)
+   IMPORTANT: Do NOT disable transforms.
+   JS relies on transform for scaling.
+------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+    .sparxstar-active {
+        transition: none !important;
+        animation: none !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ------------------------------------------------
+   5. Interaction Safety
+   Prevents accidental text selection during swipe
+   while keeping forms usable.
+------------------------------------------------ */
+.sparxstar-active * {
+    user-select: none;
+    user-select: none;
+}
+
+.sparxstar-active input,
+.sparxstar-active textarea,
+.sparxstar-active select,
+.sparxstar-active [contenteditable="true"] {
+    user-select: text;
+    user-select: text;
+    cursor: text;
+}
+
+/* ================================================================
+   6. RESPONSIVE FORM SAFETY NET (OPT-IN)
+   Use by adding: .sparxstar-active.sparxstar-form-safe
+   ================================================================ */
+
+/* Force container to be mobile-fluid */
+.sparxstar-active.sparxstar-form-safe form,
+.sparxstar-active.sparxstar-form-safe .wpcf7,
+.sparxstar-active.sparxstar-form-safe .gform_wrapper,
+.sparxstar-active.sparxstar-form-safe .wpforms-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Stack columns vertically */
+.sparxstar-active.sparxstar-form-safe .gfield,
+.sparxstar-active.sparxstar-form-safe .wpforms-field {
+    width: 100% !important;
+    float: none !important;
+    margin-right: 0 !important;
+}
+
+/* Ensure inputs are tappable and legible */
+.sparxstar-active.sparxstar-form-safe input:not([type="checkbox"], [type="radio"]),
+.sparxstar-active.sparxstar-form-safe select,
+.sparxstar-active.sparxstar-form-safe textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 44px;
+    font-size: 16px !important;
+    box-sizing: border-box;
+}
+
+/* Improve checkbox / radio tap area without breaking layout */
+.sparxstar-active.sparxstar-form-safe input[type="checkbox"],
+.sparxstar-active.sparxstar-form-safe input[type="radio"] {
+    min-width: 20px;
+    min-height: 20px;
+}
+
+/* Fix common WP form padding issues */
+.sparxstar-active.sparxstar-form-safe .gform_body,
+.sparxstar-active.sparxstar-form-safe .wpcf7-form {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}

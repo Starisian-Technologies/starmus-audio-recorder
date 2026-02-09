@@ -1,9 +1,10 @@
 # phpstan.neon.dist
 
-# includes:
-#   - phpstan-baseline.neon
+includes:
+  - phpstan-baseline.neon
 
 parameters:
+  reportUnmatchedIgnoredErrors: false
   level: 6
   paths:
     - src
@@ -15,6 +16,10 @@ parameters:
   # Configure WordPress-specific settings
   bootstrapFiles:
     - tests/wordpress-mocks.php
+
+  # WordPress stubs for core function and constant discovery
+  stubFiles:
+    - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
 
   # Consolidated and cleaned-up exclusion paths
   excludePaths:

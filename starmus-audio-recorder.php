@@ -32,7 +32,7 @@
  * Domain Path:       /languages
  * Author:            Starisian Technologies
  * Author URI:        https://starisian.com
- * Update URI:        https://starism.com/sparxstar/starmus-audio-recorder/update
+ * Update URI:        https://starisian.com/sparxstar/starmus-audio-recorder/update
  */
 
 declare(strict_types=1);
@@ -61,13 +61,16 @@ if ( ! defined('STARMUS_R2_ENDPOINT')) {
     define('STARMUS_R2_ENDPOINT', 'https://cdn.sparxstar.com/');
 }
 if ( ! defined('STARMUS_TUS_WEBHOOK_SECRET')) {
-    define('STARMUS_TUS_WEBHOOK_SECRET', '84d34624286938554e5e19d9fafe9f5da3562c4d1d443e02c186f8e44019406e');
+    define('STARMUS_TUS_WEBHOOK_SECRET', 'starmus_secret_123');
 }
 if ( ! defined('STARMUS_REST_NAMESPACE')) {
     define('STARMUS_REST_NAMESPACE', 'star-starmus-audio-recorder/v1');
 }
 if ( ! defined('STARMUS_DELETE_ON_UNINSTALL')) {
     define('STARMUS_DELETE_ON_UNINSTALL', false);
+}
+if ( ! defined('STARMUS_DAL_OVERRIDE_KEY')) {
+    define('STARMUS_DAL_OVERRIDE_KEY', 'starmus_dal_override');
 }
 
 /**

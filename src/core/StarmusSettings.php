@@ -127,8 +127,6 @@ final class StarmusSettings implements IStarmusSettings
      *
      * Loads default settings, fetches current settings from database,
      * and registers WordPress hooks for MIME type validation.
-     *
-     * @return void
      */
     public function __construct()
     {

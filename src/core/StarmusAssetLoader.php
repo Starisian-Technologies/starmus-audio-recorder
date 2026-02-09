@@ -15,6 +15,7 @@ declare(strict_types=1);
  *
  * @version 0.9.2
  */
+
 namespace Starisian\Sparxstar\Starmus\core;
 
 use function array_filter;
@@ -22,6 +23,8 @@ use function array_map;
 use function array_values;
 use function defined;
 use function explode;
+use function file_exists;
+use function filemtime;
 use function is_admin;
 
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
@@ -131,22 +134,67 @@ final class StarmusAssetLoader
     private function enqueue_app_mode_assets(): void
     {
         $url = \defined('STARMUS_URL') ? STARMUS_URL : '';
-        $version = $this->resolve_version();
+        $path = \defined('STARMUS_PATH') ? STARMUS_PATH : '';
 
-        wp_enqueue_style(
-            'sparxstar-app-mode-css',
-            $url . 'src/css/sparxstar-starmus-app-mode.css',
-            [],
-            $version
+        $css_asset = $this->resolve_app_mode_asset(
+            $url,
+            $path,
+            'assets/css/sparxstar-app-mode.min.css',
+            'src/css/spparxstar-app-mode.css'
         );
 
-        wp_enqueue_script(
-            'sparxstar-app-mode-js',
-            $url . 'src/js/app-mode/sparxstar-starmus-app-mode.js',
-            [],
-            $version,
-            true
+        if ($css_asset['url'] !== '') {
+            wp_enqueue_style(
+                'sparxstar-app-mode-css',
+                $css_asset['url'],
+                [],
+                $css_asset['version']
+            );
+        }
+
+        $js_asset = $this->resolve_app_mode_asset(
+            $url,
+            $path,
+            'assets/js/sparxstar-app-mode.min.js',
+            'src/js/appmode/sparxstar-app-mode.js'
         );
+
+        if ($js_asset['url'] !== '') {
+            wp_enqueue_script(
+                'sparxstar-app-mode-js',
+                $js_asset['url'],
+                [],
+                $js_asset['version'],
+                true
+            );
+        }
+    }
+
+    /**
+     * Resolve minified app mode assets with source fallback.
+     *
+     * @return array{url: string, version: string}
+     */
+    private function resolve_app_mode_asset(string $base_url, string $base_path, string $min_rel, string $src_rel): array
+    {
+        if ($base_path !== '' && file_exists($base_path . $min_rel)) {
+            return [
+                'url' => $base_url . $min_rel,
+                'version' => (string) filemtime($base_path . $min_rel),
+            ];
+        }
+
+        if ($base_path !== '' && file_exists($base_path . $src_rel)) {
+            return [
+                'url' => $base_url . $src_rel,
+                'version' => (string) filemtime($base_path . $src_rel),
+            ];
+        }
+
+        return [
+            'url' => '',
+            'version' => $this->resolve_version(),
+        ];
     }
 
     /**
@@ -352,7 +400,7 @@ final class StarmusAssetLoader
             $allowed_types = array_values(
                 array_filter(
                     array_map(trim(...), explode(',', $allowed_string)),
-                    fn (string $v): bool => $v !== ''
+                    fn(string $v): bool => $v !== ''
                 )
             );
 
@@ -405,7 +453,7 @@ final class StarmusAssetLoader
         // 3. Create a CSS variable and attach it to your stylesheet
         $custom_css = "
             :root {
-                --sparxstar-starmus-bg-url: url('$bg_image_url');
+                --sparxstar-starmus-bg-url: url('{$bg_image_url}');
             }
         ";
         wp_add_inline_style('starmus-styles', $custom_css);

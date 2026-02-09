@@ -67,7 +67,6 @@ class StarmusAdmin
      *
      * @throws \Throwable If initialization fails.
      *
-     * @return void
      *
      * @since 0.3.1
      */

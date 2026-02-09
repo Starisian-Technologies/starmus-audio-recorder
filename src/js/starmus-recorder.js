@@ -69,14 +69,14 @@ class LanguageSignalAnalyzer {
         }
 
         switch (this.country) {
-        case "GM":
-            return ["en-US"]; // Gambia - English probe only
-        case "SN":
-        case "GN":
-        case "ML":
-            return ["fr-FR"]; // Francophone - French probe only
-        default:
-            return ["en-US"]; // Unknown - English fallback
+            case "GM":
+                return ["en-US"]; // Gambia - English probe only
+            case "SN":
+            case "GN":
+            case "ML":
+                return ["fr-FR"]; // Francophone - French probe only
+            default:
+                return ["en-US"]; // Unknown - English fallback
         }
     }
 

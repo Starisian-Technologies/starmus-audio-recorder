@@ -159,6 +159,37 @@ final class StarmusWaveformService
         }
     }
 
+    public function set_file_service(StarmusFileService $file_service): void
+    {
+        $this->files = $file_service;
+    }
+
+    public function has_waveform_data(int $recording_id): bool
+    {
+        $existing = get_post_meta($recording_id, 'waveform_json', true);
+        return ! empty($existing);
+    }
+
+    public function get_waveform_data(int $recording_id): ?array
+    {
+        $json_str = get_post_meta($recording_id, 'waveform_json', true);
+        if (empty($json_str)) {
+            return null;
+        }
+
+        return json_decode($json_str, true);
+    }
+
+    public function delete_waveform_data(int $recording_id): bool
+    {
+        $success = delete_post_meta($recording_id, 'waveform_json');
+        if (function_exists('delete_field')) {
+            $success = delete_field('waveform_json', $recording_id);
+        }
+
+        return $success;
+    }
+
     /**
      * Main entry point for waveform generation and storage.
      *
@@ -240,8 +271,7 @@ final class StarmusWaveformService
         }
 
         // 3. Skip if exists
-        $existing = get_post_meta($recording_id, 'waveform_json', true);
-        if ( ! empty($existing)) {
+        if ($this->has_waveform_data($recording_id)) {
             return true;
         }
 

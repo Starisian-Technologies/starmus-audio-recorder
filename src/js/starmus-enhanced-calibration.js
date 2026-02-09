@@ -220,30 +220,30 @@ class EnhancedCalibration {
                 const progress = (elapsed / settings.duration) * 100;
 
                 switch (currentPhase) {
-                case 0:
-                    // Noise floor measurement
-                    if (volume < settings.noiseThreshold) {
-                        noiseFloor = Math.max(noiseFloor, volume);
-                    }
-                    message =
+                    case 0:
+                        // Noise floor measurement
+                        if (volume < settings.noiseThreshold) {
+                            noiseFloor = Math.max(noiseFloor, volume);
+                        }
+                        message =
                             this.tier === "C"
                                 ? "Quick setup..."
                                 : `Phase 1: Measuring background noise (${Math.ceil((phaseDuration - phaseElapsed) / 1000)}s)`;
-                    break;
-                case 1:
-                    if (volume > settings.speechThreshold) {
-                        speechPeaks.push(volume);
-                    }
-                    message = "Phase 2: Speak your name clearly...";
-                    break;
+                        break;
+                    case 1:
+                        if (volume > settings.speechThreshold) {
+                            speechPeaks.push(volume);
+                        }
+                        message = "Phase 2: Speak your name clearly...";
+                        break;
 
-                case 2:
-                    // Optimization (Tier A only)
-                    message = "Phase 3: Optimizing settings...";
-                    break;
+                    case 2:
+                        // Optimization (Tier A only)
+                        message = "Phase 3: Optimizing settings...";
+                        break;
 
-                default:
-                    message = "Calibration complete";
+                    default:
+                        message = "Calibration complete";
                 }
 
                 if (onUpdate) {
