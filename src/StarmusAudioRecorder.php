@@ -50,11 +50,11 @@ use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
-use Starisian\Sparxstar\Starmus\integrations\appmode\SparxstarAppMode;
 use Starisian\Sparxstar\Starmus\frontend\StarmusShortcodeLoader;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\i18n\Starmusi18NLanguage;
 use Starisian\Sparxstar\Starmus\includes\StarmusTusdHookHandler;
+use Starisian\Sparxstar\Starmus\integrations\appmode\SparxstarAppMode;
 use Starisian\Sparxstar\Starmus\services\StarmusEnhancedId3Service;
 use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
@@ -413,6 +413,7 @@ final class StarmusAudioRecorder
         try {
             if (class_exists(StarmusCLI::class) && \defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
                 $cli = new StarmusCLI();
+                \WP_CLI::add_command('starmus', $cli);
                 StarmusLogger::info('Starmus Info: StarmusCLI initialized successfully.');
             }
         } catch (Throwable $throwable) {
@@ -439,7 +440,7 @@ final class StarmusAudioRecorder
                 StarmusLogger::info('Starmus Info: StarmusTaskManager initialized successfully.');
             }
 
-            if(class_exists(SparxstarAppMode::class)) {
+            if (class_exists(SparxstarAppMode::class)) {
                 $appMode = new SparxstarAppMode();
                 StarmusLogger::info('Starmus Info: SparxstarAppMode initialized successfully.');
             }

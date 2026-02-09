@@ -15,10 +15,6 @@ use Starisian\Sparxstar\Starmus\data\StarmusAudioDAL;
 use Starisian\Sparxstar\Starmus\data\StarmusProsodyDAL;
 use Starisian\Sparxstar\Starmus\helpers\StarmusLogger;
 use Starisian\Sparxstar\Starmus\helpers\StarmusTemplateLoaderHelper;
-use Starisian\Sparxstar\Starmus\frontend\StarmusAudioEditorUI;
-use Starisian\Sparxstar\Starmus\frontend\StarmusAudioRecorderUI;
-use Starisian\Sparxstar\Starmus\frontend\StarmusConsentUI;
-use Starisian\Sparxstar\Starmus\frontend\StarmusProsodyPlayer;
 use Starisian\Sparxstar\Starmus\integrations\appmode\SparxstarAppMode;
 use Throwable;
 
@@ -91,7 +87,6 @@ final class StarmusShortcodeLoader
      * @param StarmusProsodyDAL|null $prosody_dal The prosody DAL instance.
      * @param SparxstarAppMode|null $appMode The application mode instance.
      *
-     *
      * @since 0.7.7
      *
      * @author Your Name
@@ -135,7 +130,6 @@ final class StarmusShortcodeLoader
     /**
      * Register shortcodes — but don't instantiate heavy UI classes yet.
      *
-     *
      * @since 0.7.7
      *
      * @author Your Name
@@ -151,6 +145,7 @@ final class StarmusShortcodeLoader
      * @example The [starmus_audio_re_recorder] shortcode will only instantiate the StarmusAudioRecorderUI class and execute the re-recorder rendering logic when the shortcode is rendered, rather than at the time of registration, which helps improve performance on pages that do not use this shortcode.
      * @example The [starmus_contributor_consent] shortcode will only instantiate the StarmusConsentUI class and execute the consent rendering logic when the shortcode is rendered, rather than at the time of registration, which helps improve performance on pages that do not use this shortcode.
      * @example The [starmus_script_recorder] shortcode will only execute the logic to render the combined prosody player and re-recorder when the shortcode is rendered, rather than at the time of registration, which helps improve performance on pages that do not use this shortcode.
+     *
      * @see safe_render() for the method used to wrap the rendering logic of each shortcode to ensure that any exceptions are caught and logged, and that a user-friendly message is displayed if an error occurs during rendering.
      */
     public function register_shortcodes(): void
@@ -179,7 +174,6 @@ final class StarmusShortcodeLoader
      *
      * @param StarmusProsodyDAL|null $prosody_dal The prosody DAL instance.
      *
-     *
      * @since 0.7.7
      *
      * @author Your Name
@@ -187,6 +181,7 @@ final class StarmusShortcodeLoader
      * @note This method checks if the prosody engine has already been initialized, and if not, it creates a new instance of the StarmusProsodyPlayer using the provided DAL. This ensures that the prosody engine is only set up once, avoiding unnecessary object creation and potential performance issues.
      *
      * @warning Be mindful of the fact that if the StarmusProsodyPlayer fails to initialize properly (e.g., due to misconfiguration or missing dependencies), it could lead to errors when attempting to use the prosody functionality. The method includes error handling to log any exceptions that occur during initialization, but it's important to ensure that the underlying issues are addressed to prevent ongoing problems with prosody features.
+     *
      * @example If the StarmusProsodyPlayer fails to initialize due to a misconfiguration in the DAL, the method will catch the exception and log it, allowing the rest of the shortcode loader functionality to continue operating without prosody features. This helps maintain overall site functionality while providing valuable information in the logs for troubleshooting.
      */
     private function set_prosody_engine(?StarmusProsodyDAL $prosody_dal = null): void
@@ -348,7 +343,6 @@ final class StarmusShortcodeLoader
     /**
      * Render the single recording detail shortcode.
      *
-     *
      * @since 0.7.7
      *
      * @author Your Name
@@ -447,8 +441,6 @@ final class StarmusShortcodeLoader
 
     /**
      * Summary of render_editor_with_bootstrap
-     *
-     *
      */
     private function render_editor_with_bootstrap(array $atts): string
     {
@@ -576,7 +568,7 @@ final class StarmusShortcodeLoader
             </div>
 
         <?php
-        return $this->appMode->sparxstarAppMode([],ob_get_clean());
+        return $this->appMode->sparxstarAppMode([], ob_get_clean());
     }
 
     /**

@@ -183,7 +183,7 @@ final class StarmusWaveformService
     public function delete_waveform_data(int $recording_id): bool
     {
         $success = delete_post_meta($recording_id, 'waveform_json');
-        if (function_exists('delete_field')) {
+        if (\function_exists('delete_field')) {
             $success = delete_field('waveform_json', $recording_id);
         }
 

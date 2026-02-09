@@ -13,7 +13,6 @@
  * Author:      Starisian Technologies (Max Barrett) <support@starisian.com>
  * Text Domain: sparxstar-app-mode
  */
-
 namespace Starisian\Sparxstar\Starmus\integrations\appmode;
 
 // exit if not WP
@@ -57,10 +56,10 @@ final class SparxstarAppMode
         $base_dir_url = plugin_dir_url(__FILE__) . $relative_dir;
 
         // 1. Check Minified
-        if ( $min_filename !== '' && $min_filename !== '0' && \file_exists($base_dir_path . $min_filename)) {
+        if ( $min_filename !== '' && $min_filename !== '0' && file_exists($base_dir_path . $min_filename)) {
             return [
                 'url' => $base_dir_url . $min_filename,
-                'version' => (string) \filemtime($base_dir_path . $min_filename),
+                'version' => (string) filemtime($base_dir_path . $min_filename),
             ];
         }
 
@@ -68,7 +67,7 @@ final class SparxstarAppMode
         if (file_exists($base_dir_path . $filename)) {
             return [
                 'url' => $base_dir_url . $filename,
-                'version' => (string) \filemtime($base_dir_path . $filename),
+                'version' => (string) filemtime($base_dir_path . $filename),
             ];
         }
 
@@ -146,7 +145,7 @@ final class SparxstarAppMode
     {
         $this->sparxstarEnqueueAssets();
 
-        return sprintf(
+        return \sprintf(
             '<div class="sparxstar-app-mode %s" aria-hidden="false">%s</div>',
             esc_attr($atts['class'] ?? ''),
             $content

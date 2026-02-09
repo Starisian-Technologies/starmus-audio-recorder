@@ -67,7 +67,6 @@ class StarmusAdmin
      *
      * @throws \Throwable If initialization fails.
      *
-     *
      * @since 0.3.1
      */
     public function __construct(IStarmusAudioDAL $DAL, StarmusSettings $settings)
