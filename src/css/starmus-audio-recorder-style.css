@@ -118,7 +118,14 @@
 }
 
 .starmus-recorder-form h2 {
-    font-size: clamp(0.9rem, 1.1rem, 1.5rem);
+    font-size: clamp(0.9rem, 1rem, 1.2rem);
+}
+
+.starmus-mic-stage h2{
+    color: #ccc;
+    font-size: clamp(0.9rem, 1rem, 1.1rem);
+    text-transform: uppercase;
+    text-shadow: #222 2px 2px 3px;
 }
 
 .starmus-grid-layout {
@@ -424,11 +431,11 @@ button[data-starmus-action="setup-mic"]:active {
         rgb(0 0 0 / 23%) 0 3px 6px;
 }
 
-.starmus-setup-container,
-.starmus-mic-stage {
+.starmus-setup-container{
     display: flex;
     flex-direction: column;
     align-items: center;
+    width:100%;
     gap: 1.5rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
@@ -451,6 +458,29 @@ button[data-starmus-action="setup-mic"]:active {
         rgb(0 0 0 / 9%) 0 8px 4px,
         rgb(0 0 0 / 9%) 0 16px 8px,
         rgb(0 0 0 / 9%) 0 32px 16px;
+    box-sizing: border-box;
+}
+
+.starmus-mic-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width:100%;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 25px;
+    background-color: #808080;
+
+    /* Use the variable injected by PHP */
+    /*background-image: url("../../src/frontend/images/gun-metal.png");*/
+
+    /* Tiling settings */
+    background-repeat: repeat; /* This tiles the image both horizontally and vertically */
+    background-position: center center;
+    background-size: auto; /* Keeps the image at its original pixel size while tiling */
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    box-sizing: border-box;
 }
 
 .starmus-mic-stage-label {
