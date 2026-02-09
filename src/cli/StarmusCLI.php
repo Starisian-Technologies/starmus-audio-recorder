@@ -9,6 +9,7 @@
  *
  * @version 0.9.2
  */
+
 namespace Starisian\Sparxstar\Starmus\cli;
 
 use function absint;
@@ -42,7 +43,7 @@ use WP_Query;
 
 use function wp_strip_all_tags;
 
-if ( ! \defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -77,10 +78,10 @@ class StarmusCLI extends WP_CLI_Command
      *     # Generate waveforms for all recordings missing them.
      *     $ wp starmus waveform generate
      *
-     *     # Force regenerate waveforms for posts 123 and 456.
+     *     # Force regenerate waveforms for recordings or attachments 123 and 456.
      *     $ wp starmus waveform generate --post_ids=123,456 --regenerate
      *
-     *     # Delete waveform data for attachment ID 789.
+     *     # Delete waveform data for attachment or recording ID 789.
      *     $ wp starmus waveform delete --attachment_ids=789
      *
      * @param mixed $args
@@ -112,13 +113,16 @@ class StarmusCLI extends WP_CLI_Command
      *   - run
      * ---
      *
+     * [--id=<id>]
+     * : Attachment ID OR audio-recording ID.
+     *
      * [--attachment_id=<id>]
-     * : The attachment ID to process.
+     * : Attachment ID OR audio-recording ID (legacy name).
      *
      * ## EXAMPLES
      *
      *     # Run the pipeline for a specific recording
-     *     $ wp starmus process run --attachment_id=123
+     *     $ wp starmus process run --id=123
      *
      * @param mixed $args
      * @param mixed $assoc_args
@@ -142,14 +146,18 @@ class StarmusCLI extends WP_CLI_Command
      */
     private function run_pipeline(array $assoc_args): void
     {
-        $attachment_id = (int) ($assoc_args['attachment_id'] ?? 0);
+        $raw_id = (int) ($assoc_args['id'] ?? $assoc_args['attachment_id'] ?? 0);
+        if ($raw_id <= 0) {
+            WP_CLI::error('Please provide a valid --id or --attachment_id.');
+        }
 
+        $attachment_id = $this->resolve_attachment_id($raw_id);
         if ($attachment_id <= 0) {
-            WP_CLI::error('Please provide a valid --attachment_id.');
+            return;
         }
 
         $parent_id = wp_get_post_parent_id($attachment_id);
-        if ( ! $parent_id) {
+        if (! $parent_id) {
             WP_CLI::error(\sprintf('Attachment %d has no parent post.', $attachment_id));
         }
 
@@ -212,6 +220,9 @@ class StarmusCLI extends WP_CLI_Command
      * default: 1
      * ---
      *
+     * @subcommand cleanup-temp-files
+     * @alias cleanup_temp_files
+     *
      * @param mixed $args
      */
     public function cleanup_temp_files($args, array $assoc_args): void
@@ -260,7 +271,7 @@ class StarmusCLI extends WP_CLI_Command
             ]
         );
 
-        if ( ! $query->have_posts()) {
+        if (! $query->have_posts()) {
             WP_CLI::error('No recordings found to export.');
         }
 
@@ -319,7 +330,7 @@ class StarmusCLI extends WP_CLI_Command
         }
 
         $csv_file = $args[0];
-        if ( ! file_exists($csv_file) || ! is_readable($csv_file)) {
+        if (! file_exists($csv_file) || ! is_readable($csv_file)) {
             WP_CLI::error('CSV file not found or is not readable at: ' . $csv_file);
         }
 
@@ -332,7 +343,7 @@ class StarmusCLI extends WP_CLI_Command
     private function generate_waveforms(array $assoc_args): void
     {
         // PRE-FLIGHT CHECK: Verify the tool is available before doing anything else.
-        if ( ! $this->waveform_service->is_tool_available()) {
+        if (! $this->waveform_service->is_tool_available()) {
             WP_CLI::error(
                 "The 'audiowaveform' command-line tool is not installed or not in the server's PATH. " .
                     'Please install it to generate waveforms. See: https://github.com/bbc/audiowaveform'
@@ -348,16 +359,41 @@ class StarmusCLI extends WP_CLI_Command
             'paged' => 1,
         ];
 
-        if ( ! empty($assoc_args['post_ids'])) {
-            $query_args['post__in'] = array_map(absint(...), explode(',', (string) $assoc_args['post_ids']));
-            $query_args['posts_per_page'] = \count($query_args['post__in']);
+        if (! empty($assoc_args['post_ids'])) {
+            $post_ids = array_map(absint(...), explode(',', (string) $assoc_args['post_ids']));
+            $regenerate = isset($assoc_args['regenerate']);
+            $progress = make_progress_bar('Generating Waveforms', \count($post_ids));
+            $processed = 0;
+            $skipped = 0;
+            $failed = 0;
+
+            foreach ($post_ids as $post_id) {
+                $attachment_id = $this->resolve_attachment_id($post_id, false);
+
+                if ($attachment_id <= 0) {
+                    ++$skipped;
+                } elseif (! $regenerate && $this->waveform_service->has_waveform_data($attachment_id)) {
+                    ++$skipped;
+                } elseif ($this->waveform_service->generate_waveform_data($attachment_id, $regenerate)) {
+                    ++$processed;
+                } else {
+                    ++$failed;
+                    WP_CLI::warning("\nFailed for ID {$post_id} (Attachment ID: {$attachment_id}). Check server logs.");
+                }
+
+                $progress->tick();
+            }
+
+            $progress->finish();
+            WP_CLI::success(\sprintf('Processing complete. Generated: %d, Skipped: %d, Failed: %d.', $processed, $skipped, $failed));
+            return;
         }
 
         // Use a WP_Query to get a reliable count of posts to be processed.
         $count_query = new WP_Query($query_args);
         $total_posts = $count_query->found_posts;
 
-        if ( ! $total_posts) {
+        if (! $total_posts) {
             WP_CLI::success('No recordings found to process.');
             return;
         }
@@ -370,16 +406,16 @@ class StarmusCLI extends WP_CLI_Command
 
         do {
             $query = new WP_Query($query_args);
-            if ( ! $query->have_posts()) {
+            if (! $query->have_posts()) {
                 break;
             }
 
             foreach ($query->posts as $post_id) {
                 $attachment_id = get_post_meta($post_id, '_audio_attachment_id', true);
 
-                if ( ! $attachment_id) {
+                if (! $attachment_id) {
                     ++$skipped;
-                } elseif ( ! $regenerate && $this->waveform_service->has_waveform_data($attachment_id)) {
+                } elseif (! $regenerate && $this->waveform_service->has_waveform_data($attachment_id)) {
                     ++$skipped;
                 } elseif ($this->waveform_service->generate_waveform_data($attachment_id, $regenerate)) {
                     ++$processed;
@@ -406,14 +442,21 @@ class StarmusCLI extends WP_CLI_Command
     private function delete_waveforms(array $assoc_args): void
     {
         if (empty($assoc_args['attachment_ids'])) {
-            WP_CLI::error('Please provide one or more attachment IDs using --attachment_ids=<ids>.');
+            WP_CLI::error('Please provide one or more IDs using --attachment_ids=<ids>.');
         }
 
         $attachment_ids = array_map(absint(...), explode(',', (string) $assoc_args['attachment_ids']));
         $deleted = 0;
         $skipped = 0;
 
-        foreach ($attachment_ids as $attachment_id) {
+        foreach ($attachment_ids as $id) {
+            $attachment_id = $this->resolve_attachment_id($id, false);
+
+            if ($attachment_id <= 0) {
+                ++$skipped;
+                continue;
+            }
+
             if ($this->waveform_service->delete_waveform_data($attachment_id)) {
                 WP_CLI::log('Deleted waveform data for attachment ID: ' . $attachment_id);
                 ++$deleted;
@@ -438,41 +481,34 @@ class StarmusCLI extends WP_CLI_Command
     }
 
     /**
-     * Force waveform + mastering regeneration for an attachment.
+     * Force waveform + mastering regeneration for an attachment OR recording.
      *
      * ## OPTIONS
      *
-     * <attachment_id>
-     * : The attachment ID to process.
+     * <id>
+     * : Attachment ID OR audio-recording ID.
      *
      * ## EXAMPLES
      *
-     *     wp starmus regen 1234
+     *     wp starmus regen 1344   # attachment
+     *     wp starmus regen 1343   # audio-recording (auto-resolves)
      *
      * @subcommand regen
      */
     public function regen(array $args): void
     {
         [$id] = $args;
-
-        $id = (int) $id;
-        if ($id <= 0) {
-            WP_CLI::error('Invalid attachment ID.');
+        $attachment_id = $this->resolve_attachment_id((int) $id);
+        if ($attachment_id <= 0) {
             return;
         }
 
-        $attachment = get_post($id);
-        if ( ! $attachment || $attachment->post_type !== 'attachment') {
-            WP_CLI::error(\sprintf('Attachment %d not found.', $id));
-            return;
-        }
-
-        WP_CLI::log(\sprintf('Regenerating waveform and audio pipeline for attachment %d...', $id));
+        WP_CLI::log("Regenerating waveform and audio pipeline for attachment {$attachment_id}...");
 
         $cron = new StarmusCron();
-        $cron->run_audio_processing_pipeline($id);
+        $cron->run_audio_processing_pipeline($attachment_id);
 
-        WP_CLI::success(\sprintf('Rebuilt waveform and audio pipeline for attachment %d.', $id));
+        WP_CLI::success("Rebuilt waveform and audio pipeline for attachment {$attachment_id}.");
     }
 
     /**
@@ -610,40 +646,85 @@ class StarmusCLI extends WP_CLI_Command
     }
 
     /**
-     * Queue waveform regeneration for a specific attachment (runs via cron).
+     * Queue waveform regeneration for a specific attachment or recording (runs via cron).
      *
      * ## OPTIONS
      *
-     * <attachment_id>
-     * : The attachment ID to queue.
+     * <id>
+     * : Attachment ID OR audio-recording ID.
      *
      * ## EXAMPLES
      *
-     *     wp starmus queue 1234
+     *     wp starmus queue 1234   # attachment
+     *     wp starmus queue 1233   # audio-recording
      *
      * @subcommand queue
      */
     public function queue(array $args): void
     {
         [$id] = $args;
-
-        $id = (int) $id;
-        if ($id <= 0) {
-            WP_CLI::error('Invalid attachment ID.');
+        $attachment_id = $this->resolve_attachment_id((int) $id);
+        if ($attachment_id <= 0) {
             return;
         }
 
-        $attachment = get_post($id);
-        if ( ! $attachment || $attachment->post_type !== 'attachment') {
-            WP_CLI::error(\sprintf('Attachment %d not found.', $id));
-            return;
-        }
-
-        WP_CLI::log(\sprintf('Queueing waveform regeneration for attachment %d...', $id));
+        WP_CLI::log(\sprintf('Queueing waveform regeneration for attachment %d...', $attachment_id));
 
         $cron = new StarmusCron();
-        $cron->schedule_audio_processing($id);
+        $cron->schedule_audio_processing($attachment_id);
 
-        WP_CLI::success(\sprintf('Queued attachment %d for cron processing.', $id));
+        WP_CLI::success(\sprintf('Queued attachment %d for cron processing.', $attachment_id));
+    }
+
+    /**
+     * Resolve a recording or attachment ID to a valid attachment ID.
+     */
+    private function resolve_attachment_id(int $id, bool $fatal = true): int
+    {
+        if ($id <= 0) {
+            $this->cli_fail('Invalid ID.', $fatal);
+            return 0;
+        }
+
+        $post = get_post($id);
+        if (! $post) {
+            $this->cli_fail("Post {$id} not found.", $fatal);
+            return 0;
+        }
+
+        if ($post->post_type === 'attachment') {
+            $attachment_id = $id;
+        } elseif ($post->post_type === 'audio-recording') {
+            $attachment_id = (int) get_post_meta($id, '_audio_attachment_id', true);
+
+            if ($attachment_id <= 0) {
+                $this->cli_fail("Recording {$id} has no linked attachment.", $fatal);
+                return 0;
+            }
+        } else {
+            $this->cli_fail("Unsupported post type '{$post->post_type}'.", $fatal);
+            return 0;
+        }
+
+        $attachment = get_post($attachment_id);
+        if (! $attachment || $attachment->post_type !== 'attachment') {
+            $this->cli_fail("Resolved attachment {$attachment_id} is invalid.", $fatal);
+            return 0;
+        }
+
+        return $attachment_id;
+    }
+
+    /**
+     * Emit a WP-CLI error or warning based on context.
+     */
+    private function cli_fail(string $message, bool $fatal): void
+    {
+        if ($fatal) {
+            WP_CLI::error($message);
+            return;
+        }
+
+        WP_CLI::warning($message);
     }
 }
