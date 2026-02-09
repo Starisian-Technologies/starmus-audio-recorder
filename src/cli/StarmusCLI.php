@@ -568,14 +568,20 @@ class StarmusCLI extends WP_CLI_Command
         $cron = $repair ? new StarmusCron() : null;
 
         foreach ($recordings as $recording) {
-            $attachment_id = (int) get_post_meta($recording->ID, '_audio_attachment_id', true);
-
-            if ($attachment_id <= 0) {
-                WP_CLI::warning(\sprintf('Recording %d has no attachment ID, skipping.', $recording->ID));
+            if (! $recording instanceof \WP_Post) {
+                WP_CLI::warning('Invalid recording object encountered, skipping.');
                 continue;
             }
 
-            WP_CLI::log(\sprintf('Recording %d (Attachment %d): Missing waveform_json', $recording->ID, $attachment_id));
+            $recording_id = (int) $recording->ID;
+            $attachment_id = (int) get_post_meta($recording_id, '_audio_attachment_id', true);
+
+            if ($attachment_id <= 0) {
+                WP_CLI::warning(\sprintf('Recording %d has no attachment ID, skipping.', $recording_id));
+                continue;
+            }
+
+            WP_CLI::log(\sprintf('Recording %d (Attachment %d): Missing waveform_json', $recording_id, $attachment_id));
 
             if ($repair && $cron instanceof StarmusCron) {
                 WP_CLI::log(\sprintf('  → Regenerating waveform for attachment %d...', $attachment_id));
@@ -623,6 +629,7 @@ class StarmusCLI extends WP_CLI_Command
                 'posts_per_page' => $limit,
                 'offset' => $offset,
                 'post_status' => 'inherit',
+                'fields' => 'ids',
             ]
         );
 
@@ -636,9 +643,9 @@ class StarmusCLI extends WP_CLI_Command
         $cron = new StarmusCron();
         $processed = 0;
 
-        foreach ($attachments as $attachment) {
-            WP_CLI::log(\sprintf('Processing attachment %d...', $attachment->ID));
-            $cron->run_audio_processing_pipeline($attachment->ID);
+        foreach ($attachments as $attachment_id) {
+            WP_CLI::log(\sprintf('Processing attachment %d...', $attachment_id));
+            $cron->run_audio_processing_pipeline($attachment_id);
             ++$processed;
         }
 
