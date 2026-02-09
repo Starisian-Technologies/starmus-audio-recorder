@@ -519,7 +519,7 @@ button[data-starmus-action="record"]:active {
 }
 
 .starmus-mic-stage-label {
-    font-size: clamp(.8rem, .9rem, 1rem;
+    font-size: clamp(.8rem, .9rem, 1rem);
     font-weight: 900;
     text-transform: uppercase;
     font-optical-sizing: auto;
@@ -529,7 +529,7 @@ button[data-starmus-action="record"]:active {
 /* Timmer requires monospace and font-variant-numeric for perfect alignment and tabular numbers */
 
 .starmus-timer {
-    color:#00ff00
+    color:#00ff00;
     text-align: center;
     font-family: "Noto Sans Monospace", monospace;
     font-size: 2rem;
