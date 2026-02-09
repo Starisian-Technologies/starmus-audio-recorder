@@ -331,7 +331,7 @@ button[data-starmus-action="setup-mic"] {
         inset 2px 2px 3px 0 #aaa,
         inset -3px -3px 6px 1px #ececec;
 }
-
+button[data-starmus-action="record"],
 button[data-starmus-action="setup-mic"] {
     transition: 0.5s;
     color: #fff;
@@ -353,26 +353,53 @@ button[data-starmus-action="setup-mic"] {
 
 button[data-starmus-action="setup-mic"]:hover {
     background-position: right center;
-
+    transition: background-position 0.5s;
     /* change the direction of the change here */
 }
 
 button[data-starmus-action="setup-mic"]:active {
+    background: #3f5efb;
+    background-image: radial-gradient(
+        circle,
+        rgb(63 94 251 / 100%) 0%,
+        rgb(252 70 107 / 100%) 100%
+    );
+    background-size: 200% auto;
     box-shadow:
         inset 2px 2px 3px 0 #aaa,
         inset -3px -3px 6px 1px #ececec;
-    transform: scale(0.95);
+    transform: scale(0.95) box-shadow(0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%));
+}
+
+button[data-starmus-action="record"]:hover {
+    background-position: right center;
+    transition: background-position 0.5s;
+    /* change the direction of the change here */
+}
+
+button[data-starmus-action="record"]:active {
+    color:#f00;
+    text-shadow: #f00 1px 1px 3px;
+    background: #888;
+    background-size: 200% auto;
+    box-shadow:
+        inset 2px 2px 3px 0 #aaa,
+        inset -3px -3px 6px 1px #ececec;
+    transform: scale(0.95) box-shadow(0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%));
 }
 
 /* Secondary / Outline Bindings */
 .starmus-btn--resume,
 .starmus-btn--pause {
+    border-radius:25px;
     box-shadow:
         rgb(0 0 0 / 12%) 0 1px 3px,
         rgb(0 0 0 / 24%) 0 1px 2px;
 }
 
 .starmus-btn--stop {
+        border-radius:25px;
+
     background: linear-gradient(145deg, #f0f0f0, #cacaca);
     box-shadow:
         rgb(0 0 0 / 16%) 0 3px 6px,
@@ -380,6 +407,8 @@ button[data-starmus-action="setup-mic"]:active {
 }
 
 .starmus-btn--record.is-recording {
+        border-radius:25px;
+
     background: linear-gradient(145deg, #cacaca, #f0f0f0);
     box-shadow:
         rgb(0 0 0 / 16%) 0 3px 6px,
@@ -388,12 +417,16 @@ button[data-starmus-action="setup-mic"]:active {
 }
 
 .starmus-btn:disabled {
+        border-radius:25px;
+
     cursor: not-allowed;
     box-shadow: rgb(0 0 0 / 5%) 0 0 0 1px;
 }
 
 /* Busy State (Base + Spinner) */
 .starmus-btn[aria-busy="true"] {
+        border-radius:25px;
+
     color: transparent;
     position: relative;
     pointer-events: none;
@@ -419,16 +452,12 @@ button[data-starmus-action="setup-mic"]:active {
    ======================================================================== */
 
 .starmus-visualizer-stage {
-    background-image: var(--sparxstar-starmus-bg-url);
-    background-repeat: repeat;
-    background-position: center center;
-    background-size: auto;
-    border-radius: 8px;
+    background: #888;
+    border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    box-shadow:
-        rgb(0 0 0 / 16%) 0 3px 6px,
-        rgb(0 0 0 / 23%) 0 3px 6px;
+    box-sizing: border-box;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }
 
 .starmus-setup-container{
@@ -441,6 +470,7 @@ button[data-starmus-action="setup-mic"]:active {
     margin-bottom: 1.5rem;
     border-radius: 25px;
     background-color: #808080;
+    background-image: var(--sparxstar-starmus-bg-url);
 
     /* Use the variable injected by PHP */
     background-image: url("../../src/frontend/images/gun-metal.png");
@@ -461,6 +491,11 @@ button[data-starmus-action="setup-mic"]:active {
     box-sizing: border-box;
 }
 
+.starmus-recorder-container{
+    width:100%;
+    box-sizing: border-box;
+}
+
 .starmus-mic-stage {
     display: flex;
     flex-direction: column;
@@ -473,7 +508,7 @@ button[data-starmus-action="setup-mic"]:active {
     background-color: #808080;
 
     /* Use the variable injected by PHP */
-    /*background-image: url("../../src/frontend/images/gun-metal.png");*/
+    background-image: url("../../src/frontend/images/gun-metal.png");
 
     /* Tiling settings */
     background-repeat: repeat; /* This tiles the image both horizontally and vertically */
@@ -484,48 +519,26 @@ button[data-starmus-action="setup-mic"]:active {
 }
 
 .starmus-mic-stage-label {
-    font-size: 1rem;
+    font-size: clamp(.8rem, .9rem, 1rem;
     font-weight: 900;
     text-transform: uppercase;
-    color: var(--sparxstar-text);
-    text-shadow: grey 2px 2px 4px;
     font-optical-sizing: auto;
     border-radius: 25px;
-    background: radial-gradient(
-        circle,
-        rgb(249 249 249 / 100%) 0%,
-        rgb(235 245 239 / 100%) 67%,
-        rgb(153 153 153 / 100%) 100%
-    );
-    box-shadow:
-        rgb(50 50 93 / 25%) 0 30px 60px -12px inset,
-        rgb(0 0 0 / 30%) 0 18px 36px -18px inset,
-        inset rgb(0 0 0 / 30%) 4px 4px 12px 6px;
 }
 
 /* Timmer requires monospace and font-variant-numeric for perfect alignment and tabular numbers */
-#starmus-recording-timer {
+
+.starmus-timer {
+    color:#00ff00
     text-align: center;
     font-family: "Noto Sans Monospace", monospace;
     font-size: 2rem;
-    font-weight: 700;
+    font-weight: 900;
     font-variant-numeric: tabular-nums; /* Prevents jittering digits */
-    text-shadow: grey 2px 2px 4px;
-}
-
-.starmus-timer {
     border-radius: 8px;
     margin-bottom: 1rem;
-    background: radial-gradient(
-        circle,
-        rgb(249 249 249 / 100%) 0%,
-        rgb(235 245 239 / 100%) 67%,
-        rgb(153 153 153 / 100%) 100%
-    );
-    box-shadow:
-        rgb(50 50 93 / 25%) 0 30px 60px -12px inset,
-        rgb(0 0 0 / 30%) 0 18px 36px -18px inset,
-        inset rgb(0 0 0 / 30%) 4px 4px 12px 6px;
+    background: #000404;
+    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
 }
 
 .starmus-timer--recording {

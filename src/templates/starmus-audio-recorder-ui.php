@@ -321,22 +321,20 @@ $data_policy_url ??= '';
                         <!-- 2. RECORDING STATE -->
                         <button
                             type="button"
+                            id="starmus_stop_btn_<?php echo esc_attr($instance_id); ?>"
+                            class="starmus-btn starmus-btn--stop starmus-btn--large"
+                            data-starmus-action="stop"
+                            style="display:none;">
+                            <?php esc_html_e('⬤ REC', 'starmus-audio-recorder'); ?>
+                        </button>
+                        <button
+                            type="button"
                             id="starmus_pause_btn_<?php echo esc_attr($instance_id); ?>"
                             class="starmus-btn starmus-btn--pause starmus-btn--large"
                             data-starmus-action="pause"
                             style="display:none;">
                             <span class="dashicons dashicons-controls-pause" aria-hidden="false"></span>
                             <?php esc_html_e('PAUSE', 'starmus-audio-recorder'); ?>
-                        </button>
-
-                        <button
-                            type="button"
-                            id="starmus_stop_btn_<?php echo esc_attr($instance_id); ?>"
-                            class="starmus-btn starmus-btn--stop starmus-btn--large"
-                            data-starmus-action="stop"
-                            style="display:none;">
-                            <span class="dashicons dashicons-media-default" aria-hidden="true"></span>
-                            <?php esc_html_e('⬛ STOP', 'starmus-audio-recorder'); ?>
                         </button>
 
                         <!-- 2b. PAUSED STATE -->
