@@ -402,13 +402,14 @@ class RhythmEngine {
     bindEvents() {
         this.els.tapZone.addEventListener("click", () => this.recordTap());
         this.els.playBtn.addEventListener("click", () => this.toggle());
+        if (this.els.topBtn) {
+            this.els.topBtn.addEventListener("click", (event) => {
+                event.preventDefault();
+                this.stop();
+                this.jumpTo(0);
+            });
+        }
         if (this.els.recalBtn) {
-            if (this.els.topBtn) {
-                this.els.topBtn.addEventListener("click", () => {
-                    this.stop();
-                    this.jumpTo(0);
-                });
-            }
             this.els.recalBtn.addEventListener("click", () => this.resetCalibration());
         }
 

@@ -164,7 +164,7 @@ function render(state, elements) {
         elements.timerElapsed.textContent = formatTime(recorder.duration || 0);
     }
     if (elements.durationProgress) {
-        const maxDuration = 120; // 2 minutes max recording
+        const maxDuration = 1200; // 20 minutes max recording
         const pct = Math.min(100, ((recorder.duration || 0) / maxDuration) * 100);
         elements.durationProgress.style.setProperty("--starmus-recording-progress", pct + "%");
     }

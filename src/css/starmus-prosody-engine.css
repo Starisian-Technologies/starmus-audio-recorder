@@ -26,26 +26,31 @@
     --sparxstar-surface: var(--wp--preset--color--base-2, #251717);
     --sparxstar-contrast: var(--wp--preset--color--contrast, #eceecf);
     --sparxstar-accent: var(--wp--preset--color--accent);
-    --sparxstar-glow: rgb(39 244 3 / 51.7%);
-    --sparxstar-glow-dark: rgb(39 244 3 / 27.8%);
+    --prosody-glow: rgb(39 244 3 / 51.7%);
+    --prosody-glow-dark: rgb(39 244 3 / 27.8%);
 
     /* Tactile Identity from Theme */
     --sparxstar-shd: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
     --sparxstar-shd-onhover: rgb(0 0 0 / 19%) 0 10px 20px, rgb(0 0 0 / 23%) 0 6px 6px;
     --sparxstar-shd-onclick: rgb(60 64 67 / 30%) 0 1px 2px 0, rgb(60 64 67 / 15%) 0 1px 3px 1px;
 
+    --prosody-bg-color: #f2f2f2;
+    --prosody-text-color: #333;
+    --prosody-text-dim: #666;
+    --prosody-text-lit: #000;
+
     /* Font Families */
-    --sparxstar-font-stack: "Noto Sans", sans-serif;
-    --sparxstar-font-mono: "Noto Sans Mono", monospace;
-    --sparxstar-font-jp: "Noto Sans JP", sans-serif;
-    --sparxstar-font-ar: "Noto Naskh Arabic", serif;
-    --sparxstar-font-am: "Noto Sans Ethiopic", sans-serif;
-    --sparxstar-font-zh: "Noto Sans SC", sans-serif;
+    --prosody-font-stack: "Noto Sans", sans-serif;
+    --prosody-font-mono: "Noto Sans Mono", monospace;
+    --prosody-font-jp: "Noto Sans JP", sans-serif;
+    --prosody-font-ar: "Noto Naskh Arabic", serif;
+    --prosody-font-am: "Noto Sans Ethiopic", sans-serif;
+    --prosody-font-zh: "Noto Sans SC", sans-serif;
 
     /* UI Variables */
-    --sparxstar-unit-spacing: 2.2;
-    --sparxstar-tap-zone-size: 220px;
-    --sparxstar-text-base: clamp(0.9rem, 2vw, 1.15rem);
+    --prosody-unit-spacing: 2.2;
+    --prosody-tap-zone-size: 220px;
+    --prosody-text-base: clamp(0.9rem, 2vw, 1.15rem);
 }
 
 /* --- LIGHT MODE OPTION (Flipping Identity, not Mechanics) --- */
@@ -72,17 +77,9 @@
 
 /* --sparxstar-- CONTAINER SHELL --sparxstar-- */
 #cognitive-regulator {
-    background: linear-gradient(
-        270deg,
-        rgb(168 5 250 / 100%) 0%,
-        rgb(13 129 212 / 100%) 24%,
-        rgb(87 255 3 / 100%) 50%,
-        rgb(255 187 0 / 100%) 74%,
-        rgb(245 96 47 / 100%) 92%,
-        rgb(255 30 0 / 100%) 99%
-    );
-    color: var(--sparxstar-text-dim);
-    font-family: var(--sparxstar-font-stack);
+    background: var(--prosody-bg-color);
+    color: var(--prosody-text-dim);
+    font-family: var(--prosody-font-stack);
     height: 50dvh;
     width: 100%;
     display: flex;
@@ -116,9 +113,9 @@
 }
 
 .tap-zone {
-    width: var(--sparxstar-tap-zone-size);
-    height: var(--sparxstar-tap-zone-size);
-    border: 1px solid var(--sparxstar-ui-border);
+    width: var(--prosody-tap-zone-size);
+    height: var(--prosody-tap-zone-size);
+    border: 1px solid var(--prosody-text-dim);
     border-radius: 50%;
     display: flex;
     flex-direction: column;
@@ -126,27 +123,27 @@
     justify-content: center;
     cursor: pointer;
     box-shadow:
-        var(--sparxstar-glow) 0 2px 4px 0,
-        var(--sparxstar-glow) 0 2px 16px 0;
+        var(--prosody-glow) 0 2px 4px 0,
+        var(--prosody-glow) 0 2px 16px 0;
     transition: all 0.1s ease;
 }
 
 .tap-zone:hover {
-    border: 1px solid var(--sparxstar-text-dim);
-    background: var(--sparxstar-tap-bg-hover);
+    border: 1px solid var(--prosody-text-dim);
+    background: var(--prosody-tap-bg-hover);
     box-shadow:
-        var(--sparxstar-glow) 2px 4px 12px 4px,
-        var(--sparxstar-glow) -2px -3px 16px 3px;
+        var(--prosody-glow) 2px 4px 12px 4px,
+        var(--prosody-glow) -2px -3px 16px 3px;
 }
 
 .tap-zone.flash,
 .tap-zone:active {
-    background: var(--sparxstar-tap-bg-active);
-    border: 1px solid var(--sparxstar-text-dim);
+    background: var(--prosody-tap-bg-active);
+    border: 1px solid var(--prosody-text-dim);
     transform: scale(0.96);
     box-shadow:
-        var(--sparxstar-glow-dark) 0 1px 2px 0,
-        var(--sparxstar-glow-dark) 0 1px 8px 0;
+        var(--prosody-glow-dark) 0 1px 2px 0,
+        var(--prosody-glow-dark) 0 1px 8px 0;
 }
 
 .tap-icon {
@@ -158,8 +155,8 @@
 .tap-label {
     font-size: 14px;
     letter-spacing: 3px;
-    color: var(--sparxstar-text-lit);
-    font-weight: var(--sparxstar-font-weight-bold);
+    color: var(--prosody-text-lit);
+    font-weight: var(--prosody-font-weight-bold);
 }
 
 .tap-sub {
@@ -171,7 +168,7 @@
 
 .tap-feedback {
     margin-top: 2rem;
-    color: var(--sparxstar-accent);
+    color: var(--prosody-accent);
     opacity: 0;
     transition: opacity 0.3s;
 }
@@ -211,7 +208,7 @@
     padding-top: 35vh;
     padding-bottom: 40vh;
     font-size: 26px;
-    line-height: var(--sparxstar-unit-spacing);
+    line-height: var(--prosody-unit-spacing);
     text-align: center;
 
     /* The use of Noto Sans Mono ensures consistent character width,
@@ -240,27 +237,27 @@
 
 .prosodic-unit.future,
 .prosodic-unit.past {
-    color: var(--sparxstar-text-dim);
+    color: var(--prosody-text-dim);
     opacity: 0.3;
     filter: blur(0.4px);
 }
 
 .prosodic-unit.current {
-    color: var(--sparxstar-text-lit);
+    color: var(--prosody-text-lit);
     opacity: 1;
     font-weight: 600;
     filter: blur(0);
     background: rgb(255 255 255 / 10%);
-    border: 1px solid var(--sparxstar-ui-border);
+    border: 1px solid var(--prosody-ui-border);
     transform: scale(1.2);
 }
 
 .prosodic-unit.silence-beat {
-    color: var(--sparxstar-accent);
+    color: var(--prosody-accent);
     font-weight: 600;
     min-width: 60px;
     height: 40px;
-    border: 1px dashed var(--sparxstar-ui-border);
+    border: 1px dashed var(--prosody-ui-border);
     margin: 0 12px;
     display: inline-flex;
     align-items: center;
@@ -272,7 +269,7 @@
 }
 
 .prosodic-unit.silence-beat.current {
-    border-color: var(--sparxstar-accent);
+    border-color: var(--prosody-accent);
     background: rgb(255 215 0 / 10%);
     transform: scale(1.1);
     box-shadow: 0 0 15px rgb(255 215 0 / 20%);
@@ -286,8 +283,8 @@
    LAYER 3: CONTROLS (The Deck)
    ========================================= */
 .control-deck {
-    background: var(--sparxstar-bg-panel);
-    border-top: 1px solid var(--sparxstar-ui-border);
+    background: var(--prosody-bg-panel);
+    border-top: 1px solid var(--prosody-ui-border);
     padding: 12px 20px;
     display: flex;
     align-items: center;
@@ -360,6 +357,15 @@
     accent-color: #888;
     height: 4px;
     background: #333;
+    background: linear-gradient(
+        270deg,
+        rgb(168 5 250 / 100%) 0%,
+        rgb(13 129 212 / 100%) 24%,
+        rgb(87 255 3 / 100%) 50%,
+        rgb(255 187 0 / 100%) 74%,
+        rgb(245 96 47 / 100%) 92%,
+        rgb(255 30 0 / 100%) 99%
+    );
     border-radius: 2px;
     appearance: none;
     outline: none;
@@ -372,9 +378,7 @@
     background: #bbb;
     border-radius: 50%;
     cursor: pointer;
-    box-shadow:
-        rgb(0 0 0 / 16%) 0 3px 6px,
-        rgb(0 0 0 / 23%) 0 3px 6px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
     transition:
         background 0.2s,
         transform 0.2s;
@@ -383,13 +387,14 @@
 #pace-regulator::-webkit-slider-thumb:hover {
     background: #fff;
     transform: scale(1.1);
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
 }
 
 .secondary-text-btn {
     background: none;
     border: none;
     cursor: pointer;
-    font-family: var(--sparxstar-font-stack);
+    font-family: var(--prosody-font-stack);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -428,23 +433,23 @@
    LOCALIZATION FONT RULES
    ========================================= */
 [lang="ja"] {
-    font-family: var(--sparxstar-font-jp);
+    font-family: var(--prosody-font-jp);
 }
 
 [lang="ar"],
 .localized-text.ar {
-    font-family: var(--sparxstar-font-ar);
+    font-family: var(--prosody-font-ar);
     direction: rtl;
 }
 
 [lang="am"],
 .localized-text.am {
-    font-family: var(--sparxstar-font-am);
+    font-family: var(--prosody-font-am);
 }
 
 [lang="zh"],
 .localized-text.zh {
-    font-family: var(--sparxstar-font-zh);
+    font-family: var(--prosody-font-zh);
 }
 
 /* =========================================
@@ -452,8 +457,8 @@
    ========================================= */
 @media (width <= 600px) {
     :root {
-        --sparxstar-tap-zone-size: 160px;
-        --sparxstar-unit-spacing: 1.5;
+        --prosody-tap-zone-size: 160px;
+        --prosody-unit-spacing: 1.5;
     }
 
     #text-flow {
@@ -528,7 +533,7 @@
     display: flex;
     flex-direction: column;
     padding: 1.5rem;
-    border: 1px solid var(--sparxstar-ui-border);
+    border: 1px solid var(--prosody-ui-border);
     border-radius: 8px;
     box-shadow:
         rgb(0 0 0 / 10%) 0 1px 3px 0,

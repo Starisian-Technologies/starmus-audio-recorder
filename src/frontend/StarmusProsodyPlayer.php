@@ -1,4 +1,5 @@
 <?php
+
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 use function class_exists;
@@ -354,6 +355,7 @@ class StarmusProsodyPlayer
     public function render_script_library_shortcode(array $atts = []): string
     {
         try {
+            wp_enqueue_style('starmus-prosody-css');
             $args = shortcode_atts(
                 [
                     'posts_per_page' => 5,

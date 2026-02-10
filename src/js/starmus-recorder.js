@@ -234,7 +234,7 @@ class LanguageSignalAnalyzer {
             analyser.fftSize = 1024;
             src.connect(analyser);
 
-            const buf = new Uint8Array(analyser.frequencyBinCount);
+            const buf = new Uint8Array(analyser.fftSize);
             const speechBoundaries = [];
             let lastState = "silence";
             const startTime = performance.now();
@@ -355,25 +355,21 @@ async function _doCalibration(stream, onUpdate) {
     analyser.fftSize = 2048;
     source.connect(analyser);
 
-    const data = new Uint8Array(analyser.frequencyBinCount);
+    const data = new Uint8Array(analyser.fftSize);
     const startTime = Date.now();
     let maxVolume = 0;
 
     return new Promise((resolve) => {
         function loop() {
-            analyser.getByteFrequencyData(data);
-            let sum = 0;
+            analyser.getByteTimeDomainData(data);
+            let sumSquares = 0;
             for (let i = 0; i < data.length; i++) {
-                sum += data[i];
+                const centered = data[i] - 128;
+                sumSquares += centered * centered;
             }
-            const avg = sum / data.length;
-
-            // Proper SPL calculation for calibration
-            const voltageRatio = avg / 255;
-            const dbV = 20 * Math.log10(Math.max(voltageRatio, 1e-6));
-            const micSensitivity = -50; // Typical condenser mic sensitivity
-            const dbSPL = dbV - micSensitivity + 94;
-            const volume = Math.min(100, Math.max(0, (dbSPL - 30) * 1.67)); // 30-90 dB SPL -> 0-100%
+            const rms = Math.sqrt(sumSquares / data.length) / 128;
+            const db = 20 * Math.log10(Math.max(rms, 1e-6));
+            const volume = Math.min(100, Math.max(0, ((db + 60) / 60) * 100));
             if (volume > maxVolume) {
                 maxVolume = volume;
             }
@@ -648,22 +644,15 @@ function initRecorder(store, instanceId) {
                 if (!rec || mediaRecorder.state !== "recording") {
                     return;
                 }
-                analyser.getByteFrequencyData(buf);
-                let sum = 0;
+                analyser.getByteTimeDomainData(buf);
+                let sumSquares = 0;
                 for (let x = 0; x < buf.length; x++) {
-                    sum += buf[x];
+                    const centered = buf[x] - 128;
+                    sumSquares += centered * centered;
                 }
-                const rawAmp = sum / buf.length;
-
-                // Proper SPL calculation assuming typical mic sensitivity (-50 dBV/Pa)
-                // Convert raw amplitude to voltage ratio, then to dB SPL
-                const voltageRatio = rawAmp / 255; // Normalize to 0-1
-                const dbV = 20 * Math.log10(Math.max(voltageRatio, 1e-6)); // Prevent log(0)
-                const micSensitivity = -50; // Typical condenser mic sensitivity in dBV/Pa
-                const dbSPL = dbV - micSensitivity + 94; // Convert to dB SPL
-
-                // Map dB SPL to visual meter (30-90 dB SPL -> 0-100%)
-                const amp = Math.min(100, Math.max(0, (dbSPL - 30) * 1.67));
+                const rms = Math.sqrt(sumSquares / buf.length) / 128;
+                const db = 20 * Math.log10(Math.max(rms, 1e-6));
+                const amp = Math.min(100, Math.max(0, ((db + 60) / 60) * 100));
                 store.dispatch({
                     type: "starmus/recorder-tick",
                     duration: (Date.now() - visualStartTs) / 1000,

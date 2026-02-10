@@ -160,7 +160,7 @@ class EnhancedCalibration {
      * Run tier-based calibration process
      */
     async runTierBasedCalibration(settings, onUpdate) {
-        const data = new Uint8Array(this.analyser.frequencyBinCount);
+        const data = new Uint8Array(this.analyser.fftSize);
         const startTime = Date.now();
 
         let maxVolume = 0;
@@ -190,21 +190,18 @@ class EnhancedCalibration {
                 }
 
                 // Get audio data
-                this.analyser.getByteFrequencyData(data);
+                this.analyser.getByteTimeDomainData(data);
 
-                // Calculate volume metrics with proper dB SPL conversion
-                let sum = 0;
+                // Calculate volume metrics using RMS (dBFS)
+                let sumSquares = 0;
                 for (let i = 0; i < data.length; i++) {
-                    sum += data[i];
+                    const centered = data[i] - 128;
+                    sumSquares += centered * centered;
                 }
 
-                const rawAmp = sum / data.length;
-                // Convert to dB SPL using microphone sensitivity
-                const voltageRatio = rawAmp / 255;
-                const dbV = 20 * Math.log10(Math.max(voltageRatio, 1e-6));
-                const micSensitivity = -50; // Typical condenser mic sensitivity in dBV/Pa
-                const dbSPL = dbV - micSensitivity + 94;
-                const volume = Math.min(100, Math.max(0, (dbSPL - 30) * 1.67)); // 30-90 dB SPL -> 0-100%
+                const rms = Math.sqrt(sumSquares / data.length) / 128;
+                const db = 20 * Math.log10(Math.max(rms, 1e-6));
+                const volume = Math.min(100, Math.max(0, ((db + 60) / 60) * 100));
                 sampleCount++;
                 avgVolume = (avgVolume * (sampleCount - 1) + volume) / sampleCount;
 

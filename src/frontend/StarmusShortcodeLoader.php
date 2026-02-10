@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
@@ -78,6 +79,8 @@ final class StarmusShortcodeLoader
 
     private ?SparxstarAppMode $appMode = null;
 
+    private bool $suppress_app_mode_wrap = false;
+
     /**
      * Constructor to initialize dependencies and register hooks.
      * Dependencies are injected to allow for better testability and separation of concerns, but default instances will be created if not provided.
@@ -151,16 +154,30 @@ final class StarmusShortcodeLoader
     public function register_shortcodes(): void
     {
         try {
-            add_shortcode('starmus_audio_recorder', fn (): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode()));
-            add_shortcode('starmus_audio_editor', fn (array $atts = []): string => $this->safe_render(fn (): string => $this->render_editor_with_bootstrap($atts)));
+            add_shortcode(
+                'starmus_audio_recorder',
+                fn(): string => $this->safe_render(
+                    fn(): string => $this->wrap_app_mode(
+                        (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode()
+                    )
+                )
+            );
+            add_shortcode('starmus_audio_editor', fn(array $atts = []): string => $this->safe_render(fn(): string => $this->render_editor_with_bootstrap($atts)));
             add_shortcode('starmus_my_recordings', $this->render_my_recordings_shortcode(...));
             add_shortcode('starmus_recording_detail', $this->render_recording_detail_shortcode(...));
-            add_shortcode('starmus_audio_re_recorder', fn (array $atts = []): string => $this->safe_render(fn (): string => (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts)));
-            add_shortcode('starmus_contributor_consent', fn (): string => $this->safe_render(fn (): string => $this->consent_ui->render_shortcode()));
+            add_shortcode(
+                'starmus_audio_re_recorder',
+                fn(array $atts = []): string => $this->safe_render(
+                    fn(): string => $this->wrap_app_mode(
+                        (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts)
+                    )
+                )
+            );
+            add_shortcode('starmus_contributor_consent', fn(): string => $this->safe_render(fn(): string => $this->consent_ui->render_shortcode()));
             add_shortcode(
                 'starmus_script_recorder',
-                fn (array $atts = [], string $content = null): string => $this->safe_render(
-                    fn (): string => $this->starmus_render_script_recorder($atts, $content)
+                fn(array $atts = [], string $content = null): string => $this->safe_render(
+                    fn(): string => $this->starmus_render_script_recorder($atts, $content)
                 )
             );
             add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);
@@ -557,8 +574,12 @@ final class StarmusShortcodeLoader
             $attr_string .= \sprintf(' %s="%s"', esc_attr($key), esc_attr((string) $value));
         }
 
-        ob_start();
-        ?>
+        $prior_wrap_state = $this->suppress_app_mode_wrap;
+        $this->suppress_app_mode_wrap = true;
+
+        try {
+            ob_start();
+            ?>
             <div class="starmus-prosody-recorder <?php echo esc_attr($atts['class']); ?>">
 
                 <?php echo do_shortcode('[prosody_player' . $attr_string . ']'); ?>
@@ -567,8 +588,26 @@ final class StarmusShortcodeLoader
 
             </div>
 
-        <?php
-        return $this->appMode->sparxstarAppMode([], ob_get_clean());
+            <?php
+            $output = ob_get_clean();
+        } finally {
+            $this->suppress_app_mode_wrap = $prior_wrap_state;
+        }
+
+        return $this->wrap_app_mode($output);
+    }
+
+    private function wrap_app_mode(string $content, array $atts = []): string
+    {
+        if ( ! $this->appMode instanceof SparxstarAppMode) {
+            return $content;
+        }
+
+        if ($this->suppress_app_mode_wrap) {
+            return $content;
+        }
+
+        return $this->appMode->sparxstarAppMode($atts, $content);
     }
 
     /**
