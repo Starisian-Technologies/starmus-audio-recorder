@@ -562,7 +562,6 @@ button[data-starmus-action="record"]:active {
     background: rgb(0 0 0 / 10%);
     border-radius: 6px;
     overflow: hidden;
-    width: 100%;
     box-shadow:
         rgb(6 24 44 / 40%) 0 0 0 2px,
         rgb(6 24 44 / 65%) 0 4px 6px -1px,
@@ -589,7 +588,6 @@ button[data-starmus-action="record"]:active {
     background: rgb(0 0 0 / 10%);
     border-radius: 25px;
     overflow: hidden;
-    width: 100%;
     box-shadow:
         rgb(6 24 44 / 40%) 0 0 0 2px,
         rgb(6 24 44 / 65%) 0 4px 6px -1px,
