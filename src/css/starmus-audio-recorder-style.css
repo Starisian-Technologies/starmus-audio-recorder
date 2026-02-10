@@ -42,6 +42,7 @@
     --sparxstar-success-hex: #16a34a;
     --sparxstar-warning-hex: #ea580c;
     --sparxstar-info-hex: #0ea5e9;
+    --starmus-border-color: #ccc;
 
     /* Theme Mapping */
     --sparxstar-primary: var(--wp--preset--color--accent-3, var(--sparxstar-primary-hex));
@@ -55,7 +56,7 @@
     --sparxstar-bg: rgb(255 255 255 / 90%);
     --sparxstar-inner-bg: rgb(255 255 255 / 40%);
     --sparxstar-border-color: var(
-        --sparxstar-theme-border,
+        --starmus-border-color,
         var(--sparxstar-accent-hex),
         transparent 80%
     );
@@ -288,6 +289,7 @@ input[type="checkbox" i] {
     gap: 8px;
     padding: 0.75rem 1.5rem;
     text-decoration: none;
+        border: 1px solid var(--sparxstar-border-color);
     box-shadow:
         rgb(0 0 0 / 12%) 0 1px 3px,
         rgb(0 0 0 / 24%) 0 1px 2px;
@@ -299,18 +301,24 @@ input[type="checkbox" i] {
 
 .starmus-btn:hover,
 .button.starmus-btn:hover {
+    border: 1px solid var(--sparxstar-border-color);
     box-shadow:
         rgb(0 0 0 / 16%) 0 3px 6px,
         rgb(0 0 0 / 23%) 0 3px 6px;
     transform: scale(1.05);
+        transition: 0.5s;
+
 }
 
 .starmus-btn:active,
 .button.starmus-btn:active {
+    border: 1px solid var(--sparxstar-border-color);
     box-shadow:
         rgb(60 64 67 / 30%) 0 1px 2px 0,
         rgb(60 64 67 / 15%) 0 1px 3px 1px;
     transform: scale(0.95);
+        transition: 0.5s;
+
 }
 
 .starmus-btn--full {
@@ -321,8 +329,6 @@ input[type="checkbox" i] {
 button[data-starmus-action="record"],
 button[data-starmus-action="continue"],
 button[data-starmus-action="setup-mic"] {
-    background-color: var(--sparxstar-color-input);
-    color: var(--sparxstar-color-input-text);
     border-radius: 25px;
     border: 1px solid var(--sparxstar-color-input-border);
     box-shadow:
@@ -331,16 +337,13 @@ button[data-starmus-action="setup-mic"] {
 }
 
 button[data-starmus-action="submit"]{
-    background-color: var(--sparxstar-primary);
-    color: var(--sparxstar-text);
     border-radius: 25px;
     border: 1px solid var(--sparxstar-border-color);
-box-shadow: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
+    box-shadow: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
 }
 
 button[data-starmus-action="record"],
 button[data-starmus-action="setup-mic"] {
-    transition: 0.5s;
     color: #fff;
     border-radius: 25px;
     border: 1px solid var(--sparxstar-color-input-border);
@@ -355,9 +358,12 @@ button[data-starmus-action="setup-mic"] {
     cursor: pointer;
     user-select: none;
     touch-action: manipulation;
+        transition: 0.5s;
+
 }
 
 button[data-starmus-action="setup-mic"]:hover {
+    border: 1px solid var(--sparxstar-border-color);
     background-position: right center;
     transition: background-position 0.5s;
 
@@ -365,6 +371,7 @@ button[data-starmus-action="setup-mic"]:hover {
 }
 
 button[data-starmus-action="setup-mic"]:active {
+    border: 1px solid var(--sparxstar-border-color);
     background: #3f5efb;
     background-image: radial-gradient(
         circle,
@@ -376,9 +383,12 @@ button[data-starmus-action="setup-mic"]:active {
         inset 2px 2px 3px 0 #aaa,
         inset -3px -3px 6px 1px #ececec;
     transform: scale(0.95);
+        transition: 0.5s;
+
 }
 
 button[data-starmus-action="record"]:hover {
+     border: 1px solid var(--starmus-border-color);
     background-position: right center;
     transition: background-position 0.5s;
 
@@ -388,41 +398,59 @@ button[data-starmus-action="record"]:hover {
 button[data-starmus-action="record"]:active {
     color:#f00;
     text-shadow: #f00 1px 1px 3px;
-        border-radius:25px;
+    border-radius:25px;
+    border: 1px solid var(--starmus-border-color);
     background: #888;
     background-size: 200% auto;
     box-shadow:
         inset 2px 2px 3px 0 #aaa,
         inset -3px -3px 6px 1px #ececec;
     transform: scale(0.95);
+    transition: 0.5s;
+
 }
 
 /* Secondary / Outline Bindings */
 .starmus-btn--resume,
 .starmus-btn--pause {
     border-radius:25px;
+    border: 1px solid var(--starmus-border-color);
     box-shadow:
         rgb(0 0 0 / 12%) 0 1px 3px,
         rgb(0 0 0 / 24%) 0 1px 2px;
+    transition: 0.5s;
+
+}
+
+.starmus-btn--resume{
+    color: #0f0;
+    text-shadow: #0f0 1px 1px 3px;
+    background: #9a9a9a;
+    background-size: 200% auto;
+    transition: 0.5s;
 }
 
 .starmus-btn--stop {
     color:#f00;
     text-shadow: #f00 1px 1px 3px;
     border-radius:25px;
-    background: #888;
+    border: 1px solid var(--starmus-border-color);
+    background: #9a9a9a;
     background-size: 200% auto;
     box-shadow:
         inset 2px 2px 3px 0 #aaa,
         inset -3px -3px 6px 1px #ececec;
     transform: scale(0.95);
+    transition: 0.5s;
+
 }
 
 .starmus-btn--record.is-recording {
     color:#f00;
     text-shadow: #f00 1px 1px 3px;
-        border-radius:25px;
-    background: #888;
+    border-radius:25px;
+    border: 1px solid var(--starmus-border-color);
+    background: #9a9a9a;
     background-size: 200% auto;
     box-shadow:
         inset 2px 2px 3px 0 #aaa,
@@ -432,23 +460,23 @@ button[data-starmus-action="record"]:active {
 
 .starmus-review-controls .starmus-btn{
     border-radius:25px;
-    background: var(--sparxstar-primary);
-    color: var(--sparxstar-text);
-    border: 1px solid var(--sparxstar-border-color);
-    box-shadow:
-        inset 2px 2px 3px 0 #aaa,
-        inset -3px -3px 6px 1px #ececec;
+        border: 1px solid var(--starmus-border-color);
+    background: #b2b2b2;
+    color: #000;
+    box-shadow: inset 2px 2px 3px 0 #aaa, inset -3px -3px 6px 1px #ececec;
 }
 
 .starmus-btn:disabled {
-        border-radius:25px;
+    border-radius:25px;
+    border: 1px solid var(--starmus-border-color);
     cursor: not-allowed;
     box-shadow: rgb(0 0 0 / 5%) 0 0 0 1px;
 }
 
 /* Busy State (Base + Spinner) */
 .starmus-btn[aria-busy="true"] {
-        border-radius:25px;
+    border-radius:25px;
+    border: 1px solid var(--starmus-border-color);
     color: transparent;
     position: relative;
     pointer-events: none;
@@ -614,7 +642,7 @@ button[data-starmus-action="record"]:active {
     display: block;
     height: 100%;
     width: var(--starmus-recording-progress, 0%);
-    background-color: #00ff00; /* Default to green, overridden by data-level */
+    background-color: #0f0; /* Default to green, overridden by data-level */
     border-radius: 4px;
     transition: width 0.2s ease;
 }

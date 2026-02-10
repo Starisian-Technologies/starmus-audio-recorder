@@ -344,8 +344,8 @@ $data_policy_url ??= '';
                             class="starmus-btn starmus-btn--resume starmus-btn--large"
                             data-starmus-action="resume"
                             style="display:none;">
-                            <span class="dashicons dashicons-controls-play" aria-hidden="true"></span>
-                            <?php esc_html_e('PLAY', 'starmus-audio-recorder'); ?>
+                            <span class="dashicons dashicons-controls-pause" aria-hidden="true"></span>
+                            <?php esc_html_e('RESUME', 'starmus-audio-recorder'); ?>
                         </button>
 
                         <!-- 3. REVIEW STATE -->

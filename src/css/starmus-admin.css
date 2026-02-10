@@ -13,7 +13,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgb(0 0 0 / 50%);
     z-index: 9999;
 }
 
@@ -22,7 +22,7 @@
     width: 500px;
     margin: 50px auto;
     padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 10px rgb(0 0 0 / 20%);
     border-radius: 4px;
 }
 
@@ -56,7 +56,7 @@
     border-radius: 4px;
     font-size: 14px;
     line-height: 1.4;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 5%);
 }
 
 .starmus-row select {
