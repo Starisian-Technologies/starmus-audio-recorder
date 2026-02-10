@@ -180,7 +180,7 @@
     font-weight: 900;
     text-transform: uppercase;
     font-optical-sizing: auto;
-    color: var(--sparxstar-label-text, var(--sparxstar-text));
+    color: #222;
 }
 
 .starmus-recorder-form input[type="text"],
@@ -188,7 +188,7 @@
 .starmus-recorder-form select,
 .starmus-recorder-form textarea {
     font-size: 1rem;
-    color: var(--sparxstar-form-text, var(--sparxstar-text));
+    color: #222;
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--sparxstar-border-color);
@@ -294,7 +294,6 @@ input[type="checkbox" i] {
     transition: transform 0.2s ease;
     cursor: pointer;
     user-select: none;
-    user-select: none;
     touch-action: manipulation;
 }
 
@@ -320,7 +319,6 @@ input[type="checkbox" i] {
 
 /* Primary Action Attribute Bindings */
 button[data-starmus-action="record"],
-button[data-starmus-action="submit"],
 button[data-starmus-action="continue"],
 button[data-starmus-action="setup-mic"] {
     background-color: var(--sparxstar-color-input);
@@ -331,6 +329,15 @@ button[data-starmus-action="setup-mic"] {
         inset 2px 2px 3px 0 #aaa,
         inset -3px -3px 6px 1px #ececec;
 }
+
+button[data-starmus-action="submit"]{
+    background-color: var(--sparxstar-primary);
+    color: var(--sparxstar-text);
+    border-radius: 25px;
+    border: 1px solid var(--sparxstar-border-color);
+box-shadow: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
+}
+
 button[data-starmus-action="record"],
 button[data-starmus-action="setup-mic"] {
     transition: 0.5s;
@@ -347,13 +354,13 @@ button[data-starmus-action="setup-mic"] {
     background-size: 200% auto;
     cursor: pointer;
     user-select: none;
-    user-select: none;
     touch-action: manipulation;
 }
 
 button[data-starmus-action="setup-mic"]:hover {
     background-position: right center;
     transition: background-position 0.5s;
+
     /* change the direction of the change here */
 }
 
@@ -368,24 +375,26 @@ button[data-starmus-action="setup-mic"]:active {
     box-shadow:
         inset 2px 2px 3px 0 #aaa,
         inset -3px -3px 6px 1px #ececec;
-    transform: scale(0.95) box-shadow(0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%));
+    transform: scale(0.95);
 }
 
 button[data-starmus-action="record"]:hover {
     background-position: right center;
     transition: background-position 0.5s;
+
     /* change the direction of the change here */
 }
 
 button[data-starmus-action="record"]:active {
     color:#f00;
     text-shadow: #f00 1px 1px 3px;
+        border-radius:25px;
     background: #888;
     background-size: 200% auto;
     box-shadow:
         inset 2px 2px 3px 0 #aaa,
         inset -3px -3px 6px 1px #ececec;
-    transform: scale(0.95) box-shadow(0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%));
+    transform: scale(0.95);
 }
 
 /* Secondary / Outline Bindings */
@@ -398,27 +407,41 @@ button[data-starmus-action="record"]:active {
 }
 
 .starmus-btn--stop {
-        border-radius:25px;
-
-    background: linear-gradient(145deg, #f0f0f0, #cacaca);
+    color:#f00;
+    text-shadow: #f00 1px 1px 3px;
+    border-radius:25px;
+    background: #888;
+    background-size: 200% auto;
     box-shadow:
-        rgb(0 0 0 / 16%) 0 3px 6px,
-        rgb(0 0 0 / 23%) 0 3px 6px;
+        inset 2px 2px 3px 0 #aaa,
+        inset -3px -3px 6px 1px #ececec;
+    transform: scale(0.95);
 }
 
 .starmus-btn--record.is-recording {
+    color:#f00;
+    text-shadow: #f00 1px 1px 3px;
         border-radius:25px;
-
-    background: linear-gradient(145deg, #cacaca, #f0f0f0);
+    background: #888;
+    background-size: 200% auto;
     box-shadow:
-        rgb(0 0 0 / 16%) 0 3px 6px,
-        rgb(0 0 0 / 23%) 0 3px 6px;
-    border: 1px outset var(--sparxstar-danger);
+        inset 2px 2px 3px 0 #aaa,
+        inset -3px -3px 6px 1px #ececec;
+    transform: scale(0.95);
+}
+
+.starmus-review-controls .starmus-btn{
+    border-radius:25px;
+    background: var(--sparxstar-primary);
+    color: var(--sparxstar-text);
+    border: 1px solid var(--sparxstar-border-color);
+    box-shadow:
+        inset 2px 2px 3px 0 #aaa,
+        inset -3px -3px 6px 1px #ececec;
 }
 
 .starmus-btn:disabled {
         border-radius:25px;
-
     cursor: not-allowed;
     box-shadow: rgb(0 0 0 / 5%) 0 0 0 1px;
 }
@@ -426,7 +449,6 @@ button[data-starmus-action="record"]:active {
 /* Busy State (Base + Spinner) */
 .starmus-btn[aria-busy="true"] {
         border-radius:25px;
-
     color: transparent;
     position: relative;
     pointer-events: none;
@@ -452,12 +474,12 @@ button[data-starmus-action="record"]:active {
    ======================================================================== */
 
 .starmus-visualizer-stage {
-    background: #888;
+    background: #b2b2b2;
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     box-sizing: border-box;
-    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    box-shadow: rgb(0 0 0 / 40%) 0 2px 4px, rgb(0 0 0 / 30%) 0 7px 13px -3px, rgb(0 0 0 / 20%) 0 -3px 0 inset;
 }
 
 .starmus-setup-container{
@@ -469,25 +491,8 @@ button[data-starmus-action="record"]:active {
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     border-radius: 25px;
-    background-color: #808080;
-    background-image: var(--sparxstar-starmus-bg-url);
-
-    /* Use the variable injected by PHP */
-    background-image: url("../../src/frontend/images/gun-metal.png");
-
-    /* Tiling settings */
-    background-repeat: repeat; /* This tiles the image both horizontally and vertically */
-    background-position: center center;
-    background-size: auto; /* Keeps the image at its original pixel size while tiling */
-    box-shadow:
-        rgb(0 0 0 / 17%) 0 -23px 25px 0 inset,
-        rgb(0 0 0 / 15%) 0 -36px 30px 0 inset,
-        rgb(0 0 0 / 10%) 0 -79px 40px 0 inset,
-        rgb(0 0 0 / 6%) 0 2px 1px,
-        rgb(0 0 0 / 9%) 0 4px 2px,
-        rgb(0 0 0 / 9%) 0 8px 4px,
-        rgb(0 0 0 / 9%) 0 16px 8px,
-        rgb(0 0 0 / 9%) 0 32px 16px;
+    background-color: #b2b2b2;
+    box-shadow: rgb(0 0 0 / 40%) 0 2px 4px, rgb(0 0 0 / 30%) 0 7px 13px -3px, rgb(0 0 0 / 20%) 0 -3px 0 inset;
     box-sizing: border-box;
 }
 
@@ -514,8 +519,7 @@ button[data-starmus-action="record"]:active {
     background-repeat: repeat; /* This tiles the image both horizontally and vertically */
     background-position: center center;
     background-size: auto; /* Keeps the image at its original pixel size while tiling */
-    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-    box-sizing: border-box;
+    box-shadow: rgb(0 0 0 / 17%) 0 -23px 25px 0 inset, rgb(0 0 0 / 15%) 0 -36px 30px 0 inset, rgb(0 0 0 / 10%) 0 -79px 40px 0 inset, rgb(0 0 0 / 6%) 0 2px 1px, rgb(0 0 0 / 9%) 0 4px 2px, rgb(0 0 0 / 9%) 0 8px 4px, rgb(0 0 0 / 9%) 0 16px 8px, rgb(0 0 0 / 9%) 0 32px 16px;    box-sizing: border-box;
 }
 
 .starmus-mic-stage-label {
@@ -529,7 +533,7 @@ button[data-starmus-action="record"]:active {
 /* Timmer requires monospace and font-variant-numeric for perfect alignment and tabular numbers */
 
 .starmus-timer {
-    color:#00ff00;
+    color:#0f0;
     text-align: center;
     font-family: "Noto Sans Monospace", monospace;
     font-size: 2rem;
@@ -538,7 +542,7 @@ button[data-starmus-action="record"]:active {
     border-radius: 8px;
     margin-bottom: 1rem;
     background: #000404;
-    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+    box-shadow: rgb(6 24 44 / 40%) 0 0 0 2px, rgb(6 24 44 / 65%) 0 4px 6px -1px, rgb(255 255 255 / 8%) 0 1px 0 inset;
 }
 
 .starmus-timer--recording {

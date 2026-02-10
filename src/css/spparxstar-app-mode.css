@@ -32,7 +32,11 @@
     left: 0;
     width: 100vw;
 
-    /* Height fallbacks (order matters) */ /* legacy */ /* stable viewport */
+    /* Height fallbacks (order matters) */
+
+ /* legacy */
+
+ /* stable viewport */
     height: 100dvh; /* dynamic viewport */
     min-height: 100vh;
     z-index: 99999;
@@ -99,14 +103,12 @@ body.sparxstar-scroll-locked {
 ------------------------------------------------ */
 .sparxstar-active * {
     user-select: none;
-    user-select: none;
 }
 
 .sparxstar-active input,
 .sparxstar-active textarea,
 .sparxstar-active select,
 .sparxstar-active [contenteditable="true"] {
-    user-select: text;
     user-select: text;
     cursor: text;
 }
