@@ -614,7 +614,7 @@ button[data-starmus-action="record"]:active {
     display: block;
     height: 100%;
     width: var(--starmus-recording-progress, 0%);
-    background-color: var(--sparxstar-primary);
+    background-color: #00ff00; /* Default to green, overridden by data-level */
     border-radius: 4px;
     transition: width 0.2s ease;
 }

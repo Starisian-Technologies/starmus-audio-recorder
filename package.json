@@ -77,11 +77,11 @@
     "engines": {
         "node": ">=18.17"
     },
-    "packageManager": "pnpm@10.26.0",
+    "packageManager": "pnpm@10.29.2",
     "devDependencies": {
-        "@babel/core": "^7.28.6",
+        "@babel/core": "^7.29.0",
         "@babel/eslint-parser": "latest",
-        "@babel/preset-env": "^7.28.6",
+        "@babel/preset-env": "^7.29.0",
         "@eslint/js": "latest",
         "@microsoft/tsdoc": "latest",
         "@playwright/test": "latest",
@@ -109,7 +109,7 @@
         "rollup": "^4.57.1",
         "size-limit": "latest",
         "stylelint": "latest",
-        "stylelint-config-recess-order": "^7.6.0",
+        "stylelint-config-recess-order": "^7.6.1",
         "stylelint-config-standard": "latest",
         "stylelint-declaration-block-no-ignored-properties": "^2.8.0",
         "stylelint-order": "^7.0.1",
