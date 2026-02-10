@@ -24,9 +24,9 @@ A mobile-first audio recording and annotation plugin for WordPress, designed for
 
 **Copyright:** Copyright (c) 2025-2026 Starisian Technologies. All rights reserved.
 
-[![CodeQL](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql) [![Copilot](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/copilot-swe-agent/copilot/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/copilot-swe-agent/copilot) [![Copilot code review](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/copilot-pull-request-reviewer/copilot-pull-request-reviewer/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/copilot-pull-request-reviewer/copilot-pull-request-reviewer)  [![Dependabot Updates](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates)
+[![CodeQL](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/github-code-scanning/codeql) [![Copilot](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/copilot-swe-agent/copilot/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/copilot-swe-agent/copilot) [![Copilot code review](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/copilot-pull-request-reviewer/copilot-pull-request-reviewer/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/copilot-pull-request-reviewer/copilot-pull-request-reviewer) [![Dependabot Updates](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/dependabot/dependabot-updates)
 
-[![Security Checks](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml) [![Proof HTML, Lint JS & CSS](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml) [![Release Code Quality Final Review](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml)  [![Generate Documentation](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/docs.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/docs.yml)
+[![Security Checks](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml) [![Proof HTML, Lint JS & CSS](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/proof-html-js-css.yml) [![Release Code Quality Final Review](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml) [![Generate Documentation](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/docs.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/docs.yml)
 
 [![Release Code Quality Final Review](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/release.yml)
 
@@ -44,8 +44,8 @@ Named after the iconic Starmus Festival, where rock legends and astrophysicists 
 - **Resumable Uploads:** Powered by the `tus.io` protocol, audio uploads in small chunks and automatically resumes after network interruptions.
 - **Offline Submission Queue:** Failed or offline submissions are saved securely in the user’s browser (via IndexedDB) and are automatically uploaded when connectivity is restored.
 - **Progressive Enhancement:**
-  - **Tier A (Modern Browsers):** Offers microphone calibration (gain control), noise suppression, and real-time speech-to-text transcription via the Speech Recognition API.
-  - **Tier B/C (Legacy Browsers):** Gracefully degrades, providing a simpler recording experience or a file upload fallback to ensure 100% user compatibility.
+    - **Tier A (Modern Browsers):** Offers microphone calibration (gain control), noise suppression, and real-time speech-to-text transcription via the Speech Recognition API.
+    - **Tier B/C (Legacy Browsers):** Gracefully degrades, providing a simpler recording experience or a file upload fallback to ensure 100% user compatibility.
 - **Rich Metadata & Consent Capture:** Saves extensive session data, including a linked consent-agreement post, User ID, IP, and User Agent.
 - **Geolocation Capture:** The legacy fallback script captures GPS coordinates, ideal for dialect and linguistic mapping projects.
 - **Audio Annotation Editor:** A separate `[starmus_audio_editor]` shortcode powered by Peaks.js allows for detailed audio segmentation and labeling.
@@ -56,8 +56,8 @@ Named after the iconic Starmus Festival, where rock legends and astrophysicists 
 - **WordPress:** 6.4 or higher
 - **PHP:** 8.0 or higher
 - **Server:**
-  - A `tus.io` compatible server endpoint is **highly recommended** for resumable uploads. The plugin includes a fallback to the standard WordPress REST API.
-  - The `audiowaveform` binary is required on the server's PATH for waveform generation in the editor.
+    - A `tus.io` compatible server endpoint is **highly recommended** for resumable uploads. The plugin includes a fallback to the standard WordPress REST API.
+    - The `audiowaveform` binary is required on the server's PATH for waveform generation in the editor.
 - **Browser:** A modern browser supporting the MediaRecorder API is recommended for the best experience. A fallback is provided for older browsers.
 
 ## 🚀 Installation
@@ -107,11 +107,11 @@ Example URL: `https://yoursite.com/edit-recording/?post_id=123&nonce=...`
 ### Custom Post Types & Taxonomies
 
 - **CPTs:**
-  - `audio-recording`
-  - `consent-agreement`
+    - `audio-recording`
+    - `consent-agreement`
 - **Taxonomies:**
-  - `language`
-  - `recording_type`
+    - `language`
+    - `recording_type`
 
 ### Core JavaScript Architecture
 
@@ -189,11 +189,13 @@ add_action('starmus_after_audio_upload', function($audio_post_id, $attachment_id
 
 Composer-based tools require a GitHub token for certain dependencies. Copy `auth.json.example` to `auth.json` and replace `YOUR_GITHUB_TOKEN_HERE` with your personal access token. Alternatively, set the `COMPOSER_AUTH` environment variable.
 
+WP-CLI commands specific to Starmus are documented here: [docs/WP-CLI.md](docs/WP-CLI.md)
+
 ```json
 {
-  "github-oauth": {
-    "github.com": "YOUR_GITHUB_TOKEN_HERE"
-  }
+    "github-oauth": {
+        "github.com": "YOUR_GITHUB_TOKEN_HERE"
+    }
 }
 ```
 
@@ -211,7 +213,7 @@ By accessing this repo, you accept:
 - TERMS.md — ethics, allowed use
 
 **Not allowed:** surveillance, coercion, military use.
- **Encouraged:** oral history, education, culture, community voice.
+**Encouraged:** oral history, education, culture, community voice.
 
 ---
 
@@ -246,9 +248,9 @@ If you're working in **underserved communities** or preserving oral traditions, 
 ## **🌍 Contact**
 
 **Starisian Technologies**
- 815 E Street, Suite 12083
- San Diego, CA 92101
- **Email:** <support@starisian.com>
+815 E Street, Suite 12083
+San Diego, CA 92101
+**Email:** <support@starisian.com>
 
 ---
 
