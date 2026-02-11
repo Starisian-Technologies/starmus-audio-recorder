@@ -23,23 +23,23 @@ declare(strict_types=1);
 namespace Starisian\Sparxstar\Starmus;
 
 use function add_action;
-// Helpers
 use function apply_filters;
-// Config
+// Helpers
 use function class_exists;
+// Config
 use function file_exists;
-// Interfaces
 use function is_admin;
 
+// Interfaces
 use LogicException;
 use RuntimeException;
-// Data Layer
 use Starisian\Sparxstar\Starmus\admin\StarmusAdmin;
+// Data Layer
 use Starisian\Sparxstar\Starmus\admin\StarmusTaskManager;
 use Starisian\Sparxstar\Starmus\api\StarmusDataRESTHandler;
 use Starisian\Sparxstar\Starmus\api\StarmusRESTHandler;
-// Components
 use Starisian\Sparxstar\Starmus\cli\StarmusCLI;
+// Components
 use Starisian\Sparxstar\Starmus\core\interfaces\IStarmusSettings;
 use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
 use Starisian\Sparxstar\Starmus\core\StarmusPostTypeLoader;
@@ -60,6 +60,7 @@ use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 use Starisian\Sparxstar\Starmus\services\StarmusPostProcessingService;
 use Starisian\Sparxstar\Starmus\services\StarmusWaveformService;
 use Throwable;
+use WP_CLI;
 
 if ( ! \defined('ABSPATH')) {
     exit;
@@ -413,7 +414,7 @@ final class StarmusAudioRecorder
         try {
             if (class_exists(StarmusCLI::class) && \defined('WP_CLI') && WP_CLI && class_exists('WP_CLI')) {
                 $cli = new StarmusCLI();
-                \WP_CLI::add_command('starmus', $cli);
+                WP_CLI::add_command('starmus', $cli);
                 StarmusLogger::info('Starmus Info: StarmusCLI initialized successfully.');
             }
         } catch (Throwable $throwable) {

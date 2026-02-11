@@ -9,7 +9,6 @@
  *
  * @version 0.9.2
  */
-
 namespace Starisian\Sparxstar\Starmus\cli;
 
 use function absint;
@@ -39,6 +38,7 @@ use WP_CLI_Command;
 
 use function wp_get_attachment_url;
 
+use WP_Post;
 use WP_Query;
 
 use function wp_strip_all_tags;
@@ -221,6 +221,7 @@ class StarmusCLI extends WP_CLI_Command
      * ---
      *
      * @subcommand cleanup-temp-files
+     *
      * @alias cleanup_temp_files
      *
      * @param mixed $args
@@ -503,12 +504,12 @@ class StarmusCLI extends WP_CLI_Command
             return;
         }
 
-        WP_CLI::log("Regenerating waveform and audio pipeline for attachment {$attachment_id}...");
+        WP_CLI::log(\sprintf('Regenerating waveform and audio pipeline for attachment %d...', $attachment_id));
 
         $cron = new StarmusCron();
         $cron->run_audio_processing_pipeline($attachment_id);
 
-        WP_CLI::success("Rebuilt waveform and audio pipeline for attachment {$attachment_id}.");
+        WP_CLI::success(\sprintf('Rebuilt waveform and audio pipeline for attachment %d.', $attachment_id));
     }
 
     /**
@@ -568,7 +569,7 @@ class StarmusCLI extends WP_CLI_Command
         $cron = $repair ? new StarmusCron() : null;
 
         foreach ($recordings as $recording) {
-            if ( ! $recording instanceof \WP_Post) {
+            if ( ! $recording instanceof WP_Post) {
                 WP_CLI::warning('Invalid recording object encountered, skipping.');
                 continue;
             }
@@ -695,7 +696,7 @@ class StarmusCLI extends WP_CLI_Command
 
         $post = get_post($id);
         if ( ! $post) {
-            $this->cli_fail("Post {$id} not found.", $fatal);
+            $this->cli_fail(\sprintf('Post %d not found.', $id), $fatal);
             return 0;
         }
 
@@ -705,17 +706,17 @@ class StarmusCLI extends WP_CLI_Command
             $attachment_id = (int) get_post_meta($id, '_audio_attachment_id', true);
 
             if ($attachment_id <= 0) {
-                $this->cli_fail("Recording {$id} has no linked attachment.", $fatal);
+                $this->cli_fail(\sprintf('Recording %d has no linked attachment.', $id), $fatal);
                 return 0;
             }
         } else {
-            $this->cli_fail("Unsupported post type '{$post->post_type}'.", $fatal);
+            $this->cli_fail(\sprintf("Unsupported post type '%s'.", $post->post_type), $fatal);
             return 0;
         }
 
         $attachment = get_post($attachment_id);
         if ( ! $attachment || $attachment->post_type !== 'attachment') {
-            $this->cli_fail("Resolved attachment {$attachment_id} is invalid.", $fatal);
+            $this->cli_fail(\sprintf('Resolved attachment %d is invalid.', $attachment_id), $fatal);
             return 0;
         }
 

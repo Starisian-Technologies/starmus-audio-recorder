@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 use Starisian\Sparxstar\Starmus\core\StarmusAssetLoader;
@@ -156,28 +155,28 @@ final class StarmusShortcodeLoader
         try {
             add_shortcode(
                 'starmus_audio_recorder',
-                fn(): string => $this->safe_render(
-                    fn(): string => $this->wrap_app_mode(
+                fn (): string => $this->safe_render(
+                    fn (): string => $this->wrap_app_mode(
                         (new StarmusAudioRecorderUI($this->settings))->render_recorder_shortcode()
                     )
                 )
             );
-            add_shortcode('starmus_audio_editor', fn(array $atts = []): string => $this->safe_render(fn(): string => $this->render_editor_with_bootstrap($atts)));
+            add_shortcode('starmus_audio_editor', fn (array $atts = []): string => $this->safe_render(fn (): string => $this->render_editor_with_bootstrap($atts)));
             add_shortcode('starmus_my_recordings', $this->render_my_recordings_shortcode(...));
             add_shortcode('starmus_recording_detail', $this->render_recording_detail_shortcode(...));
             add_shortcode(
                 'starmus_audio_re_recorder',
-                fn(array $atts = []): string => $this->safe_render(
-                    fn(): string => $this->wrap_app_mode(
+                fn (array $atts = []): string => $this->safe_render(
+                    fn (): string => $this->wrap_app_mode(
                         (new StarmusAudioRecorderUI($this->settings))->render_re_recorder_shortcode($atts)
                     )
                 )
             );
-            add_shortcode('starmus_contributor_consent', fn(): string => $this->safe_render(fn(): string => $this->consent_ui->render_shortcode()));
+            add_shortcode('starmus_contributor_consent', fn (): string => $this->safe_render(fn (): string => $this->consent_ui->render_shortcode()));
             add_shortcode(
                 'starmus_script_recorder',
-                fn(array $atts = [], string $content = null): string => $this->safe_render(
-                    fn(): string => $this->starmus_render_script_recorder($atts, $content)
+                fn (array $atts = [], string $content = null): string => $this->safe_render(
+                    fn (): string => $this->starmus_render_script_recorder($atts)
                 )
             );
             add_filter('the_content', $this->render_submission_detail_via_filter(...), 100);

@@ -15,6 +15,8 @@
  */
 namespace Starisian\Sparxstar\Starmus\integrations\appmode;
 
+use WP_Post;
+
 // exit if not WP
 \defined('ABSPATH') || exit;
 
@@ -32,7 +34,7 @@ final class SparxstarAppMode
 
     private function sparxstarRegisterHooks(): void
     {
-        // Assets are enqueued only when the shortcode renders.
+        add_action('wp_enqueue_scripts', $this->sparxstarConditionallyEnqueueAssets(...));
     }
 
     private function sparxstarRegisterShortcodes(): void
@@ -138,6 +140,22 @@ final class SparxstarAppMode
                 $js_asset['version'] ?: '1.2.1',
                 true // Load in footer
             );
+        }
+    }
+
+    private function sparxstarConditionallyEnqueueAssets(): void
+    {
+        if (is_admin()) {
+            return;
+        }
+
+        $post = get_post();
+        if ( ! $post instanceof WP_Post) {
+            return;
+        }
+
+        if (has_shortcode($post->post_content ?? '', 'sparxstar_app_mode')) {
+            $this->sparxstarEnqueueAssets();
         }
     }
 

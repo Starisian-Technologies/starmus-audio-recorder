@@ -1,5 +1,4 @@
 <?php
-
 namespace Starisian\Sparxstar\Starmus\frontend;
 
 use function class_exists;

@@ -69,14 +69,14 @@ class LanguageSignalAnalyzer {
         }
 
         switch (this.country) {
-            case "GM":
-                return ["en-US"]; // Gambia - English probe only
-            case "SN":
-            case "GN":
-            case "ML":
-                return ["fr-FR"]; // Francophone - French probe only
-            default:
-                return ["en-US"]; // Unknown - English fallback
+        case "GM":
+            return ["en-US"]; // Gambia - English probe only
+        case "SN":
+        case "GN":
+        case "ML":
+            return ["fr-FR"]; // Francophone - French probe only
+        default:
+            return ["en-US"]; // Unknown - English fallback
         }
     }
 
@@ -375,7 +375,7 @@ async function _doCalibration(stream, onUpdate) {
             }
 
             const elapsed = Date.now() - startTime;
-            let message = "";
+            let message;
 
             if (elapsed < 5000) {
                 const sec = Math.ceil((5000 - elapsed) / 1000);

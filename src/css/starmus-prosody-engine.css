@@ -33,7 +33,6 @@
     --sparxstar-shd: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
     --sparxstar-shd-onhover: rgb(0 0 0 / 19%) 0 10px 20px, rgb(0 0 0 / 23%) 0 6px 6px;
     --sparxstar-shd-onclick: rgb(60 64 67 / 30%) 0 1px 2px 0, rgb(60 64 67 / 15%) 0 1px 3px 1px;
-
     --prosody-bg-color: #f2f2f2;
     --prosody-text-color: #333;
     --prosody-text-dim: #666;
@@ -356,7 +355,6 @@
     flex-grow: 1;
     accent-color: #888;
     height: 4px;
-    background: #333;
     background: linear-gradient(
         270deg,
         rgb(168 5 250 / 100%) 0%,
@@ -378,7 +376,7 @@
     background: #bbb;
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    box-shadow: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
     transition:
         background 0.2s,
         transform 0.2s;
@@ -387,7 +385,7 @@
 #pace-regulator::-webkit-slider-thumb:hover {
     background: #fff;
     transform: scale(1.1);
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
+    box-shadow: rgb(0 0 0 / 25%) 0 14px 28px, rgb(0 0 0 / 22%) 0 10px 10px;
 }
 
 .secondary-text-btn {
