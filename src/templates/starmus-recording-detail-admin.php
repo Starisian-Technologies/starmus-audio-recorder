@@ -9,7 +9,7 @@
  * @package Starisian\Starmus
  */
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -21,11 +21,11 @@ use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 try {
     $post_id = get_the_ID();
 
-    if ( ! $post_id && isset($args['post_id'])) {
+    if (! $post_id && isset($args['post_id'])) {
         $post_id = intval($args['post_id']);
     }
 
-    if ( ! $post_id) {
+    if (! $post_id) {
         throw new \Exception('No post ID found.');
     }
 
@@ -161,7 +161,7 @@ try {
     // OPTIMIZATION: get_post_meta for large text
     $transcript_raw = get_post_meta($post_id, 'starmus_transcription_text', true);
     $transcript_text = '';
-    if ( ! empty($transcript_raw)) {
+    if (! empty($transcript_raw)) {
         $decoded = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
         $transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
     }
@@ -209,10 +209,10 @@ try {
         <div class="starmus-detail__meta-badges">
             <span class="starmus-badge"><?php echo intval($post_id); ?></span>
             <span class="starmus-badge"><?php echo esc_html(get_the_date('F j, Y g:i A', $post_id)); ?></span>
-            <?php if ( ! empty($languages) && ! is_wp_error($languages)) { ?>
+            <?php if (! empty($languages) && ! is_wp_error($languages)) { ?>
                 <span class="starmus-badge"><?php echo esc_html($languages[0]->name); ?></span>
             <?php } ?>
-            <?php if ( ! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
+            <?php if (! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
                 <span class="starmus-badge"><?php echo esc_html($rec_types[0]->name); ?></span>
             <?php } ?>
         </div>
@@ -277,7 +277,7 @@ try {
 
     <!-- Waveform -->
     <?php
-    if ( ! empty($waveform_data)) {
+    if (! empty($waveform_data)) {
         $width = 800;
         $height = 100;
         $count = count($waveform_data);
@@ -311,7 +311,7 @@ try {
         if (function_exists('gc_collect_cycles')) {
             gc_collect_cycles();
         }
-        ?>
+    ?>
         <section class="starmus-detail__section sparxstar-glass-card">
             <h3><?php esc_html_e('Waveform Data', 'starmus-audio-recorder'); ?></h3>
             <figure class="starmus-waveform-container" style="background:#f0f0f1; border:1px solid #ddd; padding:10px; border-radius: 8px;">
@@ -360,7 +360,7 @@ try {
                             <th scope="row">Mic Profile</th>
                             <td><?php echo esc_html($mic_profile_display); ?></td>
                         </tr>
-                        <?php if ( ! empty($runtime_raw)) { ?>
+                        <?php if (! empty($runtime_raw)) { ?>
                             <tr>
                                 <th scope="row">Raw Runtime</th>
                                 <td>
@@ -373,14 +373,26 @@ try {
                                 </td>
                             </tr>
                         <?php } ?>
-                        <?php if ( ! empty($env_json_raw)) { ?>
+                        <?php if (! empty($env_json_raw)) { ?>
                             <tr>
                                 <th scope="row">Raw Environment</th>
                                 <td>
                                     <details>
-                                        <summary>View JSON</summary>
-                                        <div style="max-height: 200px; overflow: auto;">
-                                            <pre style="font-size:0.8em; white-space:pre-wrap;"><?php echo esc_html(substr((string)$env_json_raw, 0, 5000)); ?><?php echo strlen((string)$env_json_raw) > 5000 ? '... [TRUNCATED]' : ''; ?></pre>
+                                        <summary>View Complete JSON (<?php echo number_format(strlen((string)$env_json_raw)); ?> bytes)</summary>
+                                        <div style="max-height: 500px; overflow: auto; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; margin-top: 10px;">
+                                            <pre style="font-size:0.75em; white-space:pre-wrap; word-wrap: break-word; margin: 0;"><?php
+                                                                                                                                    // Pretty-print the full JSON for readability
+                                                                                                                                    $decoded_env = json_decode((string)$env_json_raw);
+                                                                                                                                    if ($decoded_env !== null) {
+                                                                                                                                        echo esc_html(json_encode($decoded_env, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                                                                                                                                    } else {
+                                                                                                                                        echo esc_html($env_json_raw);
+                                                                                                                                    }
+                                                                                                                                    ?></pre>
+                                        </div>
+                                        <div style="margin-top: 10px; display: flex; gap: 8px;">
+                                            <button type="button" class="button button-secondary" onclick="navigator.clipboard.writeText(<?php echo esc_js(json_encode((string)$env_json_raw)); ?>).then(() => alert('Copied to clipboard!')).catch(() => alert('Failed to copy'))">📋 Copy JSON</button>
+                                            <a href="data:application/json;charset=utf-8,<?php echo rawurlencode((string)$env_json_raw); ?>" download="environment-data-<?php echo $post_id; ?>.json" class="button button-secondary" style="text-decoration:none;">💾 Download JSON</a>
                                         </div>
                                     </details>
                                 </td>
