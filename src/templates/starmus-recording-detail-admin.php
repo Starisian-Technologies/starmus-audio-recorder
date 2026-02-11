@@ -99,6 +99,15 @@ try {
     // get_field() applies formatting which can double/triple memory usage for large strings, causing OOM.
     $env_json_raw = get_post_meta($post_id, 'starmus_environment_data', true);
 
+    // COMPLETE DATA BUNDLE: Load ALL raw JSON fields submitted from recorder
+    $transcription_json_raw = get_post_meta($post_id, 'starmus_transcription_json', true);
+    $recording_metadata_raw = get_post_meta($post_id, 'starmus_recording_metadata', true);
+    $waveform_json_raw = get_post_meta($post_id, 'starmus_waveform_json', true);
+    $transcriber_metadata_raw = get_post_meta($post_id, 'starmus_transcriber_metadata', true);
+
+    // RAW SUBMISSION PAYLOAD: The complete form_data array as received from recorder
+    $raw_submission_data = get_post_meta($post_id, 'starmus_raw_submission_data', true);
+
     // SAFETY: Truncate massively large JSON strings before processing or display to prevent memory exhaustion
     if (is_string($env_json_raw) && strlen($env_json_raw) > 50000) {
         // Just decode needed parts if possible, but for display, we must truncate
@@ -365,9 +374,46 @@ try {
                                 <th scope="row">Raw Runtime</th>
                                 <td>
                                     <details>
-                                        <summary>View JSON</summary>
-                                        <div style="max-height: 200px; overflow: auto;">
-                                            <pre style="font-size:0.8em; white-space:pre-wrap;"><?php echo esc_html(substr((string)$runtime_raw, 0, 5000)); ?><?php echo strlen((string)$runtime_raw) > 5000 ? '... [TRUNCATED]' : ''; ?></pre>
+                                        <summary>View Complete JSON (<?php echo number_format(strlen((string)$runtime_raw)); ?> bytes)</summary>
+                                        <div style="max-height: 500px; overflow: auto; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; margin-top: 10px;">
+                                            <pre style="font-size:0.75em; white-space:pre-wrap; word-wrap: break-word; margin: 0;"><?php
+                                                                                                                                    // Pretty-print the full JSON for readability
+                                                                                                                                    $decoded_runtime = json_decode((string)$runtime_raw);
+                                                                                                                                    if ($decoded_runtime !== null) {
+                                                                                                                                        echo esc_html(json_encode($decoded_runtime, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                                                                                                                                    } else {
+                                                                                                                                        echo esc_html($runtime_raw);
+                                                                                                                                    }
+                                                                                                                                    ?></pre>
+                                        </div>
+                                        <div style="margin-top: 10px; display: flex; gap: 8px;">
+                                            <button type="button" class="button button-secondary" onclick="navigator.clipboard.writeText(<?php echo esc_js(json_encode((string)$runtime_raw)); ?>).then(() => alert('Copied to clipboard!')).catch(() => alert('Failed to copy'))">📋 Copy JSON</button>
+                                            <a href="data:application/json;charset=utf-8,<?php echo rawurlencode((string)$runtime_raw); ?>" download="runtime-metadata-<?php echo $post_id; ?>.json" class="button button-secondary" style="text-decoration:none;">💾 Download JSON</a>
+                                        </div>
+                                    </details>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                        <?php if (! empty($raw_submission_data)) { ?>
+                            <tr>
+                                <th scope="row">Complete Submission Payload</th>
+                                <td>
+                                    <details open>
+                                        <summary><strong>📦 FULL FORM DATA FROM RECORDER</strong> (<?php echo number_format(strlen((string)$raw_submission_data)); ?> bytes)</summary>
+                                        <div style="max-height: 600px; overflow: auto; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; margin-top: 10px; border: 2px solid #ffa500;">
+                                            <pre style="font-size:0.75em; white-space:pre-wrap; word-wrap: break-word; margin: 0;"><?php
+                                                                                                                                    // Pretty-print the full submission payload
+                                                                                                                                    $decoded_submission = json_decode((string)$raw_submission_data);
+                                                                                                                                    if ($decoded_submission !== null) {
+                                                                                                                                        echo esc_html(json_encode($decoded_submission, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                                                                                                                                    } else {
+                                                                                                                                        echo esc_html($raw_submission_data);
+                                                                                                                                    }
+                                                                                                                                    ?></pre>
+                                        </div>
+                                        <div style="margin-top: 10px; display: flex; gap: 8px;">
+                                            <button type="button" class="button button-primary" onclick="navigator.clipboard.writeText(<?php echo esc_js(json_encode((string)$raw_submission_data)); ?>).then(() => alert('Complete submission copied to clipboard!')).catch(() => alert('Failed to copy'))">📋 Copy Complete Submission</button>
+                                            <a href="data:application/json;charset=utf-8,<?php echo rawurlencode((string)$raw_submission_data); ?>" download="raw-submission-<?php echo $post_id; ?>.json" class="button button-primary" style="text-decoration:none;">💾 Download Complete Submission</a>
                                         </div>
                                     </details>
                                 </td>
@@ -406,9 +452,15 @@ try {
             <?php if ($processing_log) { ?>
                 <section class="starmus-detail__section sparxstar-glass-card">
                     <details class="starmus-logs">
-                        <summary style="cursor: pointer; font-weight: 600; color: var(--starmus-primary);">View Technical Processing Log</summary>
+                        <summary style="cursor: pointer; font-weight: 600; color: var(--starmus-primary);">View Complete Technical Processing Log (<?php echo number_format(strlen((string)$processing_log)); ?> bytes)</summary>
                         <div style="margin-top: 10px;">
-                            <pre class="starmus-processing-log" style="max-height: 300px; overflow-y: auto;"><?php echo esc_html(substr((string)$processing_log, 0, 10000)); ?><?php echo strlen((string)$processing_log) > 10000 ? '... [TRUNCATED]' : ''; ?></pre>
+                            <div style="max-height: 500px; overflow-y: auto; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px;">
+                                <pre class="starmus-processing-log" style="margin: 0; font-size:0.75em; white-space:pre-wrap; word-wrap: break-word;"><?php echo esc_html($processing_log); ?></pre>
+                            </div>
+                            <div style="margin-top: 10px; display: flex; gap: 8px;">
+                                <button type="button" class="button button-secondary" onclick="navigator.clipboard.writeText(<?php echo esc_js(json_encode((string)$processing_log)); ?>).then(() => alert('Copied to clipboard!')).catch(() => alert('Failed to copy'))">📋 Copy Log</button>
+                                <a href="data:text/plain;charset=utf-8,<?php echo rawurlencode((string)$processing_log); ?>" download="processing-log-<?php echo $post_id; ?>.txt" class="button button-secondary" style="text-decoration:none;">💾 Download Log</a>
+                            </div>
                         </div>
                     </details>
                 </section>
