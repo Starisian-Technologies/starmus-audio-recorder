@@ -403,6 +403,10 @@
     box-shadow:
         rgb(0 0 0 / 12%) 0 1px 3px,
         rgb(0 0 0 / 24%) 0 1px 2px;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+        transition: 0.5s;
 }
 
 .secondary-text-btn .dashicons {
@@ -598,14 +602,19 @@
     width: 100%;
 }
 
-.starmus-btn {
+.starmus-card-footer .starmus-btn {
     display: inline-block;
     padding: 0.5rem 1rem;
-    background: var(--sparxstar-accent);
     color: var(--sparxstar-text-base);
     text-decoration: none;
     border-radius: 4px;
     font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+        transition: 0.5s;
+
 }
 
 .starmus-btn:hover {

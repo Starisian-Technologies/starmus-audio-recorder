@@ -338,7 +338,7 @@ class StarmusProsodyPlayer
                     </a>
                     <?php if ($can_edit) { ?>
                         <a href="<?php echo esc_url($edit_url); ?>" class="starmus-btn starmus-btn--secondary" style="margin-left: 10px;">
-                            <?php esc_html_e('Edit Script', 'starmus-audio-recorder'); ?>
+                            <?php esc_html_e('Edit', 'starmus-audio-recorder'); ?>
                         </a>
                     <?php } ?>
                 </div>
