@@ -723,16 +723,16 @@ final class StarmusSubmissionHandler implements IStarmusSubmissionHandler
     {
         try {
             // SAVE COMPLETE RAW SUBMISSION FOR DEBUGGING/AUDIT
-            // Store the entire $form_data array exactly as received from recorder
+            // This is the form_data AFTER any post-submission modifications (like original_source)
+            // but BEFORE mapping
             update_post_meta($audio_post_id, 'starmus_raw_submission_data', json_encode($form_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
             // Map form data to new schema
             $mapped_data = StarmusSchemaMapper::map_form_data($form_data);
             error_log('[STARMUS PHP] Mapped form data: ' . json_encode(array_keys($mapped_data)));
 
-            // Handle JavaScript-submitted environment data (_starmus_env)
-            $env_json = $form_data['_starmus_env'] ?? '';
-            $decoded_env = null;
+            // SAVE MAPPED DATA FOR COMPARISON
+            update_post_meta($audio_post_id, 'starmus_mapped_submission_data', json_encode($mapped_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
             if ($env_json) {
                 $decoded_env = json_decode(wp_unslash($env_json), true);
                 if ($decoded_env) {

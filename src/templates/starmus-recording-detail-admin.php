@@ -107,6 +107,7 @@ try {
 
     // RAW SUBMISSION PAYLOAD: The complete form_data array as received from recorder
     $raw_submission_data = get_post_meta($post_id, 'starmus_raw_submission_data', true);
+    $mapped_submission_data = get_post_meta($post_id, 'starmus_mapped_submission_data', true);
 
     // SAFETY: Truncate massively large JSON strings before processing or display to prevent memory exhaustion
     if (is_string($env_json_raw) && strlen($env_json_raw) > 50000) {
@@ -387,7 +388,7 @@ try {
                                                                                                                                     ?></pre>
                                         </div>
                                         <div style="margin-top: 10px; display: flex; gap: 8px;">
-                                            <button type="button" class="button button-secondary" onclick="navigator.clipboard.writeText(<?php echo esc_js(json_encode((string)$runtime_raw)); ?>).then(() => alert('Copied to clipboard!')).catch(() => alert('Failed to copy'))">📋 Copy JSON</button>
+                                            <button type="button" class="button button-secondary" onclick="var d=<?php echo $runtime_raw; ?>;navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(()=>alert('Copied!')).catch(()=>alert('Failed'))">📋 Copy JSON</button>
                                             <a href="data:application/json;charset=utf-8,<?php echo rawurlencode((string)$runtime_raw); ?>" download="runtime-metadata-<?php echo $post_id; ?>.json" class="button button-secondary" style="text-decoration:none;">💾 Download JSON</a>
                                         </div>
                                     </details>
@@ -399,12 +400,12 @@ try {
                                 <th scope="row">Complete Submission Payload</th>
                                 <td>
                                     <details open>
-                                        <summary><strong>📦 FULL FORM DATA FROM RECORDER</strong> (<?php echo number_format(strlen((string)$raw_submission_data)); ?> bytes)</summary>
+                                        <summary><strong>📦 RAW FORM DATA (After POST, Before Mapper)</strong> (<?php echo number_format(strlen((string)$raw_submission_data)); ?> bytes)</summary>
                                         <div style="max-height: 600px; overflow: auto; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; margin-top: 10px; border: 2px solid #ffa500;">
                                             <pre style="font-size:0.75em; white-space:pre-wrap; word-wrap: break-word; margin: 0;"><?php
-                                                                                                                                    // Pretty-print the full submission payload
-                                                                                                                                    $decoded_submission = json_decode((string)$raw_submission_data);
-                                                                                                                                    if ($decoded_submission !== null) {
+                                                                                                                                    // Display raw JSON with proper formatting
+                                                                                                                                    $decoded_submission = json_decode((string)$raw_submission_data, true);
+                                                                                                                                    if ($decoded_submission !== null && json_last_error() === JSON_ERROR_NONE) {
                                                                                                                                         echo esc_html(json_encode($decoded_submission, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
                                                                                                                                     } else {
                                                                                                                                         echo esc_html($raw_submission_data);
@@ -412,8 +413,32 @@ try {
                                                                                                                                     ?></pre>
                                         </div>
                                         <div style="margin-top: 10px; display: flex; gap: 8px;">
-                                            <button type="button" class="button button-primary" onclick="navigator.clipboard.writeText(<?php echo esc_js(json_encode((string)$raw_submission_data)); ?>).then(() => alert('Complete submission copied to clipboard!')).catch(() => alert('Failed to copy'))">📋 Copy Complete Submission</button>
-                                            <a href="data:application/json;charset=utf-8,<?php echo rawurlencode((string)$raw_submission_data); ?>" download="raw-submission-<?php echo $post_id; ?>.json" class="button button-primary" style="text-decoration:none;">💾 Download Complete Submission</a>
+                                            <button type="button" class="button button-primary" onclick="var d=<?php echo $raw_submission_data; ?>;navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(()=>alert('Raw data copied!')).catch(()=>alert('Failed'))">📋 Copy Raw JSON</button>
+                                            <a href="data:application/json;charset=utf-8,<?php echo rawurlencode((string)$raw_submission_data); ?>" download="raw-submission-<?php echo $post_id; ?>.json" class="button button-primary" style="text-decoration:none;">💾 Download Raw</a>
+                                        </div>
+                                    </details>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                        <?php if (! empty($mapped_submission_data)) { ?>
+                            <tr>
+                                <th scope="row">Mapped Submission Data</th>
+                                <td>
+                                    <details>
+                                        <summary><strong>🗺️ AFTER SCHEMA MAPPER</strong> (<?php echo number_format(strlen((string)$mapped_submission_data)); ?> bytes)</summary>
+                                        <div style="max-height: 600px; overflow: auto; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; margin-top: 10px; border: 2px solid #4CAF50;">
+                                            <pre style="font-size:0.75em; white-space:pre-wrap; word-wrap: break-word; margin: 0;"><?php
+                                                                                                                                    $decoded_mapped = json_decode((string)$mapped_submission_data, true);
+                                                                                                                                    if ($decoded_mapped !== null && json_last_error() === JSON_ERROR_NONE) {
+                                                                                                                                        echo esc_html(json_encode($decoded_mapped, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                                                                                                                                    } else {
+                                                                                                                                        echo esc_html($mapped_submission_data);
+                                                                                                                                    }
+                                                                                                                                    ?></pre>
+                                        </div>
+                                        <div style="margin-top: 10px; display: flex; gap: 8px;">
+                                            <button type="button" class="button button-secondary" onclick="var d=<?php echo $mapped_submission_data; ?>;navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(()=>alert('Mapped data copied!')).catch(()=>alert('Failed'))">📋 Copy Mapped</button>
+                                            <a href="data:application/json;charset=utf-8,<?php echo rawurlencode((string)$mapped_submission_data); ?>" download="mapped-submission-<?php echo $post_id; ?>.json" class="button button-secondary" style="text-decoration:none;">💾 Download Mapped</a>
                                         </div>
                                     </details>
                                 </td>
@@ -437,7 +462,7 @@ try {
                                                                                                                                     ?></pre>
                                         </div>
                                         <div style="margin-top: 10px; display: flex; gap: 8px;">
-                                            <button type="button" class="button button-secondary" onclick="navigator.clipboard.writeText(<?php echo esc_js(json_encode((string)$env_json_raw)); ?>).then(() => alert('Copied to clipboard!')).catch(() => alert('Failed to copy'))">📋 Copy JSON</button>
+                                            <button type="button" class="button button-secondary" onclick="var d=<?php echo $env_json_raw; ?>;navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(()=>alert('Copied!')).catch(()=>alert('Failed'))">📋 Copy JSON</button>
                                             <a href="data:application/json;charset=utf-8,<?php echo rawurlencode((string)$env_json_raw); ?>" download="environment-data-<?php echo $post_id; ?>.json" class="button button-secondary" style="text-decoration:none;">💾 Download JSON</a>
                                         </div>
                                     </details>
@@ -458,7 +483,7 @@ try {
                                 <pre class="starmus-processing-log" style="margin: 0; font-size:0.75em; white-space:pre-wrap; word-wrap: break-word;"><?php echo esc_html($processing_log); ?></pre>
                             </div>
                             <div style="margin-top: 10px; display: flex; gap: 8px;">
-                                <button type="button" class="button button-secondary" onclick="navigator.clipboard.writeText(<?php echo esc_js(json_encode((string)$processing_log)); ?>).then(() => alert('Copied to clipboard!')).catch(() => alert('Failed to copy'))">📋 Copy Log</button>
+                                <button type="button" class="button button-secondary" onclick="var txt=<?php echo json_encode($processing_log); ?>;navigator.clipboard.writeText(txt).then(()=>alert('Log copied!')).catch(()=>alert('Failed'))">📋 Copy Log</button>
                                 <a href="data:text/plain;charset=utf-8,<?php echo rawurlencode((string)$processing_log); ?>" download="processing-log-<?php echo $post_id; ?>.txt" class="button button-secondary" style="text-decoration:none;">💾 Download Log</a>
                             </div>
                         </div>
