@@ -1,0 +1,238 @@
+/**
+ * STARISIAN TECHNOLOGIES CONFIDENTIAL
+ * Optimized Performance Edition
+ * ZERO selector removal.
+ */
+
+/* =========================================
+   THEME DESIGN TOKENS
+   ========================================= */
+
+:root {
+
+    --color-scheme: dark;
+
+    --sparxstar-base: var(--wp--preset--color--base, #180205);
+    --sparxstar-surface: var(--wp--preset--color--base-2, #251717);
+    --sparxstar-contrast: var(--wp--preset--color--contrast, #eceecf);
+    --sparxstar-accent: var(--wp--preset--color--accent);
+
+    /* Unified Shadows */
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 15%);
+    --shadow-md: 0 3px 6px rgb(0 0 0 / 20%);
+    --shadow-lg: 0 8px 16px rgb(0 0 0 / 25%);
+
+    /* Gradient Glows (cheaper than multi-layer shadows) */
+    --prosody-glow-gradient: radial-gradient(
+        circle at center,
+        rgb(39 244 3 / 30%) 0%,
+        rgb(39 244 3 / 15%) 40%,
+        transparent 70%
+    );
+
+    --prosody-glow-warm-gradient: radial-gradient(
+        circle at center,
+        rgb(255 215 0 / 25%) 0%,
+        rgb(255 215 0 / 10%) 45%,
+        transparent 70%
+    );
+
+    --prosody-bg-color: #f2f2f2;
+    --prosody-text-color: #333;
+    --prosody-text-dim: #666;
+    --prosody-text-lit: #000;
+
+    --prosody-font-stack: "Noto Sans", sans-serif;
+    --prosody-font-mono: "Noto Sans Mono", monospace;
+
+    --prosody-unit-spacing: 2.2;
+    --prosody-tap-zone-size: 220px;
+}
+
+/* =========================================
+   CONTAINER
+   ========================================= */
+
+#cognitive-regulator {
+    background: var(--prosody-bg-color);
+    color: var(--prosody-text-dim);
+    font-family: var(--prosody-font-stack);
+
+    height: 50vh;
+    height: 50dvh;
+
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+    box-shadow: var(--shadow-sm);
+}
+
+/* =========================================
+   CALIBRATION LAYER
+   ========================================= */
+
+#calibration-layer {
+    position: absolute;
+    inset: 0;
+    background: var(--sparxstar-surface);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s ease;
+}
+
+#calibration-layer.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tap-zone {
+    width: var(--prosody-tap-zone-size);
+    height: var(--prosody-tap-zone-size);
+    border: 1px solid var(--prosody-text-dim);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    background-image: var(--prosody-glow-gradient);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.1s ease;
+}
+
+.tap-zone.flash,
+.tap-zone:active {
+    transform: scale(0.96);
+    box-shadow: var(--shadow-sm);
+}
+
+/* =========================================
+   TEXT FLOW
+   ========================================= */
+
+#scaffold-stage {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0 clamp(10px, 5vw, 200px);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+#scaffold-stage::-webkit-scrollbar {
+    display: none;
+}
+
+#text-flow {
+    position: relative;
+    padding-top: 35vh;
+    padding-bottom: 40vh;
+    font-size: 26px;
+    line-height: var(--prosody-unit-spacing);
+    text-align: center;
+    font-family: var(--prosody-font-mono);
+}
+
+.prosodic-unit {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 4px 2px;
+    border-radius: 4px;
+    transition: color 0.25s, opacity 0.25s, transform 0.25s;
+    cursor: crosshair;
+    font-family: var(--prosody-font-mono);
+    transform-origin: center;
+}
+
+.prosodic-unit.future,
+.prosodic-unit.past {
+    color: var(--prosody-text-dim);
+    opacity: 0.35; /* blur removed */
+}
+
+.prosodic-unit.current {
+    color: var(--prosody-text-lit);
+    opacity: 1;
+    font-weight: 600;
+    background: rgb(255 255 255 / 8%);
+    transform: scale(1.15);
+    will-change: transform;
+}
+
+.prosodic-unit.silence-beat.current {
+    background-image: var(--prosody-glow-warm-gradient);
+    box-shadow: var(--shadow-sm);
+}
+
+/* =========================================
+   CONTROL DECK
+   ========================================= */
+
+.control-deck {
+    border-top: 1px solid rgb(0 0 0 / 10%);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: var(--shadow-sm);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.neutral-btn,
+.neutral-btn.icon-only,
+.secondary-text-btn,
+.starmus-script-card {
+    box-shadow: var(--shadow-sm);
+}
+
+#pace-regulator::-webkit-slider-thumb {
+    box-shadow: var(--shadow-sm);
+}
+
+/* =========================================
+   MOBILE OPTIMIZATION
+   ========================================= */
+
+@media (width <= 600px) {
+
+    #scaffold-stage {
+        scroll-behavior: auto;
+    }
+
+    #text-flow {
+        font-size: 20px;
+        padding-top: 10vh;
+        padding-bottom: 15vh;
+    }
+}
+
+/* =========================================
+   LOW POWER DEVICES
+   ========================================= */
+
+@media (max-resolution: 1.5dppx) {
+
+    .tap-zone,
+    .neutral-btn,
+    .secondary-text-btn,
+    .control-deck {
+        background-image: none;
+        box-shadow: none;
+    }
+
+    .prosodic-unit.current {
+        transform: none;
+    }
+}
