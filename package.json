@@ -125,5 +125,8 @@
         "peaks.js": "latest",
         "tus-js-client": "latest",
         "waveform-data": "latest"
+    },
+    "overrides": {
+        "minimatch": "^9.0.6"
     }
 }
