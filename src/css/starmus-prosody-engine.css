@@ -2,108 +2,96 @@
  * STARISIAN TECHNOLOGIES CONFIDENTIAL
  * © 2023–2025 Starisian Technologies. All Rights Reserved.
  *
- * @file    starmus-prosody-engine.css
- * @package SPARXSTAR Prosody Engine
- * @author  Starisian Technologies (https://starisian.com)
- * @license Starisian Technologies Proprietary License (STPL)
- * @copyright Copyright (c) 2025-2026Starisian Technologies
- * @version 3.2.0 Mechanics by Plugin • Identity by Theme
- * @desc    Resilient, performance-optimized for emerging markets.
- *          ZERO selector deletion policy.
+ * @file        starmus-prosody-engine.css
+ * @package     SPARXSTAR Prosody Engine
+ * @author      Starisian Technologies (https://starisian.com)
+ * @license     Starisian Technologies Proprietary License (STPL)
+ * @copyright   Copyright (c) 2025-2026Starisian Technologies
+ * @version     3.2.0 Mechanics by Plugin • Identity by Theme
+ * @desc        Resilient, performance-optimized for emerging markets.
+ *              ZERO selector deletion policy.
  */
 
 /* =========================================
-   THEME DESIGN TOKENS (Identity Only)
-   Mapped to WordPress Design Layer Variables
+   THEME DESIGN TOKENS
    ========================================= */
 
 :root {
-    /* -- 1. THEME DESIGN TOKENS (Identity Only) --- */
+
     --color-scheme: dark;
 
-    /* Map to your WordPress/Design Layer variables */
     --sparxstar-base: var(--wp--preset--color--base, #180205);
     --sparxstar-surface: var(--wp--preset--color--base-2, #251717);
     --sparxstar-contrast: var(--wp--preset--color--contrast, #eceecf);
     --sparxstar-accent: var(--wp--preset--color--accent);
-    --prosody-glow: rgb(39 244 3 / 51.7%);
-    --prosody-glow-dark: rgb(39 244 3 / 27.8%);
 
-    /* Tactile Identity from Theme */
-    --sparxstar-shd: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
-    --sparxstar-shd-onhover: rgb(0 0 0 / 19%) 0 10px 20px, rgb(0 0 0 / 23%) 0 6px 6px;
-    --sparxstar-shd-onclick: rgb(60 64 67 / 30%) 0 1px 2px 0, rgb(60 64 67 / 15%) 0 1px 3px 1px;
+    /* Unified Shadows */
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 15%);
+    --shadow-md: 0 3px 6px rgb(0 0 0 / 20%);
+    --shadow-lg: 0 8px 16px rgb(0 0 0 / 25%);
+
+    /* Gradient Glows (cheaper than multi-layer shadows) */
+    --prosody-glow-gradient: radial-gradient(
+        circle at center,
+        rgb(39 244 3 / 30%) 0%,
+        rgb(39 244 3 / 15%) 40%,
+        transparent 70%
+    );
+
+    --prosody-glow-warm-gradient: radial-gradient(
+        circle at center,
+        rgb(255 215 0 / 25%) 0%,
+        rgb(255 215 0 / 10%) 45%,
+        transparent 70%
+    );
+
     --prosody-bg-color: #f2f2f2;
     --prosody-text-color: #333;
     --prosody-text-dim: #666;
     --prosody-text-lit: #000;
 
-    /* Font Families */
     --prosody-font-stack: "Noto Sans", sans-serif;
     --prosody-font-mono: "Noto Sans Mono", monospace;
-    --prosody-font-jp: "Noto Sans JP", sans-serif;
-    --prosody-font-ar: "Noto Naskh Arabic", serif;
-    --prosody-font-am: "Noto Sans Ethiopic", sans-serif;
-    --prosody-font-zh: "Noto Sans SC", sans-serif;
 
-    /* UI Variables */
     --prosody-unit-spacing: 2.2;
     --prosody-tap-zone-size: 220px;
-    --prosody-text-base: clamp(0.9rem, 2vw, 1.15rem);
-}
-
-/* --- LIGHT MODE OPTION (Flipping Identity, not Mechanics) --- */
-.light-mode {
-    --color-scheme: light;
-    --sparxstar-base: var(--wp--preset--color--contrast, #fcffe7);
-    --sparxstar-surface: var(--wp--preset--color--base-2, #f5f5e0);
-    --sparxstar-contrast: var(--wp--preset--color--base, #180205);
-}
-
-@media (prefers-color-scheme: light) {
-    :root {
-        --color-scheme: light;
-        --sparxstar-base: var(--wp--preset--color--contrast, #fcffe7);
-        --sparxstar-surface: var(--wp--preset--color--base-2, #f5f5e0);
-        --sparxstar-contrast: var(--wp--preset--color--base, #180205);
-    }
 }
 
 /* =========================================
-   SPARXSTAR PROSODY ENGINE STYLES
-   Mechanics Layer
+   CONTAINER
    ========================================= */
 
-/* --sparxstar-- CONTAINER SHELL --sparxstar-- */
 #cognitive-regulator {
     background: var(--prosody-bg-color);
     color: var(--prosody-text-dim);
     font-family: var(--prosody-font-stack);
+
+    height: 50vh;
     height: 50dvh;
+
     width: 100%;
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
     user-select: none;
-    box-shadow:
-        rgb(0 0 0 / 12%) 0 1px 3px,
-        rgb(0 0 0 / 24%) 0 1px 2px;
+    box-shadow: var(--shadow-sm);
 }
 
 /* =========================================
-   LAYER 1: CALIBRATION (Overlay)
+   CALIBRATION LAYER
    ========================================= */
+
 #calibration-layer {
     position: absolute;
     inset: 0;
-    background: var(--sparxstar-bg-surface);
+    background: var(--sparxstar-surface);
     z-index: 200;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.4s ease;
 }
 
 #calibration-layer.fade-out {
@@ -121,73 +109,31 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow:
-        var(--prosody-glow) 0 2px 4px 0,
-        var(--prosody-glow) 0 2px 16px 0;
-    transition: all 0.1s ease;
-}
 
-.tap-zone:hover {
-    border: 1px solid var(--prosody-text-dim);
-    background: var(--prosody-tap-bg-hover);
-    box-shadow:
-        var(--prosody-glow) 2px 4px 12px 4px,
-        var(--prosody-glow) -2px -3px 16px 3px;
+    background-image: var(--prosody-glow-gradient);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.1s ease;
 }
 
 .tap-zone.flash,
 .tap-zone:active {
-    background: var(--prosody-tap-bg-active);
-    border: 1px solid var(--prosody-text-dim);
     transform: scale(0.96);
-    box-shadow:
-        var(--prosody-glow-dark) 0 1px 2px 0,
-        var(--prosody-glow-dark) 0 1px 8px 0;
-}
-
-.tap-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-    filter: grayscale(1);
-}
-
-.tap-label {
-    font-size: 14px;
-    letter-spacing: 3px;
-    color: var(--prosody-text-lit);
-    font-weight: var(--prosody-font-weight-bold);
-}
-
-.tap-sub {
-    font-size: 11px;
-    color: #666;
-    margin-top: 8px;
-    text-transform: uppercase;
-}
-
-.tap-feedback {
-    margin-top: 2rem;
-    color: var(--prosody-accent);
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-#calibration-layer::after {
-    content: "Your taps sets the 🪘 rhythm for the script flow.";
-    position: absolute;
-    bottom: 40px;
+    box-shadow: var(--shadow-sm);
 }
 
 /* =========================================
-   LAYER 2: THE STAGE (Text Flow)
+   TEXT FLOW
    ========================================= */
+
 #scaffold-stage {
     flex-grow: 1;
     overflow-y: auto;
     padding: 0 clamp(10px, 5vw, 200px);
     display: flex;
     flex-direction: column;
-    scroll-behavior: smooth;
     position: relative;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -197,11 +143,6 @@
     display: none;
 }
 
-#scaffold-stage.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
 #text-flow {
     position: relative;
     padding-top: 35vh;
@@ -209,437 +150,99 @@
     font-size: 26px;
     line-height: var(--prosody-unit-spacing);
     text-align: center;
-
-    /* The use of Noto Sans Mono ensures consistent character width,
-       which is crucial for maintaining rhythmic accuracy in prosody visualization. */
-    font-family: "Noto Sans Mono", monospace; /* ✅ Noto Mono for precision */
-    font-optical-sizing: auto; /* Enable optical sizing for better readability at various sizes */
+    font-family: var(--prosody-font-mono);
 }
 
-/* -- PROSODIC UNITS -- */
 .prosodic-unit {
     display: inline-block;
     padding: 2px 8px;
     margin: 4px 2px;
     border-radius: 4px;
-    transition:
-        color 0.3s,
-        opacity 0.3s,
-        transform 0.3s;
+    transition: color 0.25s, opacity 0.25s, transform 0.25s;
     cursor: crosshair;
-
-    /* The use of Noto Sans Mono ensures consistent character width,
-       which is crucial for maintaining rhythmic accuracy in prosody visualization. */
-    font-family: "Noto Sans Mono", monospace; /* ✅ Monospace inside rhythm engine */
-    font-optical-sizing: auto; /* Enable optical sizing for better readability at various sizes */
+    font-family: var(--prosody-font-mono);
+    transform-origin: center;
 }
 
 .prosodic-unit.future,
 .prosodic-unit.past {
     color: var(--prosody-text-dim);
-    opacity: 0.3;
-    filter: blur(0.4px);
+    opacity: 0.35; /* blur removed */
 }
 
 .prosodic-unit.current {
     color: var(--prosody-text-lit);
     opacity: 1;
     font-weight: 600;
-    filter: blur(0);
-    background: rgb(255 255 255 / 10%);
-    border: 1px solid var(--prosody-ui-border);
-    transform: scale(1.2);
-}
-
-.prosodic-unit.silence-beat {
-    color: var(--prosody-accent);
-    font-weight: 600;
-    min-width: 60px;
-    height: 40px;
-    border: 1px dashed var(--prosody-ui-border);
-    margin: 0 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    vertical-align: middle;
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    font-size: 24px;
+    background: rgb(255 255 255 / 8%);
+    transform: scale(1.15);
+    will-change: transform;
 }
 
 .prosodic-unit.silence-beat.current {
-    border-color: var(--prosody-accent);
-    background: rgb(255 215 0 / 10%);
-    transform: scale(1.1);
-    box-shadow: 0 0 15px rgb(255 215 0 / 20%);
-}
-
-.spacer {
-    height: 50vh;
+    background-image: var(--prosody-glow-warm-gradient);
+    box-shadow: var(--shadow-sm);
 }
 
 /* =========================================
-   LAYER 3: CONTROLS (The Deck)
+   CONTROL DECK
    ========================================= */
+
 .control-deck {
-    background: var(--prosody-bg-panel);
-    border-top: 1px solid var(--prosody-ui-border);
+    border-top: 1px solid rgb(0 0 0 / 10%);
     padding: 12px 20px;
     display: flex;
     align-items: center;
     gap: 15px;
-    z-index: 100;
-    box-shadow:
-        rgb(60 64 67 / 30%) 0 1px 2px 0,
-        rgb(60 64 67 / 15%) 0 1px 3px 1px;
-    transition:
-        opacity 0.8s ease,
-        transform 0.8s ease;
+    box-shadow: var(--shadow-sm);
+    transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
-.control-deck.hidden {
-    opacity: 0;
-    transform: translateY(20px);
-    pointer-events: none;
-}
-
-.neutral-btn {
-    border: none;
-    padding: 10px 16px;
-    box-shadow: rgb(0 0 0 / 8%) 0 4px 12px;
-    transition:
-        background 0.2s,
-        box-shadow 0.2s;
-    cursor: pointer;
-    user-select: none;
-    touch-action: manipulation;
-}
-
-.neutral-btn:hover {
-    border: none;
-    box-shadow:
-        rgb(60 64 67 / 30%) 0 1px 2px 0,
-        rgb(60 64 67 / 15%) 0 2px 6px 2px;
-}
-
-.neutral-btn:active {
-    box-shadow:
-        rgb(60 64 67 / 30%) 0 1px 2px 0,
-        rgb(60 64 67 / 15%) 0 1px 3px 1px;
-    transform: scale(0.95);
-}
-
-.neutral-btn.icon-only {
-    background: inherit;
-    min-width: unset;
-    width: 50px;
-    max-width: 50px;
-    padding: 10px 0;
-    flex-grow: 0 !important; /* Rigid width */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow:
-        rgb(60 64 67 / 30%) 0 1px 2px 0,
-        rgb(60 64 67 / 15%) 0 1px 3px 1px;
-}
-
-.fader-group {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-#pace-regulator {
-    flex-grow: 1;
-    accent-color: #888;
-    height: 4px;
-    background: linear-gradient(
-        270deg,
-        rgb(168 5 250 / 100%) 0%,
-        rgb(13 129 212 / 100%) 24%,
-        rgb(87 255 3 / 100%) 50%,
-        rgb(255 187 0 / 100%) 74%,
-        rgb(245 96 47 / 100%) 92%,
-        rgb(255 30 0 / 100%) 99%
-    );
-    border-radius: 2px;
-    appearance: none;
-    outline: none;
+.neutral-btn,
+.neutral-btn.icon-only,
+.secondary-text-btn,
+.starmus-script-card {
+    box-shadow: var(--shadow-sm);
 }
 
 #pace-regulator::-webkit-slider-thumb {
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    background: #bbb;
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: rgb(0 0 0 / 16%) 0 3px 6px, rgb(0 0 0 / 23%) 0 3px 6px;
-    transition:
-        background 0.2s,
-        transform 0.2s;
-}
-
-#pace-regulator::-webkit-slider-thumb:hover {
-    background: #fff;
-    transform: scale(1.1);
-    box-shadow: rgb(0 0 0 / 25%) 0 14px 28px, rgb(0 0 0 / 22%) 0 10px 10px;
-}
-
-.secondary-text-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: var(--prosody-font-stack);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 4px;
-    min-width: 60px;
-    box-shadow:
-        rgb(0 0 0 / 12%) 0 1px 3px,
-        rgb(0 0 0 / 24%) 0 1px 2px;
-    cursor: pointer;
-    user-select: none;
-    touch-action: manipulation;
-        transition: 0.5s;
-}
-
-.secondary-text-btn .dashicons {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    opacity: 0.7;
-}
-
-.secondary-text-btn .re-tap-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-}
-
-.secondary-text-btn:hover {
-    color: #888;
-}
-
-.secondary-text-btn:hover .dashicons {
-    opacity: 1;
+    box-shadow: var(--shadow-sm);
 }
 
 /* =========================================
-   LOCALIZATION FONT RULES
+   MOBILE OPTIMIZATION
    ========================================= */
-[lang="ja"] {
-    font-family: var(--prosody-font-jp);
-}
 
-[lang="ar"],
-.localized-text.ar {
-    font-family: var(--prosody-font-ar);
-    direction: rtl;
-}
-
-[lang="am"],
-.localized-text.am {
-    font-family: var(--prosody-font-am);
-}
-
-[lang="zh"],
-.localized-text.zh {
-    font-family: var(--prosody-font-zh);
-}
-
-/* =========================================
-   RESPONSIVE: Mobile-First
-   ========================================= */
 @media (width <= 600px) {
-    :root {
-        --prosody-tap-zone-size: 160px;
-        --prosody-unit-spacing: 1.5;
+
+    #scaffold-stage {
+        scroll-behavior: auto;
     }
 
     #text-flow {
         font-size: 20px;
-        padding-top: 10dvh;
-        padding-bottom: 15dvh;
-    }
-
-    .prosodic-unit.silence-beat {
-        font-size: 16px;
-        min-width: 40px;
-        height: 30px;
-    }
-
-    .control-deck {
-        flex-flow: row nowrap; /* Force single row */
-        gap: 8px;
-        padding: 8px;
-        justify-content: space-between;
-    }
-
-    .neutral-btn {
-        /* Default buttons can shrink/grow, but icon-only are fixed */
-        padding: 8px;
-    }
-
-    /* Hide labels on mobile to fit slider in single row */
-    .fader-group .fader-label {
-        display: none;
-    }
-
-    .fader-group {
-        order: unset;
-        width: auto;
-        padding-top: 0;
-        border-top: none;
-        flex-grow: 1; /* Ensure slider takes center stage */
-    }
-
-    .secondary-text-btn {
-        order: unset;
+        padding-top: 10vh;
+        padding-bottom: 15vh;
     }
 }
 
 /* =========================================
-   PROGRESSIVE ENHANCEMENTS
+   LOW POWER DEVICES
    ========================================= */
-@supports (backdrop-filter: blur(8px)) {
-    .tap-zone.flash {
-        backdrop-filter: blur(8px);
+
+@media (max-resolution: 1.5dppx) {
+
+    .tap-zone,
+    .neutral-btn,
+    .secondary-text-btn,
+    .control-deck {
+        background-image: none;
+        box-shadow: none;
     }
 
     .prosodic-unit.current {
-        backdrop-filter: blur(2px);
+        transform: none;
     }
-}
-
-/* =========================================
-   STARISIAN BRANDING ELEMENTS
-   - Subtle use of brand colors and motifs.
-   - Can be expanded with SVG icons or background patterns.
-   ========================================= */
-.starmus-script-library {
-    display: grid;
-    flex-direction: column;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-}
-
-/* Minimal Card Styles */
-.starmus-script-card {
-    display: flex;
-    flex-direction: column;
-    padding: 1.5rem;
-    border: 1px solid var(--prosody-ui-border);
-    border-radius: 8px;
-    box-shadow:
-        rgb(0 0 0 / 10%) 0 1px 3px 0,
-        rgb(0 0 0 / 6%) 0 1px 2px 0;
-}
-
-.starmus-card-header {
-    border: 1px solid rgb(255 255 255 / 10%);
-    padding: 10px;
-    margin-bottom: 1rem;
-    text-transform: capitalize;
-}
-
-.starmus-card-title {
-    color: var(--sparxstar-text);
-    font-size: medium;
-    margin: 0 0 0.5rem;
-    text-transform: capitalize;
-}
-
-.starmus-card-title a {
-    text-decoration: none;
-    color: inherit;
-}
-
-.starmus-card-title a:hover {
-    color: var(--sparxstar-primary-strong);
-}
-
-.starmus-script-excerpt {
-    color: var(--sparxstar-text-base);
-    margin-bottom: 1.5rem;
-    font-style: italic;
-    border-left: 3px solid var(--sparxstar-accent);
-    padding-left: 1rem;
-}
-
-.starmus-card__meta {
-    display: flex;
-    font-size: smaller;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.starmus-card__type,
-.starmus-card__language,
-.starmus-tag {
-    font-size: 0.75rem;
-    padding: 2px 8px;
-    border-radius: 12px;
-    background: var(--sparxstar-inner-bg);
-    color: var(--sparxstar-text);
-    font-weight: 600;
-    box-shadow:
-        rgb(60 64 67 / 30%) 0 1px 2px 0,
-        rgb(60 64 67 / 15%) 0 1px 3px 1px;
-}
-
-.starmus-audio-preview {
-    margin-bottom: 1rem;
-}
-
-.starmus-simple-player {
-    width: 100%;
-}
-
-.starmus-card-footer .starmus-btn {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    color: var(--sparxstar-text-base);
-    text-decoration: none;
-    border-radius: 4px;
-    font-weight: 500;
-    font-size: 0.9rem;
-    cursor: pointer;
-    user-select: none;
-    touch-action: manipulation;
-        transition: 0.5s;
-
-}
-
-.starmus-btn:hover {
-    background: var(--sparxstar-accent-dark);
-}
-
-.starmus-badge {
-    background: var(--sparxstar-accent-light);
-    color: var(--sparxstar-text-base);
-    padding: 0.25rem 0.5rem;
-    border-radius: 99px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-/* =========================================
-   PERFORMANCE OPTIMIZATIONS
-   - Reduced animation durations for snappier feel.
-   - Limited use of expensive properties like box-shadow and filter.
-   - Used will-change for elements that animate frequently.
-   ========================================= */
-.tap-zone,
-.prosodic-unit.current {
-    will-change: transform, opacity;
 }
 
 /* =========================================
