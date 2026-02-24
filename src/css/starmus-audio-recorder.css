@@ -1,0 +1,200 @@
+
+
+/* ========================================================================
+   1. VARIABLES & SHADOW CONSOLIDATION
+   ======================================================================== */
+
+:root {
+
+    /* Unified shadow tokens (replaces repeated stacks) */
+    --starmus-shadow-sm: 0 1px 2px rgb(0 0 0 / 15%);
+    --starmus-shadow-md: 0 3px 6px rgb(0 0 0 / 20%);
+    --starmus-shadow-lg: 0 8px 18px rgb(0 0 0 / 25%);
+
+    /* Inset replacement (cheaper than 2-layer inset shadows) */
+    --starmus-inset-soft: inset 0 1px 2px rgb(0 0 0 / 15%);
+
+    /* Gradient surfaces instead of multi-inset shadows */
+    --starmus-surface-gradient: linear-gradient(
+        180deg,
+        rgb(255 255 255 / 60%) 0%,
+        rgb(255 255 255 / 30%) 100%
+    );
+}
+
+/* ========================================================================
+   2. FORM INPUT OPTIMIZATION
+   ======================================================================== */
+
+.starmus-recorder-form input[type="text"],
+.starmus-recorder-form input[type="email"],
+.starmus-recorder-form select,
+.starmus-recorder-form textarea {
+
+    box-shadow: var(--starmus-inset-soft);
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Checkbox optimization */
+input[type="checkbox" i] {
+    box-shadow: var(--starmus-inset-soft);
+}
+
+/* ========================================================================
+   3. BUTTON SYSTEM OPTIMIZATION
+   ======================================================================== */
+
+.starmus-btn,
+.button.starmus-btn {
+    box-shadow: var(--starmus-shadow-sm);
+    transition: transform 0.2s ease;
+}
+
+.starmus-btn:hover,
+.button.starmus-btn:hover {
+    box-shadow: var(--starmus-shadow-md);
+    transform: scale(1.04);
+}
+
+.starmus-btn:active,
+.button.starmus-btn:active {
+    box-shadow: var(--starmus-shadow-sm);
+    transform: scale(0.96);
+}
+
+/* Primary action buttons simplified */
+button[data-starmus-action="record"],
+button[data-starmus-action="setup-mic"] {
+
+    background: radial-gradient(
+        circle at center,
+        rgb(63 94 251 / 95%) 0%,
+        rgb(252 70 107 / 95%) 100%
+    );
+
+    box-shadow: var(--starmus-shadow-md);
+    transition: background-position 0.4s ease;
+}
+
+button[data-starmus-action="record"]:active,
+button[data-starmus-action="setup-mic"]:active {
+
+    box-shadow: var(--starmus-shadow-sm);
+    transform: scale(0.96);
+}
+
+/* Resume / Stop simplified */
+.starmus-btn--resume,
+.starmus-btn--stop,
+.starmus-btn--record.is-recording {
+
+    box-shadow: var(--starmus-shadow-sm);
+}
+
+/* ========================================================================
+   4. RECORDER UI COMPONENTS OPTIMIZED
+   ======================================================================== */
+
+.starmus-visualizer-stage,
+.starmus-setup-container,
+.starmus-mic-stage {
+
+    background-image: var(--starmus-surface-gradient);
+    box-shadow: var(--starmus-shadow-md);
+}
+
+/* Timer optimized */
+.starmus-timer {
+
+    box-shadow: var(--starmus-shadow-sm);
+}
+
+/* Pulse optimized (less repaint pressure) */
+.starmus-timer--recording {
+    animation: starmus-pulse 2s ease-in-out infinite;
+}
+
+/* Meter bars simplified */
+.starmus-meter-bar,
+.starmus-duration-progress {
+
+    box-shadow: var(--starmus-shadow-sm);
+}
+
+/* Faster but lighter progress animation */
+.starmus-meter-bar::after {
+    transition: width 0.08s linear;
+}
+
+/* ========================================================================
+   5. CARD SYSTEM OPTIMIZED
+   ======================================================================== */
+
+.starmus-card,
+.starmus-audio-form,
+.starmus-card__actions .starmus-btn {
+
+    box-shadow: var(--starmus-shadow-sm);
+}
+
+.starmus-card__actions .starmus-btn:hover {
+    box-shadow: var(--starmus-shadow-md);
+}
+
+.starmus-card__actions .starmus-btn:active {
+    box-shadow: var(--starmus-shadow-sm);
+}
+
+/* Badge optimization */
+.starmus-badge {
+    box-shadow: var(--starmus-shadow-sm);
+}
+
+/* ========================================================================
+   6. ADMIN PERFORMANCE CONTAINMENT
+   ======================================================================== */
+
+.starmus-admin-detail,
+.starmus-user-detail {
+
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
+}
+
+/* ========================================================================
+   7. ANIMATION HARDENING
+   ======================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .starmus-btn,
+    .starmus-timer--recording,
+    .is-spinning,
+    .is-pulsing {
+
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ========================================================================
+   8. LOW POWER DEVICE DEGRADATION
+   ======================================================================== */
+
+@media (max-resolution: 1.5dppx) {
+
+    .starmus-btn,
+    .starmus-card,
+    .starmus-visualizer-stage,
+    .starmus-setup-container,
+    .starmus-mic-stage,
+    .starmus-audio-form {
+
+        box-shadow: none;
+        background-image: none;
+    }
+
+    .starmus-btn:hover {
+        transform: none;
+    }
+}
