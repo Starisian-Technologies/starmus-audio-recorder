@@ -20,7 +20,7 @@
 # Default Owner
 # ---------------------------------------------------------
 
-* @maxbarrett
+* @maximilliangroup
 
 
 # ---------------------------------------------------------
@@ -28,10 +28,10 @@
 # These files control the WordPress plugin behavior.
 # ---------------------------------------------------------
 
-/starmus-audio-recorder.php          @maxbarrett
-/src/StarmusAudioRecorder.php        @maxbarrett
-/src/Core/                           @maxbarrett
-/src/prosody/                        @maxbarrett
+/starmus-audio-recorder.php          @maximilliangroup
+/src/StarmusAudioRecorder.php        @maximilliangroup
+/src/Core/                           @maximilliangroup
+/src/prosody/                        @maximilliangroup
 
 
 # ---------------------------------------------------------
@@ -39,8 +39,8 @@
 # Controls microphone capture and audio buffering.
 # ---------------------------------------------------------
 
-/src/Audio/Recorder/                 @maxbarrett
-/src/Audio/Capture/                  @maxbarrett
+#/src/Audio/Recorder/                 @maximilliangroup
+#/src/Audio/Capture/                  @maximilliangroup
 
 
 # ---------------------------------------------------------
@@ -48,8 +48,8 @@
 # Visualization layer (WaveSurfer integration).
 # ---------------------------------------------------------
 
-/src/Audio/Waveform/                 @maxbarrett
-/src/Audio/Spectrogram/              @maxbarrett
+#/src/Audio/Waveform/                 @maxbarrett
+#/src/Audio/Spectrogram/              @maxbarrett
 
 
 # ---------------------------------------------------------
@@ -72,7 +72,7 @@
 # Handles upload and processing requests.
 # ---------------------------------------------------------
 
-/src/API/                            @maxbarrett
+#/src/API/                            @maxbarrett
 
 
 # ---------------------------------------------------------
@@ -80,8 +80,7 @@
 # Recording UI, waveform interaction, region editing.
 # ---------------------------------------------------------
 
-/assets/js/                          @maxbarrett
-/assets/js/                           @maxbarrett
+/assets/js/                          @maximilliangroup
 
 
 # ---------------------------------------------------------
@@ -89,38 +88,38 @@
 # UI appearance for recording interface.
 # ---------------------------------------------------------
 
-/assets/css/                         @maxbarrett
+/assets/css/                         @maximilliangroup
 
 # ---------------------------------------------------------
 # Build & Infrastructure
 # ---------------------------------------------------------
 
-/tests                             @maxbarrett
-/.github/workflows/                  @maxbarrett
+/tests                               @maximilliangroup
+/.github/workflows/                  @maximilliangroup
 
 
 # ---------------------------------------------------------
 # Documentation
 # ---------------------------------------------------------
 
-/docs/                               @maxbarrett
-README.md                            @maxbarrett
+/docs/                               @maximilliangroup
+README.md                            @maximilliangroup
 
 
 # ---------------------------------------------------------
 # Dependency Management
 # ---------------------------------------------------------
 
-composer.json                        @maxbarrett
-composer.lock                        @maxbarrett
-package.json                         @maxbarrett
-package-lock.json                    @maxbarrett
+composer.json                        @maximilliangroup
+composer.lock                        @maximilliangroup
+package.json                         @maximilliangroup
+package-lock.json                    @maximilliangroup
 
 
 # ---------------------------------------------------------
 # GitHub Governance
 # ---------------------------------------------------------
 
-.github/CODEOWNERS                   @maxbarrett
-.github/PULL_REQUEST_TEMPLATE.md     @maxbarrett
-.github/ISSUE_TEMPLATE/              @maxbarrett
+.github/CODEOWNERS                   @maximilliangroup
+.github/PULL_REQUEST_TEMPLATE.md     @maximilliangroup
+.github/ISSUE_TEMPLATE/              @maximilliangroup
