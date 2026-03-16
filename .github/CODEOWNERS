@@ -1,1 +1,126 @@
-## coming soon
+# =========================================================
+# Starmus Audio Recorder
+# Starisian Technologies
+#
+# CODEOWNERS
+#
+# Defines mandatory reviewers for protected areas of the
+# audio recording and annotation system.
+#
+# Areas protected:
+# - audio capture pipeline
+# - waveform / spectrogram logic
+# - export pipeline
+# - WordPress plugin core
+# - REST interfaces
+# =========================================================
+
+
+# ---------------------------------------------------------
+# Default Owner
+# ---------------------------------------------------------
+
+* @maxbarrett
+
+
+# ---------------------------------------------------------
+# Core Plugin Architecture
+# These files control the WordPress plugin behavior.
+# ---------------------------------------------------------
+
+/starmus-audio-recorder.php          @maxbarrett
+/src/StarmusAudioRecorder.php        @maxbarrett
+/src/Core/                           @maxbarrett
+/src/prosody/                        @maxbarrett
+
+
+# ---------------------------------------------------------
+# Audio Recording Engine
+# Controls microphone capture and audio buffering.
+# ---------------------------------------------------------
+
+/src/Audio/Recorder/                 @maxbarrett
+/src/Audio/Capture/                  @maxbarrett
+
+
+# ---------------------------------------------------------
+# Waveform & Spectrogram Engine
+# Visualization layer (WaveSurfer integration).
+# ---------------------------------------------------------
+
+/src/Audio/Waveform/                 @maxbarrett
+/src/Audio/Spectrogram/              @maxbarrett
+
+
+# ---------------------------------------------------------
+# Audio Processing Pipeline
+# Silence detection, trimming, segmentation, mastering.
+# ---------------------------------------------------------
+
+/src/services/                       @maxbarrett
+
+
+# ---------------------------------------------------------
+# Export System
+# WAV generation and file packaging.
+# ---------------------------------------------------------
+
+
+
+# ---------------------------------------------------------
+# REST API
+# Handles upload and processing requests.
+# ---------------------------------------------------------
+
+/src/API/                            @maxbarrett
+
+
+# ---------------------------------------------------------
+# Frontend JavaScript
+# Recording UI, waveform interaction, region editing.
+# ---------------------------------------------------------
+
+/assets/js/                          @maxbarrett
+/assets/js/                           @maxbarrett
+
+
+# ---------------------------------------------------------
+# Styles
+# UI appearance for recording interface.
+# ---------------------------------------------------------
+
+/assets/css/                         @maxbarrett
+
+# ---------------------------------------------------------
+# Build & Infrastructure
+# ---------------------------------------------------------
+
+/tests                             @maxbarrett
+/.github/workflows/                  @maxbarrett
+
+
+# ---------------------------------------------------------
+# Documentation
+# ---------------------------------------------------------
+
+/docs/                               @maxbarrett
+README.md                            @maxbarrett
+
+
+# ---------------------------------------------------------
+# Dependency Management
+# ---------------------------------------------------------
+
+composer.json                        @maxbarrett
+composer.lock                        @maxbarrett
+package.json                         @maxbarrett
+package-lock.json                    @maxbarrett
+
+
+# ---------------------------------------------------------
+# GitHub Governance
+# ---------------------------------------------------------
+
+.github/CODEOWNERS                   @maxbarrett
+.github/PULL_REQUEST_TEMPLATE.md     @maxbarrett
+.github/ISSUE_TEMPLATE/              @maxbarrett
