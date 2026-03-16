@@ -48,8 +48,8 @@
 # Visualization layer (WaveSurfer integration).
 # ---------------------------------------------------------
 
-#/src/Audio/Waveform/                 @maxbarrett
-#/src/Audio/Spectrogram/              @maxbarrett
+#/src/Audio/Waveform/                 @maximilliangroup
+#/src/Audio/Spectrogram/              @maximilliangroup
 
 
 # ---------------------------------------------------------
@@ -57,7 +57,7 @@
 # Silence detection, trimming, segmentation, mastering.
 # ---------------------------------------------------------
 
-/src/services/                       @maxbarrett
+/src/services/                       @maximilliangroup
 
 
 # ---------------------------------------------------------
@@ -72,7 +72,7 @@
 # Handles upload and processing requests.
 # ---------------------------------------------------------
 
-#/src/API/                            @maxbarrett
+#/src/API/                            @maximilliangroup
 
 
 # ---------------------------------------------------------
