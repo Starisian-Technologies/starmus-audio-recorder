@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         php: ["8.2", "8.3", "8.4"]
-        wordpress: ["6.5", "latest"]
+        wordpress: ["6.8", "latest"]
 
     steps:
       - name: Checkout code
