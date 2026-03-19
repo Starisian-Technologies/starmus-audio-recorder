@@ -1,1 +1,125 @@
-## coming soon
+# =========================================================
+# Starmus Audio Recorder
+# Starisian Technologies
+#
+# CODEOWNERS
+#
+# Defines mandatory reviewers for protected areas of the
+# audio recording and annotation system.
+#
+# Areas protected:
+# - audio capture pipeline
+# - waveform / spectrogram logic
+# - export pipeline
+# - WordPress plugin core
+# - REST interfaces
+# =========================================================
+
+
+# ---------------------------------------------------------
+# Default Owner
+# ---------------------------------------------------------
+
+* @maximilliangroup
+
+
+# ---------------------------------------------------------
+# Core Plugin Architecture
+# These files control the WordPress plugin behavior.
+# ---------------------------------------------------------
+
+/starmus-audio-recorder.php          @maximilliangroup
+/src/StarmusAudioRecorder.php        @maximilliangroup
+/src/Core/                           @maximilliangroup
+/src/prosody/                        @maximilliangroup
+
+
+# ---------------------------------------------------------
+# Audio Recording Engine
+# Controls microphone capture and audio buffering.
+# ---------------------------------------------------------
+
+#/src/Audio/Recorder/                 @maximilliangroup
+#/src/Audio/Capture/                  @maximilliangroup
+
+
+# ---------------------------------------------------------
+# Waveform & Spectrogram Engine
+# Visualization layer (WaveSurfer integration).
+# ---------------------------------------------------------
+
+#/src/Audio/Waveform/                 @maximilliangroup
+#/src/Audio/Spectrogram/              @maximilliangroup
+
+
+# ---------------------------------------------------------
+# Audio Processing Pipeline
+# Silence detection, trimming, segmentation, mastering.
+# ---------------------------------------------------------
+
+/src/services/                       @maximilliangroup
+
+
+# ---------------------------------------------------------
+# Export System
+# WAV generation and file packaging.
+# ---------------------------------------------------------
+
+
+
+# ---------------------------------------------------------
+# REST API
+# Handles upload and processing requests.
+# ---------------------------------------------------------
+
+#/src/API/                            @maximilliangroup
+
+
+# ---------------------------------------------------------
+# Frontend JavaScript
+# Recording UI, waveform interaction, region editing.
+# ---------------------------------------------------------
+
+/assets/js/                          @maximilliangroup
+
+
+# ---------------------------------------------------------
+# Styles
+# UI appearance for recording interface.
+# ---------------------------------------------------------
+
+/assets/css/                         @maximilliangroup
+
+# ---------------------------------------------------------
+# Build & Infrastructure
+# ---------------------------------------------------------
+
+/tests                               @maximilliangroup
+/.github/workflows/                  @maximilliangroup
+
+
+# ---------------------------------------------------------
+# Documentation
+# ---------------------------------------------------------
+
+/docs/                               @maximilliangroup
+README.md                            @maximilliangroup
+
+
+# ---------------------------------------------------------
+# Dependency Management
+# ---------------------------------------------------------
+
+composer.json                        @maximilliangroup
+composer.lock                        @maximilliangroup
+package.json                         @maximilliangroup
+package-lock.json                    @maximilliangroup
+
+
+# ---------------------------------------------------------
+# GitHub Governance
+# ---------------------------------------------------------
+
+.github/CODEOWNERS                   @maximilliangroup
+.github/PULL_REQUEST_TEMPLATE.md     @maximilliangroup
+.github/ISSUE_TEMPLATE/              @maximilliangroup
