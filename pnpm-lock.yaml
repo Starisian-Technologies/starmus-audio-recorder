@@ -68,7 +68,7 @@ importers:
         version: 11.2.0(@types/node@25.3.5)
       '@wordpress/eslint-plugin':
         specifier: latest
-        version: 24.4.0(@babel/core@7.29.0)(eslint@10.1.0(jiti@2.6.1))(prettier@3.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0(typescript@5.9.3))(typescript@5.9.3)
+        version: 24.4.0(@babel/core@7.29.0)(eslint@10.1.0(jiti@2.6.1))(prettier@3.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.6.0(typescript@5.9.3))(typescript@5.9.3)
       axe-playwright:
         specifier: latest
         version: 2.2.2(playwright@1.58.2)
@@ -83,7 +83,7 @@ importers:
         version: 10.1.8(eslint@10.1.0(jiti@2.6.1))
       eslint-plugin-jsdoc:
         specifier: latest
-        version: 62.8.0(eslint@10.1.0(jiti@2.6.1))
+        version: 62.8.1(eslint@10.1.0(jiti@2.6.1))
       eslint-plugin-jsx-a11y:
         specifier: latest
         version: 6.10.2(eslint@10.1.0(jiti@2.6.1))
@@ -119,22 +119,22 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       stylelint:
         specifier: latest
-        version: 17.5.0(typescript@5.9.3)
+        version: 17.6.0(typescript@5.9.3)
       stylelint-config-recess-order:
         specifier: ^7.6.1
-        version: 7.6.1(stylelint-order@7.0.1(stylelint@17.5.0(typescript@5.9.3)))(stylelint@17.5.0(typescript@5.9.3))
+        version: 7.6.1(stylelint-order@7.0.1(stylelint@17.6.0(typescript@5.9.3)))(stylelint@17.6.0(typescript@5.9.3))
       stylelint-config-standard:
         specifier: latest
-        version: 40.0.0(stylelint@17.5.0(typescript@5.9.3))
+        version: 40.0.0(stylelint@17.6.0(typescript@5.9.3))
       stylelint-declaration-block-no-ignored-properties:
         specifier: ^2.8.0
-        version: 2.8.0(stylelint@17.5.0(typescript@5.9.3))
+        version: 2.8.0(stylelint@17.6.0(typescript@5.9.3))
       stylelint-order:
         specifier: ^7.0.1
-        version: 7.0.1(stylelint@17.5.0(typescript@5.9.3))
+        version: 7.0.1(stylelint@17.6.0(typescript@5.9.3))
       stylelint-scss:
         specifier: ^6.14.0
-        version: 6.14.0(stylelint@17.5.0(typescript@5.9.3))
+        version: 6.14.0(stylelint@17.6.0(typescript@5.9.3))
       terser:
         specifier: latest
         version: 5.46.1
@@ -2799,8 +2799,8 @@ packages:
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
 
-  eslint-plugin-jsdoc@62.8.0:
-    resolution: {integrity: sha512-hu3r9/6JBmPG6wTcqtYzgZAnjEG2eqRUATfkFscokESg1VDxZM21ZaMire0KjeMwfj+SXvgB4Rvh5LBuesj92w==}
+  eslint-plugin-jsdoc@62.8.1:
+    resolution: {integrity: sha512-e9358PdHgvcMF98foNd3L7hVCw70Lt+YcSL7JzlJebB8eT5oRJtW6bHMQKoAwJtw6q0q0w/fRIr2kwnHdFDI6A==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -4145,12 +4145,12 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
-  picomatch@2.3.1:
-    resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
+  picomatch@2.3.2:
+    resolution: {integrity: sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==}
     engines: {node: '>=8.6'}
 
-  picomatch@4.0.3:
-    resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
+  picomatch@4.0.4:
+    resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
 
   pify@2.3.0:
@@ -4897,8 +4897,8 @@ packages:
     peerDependencies:
       stylelint: ^16.8.2
 
-  stylelint@17.5.0:
-    resolution: {integrity: sha512-o/NS6zhsPZFmgUm5tXX4pVNg1XDOZSlucLdf2qow/lVn4JIyzZIQ5b3kad1ugqUj3GSIgr2u5lQw7X8rjqw33g==}
+  stylelint@17.6.0:
+    resolution: {integrity: sha512-tokrsMIVAR9vAQ/q3UVEr7S0dGXCi7zkCezPRnS2kqPUulvUh5Vgfwngrk4EoAoW7wnrThqTdnTFN5Ra7CaxIg==}
     engines: {node: '>=20.19.0'}
     hasBin: true
 
@@ -5197,8 +5197,8 @@ packages:
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
-  write-file-atomic@7.0.0:
-    resolution: {integrity: sha512-YnlPC6JqnZl6aO4uRc+dx5PHguiR9S6WeoLtpxNT9wIG+BDya7ZNE1q7KOjVgaA73hKhKLpVPgJ5QA9THQ5BRg==}
+  write-file-atomic@7.0.1:
+    resolution: {integrity: sha512-OTIk8iR8/aCRWBqvxrzxR0hgxWpnYBblY1S5hDWBQfk/VFmJwzmJgQFN3WsoUKHISv2eAwe+PpbUzyL1CKTLXg==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
   ws@8.18.3:
@@ -5235,12 +5235,12 @@ packages:
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
-  yaml@1.10.2:
-    resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
+  yaml@1.10.3:
+    resolution: {integrity: sha512-vIYeF1u3CjlhAFekPPAk2h/Kv4T3mAkMox5OymRiJQB0spDP10LHvt+K7G9Ny6NuuMAb25/6n1qyUjAcGNf/AA==}
     engines: {node: '>= 6'}
 
-  yaml@2.8.2:
-    resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
+  yaml@2.8.3:
+    resolution: {integrity: sha512-AvbaCLOO2Otw/lW5bmh9d/WEdcDFdQp2Z2ZUH3pX9U2ihyUY0nvLv7J6TrWowklRGPYbB/IuIMfYgxaCPg5Bpg==}
     engines: {node: '>= 14.6'}
     hasBin: true
 
@@ -7286,10 +7286,10 @@ snapshots:
       '@rollup/pluginutils': 5.3.0(rollup@4.57.1)
       commondir: 1.0.1
       estree-walker: 2.0.2
-      fdir: 6.5.0(picomatch@4.0.3)
+      fdir: 6.5.0(picomatch@4.0.4)
       is-reference: 1.2.1
       magic-string: 0.30.21
-      picomatch: 4.0.3
+      picomatch: 4.0.4
     optionalDependencies:
       rollup: 4.57.1
 
@@ -7315,7 +7315,7 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.8
       estree-walker: 2.0.2
-      picomatch: 4.0.3
+      picomatch: 4.0.4
     optionalDependencies:
       rollup: 4.57.1
 
@@ -7736,7 +7736,7 @@ snapshots:
 
   '@wordpress/escape-html@3.42.0': {}
 
-  '@wordpress/eslint-plugin@24.4.0(@babel/core@7.29.0)(eslint@10.1.0(jiti@2.6.1))(prettier@3.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0(typescript@5.9.3))(typescript@5.9.3)':
+  '@wordpress/eslint-plugin@24.4.0(@babel/core@7.29.0)(eslint@10.1.0(jiti@2.6.1))(prettier@3.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.6.0(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/eslint-parser': 7.25.7(@babel/core@7.29.0)(eslint@10.1.0(jiti@2.6.1))
@@ -7744,7 +7744,7 @@ snapshots:
       '@typescript-eslint/parser': 6.21.0(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3)
       '@wordpress/babel-preset-default': 8.42.0
       '@wordpress/prettier-config': 4.42.0(prettier@3.8.1)
-      '@wordpress/theme': 0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0(typescript@5.9.3))
+      '@wordpress/theme': 0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.6.0(typescript@5.9.3))
       cosmiconfig: 7.1.0
       eslint: 10.1.0(jiti@2.6.1)
       eslint-config-prettier: 8.10.2(eslint@10.1.0(jiti@2.6.1))
@@ -7778,7 +7778,7 @@ snapshots:
 
   '@wordpress/private-apis@1.42.0': {}
 
-  '@wordpress/theme@0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0(typescript@5.9.3))':
+  '@wordpress/theme@0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.6.0(typescript@5.9.3))':
     dependencies:
       '@wordpress/element': 6.42.0
       '@wordpress/private-apis': 1.42.0
@@ -7787,7 +7787,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
     optionalDependencies:
-      stylelint: 17.5.0(typescript@5.9.3)
+      stylelint: 17.6.0(typescript@5.9.3)
 
   '@wordpress/warning@3.42.0': {}
 
@@ -8015,7 +8015,7 @@ snapshots:
   anymatch@3.1.3:
     dependencies:
       normalize-path: 3.0.0
-      picomatch: 2.3.1
+      picomatch: 2.3.2
 
   are-docs-informative@0.0.2: {}
 
@@ -8514,7 +8514,7 @@ snapshots:
       import-fresh: 3.3.1
       parse-json: 5.2.0
       path-type: 4.0.0
-      yaml: 1.10.2
+      yaml: 1.10.3
 
   cosmiconfig@9.0.1(typescript@5.9.3):
     dependencies:
@@ -8720,7 +8720,7 @@ snapshots:
 
   docker-compose@0.24.8:
     dependencies:
-      yaml: 2.8.2
+      yaml: 2.8.3
 
   doctrine@2.1.0:
     dependencies:
@@ -8997,7 +8997,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-jsdoc@62.8.0(eslint@10.1.0(jiti@2.6.1)):
+  eslint-plugin-jsdoc@62.8.1(eslint@10.1.0(jiti@2.6.1)):
     dependencies:
       '@es-joy/jsdoccomment': 0.84.0
       '@es-joy/resolve.exports': 1.2.0
@@ -9255,9 +9255,9 @@ snapshots:
     dependencies:
       pend: 1.2.0
 
-  fdir@6.5.0(picomatch@4.0.3):
+  fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
-      picomatch: 4.0.3
+      picomatch: 4.0.4
 
   file-entry-cache@11.1.2:
     dependencies:
@@ -10269,7 +10269,7 @@ snapshots:
   micromatch@4.0.8:
     dependencies:
       braces: 3.0.3
-      picomatch: 2.3.1
+      picomatch: 2.3.2
 
   mime-db@1.52.0: {}
 
@@ -10538,9 +10538,9 @@ snapshots:
 
   picocolors@1.1.1: {}
 
-  picomatch@2.3.1: {}
+  picomatch@2.3.2: {}
 
-  picomatch@4.0.3: {}
+  picomatch@4.0.4: {}
 
   pify@2.3.0: {}
 
@@ -10614,7 +10614,7 @@ snapshots:
   postcss-load-config@5.1.0(jiti@2.6.1)(postcss@8.5.8):
     dependencies:
       lilconfig: 3.1.3
-      yaml: 2.8.2
+      yaml: 2.8.3
     optionalDependencies:
       jiti: 2.6.1
       postcss: 8.5.8
@@ -10865,7 +10865,7 @@ snapshots:
 
   readdirp@3.6.0:
     dependencies:
-      picomatch: 2.3.1
+      picomatch: 2.3.2
 
   reflect.getprototypeof@1.0.10:
     dependencies:
@@ -11328,31 +11328,31 @@ snapshots:
       postcss: 8.5.8
       postcss-selector-parser: 7.1.1
 
-  stylelint-config-recess-order@7.6.1(stylelint-order@7.0.1(stylelint@17.5.0(typescript@5.9.3)))(stylelint@17.5.0(typescript@5.9.3)):
+  stylelint-config-recess-order@7.6.1(stylelint-order@7.0.1(stylelint@17.6.0(typescript@5.9.3)))(stylelint@17.6.0(typescript@5.9.3)):
     dependencies:
-      stylelint: 17.5.0(typescript@5.9.3)
-      stylelint-order: 7.0.1(stylelint@17.5.0(typescript@5.9.3))
+      stylelint: 17.6.0(typescript@5.9.3)
+      stylelint-order: 7.0.1(stylelint@17.6.0(typescript@5.9.3))
 
-  stylelint-config-recommended@18.0.0(stylelint@17.5.0(typescript@5.9.3)):
+  stylelint-config-recommended@18.0.0(stylelint@17.6.0(typescript@5.9.3)):
     dependencies:
-      stylelint: 17.5.0(typescript@5.9.3)
+      stylelint: 17.6.0(typescript@5.9.3)
 
-  stylelint-config-standard@40.0.0(stylelint@17.5.0(typescript@5.9.3)):
+  stylelint-config-standard@40.0.0(stylelint@17.6.0(typescript@5.9.3)):
     dependencies:
-      stylelint: 17.5.0(typescript@5.9.3)
-      stylelint-config-recommended: 18.0.0(stylelint@17.5.0(typescript@5.9.3))
+      stylelint: 17.6.0(typescript@5.9.3)
+      stylelint-config-recommended: 18.0.0(stylelint@17.6.0(typescript@5.9.3))
 
-  stylelint-declaration-block-no-ignored-properties@2.8.0(stylelint@17.5.0(typescript@5.9.3)):
+  stylelint-declaration-block-no-ignored-properties@2.8.0(stylelint@17.6.0(typescript@5.9.3)):
     dependencies:
-      stylelint: 17.5.0(typescript@5.9.3)
+      stylelint: 17.6.0(typescript@5.9.3)
 
-  stylelint-order@7.0.1(stylelint@17.5.0(typescript@5.9.3)):
+  stylelint-order@7.0.1(stylelint@17.6.0(typescript@5.9.3)):
     dependencies:
       postcss: 8.5.8
       postcss-sorting: 9.1.0(postcss@8.5.8)
-      stylelint: 17.5.0(typescript@5.9.3)
+      stylelint: 17.6.0(typescript@5.9.3)
 
-  stylelint-scss@6.14.0(stylelint@17.5.0(typescript@5.9.3)):
+  stylelint-scss@6.14.0(stylelint@17.6.0(typescript@5.9.3)):
     dependencies:
       css-tree: 3.1.0
       is-plain-object: 5.0.0
@@ -11362,9 +11362,9 @@ snapshots:
       postcss-resolve-nested-selector: 0.1.6
       postcss-selector-parser: 7.1.1
       postcss-value-parser: 4.2.0
-      stylelint: 17.5.0(typescript@5.9.3)
+      stylelint: 17.6.0(typescript@5.9.3)
 
-  stylelint@17.5.0(typescript@5.9.3):
+  stylelint@17.6.0(typescript@5.9.3):
     dependencies:
       '@csstools/css-calc': 3.1.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
@@ -11387,7 +11387,6 @@ snapshots:
       html-tags: 5.1.0
       ignore: 7.0.5
       import-meta-resolve: 4.2.0
-      imurmurhash: 0.1.4
       is-plain-object: 5.0.0
       mathml-tag-names: 4.0.0
       meow: 14.1.0
@@ -11402,7 +11401,7 @@ snapshots:
       supports-hyperlinks: 4.4.0
       svg-tags: 1.0.0
       table: 6.9.0
-      write-file-atomic: 7.0.0
+      write-file-atomic: 7.0.1
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -11464,8 +11463,8 @@ snapshots:
 
   tinyglobby@0.2.15:
     dependencies:
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
+      fdir: 6.5.0(picomatch@4.0.4)
+      picomatch: 4.0.4
 
   tmp-promise@3.0.3:
     dependencies:
@@ -11752,9 +11751,8 @@ snapshots:
 
   wrappy@1.0.2: {}
 
-  write-file-atomic@7.0.0:
+  write-file-atomic@7.0.1:
     dependencies:
-      imurmurhash: 0.1.4
       signal-exit: 4.1.0
 
   ws@8.18.3: {}
@@ -11774,9 +11772,9 @@ snapshots:
 
   yallist@3.1.1: {}
 
-  yaml@1.10.2: {}
+  yaml@1.10.3: {}
 
-  yaml@2.8.2: {}
+  yaml@2.8.3: {}
 
   yargs-parser@21.1.1: {}
 
