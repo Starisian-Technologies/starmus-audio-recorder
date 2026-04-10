@@ -108,7 +108,7 @@
         "postcss": "latest",
         "postcss-cli": "latest",
         "prettier": "latest",
-        "rollup": "^4.57.1",
+        "rollup": ">=4.59.0",
         "size-limit": "latest",
         "stylelint": "latest",
         "stylelint-config-recess-order": "^7.6.1",
