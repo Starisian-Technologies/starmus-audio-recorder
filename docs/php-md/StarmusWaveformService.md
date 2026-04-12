@@ -88,7 +88,7 @@ use function trim;
 use function uniqid;
 use function wp_json_encode;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

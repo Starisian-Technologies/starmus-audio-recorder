@@ -26,7 +26,7 @@ namespace Starisian\Sparxstar\Starmus\admin;
 
 use WP_Query;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

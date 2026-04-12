@@ -178,7 +178,7 @@ final class StarmusEnhancedId3Service extends StarmusId3Service
     private function getRecommendedFormat(string $current_format): string
     {
         $web_formats = ['mp3', 'wav', 'ogg', 'webm'];
-        return \in_array($current_format, $web_formats) ? $current_format : 'mp3';
+        return \in_array($current_format, $web_formats, true) ? $current_format : 'mp3';
     }
 
     private function buildComment(array $form_data): string

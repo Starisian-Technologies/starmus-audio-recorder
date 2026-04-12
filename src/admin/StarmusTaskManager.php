@@ -235,7 +235,7 @@ class StarmusTaskManager
                                 </td>
                             </tr>
                         <?php }
-                    } else { ?>
+                        } else { ?>
                         <tr>
                             <td colspan="7">No assets found.</td>
                         </tr>
@@ -550,7 +550,7 @@ class StarmusTaskManager
                                 </td>
                             </tr>
                         <?php }
-                    } else { ?>
+                        } else { ?>
                         <tr>
                             <td colspan="4">No tasks assigned to you.</td>
                         </tr>

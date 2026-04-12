@@ -52,7 +52,7 @@ $editor_data = [
                 } else {
                     esc_html_e('No Recording', 'starmus-audio-recorder');
                 }
-                ?>
+?>
             </span>
         </h2>
         <div class="starmus-editor__time">

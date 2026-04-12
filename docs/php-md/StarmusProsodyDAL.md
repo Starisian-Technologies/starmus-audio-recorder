@@ -51,7 +51,7 @@ use function wp_strip_all_tags;
 
 ;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

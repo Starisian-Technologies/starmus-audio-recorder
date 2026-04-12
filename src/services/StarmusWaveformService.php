@@ -185,6 +185,7 @@ final class StarmusWaveformService
         if (\function_exists('delete_field')) {
             return delete_field('waveform_json', $recording_id);
         }
+
         return delete_post_meta($recording_id, 'waveform_json');
     }
 

@@ -44,7 +44,7 @@ use function update_post_meta;
 
 use WP_Query;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

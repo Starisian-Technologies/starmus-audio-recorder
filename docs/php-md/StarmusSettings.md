@@ -54,7 +54,7 @@ use Throwable;
 use function trailingslashit;
 use function update_option;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -125,7 +125,6 @@ Computed once and reused throughout the request lifecycle.
 Constructor - Initializes settings and primes caches.
 Loads default settings, fetches current settings from database,
 and registers WordPress hooks for MIME type validation.
-@return void
 
 ### `get()`
 

@@ -44,8 +44,8 @@ Named after the iconic Starmus Festival, where rock legends and astrophysicists 
 - **Resumable Uploads:** Powered by the `tus.io` protocol, audio uploads in small chunks and automatically resumes after network interruptions.
 - **Offline Submission Queue:** Failed or offline submissions are saved securely in the user’s browser (via IndexedDB) and are automatically uploaded when connectivity is restored.
 - **Progressive Enhancement:**
-    - **Tier A (Modern Browsers):** Offers microphone calibration (gain control), noise suppression, and real-time speech-to-text transcription via the Speech Recognition API.
-    - **Tier B/C (Legacy Browsers):** Gracefully degrades, providing a simpler recording experience or a file upload fallback to ensure 100% user compatibility.
+  - **Tier A (Modern Browsers):** Offers microphone calibration (gain control), noise suppression, and real-time speech-to-text transcription via the Speech Recognition API.
+  - **Tier B/C (Legacy Browsers):** Gracefully degrades, providing a simpler recording experience or a file upload fallback to ensure 100% user compatibility.
 - **Rich Metadata & Consent Capture:** Saves extensive session data, including a linked consent-agreement post, User ID, IP, and User Agent.
 - **Geolocation Capture:** The legacy fallback script captures GPS coordinates, ideal for dialect and linguistic mapping projects.
 - **Audio Annotation Editor:** A separate `[starmus_audio_editor]` shortcode powered by Peaks.js allows for detailed audio segmentation and labeling.
@@ -56,8 +56,8 @@ Named after the iconic Starmus Festival, where rock legends and astrophysicists 
 - **WordPress:** 6.4 or higher
 - **PHP:** 8.0 or higher
 - **Server:**
-    - A `tus.io` compatible server endpoint is **highly recommended** for resumable uploads. The plugin includes a fallback to the standard WordPress REST API.
-    - The `audiowaveform` binary is required on the server's PATH for waveform generation in the editor.
+  - A `tus.io` compatible server endpoint is **highly recommended** for resumable uploads. The plugin includes a fallback to the standard WordPress REST API.
+  - The `audiowaveform` binary is required on the server's PATH for waveform generation in the editor.
 - **Browser:** A modern browser supporting the MediaRecorder API is recommended for the best experience. A fallback is provided for older browsers.
 
 ## 🚀 Installation
@@ -107,11 +107,11 @@ Example URL: `https://yoursite.com/edit-recording/?post_id=123&nonce=...`
 ### Custom Post Types & Taxonomies
 
 - **CPTs:**
-    - `audio-recording`
-    - `consent-agreement`
+  - `audio-recording`
+  - `consent-agreement`
 - **Taxonomies:**
-    - `language`
-    - `recording_type`
+  - `language`
+  - `recording_type`
 
 ### Core JavaScript Architecture
 

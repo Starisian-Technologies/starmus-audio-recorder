@@ -34,9 +34,9 @@
 
     /* Height fallbacks (order matters) */
 
- /* legacy */
+    /* legacy */
 
- /* stable viewport */
+    /* stable viewport */
     height: 100dvh; /* dynamic viewport */
     min-height: 100vh;
     z-index: 99999;

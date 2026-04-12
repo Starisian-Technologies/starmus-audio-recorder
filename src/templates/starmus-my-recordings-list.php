@@ -131,7 +131,7 @@ if ($query->have_posts()) { ?>
                                     <?php
                                     /* translators: %s: Formatted duration time (e.g. "2:34") */
                                     printf(esc_html__('Duration: %s', 'starmus-audio-recorder'), $duration_formatted);
-                                    ?>
+                                ?>
                                 </span>
                             <?php } ?>
                         </div>

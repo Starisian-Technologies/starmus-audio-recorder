@@ -51,11 +51,12 @@ use WP_CLI_Command;
 
 use function wp_get_attachment_url;
 
+use WP_Post;
 use WP_Query;
 
 use function wp_strip_all_tags;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
@@ -87,9 +88,9 @@ Manages audio recording waveforms.
 ## EXAMPLES
     # Generate waveforms for all recordings missing them.
     $ wp starmus waveform generate
-    # Force regenerate waveforms for posts 123 and 456.
+    # Force regenerate waveforms for recordings or attachments 123 and 456.
     $ wp starmus waveform generate --post_ids=123,456 --regenerate
-    # Delete waveform data for attachment ID 789.
+    # Delete waveform data for attachment or recording ID 789.
     $ wp starmus waveform delete --attachment_ids=789
 @param mixed $args
 
@@ -105,11 +106,13 @@ Manages processing pipeline for recordings.
 options:
   - run
 ---
+[--id=<id>]
+: Attachment ID OR audio-recording ID.
 [--attachment_id=<id>]
-: The attachment ID to process.
+: Attachment ID OR audio-recording ID (legacy name).
 ## EXAMPLES
     # Run the pipeline for a specific recording
-    $ wp starmus process run --attachment_id=123
+    $ wp starmus process run --id=123
 @param mixed $args
 @param mixed $assoc_args
 
@@ -135,6 +138,8 @@ Cleans up stale temporary files.
 ---
 default: 1
 ---
+@subcommand cleanup-temp-files
+@alias cleanup_temp_files
 @param mixed $args
 
 ### `export()`
@@ -170,12 +175,13 @@ Imports audio recordings from a CSV file.
 
 **Visibility:** `public`
 
-Force waveform + mastering regeneration for an attachment.
+Force waveform + mastering regeneration for an attachment OR recording.
 ## OPTIONS
-<attachment_id>
-: The attachment ID to process.
+<id>
+: Attachment ID OR audio-recording ID.
 ## EXAMPLES
-    wp starmus regen 1234
+    wp starmus regen 1344   # attachment
+    wp starmus regen 1343   # audio-recording (auto-resolves)
 @subcommand regen
 
 ### `scan_missing()`
@@ -213,12 +219,13 @@ Batch regenerate waveforms for all audio attachments.
 
 **Visibility:** `public`
 
-Queue waveform regeneration for a specific attachment (runs via cron).
+Queue waveform regeneration for a specific attachment or recording (runs via cron).
 ## OPTIONS
-<attachment_id>
-: The attachment ID to queue.
+<id>
+: Attachment ID OR audio-recording ID.
 ## EXAMPLES
-    wp starmus queue 1234
+    wp starmus queue 1234   # attachment
+    wp starmus queue 1233   # audio-recording
 @subcommand queue
 
 ## Properties

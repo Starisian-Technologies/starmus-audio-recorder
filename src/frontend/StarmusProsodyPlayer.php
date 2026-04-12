@@ -532,12 +532,12 @@ class StarmusProsodyPlayer
                         'quicktags' => false,
                         'editor_class' => 'widefat',
                     ];
-                    // Clean up block comments for display if they exist
-                    if (str_contains((string) $content, '<!-- wp:')) {
-                        $content = preg_replace('/<!-- \/?wp:.*? -->/', '', (string) $content);
-                    }
-                    wp_editor($content, 'starmus_script_content', $editor_settings);
-                    ?>
+        // Clean up block comments for display if they exist
+        if (str_contains((string) $content, '<!-- wp:')) {
+            $content = preg_replace('/<!-- \/?wp:.*? -->/', '', (string) $content);
+        }
+        wp_editor($content, 'starmus_script_content', $editor_settings);
+        ?>
                 </div>
 
                 <div class="starmus-form-row">

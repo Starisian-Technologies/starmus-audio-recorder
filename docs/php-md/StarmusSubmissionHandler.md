@@ -116,7 +116,7 @@ use function wp_unique_filename;
 use function wp_unslash;
 use function wp_upload_dir;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

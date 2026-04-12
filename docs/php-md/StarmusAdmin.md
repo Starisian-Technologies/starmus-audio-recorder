@@ -27,7 +27,7 @@ namespace Starisian\Sparxstar\Starmus\admin;
 use Starisian\Sparxstar\Starmus\core\StarmusSettings;
 use Starisian\Sparxstar\Starmus\data\interfaces\IStarmusAudioDAL;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     return;
 }
 
@@ -73,7 +73,6 @@ and registers admin hooks for menu and settings registration.
 @param IStarmusAudioDAL $DAL Data Access Layer instance.
 @param StarmusSettings $settings Settings service instance.
 @throws \Throwable If initialization fails.
-@return void
 @since 0.3.1
 
 ### `add_admin_menu()`

@@ -9,7 +9,7 @@
  * @package Starisian\Starmus
  */
 
-if (! defined('ABSPATH')) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 
@@ -21,11 +21,11 @@ use Starisian\Sparxstar\Starmus\services\StarmusFileService;
 try {
     $post_id = get_the_ID();
 
-    if (! $post_id && isset($args['post_id'])) {
+    if ( ! $post_id && isset($args['post_id'])) {
         $post_id = intval($args['post_id']);
     }
 
-    if (! $post_id) {
+    if ( ! $post_id) {
         throw new \Exception('No post ID found.');
     }
 
@@ -171,7 +171,7 @@ try {
     // OPTIMIZATION: get_post_meta for large text
     $transcript_raw = get_post_meta($post_id, 'starmus_transcription_text', true);
     $transcript_text = '';
-    if (! empty($transcript_raw)) {
+    if ( ! empty($transcript_raw)) {
         $decoded = is_string($transcript_raw) ? json_decode($transcript_raw, true) : $transcript_raw;
         $transcript_text = is_array($decoded) && isset($decoded['transcript']) ? $decoded['transcript'] : $transcript_raw;
     }
@@ -219,10 +219,10 @@ try {
         <div class="starmus-detail__meta-badges">
             <span class="starmus-badge"><?php echo intval($post_id); ?></span>
             <span class="starmus-badge"><?php echo esc_html(get_the_date('F j, Y g:i A', $post_id)); ?></span>
-            <?php if (! empty($languages) && ! is_wp_error($languages)) { ?>
+            <?php if ( ! empty($languages) && ! is_wp_error($languages)) { ?>
                 <span class="starmus-badge"><?php echo esc_html($languages[0]->name); ?></span>
             <?php } ?>
-            <?php if (! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
+            <?php if ( ! empty($rec_types) && ! is_wp_error($rec_types)) { ?>
                 <span class="starmus-badge"><?php echo esc_html($rec_types[0]->name); ?></span>
             <?php } ?>
         </div>
@@ -287,7 +287,7 @@ try {
 
     <!-- Waveform -->
     <?php
-    if (! empty($waveform_data)) {
+    if ( ! empty($waveform_data)) {
         $width = 800;
         $height = 100;
         $count = count($waveform_data);
@@ -321,7 +321,7 @@ try {
         if (function_exists('gc_collect_cycles')) {
             gc_collect_cycles();
         }
-    ?>
+        ?>
         <section class="starmus-detail__section sparxstar-glass-card">
             <h3><?php esc_html_e('Waveform Data', 'starmus-audio-recorder'); ?></h3>
             <figure class="starmus-waveform-container" style="background:#f0f0f1; border:1px solid #ddd; padding:10px; border-radius: 8px;">
@@ -370,7 +370,7 @@ try {
                             <th scope="row">Mic Profile</th>
                             <td><?php echo esc_html($mic_profile_display); ?></td>
                         </tr>
-                        <?php if (! empty($runtime_raw)) { ?>
+                        <?php if ( ! empty($runtime_raw)) { ?>
                             <tr>
                                 <th scope="row">Raw Runtime</th>
                                 <td>
@@ -378,14 +378,14 @@ try {
                                         <summary>View Complete JSON (<?php echo number_format(strlen((string)$runtime_raw)); ?> bytes)</summary>
                                         <div style="max-height: 500px; overflow: auto; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; margin-top: 10px;">
                                             <pre style="font-size:0.75em; white-space:pre-wrap; word-wrap: break-word; margin: 0;"><?php
-                                                                                                                                    // Pretty-print the full JSON for readability
-                                                                                                                                    $decoded_runtime = json_decode((string)$runtime_raw);
-                                                                                                                                    if ($decoded_runtime !== null) {
-                                                                                                                                        echo esc_html(json_encode($decoded_runtime, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-                                                                                                                                    } else {
-                                                                                                                                        echo esc_html($runtime_raw);
-                                                                                                                                    }
-                                                                                                                                    ?></pre>
+                                                                                                                                        // Pretty-print the full JSON for readability
+                                                                                                                                        $decoded_runtime = json_decode((string)$runtime_raw);
+                            if ($decoded_runtime !== null) {
+                                echo esc_html(json_encode($decoded_runtime, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                            } else {
+                                echo esc_html($runtime_raw);
+                            }
+                            ?></pre>
                                         </div>
                                         <div style="margin-top: 10px; display: flex; gap: 8px;">
                                             <button type="button" class="button button-secondary" onclick="var d=<?php echo $runtime_raw; ?>;navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(()=>alert('Copied!')).catch(()=>alert('Failed'))">📋 Copy JSON</button>
@@ -395,7 +395,7 @@ try {
                                 </td>
                             </tr>
                         <?php } ?>
-                        <?php if (! empty($raw_submission_data)) { ?>
+                        <?php if ( ! empty($raw_submission_data)) { ?>
                             <tr>
                                 <th scope="row">Complete Submission Payload</th>
                                 <td>
@@ -403,14 +403,14 @@ try {
                                         <summary><strong>📦 RAW FORM DATA (After POST, Before Mapper)</strong> (<?php echo number_format(strlen((string)$raw_submission_data)); ?> bytes)</summary>
                                         <div style="max-height: 600px; overflow: auto; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; margin-top: 10px; border: 2px solid #ffa500;">
                                             <pre style="font-size:0.75em; white-space:pre-wrap; word-wrap: break-word; margin: 0;"><?php
-                                                                                                                                    // Display raw JSON with proper formatting
-                                                                                                                                    $decoded_submission = json_decode((string)$raw_submission_data, true);
-                                                                                                                                    if ($decoded_submission !== null && json_last_error() === JSON_ERROR_NONE) {
-                                                                                                                                        echo esc_html(json_encode($decoded_submission, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-                                                                                                                                    } else {
-                                                                                                                                        echo esc_html($raw_submission_data);
-                                                                                                                                    }
-                                                                                                                                    ?></pre>
+                            // Display raw JSON with proper formatting
+                            $decoded_submission = json_decode((string)$raw_submission_data, true);
+                            if ($decoded_submission !== null && json_last_error() === JSON_ERROR_NONE) {
+                                echo esc_html(json_encode($decoded_submission, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                            } else {
+                                echo esc_html($raw_submission_data);
+                            }
+                            ?></pre>
                                         </div>
                                         <div style="margin-top: 10px; display: flex; gap: 8px;">
                                             <button type="button" class="button button-primary" onclick="var d=<?php echo $raw_submission_data; ?>;navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(()=>alert('Raw data copied!')).catch(()=>alert('Failed'))">📋 Copy Raw JSON</button>
@@ -420,7 +420,7 @@ try {
                                 </td>
                             </tr>
                         <?php } ?>
-                        <?php if (! empty($mapped_submission_data)) { ?>
+                        <?php if ( ! empty($mapped_submission_data)) { ?>
                             <tr>
                                 <th scope="row">Mapped Submission Data</th>
                                 <td>
@@ -428,13 +428,13 @@ try {
                                         <summary><strong>🗺️ AFTER SCHEMA MAPPER</strong> (<?php echo number_format(strlen((string)$mapped_submission_data)); ?> bytes)</summary>
                                         <div style="max-height: 600px; overflow: auto; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; margin-top: 10px; border: 2px solid #4CAF50;">
                                             <pre style="font-size:0.75em; white-space:pre-wrap; word-wrap: break-word; margin: 0;"><?php
-                                                                                                                                    $decoded_mapped = json_decode((string)$mapped_submission_data, true);
-                                                                                                                                    if ($decoded_mapped !== null && json_last_error() === JSON_ERROR_NONE) {
-                                                                                                                                        echo esc_html(json_encode($decoded_mapped, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-                                                                                                                                    } else {
-                                                                                                                                        echo esc_html($mapped_submission_data);
-                                                                                                                                    }
-                                                                                                                                    ?></pre>
+                            $decoded_mapped = json_decode((string)$mapped_submission_data, true);
+                            if ($decoded_mapped !== null && json_last_error() === JSON_ERROR_NONE) {
+                                echo esc_html(json_encode($decoded_mapped, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                            } else {
+                                echo esc_html($mapped_submission_data);
+                            }
+                            ?></pre>
                                         </div>
                                         <div style="margin-top: 10px; display: flex; gap: 8px;">
                                             <button type="button" class="button button-secondary" onclick="var d=<?php echo $mapped_submission_data; ?>;navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(()=>alert('Mapped data copied!')).catch(()=>alert('Failed'))">📋 Copy Mapped</button>
@@ -444,7 +444,7 @@ try {
                                 </td>
                             </tr>
                         <?php } ?>
-                        <?php if (! empty($env_json_raw)) { ?>
+                        <?php if ( ! empty($env_json_raw)) { ?>
                             <tr>
                                 <th scope="row">Raw Environment</th>
                                 <td>
@@ -452,14 +452,14 @@ try {
                                         <summary>View Complete JSON (<?php echo number_format(strlen((string)$env_json_raw)); ?> bytes)</summary>
                                         <div style="max-height: 500px; overflow: auto; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; margin-top: 10px;">
                                             <pre style="font-size:0.75em; white-space:pre-wrap; word-wrap: break-word; margin: 0;"><?php
-                                                                                                                                    // Pretty-print the full JSON for readability
-                                                                                                                                    $decoded_env = json_decode((string)$env_json_raw);
-                                                                                                                                    if ($decoded_env !== null) {
-                                                                                                                                        echo esc_html(json_encode($decoded_env, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-                                                                                                                                    } else {
-                                                                                                                                        echo esc_html($env_json_raw);
-                                                                                                                                    }
-                                                                                                                                    ?></pre>
+                            // Pretty-print the full JSON for readability
+                            $decoded_env = json_decode((string)$env_json_raw);
+                            if ($decoded_env !== null) {
+                                echo esc_html(json_encode($decoded_env, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                            } else {
+                                echo esc_html($env_json_raw);
+                            }
+                            ?></pre>
                                         </div>
                                         <div style="margin-top: 10px; display: flex; gap: 8px;">
                                             <button type="button" class="button button-secondary" onclick="var d=<?php echo $env_json_raw; ?>;navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(()=>alert('Copied!')).catch(()=>alert('Failed'))">📋 Copy JSON</button>

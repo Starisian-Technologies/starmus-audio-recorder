@@ -97,7 +97,6 @@ Ensures singleton pattern integrity by preventing object cloning,
 which would create multiple instances and violate the singleton contract.
 @since  0.1.0
 @throws LogicException Always - cloning is not allowed.
-@return void
 
 ### `__wakeup()`
 

@@ -17,7 +17,6 @@
    ========================================= */
 
 :root {
-
     --color-scheme: dark;
 
     --sparxstar-base: var(--wp--preset--color--base, #180205);
@@ -158,7 +157,10 @@
     padding: 2px 8px;
     margin: 4px 2px;
     border-radius: 4px;
-    transition: color 0.25s, opacity 0.25s, transform 0.25s;
+    transition:
+        color 0.25s,
+        opacity 0.25s,
+        transform 0.25s;
     cursor: crosshair;
     font-family: var(--prosody-font-mono);
     transform-origin: center;
@@ -195,7 +197,9 @@
     align-items: center;
     gap: 15px;
     box-shadow: var(--shadow-sm);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition:
+        opacity 0.6s ease,
+        transform 0.6s ease;
 }
 
 .neutral-btn,
@@ -214,7 +218,6 @@
    ========================================= */
 
 @media (width <= 600px) {
-
     #scaffold-stage {
         scroll-behavior: auto;
     }
@@ -231,7 +234,6 @@
    ========================================= */
 
 @media (max-resolution: 1.5dppx) {
-
     .tap-zone,
     .neutral-btn,
     .secondary-text-btn,

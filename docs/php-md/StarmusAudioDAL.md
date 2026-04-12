@@ -30,7 +30,7 @@ use Throwable;
 use WP_Error;
 use WP_Query;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 

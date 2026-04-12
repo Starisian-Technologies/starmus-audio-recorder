@@ -166,15 +166,15 @@ class StarmusAdmin
 
                 <?php
                 settings_errors(); // Display any admin notices/errors
-                ?>
+            ?>
 
                 <form action="<?php echo esc_url('options.php'); ?>" method="post">
                     <?php
-                    // These are now correctly hooked by register_settings() again.
-                    settings_fields(self::STARMUS_SETTINGS_GROUP);
-                    do_settings_sections(self::STARMUS_MENU_SLUG);
-                    submit_button(esc_html__('Save Settings', 'starmus-audio-recorder'));
-                    ?>
+                // These are now correctly hooked by register_settings() again.
+                settings_fields(self::STARMUS_SETTINGS_GROUP);
+            do_settings_sections(self::STARMUS_MENU_SLUG);
+            submit_button(esc_html__('Save Settings', 'starmus-audio-recorder'));
+            ?>
                 </form>
             </div>
             <?php

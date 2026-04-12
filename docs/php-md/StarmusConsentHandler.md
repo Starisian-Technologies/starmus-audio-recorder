@@ -7,31 +7,42 @@
 ## Description
 
 Class StarmusConsentHandler
-Handles creation of contributors and consent recordings.
+Transport + post builder for legal consent records.
 
 ## Methods
 
-### `create_contributor()`
+### `get_or_create_contributor()`
 
 **Visibility:** `public`
 
 Class StarmusConsentHandler
-Handles creation of contributors and consent recordings.
+Transport + post builder for legal consent records.
 /
 class StarmusConsentHandler
 {
     /**
-Creates a sparx_contributor post.
-@param array<string, mixed> $data Contributor data. Must contain 'name' and 'email'.
+Find or create contributor by email.
+@param string $name Contributor name.
+@param string $email Contributor email.
 @return int|WP_Error Post ID on success, WP_Error on failure.
+
+### `create_legal_record()`
+
+**Visibility:** `public`
+
+Create or attach legal record to any post type.
+@param string $post_type Target post type.
+@param array<string, mixed> $consent_data Consent payload.
+@param int|null $existing_post_id Optional existing post.
+@return int|WP_Error Recording ID on success, WP_Error on failure.
 
 ### `create_consent_recording()`
 
 **Visibility:** `public`
 
-Creates a draft audio-recording post for consent.
-@param int $contributor_id The ID of the sparx_contributor.
-@param array<string, mixed> $consent_data Consent data. keys: terms_type, signature, ip, user_agent.
+Create a consent recording using the canonical consent payload.
+@param int $contributor_id Contributor post ID.
+@param array<string, mixed> $data Consent payload.
 @return int|WP_Error Recording ID on success, WP_Error on failure.
 
 ---

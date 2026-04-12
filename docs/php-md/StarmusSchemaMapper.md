@@ -43,7 +43,7 @@ use Throwable;
 
 use function wp_unslash;
 
-if (! \defined('ABSPATH')) {
+if ( ! \defined('ABSPATH')) {
     exit;
 }
 
