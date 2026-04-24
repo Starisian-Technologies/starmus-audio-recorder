@@ -377,13 +377,19 @@ export async function uploadDirect(
  * );
  */
 // 3. Priority Wrapper
-export async function uploadWithPriority(arg1) {
+export async function uploadWithPriority(arg1, arg2, arg3, arg4, arg5, arg6) {
     let blob, fileName, formFields, metadata, instanceId, onProgress;
 
-    if (arg1 && arg1.blob) {
+    if (arg1 && typeof arg1 === "object" && arg1.blob) {
         ({ blob, fileName, formFields, metadata, instanceId, onProgress } = arg1);
     } else {
-        [blob, fileName, formFields, metadata, instanceId, onProgress] = arguments;
+        // Legacy positional-argument call: uploadWithPriority(blob, fileName, ...)
+        blob        = arg1;
+        fileName    = arg2;
+        formFields  = arg3;
+        metadata    = arg4;
+        instanceId  = arg5;
+        onProgress  = arg6;
     }
 
     if (!blob) {

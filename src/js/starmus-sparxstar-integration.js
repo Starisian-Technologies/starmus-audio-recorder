@@ -118,6 +118,34 @@
 
 /* 2. SPARXSTAR INTEGRATION OBJECT */
 /**
+ * Chunk sizes (bytes) per network profile for African market optimisation.
+ * Keyed by the normalised networkProfile string emitted by Sparxstar UEC.
+ *
+ * @constant
+ * @type {Object<string, number>}
+ */
+const CHUNK_SIZES_BY_NETWORK = {
+    "2g": 65536,    // 64 KB — EDGE / GPRS
+    "3g": 262144,   // 256 KB — HSPA
+    "4g": 524288,   // 512 KB — LTE
+    wifi: 1048576,  // 1 MB  — WiFi / broadband
+};
+
+/**
+ * Returns a safe default environment payload.
+ * Used before the Sparxstar UEC fires sparxstar:environment-ready.
+ *
+ * @returns {Object} Minimal environment payload
+ */
+function buildDefaultEnv() {
+    return {
+        tier: typeof window.MediaRecorder !== "undefined" ? "A" : "C",
+        recordingSettings: { uploadChunkSize: 524288 },
+        network: { type: "unknown" },
+    };
+}
+
+/**
  * Provides integration hooks for Sparxstar and Starmus components.
  *
  * @global
@@ -131,29 +159,38 @@ const sparxstarIntegration = {
      * @type {boolean}
      */
     isAvailable: true,
+
+    /**
+     * Cached environment data received from the Sparxstar UEC event.
+     * Null until sparxstar:environment-ready fires.
+     *
+     * @type {Object|null}
+     * @private
+     */
+    _cachedEnv: null,
+
     /**
      * Initializes integration and resolves environment data.
      *
      * @function init
      * @returns {Promise<Object>} Resolved environment payload
      */
-    init: () => {
+    init() {
         return Promise.resolve(sparxstarIntegration.getEnvironmentData());
     },
+
     /**
-     * Returns a default environment data object for compatibility.
+     * Returns the current environment data.
+     * Returns live UEC data once sparxstar:environment-ready has fired;
+     * falls back to a capability-based default otherwise.
      *
      * @function getEnvironmentData
-     * @returns {Object} Default environment payload
+     * @returns {Object} Environment payload
      */
-    getEnvironmentData: () => {
-        // Return a default object so the TUS script doesn't crash
-        return {
-            tier: window.MediaRecorder ? "A" : "C",
-            recordingSettings: { uploadChunkSize: 524288 },
-            network: { type: "unknown" },
-        };
+    getEnvironmentData() {
+        return sparxstarIntegration._cachedEnv || buildDefaultEnv();
     },
+
     /**
      * Reports integration errors to the console.
      *
@@ -162,10 +199,62 @@ const sparxstarIntegration = {
      * @param {Object} data - Supplemental error data
      * @returns {void}
      */
-    reportError: (msg, data) => {
+    reportError(msg, data) {
         console.warn("[Integration] Error:", msg, data);
     },
 };
 
-// This line fixes the Rollup error
+/* 3. WIRE UEC ENVIRONMENT DATA */
+/**
+ * Listens for the Sparxstar UEC environment-ready event and caches the
+ * normalised payload so that getEnvironmentData() returns live data for
+ * all consumers (TUS, offline queue, recorder, calibration).
+ *
+ * @listens window~sparxstar:environment-ready
+ */
+if (typeof window !== "undefined") {
+    window.addEventListener("sparxstar:environment-ready", (e) => {
+        const raw     = (e && e.detail) ? e.detail : {};
+        const tech    = raw.technical || {};
+        const profile = tech.profile  || {};
+        const network = tech.raw      ? tech.raw.network || {} : {};
+
+        // Derive tier from device class reported by UEC.
+        // "low-end" → C, "mid-range" → B, anything else (high-end / unknown) → A
+        // but always downgrade to C when MediaRecorder is absent.
+        let tier;
+        const deviceClass = (profile.deviceClass || "").toLowerCase();
+        if (!window.MediaRecorder) {
+            tier = "C";
+        } else if (deviceClass === "low-end") {
+            tier = "C";
+        } else if (deviceClass === "mid-range") {
+            tier = "B";
+        } else {
+            tier = "A";
+        }
+
+        const networkType = (profile.networkProfile || network.effectiveType || "unknown")
+            .toLowerCase()
+            .replace(/^slow-2g$/, "2g");
+
+        sparxstarIntegration._cachedEnv = {
+            tier,
+            network: {
+                type: networkType,
+                downlink: typeof network.downlink === "number" ? network.downlink : null,
+            },
+            recordingSettings: {
+                uploadChunkSize: CHUNK_SIZES_BY_NETWORK[networkType] || 524288,
+            },
+        };
+
+        console.log(
+            "[SparxstarIntegration] Environment updated from UEC:",
+            sparxstarIntegration._cachedEnv,
+        );
+    });
+}
+
+// Named export mirrors the default export for ES-module consumers.
 export default sparxstarIntegration;
