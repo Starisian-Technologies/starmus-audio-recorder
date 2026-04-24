@@ -125,10 +125,10 @@
  * @type {Object<string, number>}
  */
 const CHUNK_SIZES_BY_NETWORK = {
-    "2g": 65536,    // 64 KB — EDGE / GPRS
-    "3g": 262144,   // 256 KB — HSPA
-    "4g": 524288,   // 512 KB — LTE
-    wifi: 1048576,  // 1 MB  — WiFi / broadband
+    "2g":   65536,  // 64 KB — EDGE / GPRS
+    "3g":  262144,  // 256 KB — HSPA
+    "4g":  524288,  // 512 KB — LTE
+    "wifi": 1048576, // 1 MB  — WiFi / broadband
 };
 
 /**

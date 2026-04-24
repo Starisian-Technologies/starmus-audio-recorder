@@ -432,7 +432,7 @@ class OfflineQueue {
             },
         };
 
-        const doReport = (data) => sparxstarIntegration.reportError(data.type, data);
+        const reportToSparxstar = (data) => sparxstarIntegration.reportError(data.type, data);
 
         // Get storage quota info if available
         if ("storage" in navigator && "estimate" in navigator.storage) {
@@ -442,10 +442,10 @@ class OfflineQueue {
                     quota: estimate.quota,
                     usagePercent: ((estimate.usage / estimate.quota) * 100).toFixed(2),
                 };
-                doReport(errorData);
+                reportToSparxstar(errorData);
             });
         } else {
-            doReport(errorData);
+            reportToSparxstar(errorData);
         }
 
         // Also show user-friendly error
