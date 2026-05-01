@@ -361,7 +361,10 @@ class OfflineQueue {
                 } catch (err) {
                     const msg = err && err.message ? err.message : String(err);
                     const nonRetryable = /400|Invalid JSON|QuotaExceeded/i.test(msg);
-                    if (!nonRetryable) {
+                    if (nonRetryable) {
+                        // Permanently failed — remove so it is not retried on every cycle.
+                        await this.remove(id);
+                    } else {
                         await this._updateRetry(id, retryCount + 1, msg);
                     }
                 }
@@ -429,6 +432,8 @@ class OfflineQueue {
             },
         };
 
+        const reportToSparxstar = (data) => sparxstarIntegration.reportError(data.type, data);
+
         // Get storage quota info if available
         if ("storage" in navigator && "estimate" in navigator.storage) {
             navigator.storage.estimate().then((estimate) => {
@@ -437,17 +442,10 @@ class OfflineQueue {
                     quota: estimate.quota,
                     usagePercent: ((estimate.usage / estimate.quota) * 100).toFixed(2),
                 };
-
-                // Report to SPARXSTAR if available
-                if (window.SparxstarIntegration?.reportError) {
-                    window.SparxstarIntegration.reportError(errorData.type, errorData);
-                }
+                reportToSparxstar(errorData);
             });
         } else {
-            // Report immediately if storage API not available
-            if (window.SparxstarIntegration?.reportError) {
-                window.SparxstarIntegration.reportError(errorData.type, errorData);
-            }
+            reportToSparxstar(errorData);
         }
 
         // Also show user-friendly error
@@ -455,17 +453,29 @@ class OfflineQueue {
     }
 
     /**
-     * Detects private browsing mode (common cause of IndexedDB failures)
+     * Detects private browsing mode (common cause of IndexedDB failures).
+     * Opens a disposable IDB request; aborts immediately on upgradeneeded
+     * to avoid creating a persistent database entry.
+     * Returns true only when the open call itself throws synchronously,
+     * which happens in some implementations under storage restrictions.
+     *
+     * @returns {boolean}
      */
     _detectPrivateBrowsing() {
         try {
-            const test = window.indexedDB.open("test");
-            test.onerror = () => true;
+            const req = window.indexedDB.open("__starmus_pb_test__");
+            req.onupgradeneeded = () => {
+                // Abort to prevent persistent schema creation.
+                if (req.transaction) {
+                    req.transaction.abort();
+                }
+            };
+            req.onsuccess = () => {
+                req.result.close();
+            };
             return false;
         } catch (e) {
-            if (sparxstarIntegration.isAvailable) {
-                sparxstarIntegration.reportError("private_browsing_detection_error", { error: e });
-            }
+            sparxstarIntegration.reportError("private_browsing_detection_error", { error: e });
             return true;
         }
     }
