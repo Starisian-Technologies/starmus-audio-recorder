@@ -163,6 +163,10 @@ final class StarmusAfricaBandwidthService
     /**
      * Estimate data usage for African data plans.
      *
+     * Returns a consistent shape regardless of whether the file exists.
+     * When the file is not found all numeric fields are 0 and string fields
+     * are empty strings; callers should check that size_mb > 0 before use.
+     *
      * @param string $file_path   Absolute path to the audio file.
      * @param string $country_iso ISO-3166-1 alpha-2 country code (e.g. 'GM', 'NG').
      *                            Defaults to the service default cost when omitted or unknown.
@@ -171,7 +175,13 @@ final class StarmusAfricaBandwidthService
     public function estimateDataUsage(string $file_path, string $country_iso = ''): array
     {
         if ( ! file_exists($file_path)) {
-            return [];
+            return [
+                'size_mb'           => 0.0,
+                'cost_estimate_usd' => 0.0,
+                'download_time_2g'  => '',
+                'download_time_3g'  => '',
+                'recommended'       => '',
+            ];
         }
 
         $size_mb    = filesize($file_path) / (1024 * 1024);
