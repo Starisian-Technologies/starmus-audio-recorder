@@ -189,11 +189,11 @@ final class StarmusAfricaBandwidthService
         $cost_per_mb = self::COST_PER_MB[$country] ?? self::DEFAULT_COST_PER_MB;
 
         return [
-        'size_mb'            => round($size_mb, 2),
-        'cost_estimate_usd'  => round($size_mb * $cost_per_mb, 2),
-        'download_time_2g'   => round($size_mb / 0.03, 0) . 's', // ~30 KB/s EDGE
-        'download_time_3g'   => round($size_mb / 0.1, 0) . 's',  // ~100 KB/s HSPA
-        'recommended'        => $size_mb > 5 ? '2g' : ($size_mb > 2 ? '3g' : 'wifi'),
+            'size_mb'           => round($size_mb, 2),
+            'cost_estimate_usd' => round($size_mb * $cost_per_mb, 2),
+            'download_time_2g'  => round($size_mb / 0.03, 0) . 's', // ~30 KB/s EDGE
+            'download_time_3g'  => round($size_mb / 0.1, 0) . 's',  // ~100 KB/s HSPA
+            'recommended'       => $size_mb > 5 ? '2g' : ($size_mb > 2 ? '3g' : 'wifi'),
         ];
     }
 }
