@@ -256,5 +256,5 @@ if (typeof window !== "undefined") {
     });
 }
 
-// Named export mirrors the default export for ES-module consumers.
+// Default export for ES-module consumers.
 export default sparxstarIntegration;
