@@ -71,10 +71,6 @@ define('STARMUS_URL', plugin_dir_url(STARMUS_MAIN_FILE));
  */
 define('STARMUS_PLUGIN_PREFIX', 'starmus');
 /**
- * Canonical plugin directory path.
- */
-define('STARMUS_PLUGIN_DIR', plugin_dir_path(STARMUS_MAIN_FILE));
-/**
  * Composer vendor directory.
  */
 define('STARMUS_VENDOR_DIR', STARMUS_PATH . 'vendor/');
