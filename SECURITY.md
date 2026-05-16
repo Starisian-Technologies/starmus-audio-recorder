@@ -1,64 +1,55 @@
 # Security Policy
 
-This document defines the security reporting and disclosure policy for the Starisian Technologies, which may contain culturally sensitive, ethically governed, and AI-training related data and code.
-
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, **do not file a public issue**. Instead, please report it confidentially to our security team:
+Do **not** disclose vulnerabilities in public issues.
 
-- 📧 Email: [security@starisian.com](mailto:security@starisian.com)
-- 📧 Legal escalation: [legal@astarisian.com](mailto:legal@sstarisian.com)
+Report privately to:
+
+- `security@starisian.com`
+- legal escalation: `legal@starisian.com`
 
 Please include:
 
-- A detailed description of the issue
-- Steps to reproduce (if applicable)
-- Any relevant logs or screenshots
-- Your name and contact information (optional but appreciated)
+- affected component(s)
+- impact assessment
+- reproducible steps
+- proof-of-concept details where safe
 
-## Disclosure Policy
+## Disclosure Expectations
 
-We follow **coordinated disclosure**. If you report a vulnerability in good faith:
+- acknowledgment target: within 5 business days
+- remediation target for critical findings: as fast as operationally possible
+- coordinated disclosure is expected
 
-- You will not be subject to legal action for your disclosure
-- We will acknowledge your report within **5 business days**
-- We aim to patch critical issues within **15 business days**
-- You may be publicly credited with consent after resolution
+## Trust Boundaries
 
-## Scope
+- Browser runtime (untrusted)
+- WordPress REST/admin endpoints (trusted only after capability + nonce validation)
+- External upload/processing services (trusted by explicit config only)
+- Persistent store (WordPress DB/media + browser IndexedDB queue)
 
-The following are in scope:
+## Security-Critical Flows
 
-- All repositories under [Starisian Technologies](https://github.com/starisian-technologies)
-- Scripts or workflows used in GitHub Actions
-- Sensitive AI training data pipelines or governance mechanisms
+- submission mutations (audio + metadata)
+- consent state transitions
+- annotation persistence
+- upload resume and retry handling
+- editor access and nonce-guarded transitions
 
-The following are out of scope:
+## Baseline Security Requirements
 
-- Social engineering attacks
-- Denial of Service (DoS) without actual exploit
-- Vulnerabilities in third-party dependencies unless demonstrably exploitable in this repo
+- sanitize → validate → escape
+- capability checks for privileged actions
+- nonce checks for mutation requests
+- defensive handling for malformed payloads
+- least-privilege defaults for admin/runtime controls
 
-## Special Considerations for Culturally Sensitive Data
+## Out of Scope
 
-Many assets in this repository are bound by **dual-consent and community governance protocols**. Unauthorized access, exfiltration, or tampering may trigger legal action under:
+- social engineering reports without technical exploit
+- dependency advisories not exploitable in this repository context
 
-- **California law**
-- Customary rights frameworks recognized by indigenous and oral tradition authorities
+## Governance
 
-Any breach involving these materials may be deemed a **cultural and legal violation**.
-
-## Enforcement & Legal
-
-Violations of this policy or bad-faith actions may result in:
-
-- **Account suspension**
-- **Revocation of access**
-- **Notification to platform security teams**
-- **Pursuit of civil or criminal liability under applicable laws**
-
-All legal disputes are subject to the jurisdiction of **San Diego County, California**.
-
----
-
-Thank you for protecting the cultural, digital, and ethical integrity of this project.
+This repository may handle culturally sensitive workflows and associated governance constraints. Security incidents affecting integrity, consent, or controlled data flows are treated as high severity.
