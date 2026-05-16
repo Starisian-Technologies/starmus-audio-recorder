@@ -325,13 +325,12 @@ final class StarmusAudioEditorUI
      */
     public function sanitize_annotations(mixed $value): array
     {
-        $sanitized = [];
-
         try {
             if ( ! \is_array($value)) {
                 return [];
             }
 
+            $sanitized = [];
             foreach ($value as $a) {
                 if (\is_array($a)) {
                     $sanitized[] = [
@@ -343,11 +342,11 @@ final class StarmusAudioEditorUI
                     ];
                 }
             }
+            return $sanitized;
         } catch (Throwable $throwable) {
             StarmusLogger::log($throwable);
+            return [];
         }
-
-        return $sanitized;
     }
 
     /**
