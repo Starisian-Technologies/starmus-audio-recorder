@@ -1,15 +1,16 @@
 <?php
 
 /**
- * Starmus Audio Editor UI - Full Logic Restoration & PHP 8.2+ Optimization
+ * Starmus Audio Recorder
  *
- * This version restores all original helper and validation methods while
- * fixing the permission check for Administrators and Editors. It utilizes
- * modern PHP 8.2+ syntax as per project requirements.
+ * Proprietary editor presentation and annotation persistence boundary.
  *
- * @package Starisian\Sparxstar\Starmus\frontend
+ * Repository: starmus-audio-recorder
+ * Package: Starisian\Sparxstar\Starmus\frontend
  *
- * @version 2.0.0-ENTERPRISE
+ * Copyright (c) 2023-2026 Starisian Technologies.
+ * Proprietary and confidential. All Rights Reserved.
+ * License: Starisian Technologies Confidential License.
  */
 namespace Starisian\Sparxstar\Starmus\frontend;
 
@@ -37,7 +38,17 @@ if ( ! \defined('ABSPATH')) {
     exit;
 }
 
-// RESTORING PHP 8.2+ SYNTAX
+/**
+ * Audio editor UI and annotations endpoint contract.
+ *
+ * WHY:
+ * - Keeps editor access checks and rendering concerns in one frontend class.
+ * - Centralizes annotation validation/sanitization prior to persistence.
+ *
+ * Constraints:
+ * - Access requires authenticated user and per-recording authorization.
+ * - URL-based editor entry must satisfy nonce constraints for non-admin users.
+ */
 final class StarmusAudioEditorUI
 {
     /**
@@ -61,18 +72,18 @@ final class StarmusAudioEditorUI
     private ?array $cached_context = null;
 
     /**
-     * Bootstrap the editor.
-     * RESTORING PHP 8.0+ Constructor Property Promotion (if you were using it)
-     * For this example, I'll keep the explicit declaration for clarity.
+     * Bootstrap editor hooks.
+     *
+     * Side effects:
+     * - Registers init callback to add shortcode-related and REST registration hooks.
      */
     public function __construct()
     {
-        // RESTORING PHP 8.1+ First-class callable syntax
         add_action('init', $this->register_hooks(...));
     }
 
     /**
-     * Register hooks.
+     * Register WordPress hooks used by the editor UI.
      */
     public function register_hooks(): void
     {
@@ -94,7 +105,11 @@ final class StarmusAudioEditorUI
     }
 
     /**
-     * Render the audio editor shortcode.
+     * Render the audio editor shortcode output.
+     *
+     * @param array<string, mixed> $atts Shortcode attributes.
+     *
+     * @return string HTML markup or guarded error notice.
      */
     public function render_audio_editor_shortcode(array $atts = []): string
     {
@@ -116,7 +131,7 @@ final class StarmusAudioEditorUI
                 ['context' => $context]
             );
         } catch (Throwable $throwable) {
-            STarmusLogger::log($throwable);
+            StarmusLogger::log($throwable);
             return '<div class="notice notice-error"><p>' .
                 esc_html__('Audio editor unavailable.', 'starmus-audio-recorder') .
                 '</p></div>';
@@ -124,7 +139,7 @@ final class StarmusAudioEditorUI
     }
 
     /**
-     * Legacy method for enqueuing assets.
+     * Legacy compatibility method retained for callers expecting this API.
      */
     public function enqueue_scripts(): void
     {
@@ -132,31 +147,39 @@ final class StarmusAudioEditorUI
     }
 
     /**
-     * Centralized Permission Check (FIXED).
+     * Authorize access to the given recording post.
+     *
+     * Security assumptions:
+     * - Caller supplies trusted post object from WordPress APIs.
+     * - Capability checks remain server-side regardless of UI behavior.
      */
     private function user_can_access(object $post): bool
     {
-        // 1. Admin/Editor Override
+        // 1. Admin/Editor override.
         if (current_user_can('edit_others_posts')) {
             return true;
         }
 
-        // 2. Author Check
+        // 2. Author check.
         if ((int) $post->post_author === get_current_user_id()) {
             return true;
         }
 
-        // 3. Custom Capability Check
+        // 3. Custom capability check.
         if (current_user_can('starmus_edit_audio')) {
             return true;
         }
 
-        // 4. Fallback CPT Check
+        // 4. Fallback CPT permission check.
         return (bool) current_user_can('edit_post', $post->ID);
     }
 
     /**
-     * Build the editor rendering context.
+     * Build and cache editor rendering context for the current request.
+     *
+     * @param array<string, mixed> $atts Shortcode attributes.
+     *
+     * @return array<string, mixed>|WP_Error
      */
     private function get_editor_context(array $atts = []): array|WP_Error
     {
@@ -182,7 +205,7 @@ final class StarmusAudioEditorUI
                 return new WP_Error('permission_denied', __('You do not have permission to edit this recording.', 'starmus-audio-recorder'));
             }
 
-            // Security Check for URL-based access
+            // Security check for URL-based access.
             if ($url_id > 0 && ! current_user_can('manage_options')) {
                 $nonce = $_GET['nonce'] ?? $_GET['_wpnonce'] ?? '';
                 if ( ! $nonce || ! wp_verify_nonce(sanitize_text_field($nonce), 'starmus_edit_audio_' . $post_id)) {
@@ -229,6 +252,13 @@ final class StarmusAudioEditorUI
         }
     }
 
+    /**
+     * Resolve a publicly accessible waveform JSON URL when the file is within uploads.
+     *
+     * @param int $attachment_id Attachment identifier.
+     *
+     * @return string Safe URL or empty string when unavailable/outside trusted path.
+     */
     private function get_secure_waveform_url(int $attachment_id): string
     {
         try {
@@ -248,6 +278,9 @@ final class StarmusAudioEditorUI
         return str_replace($uploads['basedir'], $uploads['baseurl'], $wave_json_path);
     }
 
+    /**
+     * Register annotations REST endpoint.
+     */
     public function register_rest_endpoint(): void
     {
         register_rest_route(
@@ -271,20 +304,34 @@ final class StarmusAudioEditorUI
         );
     }
 
+    /**
+     * Validate post ID payload argument.
+     *
+     * @param mixed $value Candidate post ID.
+     *
+     * @return bool
+     */
     public function validate_post_id(mixed $value): bool
     {
         return is_numeric($value) && $value > 0 && get_post(absint($value)) !== null;
     }
 
+    /**
+     * Sanitize annotation payload into storage-safe shape.
+     *
+     * @param mixed $value Raw annotations payload.
+     *
+     * @return array<int, array<string, mixed>>
+     */
     public function sanitize_annotations(mixed $value): array
     {
+        $sanitized = [];
+
         try {
-            // Full sanitization logic restored
             if ( ! \is_array($value)) {
                 return [];
             }
 
-            $sanitized = [];
             foreach ($value as $a) {
                 if (\is_array($a)) {
                     $sanitized[] = [
@@ -303,10 +350,16 @@ final class StarmusAudioEditorUI
         return $sanitized;
     }
 
+    /**
+     * Validate normalized annotations payload constraints.
+     *
+     * @param mixed $value Candidate payload.
+     *
+     * @return bool
+     */
     public function validate_annotations(mixed $value): bool
     {
         try {
-            // Full validation logic restored
             if ( ! \is_array($value) || \count($value) > self::STARMUS_MAX_ANNOTATIONS) {
                 return false;
             }
@@ -327,6 +380,13 @@ final class StarmusAudioEditorUI
         return true;
     }
 
+    /**
+     * Permission callback for saving annotations.
+     *
+     * @param WP_REST_Request $request Incoming request.
+     *
+     * @return bool
+     */
     public function can_save_annotations(WP_REST_Request $request): bool
     {
         $nonce = $request->get_header('X-WP-Nonce');
@@ -338,6 +398,16 @@ final class StarmusAudioEditorUI
         return $post && $this->user_can_access($post);
     }
 
+    /**
+     * Persist annotations after permission and payload checks pass.
+     *
+     * Side effects:
+     * - Updates waveform annotation field for the target recording.
+     *
+     * @param WP_REST_Request $request Incoming request.
+     *
+     * @return WP_REST_Response
+     */
     public function handle_save_annotations(WP_REST_Request $request): WP_REST_Response
     {
         try {
@@ -389,6 +459,13 @@ final class StarmusAudioEditorUI
         }
     }
 
+    /**
+     * Lightweight per-user and per-post write throttle.
+     *
+     * @param int $post_id Recording identifier.
+     *
+     * @return bool True when request must be throttled.
+     */
     private function is_rate_limited(int $post_id): bool
     {
         $key = \sprintf('starmus_ann_rl_%d_%d', get_current_user_id(), $post_id);
@@ -400,6 +477,13 @@ final class StarmusAudioEditorUI
         return false;
     }
 
+    /**
+     * Ensure annotations do not overlap when ordered by start time.
+     *
+     * @param array<int, array<string, mixed>> $annotations Normalized annotations.
+     *
+     * @return bool|WP_Error
+     */
     private function validate_annotation_consistency(array $annotations): bool|WP_Error
     {
         if ($annotations === []) {
@@ -416,6 +500,13 @@ final class StarmusAudioEditorUI
         return true;
     }
 
+    /**
+     * Public bridge for editor context retrieval.
+     *
+     * @param array<string, mixed> $atts Shortcode attributes.
+     *
+     * @return array<string, mixed>|WP_Error
+     */
     public function get_editor_context_public(array $atts = []): array|WP_Error
     {
         return $this->get_editor_context($atts);

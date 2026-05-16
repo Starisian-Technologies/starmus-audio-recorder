@@ -1,9 +1,16 @@
 <?php
 
 /**
- * SPARXSTAR Starmus Audio
+ * Starmus Audio Recorder
  *
- * Production bootloader for the Starmus Audio Recorder plugin.
+ * Repository: starmus-audio-recorder
+ * Package: Starisian\Sparxstar\Starmus
+ *
+ * Copyright (c) 2023-2026 Starisian Technologies.
+ * Proprietary and confidential. All Rights Reserved.
+ * License: Starisian Technologies Proprietary.
+ *
+ * Production bootloader for plugin runtime initialization.
  *
  * Responsibilities:
  * - Load Composer autoloader
@@ -43,33 +50,75 @@ if ( ! defined('ABSPATH')) {
     exit;
 }
 
+/**
+ * Plugin release version.
+ */
 define('STARMUS_VERSION', '0.9.2');
+/**
+ * Absolute path to plugin bootstrap file.
+ */
 define('STARMUS_MAIN_FILE', __FILE__);
+/**
+ * Absolute plugin directory path.
+ */
 define('STARMUS_PATH', plugin_dir_path(STARMUS_MAIN_FILE));
+/**
+ * Base plugin URL.
+ */
 define('STARMUS_URL', plugin_dir_url(STARMUS_MAIN_FILE));
+/**
+ * Global plugin prefix for internal naming.
+ */
 define('STARMUS_PLUGIN_PREFIX', 'starmus');
+/**
+ * Canonical plugin directory path.
+ */
 define('STARMUS_PLUGIN_DIR', plugin_dir_path(STARMUS_MAIN_FILE));
+/**
+ * Composer vendor directory.
+ */
 define('STARMUS_VENDOR_DIR', STARMUS_PATH . 'vendor/');
 
 if ( ! defined('STARMUS_LOG_LEVEL')) {
+    /**
+     * Default runtime log verbosity.
+     */
     define('STARMUS_LOG_LEVEL', 8);
 }
 if ( ! defined('STARMUS_TUS_ENDPOINT')) {
+    /**
+     * Default TUS upload endpoint.
+     */
     define('STARMUS_TUS_ENDPOINT', 'https://upload.sparxstar.com/files/');
 }
 if ( ! defined('STARMUS_R2_ENDPOINT')) {
+    /**
+     * Default R2 public endpoint.
+     */
     define('STARMUS_R2_ENDPOINT', 'https://cdn.sparxstar.com/');
 }
 if ( ! defined('STARMUS_TUS_WEBHOOK_SECRET')) {
+    /**
+     * Shared secret used by webhook validation paths.
+     */
     define('STARMUS_TUS_WEBHOOK_SECRET', 'starmus_secret_123');
 }
 if ( ! defined('STARMUS_REST_NAMESPACE')) {
+    /**
+     * Primary REST namespace for recorder endpoints.
+     */
     define('STARMUS_REST_NAMESPACE', 'star-starmus-audio-recorder/v1');
 }
 if ( ! defined('STARMUS_DELETE_ON_UNINSTALL')) {
+    /**
+     * Feature flag for destructive uninstall behavior.
+     */
     define('STARMUS_DELETE_ON_UNINSTALL', false);
 }
 if ( ! defined('STARMUS_DAL_OVERRIDE_KEY')) {
+    /**
+     * Handshake key used to validate DAL override integration.
+     */
     define('STARMUS_DAL_OVERRIDE_KEY', 'starmus_dal_override');
 }
 

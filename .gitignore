@@ -80,6 +80,7 @@ wordpress-installer/
 
 # wp-env WordPress environment
 .wp-env/
+.wp-env.override.json
 wp-content/themes/
 wp-content/plugins/
 wp-content/mu-plugins/
