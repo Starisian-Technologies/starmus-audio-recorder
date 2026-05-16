@@ -438,7 +438,7 @@ final class StarmusAudioEditorUI
                 throw new Exception('Failed to encode annotations.');
             }
 
-            update_field('waveform_json', $json_data, $post_id);
+            update_field('starmus_waveform_json', $json_data, $post_id);
             return new WP_REST_Response(
                 [
                     'success' => true,
