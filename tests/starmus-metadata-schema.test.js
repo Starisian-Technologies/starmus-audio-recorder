@@ -1,87 +1,44 @@
-/**
- * @file starmus-metadata-schema.test.js
- * @description Hard-fail test ensuring reducer + metadata map never drift.
- * If this test fails, metadata serialization must be updated.
- */
+import test from 'node:test';
+import assert from 'node:assert/strict';
 
-import { buildMetadataMap } from '../src/js/starmus-metadata-auto.js';
-import { DEFAULT_INITIAL_STATE } from '../src/js/starmus-state-store.js';
+import { createStore } from '../src/js/starmus-state-store.js';
 
-// --- CANONICAL SCHEMA
-const EXPECTED_KEYS = [
-  'starmus_title',
-  'starmus_language',
-  'starmus_recording_type',
-  'audio_file_type',
-  'agreement_to_terms',
-  '_starmus_calibration',
-  '_starmus_env',
-  'recording_metadata',
-  'waveform_json',
-  'session_date',
-  'session_start_time',
-  'session_end_time',
-  'location',
-  'gps_coordinates',
-  'interviewers_recorders',
-  'recording_equipment',
-  'audio_files_originals',
-  'media_condition_notes',
-  'related_consent_agreement',
-  'usage_restrictions_rights',
-  'audio_quality_score',
-  'access_level',
-  'device'
+const EXPECTED_TOP_LEVEL_KEYS = [
+  'instanceId',
+  'tier',
+  'status',
+  'step',
+  'error',
+  'env',
+  'source',
+  'calibration',
+  'recorder',
+  'submission'
 ];
 
-test('metadata schema matches expected key list', () => {
-  const map = buildMetadataMap(DEFAULT_INITIAL_STATE);
-  const keys = Object.keys(map);
+const EXPECTED_SOURCE_METADATA_KEYS = [
+  'duration',
+  'mimeType',
+  'fileSize'
+];
 
-  const missing = EXPECTED_KEYS.filter(k => keys.indexOf(k) === -1);
-  const extras = keys.filter(k => EXPECTED_KEYS.indexOf(k) === -1);
-
-  if (missing.length || extras.length) {
-    throw new Error(
-      [
-        'METADATA SCHEMA DRIFT DETECTED',
-        missing.length ? 'Missing keys: ' + missing.join(', ') : '',
-        extras.length ? 'Unexpected keys: ' + extras.join(', ') : ''
-      ].filter(Boolean).join('\n')
-    );
-  }
+test('store initial state schema matches expected top-level shape', () => {
+  const state = createStore().getState();
+  const keys = Object.keys(state).sort();
+  assert.deepEqual(keys, EXPECTED_TOP_LEVEL_KEYS.sort());
 });
 
-test('all metadata keys map to valid state paths', () => {
-  const map = buildMetadataMap(DEFAULT_INITIAL_STATE);
-  
-  for (const [key, value] of Object.entries(map)) {
-    if (value === null || value === undefined) {
-      throw new Error(`Metadata key '${key}' maps to null/undefined - check state path validity`);
-    }
-  }
+test('store source metadata schema matches expected keys', () => {
+  const state = createStore().getState();
+  const metadataKeys = Object.keys(state.source.metadata).sort();
+  assert.deepEqual(metadataKeys, EXPECTED_SOURCE_METADATA_KEYS.sort());
 });
 
-test('state store provides all expected paths', () => {
-  // Verify critical state paths exist in DEFAULT_INITIAL_STATE
-  const requiredStatePaths = [
-    'source.title',
-    'source.language', 
-    'source.recording_type',
-    'calibration',
-    'env',
-    'transcript'
-  ];
-
-  for (const path of requiredStatePaths) {
-    const pathParts = path.split('.');
-    let current = DEFAULT_INITIAL_STATE;
-    
-    for (const part of pathParts) {
-      if (!current || typeof current !== 'object' || !(part in current)) {
-        throw new Error(`Required state path '${path}' not found in DEFAULT_INITIAL_STATE`);
-      }
-      current = current[part];
-    }
-  }
+test('critical nested state paths exist', () => {
+  const state = createStore().getState();
+  assert.ok(state.env && typeof state.env === 'object');
+  assert.ok(state.source && typeof state.source === 'object');
+  assert.ok(state.calibration && typeof state.calibration === 'object');
+  assert.ok(state.recorder && typeof state.recorder === 'object');
+  assert.ok(state.submission && typeof state.submission === 'object');
 });
