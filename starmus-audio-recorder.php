@@ -100,8 +100,14 @@ if ( ! defined('STARMUS_R2_ENDPOINT')) {
 if ( ! defined('STARMUS_TUS_WEBHOOK_SECRET')) {
     /**
      * Shared secret used by webhook validation paths.
+     * Must be provided via wp-config.php or environment; default empty value fails closed.
      */
-    define('STARMUS_TUS_WEBHOOK_SECRET', 'starmus_secret_123');
+    $starmus_tus_webhook_secret = getenv('STARMUS_TUS_WEBHOOK_SECRET');
+    if ($starmus_tus_webhook_secret !== false && $starmus_tus_webhook_secret !== '') {
+        define('STARMUS_TUS_WEBHOOK_SECRET', $starmus_tus_webhook_secret);
+    } else {
+        define('STARMUS_TUS_WEBHOOK_SECRET', '');
+    }
 }
 if ( ! defined('STARMUS_REST_NAMESPACE')) {
     /**
