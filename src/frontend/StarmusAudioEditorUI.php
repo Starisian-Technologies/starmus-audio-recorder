@@ -207,8 +207,8 @@ final class StarmusAudioEditorUI
 
             // Security check for URL-based access.
             if ($url_id > 0 && ! current_user_can('manage_options')) {
-                $nonce = $_GET['nonce'] ?? $_GET['_wpnonce'] ?? '';
-                if ( ! $nonce || ! wp_verify_nonce(sanitize_text_field($nonce), 'starmus_edit_audio_' . $post_id)) {
+                $nonce = sanitize_text_field(wp_unslash($_GET['nonce'] ?? $_GET['_wpnonce'] ?? ''));
+                if ( ! $nonce || ! wp_verify_nonce($nonce, 'starmus_edit_audio_' . $post_id)) {
                     return new WP_Error('invalid_nonce', __('Security check failed.', 'starmus-audio-recorder'));
                 }
             }
