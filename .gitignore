@@ -121,3 +121,9 @@ assets/*.sha256
 assets/*.sha1
 .github-token
 wp-config.php
+
+# Repository hygiene: local backups/debug leftovers
+*.bak
+*.dead
+*.tmp
+*copy.dist
