@@ -1,40 +1,36 @@
 # STARISIAN TECHNOLOGIES CONFIDENTIAL LICENSE
 
-© 2023–2025 Starisian Technologies. All Rights Reserved.
+Copyright (c) 2023-2026 Starisian Technologies. All Rights Reserved.
 
----
+## Proprietary Notice
 
-**STARISIAN TECHNOLOGIES CONFIDENTIAL**
+This repository and all included source, assets, and documentation are confidential and proprietary to Starisian Technologies.
 
-NOTICE: All information contained herein is, and remains, the property of Starisian Technologies and its suppliers, if any. The intellectual and technical concepts contained herein are proprietary to Starisian Technologies and its suppliers and may be protected by U.S. and international copyright, trade secret, and patent laws, including patents in process.
+No part of this repository may be copied, modified, distributed, sublicensed, reverse engineered, or disclosed without explicit written authorization from Starisian Technologies.
 
-Unauthorized reproduction, redistribution, transmission, or disclosure of any part of this repository is strictly prohibited without prior written consent from AiWA.
+## Authorized Use
 
-This repository includes confidential governance documents, internal policy frameworks, cultural consent standards, and compliance materials tied to AI model development and linguistic data protection. It is made available strictly for use by:
+Access and use are limited to:
 
-- Authorized Starisian Technologies personnel, partners and vendors.
-- Approved collaborators operating under NDA, MOU, or license agreement
-- Institutional or academic partners under formal written contract
+- Starisian Technologies personnel
+- authorized partners and vendors under contract
+- approved collaborators operating under NDA/MOU/license
 
-> Unauthorized access, tampering, or disclosure constitutes a breach of this license and may result in legal action, including pursuit of monetary damages and injunctive or equitable relief.
+Any unauthorized access, disclosure, or tampering is prohibited.
 
----
+## No Open-Source Grant
 
-## Enforcement & Jurisdiction
+This license does not grant any open-source rights. No patent, trademark, or trade secret rights are granted except as explicitly stated in written agreements.
 
-This license shall be governed by the laws of the **State of California**, United States, without regard to conflict-of-law principles. All disputes shall be resolved in the courts located in **San Diego County, California**, which shall have exclusive jurisdiction.
+## Enforcement and Jurisdiction
 
-In the event of a breach, AiWA reserves the right to pursue:
+This license is governed by California law.
 
-- **Monetary damages**, including legal fees
-- **Injunctive relief**, recognizing that some violations may cause **irreparable harm** for which monetary compensation would be insufficient
-- **Termination of access and revocation of license rights**
+Exclusive venue: courts located in San Diego County, California.
 
----
+Starisian Technologies reserves all remedies, including monetary damages, injunctive relief, and termination of access rights.
 
-## 🌐 Contact
+## Contact
 
-**Starisian Technologies**  
-815 E Street, Suite 12083  
-San Diego, CA 92101  
-Email: [legal@starisian.com](mailto:legal@starisian.com)
+- [legal@starisian.com](mailto:legal@starisian.com)
+- [https://starisian.com](https://starisian.com)

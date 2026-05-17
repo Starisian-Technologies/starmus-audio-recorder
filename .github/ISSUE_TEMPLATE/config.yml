@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability report
+    url: mailto:security@starisian.com
+    about: Report vulnerabilities privately by email.
+  - name: Support and governance inquiries
+    url: https://github.com/Starisian-Technologies/starmus-audio-recorder/blob/main/SUPPORT.md
+    about: Use support and governance channels for non-bug operational requests.

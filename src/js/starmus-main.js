@@ -1,7 +1,12 @@
 /**
- * @file starmus-main.js
- * @version 7.1.0-OFFLINE-FIX
- * @description Main entry point for the Starmus Audio Recorder system.
+ * Starmus Audio Recorder
+ *
+ * Repository: starmus-audio-recorder
+ * Module: starmus-main
+ * Copyright (c) 2023-2026 Starisian Technologies.
+ * Proprietary and confidential. All Rights Reserved.
+ *
+ * Main browser entry point for recorder/editor initialization.
  *
  * Orchestrates the initialization of all core modules including:
  * - State management (Redux-style store)
@@ -17,11 +22,15 @@
  * 2. **Editor Mode**: Waveform visualization and annotation editing with Peaks.js
  *
  * Bootstrap process:
- * - Detects page type (recorder form or editor)
- * - Initializes appropriate component set
- * - Exposes global APIs for external integration
+ * - Detects page context (recorder form or editor)
+ * - Initializes the appropriate component set
+ * - Exposes controlled global APIs for integration
  *
- * @module starmus-main
+ * Invariants:
+ * - Initialization must remain idempotent per page lifecycle.
+ * - Recorder and editor execution paths must remain separated.
+ * - Offline queue access is exposed through dedicated APIs only.
+ *
  * @requires peaks.js
  * @requires starmus-hooks
  * @requires starmus-state-store
@@ -48,7 +57,6 @@ import { createStore } from "./starmus-state-store.js";
 import { initCore } from "./starmus-core.js";
 import { initInstance as initUI } from "./starmus-ui.js";
 import { initRecorder } from "./starmus-recorder.js";
-// CRITICAL FIX: Added getOfflineQueue to imports
 import { initOffline, queueSubmission, getOfflineQueue } from "./starmus-offline.js";
 import { initAutoMetadata } from "./starmus-metadata-auto.js";
 import TranscriptModule from "./starmus-transcript-controller.js";
