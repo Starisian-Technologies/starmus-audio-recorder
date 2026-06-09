@@ -4,7 +4,7 @@
 
 - PHP `8.2+`
 - Composer `2.x`
-- Node.js `18.17+`
+- Node.js `20+`
 - pnpm `10.29.2`
 - Docker (for `@wordpress/env` workflows)
 
@@ -40,9 +40,23 @@ pnpm run build
 
 ```bash
 composer run test:unit
+node --test tests/*.test.js
 pnpm run test
 pnpm run test:wp-env
 ```
+
+## Bundle Size Budget
+
+Engineering target: **≤ 60 kB gzipped** per bundle (Sparxstar performance standard).
+
+| Bundle | Current (brotlied) | CI limit | Status |
+|---|---|---|---|
+| `starmus-audio-recorder-script.bundle.min.js` | ~105 kB | 105 kB | ⚠️ over target |
+| `starmus-prosody-engine.min.js` | ~18 kB | 20 kB | ✅ |
+| `sparxstar-app-mode.min.js` | ~10 kB | 12 kB | ✅ |
+| `starmus-legal.min.js` | ~7 kB | 10 kB | ✅ |
+
+The main bundle exceeds the 60 kB target because it bundles `peaks.js` (waveform editor, used only on editor pages) and IE-11/Android-4.4 `core-js` polyfills inline. To reach the budget, lazy-load `peaks.js` for editor mode only and update Babel targets to drop IE 11 support.
 
 ## Environment Notes
 

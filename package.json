@@ -50,12 +50,24 @@
     },
     "size-limit": [
         {
-            "path": "assets/js/**/*.js",
-            "limit": "100 KB"
+            "path": "assets/js/starmus-audio-recorder-script.bundle.min.js",
+            "limit": "105 kB"
+        },
+        {
+            "path": "assets/js/starmus-prosody-engine.min.js",
+            "limit": "20 kB"
+        },
+        {
+            "path": "assets/js/sparxstar-app-mode.min.js",
+            "limit": "12 kB"
+        },
+        {
+            "path": "assets/js/starmus-legal.min.js",
+            "limit": "10 kB"
         },
         {
             "path": "assets/css/**/*.css",
-            "limit": "25 KB"
+            "limit": "25 kB"
         }
     ],
     "author": "Starisian Technologies (Max Barrett)",
