@@ -108,7 +108,7 @@ importers:
         specifier: latest
         version: 0.48.0
       postcss:
-        specifier: latest
+        specifier: ^8.5.10
         version: 8.5.15
       postcss-cli:
         specifier: latest
