@@ -127,6 +127,9 @@
             ]
         }
     },
+    "devDependencies": {
+      "qs": ">=6.15.2"
+    },
     "config": {
         "platform": {
             "php": "8.3.0"
