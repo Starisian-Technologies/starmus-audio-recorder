@@ -41,16 +41,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'pnpm'
 
       - name: Install JS dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run lint checks (no mutation)
+      - name: Run lint checks
         run: |
           pnpm run lint
           composer run lint
+
+      - name: Run JS unit tests
+        run: node --test tests/*.test.js
 
       - name: Check bundle sizes
         run: pnpm run size-check
@@ -61,11 +64,8 @@ jobs:
           grep -q "WordPress.*6\.8" starmus-audio-recorder.php || echo "⚠️ WordPress 6.8+ requirement not found"
           grep -r "star-" src/ || echo "⚠️ STAR prefix not found in source"
 
-      - name: Run static analysis
-        run: |
-          pnpm run lint:js
-          pnpm run lint:css
-          composer run analyze
+      - name: Run PHP static analysis
+        run: composer run analyze
 
       - name: Start WordPress test environment
         run: pnpm run env:start
