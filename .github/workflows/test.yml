@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         php: ["8.2", "8.3", "8.4"]
-        wordpress: ["6.8", "latest"]
+        wordpress: ["6.8", "6.9"]
 
     steps:
       - name: Checkout code
@@ -35,7 +35,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20"
           cache: "pnpm"
 
       - name: Install dependencies
