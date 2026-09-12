@@ -1,0 +1,96 @@
+{
+    "version": "1.0.0",
+    "_comment": [
+        "Pinned external tools for the Spoken Audio Node's analysis worker (ADR-038).",
+        "",
+        "Every entry was read from a distribution actually installed on the machine",
+        "that recorded it — the version from the tool's own output, the licence from",
+        "the path named in `readFrom`. Nothing here is taken from memory or from a",
+        "project page. A deployment on a different base image records its own values;",
+        "the worker refuses to run when a tool reports a version other than its pin,",
+        "so a stale file fails loudly rather than mislabelling a measurement.",
+        "",
+        "Tools are spawned, never linked. For Praat that is a licensing requirement,",
+        "not a style choice: Praat is GPL-2+ and this service is BUSL-1.1."
+    ],
+    "tools": [
+        {
+            "name": "praat",
+            "executable": "praat",
+            "pinnedVersion": "6.4.06",
+            "versionArgs": [
+                "--version"
+            ],
+            "versionPattern": "Praat (\\d+\\.\\d+\\.\\d+)",
+            "licenseAttestation": {
+                "license": "GPL-2+ (files: *); GPL-3+ for the bundled external/glpk",
+                "readFrom": "/usr/share/doc/praat/copyright (Debian/Ubuntu package praat 6.4.06+dfsg-1build2)",
+                "recordedAt": "2026-09-12",
+                "note": "Copyright 1990-2024 Paul Boersma and David Weenink, among others. Because the licence is GPL, Praat is invoked as a separate process and never linked into this service — the process boundary is what keeps the service's own licence intact. Re-read and re-record this attestation for any deployment that ships a different Praat build."
+            }
+        },
+        {
+            "name": "ffmpeg",
+            "executable": "ffmpeg",
+            "pinnedVersion": "6.1.1-3ubuntu5",
+            "versionArgs": [
+                "-version"
+            ],
+            "versionPattern": "ffmpeg version (\\S+)",
+            "licenseAttestation": {
+                "license": "LGPL-2.1+ for the bulk of the distribution, with GPL-2+ components present in this build",
+                "readFrom": "/usr/share/doc/ffmpeg/copyright (Debian/Ubuntu package ffmpeg 7:6.1.1-3ubuntu5)",
+                "recordedAt": "2026-09-12",
+                "note": "The copyright file lists a mix of licences across components. ffmpeg is invoked as a separate process for the same reason Praat is. A deployment that enables additional GPL components should re-read this file and re-record the result."
+            }
+        },
+        {
+            "name": "ffprobe",
+            "executable": "ffprobe",
+            "pinnedVersion": "6.1.1-3ubuntu5",
+            "versionArgs": [
+                "-version"
+            ],
+            "versionPattern": "ffprobe version (\\S+)",
+            "licenseAttestation": {
+                "license": "LGPL-2.1+ for the bulk of the distribution, with GPL-2+ components present in this build",
+                "readFrom": "/usr/share/doc/ffmpeg/copyright (Debian/Ubuntu package ffmpeg 7:6.1.1-3ubuntu5; ffprobe ships from the same source package)",
+                "recordedAt": "2026-09-12",
+                "note": "Same distribution and same terms as ffmpeg. Invoked as a separate process for the same reason."
+            }
+        }
+    ],
+    "jobClassPins": {
+        "intake-measure": [
+            "ffmpeg",
+            "praat",
+            "ffprobe"
+        ],
+        "prepare-analysis-derivative": [
+            "ffmpeg",
+            "ffprobe"
+        ],
+        "acoustic-measure": [
+            "praat"
+        ],
+        "segment": [
+            "praat"
+        ],
+        "playback-derivative": [
+            "ffmpeg",
+            "ffprobe"
+        ],
+        "waveform-data": [
+            "ffmpeg",
+            "ffprobe"
+        ],
+        "bulk-import": [
+            "ffmpeg",
+            "ffprobe"
+        ],
+        "release-render": [
+            "ffmpeg",
+            "ffprobe"
+        ]
+    }
+}
