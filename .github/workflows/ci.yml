@@ -11,7 +11,12 @@
 name: CI
 
 on:
+  # Branch pushes and pull requests both fire, so an unscoped `push` runs every
+  # job twice on a PR branch. CI on this repository installs Praat and ffmpeg
+  # and runs analysis against real audio; paying for that twice per push is
+  # waste on a platform built around bandwidth and cost discipline.
   push:
+    branches: [main]
   pull_request:
 
 permissions:

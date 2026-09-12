@@ -21,7 +21,7 @@
         "lint:ts:fix": "eslint \"src/**/*.ts\" --fix",
         "lint:md": "markdownlint \"*.md\" \".github/copilot-instructions.md\" \".github/instructions/starmus-boundary.md\"",
         "format": "prettier --write \"src/**/*.ts\"",
-        "test": "pnpm run build && node --test \"dist/**/*.test.js\"",
+        "test": "pnpm run build && node scripts/run-tests.cjs",
         "verify:tools": "pnpm run build && node dist/analysis/verifyTools.js",
         "validate": "node scripts/validate-node-boundary.cjs",
         "prebuild": "pnpm run validate"
