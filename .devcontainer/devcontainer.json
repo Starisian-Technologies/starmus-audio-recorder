@@ -1,52 +1,29 @@
 {
-  "name": "AiWA Starmus Workflow Manager - PHP 8.3",
-  "image": "mcr.microsoft.com/devcontainers/php:8.3-bookworm",
+  "name": "SPARXSTAR Spoken Audio Node — Node 20 + pinned analysis tools",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest",
       "moby": true
-    },
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "24"
     }
-  },
-  "containerEnv": {
-    "PHP_MEMORY_LIMIT": "1G",
-    "XDEBUG_MODE": "off"
   },
   "customizations": {
     "vscode": {
       "extensions": [
-        "bmewburn.vscode-intelephense-client",
-        "junstyle.php-cs-fixer",
-        "neilbrayfield.php-docblocker",
-        "mikestead.dotenv",
-        "ms-azuretools.vscode-docker"
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "mikestead.dotenv"
       ],
       "settings": {
-        "php.validate.executablePath": "/usr/local/bin/php",
-        "php.suggest.basic": false,
-        "intelephense.environment.phpVersion": "8.3.0",
-        "intelephense.stubs": [
-          "wordpress",
-          "woocommerce",
-          "acf-pro",
-          "wordpress-globals",
-          "wp-cli",
-          "genesis",
-          "polylang"
-        ],
-        "phpcs.enable": true,
-        "phpcs.standard": "WordPress-VIP-Go",
         "editor.formatOnSave": true,
-        "[php]": {
-          "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
-          "editor.formatOnSave": true
+        "eslint.validate": ["typescript"],
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
         }
       }
     }
   },
-  "forwardPorts": [8080, 9003],
-  "remoteUser": "vscode",
-  "postCreateCommand": "sudo chmod a+x \"$(pwd)\" && sudo rm -rf /var/www/html && sudo ln -s \"$(pwd)\" /var/www/html; echo 'memory_limit = 1G' | sudo tee /usr/local/etc/php/conf.d/memory-limit.ini && echo 'xdebug.mode = off' | sudo tee /usr/local/etc/php/conf.d/xdebug-off.ini; git config --global commit.gpgsign false && git config --global tag.gpgsign false; if [ -f composer.json ]; then composer install; fi"
+  "remoteUser": "node",
+  "postCreateCommand": "sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends praat ffmpeg && corepack enable && pnpm install && pnpm run verify:tools || echo 'verify:tools failed — this base image ships tool versions other than the pins in tools.pinned.json. Re-read the licences from this image and re-record the pins for this deployment; do not loosen the check.'"
 }

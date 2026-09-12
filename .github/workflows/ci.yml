@@ -30,7 +30,10 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends praat ffmpeg
 
-      - uses: pnpm/action-setup@v4
+      # Pinned to the same commit the repository's other workflows pin, per its
+      # convention of pinning third-party actions to a hash. CodeQL flags an
+      # unpinned tag here as a non-immutable action reference.
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
 
       - uses: actions/setup-node@v4
         with:

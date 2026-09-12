@@ -1,6 +1,17 @@
 # .github/workflows/release.yml
+#
+# Release for the Spoken Audio Node.
+#
+# The previous workflow built a WordPress plugin ZIP — plugin header, Composer
+# autoloader, minified frontend assets, `.distignore`. None of that exists after
+# the ADR-038 restructure. What ships now is a compiled Node/TypeScript service.
+#
+# The release gate includes `verify:tools`: a build whose pinned Praat or ffmpeg
+# does not match `tools.pinned.json` must not be released, because every
+# measurement it produces names a tool version, and a version that drifted makes
+# those records unverifiable.
 
-name: Release Code Quality Final Review
+name: Release
 
 on:
   push:
@@ -11,148 +22,77 @@ permissions:
 
 jobs:
   build-and-release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-      # Step 1: Check out the repository's code.
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Step 2: Set up Git for local operations only
-      - name: Set up Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          echo "🔧 Git configured for local operations (no push to protected branch)"
-
-      # Step 3: Get the version number from the tag.
       - name: Get the version from the tag
-        id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-      # Step 4: Update version numbers in all files.
-      - name: Update version numbers
+      - name: Check the tag matches package.json
         run: |
-          # Update package.json version
-          sed -i -E 's/("version":\s*").*(")/\1'${{ env.VERSION }}'\2/' package.json
-          # Update plugin header version
-          sed -i -E "s/^(\s*\* Version:\s*).*/\1${{ env.VERSION }}/" starmus-audio-recorder.php
-          sed -i "s/define( 'STARMUS_VERSION', '[^']*' );/define( 'STARMUS_VERSION', '${{ env.VERSION }}' );/" starmus-audio-recorder.php
-          # Update @version tags in source PHP files only
-          find src/ -type f -name "*.php" -print0 | xargs -0 sed -i "s/@version\s\+[0-9.]\+/@version ${{ env.VERSION }}/g"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$PKG_VERSION" != "$VERSION" ]; then
+            echo "Tag v$VERSION does not match package.json version $PKG_VERSION."
+            echo "Update package.json and re-tag; the release does not rewrite it."
+            exit 1
+          fi
+          echo "Version $VERSION confirmed."
 
-      # Step 5: Prepare version changes (no commit to protected branch)
-      - name: Prepare version changes for release build
+      - name: Install pinned analysis tools
         run: |
-          echo "📝 Version changes prepared for release build:"
-          git diff --stat || echo "No version changes detected"
-          echo "⚠️  Version changes are applied only to the build artifacts"
-          echo "🔒 Protected branch prevents automatic version commits"
-          echo "💡 Consider updating versions manually before tagging releases"
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends praat ffmpeg
 
-      # Step 6: Verify plugin entrypoint exists.
-      - name: Verify plugin entrypoint
-        run: |
-          test -f starmus-audio-recorder.php || { echo "Missing starmus-audio-recorder.php"; exit 1; }
-          grep -q "Plugin Name:" starmus-audio-recorder.php || { echo "No plugin header found"; exit 1; }
-
-      # Step 7: Set up PHP and install Composer dependencies.
-      - name: Set up PHP
-      # uses: shivammathur/setup-php@v2
-        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1
-        with:
-          php-version: '8.3'
-          tools: composer:v2
-          coverage: none
-      - name: Install PHP dependencies (no-dev)
-        run: composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
-
-      # Step 8: Set up Node.js and build frontend assets.
       - name: Setup pnpm
-      # uses: pnpm/action-setup@v4
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
-
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'pnpm'
+          node-version: 20
+          cache: pnpm
 
-      - name: Install JS dependencies
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build Assets
-        run: pnpm run build
+      - name: Boundary checks
+        run: pnpm run validate
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Verify the pinned analysis toolchain
+        run: pnpm run verify:tools
+
+      - name: Test
+        run: pnpm test
+
       - name: Verify build output
         run: |
-          test -f assets/js/starmus-audio-recorder-script.bundle.min.js || { echo "Missing ES module bundle"; exit 1; }
-          test -f assets/css/starmus-audio-recorder-styles.min.css || { echo "Missing bundled CSS"; exit 1; }
-          test -f assets/js/starmus-prosody-engine.min.js || { echo "Missing Prosody JS"; exit 1; }
-          test -f assets/css/starmus-prosody-engine.min.css || { echo "Missing Prosody CSS"; exit 1; }
-          test -f assets/build-hash.txt || { echo "Missing build hash"; exit 1; }
-          echo "✅ All required build artifacts present"
+          test -f dist/index.js || { echo "Missing compiled entry point"; exit 1; }
+          test -f dist/index.d.ts || { echo "Missing type declarations"; exit 1; }
+          test -f praat/measure.praat || { echo "Missing measure script"; exit 1; }
+          test -f praat/segment.praat || { echo "Missing segment script"; exit 1; }
+          test -f tools.pinned.json || { echo "Missing pinned toolset"; exit 1; }
+          echo "Build output verified."
 
-      # Step 9: Build the distributable plugin ZIP file.
-      - name: Ensure .distignore exists
-        run: test -f .distignore || { echo ".distignore is missing"; exit 1; }
-
-      - name: Verify production files are ready
+      - name: Package the service
         run: |
-          echo "🔍 Verifying production-ready files..."
-          test -d src/ || { echo "❌ Missing src/ directory"; exit 1; }
-          test -f starmus-audio-recorder.php || { echo "❌ Missing plugin main file"; exit 1; }
-          test -f assets/js/starmus-audio-recorder-script.bundle.min.js || { echo "❌ Missing bundled JS"; exit 1; }
-          test -f assets/css/starmus-audio-recorder-styles.min.css || { echo "❌ Missing bundled CSS"; exit 1; }
-          test -f assets/js/starmus-prosody-engine.min.js || { echo "❌ Missing Prosody JS"; exit 1; }
-          test -f assets/css/starmus-prosody-engine.min.css || { echo "❌ Missing Prosody CSS"; exit 1; }
-          test -f vendor/autoload.php || { echo "❌ Missing Composer autoloader"; exit 1; }
-          echo "✅ All production files verified"
+          TARBALL="spoken-audio-node-${VERSION}.tar.gz"
+          tar -czf "$TARBALL" dist praat tools.pinned.json package.json LICENSE.md README.md
+          echo "TARBALL=$TARBALL" >> $GITHUB_ENV
+          echo "Packaged $TARBALL"
 
-      - name: Build plugin ZIP
-        run: |
-          SLUG="starmus-audio-recorder"
-          VERSION=${{ env.VERSION }}
-          echo "🏗️ Building release ZIP with version $VERSION"
-
-          # Verify version was applied to files
-          echo "📋 Verifying version numbers in key files:"
-          grep -n "Version:" starmus-audio-recorder.php || { echo "❌ Plugin header version not found"; exit 1; }
-          grep -n "STARMUS_VERSION" starmus-audio-recorder.php || { echo "❌ Version constant not found"; exit 1; }
-          grep -n "\"version\"" package.json || { echo "❌ Package version not found"; exit 1; }
-
-          rm -rf build
-          mkdir -p build
-          rsync -a --exclude-from=.distignore ./ build/${SLUG}/
-          (cd build && zip -r "../${SLUG}-${VERSION}.zip" "${SLUG}")
-
-          echo "📦 Release ZIP created: ${SLUG}-${VERSION}.zip"
-
-      # NEW STEP: Ensure vendor exists and is packaged
-      - name: Ensure vendor directory is preserved for ZIP
-        run: |
-          if [ ! -d "vendor" ]; then
-            echo "Vendor directory missing — Composer install did not create it."
-            exit 1
-          fi
-          echo "Vendor directory found."
-
-      # Step 10: Generate checksums for the ZIP file.
-      - name: Generate checksums
-        run: |
-          ZIP_FILE="starmus-audio-recorder-${{ env.VERSION }}.zip"
-          sha256sum "$ZIP_FILE" > "$ZIP_FILE.sha256"
-          sha1sum   "$ZIP_FILE" > "$ZIP_FILE.sha1"
-
-      # Step 11: Create GitHub Release
-      - name: Create GitHub Release
-      # uses: softprops/action-gh-release@v2
+      - name: Create release
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
-
         with:
-          files: |
-            starmus-audio-recorder-${{ env.VERSION }}.zip
-            starmus-audio-recorder-${{ env.VERSION }}.zip.sha256
-            starmus-audio-recorder-${{ env.VERSION }}.zip.sha1
+          files: ${{ env.TARBALL }}
+          generate_release_notes: true
