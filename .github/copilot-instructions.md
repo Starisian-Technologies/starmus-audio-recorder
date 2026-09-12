@@ -1,3 +1,14 @@
+> **Read `.github/instructions/starmus-boundary.md` first.**
+>
+> This repository's role is assigned by ADR-034 and ADR-038 in the governance
+> registry: it is the **Spoken Audio Node**, and on ratification it is rebuilt as
+> a Node/TypeScript service. Those records are **Proposed**, so the repository is
+> under a **restructure hold** and the WordPress-plugin rules below still govern
+> day-to-day maintenance. What they do not license is deepening anything the
+> boundary file lists for removal — templates, admin screens, CPT/SCF
+> persistence, browser recorder code, CSS/frontend rendering, transcript review,
+> or prosodic interpretation. Maintain those; do not extend them.
+
 Copilot Instructions --- Starmus Audio Recorder
 ---------------------------------------------
 
