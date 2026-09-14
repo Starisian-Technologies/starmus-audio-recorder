@@ -118,6 +118,30 @@ export interface Job {
  */
 export interface JobQueue {
     enqueue(job: Omit<Job, 'id' | 'attempt'>): Promise<JobId>;
+    /**
+     * Register an asset and enqueue its first job as **one atomic unit**.
+     *
+     * Not a convenience wrapper. Registering and enqueueing as two operations
+     * strands an asset permanently when the second fails: the original is
+     * accepted and immutable, no work is queued for it, and nothing retries —
+     * the recording reached the platform and then silently stopped existing as
+     * far as processing is concerned. There is no reconciliation pass that
+     * would find it, because nothing recorded that it was owed one.
+     *
+     * An adapter implements this with whatever its store gives it — one
+     * database transaction, a transactional outbox, a queue that shares the
+     * asset store's transaction. **An adapter that cannot do it atomically must
+     * throw rather than approximate it**: a silent best-effort here recreates
+     * exactly the failure the port exists to prevent.
+     *
+     * The full outbox and idempotency design belongs with the adapters, after
+     * the capture→ingestion and asset→records contracts bind. What is fixed now
+     * is the requirement, so no adapter can be written against a looser one.
+     */
+    registerAndEnqueue(
+        asset: AudioAsset,
+        job: Omit<Job, 'id' | 'attempt'>,
+    ): Promise<JobId>;
     /** Hold a job for later without consuming an attempt. */
     defer(id: JobId, reason: string): Promise<void>;
     /** Mark a job as needing a human, keeping its payload. */
@@ -155,9 +179,22 @@ export interface IntakeEvent {
     readonly route: ProcessingRoute;
     readonly measurements: readonly Measurement[];
     readonly segments: readonly VadSegment[];
-    /** Monotonic per asset, so a consumer can order events without a clock. */
-    readonly sequence: number;
     readonly occurredAt: string;
+    /*
+     * No ordering field, deliberately.
+     *
+     * An earlier revision carried `sequence: number`, "monotonic per asset".
+     * The asset-to-records contract explicitly leaves the ordering mechanism
+     * unresolved — it was proposed there and withdrawn back to *owed* — so
+     * declaring one here would answer an open seam question by implementation,
+     * in the repository that is only one of its two parties. A consumer built
+     * against an invented field is worse than one that knows ordering is not
+     * settled: the first looks correct until ESU chooses differently.
+     *
+     * `occurredAt` and `idempotencyKey` are what this event can honestly offer
+     * today. When the contract names an ordering mechanism, it is added here
+     * and the adapter maps it.
+     */
 }
 
 /**

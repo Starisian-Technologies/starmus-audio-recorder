@@ -130,13 +130,22 @@ export class SpokenAudioNode {
      */
     public async registerUpload(upload: IncomingUpload): Promise<AudioAsset> {
         const { asset } = await acceptUpload(upload, this.deps.clock.nowIso());
-        await this.deps.assets.register(asset);
 
+        // Registered and enqueued as one atomic unit, not two calls.
+        //
+        // Doing it in two stranded an asset permanently whenever the second
+        // failed: the original was accepted and immutable, no work was queued
+        // for it, and nothing retried — the recording reached the platform and
+        // then stopped existing as far as processing was concerned, with
+        // nothing recording that it was owed a job. `JobQueue.registerAndEnqueue`
+        // makes that the adapter's problem to solve transactionally, and
+        // requires it to throw rather than approximate.
+        //
         // Queued rather than run inline. Processing tolerates day-scale delay,
         // and holding an upload open while ffmpeg and Praat run would put the
         // contributor's connection on the critical path of work they are not
         // waiting for.
-        await this.deps.queue.enqueue({
+        await this.deps.queue.registerAndEnqueue(asset, {
             jobClass: 'prepare-analysis-derivative',
             assetId: asset.id,
             payload: {},
