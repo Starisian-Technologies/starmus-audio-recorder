@@ -50,7 +50,7 @@ pnpm run test:wp-env
 Engineering target: **≤ 60 kB gzipped** per bundle (Sparxstar performance standard).
 
 | Bundle | Current (brotlied) | CI limit | Status |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `starmus-audio-recorder-script.bundle.min.js` | ~105 kB | 105 kB | ⚠️ over target |
 | `starmus-prosody-engine.min.js` | ~18 kB | 20 kB | ✅ |
 | `sparxstar-app-mode.min.js` | ~10 kB | 12 kB | ✅ |
