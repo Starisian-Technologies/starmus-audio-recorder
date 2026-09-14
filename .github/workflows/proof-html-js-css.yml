@@ -112,7 +112,7 @@ jobs:
 
       - name: Setup pnpm
       # uses: pnpm/action-setup@v4
-        uses: jjs98/pnpm-install-action@f007626222b32398504ea7ef674c7ec1d8fd771d
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
 
 
       - name: Set up Node.js
