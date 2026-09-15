@@ -38,7 +38,7 @@ jobs:
       # Pinned to the same commit the repository's other workflows pin, per its
       # convention of pinning third-party actions to a hash. CodeQL flags an
       # unpinned tag here as a non-immutable action reference.
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413
 
       - uses: actions/setup-node@v4
         with:
