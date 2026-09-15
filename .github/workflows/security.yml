@@ -1,6 +1,12 @@
 # Security Checks Workflow
-# Purpose: Monitor production dependencies for security issues
-# Note: Vendor/dev-only issues are logged but don't fail the build
+# Purpose: Monitor dependencies for known vulnerabilities.
+#
+# The PHP/Composer half of this workflow was removed with the plugin: the
+# Spoken Audio Node is a Node/TypeScript service (ADR-038). The analysis tools
+# it runs — Praat, ffmpeg, ffprobe — are separate processes installed from the
+# base image, not npm dependencies, so they are not covered here. Their
+# versions and licences are governed by `tools.pinned.json` and checked by
+# `pnpm run verify:tools` in CI.
 name: Security Checks
 
 on:
@@ -19,35 +25,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Cache Composer packages
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: composer-${{ hashFiles('composer.lock') }}
-          restore-keys: composer-
-
-      - name: Install Composer dependencies
-        run: composer install --no-dev --no-interaction --prefer-dist
-
-      - name: Composer security audit (production only)
-        run: |
-          echo "🔍 Checking production PHP dependencies for security issues..."
-          composer audit --no-dev --format=table
-
       - name: Setup pnpm
-      # uses: pnpm/action-setup@v4
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'pnpm'
+          node-version: 20
+          cache: pnpm
 
-      - name: Install pnpm dependencies
-        run: pnpm install --frozen-lockfile --prod
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: pnpm security audit (production only)
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=moderate
+
+      - name: Report pinned analysis tools
         run: |
-          echo "🔍 Checking production Node.js dependencies for security issues..."
-          pnpm audit --audit-level=moderate --prod
+          echo "Pinned external tools and the licences recorded for them:"
+          node -e "
+            const t = require('./tools.pinned.json');
+            for (const tool of t.tools) {
+              console.log(\`  \${tool.name} \${tool.pinnedVersion} — \${tool.licenseAttestation.license}\`);
+              console.log(\`    read from \${tool.licenseAttestation.readFrom} on \${tool.licenseAttestation.recordedAt}\`);
+            }
+          "

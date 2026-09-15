@@ -1,66 +1,53 @@
-// eslint.config.js
+// eslint.config.js — the Spoken Audio Node is TypeScript on Node, not browser JS.
 import js from '@eslint/js';
-import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
-export default [
-  {
-    ignores: [
-      'node_modules/**',
-      'vendor/**',
-      'dist/**',
-      'build/**',
-      'assets/js/**/*.min.js',
-      'docs/**',
-      'tests/**',
-      '*.config.js',
-      '.*rc.js',
-      'build-*.js',
-      'sync-*.js',
-      'validate-*.js',
-      'test.js',
-      'sync-version.js',
-      'validate-build.js',
-      'playwright.config.js',
-      'stylelint.config.js',
-      '.markdownlint.js',
-      '.commitlintrc.js',
-    ],
-  },
-  js.configs.recommended,
-  {
-    files: ['src/js/**/*.js', 'assets/js/**/*.js'],
-    languageOptions: {
-      ecmaVersion: 2020,
-      sourceType: 'module',
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-        ...globals.jquery,
-        fetch: 'readonly',
-        Audio: 'readonly',
-        MediaRecorder: 'readonly',
-        MutationObserver: 'readonly',
-        CustomEvent: 'readonly',
-        indexedDB: 'readonly',
-        Peaks: 'readonly',
-        tus: 'readonly',
-        STARMUS_EDITOR_DATA: 'readonly',
-        STARMUS_RECORDER_DATA: 'readonly',
-        StarmusAudioRecorder: 'readonly',
-        StarmusTranscript: 'readonly',
-      },
+export default tseslint.config(
+    {
+        ignores: ['node_modules/**', 'dist/**'],
     },
-    rules: {
-      'no-console': 'off',
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      'no-undef': 'error',
-      'no-redeclare': 'error',
-      'prefer-const': 'error',
-      'no-var': 'error',
-      eqeqeq: ['error', 'always'],
-      curly: ['error', 'all'],
-      indent: ['error', 4],
-      'no-mixed-spaces-and-tabs': 'error',
+    js.configs.recommended,
+    ...tseslint.configs.recommendedTypeChecked,
+    {
+        files: ['src/**/*.ts'],
+        languageOptions: {
+            parserOptions: {
+                projectService: true,
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        rules: {
+            // Named exports only, platform-wide.
+            'no-restricted-syntax': [
+                'error',
+                {
+                    selector: 'ExportDefaultDeclaration',
+                    message: 'Named exports only — no default export.',
+                },
+            ],
+            eqeqeq: ['error', 'always'],
+            curly: ['error', 'all'],
+            'no-var': 'error',
+            'prefer-const': 'error',
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+            ],
+            // The service talks to spawned processes and reads JSON off disk, so
+            // `unknown` arrives legitimately and is narrowed at the boundary.
+            // What must not happen is `any` spreading inward from there.
+            '@typescript-eslint/no-explicit-any': 'error',
+            '@typescript-eslint/no-floating-promises': 'error',
+            '@typescript-eslint/require-await': 'error',
+        },
     },
-  },
-];
+    {
+        // Tests assert on thrown errors and spawn real tools; a few of the
+        // type-checked rules fight that without catching anything.
+        files: ['src/**/*.test.ts'],
+        rules: {
+            '@typescript-eslint/no-unsafe-assignment': 'off',
+            '@typescript-eslint/no-unsafe-member-access': 'off',
+        },
+    },
+);

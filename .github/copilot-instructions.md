@@ -1,301 +1,57 @@
-Copilot Instructions --- Starmus Audio Recorder
----------------------------------------------
-
-**(Hard-Enforced Engineering Specification)**
-
-### Purpose
-
-Copilot is an **engineering agent**, not a code generator.\
-Its role is to **maintain, correct, and extend** the Starmus Audio Recorder system **without breaking offline behavior, bootstrap invariants, or mobile compatibility**.
-
-Copilot may modify:
-
--   PHP code
-
--   JavaScript modules
-
--   WordPress hooks, actions, and REST endpoints
-
--   Workflow logic (submission, queueing, editor/recorder transitions)
-
-Copilot must **not** introduce architectural drift, abstractions, or stylistic refactors.
-
-* * * * *
-
-Core Mission (Non-Negotiable)
------------------------------
-
-Maintain a WordPress-based audio recording system optimized for:
-
--   **Mobile devices**
-
--   **Weak or hostile networks**
-
--   **Offline-first submission**
-
--   **Progressive enhancement across browser tiers**
-
-All changes must preserve:
-
--   Offline functionality
-
--   Deterministic execution
-
--   Payload budgets
-
--   Existing user behavior
-
-If a change improves elegance but risks reliability, **reject the change**.
-
-* * * * *
-
-Platform & Standards (Hard Rules)
----------------------------------
-
--   **PHP**: 8.2+
-
--   **WordPress**: 6.8+
-
--   **Code Quality**: Enterprise-class, commercial-grade
-
--   **Standards**:
-
-    -   Follow modern **PSR standards** (PSR-1, PSR-4, PSR-12)
-
-    -   Except where they conflict with WordPress
-
-    -   In all conflicts: **WordPress behavior wins**
-
-    -   **WordPress VIP standards apply**
-
-No legacy PHP support.\
-No modern JS features without polyfills.
-
-* * * * *
-
-System Boundaries (Must Be Preserved)
--------------------------------------
-
-### PHP Kernel
-
-Primary components live under PSR-4 namespaces and must remain layered:
-
--   `Starmus\StarmusPlugin.php`\
-    Entry point. Registers hooks. Loads services. No business logic.
-
--   `frontend/StarmusAudioRecorderUI.php`\
-    Recorder UI + bootstrap injection.
-
--   `frontend/StarmusAudioEditorUI.php`\
-    Editor UI + Peaks.js bootstrap.
-
-Copilot must not move logic between these layers.
-
-* * * * *
-
-### Storage Model (Strict)
-
-Custom Post Types:
-
--   `audio-recording` (primary artifact)
-
--   `consent-agreement` (legal metadata)
-
-Taxonomies:
-
--   `language`
-
--   `recording_type`
-
-Rules:
-
--   All reads/writes go through **WordPress APIs**
-
--   No direct database access
-
--   No schema invention
-
--   No silent mutation
-
-* * * * *
-
-JavaScript Execution Model
---------------------------
-
-The JS layer is **modular and separated by responsibility**.
-
-Copilot must not collapse modules or merge concerns.
-
-Modules include:
-
--   Recorder core (MediaRecorder, audio graph, calibration)
-
--   UI controller (step flow, UI state)
-
--   Submissions (IndexedDB queue, uploads, tus.io resume)
-
--   Offline sync (polyfills, legacy support)
-
-Each module assumes **exactly one bootstrap source**.
-
-* * * * *
-
-Bootstrap Contract (Critical)
------------------------------
-
-The system relies on a single authoritative bootstrap object:
-
-`window.STARMUS_BOOTSTRAP = {
-  postId,
-  restUrl,
-  mode,
-  canCommit,
-  ...
-}`
-
-Rules:
-
--   PHP must define this **before any JS runs**
-
--   JS must not infer state from the DOM
-
--   JS must not initialize if bootstrap is missing or incomplete
-
--   No alternate or fallback bootstrap paths are allowed
-
-If this invariant is broken, the change is invalid.
-
-* * * * *
-
-Runtime Invariants (Must Always Hold)
--------------------------------------
-
-Copilot must ensure:
-
-1.  Bootstrap is created by PHP before JS executes
-
-2.  Recorder pages initialize only when recorder conditions are met
-
-3.  Editor pages initialize only when editor conditions are met
-
-4.  No JS module queries the DOM before bootstrap is detected
-
-5.  Event handlers attach **exactly once**
-
-Any change that breaks these invariants must be rejected.
-
-* * * * *
-
-Naming & Integration Rules
---------------------------
-
--   PHP namespaces: `Starmus\*`
-
--   REST namespace: `star-/v1`
-
--   Actions & filters: `starmus_*`
-
--   Frontend handles: `starmus-audio-*`
-
--   Error signaling: `WP_Error` only at system boundaries
-
--   **No globals** except `window.STARMUS_BOOTSTRAP`
-
-* * * * *
-
-Security & Offline Constraints
-------------------------------
-
-Copilot must preserve:
-
--   IndexedDB offline upload queue
-
--   Chunked uploads with resume (tus.io)
-
--   Nonces + capability checks on all mutations
-
--   Sanitized input, escaped output
-
-If offline behavior regresses or queue integrity is compromised, the change is invalid.
-
-* * * * *
-
-Workflow Awareness (Copilot-Specific)
--------------------------------------
-
-Copilot is allowed to:
-
--   Fix broken workflows
-
--   Correct action/filter wiring
-
--   Repair REST endpoint logic
-
--   Adjust submission or editor transitions
-
-Copilot must **not**:
-
--   Move logic across PHP ↔ JS ↔ REST boundaries
-
--   Replace deterministic flows with abstractions
-
--   Introduce hidden side effects
-
--   "Clean up" working code without cause
-
-Reliability always beats elegance.
-
-* * * * *
-
-Testing & Validation (Required)
--------------------------------
-
-Nothing is considered complete unless it passes:
-
--   JS build pipeline
-
--   JS tests (recorder + editor)
-
--   PHP tests and static analysis
-
--   PHP linting
-
-Copilot must not mark work complete unless the system remains buildable and testable.
-
-* * * * *
-
-Decision Discipline
--------------------
-
-Before making or accepting a change, Copilot must be able to answer:
-
--   What is the canonical source of truth?
-
--   Does this still work offline?
-
--   Does bootstrap still control initialization?
-
--   What happens if the network drops here?
-
--   What happens if this code runs twice?
-
-If any answer is unclear, **stop and ask**.
-
-* * * * *
-
-Rejection Rules (Absolute)
---------------------------
-
-Copilot must refuse to:
-
--   Introduce new CPTs
-
--   Add uncontrolled global state
-
--   Break bootstrap invariants
-
--   Require modern JS without polyfills
-
--   Bypass consent, permissions, or deletion rights
-
--   Trade reliability for abstraction
+# Copilot instructions — the Spoken Audio Node
+
+**Read `.github/instructions/starmus-boundary.md` and `AGENTS.md` before
+proposing anything.** The boundary file assigns this repository's role; AGENTS.md
+is how to work inside it. Everything below is a summary for review, not a second
+home for those rules.
+
+This repository was a WordPress plugin. It is not one now. ADR-034 and ADR-038
+were ratified on 2026-09-12 and the restructure was carried out: the plugin
+surfaces are gone and the repository is a Node/TypeScript service owning the
+platform audio asset lifecycle.
+
+## Reject a change that does any of these
+
+- Adds PHP, a WordPress surface (shortcode, CPT, admin screen, post meta, CMS
+  REST route), browser capture code, or CSS/frontend rendering.
+- Links a native library, or adds a native-binding dependency. Analysis tools are
+  spawned as separate processes. For Praat this is a licensing requirement: it is
+  GPL-2+ and this service is BUSL-1.1.
+- Adds a tool without a pinned version and a licence attestation read from that
+  tool's own distribution.
+- Writes to, deletes, trims, splices or cuts a registered original — or adds any
+  edit capability outside `src/release/`.
+- Models a durable storage URL in a record, an event, or an evidence field.
+- Declares a `transcript` or `translation` field. Those are ESU's records.
+- Turns Praat's `--undefined--` into a number, or reports a measurement without
+  its extraction parameters and tool version.
+- Reports a perturbation measure (jitter, shimmer, harmonicity) as reliable while
+  its floor is unruled.
+- Puts a numeric floor on a capture profile, or downsamples in the standard
+  analysis derivative. That is OQ-021, and it belongs to AIWA and the
+  acoustic-analysis owner.
+- Folds a stereo source down to mono.
+- Gives any port in `src/ports/` a default implementation, or invents a wire
+  shape for the intake seam. Four terms of the capture→ingestion contract are
+  recorded as owed, and OQ-022 has not named the intake contract's home.
+- Adds a timestamp that is not an offset into the original recording.
+
+## Check before approving
+
+```
+pnpm run validate      # boundary checks — most of the list above
+pnpm run typecheck
+pnpm run lint
+pnpm run verify:tools  # pinned versions and licence attestations
+pnpm test
+```
+
+## Two habits worth keeping
+
+**Prefer a refusal to a guess.** Where a value has not been ruled on, this
+codebase says so — `gated: false` rather than a pass, `null` rather than a
+plausible number, a thrown error rather than a default endpoint. A change that
+fills one of those in has usually answered someone else's question.
+
+**Describe, never judge.** Acoustic measurements describe the signal. Nothing
+here decides whether a word, pronunciation or grammar form is correct.
