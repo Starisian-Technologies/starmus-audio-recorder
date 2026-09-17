@@ -1,13 +1,26 @@
-
 # Copilot Coding Agent Setup Steps
 # This file configures the environment for the GitHub Copilot coding agent
 # See: https://docs.github.com/en/copilot/tutorials/coding-agent/customizing-agent-environment
+#
+# The Spoken Audio Node is a Node/TypeScript service (ADR-038). The Composer
+# steps that used to live here went with the plugin.
+#
+# Praat and ffmpeg are installed because the analysis tests are integration
+# tests against the real tools — mocking them would only prove the parser
+# matches the mock. `verify:tools` then checks that what is installed is what
+# `tools.pinned.json` pins, which is also what CI does.
 
 steps:
-  # Install PHP dependencies using Composer
-  - name: Install Composer dependencies
-    run: composer install --no-interaction --prefer-dist
+  - name: Install the pinned analysis tools
+    run: |
+      sudo apt-get update -qq
+      sudo apt-get install -y --no-install-recommends praat ffmpeg
 
-  # Verify autoloader is present (required by plugin bootstrap)
-  - name: Verify autoloader
-    run: test -f vendor/autoload.php && echo "Autoloader installed successfully"
+  - name: Install dependencies
+    run: pnpm install --frozen-lockfile
+
+  - name: Verify the pinned analysis toolchain
+    run: pnpm run verify:tools
+
+  - name: Build
+    run: pnpm run build

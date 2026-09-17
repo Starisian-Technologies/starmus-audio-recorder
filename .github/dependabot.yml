@@ -1,48 +1,32 @@
 version: 2
 registries: {}
 updates:
-  # Only monitor production composer dependencies
-  - package-ecosystem: "composer"
+  # The Composer ecosystem was removed with the plugin: the Spoken Audio Node
+  # is a Node/TypeScript service and has no PHP dependencies (ADR-038).
+  #
+  # Praat, ffmpeg and ffprobe are not dependencies either — they are separate
+  # processes installed from the base image, pinned per job class in
+  # `tools.pinned.json`, and checked by `pnpm run verify:tools`. Dependabot
+  # cannot bump them, and it should not: a version change there is a governance
+  # act that requires re-reading the tool's licence from its own distribution.
+  - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 3
-    allow:
-      # Only production dependencies, not dev
-      - dependency-type: "production"
-    ignore:
-      # Bundled SCF plugin - managed separately
-      - dependency-name: "secure-custom-fields/*"
-      - dependency-name: "wpackagist-plugin/*"
-      # WordPress core and common dev tools
-      - dependency-name: "wordpress/*"
-      - dependency-name: "wp-cli/*"
-      - dependency-name: "phpunit/*"
-      - dependency-name: "squizlabs/*"
-      - dependency-name: "dealerdirect/*"
     commit-message:
       prefix: "chore"
       include: "scope"
     reviewers:
       - MaximillianGroup
 
-  # Only monitor production npm dependencies  
-  - package-ecosystem: "npm"
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 3
-    allow:
-      # Only production dependencies, not dev
-      - dependency-type: "production"
-    ignore:
-      # Development and build tools
-      - dependency-name: "eslint*"
-      - dependency-name: "prettier*"
-      - dependency-name: "stylelint*"
-      - dependency-name: "@playwright/*"
-      - dependency-name: "rollup*"
-      - dependency-name: "postcss*"
     commit-message:
       prefix: "chore"
       include: "scope"
+    reviewers:
+      - MaximillianGroup

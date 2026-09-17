@@ -24,18 +24,23 @@ Please include:
 
 ## Trust Boundaries
 
-- Browser runtime (untrusted)
-- WordPress REST/admin endpoints (trusted only after capability + nonce validation)
-- External upload/processing services (trusted by explicit config only)
-- Persistent store (WordPress DB/media + browser IndexedDB queue)
+- Uploaded bytes (untrusted until integrity is verified; kept either way — the
+  material is never discarded, only flagged and quarantined)
+- Spawned analysis tools (own processes, own licences, pinned versions; their
+  output is parsed, never evaluated)
+- The media ingest service (performs transport and issues temporary URLs under
+  this service's authorization; trusted by explicit config only)
+- Consumers requesting access (authorized per request by the access policy,
+  which fails closed when none is configured)
 
 ## Security-Critical Flows
 
-- submission mutations (audio + metadata)
-- consent state transitions
-- annotation persistence
-- upload resume and retry handling
-- editor access and nonce-guarded transitions
+- Ingest acceptance and integrity verification
+- Access authorization and short-lived URL issuance — including the rule that no
+  durable storage URL is stored or emitted anywhere
+- The pinned-tool gate: version probe and licence attestation before any tool runs
+- Release rendering, whose outputs must never reach the linguistic pipeline
+- Preservation guards against mutation or deletion of a registered original
 
 ## Baseline Security Requirements
 

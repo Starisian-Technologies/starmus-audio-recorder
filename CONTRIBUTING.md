@@ -1,64 +1,75 @@
-# Contributing to Starmus Audio Recorder
+# Contributing to the Spoken Audio Node
 
 ## Scope
 
-This repository accepts production-focused improvements that preserve architecture and reliability. Avoid major refactors unless explicitly requested.
+This repository accepts production-focused improvements that preserve the
+boundaries in `.github/instructions/starmus-boundary.md` and the rules in
+`AGENTS.md`. Avoid major refactors unless explicitly requested.
 
-## Engineering Principles
+The boundaries are not style preferences: they are ratified platform decisions
+(ADR-034, ADR-035, ADR-036, ADR-038, ADR-039), and a change that crosses one is
+a governance change, not a code change. If you believe a boundary is wrong, the
+route is a superseding ADR in the governance registry — never a decision taken
+inside this repository.
 
-- Preserve offline-first behavior
-- Preserve bootstrap-driven initialization contracts
-- Prefer incremental, reviewable changes
-- Follow WordPress + PSR compatibility expectations
-- Do not introduce new global state
+## Engineering principles
 
-## Branch and PR Process
+- The registered original is immutable evidence and the only timeline.
+- Deny nothing; quarantine instead. Every path keeps the contributor's material.
+- A measurement without its settings is not reproducible, so it is not stored.
+- Describe, never judge: measurements describe the signal and never rule on a
+  word, pronunciation or grammar form.
+- Prefer a refusal to a guess. Where a value has not been ruled on, say so.
+- Analysis tools are spawned, never linked.
+- Prefer incremental, reviewable changes. Do not introduce new global state.
 
-1. Create a branch from `main`
-2. Keep commit scope focused
-3. Run relevant validations locally
-4. Open PR with clear change rationale and risk notes
-5. Address review feedback before merge
+## Branch and PR process
 
-## Required Validation
+1. Create a branch from `main`.
+2. Keep commit scope focused.
+3. Run the validations below locally.
+4. Open a PR with clear rationale and risk notes.
+5. Address review feedback before merge.
 
-### JavaScript/CSS/Markdown
+## Required validation
 
-```bash
+```sh
+pnpm run validate      # boundary checks
+pnpm run typecheck
 pnpm run lint
-pnpm run build
-pnpm run test
+pnpm run verify:tools  # pinned versions and licence attestations
+pnpm test
 ```
 
-### PHP
+`verify:tools` needs Praat and ffmpeg at the pinned versions. If your machine
+ships different builds the check fails by design — see `DEVELOPMENT.md`. Include
+explicit evidence in the PR if an environment constraint blocked a check.
 
-```bash
-composer run lint
-composer run analyze
-composer run test:unit
-```
+## Documentation expectations
 
-If environment constraints block a check, include explicit evidence in the PR.
+When behaviour or a public integration point changes, update:
 
-## Documentation Expectations
+- `README.md` (setup or usage)
+- `ARCHITECTURE.md` (execution boundaries or layering)
+- `.github/instructions/starmus-boundary.md` (only when an ADR moved the
+  boundary — never to record a local decision)
+- `SECURITY.md` (trust boundaries)
+- `CHANGELOG.md` (release-facing changes)
+- `ai_manifest.json` (any symbol added, removed or renamed)
 
-When changing behavior or public integration points, update:
+## Code standards
 
-- `README.md` (if setup/usage changed)
-- `ARCHITECTURE.md` (if execution boundaries changed)
-- `SECURITY.md` (if trust boundaries changed)
-- `CHANGELOG.md` (for release-facing changes)
+- TypeScript 5, `strict`. Named exports only — no default export.
+- Node 20 LTS, pnpm. `pnpm-lock.yaml` is the lockfile.
+- Namespace convention for PHP-side siblings:
+  `Starisian\Sparxstar\{ProductName}\…`; repositories are
+  `sparxstar-{product-name}`.
+- NFC normalization is canonical for language data — never NFKC or NFKD. African
+  orthography distinctions must survive.
+- Validate at the boundary, narrow rather than cast, and let the domain types
+  carry the rules inward.
 
-## Code Standards
+## Security reporting
 
-- Namespace: `Starisian\Sparxstar\Starmus\*`
-- Hooks/actions/filters: `starmus_*`
-- Frontend handles: `starmus-audio-*`
-- Sanitize → validate → escape
-- Capability + nonce checks for mutations
-
-## Security Reporting
-
-Do not open public issues for vulnerabilities.
-
-Use: `security@starisian.com` (see `SECURITY.md`).
+Do not open public issues for vulnerabilities. Use `security@starisian.com` —
+see `SECURITY.md`.

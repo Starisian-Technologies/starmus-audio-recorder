@@ -1,75 +1,114 @@
-# Starmus Audio Recorder Architecture
+# Architecture
 
-## Repository Responsibilities
+The reasons for these boundaries are in the ADRs, not here. This document says
+how the service is put together and why the layering is what it is.
 
-This repository owns the Starmus recorder/editor plugin implementation and its runtime contracts across WordPress and browser clients.
+## Layers
 
-## Layer Boundaries
+```
+                    capture UI package            ESU
+                          │                        ▲
+                          │ upload (chunked,       │ intake event: ids, hashes,
+                          │ resumable, once,       │ quality flags, measurements,
+                          │ at source quality)     │ VAD segments — never URLs
+                          ▼                        │
+   ┌──────────────────────────────────────────────────────────────┐
+   │                     Spoken Audio Node                        │
+   │                                                              │
+   │   ingest/        acceptance, integrity — deny nothing        │
+   │   analysis/      pinned Praat + ffmpeg, as separate procs    │
+   │   access/        authorization only                          │
+   │   release/       walled-off editorial rendering              │
+   │   preservation/  the guards that cannot be refactored past   │
+   │                                                              │
+   │   domain/  ◄── the rules live here, with no I/O              │
+   │   ports/   ◄── interfaces only; no default implementations   │
+   └──────────────────────────────────────────────────────────────┘
+                          │ authorize
+                          ▼
+              media ingest service (files.sparxstar.com)
+              transport, storage, temporary-URL issuance
+```
 
-### 1) Plugin bootstrap (`starmus-audio-recorder.php`, `src/StarmusAudioRecorder.php`)
+## Why `domain/` has no I/O
 
-- validates runtime requirements
-- initializes core services and hooks
-- wires component graph
+Every ADR rule this service must honour is a statement about values: which
+rendition may be evidence, whether a manifest is deterministic, whether a
+measurement class is reliable under these conditions, whether a range lies on
+the recording's timeline. Expressed as pure functions they are testable in
+milliseconds and cannot be mocked away. Expressed next to an `await
+transport.fetch(...)` they become the thing that gets skipped when the transport
+is stubbed.
 
-### 2) Frontend orchestration (`src/frontend/*`, `src/js/*`)
+`src/domain/domain.test.ts` runs in about a tenth of a second and covers the
+invariants. `src/analysis/analysis.test.ts` takes longer because it runs real
+Praat over real audio, which is the only way to know the scripts work.
 
-- recorder and editor rendering
-- state, UI, recording, transcript, and queue coordination
-- progressive enhancement and fallback handling
+## Why `ports/` has no defaults
 
-### 3) API and data services (`src/api/*`, `src/services/*`, `src/data/*`)
+The capture→ingestion contract in the governance registry records four terms as
+**owed** rather than agreed — the consumer's endpoint path and auth model, the
+upload metadata key set, the acknowledgement and error envelope, and
+confirmation that `sha256` remains the checksum algorithm — and states that no
+repository implements a guess at them.
 
-- REST endpoints
-- file/audio post-processing services
-- persistence abstraction and repository operations
+A default implementation of `MediaTransport` would have to invent an endpoint
+shape. A default `IntakePublisher` would have to invent the wire schema that
+OQ-022 has not yet assigned a home. Requiring both to be injected is how the
+contract's rule survives contact with a composition root.
 
-### 4) Admin and operational workflows (`src/admin/*`, `src/cron/*`, `src/cli/*`)
+The same reasoning gives `DENY_ALL` as the access policy a service gets when
+none is configured: regional access controls are sovereignty decisions, and an
+implicit allow would make one by omission.
 
-- admin jobs and maintenance controls
-- scheduled processing
-- WP-CLI hooks
+## Why the analysis tools are spawned
 
-## Namespace and Naming Conventions
+ADR-038 rules that Praat runs as a separate process, never linked. Two reasons,
+and both matter:
 
-- PHP namespace root: `Starisian\Sparxstar\Starmus`
-- REST namespace constants must remain explicit per module
-- Hook prefixes: `starmus_*`
-- Front-end handles: `starmus-audio-*`
+1. **Licensing.** Praat is GPL-2+, read from its own distribution and recorded
+   in `tools.pinned.json`. This service is BUSL-1.1. Linking would put the
+   service under the GPL; the process boundary is what keeps them apart.
+2. **Provenance.** A spawned tool can be asked what version it is, and the
+   answer can be compared with the pin before any work is done. A linked library
+   is whatever was compiled in.
 
-## Execution Flow
+`resolveTool()` therefore probes the version every time, and refuses to run when
+what is installed is not what was pinned. A drifted tool does not just change a
+number: it makes every measurement recorded afterwards name a version that never
+computed it.
 
-1. WordPress loads plugin bootstrap
-2. Requirement checks run
-3. Core singleton initializes settings + DAL + components
-4. Frontend shortcodes/templates emit bootstrap data
-5. JS initializes recorder/editor workflows in allowed page contexts
-6. Submissions route via tus/REST/offline queue path
+## Why there is exactly one timeline
 
-## Security Assumptions
+Any second timeline needs a mapping, a mapping needs a contract, and a contract
+that maps timestamps between renditions is a thing that can be subtly wrong for
+years without anyone noticing. ADR-039 avoids the whole class by making the
+original the only timeline: derivatives are timeline-preserving by construction,
+so an offset means the same instant everywhere.
 
-- all mutation endpoints enforce capability and nonce checks
-- all output paths escape user-originated content
-- all user input follows sanitize → validate → escape
-- offline queue stores operational payloads, not unrestricted arbitrary code
+`domain/manifest.ts` enforces it from the other end. The list of permitted
+transformation steps is closed, and every step on it preserves duration. A trim
+or a splice is not on the list, so a preservation-path manifest cannot describe
+one — and the release pipeline, which does cut, does not produce
+preservation-path manifests.
 
-## Governance Assumptions
+## Delay tolerance
 
-- repository is proprietary and confidential
-- maintainers enforce production-quality validation before merge
-- unresolved security concerns are disclosed privately
+Nothing in this service has a deadline. Material arrives over links that are
+down for hours, and processing that waits a day is normal rather than
+exceptional. `registerUpload` queues the work that follows rather than running it
+inline: holding a contributor's connection open while ffmpeg and Praat run would
+put their bandwidth on the critical path of work they are not waiting for.
 
-## Architectural Invariants (Do Not Break)
+`JobQueue` has `defer` and `quarantine` alongside `complete`, and no `discard`.
 
-- bootstrap-first initialization contract
-- offline queue remains durable and retry-aware
-- recorder/editor responsibilities remain separated
-- event handlers attach once per lifecycle path
-- no uncontrolled global state beyond required bootstrap/exposed APIs
+## What is not here yet
 
-## Dependency Expectations
-
-- WordPress core APIs for CMS integration
-- ACF/SCF-compatible metadata workflows
-- tus-compatible upload endpoints for resumable transfer paths
-- vendorized/build-pipeline assets generated via existing scripts
+- **Bulk import** from physical media and institutional archives: the job class
+  is declared and the pins are recorded; the ingest path for it is not written.
+- **Playback and waveform-data derivatives**: job classes declared, pins
+  recorded, producers not written. Peaks.js and audiowaveform licences must be
+  read from the upstream BBC repositories and recorded in `tools.pinned.json`
+  before either is bundled.
+- **Per-collection and per-project cost visibility.**
+- **The intake publisher adapter**, which waits on OQ-022.

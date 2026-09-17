@@ -1,115 +1,88 @@
-# Starmus Audio Recorder
+# Spoken Audio Node
 
-> Mobile-first, offline-first WordPress audio acquisition for low-bandwidth and unstable network environments.
+The platform audio asset lifecycle for SPARXSTAR / AIWA, as a Node/TypeScript
+service.
 
-[![CI](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/ci.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/ci.yml)
-[![Security Checks](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/security.yml)
-[![Tests](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/test.yml/badge.svg)](https://github.com/Starisian-Technologies/starmus-audio-recorder/actions/workflows/test.yml)
+It accepts recordings, keeps them exactly as they arrived, prepares them for
+analysis without changing them, measures them with a pinned Praat worker, finds
+their speech and silence boundaries, and hands out short-lived access to
+whoever is authorized to hear them.
 
-## Project Purpose
+Role and boundary: [`.github/instructions/starmus-boundary.md`](.github/instructions/starmus-boundary.md).
+How to work in it: [`AGENTS.md`](AGENTS.md).
 
-Starmus Audio Recorder is a proprietary WordPress plugin that captures, uploads, and manages audio recordings with resilient offline behavior.
+## What it is not
 
-It is optimized for:
+- **Not a recorder.** The microphone, the offline queue and the chunked-upload
+  client belong to the capture UI package.
+- **Not a transcription service.** Transcript, translation and linguistic
+  interpretation are ESU's records. This service never declares linguistic
+  truth.
+- **Not an editor.** There is no trim, splice, cut or "effective audio" anywhere
+  in the preservation path. Dead air is handled by marking it, not by removing
+  it.
+- **Not a file server.** It authorizes access; the media ingest service performs
+  transport and issues the temporary URL.
+- **No longer a WordPress plugin.** That was the first generation and it is
+  superseded.
 
-- low-end Android devices
-- unstable 2G/3G networks
-- resumable upload flows
-- consent-aware metadata capture
+## The shape of an asset
 
-## Repository Role in the Architecture
+Every recording becomes one asset with a ladder of renditions:
 
-This repository contains the plugin implementation for:
+| Rung | What it is | Evidence? | Feeds analysis? |
+| --- | --- | --- | --- |
+| `original` | Exactly what arrived. Immutable, and the timeline authority. | yes | yes |
+| `analysis-standard` | Deterministic, timeline-preserving preparation, with a manifest | yes | yes |
+| `analysis-enhanced` | Denoised. For comparison only. | no | no |
+| `playback` | Low-bandwidth listening, including waveform data | no | no |
+| `publication` | Release rendering — a separate, walled-off job class | no | no |
 
-- recorder and editor front-end modules
-- WordPress integration (shortcodes, hooks, REST endpoints)
-- offline queue and resumable upload orchestration
-- plugin service layer and governance/security policies
+There is one timeline: the original's. Every measurement, segment and annotation
+maps to it, and no mapping contract to a second timeline exists or is needed.
 
-For architecture details, see [ARCHITECTURE.md](ARCHITECTURE.md).
+## The analysis worker
 
-## Requirements
+Praat runs as a separate process, never linked, at a version pinned per job
+class, with its licence read from its own distribution and recorded in
+[`tools.pinned.json`](tools.pinned.json) before deployment.
 
-- WordPress `6.8+`
-- PHP `8.2+`
-- Node.js `18.17+`
-- pnpm `10.29.2`
-- Composer `2.x`
+Every result it produces carries the Praat version, the script, the script's
+hash, the parameters the script echoed back, the hash of the bytes measured, and
+original-timeline coordinates. A value Praat could not compute comes back as
+`null` — never as a zero.
 
-## Installation / Setup
+Measurement classes whose published reliability floors this platform's material
+has not been ruled against — jitter, shimmer, harmonicity — are reported and
+marked unreliable rather than quietly presented as sound.
 
-### 1) Clone and install dependencies
+## Getting started
 
-```bash
-pnpm install --frozen-lockfile
-composer install --no-interaction
+Requires Node 20, pnpm, and the pinned analysis tools:
+
+```sh
+sudo apt-get install -y praat ffmpeg   # Ubuntu 24.04, as CI does
+pnpm install
+pnpm run verify:tools                  # versions and licences must match the pins
+pnpm test
 ```
 
-> If Composer cannot download WordPress package dependencies in your environment, run JS workflows only and document the limitation in your PR.
+`verify:tools` failing is the expected outcome on a machine whose tools differ
+from the pins. Re-record the pins for that deployment — do not loosen the check.
 
-### 2) Start local WP environment (optional for integration/e2e)
+## What is deliberately missing
 
-```bash
-pnpm run env:start
-```
+- **Numeric floors for capture profiles.** OQ-021, owned by AIWA and the
+  acoustic-analysis owner. `src/domain/captureProfile.ts` carries the machinery
+  and no values; an unruled profile reports "not gated", which is not a pass.
+- **A wire schema for the intake seam.** OQ-022 has not settled which repository
+  is its single home, so `IntakeEvent` is a domain shape and nothing maps it to a
+  wire format.
+- **Default implementations of any port.** The capture→ingestion contract records
+  four terms as still owed, and states that no repository implements a guess at
+  them. A default would be that guess, shipped.
 
-### 3) Stop local WP environment
+## Licence
 
-```bash
-pnpm run env:stop
-```
-
-## Build and Test Commands
-
-### JavaScript / CSS / Markdown
-
-```bash
-pnpm run lint
-pnpm run build
-pnpm run test
-```
-
-### PHP
-
-```bash
-composer run lint
-composer run analyze
-composer run test:unit
-```
-
-### Documentation
-
-```bash
-pnpm run docs
-composer run docs
-```
-
-## Usage
-
-Primary shortcodes:
-
-- `[starmus_audio_recorder_form]` — recorder UI
-- `[starmus_my_recordings]` — user recordings list
-- `[starmus_audio_editor]` — annotation editor
-
-Editor access requires valid post context and nonce enforcement where applicable.
-
-## Development Workflow
-
-1. Read [DEVELOPMENT.md](DEVELOPMENT.md) and [CONTRIBUTING.md](CONTRIBUTING.md)
-2. Create a focused branch
-3. Keep changes incremental and architecture-preserving
-4. Run lint/build/test commands relevant to changed layers
-5. Open PR using repository template
-
-## Security and Governance
-
-- Security policy: [SECURITY.md](SECURITY.md)
-- Terms and ethics: [TERMS.md](TERMS.md)
-- Maintainers and ownership: [MAINTAINERS.md](MAINTAINERS.md)
-
-## License
-
-This repository is proprietary and confidential.
-
-See [LICENSE.md](LICENSE.md) for full terms.
+BUSL 1.1 — see [`LICENSE.md`](LICENSE.md). The analysis tools are separate
+processes under their own licences, recorded in `tools.pinned.json`.
