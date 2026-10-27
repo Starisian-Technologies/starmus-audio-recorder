@@ -4,7 +4,7 @@
 
 | Tool | Version | Why |
 | --- | --- | --- |
-| Node.js | 20 LTS | Platform standard |
+| Node.js | 24 | Supported until 2028-04-30; Node 20 reached end-of-life 2026-04-30 |
 | pnpm | 10.29.2 | `pnpm-lock.yaml` is the lockfile |
 | TypeScript | 5.x, `strict` | Platform standard |
 | Praat | as pinned in `tools.pinned.json` | The analysis worker |

@@ -1,6 +1,6 @@
 {
-  "name": "SPARXSTAR Spoken Audio Node — Node 20 + pinned analysis tools",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:20-bookworm",
+  "name": "SPARXSTAR Spoken Audio Node — Node 24 + pinned analysis tools",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:24-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest",

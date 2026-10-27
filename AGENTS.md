@@ -139,7 +139,12 @@ what CI does.
 
 ## Platform standards
 
-- **Node** 20 LTS. **TypeScript** 5, `strict`, plus `exactOptionalPropertyTypes`
+- **Node** 24 — security-supported until 2028-04-30. Node 20 reached
+  end-of-life on 2026-04-30 and this standard went on calling it "LTS" for
+  six months after it stopped being one, so the version carries its support
+  window here rather than the word. Check it against the Node release
+  schedule before the window closes, not after a dependency forces the
+  question. **TypeScript** 5, `strict`, plus `exactOptionalPropertyTypes`
   and `noUncheckedIndexedAccess`.
 - **pnpm**. `pnpm-lock.yaml` is the lockfile; `package-lock.json` or `yarn.lock`
   present is a failure.
