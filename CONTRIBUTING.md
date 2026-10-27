@@ -60,7 +60,7 @@ When behaviour or a public integration point changes, update:
 ## Code standards
 
 - TypeScript 5, `strict`. Named exports only — no default export.
-- Node 24, pnpm. `pnpm-lock.yaml` is the lockfile.
+- Node 24 (security-supported until 2028-04-30), pnpm. `pnpm-lock.yaml` is the lockfile.
 - Namespace convention for PHP-side siblings:
   `Starisian\Sparxstar\{ProductName}\…`; repositories are
   `sparxstar-{product-name}`.
