@@ -58,7 +58,7 @@ marked unreliable rather than quietly presented as sound.
 
 ## Getting started
 
-Requires Node 20, pnpm, and the pinned analysis tools:
+Requires Node 24 (security-supported until 2028-04-30), pnpm, and the pinned analysis tools:
 
 ```sh
 sudo apt-get install -y praat ffmpeg   # Ubuntu 24.04, as CI does
